@@ -16,6 +16,7 @@ Session date: 2026-09-26
 - Ran the P1 pipeline with `LOCAL_RAW_DIR=/home/megagdev/megagdev/factored-hackathon-2026/data/data UV_CACHE_DIR=/tmp/aclara-uv-cache uv run python -m aclara.data.cli build`. Bronze, manifest, typed silver, and Pandera sample contracts completed for customers (150,000 rows), products (400,000), and transactions (4,425,008 across 1,097 source objects). The aggregate-only report is `docs/data-quality-report.md`; no source rows are included.
 - Compared the §4 facts from pipeline output. The fraud band matches when defined as `27 < score ≤ 30` (353,682 rows, 111 fraud rows). Eight differences remain explicitly flagged: 120/365-day transaction totals, two 120-day candidate statistics, two full-ledger candidate statistics, and two pending counts. The 120-day UTC window and candidate percentile method are not fully specified in §4, so these differences have not been silently normalized away.
 - Verified `.env` and `lake/` outputs are ignored. No cloud resources were created, no real-model call was made, and no publication took place.
+- Committed in four conventional commits and pushed to `origin/feat/layer-1-vertical-slice`: `9d0fbde` (docs scaffold), `6fc185b` (API and B1 harness), `a8ff8b2` (P1 pipeline), and `c2111aa` (Compose, web UI, and CI). Verified the branch tracks `origin/feat/layer-1-vertical-slice` and was synchronized after push.
 
 ## Done-not-verified
 
@@ -26,7 +27,6 @@ Session date: 2026-09-26
 
 ## Next-blocked
 
-- Push the verified conventional commits to `origin` (authorized by the user; pending this session's final commit).
 - Get explicit user approval before the first Azure/public deployment. The user asked to be asked before that step; no resources or cost have been incurred.
 - Before any real-model run, provide a cost estimate and wait for approval. Run the provider comparison on the synthetic dev suite and show its metrics table before selecting a default.
 - Continue the next implementation layer only after reviewing this Layer 1 result. Terraform, dbt, JWKS/ES256, hash-chained audit, Ops UI, LLM judge, Locust, Trivy, and Optuna remain deferred.
