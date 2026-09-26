@@ -59,15 +59,16 @@ The local Compose stack is left running for review.
 - Existing web checks passed: frozen dependency install, TypeScript, ESLint, and Next.js production build. Frontend source was unchanged.
 - Rebased cleanly onto `origin/main` at `cb402af`, retaining the lead's security tests and persistent lake default. Final combined suite: 24 passed, 1 optional Postgres test skipped (verified separately); the clean dev-only environment passed 19 tests with 3 optional integrations skipped. Strict mypy, Ruff/format, compilation, six pre-commit hooks, working-tree data/secret/size policy, interface snapshots, and B1 32/32 with 12 read-backs passed.
 - The final snapshot matches the current data-source fingerprint, reused every bronze/silver object, passed all promotion gates, and then returned a no-op. Refreshed all six organizer serving tables from that snapshot and verified full row checksums and committed metadata from a fresh connection. The serving CLI now redacts driver failures; its regression test passed.
+- Pushed only `origin/feat/data-ml`; the remote commit matched local `2ecb3dd`. Opened private [PR #6](https://github.com/sebastian-gm/bank-agent-lab/pull/6) into `main` after local checks passed. Remote `checks`, `invariants`, and `web` all passed on that implementation/report head. This documentation follow-up records those results. Read-back confirmed the repository remains private and the PR is open against main.
+- Rechecked the Spanish packet: exactly 40 cards and unique customers, all recollection fields blank, zero customer overlap with the benchmark, and all three packet files ignored by Git.
 
 ### Done but not verified
 
 - Lead-lane integration of serving tables and the pinned matcher into the live API has not been performed here. Existing bank/API/policy/orchestration and frozen interfaces are unchanged.
 - Human recollections and language review remain pending. Forty Spanish cards and a blank fill-in CSV were generated under ignored `artifacts/human-validation/spanish-40/`, with benchmark customers excluded; counts and ignore status were read back. Portuguese remains future model-generated data with a second-vendor cross-check, per Sebastian; no paid model call was made.
-- Remote PR checks have not yet run; local CI-equivalent checks are green.
 
 ### Next / blocked
 
-- Push only origin, open the main-targeted PR, and verify the remote checks before lead review/merge.
+- Lead review/merge of PR #6 remains pending, including the additive shared dependency changes. No breaking frozen-interface change is proposed.
 - Lead lane must wire the Postgres tables and pin `models/charge_matcher/v1/` in shared configuration.
 - Sebastian can fill the 40 Spanish recollections. Human validation and any later paid Portuguese generation need their own follow-up; no Azure work is part of this lane.
