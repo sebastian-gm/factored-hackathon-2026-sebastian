@@ -23,9 +23,7 @@ type ChatResult = {
 
 type ChatLine = { id: number; speaker: "you" | "aclara"; text: string };
 
-const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
-
-export default function ChatDemo() {
+export default function ChatDemo({ apiBase }: { apiBase: string }) {
   const [language, setLanguage] = useState<"es" | "pt">("es");
   const [username, setUsername] = useState("demo.es.mx");
   const [password, setPassword] = useState("");
