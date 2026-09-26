@@ -27,18 +27,24 @@ def main() -> int:
     parser.add_argument("--no-reports", action="store_true")
     args = parser.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(message)s")
+    lake = Path(args.lake).expanduser()
     if args.command == "serve-load":
         from aclara.data.serving_load import load_serving
 
         dsn = os.getenv("DATA_LOAD_DSN")
         if not dsn:
             parser.error("set DATA_LOAD_DSN to the local owner connection (never log it)")
-        load_serving(Path(args.lake), dsn)
+        try:
+            load_serving(lake, dsn)
+        except Exception as exc:
+            # Driver errors may include credentials or source values.
+            logging.error("Serving load failed (%s); success not verified", type(exc).__name__)
+            return 1
         return 0
     if args.source is None:
         parser.error("set LOCAL_RAW_DIR or pass --source")
     try:
-        build_snapshot(Path(args.source), Path(args.lake), reports=not args.no_reports)
+        build_snapshot(Path(args.source), lake, reports=not args.no_reports)
     except PromotionBlocked as exc:
         logging.error("%s", exc)
         return 1
