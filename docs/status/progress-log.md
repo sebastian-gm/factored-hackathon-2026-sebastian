@@ -63,3 +63,17 @@ The local Compose stack is left running for review.
 - Review the AI interface proposal with the lead lane, wire `understand` and `build_reply` through the orchestrator, and verify end-to-end degraded-mode behavior.
 - Build and review the same labeled dev utterance suite before model comparison. For 150 cases × five round-1 models, assuming 2,500 input and 300 output tokens per case, the dated rates imply about US$1 in token charges or about US$2 if every call retries; propose a US$3 run cap. This estimate excludes any provider routing difference, taxes, and later Claude tests. Show Sebastian the concrete suite and cost before the first paid run; wait for his approval and local `.env` keys.
 - Confirm organizer data-use terms and provider terms for a public demo; choose no default until the measured comparison table is reviewed. Obtain lead review of ready PR #4, especially its shared-file additions and interface proposal; merge only after that review.
+
+## AI lane — 2026-09-26 (local Compose isolation)
+
+### Completed (verified)
+
+- Set this worktree's ignored `.env` to `COMPOSE_PROJECT_NAME=aclara-ai`, `POSTGRES_HOST_PORT=15532`, `API_HOST_PORT=8100`, and `WEB_HOST_PORT=3100`. Read-back confirmed all four values. The edit preserved every other line, including the existing `LLM_REAL_CALLS_APPROVED` setting and the local provider key. `git check-ignore` confirmed `.env` is ignored.
+
+### Done but not verified
+
+- The isolated Compose settings have not been exercised by starting services. No real-model call was made.
+
+### Next / blocked
+
+- Ask Sebastian before the first paid model run after showing the concrete case suite and estimated cost. Keep `LLM_REAL_CALLS_APPROVED` unchanged until that approval.
