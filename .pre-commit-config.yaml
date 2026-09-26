@@ -3,34 +3,34 @@ repos:
     hooks:
       - id: ruff
         name: Ruff check
-        entry: uv run ruff check --fix
+        entry: uv run --no-sync ruff check --fix
         language: system
         types: [python]
       - id: ruff-format
         name: Ruff format
-        entry: uv run ruff format
+        entry: uv run --no-sync ruff format
         language: system
         types: [python]
       - id: mypy
         name: mypy strict
-        entry: uv run mypy --strict src/aclara
+        entry: uv run --no-sync mypy --strict src/aclara
         language: system
         pass_filenames: false
       - id: staged-data-file-policy
         name: Block organizer-shaped data files outside project fixtures
-        entry: uv run python scripts/check_staged_files.py --data-files
+        entry: uv run --no-sync python scripts/check_staged_files.py --data-files
         language: system
         pass_filenames: false
         always_run: true
       - id: staged-secret-policy
         name: Scan staged content for credentials
-        entry: uv run python scripts/check_staged_files.py --secrets
+        entry: uv run --no-sync python scripts/check_staged_files.py --secrets
         language: system
         pass_filenames: false
         always_run: true
       - id: staged-large-file-policy
         name: Block staged files over 512 KiB
-        entry: uv run python scripts/check_staged_files.py --large-files
+        entry: uv run --no-sync python scripts/check_staged_files.py --large-files
         language: system
         pass_filenames: false
         always_run: true
