@@ -1,0 +1,64 @@
+contract_version: 1.0.0
+table: fx_rates
+layer: gold
+primary_key:
+- date
+- source_currency
+- target_currency
+columns:
+  date:
+    type: date
+    nullable: false
+    pii: none
+    llm_exposure: never
+  source_currency:
+    type: string
+    nullable: false
+    pii: none
+    llm_exposure: never
+    enum:
+    - USD
+    - MXN
+    - COP
+    - ARS
+  target_currency:
+    type: string
+    nullable: false
+    pii: none
+    llm_exposure: never
+    enum:
+    - USD
+    - MXN
+    - COP
+    - ARS
+  exchange_rate:
+    type: number
+    nullable: false
+    pii: none
+    llm_exposure: never
+    exclusive_min: 0
+  _dataset_version:
+    type: string
+    nullable: false
+    pii: none
+    llm_exposure: never
+  _source_file:
+    type: string
+    nullable: false
+    pii: none
+    llm_exposure: never
+  _source_sha256:
+    type: string
+    nullable: false
+    pii: none
+    llm_exposure: never
+  _ingested_at:
+    type: timestamp
+    nullable: false
+    pii: none
+    llm_exposure: never
+  _pipeline_version:
+    type: string
+    nullable: false
+    pii: none
+    llm_exposure: never

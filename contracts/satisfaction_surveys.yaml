@@ -1,0 +1,108 @@
+contract_version: 1.0.0
+table: satisfaction_surveys
+primary_key:
+- survey_id
+unknown_columns: warn_and_exclude_from_silver
+missing_required_columns: fail_partition
+columns:
+  survey_id:
+    type: string
+    nullable: false
+    pii: quasi_identifier
+    llm_exposure: never
+  survey_date:
+    type: timestamp
+    nullable: false
+    pii: none
+    llm_exposure: never
+    timezone: UTC
+  process_date:
+    type: date
+    nullable: false
+    pii: none
+    llm_exposure: never
+  interaction_id:
+    type: string
+    nullable: true
+    pii: quasi_identifier
+    llm_exposure: never
+  customer_id:
+    type: string
+    nullable: false
+    pii: quasi_identifier
+    llm_exposure: never
+  agent_id:
+    type: string
+    nullable: true
+    pii: quasi_identifier
+    llm_exposure: never
+  survey_type:
+    type: string
+    nullable: false
+    pii: none
+    llm_exposure: never
+  send_channel:
+    type: string
+    nullable: false
+    pii: none
+    llm_exposure: never
+  main_score:
+    type: integer
+    nullable: false
+    pii: none
+    llm_exposure: never
+  nps_category:
+    type: string
+    nullable: true
+    pii: none
+    llm_exposure: never
+  question_1_text:
+    type: string
+    nullable: true
+    pii: none
+    llm_exposure: never
+  question_1_response:
+    type: integer
+    nullable: true
+    pii: none
+    llm_exposure: never
+  question_2_text:
+    type: string
+    nullable: true
+    pii: none
+    llm_exposure: never
+  question_2_response:
+    type: integer
+    nullable: true
+    pii: none
+    llm_exposure: never
+  question_3_text:
+    type: string
+    nullable: true
+    pii: none
+    llm_exposure: never
+  question_3_response:
+    type: integer
+    nullable: true
+    pii: none
+    llm_exposure: never
+  open_comments:
+    type: string
+    nullable: true
+    pii: sensitive
+    llm_exposure: never
+  comment_sentiment:
+    type: string
+    nullable: true
+    pii: none
+    llm_exposure: never
+  response_time_hours:
+    type: number
+    nullable: true
+    pii: none
+    llm_exposure: never
+  campaign_response_rate:
+    type: number
+    nullable: true
+    pii: none
+    llm_exposure: never

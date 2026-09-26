@@ -1,0 +1,108 @@
+contract_version: 1.0.0
+table: service_agents
+primary_key:
+- agent_id
+unknown_columns: warn_and_exclude_from_silver
+missing_required_columns: fail_partition
+columns:
+  agent_id:
+    type: string
+    nullable: false
+    pii: quasi_identifier
+    llm_exposure: never
+  employee_code:
+    type: string
+    nullable: false
+    pii: direct_identifier
+    llm_exposure: never
+  first_name:
+    type: string
+    nullable: false
+    pii: direct_identifier
+    llm_exposure: never
+  last_name:
+    type: string
+    nullable: false
+    pii: direct_identifier
+    llm_exposure: never
+  email:
+    type: string
+    nullable: false
+    pii: direct_identifier
+    llm_exposure: never
+  phone:
+    type: string
+    nullable: true
+    pii: direct_identifier
+    llm_exposure: never
+  native_accent:
+    type: string
+    nullable: false
+    pii: none
+    llm_exposure: never
+  country_of_origin:
+    type: string
+    nullable: false
+    pii: none
+    llm_exposure: never
+  assigned_branch_id:
+    type: string
+    nullable: true
+    pii: quasi_identifier
+    llm_exposure: never
+  agent_type:
+    type: string
+    nullable: false
+    pii: none
+    llm_exposure: never
+    enum:
+    - Phone
+    - In-Person
+    - Digital
+    - Hybrid
+  experience_level:
+    type: string
+    nullable: false
+    pii: none
+    llm_exposure: never
+  languages:
+    type: string
+    nullable: false
+    pii: none
+    llm_exposure: never
+  specialty:
+    type: string
+    nullable: true
+    pii: none
+    llm_exposure: never
+  hire_date:
+    type: date
+    nullable: false
+    pii: none
+    llm_exposure: never
+  avg_csat:
+    type: number
+    nullable: true
+    pii: none
+    llm_exposure: never
+  total_monthly_interactions:
+    type: integer
+    nullable: true
+    pii: none
+    llm_exposure: never
+    min: 0
+  agent_status:
+    type: string
+    nullable: false
+    pii: none
+    llm_exposure: never
+    enum:
+    - Active
+    - Vacation
+    - Leave
+    - Inactive
+  work_shift:
+    type: string
+    nullable: false
+    pii: none
+    llm_exposure: never

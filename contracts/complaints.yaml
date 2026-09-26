@@ -1,0 +1,148 @@
+contract_version: 1.0.0
+table: complaints
+primary_key:
+- complaint_id
+unknown_columns: warn_and_exclude_from_silver
+missing_required_columns: fail_partition
+columns:
+  complaint_id:
+    type: string
+    nullable: false
+    pii: quasi_identifier
+    llm_exposure: never
+  creation_date:
+    type: timestamp
+    nullable: false
+    pii: none
+    llm_exposure: never
+    timezone: UTC
+  process_date:
+    type: date
+    nullable: false
+    pii: none
+    llm_exposure: never
+  customer_id:
+    type: string
+    nullable: false
+    pii: quasi_identifier
+    llm_exposure: never
+  case_type:
+    type: string
+    nullable: false
+    pii: none
+    llm_exposure: never
+  category:
+    type: string
+    nullable: false
+    pii: none
+    llm_exposure: never
+  subcategory:
+    type: string
+    nullable: true
+    pii: none
+    llm_exposure: never
+  reception_channel:
+    type: string
+    nullable: false
+    pii: none
+    llm_exposure: never
+  affected_product_id:
+    type: string
+    nullable: true
+    pii: quasi_identifier
+    llm_exposure: never
+  related_branch_id:
+    type: string
+    nullable: true
+    pii: quasi_identifier
+    llm_exposure: never
+  origin_interaction_id:
+    type: string
+    nullable: true
+    pii: quasi_identifier
+    llm_exposure: never
+  description:
+    type: string
+    nullable: false
+    pii: sensitive
+    llm_exposure: never
+  claimed_amount:
+    type: number
+    nullable: true
+    pii: none
+    llm_exposure: never
+  currency:
+    type: string
+    nullable: true
+    pii: none
+    llm_exposure: never
+  priority:
+    type: string
+    nullable: false
+    pii: none
+    llm_exposure: never
+  status:
+    type: string
+    nullable: false
+    pii: none
+    llm_exposure: never
+  assigned_agent_id:
+    type: string
+    nullable: true
+    pii: quasi_identifier
+    llm_exposure: never
+  assignment_date:
+    type: timestamp
+    nullable: true
+    pii: none
+    llm_exposure: never
+    timezone: UTC
+  first_response_date:
+    type: timestamp
+    nullable: true
+    pii: none
+    llm_exposure: never
+    timezone: UTC
+  resolution_date:
+    type: timestamp
+    nullable: true
+    pii: none
+    llm_exposure: never
+    timezone: UTC
+  closing_date:
+    type: timestamp
+    nullable: true
+    pii: none
+    llm_exposure: never
+    timezone: UTC
+  sla_breached:
+    type: boolean
+    nullable: false
+    pii: none
+    llm_exposure: never
+  resolution_days:
+    type: integer
+    nullable: true
+    pii: none
+    llm_exposure: never
+    min: 0
+  resolution:
+    type: string
+    nullable: true
+    pii: sensitive
+    llm_exposure: never
+  compensation_granted:
+    type: number
+    nullable: true
+    pii: none
+    llm_exposure: never
+  resolution_satisfaction:
+    type: integer
+    nullable: true
+    pii: none
+    llm_exposure: never
+  is_repeat_complainer:
+    type: boolean
+    nullable: false
+    pii: none
+    llm_exposure: never

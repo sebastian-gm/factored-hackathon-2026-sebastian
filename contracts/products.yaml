@@ -1,4 +1,4 @@
-contract_version: 1.0.0
+contract_version: 1.1.0
 table: products
 primary_key: [product_id]
 unknown_columns: warn_and_exclude_from_silver
@@ -6,21 +6,21 @@ missing_required_columns: fail_partition
 columns:
   product_id: {type: string, nullable: false, pii: quasi_identifier, llm_exposure: never}
   customer_id: {type: string, nullable: false, pii: quasi_identifier, llm_exposure: never}
-  product_type: {type: string, nullable: false, pii: none, llm_exposure: masked}
+  product_type: {type: string, nullable: false, pii: none, llm_exposure: masked, enum: [savings_account, credit_card, debit_card, checking_account, personal_loan, mortgage, investment, insurance]}
   product_number: {type: string, nullable: false, pii: direct_identifier, llm_exposure: never}
-  currency: {type: string, nullable: false, pii: none, llm_exposure: masked}
+  currency: {type: string, nullable: false, pii: none, llm_exposure: masked, enum: [USD, MXN, COP, ARS]}
   current_balance: {type: number, nullable: false, pii: sensitive, llm_exposure: never}
   credit_limit: {type: number, nullable: true, pii: sensitive, llm_exposure: never}
   interest_rate: {type: number, nullable: true, pii: sensitive, llm_exposure: never}
   opening_date: {type: date, nullable: false, pii: none, llm_exposure: never}
   expiration_date: {type: date, nullable: true, pii: none, llm_exposure: never}
   opening_branch_id: {type: string, nullable: false, pii: quasi_identifier, llm_exposure: never}
-  product_status: {type: string, nullable: false, pii: sensitive, llm_exposure: never}
+  product_status: {type: string, nullable: false, pii: sensitive, llm_exposure: never, enum: [Active, Blocked, Closed, Suspended]}
   opening_channel: {type: string, nullable: false, pii: none, llm_exposure: never}
   has_linked_app: {type: boolean, nullable: false, pii: none, llm_exposure: never}
   days_past_due: {type: integer, nullable: true, pii: sensitive, llm_exposure: never, min: 0}
   last_transaction_date: {type: date, nullable: true, pii: none, llm_exposure: never}
-  last_updated: {type: timestamp, nullable: false, pii: none, llm_exposure: never}
+  last_updated: {type: timestamp, nullable: false, pii: none, llm_exposure: never, timezone: UTC}
 normalization:
   product_type:
     Cuenta Ahorro: savings_account

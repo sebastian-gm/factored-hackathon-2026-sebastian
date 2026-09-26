@@ -1,0 +1,80 @@
+contract_version: 1.0.0
+table: products
+layer: gold
+primary_key:
+- product_id
+columns:
+  product_id:
+    type: string
+    nullable: false
+    pii: quasi_identifier
+    llm_exposure: never
+  customer_id:
+    type: string
+    nullable: false
+    pii: quasi_identifier
+    llm_exposure: never
+  product_type:
+    type: string
+    nullable: false
+    pii: none
+    llm_exposure: masked
+    enum:
+    - savings_account
+    - credit_card
+    - debit_card
+    - checking_account
+    - personal_loan
+    - mortgage
+    - investment
+    - insurance
+  currency:
+    type: string
+    nullable: false
+    pii: none
+    llm_exposure: masked
+    enum:
+    - USD
+    - MXN
+    - COP
+    - ARS
+  product_status:
+    type: string
+    nullable: false
+    pii: sensitive
+    llm_exposure: never
+    enum:
+    - Active
+    - Blocked
+    - Closed
+    - Suspended
+  opening_date:
+    type: date
+    nullable: false
+    pii: none
+    llm_exposure: never
+  _dataset_version:
+    type: string
+    nullable: false
+    pii: none
+    llm_exposure: never
+  _source_file:
+    type: string
+    nullable: false
+    pii: none
+    llm_exposure: never
+  _source_sha256:
+    type: string
+    nullable: false
+    pii: none
+    llm_exposure: never
+  _ingested_at:
+    type: timestamp
+    nullable: false
+    pii: none
+    llm_exposure: never
+  _pipeline_version:
+    type: string
+    nullable: false
+    pii: none
+    llm_exposure: never
