@@ -57,15 +57,17 @@ The local Compose stack is left running for review.
 - Loaded all six organizer serving tables into the private local Postgres: 150,000 customers, 400,000 products, 492,414 transactions, 13,164 FX rows, 1,200 agents and 150,000 complaint aggregates. Every projected row was checksum-compared with gold before commit, and load metadata was verified from a fresh connection.
 - Hardened source-conversion cache identity to include imported conversion code; the organizer rebuild passed and its following invocation was a no-op. All ten source tables had zero invalid rows. Bronze was reused.
 - Existing web checks passed: frozen dependency install, TypeScript, ESLint, and Next.js production build. Frontend source was unchanged.
+- Rebased cleanly onto `origin/main` at `cb402af`, retaining the lead's security tests and persistent lake default. Final combined suite: 24 passed, 1 optional Postgres test skipped (verified separately); the clean dev-only environment passed 19 tests with 3 optional integrations skipped. Strict mypy, Ruff/format, compilation, six pre-commit hooks, working-tree data/secret/size policy, interface snapshots, and B1 32/32 with 12 read-backs passed.
+- The final snapshot matches the current data-source fingerprint, reused every bronze/silver object, passed all promotion gates, and then returned a no-op. Refreshed all six organizer serving tables from that snapshot and verified full row checksums and committed metadata from a fresh connection. The serving CLI now redacts driver failures; its regression test passed.
 
 ### Done but not verified
 
 - Lead-lane integration of serving tables and the pinned matcher into the live API has not been performed here. Existing bank/API/policy/orchestration and frozen interfaces are unchanged.
 - Human recollections and language review remain pending. Forty Spanish cards and a blank fill-in CSV were generated under ignored `artifacts/human-validation/spanish-40/`, with benchmark customers excluded; counts and ignore status were read back. Portuguese remains future model-generated data with a second-vendor cross-check, per Sebastian; no paid model call was made.
-- Remote PR checks have not yet run. New main security tests and the persistent lake default were fetched and are being incorporated.
+- Remote PR checks have not yet run; local CI-equivalent checks are green.
 
 ### Next / blocked
 
-- Rebase on current main, run the combined checks, and refresh serving metadata against the final snapshot; then push only origin and open the main-targeted PR after local checks are green.
+- Push only origin, open the main-targeted PR, and verify the remote checks before lead review/merge.
 - Lead lane must wire the Postgres tables and pin `models/charge_matcher/v1/` in shared configuration.
 - Sebastian can fill the 40 Spanish recollections. Human validation and any later paid Portuguese generation need their own follow-up; no Azure work is part of this lane.

@@ -57,7 +57,7 @@
   ],
   "bank_clock": "2026-06-18T06:00:00+00:00",
   "bronze_objects_copied": 0,
-  "build_fingerprint": "2895b0deaab6b01c001da54b4b822e1628fbd5181eeabe4f179930125fcdbc26",
+  "build_fingerprint": "93f3be3456c085dd18082dda4d2ee98b7d967b270bbaaecf668812f24f90c2e2",
   "candidate_counts": {
     "customers": 150000,
     "maximum": 28,
@@ -1241,7 +1241,7 @@
       1632.239944514,
       1926.6737518634004
     ],
-    "mean_relative_gap": 0.010077139556672096
+    "mean_relative_gap": 0.010077139556672094
   },
   "hour_of_day": [
     {
@@ -1352,7 +1352,7 @@
     "n": 9923,
     "over_14_days": 8744
   },
-  "pipeline_version": "8c751c3",
+  "pipeline_version": "d52ba0e",
   "tables": {
     "call_center_interactions": {
       "documented_rows": 800000,
@@ -1360,7 +1360,7 @@
       "files": 1097,
       "invalid_rows": 0,
       "missing_required_files": 0,
-      "rebuilt_objects": 1097,
+      "rebuilt_objects": 0,
       "rows": 686296,
       "unknown_column_files": 0
     },
@@ -1370,7 +1370,7 @@
       "files": 1097,
       "invalid_rows": 0,
       "missing_required_files": 0,
-      "rebuilt_objects": 1097,
+      "rebuilt_objects": 0,
       "rows": 171321,
       "unknown_column_files": 0
     },
@@ -1380,7 +1380,7 @@
       "files": 1097,
       "invalid_rows": 0,
       "missing_required_files": 0,
-      "rebuilt_objects": 1097,
+      "rebuilt_objects": 0,
       "rows": 67095,
       "unknown_column_files": 0
     },
@@ -1390,7 +1390,7 @@
       "files": 1,
       "invalid_rows": 0,
       "missing_required_files": 0,
-      "rebuilt_objects": 1,
+      "rebuilt_objects": 0,
       "rows": 150000,
       "unknown_column_files": 0
     },
@@ -1400,7 +1400,7 @@
       "files": 1,
       "invalid_rows": 0,
       "missing_required_files": 0,
-      "rebuilt_objects": 1,
+      "rebuilt_objects": 0,
       "rows": 13164,
       "unknown_column_files": 0
     },
@@ -1410,7 +1410,7 @@
       "files": 1097,
       "invalid_rows": 0,
       "missing_required_files": 0,
-      "rebuilt_objects": 1097,
+      "rebuilt_objects": 0,
       "rows": 15620994,
       "unknown_column_files": 0
     },
@@ -1420,7 +1420,7 @@
       "files": 1,
       "invalid_rows": 0,
       "missing_required_files": 0,
-      "rebuilt_objects": 1,
+      "rebuilt_objects": 0,
       "rows": 400000,
       "unknown_column_files": 0
     },
@@ -1430,7 +1430,7 @@
       "files": 1097,
       "invalid_rows": 0,
       "missing_required_files": 0,
-      "rebuilt_objects": 1097,
+      "rebuilt_objects": 0,
       "rows": 212759,
       "unknown_column_files": 0
     },
@@ -1440,7 +1440,7 @@
       "files": 1,
       "invalid_rows": 0,
       "missing_required_files": 0,
-      "rebuilt_objects": 1,
+      "rebuilt_objects": 0,
       "rows": 1200,
       "unknown_column_files": 0
     },
@@ -1450,7 +1450,7 @@
       "files": 1097,
       "invalid_rows": 0,
       "missing_required_files": 0,
-      "rebuilt_objects": 1097,
+      "rebuilt_objects": 0,
       "rows": 4425008,
       "unknown_column_files": 0
     }

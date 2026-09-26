@@ -81,16 +81,16 @@ Every check records its owner, threshold and scope. Snapshot-scoped FAIL checks 
 
 | table | files | rebuilt_objects | invalid_rows | missing_required_files | unknown_column_files | rows | documented_rows | duplicate_primary_keys |
 |---|---|---|---|---|---|---|---|---|
-| customers | 1 | 1 | 0 | 0 | 0 | 150000 | 150000 | 0 |
-| products | 1 | 1 | 0 | 0 | 0 | 400000 | 400000 | 0 |
-| transactions | 1097 | 1097 | 0 | 0 | 0 | 4425008 | 5000000 | 0 |
-| daily_exchange_rates | 1 | 1 | 0 | 0 | 0 | 13164 | 3000 | 0 |
-| service_agents | 1 | 1 | 0 | 0 | 0 | 1200 | 1200 | 0 |
-| complaints | 1097 | 1097 | 0 | 0 | 0 | 67095 | 80000 | 0 |
-| call_center_interactions | 1097 | 1097 | 0 | 0 | 0 | 686296 | 800000 | 0 |
-| satisfaction_surveys | 1097 | 1097 | 0 | 0 | 0 | 212759 | 250000 | 0 |
-| call_transcripts | 1097 | 1097 | 0 | 0 | 0 | 171321 | 200000 | 0 |
-| digital_events | 1097 | 1097 | 0 | 0 | 0 | 15620994 | 10000000 | 0 |
+| customers | 1 | 0 | 0 | 0 | 0 | 150000 | 150000 | 0 |
+| products | 1 | 0 | 0 | 0 | 0 | 400000 | 400000 | 0 |
+| transactions | 1097 | 0 | 0 | 0 | 0 | 4425008 | 5000000 | 0 |
+| daily_exchange_rates | 1 | 0 | 0 | 0 | 0 | 13164 | 3000 | 0 |
+| service_agents | 1 | 0 | 0 | 0 | 0 | 1200 | 1200 | 0 |
+| complaints | 1097 | 0 | 0 | 0 | 0 | 67095 | 80000 | 0 |
+| call_center_interactions | 1097 | 0 | 0 | 0 | 0 | 686296 | 800000 | 0 |
+| satisfaction_surveys | 1097 | 0 | 0 | 0 | 0 | 212759 | 250000 | 0 |
+| call_transcripts | 1097 | 0 | 0 | 0 | 0 | 171321 | 200000 | 0 |
+| digital_events | 1097 | 0 | 0 | 0 | 0 | 15620994 | 10000000 | 0 |
 
 ## Definitions
 
