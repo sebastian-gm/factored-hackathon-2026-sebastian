@@ -9,6 +9,8 @@ Generated from local P1 pipeline aggregates. No source rows are included.
 
 ## Comparison with §4 expectations
 
+Pipeline outputs are authoritative for the definitions below. The brief's values are retained as reference figures; differences are recorded without attempting to force a match.
+
 | Metric | Pipeline output | Brief expectation | Result |
 |---|---:|---:|---|
 | `customers.rows` | 150000 | 150000 | match |
@@ -136,7 +138,10 @@ Generated from local P1 pipeline aggregates. No source rows are included.
 - Candidate counts across the full ledger: `{"customers_with_none": 15485, "max": 150, "median": 27.0, "p90": 57.0}`.
 - Candidate count over the half-open 120-day UTC window for all customers: `{"customers_with_none": 26561, "max": 28, "median": 3.0, "p90": 7.0}`.
 - Settlement/expiry/reversal timestamp fields present in the transaction source: False.
-- The 120-day window is `[2026-02-18 06:00:00 UTC, 2026-06-18 06:00:00 UTC)`; the 365-day window is `[2025-06-18 06:00:00 UTC, 2026-06-18 06:00:00 UTC)`. The DuckDB session timezone is pinned to UTC before parsing source timestamps.
+- `BANK_CLOCK` is `2026-06-18T06:00:00+00:00` (UTC). The 120-day window is `[BANK_CLOCK - 120 days, BANK_CLOCK)` = `[2026-02-18 06:00:00 UTC, 2026-06-18 06:00:00 UTC)`; the 365-day window is `[BANK_CLOCK - 365 days, BANK_CLOCK)` = `[2025-06-18 06:00:00 UTC, 2026-06-18 06:00:00 UTC)`. SQL predicates derive from `BANK_CLOCK`; the DuckDB session timezone is pinned to UTC before parsing source timestamps.
+- Candidate counts group transactions by customer in the selected window, then left-join to the complete 150,000-customer dimension so zero-count customers are included. The all-ledger distribution uses every transaction in the source. Median and p90 use DuckDB `quantile_cont` at 0.50 and 0.90, so the p90 is continuous/interpolated over per-customer counts.
+- Pending rows use the same half-open 120-day window; `older than 14 days` additionally means `transaction_date < BANK_CLOCK - 14 days` (2026-06-04 06:00:00 UTC).
+- Disputable `amount_usd` p50/p75/p90/p95/p99 use DuckDB `quantile_cont` over non-null amounts for Purchase, Withdrawal, and Payment transactions.
 - `complaints.affected_product_id` is outside the serving scope; any joins from that field remain prohibited.
 - The currency gap against daily FX, contact-center findings, complaints, agents, survey/text findings, and source-regeneration comparison are outside this P1 table scope and remain unverified.
 
@@ -148,7 +153,7 @@ Generated from local P1 pipeline aggregates. No source rows are included.
 | `products` | 0 | PASS |
 | `transactions` | 0 | PASS |
 
-## Deviations
+## Reference differences
 
 - `transactions.rows_last_120_days` differs: pipeline=492414, expectation=494755.
 - `transactions.rows_last_365_days` differs: pipeline=1481222, expectation=1483415.
@@ -162,4 +167,4 @@ Generated from local P1 pipeline aggregates. No source rows are included.
 
 ## Reproduction
 
-Run `LOCAL_RAW_DIR=<local-source> python -m aclara.data.cli build`. The version manifest and profile are written under ignored `lake/`; this report is generated from that profile.
+Set `LOCAL_RAW_DIR` and `LAKE_DIR` in `.env`, then run `make pipeline` or `uv run python -m aclara.data.cli build`. The manifest and profile are written to the shared external `LAKE_DIR`; this report is generated from that profile.
