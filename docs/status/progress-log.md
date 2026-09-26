@@ -51,6 +51,7 @@ The local Compose stack is left running for review.
 - Committed the AI implementation and docs in three conventional commits (`2f33bc3`, `24198a5`, `c7f8a6b`) and pushed them to the private `origin/feat/ai`; `git ls-remote` confirmed the branch head. Merged current `main` into the published branch without force-pushing; `main` is an ancestor of merge commit `83e8a8d`, which was also verified on `origin`.
 - After the merge, Ruff, strict mypy, pytest (25 passed), the interface snapshot check, all six pre-commit hooks, the tracked-file policy, and the B1 fixture harness (32/32; 12 read-backs) passed locally.
 - Opened private draft PR #4 from `feat/ai` to `main`. `gh pr view` confirmed its branches and draft state; `gh pr checks 4` reported `checks`, `invariants`, and `web` all passing on initial PR head `83e8a8d`.
+- Pushed the progress-log update as `5fc1058`; `git ls-remote` confirmed that head on `origin/feat/ai`. The PR's `checks`, `invariants`, and `web` passed again on that head, then `gh pr ready 4` and `gh pr view 4` confirmed PR #4 is open and ready for review.
 
 ### Done but not verified
 
@@ -61,4 +62,4 @@ The local Compose stack is left running for review.
 
 - Review the AI interface proposal with the lead lane, wire `understand` and `build_reply` through the orchestrator, and verify end-to-end degraded-mode behavior.
 - Build and review the same labeled dev utterance suite before model comparison. For 150 cases × five round-1 models, assuming 2,500 input and 300 output tokens per case, the dated rates imply about US$1 in token charges or about US$2 if every call retries; propose a US$3 run cap. This estimate excludes any provider routing difference, taxes, and later Claude tests. Show Sebastian the concrete suite and cost before the first paid run; wait for his approval and local `.env` keys.
-- Confirm organizer data-use terms and provider terms for a public demo; choose no default until the measured comparison table is reviewed. Move PR #4 to ready for lead review now that remote CI is green, and merge only after the lead accepts the shared-file additions and interface proposal.
+- Confirm organizer data-use terms and provider terms for a public demo; choose no default until the measured comparison table is reviewed. Obtain lead review of ready PR #4, especially its shared-file additions and interface proposal; merge only after that review.
