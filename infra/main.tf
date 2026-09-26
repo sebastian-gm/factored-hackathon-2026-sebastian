@@ -96,6 +96,8 @@ resource "azurerm_postgresql_flexible_server" "dev" {
   tags = local.tags
   lifecycle {
     prevent_destroy = true
+    # Azure selects the initial zone; preserve it on subsequent low-cost dev applies.
+    ignore_changes = [zone]
   }
 }
 resource "azurerm_postgresql_flexible_server_database" "app" {
