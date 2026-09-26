@@ -62,7 +62,12 @@ def _secret_errors(paths: list[str]) -> list[str]:
     return [
         path
         for path in paths
-        if any(pattern.search(_index_bytes(path)) for pattern in SECRET_PATTERNS)
+        if (
+            Path(path).name == ".env"
+            or ".terraform" in Path(path).parts
+            or re.search(r"\.(?:tfvars(?:\.json)?|tfstate(?:\..*)?|tfplan|backend\.hcl)$", path)
+            or any(pattern.search(_index_bytes(path)) for pattern in SECRET_PATTERNS)
+        )
     ]
 
 
