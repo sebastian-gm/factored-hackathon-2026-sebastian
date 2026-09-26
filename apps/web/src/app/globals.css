@@ -1,0 +1,27 @@
+* { box-sizing: border-box; }
+body { margin: 0; background: #f4f7f6; color: #16302d; font-family: Arial, sans-serif; }
+main { margin: 8vh auto; max-width: 52rem; padding: 2rem; background: #fff; border-radius: 1rem; }
+h1 { font-size: clamp(2.5rem, 8vw, 4rem); margin: .3rem 0; }
+.notice { display: inline-block; padding: .55rem .8rem; border-radius: 999px; background: #e3f2ee; font-weight: 700; }
+section { margin-top: 2rem; padding: 1rem; border: 1px solid #bfd8d1; border-radius: .6rem; }
+.chat { margin-top: 1.5rem; }
+.chat-heading, .send-form, .actions { display: flex; gap: .7rem; align-items: center; }
+.chat-heading { justify-content: space-between; }
+.form-stack { display: grid; gap: 1rem; max-width: 28rem; }
+label { display: grid; gap: .35rem; font-weight: 700; }
+input, select, button { border: 1px solid #6c8b83; border-radius: .4rem; padding: .7rem; font: inherit; }
+input { min-width: 0; }
+button { cursor: pointer; background: #164d44; color: white; font-weight: 700; }
+button:disabled { opacity: .55; cursor: progress; }
+button.secondary { background: white; color: #164d44; }
+.messages { display: grid; gap: .4rem; max-height: 18rem; overflow: auto; padding: .5rem; }
+.message { margin: 0; padding: .7rem; border-radius: .5rem; background: #eef5f2; }
+.message.you { background: #e3edf7; }
+.candidate-list { display: grid; gap: .65rem; }
+.candidate { border: 1px solid #cbd6d3; border-radius: .75rem; padding: .75rem; }
+.candidate p { display: flex; justify-content: space-between; gap: 1rem; margin: 0 0 .4rem; }
+.muted { color: #526762; }
+.send-form { margin-top: 1rem; }
+.send-form input { flex: 1; }
+.error { color: #9d1e25; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
