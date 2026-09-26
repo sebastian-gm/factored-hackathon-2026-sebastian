@@ -32,3 +32,24 @@ Session date: 2026-09-26
 - Continue with the security suite, degraded mode, and fault injection. Keep real-model runs on hold until an estimated cost is shown and approved.
 
 The local Compose stack is left running for review.
+
+## AI lane — 2026-09-26
+
+### Completed (verified)
+
+- Read the AI-lane handoff, the build brief, repository rules, and this log. Kept `NluFrame`, `ResponsePlan`, scenario schemas, and the lead-owned orchestrator unchanged.
+- Added mock/recorded, OpenAI-compatible, Gemini SDK, and Anthropic SDK adapters; structured output validation with one retry; metadata-only call records; dated price configuration; real-call and budget gates. Added versioned NLU/phrasing prompts and optional provider key names to `.env.example`.
+- Added internal structured ES/PT NLU with deterministic relative dates, slang amount normalization, currency clarification, and false-friend handling. Added template-first response building, fact citation checks, input redaction, output DLP, and template fallback. Wrote the additive interface proposal for lead review.
+- Added provider data-terms notes and a pending comparison table. No default model was chosen and no real-model call was made.
+- Verified `.venv/bin/ruff check .`, `.venv/bin/mypy src/aclara --strict` (30 source files), and `.venv/bin/pytest` (16 passed) after `uv sync --all-extras`. The targeted tests exercise invalid JSON retry, real-call/budget guards, schema/privacy request shape without network, ES/PT normalization, grounding violations, DLP, fallback, and aggregate comparison.
+
+### Done but not verified
+
+- Native Gemini and Anthropic adapters, OpenRouter routes, model pricing in a billed request, and ES/PT model quality have no live-call evidence. The comparison table is pending keys, a reviewed dev utterance set, and approval of the estimated run cost.
+- The AI modules are not yet wired into the lead-owned orchestrator. The frozen `NluFrame` cannot carry mixed/other language and rich slots; the proposal documents how to integrate safely and what needs versioned lead review.
+
+### Next / blocked
+
+- Review the AI interface proposal with the lead lane, wire `understand` and `build_reply` through the orchestrator, and verify end-to-end degraded-mode behavior.
+- Build and review the same labeled dev utterance suite before model comparison. For 150 cases × five round-1 models, assuming 2,500 input and 300 output tokens per case, the dated rates imply about US$1 in token charges or about US$2 if every call retries; propose a US$3 run cap. This estimate excludes any provider routing difference, taxes, and later Claude tests. Show Sebastian the concrete suite and cost before the first paid run; wait for his approval and local `.env` keys.
+- Confirm organizer data-use terms and provider terms for a public demo; choose no default until the measured comparison table is reviewed. Push this branch to `origin`, run remote checks, and open a PR into `main` only when CI is green.
