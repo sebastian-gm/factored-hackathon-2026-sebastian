@@ -1,0 +1,135 @@
+version: 1
+description: Team-generated Layer 1 baseline scenarios; no organizer records.
+scenarios:
+  - id: es.normal.pending.question
+    language: es
+    turns: [{message: "¿Qué es el cargo de Café Central?"}]
+    expected: explained
+  - id: pt.normal.pending.question
+    language: pt
+    turns: [{message: "O que é a cobrança de Café Central?"}]
+    expected: explained
+  - id: es.normal.pending.unknown
+    language: es
+    turns: [{message: "No entiendo el cargo pendiente de Café Central"}]
+    expected: explained
+  - id: pt.normal.pending.unknown
+    language: pt
+    turns: [{message: "Não entendi a cobrança pendente de Café Central"}]
+    expected: explained
+  - id: es.normal.reversed
+    language: es
+    turns: [{message: "¿Qué pasó con el cargo de Loja Sol?"}]
+    expected: explained
+  - id: pt.normal.reversed
+    language: pt
+    turns: [{message: "O que aconteceu com a cobrança da Loja Sol?"}]
+    expected: explained
+  - id: es.normal.declined
+    language: es
+    turns: [{message: "¿Por qué aparece el cobro de Livraria Azul?"}]
+    expected: explained
+  - id: pt.normal.declined
+    language: pt
+    turns: [{message: "Por que aparece a cobrança da Livraria Azul?"}]
+    expected: explained
+  - id: es.normal.dispute
+    language: es
+    turns:
+      - {message: "No reconozco el cargo de Mercado Verde"}
+      - {confirm: true}
+    expected: dispute_filed
+  - id: pt.normal.dispute
+    language: pt
+    turns:
+      - {message: "Não reconheço a cobrança de Mercado Verde"}
+      - {confirm: true}
+    expected: dispute_filed
+  - id: es.ambiguous.amount.pesos
+    language: es
+    turns: [{message: "No reconozco un cargo de 250 pesos"}]
+    expected: choose_transaction
+  - id: pt.ambiguous.amount.reais
+    language: pt
+    turns: [{message: "Não reconheço uma cobrança de 250 reais"}]
+    expected: choose_transaction
+  - id: es.ambiguous.amount.dollars
+    language: es
+    turns: [{message: "No reconozco un cobro de 250 dólares"}]
+    expected: choose_transaction
+  - id: pt.ambiguous.amount.dollars
+    language: pt
+    turns: [{message: "Não reconheço uma cobrança de 250 dólares"}]
+    expected: choose_transaction
+  - id: es.ambiguous.amount.comma
+    language: es
+    turns: [{message: "No reconozco un cargo de 250,00"}]
+    expected: choose_transaction
+  - id: es.ambiguous.vague.charge
+    language: es
+    turns: [{message: "No reconozco este cargo"}]
+    expected: choose_transaction
+  - id: pt.ambiguous.vague.charge
+    language: pt
+    turns: [{message: "Não reconheço essa cobrança"}]
+    expected: choose_transaction
+  - id: es.ambiguous.vague.purchase
+    language: es
+    turns: [{message: "No hice esta compra"}]
+    expected: choose_transaction
+  - id: pt.ambiguous.vague.purchase
+    language: pt
+    turns: [{message: "Não fiz essa compra"}]
+    expected: choose_transaction
+  - id: es.ambiguous.vague.payment
+    language: es
+    turns: [{message: "Hay una compra que no reconozco"}]
+    expected: choose_transaction
+  - id: es.human.explicit.request
+    language: es
+    turns: [{message: "Quiero hablar con una persona"}]
+    expected: handoff_created
+  - id: pt.human.explicit.request
+    language: pt
+    turns: [{message: "Quero falar com um atendente"}]
+    expected: handoff_created
+  - id: es.human.explicit.agent
+    language: es
+    turns: [{message: "Necesito un agente humano"}]
+    expected: handoff_created
+  - id: pt.human.explicit.person
+    language: pt
+    turns: [{message: "Preciso de uma pessoa para me ajudar"}]
+    expected: handoff_created
+  - id: es.human.fee.dispute
+    language: es
+    turns: [{message: "No reconozco el cobro indebido de esta tarifa"}]
+    expected: handoff_created
+  - id: pt.human.fee.dispute
+    language: pt
+    turns: [{message: "Não reconheço a tarifa cobrada"}]
+    expected: handoff_created
+  - id: es.human.card.lost
+    language: es
+    turns: [{message: "Me robaron la tarjeta"}]
+    expected: handoff_created
+  - id: pt.human.card.lost
+    language: pt
+    turns: [{message: "Perdi meu cartão"}]
+    expected: handoff_created
+  - id: es.human.fraud
+    language: es
+    turns: [{message: "Creo que hay fraude en mi tarjeta"}]
+    expected: handoff_created
+  - id: pt.human.fraud
+    language: pt
+    turns: [{message: "Acho que houve fraude no meu cartão"}]
+    expected: handoff_created
+  - id: es.human.out.of.scope
+    language: es
+    turns: [{message: "¿Cuál es mi saldo?"}]
+    expected: abstained_out_of_scope
+  - id: pt.human.out.of.scope
+    language: pt
+    turns: [{message: "Quero investir meu dinheiro"}]
+    expected: abstained_out_of_scope

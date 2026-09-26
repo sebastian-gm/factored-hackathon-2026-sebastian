@@ -1,0 +1,7 @@
+transaction_id,customer_id,product_id,transaction_date,process_date,transaction_type,amount,currency,merchant_name,transaction_status
+fixture-txn-001,demo-customer-01,fixture-product-01,2026-06-09T12:10:00+00:00,2026-06-09,Purchase,145.50,USD,Mercado Verde,Approved
+fixture-txn-002,demo-customer-01,fixture-product-01,2026-06-17T09:25:00+00:00,2026-06-17,Purchase,18.75,USD,Café Central,Pending
+fixture-txn-003,demo-customer-01,fixture-product-01,2026-06-10T18:40:00+00:00,2026-06-10,Purchase,250.00,USD,Stream Box,Approved
+fixture-txn-004,demo-customer-01,fixture-product-01,2026-06-11T20:05:00+00:00,2026-06-11,Purchase,250.00,BRL,Mercado Sul,Approved
+fixture-txn-005,demo-customer-01,fixture-product-01,2026-06-12T11:35:00+00:00,2026-06-12,Purchase,73.20,USD,Loja Sol,Reversed
+fixture-txn-006,demo-customer-01,fixture-product-01,2026-06-15T15:00:00+00:00,2026-06-15,Purchase,32.00,USD,Livraria Azul,Declined

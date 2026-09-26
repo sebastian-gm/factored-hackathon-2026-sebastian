@@ -1,0 +1,60 @@
+[project]
+name = "aclara-bank-agent-lab"
+version = "0.1.0"
+description = "Synthetic ES/PT dispute-intake demo"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "duckdb>=1.4,<2",
+  "fastapi>=0.115,<1",
+  "pandera[polars]>=0.26,<1",
+  "polars>=1.30,<2",
+  "psycopg[binary]>=3.2,<4",
+  "pydantic-settings>=2.6,<3",
+  "pyyaml>=6,<7",
+  "uvicorn[standard]>=0.34,<1",
+]
+
+[project.optional-dependencies]
+dev = [
+  "httpx>=0.28,<1",
+  "mypy>=1.15,<2",
+  "pre-commit>=4.2,<5",
+  "pytest>=8.3,<9",
+  "ruff>=0.11,<1",
+]
+
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["aclara*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["src", "evals", "scripts"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "S", "DTZ", "T20", "SIM"]
+ignore = ["E501", "S101"]
+
+[tool.ruff.lint.per-file-ignores]
+# This pipeline constructs SQL only from checked-in contracts and allowlisted table/column names.
+# These subprocess calls invoke fixed git subcommands with an explicit repository path and no shell.
+"scripts/check_staged_files.py" = ["S603", "S607"]
+"src/aclara/data/pipeline.py" = ["S603", "S607", "S608"]
+# FastAPI uses Depends(...) defaults as dependency declarations.
+"src/aclara/api/app.py" = ["B008"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+mypy_path = "src"
+packages = ["aclara"]
+warn_unused_ignores = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
