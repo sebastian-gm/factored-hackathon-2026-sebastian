@@ -142,7 +142,9 @@ def main() -> None:
         ax.legend()
         ax.spines[["top", "right"]].set_visible(False)
     fig.suptitle("Offline synthetic benchmark — 3,000 held-out queries")
-    fig.savefig(docs / "charge-matcher-comparison.svg")
+    out = docs / "charge-matcher-comparison.svg"
+    fig.savefig(out)
+    out.write_text("\n".join(line.rstrip() for line in out.read_text().splitlines()) + "\n")
     plt.close(fig)
 
 
