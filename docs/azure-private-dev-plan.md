@@ -1,84 +1,86 @@
-# Azure private development plan
+# Azure low-cost development proposal
 
-Status: proposal only. No Azure subscription was queried or changed, and no cloud resources have been created. Prices below are public list-price estimates checked on 2026-09-26, in USD, before tax, credits, exchange conversion, or subscription-specific discounts. Recheck the Azure Pricing Calculator against `Seb Azure Sandbox` before provisioning.
+Status: proposal only. No Azure subscription was queried or changed, and no cloud resources have been created. The owner set a target below USD 30/month and deferred provisioning pending a separate approval. Estimates use public Microsoft list-price references checked on 2026-09-26; they exclude tax, subscription credits or discounts, and currency conversion. Verify the current East US 2 rates and the subscription offer in the Azure Pricing Calculator before approval.
 
-## Target and assumptions
+## Scope and constraints
 
 - Subscription: `Seb Azure Sandbox`; region: East US 2 (`eastus2`); resource group: `rg-aclara-dev-eastus2`.
-- Use names of the form `<type>-aclara-dev-eastus2` where Azure permits. Storage accounts cannot contain hyphens, so the remote-state account needs a short globally unique alphanumeric name instead.
-- Solo developer, one VPN client, development traffic, synthetic in-app fixtures only. The organizer raw-data pipeline stays local under the shared `LAKE_DIR`; do not copy raw files, credentials, or organizer records to Azure.
-- One Linux host runs the existing Docker Compose app and Postgres for development. The P1 DuckDB pipeline is not part of this host. This is not a production or high-availability design.
-- Use mock LLM mode. Model usage, monitoring workspaces, backups, support plans, and taxes are outside this estimate.
-- Always-on month means 730 provisioned hours. A smaller short-lived deployment is costed separately below.
+- Personal, low-traffic development and reviewer preparation only. The current endpoint is HTTPS on the public internet but allows only Sebastian's current public IPv4 `/32`; app login remains required.
+- No VPN Gateway, NAT Gateway, Private Link, or private endpoint in this plan. Private networking is recorded as future production-readiness work.
+- Use synthetic application fixtures only. Keep organizer raw files, credential material, and source rows on the workstation in `LOCAL_RAW_DIR`; do not copy them to Azure. Keep the DuckDB P1 lake local at `~/aclara-lake`.
+- `LLM_PROVIDER=mock`; no external model traffic or model keys.
+- This is a small, non-HA dev setup. The 1-vCore PostgreSQL tier and scale-to-zero app are for a solo low-traffic demo, not production.
 
-## Recommended Azure-native shape
+## Proposed shape
 
 ```text
-Developer workstation
-        │ Entra-authenticated P2S VPN
+Browser at Sebastian's current public IPv4
+        │ HTTPS; ACA ingress allowlist /32; Aclara login still required
         ▼
-VpnGw1AZ ── private VNet ── Linux B2ms VM
-                                 ├─ Compose web (reachable only over VPN)
-                                 ├─ API (Compose network only)
-                                 └─ Postgres (Compose network only)
-        │
-        ├─ NAT Gateway: VM outbound package/image access; no unsolicited inbound
-        └─ Private Endpoint: Terraform state Blob, public network access disabled
+Azure Container Apps (public endpoint)
+  ├─ Next.js web app: Consumption, min replicas 0, max 1
+  └─ FastAPI app:     Consumption, min replicas 0, max 1
+        │ app managed identity (Entra token, TLS)
+        ├──────────────► Azure Database for PostgreSQL Flexible Server
+        │                 public endpoint; firewall: current ACA egress IPs
+        │                 plus Sebastian's current public IPv4 /32 for admin
+        ├──────────────► Key Vault Standard public endpoint, RBAC
+  └─ image pull ─► authenticated ACR Basic registry (public endpoint), managed identity
+
+Terraform state: small Blob Storage account, public HTTPS endpoint, Entra RBAC,
+                 no anonymous blob access, network ACL restricted to owner IP
 ```
 
-The VM has no public IP. The app has no public listener, DNS name, load balancer, or ingress gateway. Permit the web port only from the VPN client address pool; keep API and Postgres off the host network. Use Azure Run Command for VM administration when practical. The VPN gateway itself has a public IP because clients initiate P2S connections; that is a controlled VPN entry point, not public application access.
+Deploy both app containers to an Azure Container Apps Consumption environment with scale-to-zero, no always-on replicas, and a maximum of one replica per app. Set the current public IPv4 address as the sole inbound allow rule; do not add a catch-all rule. Keep Aclara's login and OTP enabled as a second gate. If the owner's public address changes, update the rule before access is needed again. This owner-only proposal does not configure or authorize the later judge demo; add the agreed judge-access gate in that later layer.
 
-New virtual networks created with ARM API versions released after 2026-03-31 default to private subnets without automatic outbound access, so the VM needs an explicit outbound method. A NAT Gateway provides that path and rejects unsolicited inbound connections. The VM uses the NAT Gateway's static public IP only for outbound traffic.
+Use an authenticated ACR Basic registry for the images through its public service endpoint. Grant the Container Apps managed identity pull-only access. Grant the app identity access only to the secrets it needs in Key Vault and use Microsoft Entra authentication for PostgreSQL where the application driver supports it; do not store a database password in Git or plain app settings. Require TLS for database connections. Keep the database's public access mode but add firewall rules only for the app's reported outbound addresses and the owner's current address for direct administration. Do not use the PostgreSQL rule that allows all Azure services.
 
-Use Entra ID authentication for P2S, a non-overlapping VPN address pool, an NSG with the minimum required ports, and a managed identity for Azure resource access. Restrict the Storage account to the private endpoint, disable anonymous blob access and public network access, use Azure AD/RBAC data-plane access, and enable state blob versioning/deletion recovery. Keep `tfstate` in a separate bootstrap state from the runtime stack so destroying the dev environment does not destroy its own state.
+### Egress limitation to accept for development
 
-Initially run Terraform from the developer workstation while connected to P2S. A GitHub-hosted runner cannot reach a private Blob endpoint directly. When deployment automation is approved, GitHub OIDC can call the Azure control plane to trigger VM Run Command; if CI must run Terraform against the private state endpoint, add an approved self-hosted runner inside the VNet and include its cost. Do not put subscription or tenant IDs in tracked files. Local Terraform values belong in gitignored `infra/terraform.tfvars`; use the explicitly selected `Seb Azure Sandbox` subscription in every Azure CLI and Terraform operation.
+Azure Container Apps Consumption outbound public IPs can change over time. The app resource reports its current outbound IP list, which can be used to create PostgreSQL firewall `/32` rules, but the list is not a stable app identity. Refresh the firewall rules after app/environment recreation and check them before deployment; a later address change can interrupt database connections. These egress addresses may also be shared platform addresses, so the IP firewall alone cannot prove that traffic came from this one app. PostgreSQL Entra authentication and least-privilege database grants provide the identity check. If strict, stable app-only network access is required, this plan is insufficient without changing the networking constraint; use the private-networking design in `docs/production-readiness.md` in a later phase. [Container Apps networking documents that outbound IPs may change](https://learn.microsoft.com/en-us/azure/container-apps/networking?tabs=workload-profiles-env%2Cazure-cli#ports-and-ip-addresses); [PostgreSQL firewall rules match source public IP addresses](https://learn.microsoft.com/en-us/azure/postgresql/security/security-firewall-rules).
 
-## Estimate: Azure-native P2S
+### Remote state and deployment access
 
-One VM, one 64-GiB Standard SSD, one `VpnGw1AZ` gateway, one NAT Gateway, two Standard static public IPv4 addresses (VPN and NAT), one Storage private endpoint, one private DNS zone, and a small remote-state storage allowance.
+Keep Terraform bootstrap state in a separate storage account/container from the runtime state, in the same subscription. Use the public Blob endpoint with TLS, Entra/RBAC data-plane access, anonymous access disabled, and a storage firewall rule for Sebastian's current IP. Run Terraform plan/apply locally from the approved workstation at first. A GitHub-hosted runner will not match a single-owner IP firewall rule for state access; remote CI can validate Terraform files, while automated plan/apply needs a later runner/network-access decision. Keep subscription/tenant IDs and the owner IP in ignored `infra/terraform.tfvars`, never tracked. Every Azure CLI call and Terraform provider configuration must select `Seb Azure Sandbox` explicitly.
+
+## Monthly estimate
+
+Planning case: database stays provisioned all month; both Container Apps use 0.25 vCPU and 0.5 GiB per replica, have zero minimum replicas and one maximum replica, and together stay within the subscription's remaining monthly free grant (roughly 100 hours with both replicas active concurrently). Request count remains below 2 million. The grants are shared across the subscription and might already be consumed by other workloads.
 
 | Meter | Assumption | Monthly estimate |
 |---|---:|---:|
-| Linux `Standard_B2ms` VM | $0.0832/hour × 730 | $60.74 |
-| Standard SSD `E6 LRS` (64 GiB) | 1 provisioned disk | $4.80 |
-| VPN Gateway `VpnGw1AZ` | $0.21/hour × 730 | $153.30 |
-| Standard static IPv4 addresses | 2 × $0.005/hour × 730 | $7.30 |
-| Standard NAT Gateway | $0.045/hour × 730 | $32.85 |
-| NAT data processing | 25 GB × $0.045/GB | $1.13 |
-| Blob private endpoint | $0.01/hour × 730, plus about 1 GB processing | $7.31 |
-| Azure Private DNS zone | 1 zone | $0.50 |
-| Terraform state storage and operations | 5 GB state allowance | $1.00 |
-| **Estimated total** | **24/7 for a 730-hour month** | **about $269/month; budget at $270** |
+| PostgreSQL Flexible Server `B1ms` | 1 vCore/2 GiB, 730 hours | ~$12.41 |
+| PostgreSQL storage | 32 GiB minimum planning size, about $0.115/GiB-month | ~$3.68 |
+| Azure Container Registry Basic | One registry, 30 days, within included storage | ~$5.00 |
+| Container Apps Consumption | Scale to zero, low traffic within available free grant | ~$0.00 expected; variable above grant |
+| Key Vault Standard operations | Low-volume secret reads/writes | ~$0.10 allowance |
+| Terraform state Blob Storage | Small state and low operation volume | ~$1.00 allowance |
+| Logs, network transfer, and usage margin | Low-traffic allowance | ~$2–$7 |
+| **Modeled total** | **Low-traffic month, before tax** | **about $24–$29** |
 
-The NAT data allowance is a planning assumption, not a traffic measurement. NAT data processing and Internet egress are separate meters. The first 100 GB/month of Internet egress is currently free; traffic beyond that is billed separately. One P2S client is within the included tunnel count for `VpnGw1AZ`.
+The PostgreSQL and registry line items contribute about $21.10/month before state, secrets, app usage, logs, and transfer. Microsoft's public pricing guidance shows a B1ms plus 32 GiB storage example near $16.09/month and ACR Basic near $5/month; confirm the exact East US 2 rates against the current retail price feed/calculator before approval. [PostgreSQL pricing](https://azure.microsoft.com/en-us/pricing/details/postgresql/flexible-server/) bills provisioned compute and storage; backup storage is included up to the provisioned storage amount. [ACR Basic pricing](https://azure.microsoft.com/en-us/pricing/details/container-registry/) includes 10 GB of storage. [Container Apps Consumption pricing](https://azure.microsoft.com/en-us/pricing/details/container-apps/) currently includes 180,000 vCPU-seconds, 360,000 GiB-seconds, and 2 million requests per subscription per month, and charges no app usage while scaled to zero. [Key Vault pricing](https://azure.microsoft.com/en-us/pricing/details/key-vault/) is operation-based for Standard secrets.
 
-The `VpnGw1AZ` rate is used because non-AZ `VpnGw1` gateways are no longer available for new deployments. The gateway and NAT hourly fees continue while those resources exist, even when idle. If the environment is needed for one 168-hour week and the VM, gateway, NAT, IPs, and endpoint are then destroyed, the same usage assumptions project to roughly **$64 for that week**, with the state storage left in place at under $1/month. Resource teardown would remove the dev database disk and its contents.
+This estimate assumes a quiet solo dev workload, unused Container Apps free grant, small logs, and no sustained traffic. It is not a hard spending cap. Azure budgets notify on thresholds but do not stop consumption. Configure a resource-group budget with alerts at $24 and $28, cap app replicas at one, keep minimum replicas at zero, and stop PostgreSQL when not needed. A stopped server still has storage cost and automatically restarts after seven days, so it must be stopped again if continuing to defer use. If the current calculator estimate or measured usage cannot stay below $30/month, stop and bring back a lower-cost option for approval before provisioning.
 
-## Lower-cost access alternative
+## Cost and security controls
 
-If Sebastian accepts an external VPN control plane, a single-user Tailscale Personal tailnet can replace Azure VPN Gateway and its public IP. The application VM still has no public IP, and the NAT Gateway remains for explicit outbound access. The Azure estimate falls to roughly **$112/month** at 730 hours. Tailscale currently lists Personal at $0 for personal, non-commercial use (up to six users); its control plane is an additional vendor dependency. Do not use this option without Sebastian's approval.
+- Do not create anything until Sebastian gives separate explicit provisioning approval. This document and its estimate are not authorization to spend.
+- Do not enable the PostgreSQL “allow public access from any Azure service” rule. Apply only current ACA outbound `/32` rules plus Sebastian's owner `/32`; refresh them as described above.
+- Use Container Apps ingress allow rules for the owner's current `/32`, HTTPS only, plus the app's login. Store the address only in ignored local Terraform variables.
+- Use managed identity for ACR pull, Key Vault access, and PostgreSQL Entra authentication; assign only `AcrPull`, `Key Vault Secrets User`, and the minimum PostgreSQL roles required.
+- Use TLS, no anonymous Blob access, no tracked credentials or identifiers, mock LLM mode, no organizer data in Azure, one max replica per app, and scale-to-zero.
+- Configure budget alerts, while recognizing they do not enforce a hard cap. Review actual subscription charges before raising the traffic or resource limits.
 
-## Cost controls and exclusions
+## References
 
-- Before provisioning, set an owner-approved monthly budget and alerts. Azure budget alerts notify; they do not stop resources. Use a scheduled/manual Terraform destroy for the hourly VPN and NAT resources when the environment is not needed.
-- The $270 planning number uses public USD list rates, not the subscription's actual offer. It excludes taxes, possible egress above 100 GB, monitoring/log ingestion, backup/snapshots, additional VPN clients, support, and any size increase. Confirm the exact offer in the calculator before approval.
-- Azure VPN is the recommended baseline when keeping access within Microsoft Entra/Azure is more important than monthly cost. The Tailscale option is cheaper but trades that for an external control plane.
-- Do not provision until Sebastian explicitly approves a concrete option and a monthly cap. This estimate is not approval to spend or create resources.
-
-## Pricing and technical references
-
-Rates were read from Microsoft's public Retail Prices API on 2026-09-26. The API returns USD list prices and supports filtering by region and SKU.
-
-- [Retail Prices API documentation](https://learn.microsoft.com/en-us/rest/api/cost-management/retail-prices/azure-retail-prices)
-- [East US 2 B2ms VM rate query](https://prices.azure.com/api/retail/prices?api-version=2023-01-01-preview&%24filter=armRegionName%20eq%20%27eastus2%27%20and%20armSkuName%20eq%20%27Standard_B2ms%27%20and%20priceType%20eq%20%27Consumption%27)
-- [East US 2 VPN Gateway rate query](https://prices.azure.com/api/retail/prices?api-version=2023-01-01-preview&%24filter=serviceName%20eq%20%27VPN%20Gateway%27%20and%20armRegionName%20eq%20%27eastus2%27)
-- [64-GiB Standard SSD rate query](https://prices.azure.com/api/retail/prices?api-version=2023-01-01-preview&%24filter=armRegionName%20eq%20%27eastus2%27%20and%20meterName%20eq%20%27E6%20LRS%20Disk%27%20and%20priceType%20eq%20%27Consumption%27)
-- [East US 2 Standard IPv4 rate query](https://prices.azure.com/api/retail/prices?api-version=2023-01-01-preview&%24filter=armRegionName%20eq%20%27eastus2%27%20and%20meterName%20eq%20%27Standard%20IPv4%20Static%20Public%20IP%27)
-- [Standard Private Endpoint rate query](https://prices.azure.com/api/retail/prices?api-version=2023-01-01-preview&%24filter=productName%20eq%20%27Virtual%20Network%20Private%20Link%27%20and%20armRegionName%20eq%20%27Global%27%20and%20meterName%20eq%20%27Standard%20Private%20Endpoint%27)
-- [Private DNS zone rate query](https://prices.azure.com/api/retail/prices?api-version=2023-01-01-preview&%24filter=meterName%20eq%20%27Private%20Zone%27)
-- [NAT Gateway rate query](https://prices.azure.com/api/retail/prices?api-version=2023-01-01-preview&%24filter=contains(productName%2C%20%27NAT%27))
-- [VPN Gateway SKU consolidation](https://learn.microsoft.com/en-us/azure/vpn-gateway/gateway-sku-consolidation) and [P2S VPN overview](https://learn.microsoft.com/en-us/azure/vpn-gateway/point-to-site-about)
-- [NAT Gateway pricing and billing](https://azure.microsoft.com/en-us/pricing/details/azure-nat-gateway/)
-- [Private subnet outbound behavior](https://learn.microsoft.com/en-us/azure/virtual-network/ip-services/default-outbound-access), [Private Link pricing](https://azure.microsoft.com/en-us/pricing/details/private-link/), and [Azure bandwidth pricing](https://azure.microsoft.com/en-us/pricing/details/bandwidth/)
-- [Tailscale Personal plan](https://tailscale.com/pricing)
+- [Microsoft Azure Retail Prices API](https://learn.microsoft.com/en-us/rest/api/cost-management/retail-prices/azure-retail-prices)
+- [Microsoft Azure pricing guidance: PostgreSQL, ACR, Container Apps, and Azure Monitor](https://github.com/microsoft/azure-skills/blob/main/skills/azure-app-onboard/prepare/references/pricing-guide-services.md)
+- [Container Apps IP ingress restrictions](https://learn.microsoft.com/en-us/azure/container-apps/ip-restrictions)
+- [Container Apps networking and outbound IP behavior](https://learn.microsoft.com/en-us/azure/container-apps/networking?tabs=workload-profiles-env%2Cazure-cli#ports-and-ip-addresses)
+- [Container Apps resource API outbound IP field](https://learn.microsoft.com/en-us/rest/api/resource-manager/containerapps/container-apps/list-by-subscription?view=rest-resource-manager-containerapps-2026-01-01)
+- [PostgreSQL firewall rules](https://learn.microsoft.com/en-us/azure/postgresql/security/security-firewall-rules)
+- [PostgreSQL managed identity authentication](https://learn.microsoft.com/en-us/azure/postgresql/security/security-connect-with-managed-identity)
+- [Container Apps managed identities](https://learn.microsoft.com/en-us/azure/container-apps/managed-identity)
+- [Pull private ACR images with managed identity](https://learn.microsoft.com/en-us/azure/container-apps/managed-identity-image-pull)
+- [Cost Management budgets and alerts](https://learn.microsoft.com/en-us/azure/cost-management-billing/costs/tutorial-acm-create-budgets)
+- [Stop PostgreSQL Flexible Server compute](https://learn.microsoft.com/en-us/azure/postgresql/configure-maintain/how-to-stop-server)
