@@ -1,0 +1,2 @@
+agent_id,employee_code,first_name,last_name,email,phone,native_accent,country_of_origin,assigned_branch_id,agent_type,experience_level,languages,specialty,hire_date,avg_csat,total_monthly_interactions,agent_status,work_shift
+fixture-agent-a,fixture-employee_code,fixture-first_name,fixture-last_name,fixture-email,,mexican,fixture-country_of_origin,,Digital,fixture-experience_level,"español, portugués",Fraudes,2026-06-14,,,Active,fixture-work_shift

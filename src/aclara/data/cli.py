@@ -18,17 +18,34 @@ def main() -> int:
     )
     if not os.getenv("BANK_CLOCK") and dotenv.get("BANK_CLOCK"):
         os.environ["BANK_CLOCK"] = str(dotenv["BANK_CLOCK"])
-    from aclara.data.pipeline import build
+    from aclara.data.snapshot import PromotionBlocked, build_snapshot
 
     parser = argparse.ArgumentParser(prog="aclara data")
-    parser.add_argument("command", choices=("build",))
+    parser.add_argument("command", choices=("build", "serve-load"))
     parser.add_argument("--source", type=Path, default=source_default)
     parser.add_argument("--lake", type=Path, default=lake_default)
+    parser.add_argument("--no-reports", action="store_true")
     args = parser.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(message)s")
+    if args.command == "serve-load":
+        from aclara.data.serving_load import load_serving
+
+        dsn = os.getenv("DATA_LOAD_DSN")
+        if not dsn:
+            parser.error("set DATA_LOAD_DSN to the local owner connection (never log it)")
+        load_serving(Path(args.lake), dsn)
+        return 0
     if args.source is None:
         parser.error("set LOCAL_RAW_DIR or pass --source")
-    build(args.source, args.lake)
+    try:
+        build_snapshot(Path(args.source), Path(args.lake), reports=not args.no_reports)
+    except PromotionBlocked as exc:
+        logging.error("%s", exc)
+        return 1
+    except Exception as exc:
+        # CSV, database and schema exceptions can include source values.
+        logging.error("Pipeline failed (%s); no promotion reported", type(exc).__name__)
+        return 1
     return 0
 
 
