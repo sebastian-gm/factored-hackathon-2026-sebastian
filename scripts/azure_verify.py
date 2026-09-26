@@ -99,7 +99,7 @@ def main() -> None:
     budget = resource("Microsoft.Consumption/budgets/budget-aclara-dev-eastus2", "2024-08-01")[
         "properties"
     ]
-    assert budget["amount"] == 50
+    assert budget["amount"] == round(50 * values.get("budget_usd_to_billing_rate", 1), 2)
     notifications = list(budget["notifications"].values())
     assert {n["threshold"] for n in notifications} == {60, 100}
     assert all(
@@ -108,7 +108,7 @@ def main() -> None:
         and n["thresholdType"] == "Actual"
         for n in notifications
     )
-    assert budget.get("currentSpend", {}).get("unit", "USD") == "USD"
+    assert budget["currentSpend"]["unit"] == values.get("budget_currency", "USD")
     storage = az("storage", "account", "show", "--resource-group", GROUP, "--name", STORAGE)
     assert not storage["allowBlobPublicAccess"] and not storage["allowSharedKeyAccess"]
     assert storage["networkRuleSet"]["defaultAction"] == "Deny"
@@ -123,7 +123,7 @@ def main() -> None:
     assert registry["sku"]["name"] == "Basic" and not registry["adminUserEnabled"]
     assert not registry.get("anonymousPullEnabled", False)
     sys.stdout.write(
-        "Verified PostgreSQL B1ms/32GB, approved two firewall rules, TLS required; Key Vault RBAC; private ACR; state firewall; USD 30/50 alerts to confirmed email.\n"
+        "Verified PostgreSQL B1ms/32GB, approved two firewall rules, TLS required; Key Vault RBAC; private ACR; state firewall; converted USD 30/50 alert thresholds and confirmed email.\n"
     )
     # Retain only an aggregate success record and public release identity locally.
     (ROOT / "artifacts/azure/verified.json").write_text(

@@ -45,6 +45,7 @@ Set the ignored variables `image_tag` to that full SHA and `deploy_apps = true`;
 uv run --no-sync python scripts/azure_dev.py plan
 uv run --no-sync python scripts/azure_dev.py apply
 uv run --no-sync python -m scripts.azure_smoke
+uv run --no-sync python -m scripts.azure_verify
 ```
 
 The smoke test reads the demo password from Key Vault into memory. It checks HTTPS liveness/readiness, login/OTP, all 32 authored ES/PT scenarios, scoped transactions, dispute/handoff readbacks, unauthenticated denial, CORS, and the web page's runtime API URL. It emits only counts. Separately read back Azure ingress, replica limits, firewall, TLS, budget notifications, identities and image SHA/digests. Verify denial from a non-allowlisted network when available; configuration inspection alone is not a network denial test.
@@ -53,7 +54,7 @@ The smoke test reads the demo password from Key Vault into memory. It checks HTT
 
 Passwords remain in Key Vault. Retrieve the `demo-password` secret through the authenticated Azure portal when signing in as `demo.es.mx`; do not paste it into Git, chat or deployment logs. The OTP panel is simulated, not independent MFA.
 
-Budget USD 50 with 60% and 100% actual-spend notifications implements the requested $30/$50 alerts. Budgets notify and do not stop resources. Check billing before increasing usage. Stopping PostgreSQL saves compute temporarily but Azure restarts it after seven days.
+Azure budgets use the subscription billing currency. This subscription reports CAD. The ignored variables set `budget_currency = "CAD"` and `budget_usd_to_billing_rate = 1.3882`, derived from Microsoft retail references checked 2026-09-26. The C$69.41 budget has 60%/100% actual-spend alerts (about C$41.65/C$69.41), approximating the requested US$30/US$50. Review the rate monthly; future FX movement changes the USD equivalents. Budgets notify and do not stop resources. Check billing before increasing usage. Stopping PostgreSQL saves compute temporarily but Azure restarts it after seven days.
 
 The owner approved the broad Azure-services PostgreSQL firewall exception for this dev environment. Other Azure tenants can reach the database network port; authentication and verified TLS remain mandatory. See [production readiness](../docs/production-readiness.md) for VNet/private access and durable-state work. App replicas scale to zero, losing current in-memory sessions and cases. Re-login after a cold start.
 

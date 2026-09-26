@@ -138,7 +138,7 @@ resource "azurerm_container_app_environment" "dev" {
 resource "azurerm_consumption_budget_resource_group" "dev" {
   name              = "budget-${local.suffix}"
   resource_group_id = data.azurerm_resource_group.dev.id
-  amount            = 50
+  amount            = floor(50 * var.budget_usd_to_billing_rate * 100) / 100
   time_grain        = "Monthly"
   time_period {
     start_date = var.budget_start_date
