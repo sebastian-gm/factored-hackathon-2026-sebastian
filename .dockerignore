@@ -18,3 +18,4 @@ build
 !tests/fixtures/ledger/demo_transactions.csv
 *.parquet
 *.duckdb
+infra
