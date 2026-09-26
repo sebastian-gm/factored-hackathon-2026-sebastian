@@ -7,13 +7,15 @@ import sys
 
 import httpx
 import yaml
-from scripts.azure_dev import ROOT, VAULT, az, run
+from scripts.azure_dev import ROOT, VAULT, az, run, terraform_environment
 
 from aclara.evals.schema import ScenarioSuite
 
 
 def main() -> None:
-    outputs = json.loads(run(["terraform", "-chdir=infra", "output", "-json"]))
+    outputs = json.loads(
+        run(["terraform", "-chdir=infra", "output", "-json"], env=terraform_environment())
+    )
     api = outputs["api_url"]["value"]
     web = outputs["web_url"]["value"]
     password = az("keyvault", "secret", "show", "--vault-name", VAULT, "--name", "demo-password")[

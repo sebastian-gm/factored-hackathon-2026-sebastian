@@ -244,13 +244,25 @@ def bootstrap() -> None:
     sys.stdout.write("Bootstrap complete: private Blob state, owner IPv4 firewall, Entra RBAC.\n")
 
 
-def terraform(action: str) -> None:
+def terraform_environment() -> dict[str, str]:
     values = read_variables()
-    env = {
+    # Terraform's Azure CLI credential helper uses --tenant, which can pick the wrong
+    # cached user. A process-local wrapper forces subscription selection without
+    # changing the user's CLI default or copying any credential files.
+    wrapper = ROOT / "artifacts" / "azure" / "bin" / "az"
+    wrapper.parent.mkdir(parents=True, exist_ok=True)
+    if not wrapper.exists():
+        wrapper.symlink_to(ROOT / "scripts" / "azure_cli.py")
+    return {
         **os.environ,
         "ARM_SUBSCRIPTION_ID": values["subscription_id"],
         "ARM_TENANT_ID": values["tenant_id"],
+        "PATH": f"{wrapper.parent}:{os.environ['PATH']}",
     }
+
+
+def terraform(action: str) -> None:
+    env = terraform_environment()
     if action == "init":
         output = run(
             [

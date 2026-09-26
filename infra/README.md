@@ -18,6 +18,8 @@ uv run --no-sync python scripts/azure_dev.py seed
 
 `configure` verifies the named sandbox, stores its identifiers in ignored `terraform.tfvars` (0600), and defaults to the workstation's current public IPv4 if none is supplied. The alert email must be the owner's chosen address or their signed-in Azure account mail. Keep the initial budget start date fixed. `bootstrap` registers the required providers, creates the approved resource group and state store, assigns owner Blob access and adds only the owner IP to its firewall. This CLI bootstrap is idempotent and has no Terraform state; runtime state is remote in its `tfstate` container. Do not delete the store while it holds active infrastructure state.
 
+Terraform commands in the helper use a repository-local `az` wrapper that forces `--subscription Seb Azure Sandbox`. This avoids the Azure CLI multi-identity `--tenant` ambiguity without changing the global default account or copying credential files.
+
 The first apply uses `deploy_apps = false`, creating the database, Key Vault secrets, managed identities, registry, environment and budget. Terraform output is captured only in ignored `artifacts/azure` because it includes resource IDs. Inspect failure logs with sensitive values redacted. Never upload plan/state/log files to CI artifacts or Git. The plan contains generated passwords; delete stale local plan files after use.
 
 `seed` reads generated passwords directly from Key Vault into memory, initializes a CONNECT-only database login, revokes public create access, and verifies TLS. Current main stores cases and sessions in process memory; no bank records are written to PostgreSQL yet.
