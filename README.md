@@ -13,7 +13,7 @@ Layer 1 is being built as a thin vertical slice: login and OTP, one customer's t
 3. Open <http://localhost:3000>. The page calls the API health endpoint through the compose network.
 4. Run `uv sync --extra dev`, then `make checks`.
 
-Each worktree needs a unique `COMPOSE_PROJECT_NAME` and host ports in its ignored `.env`; Compose scopes container names and the Postgres volume by project name. For example, a second worktree can use `COMPOSE_PROJECT_NAME=aclara-ai`, `POSTGRES_HOST_PORT=15433`, `API_HOST_PORT=18001`, and `WEB_HOST_PORT=13001`. The web origin and browser API URL follow the configured ports automatically. All worktrees should share the same absolute `LAKE_DIR` outside this repository (default `/tmp/aclara-shared-lake`).
+Each worktree needs a unique `COMPOSE_PROJECT_NAME` and host ports in its ignored `.env`; Compose scopes container names and the Postgres volume by project name. For example, a second worktree can use `COMPOSE_PROJECT_NAME=aclara-ai`, `POSTGRES_HOST_PORT=15433`, `API_HOST_PORT=18001`, and `WEB_HOST_PORT=13001`. The web origin and browser API URL follow the configured ports automatically. All worktrees should share the same persistent `LAKE_DIR` outside this repository (default `~/aclara-lake`; the pipeline expands `~` to the current user's home directory).
 
 The dataset pipeline reads `LOCAL_RAW_DIR` and writes bronze, manifest, and silver outputs to `LAKE_DIR` (outside the checkout; do not run it in CI). Set `LOCAL_RAW_DIR` in `.env`, then run `make pipeline` or `uv run python -m aclara.data.cli build` from the repository root.
 
