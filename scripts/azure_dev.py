@@ -7,6 +7,7 @@ Terraform owns runtime resources; this idempotent bootstrap owns the RG and stat
 from __future__ import annotations
 
 import argparse
+import base64
 import ipaddress
 import json
 import os
@@ -32,7 +33,7 @@ def run(args: list[str], *, env: dict[str, str] | None = None) -> str:
     if result.returncode:
         # Do not print command lines, environment, credentials or account identifiers.
         message = re.sub(
-            r"[a-fA-F0-9]{8}(?:-[a-fA-F0-9]{4}){3}-[a-fA-F0-9]{12}",
+            r"(?:[a-fA-F0-9]{8}(?:-[a-fA-F0-9]{4}){3}-[a-fA-F0-9]{12}|[a-fA-F0-9]{32})",
             "[identifier]",
             result.stderr[-3000:],
         )
@@ -91,6 +92,10 @@ def configure(email: str | None, owner_ip: str | None) -> None:
 
 
 def bootstrap() -> None:
+    report = json.loads((ROOT / "artifacts" / "azure" / "prices.json").read_text())
+    checked = datetime.fromisoformat(report["checked_at"])
+    if not report["gate_passed"] or (datetime.now(UTC) - checked).total_seconds() > 86400:
+        raise RuntimeError("A passing live-price check within 24 hours is required")
     values = read_variables()
     account = az("account", "show")
     if account["id"] != values["subscription_id"] or account["name"] != SUBSCRIPTION:
@@ -166,11 +171,17 @@ def bootstrap() -> None:
         values["owner_ipv4"],
     )
     storage = az("storage", "account", "show", "--name", STORAGE, "--resource-group", GROUP)
-    owner = az("rest", "--method", "get", "--url", "https://graph.microsoft.com/v1.0/me")
+    token = az("account", "get-access-token", "--resource", "https://management.azure.com/")[
+        "accessToken"
+    ]
+    payload = token.split(".")[1]
+    claims = json.loads(base64.urlsafe_b64decode(payload + "=" * (-len(payload) % 4)))
+    if claims["tid"] != values["tenant_id"]:
+        raise RuntimeError("ARM token tenant differs from the approved sandbox")
+    owner_id = claims["oid"]
     roles = az("role", "assignment", "list", "--scope", storage["id"])
     if not any(
-        r["principalId"] == owner["id"]
-        and r["roleDefinitionName"] == "Storage Blob Data Contributor"
+        r["principalId"] == owner_id and r["roleDefinitionName"] == "Storage Blob Data Contributor"
         for r in roles
     ):
         az(
@@ -178,7 +189,7 @@ def bootstrap() -> None:
             "assignment",
             "create",
             "--assignee-object-id",
-            owner["id"],
+            owner_id,
             "--assignee-principal-type",
             "User",
             "--scope",
