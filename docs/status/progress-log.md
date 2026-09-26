@@ -7,6 +7,10 @@ Session date: 2026-09-26
 - Read the build brief through §19 before implementation. Sebastian's follow-up at `agent-handoffs/01-lead-reply.md` was read fully and applied: solo/private repo, keep Aclara, private dev first, no public access yet, pipeline output is authoritative, and no Azure provisioning before explicit approval.
 - Scaffolded the repository and Layer 1 slice in five conventional commits. The first four were pushed to `origin/feat/layer-1-vertical-slice`; the progress-log update was pushed as `7680288`.
 - Created `main` from the verified Layer 1 branch at `7680288`, pushed it to `origin`, and set it as the private GitHub repository's default. `gh repo view` reported `main` and `isPrivate=true`. The remote `ci` and `safety` workflows both completed successfully on that commit.
+- Merged the parallel-work prep as PR #1 into `main` at `88d84ca6b78f51eae4e41d4992794ec466ed5670`. `gh pr checks 1` showed `checks`, `invariants`, and `web` passing before merge; `gh run list` showed `ci` and `safety` successful on the merged `main` SHA. `gh repo view` still reports the repository private with `main` as default. Fetched and fast-forwarded the local `main` to `origin/main`.
+- Prepared the costed, private-only Azure plan in `docs/azure-private-dev-plan.md`, using Microsoft Retail Prices API rates checked on 2026-09-26. It estimates about $270/month for Azure-native P2S (24/7), or about $112/month if an external personal Tailscale control plane is accepted. No subscription lookup, resource creation, or paid service use occurred.
+- Added API security coverage for bearer/session expiry, OTP binding and five-attempt cap, customer scoping and field masking, session-bound single-use proposals, hash/expiry/step-up checks, and strict request validation. Added degraded-mode and fault-injection coverage for database readiness failure/recovery and a failed fixture read returning a generic 500.
+- Ran `PRE_COMMIT_HOME=/tmp/aclara-precommit-cache UV_CACHE_DIR=/tmp/aclara-uv-cache make checks`. All six pre-commit hooks, the working-tree file policy, compileall, pytest (16 passed), B1 (32/32; 12 read-backs), and interface snapshot check passed. Updated Makefile targets to use `uv run --no-sync`; the first `make checks` attempt tried to reach PyPI despite the local environment being installed, while the final command completed offline.
 - Created the local work branch `feat/parallel-work-prep` from `main` for this lane's additive parallel-work preparation.
 - Made Compose worktree-configurable through `.env`: project name plus Postgres, API, and web host ports. Postgres remains loopback-only. A Compose config check with project `aclara-ai` and ports 15433/18001/13001 reported those mappings and matching API/web origin values.
 - Set the shared `LAKE_DIR` default to `/tmp/aclara-shared-lake`, outside the checkout. The pipeline CLI reads only its path/clock settings from `.env`; source and output directory guards prevent either from containing the other.
@@ -20,15 +24,14 @@ Session date: 2026-09-26
 
 ## Done-not-verified
 
-- The parallel-work prep changes are committed locally on `feat/parallel-work-prep`: `406d5db` (worktree Compose configuration), `8229f92` (frozen lane interfaces), and `47dd666` (external lake and clock metrics). They have not yet been pushed or run through remote PR checks. `main` still contains only the verified Layer 1 base at `7680288`.
-- The private Azure cost plan has not yet been prepared. No cloud resources or paid services have been used.
-- The security suite beyond the existing staged-file guards, plus degraded-mode and fault-injection checks, remain to be run.
+- The cost plan uses public USD list rates; the subscription's offer, credits, and currency conversion have not been queried. Access option and monthly cap are awaiting Sebastian's decision.
+- The cost plan, tests, and Makefile change on `docs/record-parallel-lane-merge` are staged locally; they have not been pushed or checked remotely yet. `main` remains green at `88d84ca`.
 - Non-P1 source tables, model comparison, judge evaluation, and the final public demo remain unverified/deferred.
 
 ## Next-blocked
 
-- Push `feat/parallel-work-prep`, open a PR into `main`, wait for remote CI and safety workflows to pass, then merge. Update this log again with the verified merge.
-- After repo prep, prepare a costed private Azure dev plan for `Seb Azure Sandbox`, `rg-aclara-dev-eastus2`, East US 2. Stop before provisioning and wait for Sebastian's explicit approval.
-- Continue with the security suite, degraded mode, and fault injection. Keep real-model runs on hold until an estimated cost is shown and approved.
+- Sebastian must choose an access option and monthly cap, then explicitly approve before Azure resources are created. The two current estimates and assumptions are in `docs/azure-private-dev-plan.md`.
+- Push/open a PR for the staged log/plan/security-suite/Makefile changes, wait for remote CI and safety checks, then merge and record the merged SHA.
+- Keep real-model runs on hold until each estimated cost is shown and approved. The judge must remain a different vendor from the chosen system model.
 
 The local Compose stack is left running for review.
