@@ -5,7 +5,6 @@ from __future__ import annotations
 import argparse
 import logging
 import os
-import tempfile
 from pathlib import Path
 
 from dotenv import dotenv_values
@@ -15,9 +14,7 @@ def main() -> int:
     dotenv = dotenv_values(Path(".env")) if Path(".env").is_file() else {}
     source_default = os.getenv("LOCAL_RAW_DIR") or dotenv.get("LOCAL_RAW_DIR")
     lake_default = (
-        os.getenv("LAKE_DIR")
-        or dotenv.get("LAKE_DIR")
-        or str(Path(tempfile.gettempdir()) / "aclara-shared-lake")
+        os.getenv("LAKE_DIR") or dotenv.get("LAKE_DIR") or str(Path.home() / "aclara-lake")
     )
     if not os.getenv("BANK_CLOCK") and dotenv.get("BANK_CLOCK"):
         os.environ["BANK_CLOCK"] = str(dotenv["BANK_CLOCK"])
