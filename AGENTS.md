@@ -13,3 +13,12 @@
 - Use small conventional commits on a feature branch. Do not force-push.
 - Python style: typed functions, timezone-aware datetimes, Ruff, and strict mypy on `src/aclara`.
 - Do not persist or display model thinking. Store only inputs needed for execution records and explain decisions from facts and rules.
+
+## Parallel lane ownership
+
+- **Lead lane:** shared project files (`pyproject.toml`, `uv.lock`, `Makefile`, `docker-compose.yml`, `config/`, CI workflows, and `infra/`); `src/aclara/bank/`, `policy/`, `api/`, agent orchestration/state machine, `handoff/`, and the frozen interface models in `src/aclara/agent/contracts.py`.
+- **AI lane:** `src/aclara/llm/`, `src/aclara/agent/nlu/`, `src/aclara/agent/nlg/`, grounding, and `prompts/`. Preserve the interfaces in `agent/contracts.py` and `contracts/interfaces/`.
+- **Data/ML lane:** `contracts/` data contracts, `src/aclara/data/`, `dbt/`, `analysis/`, `ml/`, `models/`, and `tests/fixtures/incremental/`. Shared interface contracts under `contracts/interfaces/` require an additive change proposal in the PR and lead review.
+- **Frontend lane (later):** `apps/web/`.
+
+Each lane changes only its assigned folders. Keep shared-file changes minimal and additive, and call them out in the PR. Rebase on `main` daily. Each worktree uses a unique Compose project name and host ports, while all lanes share the same absolute `LAKE_DIR` outside the repository.

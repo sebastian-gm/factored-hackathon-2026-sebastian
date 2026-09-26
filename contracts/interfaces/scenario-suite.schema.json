@@ -1,0 +1,117 @@
+{
+  "$defs": {
+    "ConfirmationTurn": {
+      "additionalProperties": false,
+      "properties": {
+        "confirm": {
+          "title": "Confirm",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "confirm"
+      ],
+      "title": "ConfirmationTurn",
+      "type": "object"
+    },
+    "MessageTurn": {
+      "additionalProperties": false,
+      "properties": {
+        "message": {
+          "maxLength": 1000,
+          "minLength": 1,
+          "title": "Message",
+          "type": "string"
+        }
+      },
+      "required": [
+        "message"
+      ],
+      "title": "MessageTurn",
+      "type": "object"
+    },
+    "Scenario": {
+      "additionalProperties": false,
+      "properties": {
+        "expected": {
+          "enum": [
+            "explained",
+            "dispute_filed",
+            "choose_transaction",
+            "handoff_created",
+            "abstained_out_of_scope",
+            "clarification",
+            "dispute_proposed",
+            "cancelled"
+          ],
+          "title": "Expected",
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^[a-z0-9]+(?:[._-][a-z0-9]+)*$",
+          "title": "Id",
+          "type": "string"
+        },
+        "language": {
+          "enum": [
+            "es",
+            "pt"
+          ],
+          "title": "Language",
+          "type": "string"
+        },
+        "turns": {
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/MessageTurn"
+              },
+              {
+                "$ref": "#/$defs/ConfirmationTurn"
+              }
+            ]
+          },
+          "minItems": 1,
+          "title": "Turns",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "language",
+        "turns",
+        "expected"
+      ],
+      "title": "Scenario",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "description": {
+      "minLength": 1,
+      "title": "Description",
+      "type": "string"
+    },
+    "scenarios": {
+      "items": {
+        "$ref": "#/$defs/Scenario"
+      },
+      "minItems": 1,
+      "title": "Scenarios",
+      "type": "array"
+    },
+    "version": {
+      "const": 1,
+      "title": "Version",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "version",
+    "description",
+    "scenarios"
+  ],
+  "title": "ScenarioSuite",
+  "type": "object"
+}

@@ -30,6 +30,8 @@ jobs:
         run: uv run python -m compileall -q src evals scripts
       - name: Run Python tests
         run: uv run pytest
+      - name: Check frozen interface snapshots
+        run: uv run python -m scripts.export_interfaces --check
       - name: Safety smoke
         run: uv run python -m evals.runner --system B1
       - name: Staged-file policy

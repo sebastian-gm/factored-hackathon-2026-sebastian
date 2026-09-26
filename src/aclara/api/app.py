@@ -17,6 +17,7 @@ from fastapi import Depends, FastAPI, Header, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, ConfigDict, Field
 
+from aclara.agent.contracts import ResponsePlan
 from aclara.agent.nlu import (
     Intent,
     classify,
@@ -303,7 +304,7 @@ def create_app(
         app.state.conversations[conversation_id] = Conversation(session_id=principal.session_id)
         return {"conversation_id": conversation_id}
 
-    @app.post("/chat/sessions/{conversation_id}/messages")
+    @app.post("/chat/sessions/{conversation_id}/messages", response_model=ResponsePlan)
     async def send_message(
         conversation_id: str,
         body: MessageBody,
@@ -482,7 +483,7 @@ def create_app(
             active_settings,
         )
 
-    @app.post("/chat/sessions/{conversation_id}/confirm")
+    @app.post("/chat/sessions/{conversation_id}/confirm", response_model=ResponsePlan)
     async def confirm_action(
         conversation_id: str,
         body: ConfirmBody,

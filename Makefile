@@ -1,4 +1,4 @@
-.PHONY: up down checks eval-smoke pipeline
+.PHONY: up down checks eval-smoke interfaces pipeline
 
 up:
 	docker compose up --build -d
@@ -12,9 +12,13 @@ checks:
 	uv run python -m compileall -q src evals scripts
 	uv run pytest
 	uv run python -m evals.runner --system B1
+	uv run python -m scripts.export_interfaces --check
 
 eval-smoke:
 	uv run python -m evals.runner --system B1
+
+interfaces:
+	uv run python -m scripts.export_interfaces
 
 pipeline:
 	uv run python -m aclara.data.cli build

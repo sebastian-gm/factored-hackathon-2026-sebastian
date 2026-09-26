@@ -4,31 +4,31 @@ Session date: 2026-09-26
 
 ## Completed-verified
 
-- Read `BANK_AGENT_LAB_BUILD_BRIEF.md` through §19 before writing code. Sent the §19 questions together; the user confirmed this is a solo project with one private repository and one `origin`, kept the name Aclara, and answered the data, model, reviewer, and Azure questions. No team repository or second remote is configured.
-- Added the requested scaffold: `AGENTS.md`, `CLAUDE.md` symlink, README, sanitized `docs/00-build-brief.md`, this progress log, R1–R14 requirements traceability, ADR index/template/ADR 0001, and related safety/readiness notes. Traceability includes the seven judging criteria.
-- Configured `.gitignore`, local pre-commit hooks, GitHub CI/safety workflows, and the staged-file policy. Verified all three data, secret, and size hooks with `PRE_COMMIT_HOME=/tmp/aclara-precommit-cache UV_CACHE_DIR=/tmp/aclara-uv-cache uv run pre-commit run --all-files`.
-- Proved the staged guard rejects a fake CSV (`pre-commit run staged-data-file-policy --files staged-guard-probe.csv`) and a fake PEM key (`pre-commit run staged-secret-policy --files staged-guard-probe.pem`). Both probes were removed from the index and worktree immediately after the checks.
-- Built the local Compose stack. `docker compose config --quiet` passed; `docker compose ps --format '{{.Service}} {{.State}} {{.Health}}'` showed Postgres, API, and web running and healthy. The database is internal to Compose; API/web bind to loopback.
-- Verified the live flow through `docker compose exec -T api python -`: login, simulated OTP, six fixture transactions scoped to the demo customer, Spanish dispute proposal, explicit confirmation, and dispute read-back with status `received`. The live web page returned 200 and reached `/healthz` through the Compose network.
-- Ran `UV_CACHE_DIR=/tmp/aclara-uv-cache uv run python -m evals.runner --system B1`: 32 scenarios passed, 0 failed, 12 read-backs, safety guards passed. Scenarios cover Spanish and Portuguese normal, ambiguous, and human-handoff paths.
-- Ran local checks successfully: `uv run ruff check .`, `uv run mypy --strict src/aclara`, `uv run python -m compileall -q src evals scripts`, `uv run pytest` (1 passed), and `uv run python scripts/check_staged_files.py --working-tree`.
-- Ran web checks successfully in `apps/web`: `pnpm typecheck`, `pnpm lint`, and `pnpm build`.
-- Ran the P1 pipeline with `LOCAL_RAW_DIR=/home/megagdev/megagdev/factored-hackathon-2026/data/data UV_CACHE_DIR=/tmp/aclara-uv-cache uv run python -m aclara.data.cli build`. Bronze, manifest, typed silver, and Pandera sample contracts completed for customers (150,000 rows), products (400,000), and transactions (4,425,008 across 1,097 source objects). The aggregate-only report is `docs/data-quality-report.md`; no source rows are included.
-- Compared the §4 facts from pipeline output. The fraud band matches when defined as `27 < score ≤ 30` (353,682 rows, 111 fraud rows). Eight differences remain explicitly flagged: 120/365-day transaction totals, two 120-day candidate statistics, two full-ledger candidate statistics, and two pending counts. The 120-day UTC window and candidate percentile method are not fully specified in §4, so these differences have not been silently normalized away.
-- Verified `.env` and `lake/` outputs are ignored. No cloud resources were created, no real-model call was made, and no publication took place.
-- Committed in four conventional commits and pushed to `origin/feat/layer-1-vertical-slice`: `9d0fbde` (docs scaffold), `6fc185b` (API and B1 harness), `a8ff8b2` (P1 pipeline), and `c2111aa` (Compose, web UI, and CI). Verified the branch tracks `origin/feat/layer-1-vertical-slice` and was synchronized after push.
+- Read the build brief through §19 before implementation. Sebastian's follow-up at `agent-handoffs/01-lead-reply.md` was read fully and applied: solo/private repo, keep Aclara, private dev first, no public access yet, pipeline output is authoritative, and no Azure provisioning before explicit approval.
+- Scaffolded the repository and Layer 1 slice in five conventional commits. The first four were pushed to `origin/feat/layer-1-vertical-slice`; the progress-log update was pushed as `7680288`.
+- Created `main` from the verified Layer 1 branch at `7680288`, pushed it to `origin`, and set it as the private GitHub repository's default. `gh repo view` reported `main` and `isPrivate=true`. The remote `ci` and `safety` workflows both completed successfully on that commit.
+- Created the local work branch `feat/parallel-work-prep` from `main` for this lane's additive parallel-work preparation.
+- Made Compose worktree-configurable through `.env`: project name plus Postgres, API, and web host ports. Postgres remains loopback-only. A Compose config check with project `aclara-ai` and ports 15433/18001/13001 reported those mappings and matching API/web origin values.
+- Set the shared `LAKE_DIR` default to `/tmp/aclara-shared-lake`, outside the checkout. The pipeline CLI reads only its path/clock settings from `.env`; source and output directory guards prevent either from containing the other.
+- Rebuilt the Compose stack. `docker compose ps --format '{{.Service}} {{.State}} {{.Health}}'` reported API, Postgres, and web healthy. The live API test passed login, OTP, six scoped fixture transactions, Pydantic response validation, dispute creation, and read-back. The web page and its API connection returned 200.
+- Moved deterministic rules NLU into `src/aclara/agent/nlu/` and added frozen Pydantic `NluFrame` and `ResponsePlan` models in `src/aclara/agent/contracts.py`. FastAPI validates chat and confirmation responses against `ResponsePlan`.
+- Added Pydantic validation for the scenario YAML, exported OpenAPI and JSON Schema snapshots, and added versioned gold/serving transaction contracts. `make interfaces` regenerates the snapshots; CI checks they are current. The gold table contract is a target interface and is not yet materialized by P1.
+- Updated the DQ generator so its windows derive from the configured UTC `BANK_CLOCK`; documented exact half-open window bounds, full-dimension zero inclusion, `quantile_cont` p50/p90 definitions, and pending-age predicate. The pipeline output remains the source of truth; eight §4 values are retained as reference differences.
+- Rebuilt P1 to the shared external path with `LOCAL_RAW_DIR=/home/megagdev/megagdev/factored-hackathon-2026/data/data LAKE_DIR=/tmp/aclara-shared-lake UV_CACHE_DIR=/tmp/aclara-uv-cache uv run --no-sync python -m aclara.data.cli build`. Pandera validated all three tables; output counts were 150,000 customers, 400,000 products, and 4,425,008 transactions from 1,097 objects. The report contains aggregates, not source rows.
+- Local checks passed after the interface changes: pre-commit, Ruff, strict mypy (19 source files), compileall, pytest (7 passed), B1 (32/32, 12 read-backs, safety guards passed), and the interface snapshot check.
+- `.env`, the shared lake, and generated artifacts are not in Git. The fake staged CSV/key guard probes were both blocked and removed. No organizer credentials or row records were added.
 
 ## Done-not-verified
 
-- The GitHub Actions workflow has not run on GitHub. The equivalent Python and web commands above passed locally.
-- The P1 pipeline covers only customers, products, and transactions. Other source tables, their source-regeneration comparison, and broader business findings remain unverified.
-- Model comparison and the LLM judge have not started. `LLM_PROVIDER=mock` remains the default; no real model was used.
-- Azure deployment, Terraform remote state, GitHub OIDC/environment setup, and public demo deployment have not started.
+- The parallel-work prep changes are committed locally on `feat/parallel-work-prep`: `406d5db` (worktree Compose configuration), `8229f92` (frozen lane interfaces), and `47dd666` (external lake and clock metrics). They have not yet been pushed or run through remote PR checks. `main` still contains only the verified Layer 1 base at `7680288`.
+- The private Azure cost plan has not yet been prepared. No cloud resources or paid services have been used.
+- The security suite beyond the existing staged-file guards, plus degraded-mode and fault-injection checks, remain to be run.
+- Non-P1 source tables, model comparison, judge evaluation, and the final public demo remain unverified/deferred.
 
 ## Next-blocked
 
-- Get explicit user approval before the first Azure/public deployment. The user asked to be asked before that step; no resources or cost have been incurred.
-- Before any real-model run, provide a cost estimate and wait for approval. Run the provider comparison on the synthetic dev suite and show its metrics table before selecting a default.
-- Continue the next implementation layer only after reviewing this Layer 1 result. Terraform, dbt, JWKS/ES256, hash-chained audit, Ops UI, LLM judge, Locust, Trivy, and Optuna remain deferred.
+- Push `feat/parallel-work-prep`, open a PR into `main`, wait for remote CI and safety workflows to pass, then merge. Update this log again with the verified merge.
+- After repo prep, prepare a costed private Azure dev plan for `Seb Azure Sandbox`, `rg-aclara-dev-eastus2`, East US 2. Stop before provisioning and wait for Sebastian's explicit approval.
+- Continue with the security suite, degraded mode, and fault injection. Keep real-model runs on hold until an estimated cost is shown and approved.
 
 The local Compose stack is left running for review.

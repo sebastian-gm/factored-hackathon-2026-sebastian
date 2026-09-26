@@ -1,0 +1,24 @@
+contract_version: 1.0.0
+layer: serving
+table: authorized_transaction_view
+grain: one row per opaque transaction handle in the authenticated customer's 120-day window
+authorization:
+  customer_id: derive only from the authenticated session
+  client_filters: cannot widen or override customer scope
+  source_identifiers: never expose transaction_id, product_id, or customer_id
+source_mapping:
+  handle: server-generated opaque handle
+  transaction_date: gold.transaction_facts.transaction_date
+  transaction_type: gold.transaction_facts.transaction_type
+  amount: gold.transaction_facts.amount
+  currency: gold.transaction_facts.currency
+  merchant: gold.transaction_facts.merchant_name
+  status: gold.transaction_facts.transaction_status
+columns:
+  handle: {type: string, nullable: false, pii: none, llm_exposure: never}
+  transaction_date: {type: timestamp, timezone: UTC, nullable: false, pii: quasi_identifier, llm_exposure: masked}
+  transaction_type: {type: string, nullable: false, pii: none, llm_exposure: masked}
+  amount: {type: number, nullable: false, pii: sensitive, llm_exposure: masked, min: 0}
+  currency: {type: string, nullable: false, pii: none, llm_exposure: masked}
+  merchant: {type: string, nullable: true, pii: none, llm_exposure: masked}
+  status: {type: string, nullable: false, pii: none, llm_exposure: masked}

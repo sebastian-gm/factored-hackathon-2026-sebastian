@@ -6,9 +6,10 @@ import csv
 import hashlib
 import json
 import logging
+import os
 import shutil
 import subprocess
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -19,7 +20,16 @@ import yaml  # type: ignore[import-untyped]
 
 LOGGER = logging.getLogger("aclara.data")
 TABLES = ("customers", "products", "transactions")
-BANK_CLOCK = "2026-06-18T06:00:00+00:00"
+
+
+def _normalize_bank_clock(value: str) -> str:
+    parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    if parsed.tzinfo is None:
+        raise ValueError("BANK_CLOCK must include a timezone")
+    return parsed.astimezone(UTC).isoformat()
+
+
+BANK_CLOCK = _normalize_bank_clock(os.getenv("BANK_CLOCK", "2026-06-18T06:00:00+00:00"))
 SOURCE_END_DATE = "2026-06-17"
 SQL_TYPES = {
     "string": "VARCHAR",
@@ -600,6 +610,9 @@ def _query_metrics(
         }
     )
     tx = profile["tables"]["transactions"]
+    last_120_predicate = _timestamp_window_predicate("transaction_date", 120)
+    last_365_predicate = _timestamp_window_predicate("transaction_date", 365)
+    pending_120_filter = f"transaction_status = 'Pending' AND {last_120_predicate}"
     connection.execute(
         "CREATE OR REPLACE TEMP VIEW joined_transactions AS "
         "SELECT t.*, p.customer_id AS product_customer_id, p.product_status, p.opening_date, "
@@ -710,14 +723,10 @@ def _query_metrics(
                 "WHERE CAST(transaction_date AS DATE) < opening_date"
             ),
             "rows_last_120_days": count(
-                "SELECT count(*) FROM silver_transactions "
-                "WHERE transaction_date >= TIMESTAMPTZ '2026-02-18 06:00:00+00' "
-                "AND transaction_date < TIMESTAMPTZ '2026-06-18 06:00:00+00'"
+                f"SELECT count(*) FROM silver_transactions WHERE {last_120_predicate}"
             ),
             "rows_last_365_days": count(
-                "SELECT count(*) FROM silver_transactions "
-                "WHERE transaction_date >= TIMESTAMPTZ '2025-06-18 06:00:00+00' "
-                "AND transaction_date < TIMESTAMPTZ '2026-06-18 06:00:00+00'"
+                f"SELECT count(*) FROM silver_transactions WHERE {last_365_predicate}"
             ),
             "atm_purchases_rows": count(
                 "SELECT count(*) FROM silver_transactions WHERE channel = 'ATM' AND transaction_type = 'Purchase'"
@@ -739,20 +748,14 @@ def _query_metrics(
                 connection,
                 "SELECT CAST(min(process_date) AS VARCHAR), CAST(max(process_date) AS VARCHAR) FROM silver_transactions",
             ),
-            "candidate_counts_last_120_days": _candidate_counts(connection),
+            "candidate_counts_last_120_days": _candidate_counts(connection, last_120_predicate),
             "candidate_counts_all": _candidate_distribution(connection, ""),
             "pending_rows_last_120_days": count(
-                "SELECT count(*) FROM silver_transactions "
-                "WHERE transaction_status = 'Pending' "
-                "AND transaction_date >= TIMESTAMPTZ '2026-02-18 06:00:00+00' "
-                "AND transaction_date < TIMESTAMPTZ '2026-06-18 06:00:00+00'"
+                f"SELECT count(*) FROM silver_transactions WHERE {pending_120_filter}"
             ),
             "pending_rows_over_14_days_last_120_days": count(
-                "SELECT count(*) FROM silver_transactions "
-                "WHERE transaction_status = 'Pending' "
-                "AND transaction_date >= TIMESTAMPTZ '2026-02-18 06:00:00+00' "
-                "AND transaction_date < TIMESTAMPTZ '2026-06-18 06:00:00+00' "
-                "AND transaction_date < TIMESTAMPTZ '2026-06-18 06:00:00+00' - INTERVAL 14 DAY"
+                f"SELECT count(*) FROM silver_transactions WHERE {pending_120_filter} "
+                f"AND transaction_date < TIMESTAMPTZ '{BANK_CLOCK}' - INTERVAL 14 DAY"
             ),
             "has_settlement_expiry_reversal_timestamps": any(
                 any(
@@ -810,17 +813,25 @@ def _group_share(
     return {str(value): float(share) for value, share in rows}
 
 
-def _candidate_counts(connection: duckdb.DuckDBPyConnection) -> dict[str, Any]:
-    return _candidate_distribution(
-        connection,
-        "WHERE transaction_date >= TIMESTAMPTZ '2026-02-18 06:00:00+00' "
-        "AND transaction_date < TIMESTAMPTZ '2026-06-18 06:00:00+00'",
+def _timestamp_window_predicate(column: str, days: int) -> str:
+    if days <= 0:
+        raise ValueError("window length must be positive")
+    return (
+        f"{column} >= TIMESTAMPTZ '{BANK_CLOCK}' - INTERVAL {days} DAY "
+        f"AND {column} < TIMESTAMPTZ '{BANK_CLOCK}'"
     )
 
 
-def _candidate_distribution(
-    connection: duckdb.DuckDBPyConnection, where_sql: str
+def _candidate_counts(
+    connection: duckdb.DuckDBPyConnection, window_predicate: str
 ) -> dict[str, Any]:
+    return _candidate_distribution(connection, window_predicate)
+
+
+def _candidate_distribution(
+    connection: duckdb.DuckDBPyConnection, predicate: str
+) -> dict[str, Any]:
+    where_sql = f"WHERE {predicate}" if predicate else ""
     rows = _fetchone(
         connection,
         "WITH counts AS (SELECT customer_id, count(*) AS n FROM silver_transactions "
@@ -917,6 +928,10 @@ def _write_profile(profile: dict[str, Any], lake: Path) -> None:
         json.dumps(profile, indent=2, sort_keys=True, default=str) + "\n", encoding="utf-8"
     )
     report_path = Path(__file__).resolve().parents[3] / "docs" / "data-quality-report.md"
+    bank_clock = datetime.fromisoformat(str(profile["bank_clock"])).astimezone(UTC)
+    clock_text = bank_clock.strftime("%Y-%m-%d %H:%M:%S UTC")
+    window_120_start = (bank_clock - timedelta(days=120)).strftime("%Y-%m-%d %H:%M:%S UTC")
+    window_365_start = (bank_clock - timedelta(days=365)).strftime("%Y-%m-%d %H:%M:%S UTC")
     lines = [
         "# Data quality report",
         "",
@@ -928,6 +943,8 @@ def _write_profile(profile: dict[str, Any], lake: Path) -> None:
         "- Contracts: Pandera Polars schema validation on up to 2,000 rows per promoted table; full-table DQ counts use DuckDB SQL.",
         "",
         "## Comparison with §4 expectations",
+        "",
+        "Pipeline outputs are authoritative for the definitions below. The brief's values are retained as reference figures; differences are recorded without attempting to force a match.",
         "",
         "| Metric | Pipeline output | Brief expectation | Result |",
         "|---|---:|---:|---|",
@@ -970,7 +987,10 @@ def _write_profile(profile: dict[str, Any], lake: Path) -> None:
             f"- Candidate counts across the full ledger: `{json.dumps(transactions['candidate_counts_all'], sort_keys=True)}`.",
             f"- Candidate count over the half-open 120-day UTC window for all customers: `{json.dumps(transactions['candidate_counts_last_120_days'], sort_keys=True)}`.",
             f"- Settlement/expiry/reversal timestamp fields present in the transaction source: {transactions['has_settlement_expiry_reversal_timestamps']}.",
-            "- The 120-day window is `[2026-02-18 06:00:00 UTC, 2026-06-18 06:00:00 UTC)`; the 365-day window is `[2025-06-18 06:00:00 UTC, 2026-06-18 06:00:00 UTC)`. The DuckDB session timezone is pinned to UTC before parsing source timestamps.",
+            f"- `BANK_CLOCK` is `{profile['bank_clock']}` (UTC). The 120-day window is `[BANK_CLOCK - 120 days, BANK_CLOCK)` = `[{window_120_start}, {clock_text})`; the 365-day window is `[BANK_CLOCK - 365 days, BANK_CLOCK)` = `[{window_365_start}, {clock_text})`. SQL predicates derive from `BANK_CLOCK`; the DuckDB session timezone is pinned to UTC before parsing source timestamps.",
+            "- Candidate counts group transactions by customer in the selected window, then left-join to the complete 150,000-customer dimension so zero-count customers are included. The all-ledger distribution uses every transaction in the source. Median and p90 use DuckDB `quantile_cont` at 0.50 and 0.90, so the p90 is continuous/interpolated over per-customer counts.",
+            f"- Pending rows use the same half-open 120-day window; `older than 14 days` additionally means `transaction_date < BANK_CLOCK - 14 days` ({(bank_clock - timedelta(days=14)).strftime('%Y-%m-%d %H:%M:%S UTC')}).",
+            "- Disputable `amount_usd` p50/p75/p90/p95/p99 use DuckDB `quantile_cont` over non-null amounts for Purchase, Withdrawal, and Payment transactions.",
             "- `complaints.affected_product_id` is outside the serving scope; any joins from that field remain prohibited.",
             "- The currency gap against daily FX, contact-center findings, complaints, agents, survey/text findings, and source-regeneration comparison are outside this P1 table scope and remain unverified.",
         ]
@@ -991,7 +1011,7 @@ def _write_profile(profile: dict[str, Any], lake: Path) -> None:
         for column, count in checks.items():
             if count:
                 lines.append(f"| └ `{column}` | {count} | FAIL |")
-    lines.extend(["", "## Deviations", ""])
+    lines.extend(["", "## Reference differences", ""])
     differences = [item for item in profile["comparisons"] if item["result"] == "DIFFERS"]
     if differences:
         for item in differences:
@@ -1006,7 +1026,7 @@ def _write_profile(profile: dict[str, Any], lake: Path) -> None:
             "",
             "## Reproduction",
             "",
-            "Run `LOCAL_RAW_DIR=<local-source> python -m aclara.data.cli build`. The version manifest and profile are written under ignored `lake/`; this report is generated from that profile.",
+            "Set `LOCAL_RAW_DIR` and `LAKE_DIR` in `.env`, then run `make pipeline` or `uv run python -m aclara.data.cli build`. The manifest and profile are written to the shared external `LAKE_DIR`; this report is generated from that profile.",
             "",
         ]
     )
@@ -1031,11 +1051,14 @@ def build(source: Path, lake: Path) -> dict[str, Any]:
     lake_root = lake.expanduser().resolve()
     if not source_root.is_dir():
         raise FileNotFoundError("LOCAL_RAW_DIR must point to an existing directory")
-    repository_root = Path(__file__).resolve().parents[3]
-    if lake_root == source_root or source_root in lake_root.parents:
-        raise ValueError("LAKE_DIR cannot be inside the organizer source directory")
-    if repository_root not in lake_root.parents and lake_root != repository_root:
-        raise ValueError("LAKE_DIR must remain inside this repository")
+    if (
+        lake_root == source_root
+        or source_root in lake_root.parents
+        or lake_root in source_root.parents
+    ):
+        raise ValueError(
+            "LAKE_DIR must not be the organizer source directory or its ancestor/descendant"
+        )
 
     files_by_table = {table: _source_files(source_root, table) for table in TABLES}
     contracts = {table: _read_contract(table) for table in TABLES}
@@ -1104,7 +1127,7 @@ def build(source: Path, lake: Path) -> dict[str, Any]:
     diff_count = sum(item["result"] == "DIFFERS" for item in profile["comparisons"])
     if diff_count:
         LOGGER.warning(
-            "%d computed aggregate(s) differ from brief expectations; see docs/data-quality-report.md",
+            "%d pipeline aggregates differ from §4 reference values; see docs/data-quality-report.md",
             diff_count,
         )
     return profile
