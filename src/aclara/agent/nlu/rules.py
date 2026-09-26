@@ -4,24 +4,9 @@ from __future__ import annotations
 
 import re
 import unicodedata
-from dataclasses import dataclass
-from enum import StrEnum
+from typing import Literal
 
-
-class Intent(StrEnum):
-    CHARGE_INQUIRY = "charge_inquiry"
-    DISPUTE_CHARGE = "dispute_charge"
-    HUMAN_REQUEST = "human_request"
-    FRAUD = "card_lost_or_fraud"
-    FEE_DISPUTE = "fee_dispute"
-    OUT_OF_SCOPE = "out_of_scope"
-
-
-@dataclass(frozen=True, slots=True)
-class NluFrame:
-    language: str
-    intent: Intent
-    confidence: float
+from aclara.agent.contracts import Intent, NluFrame
 
 
 def normalize_text(text: str) -> str:
@@ -29,7 +14,7 @@ def normalize_text(text: str) -> str:
     return "".join(char for char in decomposed if not unicodedata.combining(char))
 
 
-def detect_language(text: str) -> str:
+def detect_language(text: str) -> Literal["es", "pt"]:
     normalized = normalize_text(text)
     portuguese_markers = (
         "nao ",
@@ -51,7 +36,7 @@ def classify(text: str) -> NluFrame:
         term in normalized
         for term in ("perdi meu cartao", "roubaram", "robaron", "cartao roubado", "fraude")
     ):
-        return NluFrame(language, Intent.FRAUD, 0.99)
+        return NluFrame(language=language, intent=Intent.FRAUD, confidence=0.99)
     if any(
         term in normalized
         for term in (
@@ -63,14 +48,14 @@ def classify(text: str) -> NluFrame:
             "falar com alguem",
         )
     ):
-        return NluFrame(language, Intent.HUMAN_REQUEST, 0.99)
+        return NluFrame(language=language, intent=Intent.HUMAN_REQUEST, confidence=0.99)
     if any(term in normalized for term in ("tarifa", "fee", "cobro indebido", "cobro de tarifa")):
-        return NluFrame(language, Intent.FEE_DISPUTE, 0.96)
+        return NluFrame(language=language, intent=Intent.FEE_DISPUTE, confidence=0.96)
     if any(term in normalized for term in ("no reconozco", "no hice", "nao reconheco", "nao fiz")):
-        return NluFrame(language, Intent.DISPUTE_CHARGE, 0.93)
+        return NluFrame(language=language, intent=Intent.DISPUTE_CHARGE, confidence=0.93)
     if any(term in normalized for term in ("cargo", "cobranza", "cobranca", "compra", "cobro")):
-        return NluFrame(language, Intent.CHARGE_INQUIRY, 0.82)
-    return NluFrame(language, Intent.OUT_OF_SCOPE, 0.70)
+        return NluFrame(language=language, intent=Intent.CHARGE_INQUIRY, confidence=0.82)
+    return NluFrame(language=language, intent=Intent.OUT_OF_SCOPE, confidence=0.70)
 
 
 def is_confirmation(text: str) -> bool:

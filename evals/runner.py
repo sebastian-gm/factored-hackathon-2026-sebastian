@@ -13,6 +13,7 @@ import yaml
 from httpx import ASGITransport, AsyncClient
 
 from aclara.api.app import create_app
+from aclara.evals.schema import ScenarioSuite
 from aclara.settings import Settings
 
 LOGGER = logging.getLogger("aclara.evals")
@@ -142,7 +143,8 @@ async def verify_scope_and_confirmation_guards() -> bool:
 
 async def async_main(args: argparse.Namespace) -> int:
     payload = yaml.safe_load(args.scenarios.read_text(encoding="utf-8"))
-    scenarios = payload["scenarios"]
+    suite = ScenarioSuite.model_validate(payload)
+    scenarios = [scenario.model_dump(mode="python") for scenario in suite.scenarios]
     passed = 0
     readbacks = 0
     failed_ids: list[str] = []

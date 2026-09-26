@@ -1,0 +1,136 @@
+"""Stable typed contracts shared by the agent, API, and evaluation lanes."""
+
+from __future__ import annotations
+
+from datetime import datetime
+from enum import StrEnum
+from typing import Literal
+
+from pydantic import BaseModel, ConfigDict, Field, model_validator
+
+
+class Intent(StrEnum):
+    CHARGE_INQUIRY = "charge_inquiry"
+    DISPUTE_CHARGE = "dispute_charge"
+    HUMAN_REQUEST = "human_request"
+    FRAUD = "card_lost_or_fraud"
+    FEE_DISPUTE = "fee_dispute"
+    OUT_OF_SCOPE = "out_of_scope"
+
+
+class InterfaceModel(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+
+class NluFrame(InterfaceModel):
+    language: Literal["es", "pt"]
+    intent: Intent
+    confidence: float = Field(ge=0.0, le=1.0)
+
+
+class TransactionView(InterfaceModel):
+    handle: str
+    transaction_date: datetime
+    transaction_type: str
+    amount: float = Field(ge=0.0)
+    currency: str
+    merchant: str | None
+    status: str
+
+
+class ProposalView(InterfaceModel):
+    action: Literal["create_dispute"]
+    proposal_hash: str = Field(pattern=r"^[a-f0-9]{64}$")
+    expires_at: datetime
+    policy_rules: list[str]
+
+
+class HandoffRoute(InterfaceModel):
+    queue: str
+    language: Literal["es", "pt"]
+    fallback_used: bool
+
+
+class HandoffView(InterfaceModel):
+    schema_version: Literal["1.0"]
+    handoff_id: str
+    created_at: datetime
+    reason_codes: list[str]
+    priority: Literal["normal", "high"]
+    route: HandoffRoute
+    verified_facts: list[TransactionView]
+    actions_taken: list[str]
+    open_questions: list[str]
+
+
+class DisputeCaseView(InterfaceModel):
+    case_id: str
+    transaction_handle: str
+    status: Literal["received"]
+    policy_rules: list[str]
+    created_at: datetime
+
+
+class ResponsePlan(InterfaceModel):
+    """Validated API action plan; required detail depends on response_type."""
+
+    response_type: Literal[
+        "cancelled",
+        "offer_human",
+        "abstain",
+        "choose_transaction",
+        "clarify",
+        "report_case",
+        "confirm_action",
+        "explain_status",
+    ]
+    outcome: Literal[
+        "cancelled",
+        "handoff_created",
+        "abstained_out_of_scope",
+        "choose_transaction",
+        "clarification",
+        "dispute_filed",
+        "dispute_proposed",
+        "explained",
+    ]
+    reply: str
+    transaction: TransactionView | None = None
+    candidates: list[TransactionView] | None = None
+    proposal: ProposalView | None = None
+    handoff: HandoffView | None = None
+    case: DisputeCaseView | None = None
+    verified: bool | None = None
+    policy_rules: list[str] | None = None
+
+    @model_validator(mode="after")
+    def validate_response_shape(self) -> ResponsePlan:
+        expected_outcomes = {
+            "cancelled": "cancelled",
+            "offer_human": "handoff_created",
+            "abstain": "abstained_out_of_scope",
+            "choose_transaction": "choose_transaction",
+            "clarify": "clarification",
+            "report_case": "dispute_filed",
+            "confirm_action": "dispute_proposed",
+            "explain_status": "explained",
+        }
+        if self.outcome != expected_outcomes[self.response_type]:
+            raise ValueError(
+                f"{self.response_type} requires outcome {expected_outcomes[self.response_type]}"
+            )
+        required: dict[str, tuple[str, ...]] = {
+            "choose_transaction": ("candidates",),
+            "report_case": ("case", "verified"),
+            "confirm_action": ("transaction", "proposal"),
+            "explain_status": ("transaction",),
+            "offer_human": ("handoff",),
+        }
+        missing = [
+            name for name in required.get(self.response_type, ()) if getattr(self, name) is None
+        ]
+        if missing:
+            raise ValueError(f"{self.response_type} requires {', '.join(missing)}")
+        if self.response_type == "report_case" and self.verified is not True:
+            raise ValueError("report_case requires a successful read-back")
+        return self
