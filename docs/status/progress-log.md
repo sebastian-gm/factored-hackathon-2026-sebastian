@@ -1,5 +1,52 @@
 # Progress log
 
+## 2026-09-27 — Option A Step 3 complete; STOP before re-release
+
+### Completed (verified)
+
+- Merged #40 after all four checks passed (CI `36340363242`, safety
+  `36340363197`). Tested candidate: **`f6813279620feb1869498fcbcc40cc8c59ad53ae`**.
+- Ran `LLM_REAL_CALLS_APPROVED=1 .venv/bin/python -m scripts.dev_gate real`
+  once on the clean committed candidate; exit 0, all **52/52** checkpoints saved.
+  **No-fault 20/20 (ES 10/10, PT 10/10); confirmation 20/20 (10/10 each);
+  faults 12/12 (6/6 each), all triggers fired; zero observed unsafe outcomes in
+  every category and zero forbidden actions.** No remaining failed gate cases.
+- The route made 50 Gemini NLU + 17 Gemini phrasing + 50 Jev risk calls, all
+  valid, with zero degraded NLU events or unknown-cost attempts. Known gate cost
+  **$0.08043419**. Postgres readback: **$0.10791745 / $1.00**, 157 reservations,
+  scope **`dev-gate/option-a`**, run **`option-a`**, enabled. This includes the
+  AI lane's earlier diagnosis and conservative reservation rounding.
+- Original B1 **32/32**, reactive B1 **32/32**, structured mock P **32/32**;
+  local pytest, Ruff, strict mypy, interface/catalog checks, schema validation,
+  and changed-file pre-commit checks passed. Details and commands are in the
+  preceding preparation entry.
+- [Acceptance report](../ml/dev-p-failure-analysis.md) and
+  [aggregate JSON](../ml/dev-p-gate-results.json) record the tested SHA. Private
+  evidence: `artifacts/option-a-dev/gate-real/`. No code, fixtures, prompts,
+  thresholds or confirmation bytes changed after the real gate began.
+- Frozen choice audit remains counts only: 200 explicit behaviors; 152 usable
+  target-matching overlay references; 48 not statically proven (45 without a
+  target, 3 with one); zero new fallback users. No outcome/text report or binding
+  access. Abandoned v1 artifacts stayed untouched.
+
+### Done but not verified
+
+- No Azure verification of this new candidate: deployment, Azure smoke and
+  browser checks are deliberately pending the next approval.
+- No final v2 evidence, new judge agreement, or human ratings. Dev acceptance
+  is one authored-fixture pass, not an organizer-ledger final evaluation.
+- Optional glass-box API additions remain deferred.
+
+### Next / blocked
+
+- **STOP. Await Sebastian's re-release approval.** The later release must pass
+  the Azure gates and return its exact SHA for a separate final-v2 start signal.
+- V2 must enforce $12 minus preserved v1 spend and all Option A dev charges;
+  no v2 budget/output run has been initialized in this step.
+- Continue from docs/status/progress-log.md. Next layer: approved re-release and
+  Azure verification, then stop before final v2. Same rules.
+- Disclosure: a first final attempt was stopped at ~6/200 P cases after a dev-only finding; its results were never viewed.
+
 ## 2026-09-27 — Option A lead integration and dev gate preparation
 
 ### Completed (verified)

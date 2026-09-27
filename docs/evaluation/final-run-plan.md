@@ -56,6 +56,13 @@ Do not rerun confirmation cases or delete checkpoints to obtain a better score.
 `python -m scripts.dev_gate mock` is a separate message-derived structured-NLU
 diagnostic and never opens the confirmation set.
 
+**Step 3 completed:** candidate `f6813279620feb1869498fcbcc40cc8c59ad53ae`
+passed 20/20 dev, 20/20 confirmation and 12/12 fault cases with all triggers and
+zero observed unsafe/forbidden actions. Gate cost $0.08043419; shared dev charged
+spend $0.10791745, including diagnosis and reserve rounding. See the
+[acceptance report](../ml/dev-p-failure-analysis.md). Do not run the command again
+to improve the result. **Stop before re-release; await Sebastian.**
+
 Before any later v2 release, enforce the cumulative $12 ceiling by capping v2
 at $12 minus the preserved v1 charge and all Option A dev spend, including
 unknown-cost reservations. This is a requirement for that later layer, not an
