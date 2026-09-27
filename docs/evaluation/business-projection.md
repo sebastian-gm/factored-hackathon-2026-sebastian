@@ -60,7 +60,7 @@ conversion is arithmetic, not a measured parameter.
 | Time to verified intake | TODO(results): conservative intake time | TODO(results): central intake time | TODO(results): favorable intake time |
 
 For transparency, the current **unweighted, failed-gate diagnostic** gives a SAR
-point estimate of 34.71% and Wilson bounds 28.36–41.67% for both systems
+point estimate of 34.72% and Wilson bounds 28.36–41.67% for both systems
 ([B1 `sar_in_scope`](heldout-run01-B1.json), [P/mock](heldout-run01-P-mock.json)).
 Those are measured diagnostic inputs, not traffic-weighted low/base/high production
 assumptions. We do not turn them into savings while safety and operating inputs
