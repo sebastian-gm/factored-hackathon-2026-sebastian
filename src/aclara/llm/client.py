@@ -102,12 +102,15 @@ class StructuredClient:
             if today != self._daily_date:
                 self._daily_date, self._daily_spend_usd = today, 0.0
             if (
-                self.budget_usd is not None
-                and (
-                    self.budget_usd <= 0
-                    or self.spent_usd + reserve_usd + primary_floor_usd > self.budget_usd
+                (self.budget_usd is not None and self.budget_usd <= 0)
+                or (
+                    self.budget_usd is not None
+                    and self.spent_usd + reserve_usd + primary_floor_usd > self.budget_usd
                 )
-            ) or self._daily_spend_usd + reserve_usd + primary_floor_usd > self.daily_budget_usd:
+                or self._daily_spend_usd + reserve_usd + primary_floor_usd > self.daily_budget_usd
+            ):
+                if self.spend_gate is not None:
+                    raise BudgetFailure("Insufficient shared budget for typed judgment")
                 raise ModelFailure("Insufficient shared LLM budget for typed judgment")
             reservation = self.spend_gate.reserve(reserve_usd) if self.spend_gate else None
             self.spent_usd += reserve_usd
@@ -115,7 +118,11 @@ class StructuredClient:
             return reservation
 
     def finish_external_judgment(
-        self, record: CallRecord, *, reserve_usd: float = 0.0, reservation: str | None = None
+        self,
+        record: CallRecord,
+        *,
+        reserve_usd: float = 0.0,
+        reservation: str | None = None,
     ) -> None:
         """Persist cost and evidence through the existing execution-record path."""
         with self._lock:
