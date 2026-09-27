@@ -170,6 +170,13 @@ def test_serving_personas_rls_three_surfaces_and_restart(tmp_path: Path) -> None
             assert restored.get("/transactions", headers=first).status_code == 401
         with pytest.raises(ValueError):
             ServingRepository(store, datetime(2026, 6, 19, 6, tzinfo=UTC))
+        pinned = ServingRepository(store, clock)
+        with psycopg.connect(owner) as pg:
+            pg.execute(
+                "UPDATE meta.serving_state SET identity=jsonb_set(identity,'{build_fingerprint}','\"changed-dev-build\"')"
+            )
+        with pytest.raises(ValueError):
+            pinned.for_customer("fixture-customer-a", clock)
     finally:
         client.close()
         store.close()

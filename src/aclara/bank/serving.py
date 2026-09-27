@@ -36,6 +36,7 @@ class ServingRepository(TransactionRepository):
         with store.transaction(Scope("", "", "")):
             connection = store._unit().connection
             assert connection is not None
+            connection.execute("SELECT pg_advisory_xact_lock_shared(61928471)")
             row = connection.execute(
                 "SELECT identity,loaded_at FROM meta.serving_state WHERE singleton"
             ).fetchone()
@@ -44,6 +45,7 @@ class ServingRepository(TransactionRepository):
             if datetime.fromisoformat(row[0]["bank_clock"].replace("Z", "+00:00")) != bank_clock:
                 raise ValueError("Serving bank clock differs from runtime")
             self.dataset_version, self.loaded_at = row[0]["dataset_version"], row[1]
+            self.identity = row[0]
 
     def personas(self) -> list[Persona]:
         with self.store.transaction(Scope("", "", "")):
@@ -90,8 +92,9 @@ class ServingRepository(TransactionRepository):
         with self.store.transaction(scope):
             pg = self.store._unit().connection
             assert pg is not None
+            pg.execute("SELECT pg_advisory_xact_lock_shared(61928471)")
             state = pg.execute("SELECT identity FROM meta.serving_state WHERE singleton").fetchone()
-            if state is None or state[0]["dataset_version"] != self.dataset_version:
+            if state is None or state[0] != self.identity:
                 raise ValueError("Serving version changed; restart the runtime")
             customers = pg.execute(
                 "SELECT c.customer_id,c.customer_status,c.country,c.segment,"
@@ -151,7 +154,7 @@ class ServingRepository(TransactionRepository):
     def ready(self) -> bool:
         # Startup and readiness fail closed if the promoted clock/version has changed.
         current = ServingRepository(self.store, self.bank_clock)
-        return current.dataset_version == self.dataset_version
+        return current.identity == self.identity
 
 
 def persona_views(personas: dict[str, Persona]) -> list[dict[str, Any]]:
