@@ -1,0 +1,80 @@
+{
+  "b1_runs": 0,
+  "bare_unfamiliarity_paths": {
+    "bare_deny": 13,
+    "bare_recognize": 10,
+    "bare_unsure": 2
+  },
+  "business_date_anchor": "2026-06-17",
+  "canonical_snapshot": "deferred: accepted contract additions absent from shared JSON snapshot",
+  "category_counts": {
+    "ambiguous_unsupported": 20,
+    "human_required": 20,
+    "normal": 35,
+    "security_robustness": 25
+  },
+  "contract_additions_applied_in_memory_only": [
+    "ReactiveReplies.offer_dispute: same message/confirmation/choice shape, per contract §1",
+    "GoldAction.type += offer_dispute, per contract §1–2",
+    "GoldLabels.outcome += cancelled, per contract §1–2",
+    "ScenarioV2.expected += cancelled, per contract §1–2"
+  ],
+  "contract_augmented_schema": "passed",
+  "count": 100,
+  "dialect_counts": {
+    "es-AR": 16,
+    "es-CO": 16,
+    "es-MX": 16,
+    "mixed": 4,
+    "pt-BR": 48
+  },
+  "exact_old_opening_overlap": 0,
+  "exact_old_transaction_facts_overlap": 0,
+  "intended_age_counts": {
+    "14": 4,
+    "15": 2,
+    "19": 7,
+    "20": 9,
+    "21": 6,
+    "22": 7,
+    "23": 7,
+    "24": 6,
+    "25": 8,
+    "26": 7,
+    "27": 9,
+    "84": 2,
+    "85": 2,
+    "90": 2,
+    "91": 2
+  },
+  "language_counts": {
+    "es": 48,
+    "mixed": 4,
+    "pt": 48
+  },
+  "mock_calls": 0,
+  "numeric_merchant_cases_by_language": {
+    "es": 15,
+    "mixed": 3,
+    "pt": 13
+  },
+  "old_overlay_reference_overlap": 0,
+  "old_release_checksums": "passed",
+  "p_runs": 0,
+  "remembered_target_facts": "passed",
+  "repeated_templates_in_both_es_pt": true,
+  "runtime_compatibility": "not tested; execution prohibited until independent-run authorization",
+  "source_country_counts": {
+    "AR": 33,
+    "CO": 33,
+    "MX": 34
+  },
+  "source_segment_counts": {
+    "Basic": 25,
+    "Plus": 25,
+    "Premium": 25,
+    "Student": 25
+  },
+  "structural_only": true,
+  "transaction_overlays": 96
+}

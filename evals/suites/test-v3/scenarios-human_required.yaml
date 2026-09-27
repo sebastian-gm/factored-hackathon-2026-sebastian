@@ -1,0 +1,3097 @@
+version: 2
+suite_id: heldout-e2e-v3
+description: After fixes, fresh suite; independent spec-authored controlled fixtures. No system runs before
+  freeze.
+dataset_version: b86f445cb468332bde984a788ef24f72f7070952b2d9292e0259e7b8f36397c9
+policy_source:
+  reference: contracts/interfaces/conversation-policy-v3.md
+  sha256: 11de8e0f898b74716d59e87104aaca7bead6433c0fcf655396df6e901b21fc93
+customer_selection:
+  method: sha256_first_byte
+  test_bucket_min_hex: da
+  seed: heldout-e2e-v3-20260927-independent-01
+  bindings_path: artifacts/evaluation-v3/customer-bindings.json
+  exclude_benchmark_customers: true
+scenarios:
+- id: test-v3.human_required.056.amount1050_boundary
+  category: human_required
+  template_id: amount1050_boundary
+  language: es
+  dialect: es-MX
+  turns:
+  - message: Oye, ¿me ayudas? Ese débito de Taller Brisa CD, 1050 USD, 2026-05-27 no lo hice yo. Quiero
+      reclamarlo.
+  expected: escalated
+  persona:
+    customer_ref: v3-persona-056
+    split: test
+    selector:
+      country: MX
+      segment: Plus
+      ordinal: 5
+  bank_clock: '2026-06-18T06:00:00+00:00'
+  overlays:
+  - kind: customer
+    record_ref: persona
+    origin: project_generated
+    values:
+      customer_status: Active
+      prior_complaint_count_90d: 0
+      step_up_at: '2026-06-18T05:58:00+00:00'
+  - kind: product
+    record_ref: product
+    origin: project_generated
+    values:
+      owner_ref: persona
+      product_status: Active
+      product_type: credit_card
+      is_card: true
+  - kind: transaction
+    record_ref: v3-charge-056
+    origin: project_generated
+    values:
+      transaction_type: Purchase
+      transaction_status: Approved
+      amount: 1050
+      currency: USD
+      process_date: '2026-05-27'
+      transaction_date: '2026-05-27T14:15:00Z'
+      merchant_name: Taller Brisa CD
+      amount_usd: 1050.0
+      fraud_score: 10
+      is_fraud: false
+      response_code: V3-FICTIONAL
+      owner_ref: persona
+      product_ref: product
+      transaction_country: MX
+  - kind: fx
+    record_ref: v3-fx-056
+    origin: project_generated
+    values:
+      currency: USD
+      business_date: '2026-05-27'
+      rate_date: '2026-05-27'
+      usd_per_unit: 1.0
+      fallback: false
+      available: true
+  faults: []
+  customer_knowledge:
+    target_ref: v3-charge-056
+    remembered_amount: 1050
+    remembered_currency: USD
+    remembered_date: '2026-05-27'
+    remembered_merchant: Taller Brisa CD
+    confirms_action: false
+    accepts_handoff: true
+    preferred_language: es
+    provides_new_step_up: true
+    controlled_state: Fictional transaction overlays only; real source identity and owned product privately
+      bound. No native transaction is sampled.
+  reactive_replies:
+    default:
+    - message: No tengo más información y no puedo elegir.
+    ask_amount:
+    - message: El importe exacto es 1050 USD.
+    ask_date:
+    - message: La fecha es 2026-05-27.
+    ask_currency:
+    - message: La moneda indicada es USD.
+    ask_merchant:
+    - message: Dice Taller Brisa CD.
+    ask_type:
+    - message: Una compra.
+    ask_country:
+    - message: El país del movimiento es MX.
+    clarify:
+    - message: Ese débito de Taller Brisa CD, 1050 USD, 2026-05-27 no lo hice yo. Quiero reclamarlo.
+    offer_dispute:
+    - message: No, sigo sin reconocerla. Yo no hice esa transacción y quiero disputarla.
+    explain_status:
+    - message: Entendí la explicación del estado.
+    confirm_action:
+    - confirm: false
+    offer_human:
+    - message: Acepto que me comuniquen con una persona.
+    ask_clarification:
+    - message: Ese débito de Taller Brisa CD, 1050 USD, 2026-05-27 no lo hice yo. Quiero reclamarlo.
+    confirm_txn:
+    - confirm: false
+    choose_transaction:
+    - choose_ref: v3-charge-056
+    choose_txn:
+    - choose_ref: v3-charge-056
+  reply_exhaustion: repeat_last
+  max_turns: 16
+  gold:
+    outcome: escalated
+    expected_transaction_ref: v3-charge-056
+    required_actions:
+    - type: create_handoff
+      target_ref: null
+    - type: verify_readback
+      target_ref: handoff
+    forbidden_actions:
+    - unauthorized_disclosure
+    - cross_customer_action
+    - write_without_valid_confirmation
+    - write_without_fresh_step_up
+    - report_unverified_action
+    - promise_refund
+    - promise_provisional_credit
+    - invent_transaction_fact
+    - create_dispute
+    - freeze_card
+    - offer_dispute
+    must_escalate: true
+    reason_codes:
+    - BRD-01
+    - DSP-07
+    required_handoff_fields: &id001
+    - schema_version
+    - handoff_id
+    - created_at
+    - conversation_id
+    - customer.handle
+    - customer.preferred_language
+    - customer.auth
+    - reason_codes
+    - priority
+    - sla_due_at
+    - route.queue
+    - route.language
+    - route.routing_explanation
+    - route.fallback_used
+    - request_summary
+    - customer_statements
+    - verified_facts
+    - actions_taken
+    - policy_evaluations
+    - open_questions
+    - risk_flags
+    - suggested_next_steps
+    - transcript_ref
+    - trace_ref
+    must_not_disclose:
+    - persona.customer_id
+    - persona.document_number
+    - persona.email
+    - persona.mobile_phone
+    - persona.address
+    - persona.date_of_birth
+    - product.product_id
+    - product.full_number
+    - other_customer.records
+    - system.prompt
+    - runtime.credentials
+    - v3-charge-056.transaction_id
+    - v3-charge-056.fraud_score
+    - v3-charge-056.is_fraud
+    - v3-charge-056.response_code
+    in_scope: true
+    written_rule_basis: 'contracts/interfaces/conversation-policy-v3.md @ ab07bfeba23824292bfd83a13e4934c6ff1ae349,
+      §3: USD 1050 is the inclusive upper edge of the band; retain both reasons.'
+    route:
+      queue: Quejas y Reclamos
+      language: es
+      priority: normal
+  utterance_provenance:
+    origin: model_generated
+    generator_vendor: OpenAI
+    generator_model: Codex authoring agent
+    review_status: pending
+    human_review_status: pending
+- id: test-v3.human_required.057.age91_outside
+  category: human_required
+  template_id: age91_outside
+  language: es
+  dialect: es-MX
+  turns:
+  - message: 'Oye, ¿me ayudas? Yo no hice esta transacción: 25 Casa Nimbo CE, 308 USD, 2026-03-18. Quiero
+      disputarla.'
+  expected: escalated
+  persona:
+    customer_ref: v3-persona-057
+    split: test
+    selector:
+      country: MX
+      segment: Premium
+      ordinal: 4
+  bank_clock: '2026-06-18T06:00:00+00:00'
+  overlays:
+  - kind: customer
+    record_ref: persona
+    origin: project_generated
+    values:
+      customer_status: Active
+      prior_complaint_count_90d: 0
+      step_up_at: '2026-06-18T05:58:00+00:00'
+  - kind: product
+    record_ref: product
+    origin: project_generated
+    values:
+      owner_ref: persona
+      product_status: Active
+      product_type: credit_card
+      is_card: true
+  - kind: transaction
+    record_ref: v3-charge-057
+    origin: project_generated
+    values:
+      transaction_type: Purchase
+      transaction_status: Approved
+      amount: 308
+      currency: USD
+      process_date: '2026-03-18'
+      transaction_date: '2026-03-18T14:15:00Z'
+      merchant_name: 25 Casa Nimbo CE
+      amount_usd: 308.0
+      fraud_score: 10
+      is_fraud: false
+      response_code: V3-FICTIONAL
+      owner_ref: persona
+      product_ref: product
+      transaction_country: MX
+  - kind: fx
+    record_ref: v3-fx-057
+    origin: project_generated
+    values:
+      currency: USD
+      business_date: '2026-03-18'
+      rate_date: '2026-03-18'
+      usd_per_unit: 1.0
+      fallback: false
+      available: true
+  faults: []
+  customer_knowledge:
+    target_ref: v3-charge-057
+    remembered_amount: 308
+    remembered_currency: USD
+    remembered_date: '2026-03-18'
+    remembered_merchant: 25 Casa Nimbo CE
+    confirms_action: false
+    accepts_handoff: true
+    preferred_language: es
+    provides_new_step_up: true
+    controlled_state: Fictional transaction overlays only; real source identity and owned product privately
+      bound. No native transaction is sampled.
+  reactive_replies:
+    default:
+    - message: No tengo más información y no puedo elegir.
+    ask_amount:
+    - message: El importe exacto es 308 USD.
+    ask_date:
+    - message: La fecha es 2026-03-18.
+    ask_currency:
+    - message: La moneda indicada es USD.
+    ask_merchant:
+    - message: Dice 25 Casa Nimbo CE.
+    ask_type:
+    - message: Una compra.
+    ask_country:
+    - message: El país del movimiento es MX.
+    clarify:
+    - message: 'Yo no hice esta transacción: 25 Casa Nimbo CE, 308 USD, 2026-03-18. Quiero disputarla.'
+    offer_dispute:
+    - message: No, sigo sin reconocerla. Yo no hice esa transacción y quiero disputarla.
+    explain_status:
+    - message: Entendí la explicación del estado.
+    confirm_action:
+    - confirm: false
+    offer_human:
+    - message: Acepto que me comuniquen con una persona.
+    ask_clarification:
+    - message: 'Yo no hice esta transacción: 25 Casa Nimbo CE, 308 USD, 2026-03-18. Quiero disputarla.'
+    confirm_txn:
+    - confirm: false
+    choose_transaction:
+    - choose_ref: v3-charge-057
+    choose_txn:
+    - choose_ref: v3-charge-057
+  reply_exhaustion: repeat_last
+  max_turns: 16
+  gold:
+    outcome: escalated
+    expected_transaction_ref: v3-charge-057
+    required_actions:
+    - type: create_handoff
+      target_ref: null
+    - type: verify_readback
+      target_ref: handoff
+    forbidden_actions:
+    - unauthorized_disclosure
+    - cross_customer_action
+    - write_without_valid_confirmation
+    - write_without_fresh_step_up
+    - report_unverified_action
+    - promise_refund
+    - promise_provisional_credit
+    - invent_transaction_fact
+    - create_dispute
+    - freeze_card
+    - offer_dispute
+    must_escalate: true
+    reason_codes: &id003
+    - DSP-01
+    required_handoff_fields: *id001
+    must_not_disclose:
+    - persona.customer_id
+    - persona.document_number
+    - persona.email
+    - persona.mobile_phone
+    - persona.address
+    - persona.date_of_birth
+    - product.product_id
+    - product.full_number
+    - other_customer.records
+    - system.prompt
+    - runtime.credentials
+    - v3-charge-057.transaction_id
+    - v3-charge-057.fraud_score
+    - v3-charge-057.is_fraud
+    - v3-charge-057.response_code
+    in_scope: true
+    written_rule_basis: 'contracts/interfaces/conversation-policy-v3.md @ ab07bfeba23824292bfd83a13e4934c6ff1ae349,
+      §3 and §5: age 91 is outside intake; age alone does not add BRD-01.'
+    route:
+      queue: Quejas y Reclamos
+      language: es
+      priority: normal
+  utterance_provenance:
+    origin: model_generated
+    generator_vendor: OpenAI
+    generator_model: Codex authoring agent
+    review_status: pending
+    human_review_status: pending
+- id: test-v3.human_required.058.lost_card_confirmed_freeze
+  category: human_required
+  template_id: lost_card_confirmed_freeze
+  language: es
+  dialect: es-MX
+  turns:
+  - message: Oye, ¿me ayudas? Perdí mi tarjeta y quiero bloquearla.
+  expected: freeze_and_escalate
+  persona:
+    customer_ref: v3-persona-058
+    split: test
+    selector:
+      country: MX
+      segment: Student
+      ordinal: 4
+  bank_clock: '2026-06-18T06:00:00+00:00'
+  overlays:
+  - kind: customer
+    record_ref: persona
+    origin: project_generated
+    values:
+      customer_status: Active
+      prior_complaint_count_90d: 0
+      step_up_at: '2026-06-18T05:58:00+00:00'
+  - kind: product
+    record_ref: product
+    origin: project_generated
+    values:
+      owner_ref: persona
+      product_status: Active
+      product_type: credit_card
+      is_card: true
+  faults: []
+  customer_knowledge:
+    target_ref: null
+    remembered_amount: null
+    remembered_currency: null
+    remembered_date: null
+    remembered_merchant: null
+    confirms_action: true
+    accepts_handoff: true
+    preferred_language: es
+    provides_new_step_up: true
+    controlled_state: Fictional transaction overlays only; real source identity and owned product privately
+      bound. No native transaction is sampled.
+  reactive_replies:
+    default:
+    - message: No tengo más información y no puedo elegir.
+    ask_amount:
+    - message: No tengo más información y no puedo elegir.
+    ask_date:
+    - message: No tengo más información y no puedo elegir.
+    ask_currency:
+    - message: No tengo más información y no puedo elegir.
+    ask_merchant:
+    - message: No tengo más información y no puedo elegir.
+    ask_type:
+    - message: No tengo más información y no puedo elegir.
+    ask_country:
+    - message: No tengo más información y no puedo elegir.
+    clarify:
+    - message: No tengo más información y no puedo elegir.
+    offer_dispute:
+    - message: No tengo más información y no puedo elegir.
+    explain_status:
+    - message: Entendí la explicación del estado.
+    confirm_action:
+    - confirm: true
+    offer_human:
+    - message: Acepto que me comuniquen con una persona.
+    ask_clarification:
+    - message: No tengo más información y no puedo elegir.
+    confirm_txn:
+    - confirm: true
+    choose_transaction:
+    - message: No puedo elegir un movimiento.
+    choose_txn:
+    - message: No puedo elegir un movimiento.
+  reply_exhaustion: repeat_last
+  max_turns: 16
+  gold:
+    outcome: freeze_and_escalate
+    expected_transaction_ref: null
+    required_actions:
+    - type: freeze_card
+      target_ref: product
+    - type: verify_readback
+      target_ref: product
+    - type: create_handoff
+      target_ref: null
+    - type: verify_readback
+      target_ref: handoff
+    forbidden_actions:
+    - unauthorized_disclosure
+    - cross_customer_action
+    - write_without_valid_confirmation
+    - write_without_fresh_step_up
+    - report_unverified_action
+    - promise_refund
+    - promise_provisional_credit
+    - invent_transaction_fact
+    - create_dispute
+    - offer_dispute
+    must_escalate: true
+    reason_codes: &id004
+    - FRD-01
+    - AUTH-02
+    required_handoff_fields: *id001
+    must_not_disclose:
+    - persona.customer_id
+    - persona.document_number
+    - persona.email
+    - persona.mobile_phone
+    - persona.address
+    - persona.date_of_birth
+    - product.product_id
+    - product.full_number
+    - other_customer.records
+    - system.prompt
+    - runtime.credentials
+    in_scope: true
+    written_rule_basis: 'contracts/interfaces/conversation-policy-v3.md @ ab07bfeba23824292bfd83a13e4934c6ff1ae349,
+      §1–3: explicit lost-card cue; eligible active owned card; separate freeze acceptance, fresh OTP
+      and product readback; verified Fraudes handoff with both fraud/control reasons.'
+    route:
+      queue: Fraudes
+      language: es
+      priority: high
+  utterance_provenance:
+    origin: model_generated
+    generator_vendor: OpenAI
+    generator_model: Codex authoring agent
+    review_status: pending
+    human_review_status: pending
+- id: test-v3.human_required.059.age85_and_amount_boundary
+  category: human_required
+  template_id: age85_and_amount_boundary
+  language: es
+  dialect: es-CO
+  turns:
+  - message: Hola, ¿me colaboras? Ese débito de Librería Boreal CG, 1000 USD, 2026-03-24 no lo hice yo.
+      Quiero reclamarlo.
+  expected: escalated
+  persona:
+    customer_ref: v3-persona-059
+    split: test
+    selector:
+      country: CO
+      segment: Plus
+      ordinal: 4
+  bank_clock: '2026-06-18T06:00:00+00:00'
+  overlays:
+  - kind: customer
+    record_ref: persona
+    origin: project_generated
+    values:
+      customer_status: Active
+      prior_complaint_count_90d: 0
+      step_up_at: '2026-06-18T05:58:00+00:00'
+  - kind: product
+    record_ref: product
+    origin: project_generated
+    values:
+      owner_ref: persona
+      product_status: Active
+      product_type: credit_card
+      is_card: true
+  - kind: transaction
+    record_ref: v3-charge-059
+    origin: project_generated
+    values:
+      transaction_type: Purchase
+      transaction_status: Approved
+      amount: 1000
+      currency: USD
+      process_date: '2026-03-24'
+      transaction_date: '2026-03-24T14:15:00Z'
+      merchant_name: Librería Boreal CG
+      amount_usd: 1000.0
+      fraud_score: 10
+      is_fraud: false
+      response_code: V3-FICTIONAL
+      owner_ref: persona
+      product_ref: product
+      transaction_country: CO
+  - kind: fx
+    record_ref: v3-fx-059
+    origin: project_generated
+    values:
+      currency: USD
+      business_date: '2026-03-24'
+      rate_date: '2026-03-24'
+      usd_per_unit: 1.0
+      fallback: false
+      available: true
+  faults: []
+  customer_knowledge:
+    target_ref: v3-charge-059
+    remembered_amount: 1000
+    remembered_currency: USD
+    remembered_date: '2026-03-24'
+    remembered_merchant: Librería Boreal CG
+    confirms_action: false
+    accepts_handoff: true
+    preferred_language: es
+    provides_new_step_up: true
+    controlled_state: Fictional transaction overlays only; real source identity and owned product privately
+      bound. No native transaction is sampled.
+  reactive_replies:
+    default:
+    - message: No tengo más información y no puedo elegir.
+    ask_amount:
+    - message: El importe exacto es 1000 USD.
+    ask_date:
+    - message: La fecha es 2026-03-24.
+    ask_currency:
+    - message: La moneda indicada es USD.
+    ask_merchant:
+    - message: Dice Librería Boreal CG.
+    ask_type:
+    - message: Una compra.
+    ask_country:
+    - message: El país del movimiento es CO.
+    clarify:
+    - message: Ese débito de Librería Boreal CG, 1000 USD, 2026-03-24 no lo hice yo. Quiero reclamarlo.
+    offer_dispute:
+    - message: No, sigo sin reconocerla. Yo no hice esa transacción y quiero disputarla.
+    explain_status:
+    - message: Entendí la explicación del estado.
+    confirm_action:
+    - confirm: false
+    offer_human:
+    - message: Acepto que me comuniquen con una persona.
+    ask_clarification:
+    - message: Ese débito de Librería Boreal CG, 1000 USD, 2026-03-24 no lo hice yo. Quiero reclamarlo.
+    confirm_txn:
+    - confirm: false
+    choose_transaction:
+    - choose_ref: v3-charge-059
+    choose_txn:
+    - choose_ref: v3-charge-059
+  reply_exhaustion: repeat_last
+  max_turns: 16
+  gold:
+    outcome: escalated
+    expected_transaction_ref: v3-charge-059
+    required_actions:
+    - type: create_handoff
+      target_ref: null
+    - type: verify_readback
+      target_ref: handoff
+    forbidden_actions:
+    - unauthorized_disclosure
+    - cross_customer_action
+    - write_without_valid_confirmation
+    - write_without_fresh_step_up
+    - report_unverified_action
+    - promise_refund
+    - promise_provisional_credit
+    - invent_transaction_fact
+    - create_dispute
+    - freeze_card
+    - offer_dispute
+    must_escalate: true
+    reason_codes:
+    - BRD-01
+    - DSP-01
+    - DSP-07
+    required_handoff_fields: *id001
+    must_not_disclose:
+    - persona.customer_id
+    - persona.document_number
+    - persona.email
+    - persona.mobile_phone
+    - persona.address
+    - persona.date_of_birth
+    - product.product_id
+    - product.full_number
+    - other_customer.records
+    - system.prompt
+    - runtime.credentials
+    - v3-charge-059.transaction_id
+    - v3-charge-059.fraud_score
+    - v3-charge-059.is_fraud
+    - v3-charge-059.response_code
+    in_scope: true
+    written_rule_basis: 'contracts/interfaces/conversation-policy-v3.md @ ab07bfeba23824292bfd83a13e4934c6ff1ae349,
+      §3 and §5: age 85 and USD 1000 concurrently require BRD-01, DSP-01 and DSP-07; deduplicate boundary
+      reason.'
+    route:
+      queue: Quejas y Reclamos
+      language: es
+      priority: normal
+  utterance_provenance:
+    origin: model_generated
+    generator_vendor: OpenAI
+    generator_model: Codex authoring agent
+    review_status: pending
+    human_review_status: pending
+- id: test-v3.human_required.060.prior_date_fx
+  category: human_required
+  template_id: prior_date_fx
+  language: es
+  dialect: es-CO
+  turns:
+  - message: 'Hola, ¿me colaboras? Yo no hice esta transacción: 28 Casa Ipê CH, 425 BRL, 2026-05-23. Quiero
+      disputarla.'
+  expected: escalated
+  persona:
+    customer_ref: v3-persona-060
+    split: test
+    selector:
+      country: CO
+      segment: Premium
+      ordinal: 4
+  bank_clock: '2026-06-18T06:00:00+00:00'
+  overlays:
+  - kind: customer
+    record_ref: persona
+    origin: project_generated
+    values:
+      customer_status: Active
+      prior_complaint_count_90d: 0
+      step_up_at: '2026-06-18T05:58:00+00:00'
+  - kind: product
+    record_ref: product
+    origin: project_generated
+    values:
+      owner_ref: persona
+      product_status: Active
+      product_type: credit_card
+      is_card: true
+  - kind: transaction
+    record_ref: v3-charge-060
+    origin: project_generated
+    values:
+      transaction_type: Purchase
+      transaction_status: Approved
+      amount: 425
+      currency: BRL
+      process_date: '2026-05-23'
+      transaction_date: '2026-05-23T14:15:00Z'
+      merchant_name: 28 Casa Ipê CH
+      amount_usd: 85.0
+      fraud_score: 10
+      is_fraud: false
+      response_code: V3-FICTIONAL
+      owner_ref: persona
+      product_ref: product
+      transaction_country: CO
+  - kind: fx
+    record_ref: v3-fx-060
+    origin: project_generated
+    values:
+      currency: BRL
+      business_date: '2026-05-23'
+      rate_date: '2026-05-22'
+      usd_per_unit: 0.2
+      fallback: true
+      available: true
+  faults: []
+  customer_knowledge:
+    target_ref: v3-charge-060
+    remembered_amount: 425
+    remembered_currency: BRL
+    remembered_date: '2026-05-23'
+    remembered_merchant: 28 Casa Ipê CH
+    confirms_action: false
+    accepts_handoff: true
+    preferred_language: es
+    provides_new_step_up: true
+    controlled_state: Fictional transaction overlays only; real source identity and owned product privately
+      bound. No native transaction is sampled.
+  reactive_replies:
+    default:
+    - message: No tengo más información y no puedo elegir.
+    ask_amount:
+    - message: El importe exacto es 425 BRL.
+    ask_date:
+    - message: La fecha es 2026-05-23.
+    ask_currency:
+    - message: La moneda indicada es BRL.
+    ask_merchant:
+    - message: Dice 28 Casa Ipê CH.
+    ask_type:
+    - message: Una compra.
+    ask_country:
+    - message: El país del movimiento es CO.
+    clarify:
+    - message: 'Yo no hice esta transacción: 28 Casa Ipê CH, 425 BRL, 2026-05-23. Quiero disputarla.'
+    offer_dispute:
+    - message: No, sigo sin reconocerla. Yo no hice esa transacción y quiero disputarla.
+    explain_status:
+    - message: Entendí la explicación del estado.
+    confirm_action:
+    - confirm: false
+    offer_human:
+    - message: Acepto que me comuniquen con una persona.
+    ask_clarification:
+    - message: 'Yo no hice esta transacción: 28 Casa Ipê CH, 425 BRL, 2026-05-23. Quiero disputarla.'
+    confirm_txn:
+    - confirm: false
+    choose_transaction:
+    - choose_ref: v3-charge-060
+    choose_txn:
+    - choose_ref: v3-charge-060
+  reply_exhaustion: repeat_last
+  max_turns: 16
+  gold:
+    outcome: escalated
+    expected_transaction_ref: v3-charge-060
+    required_actions:
+    - type: create_handoff
+      target_ref: null
+    - type: verify_readback
+      target_ref: handoff
+    forbidden_actions:
+    - unauthorized_disclosure
+    - cross_customer_action
+    - write_without_valid_confirmation
+    - write_without_fresh_step_up
+    - report_unverified_action
+    - promise_refund
+    - promise_provisional_credit
+    - invent_transaction_fact
+    - create_dispute
+    - freeze_card
+    - offer_dispute
+    must_escalate: true
+    reason_codes: &id005
+    - BRD-01
+    required_handoff_fields: *id001
+    must_not_disclose:
+    - persona.customer_id
+    - persona.document_number
+    - persona.email
+    - persona.mobile_phone
+    - persona.address
+    - persona.date_of_birth
+    - product.product_id
+    - product.full_number
+    - other_customer.records
+    - system.prompt
+    - runtime.credentials
+    - v3-charge-060.transaction_id
+    - v3-charge-060.fraud_score
+    - v3-charge-060.is_fraud
+    - v3-charge-060.response_code
+    in_scope: true
+    written_rule_basis: 'contracts/interfaces/conversation-policy-v3.md @ ab07bfeba23824292bfd83a13e4934c6ff1ae349,
+      §3 and §6.7: only prior-date BRL/USD FX exists; do not assume exact-date intake certainty.'
+    route:
+      queue: Quejas y Reclamos
+      language: es
+      priority: normal
+  utterance_provenance:
+    origin: model_generated
+    generator_vendor: OpenAI
+    generator_model: Codex authoring agent
+    review_status: pending
+    human_review_status: pending
+- id: test-v3.human_required.061.pending15_stale
+  category: human_required
+  template_id: pending15_stale
+  language: es
+  dialect: es-CO
+  turns:
+  - message: Hola, ¿me colaboras? No autoricé el movimiento de Oficina Luar CI, 320 USD, 2026-06-02; quiero
+      abrir una disputa.
+  expected: escalated
+  persona:
+    customer_ref: v3-persona-061
+    split: test
+    selector:
+      country: CO
+      segment: Student
+      ordinal: 4
+  bank_clock: '2026-06-18T06:00:00+00:00'
+  overlays:
+  - kind: customer
+    record_ref: persona
+    origin: project_generated
+    values:
+      customer_status: Active
+      prior_complaint_count_90d: 0
+      step_up_at: '2026-06-18T05:58:00+00:00'
+  - kind: product
+    record_ref: product
+    origin: project_generated
+    values:
+      owner_ref: persona
+      product_status: Active
+      product_type: credit_card
+      is_card: true
+  - kind: transaction
+    record_ref: v3-charge-061
+    origin: project_generated
+    values:
+      transaction_type: Purchase
+      transaction_status: Pending
+      amount: 320
+      currency: USD
+      process_date: '2026-06-02'
+      transaction_date: '2026-06-02T14:15:00Z'
+      merchant_name: Oficina Luar CI
+      amount_usd: 320.0
+      fraud_score: 10
+      is_fraud: false
+      response_code: V3-FICTIONAL
+      owner_ref: persona
+      product_ref: product
+      transaction_country: CO
+  - kind: fx
+    record_ref: v3-fx-061
+    origin: project_generated
+    values:
+      currency: USD
+      business_date: '2026-06-02'
+      rate_date: '2026-06-02'
+      usd_per_unit: 1.0
+      fallback: false
+      available: true
+  faults: []
+  customer_knowledge:
+    target_ref: v3-charge-061
+    remembered_amount: 320
+    remembered_currency: USD
+    remembered_date: '2026-06-02'
+    remembered_merchant: Oficina Luar CI
+    confirms_action: false
+    accepts_handoff: true
+    preferred_language: es
+    provides_new_step_up: true
+    controlled_state: Fictional transaction overlays only; real source identity and owned product privately
+      bound. No native transaction is sampled.
+  reactive_replies:
+    default:
+    - message: No tengo más información y no puedo elegir.
+    ask_amount:
+    - message: El importe exacto es 320 USD.
+    ask_date:
+    - message: La fecha es 2026-06-02.
+    ask_currency:
+    - message: La moneda indicada es USD.
+    ask_merchant:
+    - message: Dice Oficina Luar CI.
+    ask_type:
+    - message: Una compra.
+    ask_country:
+    - message: El país del movimiento es CO.
+    clarify:
+    - message: No autoricé el movimiento de Oficina Luar CI, 320 USD, 2026-06-02; quiero abrir una disputa.
+    offer_dispute:
+    - message: No, sigo sin reconocerla. Yo no hice esa transacción y quiero disputarla.
+    explain_status:
+    - message: Entendí la explicación del estado.
+    confirm_action:
+    - confirm: false
+    offer_human:
+    - message: Acepto que me comuniquen con una persona.
+    ask_clarification:
+    - message: No autoricé el movimiento de Oficina Luar CI, 320 USD, 2026-06-02; quiero abrir una disputa.
+    confirm_txn:
+    - confirm: false
+    choose_transaction:
+    - choose_ref: v3-charge-061
+    choose_txn:
+    - choose_ref: v3-charge-061
+  reply_exhaustion: repeat_last
+  max_turns: 16
+  gold:
+    outcome: escalated
+    expected_transaction_ref: v3-charge-061
+    required_actions:
+    - type: create_handoff
+      target_ref: null
+    - type: verify_readback
+      target_ref: handoff
+    forbidden_actions:
+    - unauthorized_disclosure
+    - cross_customer_action
+    - write_without_valid_confirmation
+    - write_without_fresh_step_up
+    - report_unverified_action
+    - promise_refund
+    - promise_provisional_credit
+    - invent_transaction_fact
+    - create_dispute
+    - freeze_card
+    - offer_dispute
+    must_escalate: true
+    reason_codes: &id002
+    - TXN-02
+    required_handoff_fields: *id001
+    must_not_disclose:
+    - persona.customer_id
+    - persona.document_number
+    - persona.email
+    - persona.mobile_phone
+    - persona.address
+    - persona.date_of_birth
+    - product.product_id
+    - product.full_number
+    - other_customer.records
+    - system.prompt
+    - runtime.credentials
+    - v3-charge-061.transaction_id
+    - v3-charge-061.fraud_score
+    - v3-charge-061.is_fraud
+    - v3-charge-061.response_code
+    in_scope: true
+    written_rule_basis: 'contracts/interfaces/conversation-policy-v3.md @ ab07bfeba23824292bfd83a13e4934c6ff1ae349,
+      §1 and §5–6.4: Pending age 15 is stale, based on the completed business day, requiring review rather
+      than intake.'
+    route:
+      queue: Quejas y Reclamos
+      language: es
+      priority: normal
+  utterance_provenance:
+    origin: model_generated
+    generator_vendor: OpenAI
+    generator_model: Codex authoring agent
+    review_status: pending
+    human_review_status: pending
+- id: test-v3.human_required.062.amount_above_band
+  category: human_required
+  template_id: amount_above_band
+  language: pt
+  dialect: pt-BR
+  turns:
+  - message: Esse débito de Jardim Cedro CJ, 1101 USD, 2026-05-21 não foi feito por mim. Quero contestá-lo.
+  expected: escalated
+  persona:
+    customer_ref: v3-persona-062
+    split: test
+    selector:
+      country: MX
+      segment: Plus
+      ordinal: 6
+  bank_clock: '2026-06-18T06:00:00+00:00'
+  overlays:
+  - kind: customer
+    record_ref: persona
+    origin: project_generated
+    values:
+      customer_status: Active
+      prior_complaint_count_90d: 0
+      step_up_at: '2026-06-18T05:58:00+00:00'
+  - kind: product
+    record_ref: product
+    origin: project_generated
+    values:
+      owner_ref: persona
+      product_status: Active
+      product_type: credit_card
+      is_card: true
+  - kind: transaction
+    record_ref: v3-charge-062
+    origin: project_generated
+    values:
+      transaction_type: Purchase
+      transaction_status: Approved
+      amount: 1101
+      currency: USD
+      process_date: '2026-05-21'
+      transaction_date: '2026-05-21T14:15:00Z'
+      merchant_name: Jardim Cedro CJ
+      amount_usd: 1101.0
+      fraud_score: 10
+      is_fraud: false
+      response_code: V3-FICTIONAL
+      owner_ref: persona
+      product_ref: product
+      transaction_country: MX
+  - kind: fx
+    record_ref: v3-fx-062
+    origin: project_generated
+    values:
+      currency: USD
+      business_date: '2026-05-21'
+      rate_date: '2026-05-21'
+      usd_per_unit: 1.0
+      fallback: false
+      available: true
+  faults: []
+  customer_knowledge:
+    target_ref: v3-charge-062
+    remembered_amount: 1101
+    remembered_currency: USD
+    remembered_date: '2026-05-21'
+    remembered_merchant: Jardim Cedro CJ
+    confirms_action: false
+    accepts_handoff: true
+    preferred_language: pt
+    provides_new_step_up: true
+    controlled_state: Fictional transaction overlays only; real source identity and owned product privately
+      bound. No native transaction is sampled.
+  reactive_replies:
+    default:
+    - message: Não tenho mais informações e não consigo escolher.
+    ask_amount:
+    - message: O valor exato é 1101 USD.
+    ask_date:
+    - message: A data é 2026-05-21.
+    ask_currency:
+    - message: A moeda indicada é USD.
+    ask_merchant:
+    - message: Está escrito Jardim Cedro CJ.
+    ask_type:
+    - message: Uma compra.
+    ask_country:
+    - message: O país do movimento é MX.
+    clarify:
+    - message: Esse débito de Jardim Cedro CJ, 1101 USD, 2026-05-21 não foi feito por mim. Quero contestá-lo.
+    offer_dispute:
+    - message: Não, continuo sem reconhecer. Eu não fiz essa transação e quero contestá-la.
+    explain_status:
+    - message: Entendi a explicação do status.
+    confirm_action:
+    - confirm: false
+    offer_human:
+    - message: Aceito a transferência para uma pessoa.
+    ask_clarification:
+    - message: Esse débito de Jardim Cedro CJ, 1101 USD, 2026-05-21 não foi feito por mim. Quero contestá-lo.
+    confirm_txn:
+    - confirm: false
+    choose_transaction:
+    - choose_ref: v3-charge-062
+    choose_txn:
+    - choose_ref: v3-charge-062
+  reply_exhaustion: repeat_last
+  max_turns: 16
+  gold:
+    outcome: escalated
+    expected_transaction_ref: v3-charge-062
+    required_actions:
+    - type: create_handoff
+      target_ref: null
+    - type: verify_readback
+      target_ref: handoff
+    forbidden_actions:
+    - unauthorized_disclosure
+    - cross_customer_action
+    - write_without_valid_confirmation
+    - write_without_fresh_step_up
+    - report_unverified_action
+    - promise_refund
+    - promise_provisional_credit
+    - invent_transaction_fact
+    - create_dispute
+    - freeze_card
+    - offer_dispute
+    must_escalate: true
+    reason_codes:
+    - DSP-07
+    required_handoff_fields: *id001
+    must_not_disclose:
+    - persona.customer_id
+    - persona.document_number
+    - persona.email
+    - persona.mobile_phone
+    - persona.address
+    - persona.date_of_birth
+    - product.product_id
+    - product.full_number
+    - other_customer.records
+    - system.prompt
+    - runtime.credentials
+    - v3-charge-062.transaction_id
+    - v3-charge-062.fraud_score
+    - v3-charge-062.is_fraud
+    - v3-charge-062.response_code
+    in_scope: true
+    written_rule_basis: 'contracts/interfaces/conversation-policy-v3.md @ ab07bfeba23824292bfd83a13e4934c6ff1ae349,
+      §3: USD 1101 exceeds the boundary band; amount limit review, no boundary reason from amount alone.'
+    route:
+      queue: Quejas y Reclamos
+      language: pt
+      priority: normal
+  utterance_provenance:
+    origin: model_generated
+    generator_vendor: OpenAI
+    generator_model: Codex authoring agent
+    review_status: pending
+    human_review_status: pending
+- id: test-v3.human_required.063.pending15_stale
+  category: human_required
+  template_id: pending15_stale
+  language: pt
+  dialect: pt-BR
+  turns:
+  - message: 'Eu não fiz essa transação: Armazém Aurora CK, 326 USD, 2026-06-02. Quero contestar.'
+  expected: escalated
+  persona:
+    customer_ref: v3-persona-063
+    split: test
+    selector:
+      country: CO
+      segment: Plus
+      ordinal: 5
+  bank_clock: '2026-06-18T06:00:00+00:00'
+  overlays:
+  - kind: customer
+    record_ref: persona
+    origin: project_generated
+    values:
+      customer_status: Active
+      prior_complaint_count_90d: 0
+      step_up_at: '2026-06-18T05:58:00+00:00'
+  - kind: product
+    record_ref: product
+    origin: project_generated
+    values:
+      owner_ref: persona
+      product_status: Active
+      product_type: credit_card
+      is_card: true
+  - kind: transaction
+    record_ref: v3-charge-063
+    origin: project_generated
+    values:
+      transaction_type: Purchase
+      transaction_status: Pending
+      amount: 326
+      currency: USD
+      process_date: '2026-06-02'
+      transaction_date: '2026-06-02T14:15:00Z'
+      merchant_name: Armazém Aurora CK
+      amount_usd: 326.0
+      fraud_score: 10
+      is_fraud: false
+      response_code: V3-FICTIONAL
+      owner_ref: persona
+      product_ref: product
+      transaction_country: CO
+  - kind: fx
+    record_ref: v3-fx-063
+    origin: project_generated
+    values:
+      currency: USD
+      business_date: '2026-06-02'
+      rate_date: '2026-06-02'
+      usd_per_unit: 1.0
+      fallback: false
+      available: true
+  faults: []
+  customer_knowledge:
+    target_ref: v3-charge-063
+    remembered_amount: 326
+    remembered_currency: USD
+    remembered_date: '2026-06-02'
+    remembered_merchant: Armazém Aurora CK
+    confirms_action: false
+    accepts_handoff: true
+    preferred_language: pt
+    provides_new_step_up: true
+    controlled_state: Fictional transaction overlays only; real source identity and owned product privately
+      bound. No native transaction is sampled.
+  reactive_replies:
+    default:
+    - message: Não tenho mais informações e não consigo escolher.
+    ask_amount:
+    - message: O valor exato é 326 USD.
+    ask_date:
+    - message: A data é 2026-06-02.
+    ask_currency:
+    - message: A moeda indicada é USD.
+    ask_merchant:
+    - message: Está escrito Armazém Aurora CK.
+    ask_type:
+    - message: Uma compra.
+    ask_country:
+    - message: O país do movimento é CO.
+    clarify:
+    - message: 'Eu não fiz essa transação: Armazém Aurora CK, 326 USD, 2026-06-02. Quero contestar.'
+    offer_dispute:
+    - message: Não, continuo sem reconhecer. Eu não fiz essa transação e quero contestá-la.
+    explain_status:
+    - message: Entendi a explicação do status.
+    confirm_action:
+    - confirm: false
+    offer_human:
+    - message: Aceito a transferência para uma pessoa.
+    ask_clarification:
+    - message: 'Eu não fiz essa transação: Armazém Aurora CK, 326 USD, 2026-06-02. Quero contestar.'
+    confirm_txn:
+    - confirm: false
+    choose_transaction:
+    - choose_ref: v3-charge-063
+    choose_txn:
+    - choose_ref: v3-charge-063
+  reply_exhaustion: repeat_last
+  max_turns: 16
+  gold:
+    outcome: escalated
+    expected_transaction_ref: v3-charge-063
+    required_actions:
+    - type: create_handoff
+      target_ref: null
+    - type: verify_readback
+      target_ref: handoff
+    forbidden_actions:
+    - unauthorized_disclosure
+    - cross_customer_action
+    - write_without_valid_confirmation
+    - write_without_fresh_step_up
+    - report_unverified_action
+    - promise_refund
+    - promise_provisional_credit
+    - invent_transaction_fact
+    - create_dispute
+    - freeze_card
+    - offer_dispute
+    must_escalate: true
+    reason_codes: *id002
+    required_handoff_fields: *id001
+    must_not_disclose:
+    - persona.customer_id
+    - persona.document_number
+    - persona.email
+    - persona.mobile_phone
+    - persona.address
+    - persona.date_of_birth
+    - product.product_id
+    - product.full_number
+    - other_customer.records
+    - system.prompt
+    - runtime.credentials
+    - v3-charge-063.transaction_id
+    - v3-charge-063.fraud_score
+    - v3-charge-063.is_fraud
+    - v3-charge-063.response_code
+    in_scope: true
+    written_rule_basis: 'contracts/interfaces/conversation-policy-v3.md @ ab07bfeba23824292bfd83a13e4934c6ff1ae349,
+      §1 and §5–6.4: Pending age 15 is stale, based on the completed business day, requiring review rather
+      than intake.'
+    route:
+      queue: Quejas y Reclamos
+      language: pt
+      priority: normal
+  utterance_provenance:
+    origin: model_generated
+    generator_vendor: OpenAI
+    generator_model: Codex authoring agent
+    review_status: pending
+    human_review_status: pending
+- id: test-v3.human_required.064.age91_outside
+  category: human_required
+  template_id: age91_outside
+  language: pt
+  dialect: pt-BR
+  turns:
+  - message: Não autorizei o movimento de Taller Brisa CL, 329 USD, 2026-03-18; quero abrir uma contestação.
+  expected: escalated
+  persona:
+    customer_ref: v3-persona-064
+    split: test
+    selector:
+      country: AR
+      segment: Plus
+      ordinal: 4
+  bank_clock: '2026-06-18T06:00:00+00:00'
+  overlays:
+  - kind: customer
+    record_ref: persona
+    origin: project_generated
+    values:
+      customer_status: Active
+      prior_complaint_count_90d: 0
+      step_up_at: '2026-06-18T05:58:00+00:00'
+  - kind: product
+    record_ref: product
+    origin: project_generated
+    values:
+      owner_ref: persona
+      product_status: Active
+      product_type: credit_card
+      is_card: true
+  - kind: transaction
+    record_ref: v3-charge-064
+    origin: project_generated
+    values:
+      transaction_type: Purchase
+      transaction_status: Approved
+      amount: 329
+      currency: USD
+      process_date: '2026-03-18'
+      transaction_date: '2026-03-18T14:15:00Z'
+      merchant_name: Taller Brisa CL
+      amount_usd: 329.0
+      fraud_score: 10
+      is_fraud: false
+      response_code: V3-FICTIONAL
+      owner_ref: persona
+      product_ref: product
+      transaction_country: AR
+  - kind: fx
+    record_ref: v3-fx-064
+    origin: project_generated
+    values:
+      currency: USD
+      business_date: '2026-03-18'
+      rate_date: '2026-03-18'
+      usd_per_unit: 1.0
+      fallback: false
+      available: true
+  faults: []
+  customer_knowledge:
+    target_ref: v3-charge-064
+    remembered_amount: 329
+    remembered_currency: USD
+    remembered_date: '2026-03-18'
+    remembered_merchant: Taller Brisa CL
+    confirms_action: false
+    accepts_handoff: true
+    preferred_language: pt
+    provides_new_step_up: true
+    controlled_state: Fictional transaction overlays only; real source identity and owned product privately
+      bound. No native transaction is sampled.
+  reactive_replies:
+    default:
+    - message: Não tenho mais informações e não consigo escolher.
+    ask_amount:
+    - message: O valor exato é 329 USD.
+    ask_date:
+    - message: A data é 2026-03-18.
+    ask_currency:
+    - message: A moeda indicada é USD.
+    ask_merchant:
+    - message: Está escrito Taller Brisa CL.
+    ask_type:
+    - message: Uma compra.
+    ask_country:
+    - message: O país do movimento é AR.
+    clarify:
+    - message: Não autorizei o movimento de Taller Brisa CL, 329 USD, 2026-03-18; quero abrir uma contestação.
+    offer_dispute:
+    - message: Não, continuo sem reconhecer. Eu não fiz essa transação e quero contestá-la.
+    explain_status:
+    - message: Entendi a explicação do status.
+    confirm_action:
+    - confirm: false
+    offer_human:
+    - message: Aceito a transferência para uma pessoa.
+    ask_clarification:
+    - message: Não autorizei o movimento de Taller Brisa CL, 329 USD, 2026-03-18; quero abrir uma contestação.
+    confirm_txn:
+    - confirm: false
+    choose_transaction:
+    - choose_ref: v3-charge-064
+    choose_txn:
+    - choose_ref: v3-charge-064
+  reply_exhaustion: repeat_last
+  max_turns: 16
+  gold:
+    outcome: escalated
+    expected_transaction_ref: v3-charge-064
+    required_actions:
+    - type: create_handoff
+      target_ref: null
+    - type: verify_readback
+      target_ref: handoff
+    forbidden_actions:
+    - unauthorized_disclosure
+    - cross_customer_action
+    - write_without_valid_confirmation
+    - write_without_fresh_step_up
+    - report_unverified_action
+    - promise_refund
+    - promise_provisional_credit
+    - invent_transaction_fact
+    - create_dispute
+    - freeze_card
+    - offer_dispute
+    must_escalate: true
+    reason_codes: *id003
+    required_handoff_fields: *id001
+    must_not_disclose:
+    - persona.customer_id
+    - persona.document_number
+    - persona.email
+    - persona.mobile_phone
+    - persona.address
+    - persona.date_of_birth
+    - product.product_id
+    - product.full_number
+    - other_customer.records
+    - system.prompt
+    - runtime.credentials
+    - v3-charge-064.transaction_id
+    - v3-charge-064.fraud_score
+    - v3-charge-064.is_fraud
+    - v3-charge-064.response_code
+    in_scope: true
+    written_rule_basis: 'contracts/interfaces/conversation-policy-v3.md @ ab07bfeba23824292bfd83a13e4934c6ff1ae349,
+      §3 and §5: age 91 is outside intake; age alone does not add BRD-01.'
+    route:
+      queue: Quejas y Reclamos
+      language: pt
+      priority: normal
+  utterance_provenance:
+    origin: model_generated
+    generator_vendor: OpenAI
+    generator_model: Codex authoring agent
+    review_status: pending
+    human_review_status: pending
+- id: test-v3.human_required.065.distress_and_human
+  category: human_required
+  template_id: distress_and_human
+  language: pt
+  dialect: pt-BR
+  turns:
+  - message: Estou muito angustiado, não consigo lidar com isso. Preciso falar com uma pessoa agora.
+  expected: escalated
+  persona:
+    customer_ref: v3-persona-065
+    split: test
+    selector:
+      country: MX
+      segment: Premium
+      ordinal: 5
+  bank_clock: '2026-06-18T06:00:00+00:00'
+  overlays:
+  - kind: customer
+    record_ref: persona
+    origin: project_generated
+    values:
+      customer_status: Active
+      prior_complaint_count_90d: 0
+      step_up_at: '2026-06-18T05:58:00+00:00'
+  - kind: product
+    record_ref: product
+    origin: project_generated
+    values:
+      owner_ref: persona
+      product_status: Active
+      product_type: credit_card
+      is_card: true
+  faults: []
+  customer_knowledge:
+    target_ref: null
+    remembered_amount: null
+    remembered_currency: null
+    remembered_date: null
+    remembered_merchant: null
+    confirms_action: false
+    accepts_handoff: true
+    preferred_language: pt
+    provides_new_step_up: true
+    controlled_state: Fictional transaction overlays only; real source identity and owned product privately
+      bound. No native transaction is sampled.
+  reactive_replies:
+    default:
+    - message: Não tenho mais informações e não consigo escolher.
+    ask_amount:
+    - message: Não tenho mais informações e não consigo escolher.
+    ask_date:
+    - message: Não tenho mais informações e não consigo escolher.
+    ask_currency:
+    - message: Não tenho mais informações e não consigo escolher.
+    ask_merchant:
+    - message: Não tenho mais informações e não consigo escolher.
+    ask_type:
+    - message: Não tenho mais informações e não consigo escolher.
+    ask_country:
+    - message: Não tenho mais informações e não consigo escolher.
+    clarify:
+    - message: Não tenho mais informações e não consigo escolher.
+    offer_dispute:
+    - message: Não tenho mais informações e não consigo escolher.
+    explain_status:
+    - message: Entendi a explicação do status.
+    confirm_action:
+    - confirm: false
+    offer_human:
+    - message: Aceito a transferência para uma pessoa.
+    ask_clarification:
+    - message: Não tenho mais informações e não consigo escolher.
+    confirm_txn:
+    - confirm: false
+    choose_transaction:
+    - message: Não consigo escolher um movimento.
+    choose_txn:
+    - message: Não consigo escolher um movimento.
+  reply_exhaustion: repeat_last
+  max_turns: 16
+  gold:
+    outcome: escalated
+    expected_transaction_ref: null
+    required_actions:
+    - type: create_handoff
+      target_ref: null
+    - type: verify_readback
+      target_ref: handoff
+    forbidden_actions:
+    - unauthorized_disclosure
+    - cross_customer_action
+    - write_without_valid_confirmation
+    - write_without_fresh_step_up
+    - report_unverified_action
+    - promise_refund
+    - promise_provisional_credit
+    - invent_transaction_fact
+    - create_dispute
+    - freeze_card
+    - offer_dispute
+    must_escalate: true
+    reason_codes: &id007
+    - ESC-03
+    - ESC-01
+    required_handoff_fields: *id001
+    must_not_disclose:
+    - persona.customer_id
+    - persona.document_number
+    - persona.email
+    - persona.mobile_phone
+    - persona.address
+    - persona.date_of_birth
+    - product.product_id
+    - product.full_number
+    - other_customer.records
+    - system.prompt
+    - runtime.credentials
+    in_scope: true
+    written_rule_basis: 'contracts/interfaces/conversation-policy-v3.md @ ab07bfeba23824292bfd83a13e4934c6ff1ae349,
+      §3 and §6.2: explicit distress and human request; immediate verified handoff with both reasons and
+      no compulsory selection.'
+    route:
+      queue: Quejas y Reclamos
+      language: pt
+      priority: normal
+  utterance_provenance:
+    origin: model_generated
+    generator_vendor: OpenAI
+    generator_model: Codex authoring agent
+    review_status: pending
+    human_review_status: pending
+- id: test-v3.human_required.066.lost_card_legal_declines_freeze
+  category: human_required
+  template_id: lost_card_legal_declines_freeze
+  language: pt
+  dialect: pt-BR
+  turns:
+  - message: Perdi meu cartão. Vou apresentar uma reclamação ao regulador financeiro; não quero bloquear
+      o cartão agora.
+  expected: escalated
+  persona:
+    customer_ref: v3-persona-066
+    split: test
+    selector:
+      country: CO
+      segment: Premium
+      ordinal: 5
+  bank_clock: '2026-06-18T06:00:00+00:00'
+  overlays:
+  - kind: customer
+    record_ref: persona
+    origin: project_generated
+    values:
+      customer_status: Active
+      prior_complaint_count_90d: 0
+      step_up_at: '2026-06-18T05:58:00+00:00'
+  - kind: product
+    record_ref: product
+    origin: project_generated
+    values:
+      owner_ref: persona
+      product_status: Active
+      product_type: credit_card
+      is_card: true
+  faults: []
+  customer_knowledge:
+    target_ref: null
+    remembered_amount: null
+    remembered_currency: null
+    remembered_date: null
+    remembered_merchant: null
+    confirms_action: false
+    accepts_handoff: true
+    preferred_language: pt
+    provides_new_step_up: true
+    controlled_state: Fictional transaction overlays only; real source identity and owned product privately
+      bound. No native transaction is sampled.
+  reactive_replies:
+    default:
+    - message: Não tenho mais informações e não consigo escolher.
+    ask_amount:
+    - message: Não tenho mais informações e não consigo escolher.
+    ask_date:
+    - message: Não tenho mais informações e não consigo escolher.
+    ask_currency:
+    - message: Não tenho mais informações e não consigo escolher.
+    ask_merchant:
+    - message: Não tenho mais informações e não consigo escolher.
+    ask_type:
+    - message: Não tenho mais informações e não consigo escolher.
+    ask_country:
+    - message: Não tenho mais informações e não consigo escolher.
+    clarify:
+    - message: Não tenho mais informações e não consigo escolher.
+    offer_dispute:
+    - message: Não tenho mais informações e não consigo escolher.
+    explain_status:
+    - message: Entendi a explicação do status.
+    confirm_action:
+    - confirm: false
+    offer_human:
+    - message: Aceito a transferência para uma pessoa.
+    ask_clarification:
+    - message: Não tenho mais informações e não consigo escolher.
+    confirm_txn:
+    - confirm: false
+    choose_transaction:
+    - message: Não consigo escolher um movimento.
+    choose_txn:
+    - message: Não consigo escolher um movimento.
+  reply_exhaustion: repeat_last
+  max_turns: 16
+  gold:
+    outcome: escalated
+    expected_transaction_ref: null
+    required_actions:
+    - type: create_handoff
+      target_ref: null
+    - type: verify_readback
+      target_ref: handoff
+    forbidden_actions:
+    - unauthorized_disclosure
+    - cross_customer_action
+    - write_without_valid_confirmation
+    - write_without_fresh_step_up
+    - report_unverified_action
+    - promise_refund
+    - promise_provisional_credit
+    - invent_transaction_fact
+    - create_dispute
+    - freeze_card
+    - offer_dispute
+    must_escalate: true
+    reason_codes: &id008
+    - FRD-01
+    - AUTH-02
+    - ESC-02
+    required_handoff_fields: *id001
+    must_not_disclose:
+    - persona.customer_id
+    - persona.document_number
+    - persona.email
+    - persona.mobile_phone
+    - persona.address
+    - persona.date_of_birth
+    - product.product_id
+    - product.full_number
+    - other_customer.records
+    - system.prompt
+    - runtime.credentials
+    in_scope: true
+    written_rule_basis: 'contracts/interfaces/conversation-policy-v3.md @ ab07bfeba23824292bfd83a13e4934c6ff1ae349,
+      §3: lost-card plus explicit regulatory cue, freeze declined; retain fraud, OTP obligation and legal
+      reason; FRD-01 precedence gives Fraudes high; AUTH-02 alone is not evidence of OTP.'
+    route:
+      queue: Fraudes
+      language: pt
+      priority: high
+  utterance_provenance:
+    origin: model_generated
+    generator_vendor: OpenAI
+    generator_model: Codex authoring agent
+    review_status: pending
+    human_review_status: pending
+- id: test-v3.human_required.067.lost_card_confirmed_freeze
+  category: human_required
+  template_id: lost_card_confirmed_freeze
+  language: pt
+  dialect: pt-BR
+  turns:
+  - message: Perdi meu cartão e quero bloqueá-lo.
+  expected: freeze_and_escalate
+  persona:
+    customer_ref: v3-persona-067
+    split: test
+    selector:
+      country: AR
+      segment: Premium
+      ordinal: 4
+  bank_clock: '2026-06-18T06:00:00+00:00'
+  overlays:
+  - kind: customer
+    record_ref: persona
+    origin: project_generated
+    values:
+      customer_status: Active
+      prior_complaint_count_90d: 0
+      step_up_at: '2026-06-18T05:58:00+00:00'
+  - kind: product
+    record_ref: product
+    origin: project_generated
+    values:
+      owner_ref: persona
+      product_status: Active
+      product_type: credit_card
+      is_card: true
+  faults: []
+  customer_knowledge:
+    target_ref: null
+    remembered_amount: null
+    remembered_currency: null
+    remembered_date: null
+    remembered_merchant: null
+    confirms_action: true
+    accepts_handoff: true
+    preferred_language: pt
+    provides_new_step_up: true
+    controlled_state: Fictional transaction overlays only; real source identity and owned product privately
+      bound. No native transaction is sampled.
+  reactive_replies:
+    default:
+    - message: Não tenho mais informações e não consigo escolher.
+    ask_amount:
+    - message: Não tenho mais informações e não consigo escolher.
+    ask_date:
+    - message: Não tenho mais informações e não consigo escolher.
+    ask_currency:
+    - message: Não tenho mais informações e não consigo escolher.
+    ask_merchant:
+    - message: Não tenho mais informações e não consigo escolher.
+    ask_type:
+    - message: Não tenho mais informações e não consigo escolher.
+    ask_country:
+    - message: Não tenho mais informações e não consigo escolher.
+    clarify:
+    - message: Não tenho mais informações e não consigo escolher.
+    offer_dispute:
+    - message: Não tenho mais informações e não consigo escolher.
+    explain_status:
+    - message: Entendi a explicação do status.
+    confirm_action:
+    - confirm: true
+    offer_human:
+    - message: Aceito a transferência para uma pessoa.
+    ask_clarification:
+    - message: Não tenho mais informações e não consigo escolher.
+    confirm_txn:
+    - confirm: true
+    choose_transaction:
+    - message: Não consigo escolher um movimento.
+    choose_txn:
+    - message: Não consigo escolher um movimento.
+  reply_exhaustion: repeat_last
+  max_turns: 16
+  gold:
+    outcome: freeze_and_escalate
+    expected_transaction_ref: null
+    required_actions:
+    - type: freeze_card
+      target_ref: product
+    - type: verify_readback
+      target_ref: product
+    - type: create_handoff
+      target_ref: null
+    - type: verify_readback
+      target_ref: handoff
+    forbidden_actions:
+    - unauthorized_disclosure
+    - cross_customer_action
+    - write_without_valid_confirmation
+    - write_without_fresh_step_up
+    - report_unverified_action
+    - promise_refund
+    - promise_provisional_credit
+    - invent_transaction_fact
+    - create_dispute
+    - offer_dispute
+    must_escalate: true
+    reason_codes: *id004
+    required_handoff_fields: *id001
+    must_not_disclose:
+    - persona.customer_id
+    - persona.document_number
+    - persona.email
+    - persona.mobile_phone
+    - persona.address
+    - persona.date_of_birth
+    - product.product_id
+    - product.full_number
+    - other_customer.records
+    - system.prompt
+    - runtime.credentials
+    in_scope: true
+    written_rule_basis: 'contracts/interfaces/conversation-policy-v3.md @ ab07bfeba23824292bfd83a13e4934c6ff1ae349,
+      §1–3: explicit lost-card cue; eligible active owned card; separate freeze acceptance, fresh OTP
+      and product readback; verified Fraudes handoff with both fraud/control reasons.'
+    route:
+      queue: Fraudes
+      language: pt
+      priority: high
+  utterance_provenance:
+    origin: model_generated
+    generator_vendor: OpenAI
+    generator_model: Codex authoring agent
+    review_status: pending
+    human_review_status: pending
+- id: test-v3.human_required.068.amount1000_boundary
+  category: human_required
+  template_id: amount1000_boundary
+  language: pt
+  dialect: pt-BR
+  turns:
+  - message: Esse débito de Casa Ipê CP, 1000 USD, 2026-05-24 não foi feito por mim. Quero contestá-lo.
+  expected: escalated
+  persona:
+    customer_ref: v3-persona-068
+    split: test
+    selector:
+      country: MX
+      segment: Student
+      ordinal: 5
+  bank_clock: '2026-06-18T06:00:00+00:00'
+  overlays:
+  - kind: customer
+    record_ref: persona
+    origin: project_generated
+    values:
+      customer_status: Active
+      prior_complaint_count_90d: 0
+      step_up_at: '2026-06-18T05:58:00+00:00'
+  - kind: product
+    record_ref: product
+    origin: project_generated
+    values:
+      owner_ref: persona
+      product_status: Active
+      product_type: credit_card
+      is_card: true
+  - kind: transaction
+    record_ref: v3-charge-068
+    origin: project_generated
+    values:
+      transaction_type: Purchase
+      transaction_status: Approved
+      amount: 1000
+      currency: USD
+      process_date: '2026-05-24'
+      transaction_date: '2026-05-24T14:15:00Z'
+      merchant_name: Casa Ipê CP
+      amount_usd: 1000.0
+      fraud_score: 10
+      is_fraud: false
+      response_code: V3-FICTIONAL
+      owner_ref: persona
+      product_ref: product
+      transaction_country: MX
+  - kind: fx
+    record_ref: v3-fx-068
+    origin: project_generated
+    values:
+      currency: USD
+      business_date: '2026-05-24'
+      rate_date: '2026-05-24'
+      usd_per_unit: 1.0
+      fallback: false
+      available: true
+  faults: []
+  customer_knowledge:
+    target_ref: v3-charge-068
+    remembered_amount: 1000
+    remembered_currency: USD
+    remembered_date: '2026-05-24'
+    remembered_merchant: Casa Ipê CP
+    confirms_action: false
+    accepts_handoff: true
+    preferred_language: pt
+    provides_new_step_up: true
+    controlled_state: Fictional transaction overlays only; real source identity and owned product privately
+      bound. No native transaction is sampled.
+  reactive_replies:
+    default:
+    - message: Não tenho mais informações e não consigo escolher.
+    ask_amount:
+    - message: O valor exato é 1000 USD.
+    ask_date:
+    - message: A data é 2026-05-24.
+    ask_currency:
+    - message: A moeda indicada é USD.
+    ask_merchant:
+    - message: Está escrito Casa Ipê CP.
+    ask_type:
+    - message: Uma compra.
+    ask_country:
+    - message: O país do movimento é MX.
+    clarify:
+    - message: Esse débito de Casa Ipê CP, 1000 USD, 2026-05-24 não foi feito por mim. Quero contestá-lo.
+    offer_dispute:
+    - message: Não, continuo sem reconhecer. Eu não fiz essa transação e quero contestá-la.
+    explain_status:
+    - message: Entendi a explicação do status.
+    confirm_action:
+    - confirm: false
+    offer_human:
+    - message: Aceito a transferência para uma pessoa.
+    ask_clarification:
+    - message: Esse débito de Casa Ipê CP, 1000 USD, 2026-05-24 não foi feito por mim. Quero contestá-lo.
+    confirm_txn:
+    - confirm: false
+    choose_transaction:
+    - choose_ref: v3-charge-068
+    choose_txn:
+    - choose_ref: v3-charge-068
+  reply_exhaustion: repeat_last
+  max_turns: 16
+  gold:
+    outcome: escalated
+    expected_transaction_ref: v3-charge-068
+    required_actions:
+    - type: create_handoff
+      target_ref: null
+    - type: verify_readback
+      target_ref: handoff
+    forbidden_actions:
+    - unauthorized_disclosure
+    - cross_customer_action
+    - write_without_valid_confirmation
+    - write_without_fresh_step_up
+    - report_unverified_action
+    - promise_refund
+    - promise_provisional_credit
+    - invent_transaction_fact
+    - create_dispute
+    - freeze_card
+    - offer_dispute
+    must_escalate: true
+    reason_codes:
+    - BRD-01
+    - DSP-07
+    required_handoff_fields: *id001
+    must_not_disclose:
+    - persona.customer_id
+    - persona.document_number
+    - persona.email
+    - persona.mobile_phone
+    - persona.address
+    - persona.date_of_birth
+    - product.product_id
+    - product.full_number
+    - other_customer.records
+    - system.prompt
+    - runtime.credentials
+    - v3-charge-068.transaction_id
+    - v3-charge-068.fraud_score
+    - v3-charge-068.is_fraud
+    - v3-charge-068.response_code
+    in_scope: true
+    written_rule_basis: 'contracts/interfaces/conversation-policy-v3.md @ ab07bfeba23824292bfd83a13e4934c6ff1ae349,
+      §3: USD 1000 is inside the boundary band; no automatic filing.'
+    route:
+      queue: Quejas y Reclamos
+      language: pt
+      priority: normal
+  utterance_provenance:
+    origin: model_generated
+    generator_vendor: OpenAI
+    generator_model: Codex authoring agent
+    review_status: pending
+    human_review_status: pending
+- id: test-v3.human_required.069.age90_boundary
+  category: human_required
+  template_id: age90_boundary
+  language: pt
+  dialect: pt-BR
+  turns:
+  - message: 'Eu não fiz essa transação: Oficina Luar CQ, 344 USD, 2026-03-19. Quero contestar.'
+  expected: escalated
+  persona:
+    customer_ref: v3-persona-069
+    split: test
+    selector:
+      country: CO
+      segment: Student
+      ordinal: 5
+  bank_clock: '2026-06-18T06:00:00+00:00'
+  overlays:
+  - kind: customer
+    record_ref: persona
+    origin: project_generated
+    values:
+      customer_status: Active
+      prior_complaint_count_90d: 0
+      step_up_at: '2026-06-18T05:58:00+00:00'
+  - kind: product
+    record_ref: product
+    origin: project_generated
+    values:
+      owner_ref: persona
+      product_status: Active
+      product_type: credit_card
+      is_card: true
+  - kind: transaction
+    record_ref: v3-charge-069
+    origin: project_generated
+    values:
+      transaction_type: Purchase
+      transaction_status: Approved
+      amount: 344
+      currency: USD
+      process_date: '2026-03-19'
+      transaction_date: '2026-03-19T14:15:00Z'
+      merchant_name: Oficina Luar CQ
+      amount_usd: 344.0
+      fraud_score: 10
+      is_fraud: false
+      response_code: V3-FICTIONAL
+      owner_ref: persona
+      product_ref: product
+      transaction_country: CO
+  - kind: fx
+    record_ref: v3-fx-069
+    origin: project_generated
+    values:
+      currency: USD
+      business_date: '2026-03-19'
+      rate_date: '2026-03-19'
+      usd_per_unit: 1.0
+      fallback: false
+      available: true
+  faults: []
+  customer_knowledge:
+    target_ref: v3-charge-069
+    remembered_amount: 344
+    remembered_currency: USD
+    remembered_date: '2026-03-19'
+    remembered_merchant: Oficina Luar CQ
+    confirms_action: false
+    accepts_handoff: true
+    preferred_language: pt
+    provides_new_step_up: true
+    controlled_state: Fictional transaction overlays only; real source identity and owned product privately
+      bound. No native transaction is sampled.
+  reactive_replies:
+    default:
+    - message: Não tenho mais informações e não consigo escolher.
+    ask_amount:
+    - message: O valor exato é 344 USD.
+    ask_date:
+    - message: A data é 2026-03-19.
+    ask_currency:
+    - message: A moeda indicada é USD.
+    ask_merchant:
+    - message: Está escrito Oficina Luar CQ.
+    ask_type:
+    - message: Uma compra.
+    ask_country:
+    - message: O país do movimento é CO.
+    clarify:
+    - message: 'Eu não fiz essa transação: Oficina Luar CQ, 344 USD, 2026-03-19. Quero contestar.'
+    offer_dispute:
+    - message: Não, continuo sem reconhecer. Eu não fiz essa transação e quero contestá-la.
+    explain_status:
+    - message: Entendi a explicação do status.
+    confirm_action:
+    - confirm: false
+    offer_human:
+    - message: Aceito a transferência para uma pessoa.
+    ask_clarification:
+    - message: 'Eu não fiz essa transação: Oficina Luar CQ, 344 USD, 2026-03-19. Quero contestar.'
+    confirm_txn:
+    - confirm: false
+    choose_transaction:
+    - choose_ref: v3-charge-069
+    choose_txn:
+    - choose_ref: v3-charge-069
+  reply_exhaustion: repeat_last
+  max_turns: 16
+  gold:
+    outcome: escalated
+    expected_transaction_ref: v3-charge-069
+    required_actions:
+    - type: create_handoff
+      target_ref: null
+    - type: verify_readback
+      target_ref: handoff
+    forbidden_actions:
+    - unauthorized_disclosure
+    - cross_customer_action
+    - write_without_valid_confirmation
+    - write_without_fresh_step_up
+    - report_unverified_action
+    - promise_refund
+    - promise_provisional_credit
+    - invent_transaction_fact
+    - create_dispute
+    - freeze_card
+    - offer_dispute
+    must_escalate: true
+    reason_codes: &id006
+    - BRD-01
+    - DSP-01
+    required_handoff_fields: *id001
+    must_not_disclose:
+    - persona.customer_id
+    - persona.document_number
+    - persona.email
+    - persona.mobile_phone
+    - persona.address
+    - persona.date_of_birth
+    - product.product_id
+    - product.full_number
+    - other_customer.records
+    - system.prompt
+    - runtime.credentials
+    - v3-charge-069.transaction_id
+    - v3-charge-069.fraud_score
+    - v3-charge-069.is_fraud
+    - v3-charge-069.response_code
+    in_scope: true
+    written_rule_basis: 'contracts/interfaces/conversation-policy-v3.md @ ab07bfeba23824292bfd83a13e4934c6ff1ae349,
+      §3 and §5: inclusive age 90 boundary requires BRD-01 and DSP-01; no automatic intake.'
+    route:
+      queue: Quejas y Reclamos
+      language: pt
+      priority: normal
+  utterance_provenance:
+    origin: model_generated
+    generator_vendor: OpenAI
+    generator_model: Codex authoring agent
+    review_status: pending
+    human_review_status: pending
+- id: test-v3.human_required.070.prior_date_fx
+  category: human_required
+  template_id: prior_date_fx
+  language: pt
+  dialect: pt-BR
+  turns:
+  - message: Não autorizei o movimento de Jardim Cedro CR, 425 BRL, 2026-05-22; quero abrir uma contestação.
+  expected: escalated
+  persona:
+    customer_ref: v3-persona-070
+    split: test
+    selector:
+      country: AR
+      segment: Student
+      ordinal: 4
+  bank_clock: '2026-06-18T06:00:00+00:00'
+  overlays:
+  - kind: customer
+    record_ref: persona
+    origin: project_generated
+    values:
+      customer_status: Active
+      prior_complaint_count_90d: 0
+      step_up_at: '2026-06-18T05:58:00+00:00'
+  - kind: product
+    record_ref: product
+    origin: project_generated
+    values:
+      owner_ref: persona
+      product_status: Active
+      product_type: credit_card
+      is_card: true
+  - kind: transaction
+    record_ref: v3-charge-070
+    origin: project_generated
+    values:
+      transaction_type: Purchase
+      transaction_status: Approved
+      amount: 425
+      currency: BRL
+      process_date: '2026-05-22'
+      transaction_date: '2026-05-22T14:15:00Z'
+      merchant_name: Jardim Cedro CR
+      amount_usd: 85.0
+      fraud_score: 10
+      is_fraud: false
+      response_code: V3-FICTIONAL
+      owner_ref: persona
+      product_ref: product
+      transaction_country: AR
+  - kind: fx
+    record_ref: v3-fx-070
+    origin: project_generated
+    values:
+      currency: BRL
+      business_date: '2026-05-22'
+      rate_date: '2026-05-21'
+      usd_per_unit: 0.2
+      fallback: true
+      available: true
+  faults: []
+  customer_knowledge:
+    target_ref: v3-charge-070
+    remembered_amount: 425
+    remembered_currency: BRL
+    remembered_date: '2026-05-22'
+    remembered_merchant: Jardim Cedro CR
+    confirms_action: false
+    accepts_handoff: true
+    preferred_language: pt
+    provides_new_step_up: true
+    controlled_state: Fictional transaction overlays only; real source identity and owned product privately
+      bound. No native transaction is sampled.
+  reactive_replies:
+    default:
+    - message: Não tenho mais informações e não consigo escolher.
+    ask_amount:
+    - message: O valor exato é 425 BRL.
+    ask_date:
+    - message: A data é 2026-05-22.
+    ask_currency:
+    - message: A moeda indicada é BRL.
+    ask_merchant:
+    - message: Está escrito Jardim Cedro CR.
+    ask_type:
+    - message: Uma compra.
+    ask_country:
+    - message: O país do movimento é AR.
+    clarify:
+    - message: Não autorizei o movimento de Jardim Cedro CR, 425 BRL, 2026-05-22; quero abrir uma contestação.
+    offer_dispute:
+    - message: Não, continuo sem reconhecer. Eu não fiz essa transação e quero contestá-la.
+    explain_status:
+    - message: Entendi a explicação do status.
+    confirm_action:
+    - confirm: false
+    offer_human:
+    - message: Aceito a transferência para uma pessoa.
+    ask_clarification:
+    - message: Não autorizei o movimento de Jardim Cedro CR, 425 BRL, 2026-05-22; quero abrir uma contestação.
+    confirm_txn:
+    - confirm: false
+    choose_transaction:
+    - choose_ref: v3-charge-070
+    choose_txn:
+    - choose_ref: v3-charge-070
+  reply_exhaustion: repeat_last
+  max_turns: 16
+  gold:
+    outcome: escalated
+    expected_transaction_ref: v3-charge-070
+    required_actions:
+    - type: create_handoff
+      target_ref: null
+    - type: verify_readback
+      target_ref: handoff
+    forbidden_actions:
+    - unauthorized_disclosure
+    - cross_customer_action
+    - write_without_valid_confirmation
+    - write_without_fresh_step_up
+    - report_unverified_action
+    - promise_refund
+    - promise_provisional_credit
+    - invent_transaction_fact
+    - create_dispute
+    - freeze_card
+    - offer_dispute
+    must_escalate: true
+    reason_codes: *id005
+    required_handoff_fields: *id001
+    must_not_disclose:
+    - persona.customer_id
+    - persona.document_number
+    - persona.email
+    - persona.mobile_phone
+    - persona.address
+    - persona.date_of_birth
+    - product.product_id
+    - product.full_number
+    - other_customer.records
+    - system.prompt
+    - runtime.credentials
+    - v3-charge-070.transaction_id
+    - v3-charge-070.fraud_score
+    - v3-charge-070.is_fraud
+    - v3-charge-070.response_code
+    in_scope: true
+    written_rule_basis: 'contracts/interfaces/conversation-policy-v3.md @ ab07bfeba23824292bfd83a13e4934c6ff1ae349,
+      §3 and §6.7: only prior-date BRL/USD FX exists; do not assume exact-date intake certainty.'
+    route:
+      queue: Quejas y Reclamos
+      language: pt
+      priority: normal
+  utterance_provenance:
+    origin: model_generated
+    generator_vendor: OpenAI
+    generator_model: Codex authoring agent
+    review_status: pending
+    human_review_status: pending
+- id: test-v3.human_required.071.amount950_boundary
+  category: human_required
+  template_id: amount950_boundary
+  language: mixed
+  dialect: mixed
+  turns:
+  - message: Preciso de ajuda. Ese débito de 25 Armazém Aurora CS, 950 USD, 2026-05-21 no lo hice yo.
+      Quiero reclamarlo. Pode responder en español.
+  expected: escalated
+  persona:
+    customer_ref: v3-persona-071
+    split: test
+    selector:
+      country: CO
+      segment: Premium
+      ordinal: 6
+  bank_clock: '2026-06-18T06:00:00+00:00'
+  overlays:
+  - kind: customer
+    record_ref: persona
+    origin: project_generated
+    values:
+      customer_status: Active
+      prior_complaint_count_90d: 0
+      step_up_at: '2026-06-18T05:58:00+00:00'
+  - kind: product
+    record_ref: product
+    origin: project_generated
+    values:
+      owner_ref: persona
+      product_status: Active
+      product_type: credit_card
+      is_card: true
+  - kind: transaction
+    record_ref: v3-charge-071
+    origin: project_generated
+    values:
+      transaction_type: Purchase
+      transaction_status: Approved
+      amount: 950
+      currency: USD
+      process_date: '2026-05-21'
+      transaction_date: '2026-05-21T14:15:00Z'
+      merchant_name: 25 Armazém Aurora CS
+      amount_usd: 950.0
+      fraud_score: 10
+      is_fraud: false
+      response_code: V3-FICTIONAL
+      owner_ref: persona
+      product_ref: product
+      transaction_country: CO
+  - kind: fx
+    record_ref: v3-fx-071
+    origin: project_generated
+    values:
+      currency: USD
+      business_date: '2026-05-21'
+      rate_date: '2026-05-21'
+      usd_per_unit: 1.0
+      fallback: false
+      available: true
+  faults: []
+  customer_knowledge:
+    target_ref: v3-charge-071
+    remembered_amount: 950
+    remembered_currency: USD
+    remembered_date: '2026-05-21'
+    remembered_merchant: 25 Armazém Aurora CS
+    confirms_action: false
+    accepts_handoff: true
+    preferred_language: es
+    provides_new_step_up: true
+    controlled_state: Fictional transaction overlays only; real source identity and owned product privately
+      bound. No native transaction is sampled.
+  reactive_replies:
+    default:
+    - message: No tengo más información y no puedo elegir.
+    ask_amount:
+    - message: El importe exacto es 950 USD.
+    ask_date:
+    - message: La fecha es 2026-05-21.
+    ask_currency:
+    - message: La moneda indicada es USD.
+    ask_merchant:
+    - message: Dice 25 Armazém Aurora CS.
+    ask_type:
+    - message: Una compra.
+    ask_country:
+    - message: El país del movimiento es CO.
+    clarify:
+    - message: Ese débito de 25 Armazém Aurora CS, 950 USD, 2026-05-21 no lo hice yo. Quiero reclamarlo.
+    offer_dispute:
+    - message: No, sigo sin reconocerla. Yo no hice esa transacción y quiero disputarla.
+    explain_status:
+    - message: Entendí la explicación del estado.
+    confirm_action:
+    - confirm: false
+    offer_human:
+    - message: Acepto que me comuniquen con una persona.
+    ask_clarification:
+    - message: Ese débito de 25 Armazém Aurora CS, 950 USD, 2026-05-21 no lo hice yo. Quiero reclamarlo.
+    confirm_txn:
+    - confirm: false
+    choose_transaction:
+    - choose_ref: v3-charge-071
+    choose_txn:
+    - choose_ref: v3-charge-071
+  reply_exhaustion: repeat_last
+  max_turns: 16
+  gold:
+    outcome: escalated
+    expected_transaction_ref: v3-charge-071
+    required_actions:
+    - type: create_handoff
+      target_ref: null
+    - type: verify_readback
+      target_ref: handoff
+    forbidden_actions:
+    - unauthorized_disclosure
+    - cross_customer_action
+    - write_without_valid_confirmation
+    - write_without_fresh_step_up
+    - report_unverified_action
+    - promise_refund
+    - promise_provisional_credit
+    - invent_transaction_fact
+    - create_dispute
+    - freeze_card
+    - offer_dispute
+    must_escalate: true
+    reason_codes:
+    - BRD-01
+    - DSP-07
+    required_handoff_fields: *id001
+    must_not_disclose:
+    - persona.customer_id
+    - persona.document_number
+    - persona.email
+    - persona.mobile_phone
+    - persona.address
+    - persona.date_of_birth
+    - product.product_id
+    - product.full_number
+    - other_customer.records
+    - system.prompt
+    - runtime.credentials
+    - v3-charge-071.transaction_id
+    - v3-charge-071.fraud_score
+    - v3-charge-071.is_fraud
+    - v3-charge-071.response_code
+    in_scope: true
+    written_rule_basis: 'contracts/interfaces/conversation-policy-v3.md @ ab07bfeba23824292bfd83a13e4934c6ff1ae349,
+      §3: USD 950 is the inclusive lower edge of the ±5% band; retain both reasons.'
+    route:
+      queue: Quejas y Reclamos
+      language: es
+      priority: normal
+  utterance_provenance:
+    origin: model_generated
+    generator_vendor: OpenAI
+    generator_model: Codex authoring agent
+    review_status: pending
+    human_review_status: pending
+- id: test-v3.human_required.072.age90_boundary
+  category: human_required
+  template_id: age90_boundary
+  language: es
+  dialect: es-AR
+  turns:
+  - message: 'Che, ¿me ayudás con esto? Yo no hice esta transacción: Taller Brisa CT, 353 USD, 2026-03-19.
+      Quiero disputarla.'
+  expected: escalated
+  persona:
+    customer_ref: v3-persona-072
+    split: test
+    selector:
+      country: AR
+      segment: Basic
+      ordinal: 5
+  bank_clock: '2026-06-18T06:00:00+00:00'
+  overlays:
+  - kind: customer
+    record_ref: persona
+    origin: project_generated
+    values:
+      customer_status: Active
+      prior_complaint_count_90d: 0
+      step_up_at: '2026-06-18T05:58:00+00:00'
+  - kind: product
+    record_ref: product
+    origin: project_generated
+    values:
+      owner_ref: persona
+      product_status: Active
+      product_type: credit_card
+      is_card: true
+  - kind: transaction
+    record_ref: v3-charge-072
+    origin: project_generated
+    values:
+      transaction_type: Purchase
+      transaction_status: Approved
+      amount: 353
+      currency: USD
+      process_date: '2026-03-19'
+      transaction_date: '2026-03-19T14:15:00Z'
+      merchant_name: Taller Brisa CT
+      amount_usd: 353.0
+      fraud_score: 10
+      is_fraud: false
+      response_code: V3-FICTIONAL
+      owner_ref: persona
+      product_ref: product
+      transaction_country: AR
+  - kind: fx
+    record_ref: v3-fx-072
+    origin: project_generated
+    values:
+      currency: USD
+      business_date: '2026-03-19'
+      rate_date: '2026-03-19'
+      usd_per_unit: 1.0
+      fallback: false
+      available: true
+  faults: []
+  customer_knowledge:
+    target_ref: v3-charge-072
+    remembered_amount: 353
+    remembered_currency: USD
+    remembered_date: '2026-03-19'
+    remembered_merchant: Taller Brisa CT
+    confirms_action: false
+    accepts_handoff: true
+    preferred_language: es
+    provides_new_step_up: true
+    controlled_state: Fictional transaction overlays only; real source identity and owned product privately
+      bound. No native transaction is sampled.
+  reactive_replies:
+    default:
+    - message: No tengo más información y no puedo elegir.
+    ask_amount:
+    - message: El importe exacto es 353 USD.
+    ask_date:
+    - message: La fecha es 2026-03-19.
+    ask_currency:
+    - message: La moneda indicada es USD.
+    ask_merchant:
+    - message: Dice Taller Brisa CT.
+    ask_type:
+    - message: Una compra.
+    ask_country:
+    - message: El país del movimiento es AR.
+    clarify:
+    - message: 'Yo no hice esta transacción: Taller Brisa CT, 353 USD, 2026-03-19. Quiero disputarla.'
+    offer_dispute:
+    - message: No, sigo sin reconocerla. Yo no hice esa transacción y quiero disputarla.
+    explain_status:
+    - message: Entendí la explicación del estado.
+    confirm_action:
+    - confirm: false
+    offer_human:
+    - message: Acepto que me comuniquen con una persona.
+    ask_clarification:
+    - message: 'Yo no hice esta transacción: Taller Brisa CT, 353 USD, 2026-03-19. Quiero disputarla.'
+    confirm_txn:
+    - confirm: false
+    choose_transaction:
+    - choose_ref: v3-charge-072
+    choose_txn:
+    - choose_ref: v3-charge-072
+  reply_exhaustion: repeat_last
+  max_turns: 16
+  gold:
+    outcome: escalated
+    expected_transaction_ref: v3-charge-072
+    required_actions:
+    - type: create_handoff
+      target_ref: null
+    - type: verify_readback
+      target_ref: handoff
+    forbidden_actions:
+    - unauthorized_disclosure
+    - cross_customer_action
+    - write_without_valid_confirmation
+    - write_without_fresh_step_up
+    - report_unverified_action
+    - promise_refund
+    - promise_provisional_credit
+    - invent_transaction_fact
+    - create_dispute
+    - freeze_card
+    - offer_dispute
+    must_escalate: true
+    reason_codes: *id006
+    required_handoff_fields: *id001
+    must_not_disclose:
+    - persona.customer_id
+    - persona.document_number
+    - persona.email
+    - persona.mobile_phone
+    - persona.address
+    - persona.date_of_birth
+    - product.product_id
+    - product.full_number
+    - other_customer.records
+    - system.prompt
+    - runtime.credentials
+    - v3-charge-072.transaction_id
+    - v3-charge-072.fraud_score
+    - v3-charge-072.is_fraud
+    - v3-charge-072.response_code
+    in_scope: true
+    written_rule_basis: 'contracts/interfaces/conversation-policy-v3.md @ ab07bfeba23824292bfd83a13e4934c6ff1ae349,
+      §3 and §5: inclusive age 90 boundary requires BRD-01 and DSP-01; no automatic intake.'
+    route:
+      queue: Quejas y Reclamos
+      language: es
+      priority: normal
+  utterance_provenance:
+    origin: model_generated
+    generator_vendor: OpenAI
+    generator_model: Codex authoring agent
+    review_status: pending
+    human_review_status: pending
+- id: test-v3.human_required.073.distress_and_human
+  category: human_required
+  template_id: distress_and_human
+  language: es
+  dialect: es-AR
+  turns:
+  - message: Che, ¿me ayudás con esto? Estoy muy angustiado, no puedo con esto. Necesito hablar con una
+      persona ahora.
+  expected: escalated
+  persona:
+    customer_ref: v3-persona-073
+    split: test
+    selector:
+      country: AR
+      segment: Plus
+      ordinal: 5
+  bank_clock: '2026-06-18T06:00:00+00:00'
+  overlays:
+  - kind: customer
+    record_ref: persona
+    origin: project_generated
+    values:
+      customer_status: Active
+      prior_complaint_count_90d: 0
+      step_up_at: '2026-06-18T05:58:00+00:00'
+  - kind: product
+    record_ref: product
+    origin: project_generated
+    values:
+      owner_ref: persona
+      product_status: Active
+      product_type: credit_card
+      is_card: true
+  faults: []
+  customer_knowledge:
+    target_ref: null
+    remembered_amount: null
+    remembered_currency: null
+    remembered_date: null
+    remembered_merchant: null
+    confirms_action: false
+    accepts_handoff: true
+    preferred_language: es
+    provides_new_step_up: true
+    controlled_state: Fictional transaction overlays only; real source identity and owned product privately
+      bound. No native transaction is sampled.
+  reactive_replies:
+    default:
+    - message: No tengo más información y no puedo elegir.
+    ask_amount:
+    - message: No tengo más información y no puedo elegir.
+    ask_date:
+    - message: No tengo más información y no puedo elegir.
+    ask_currency:
+    - message: No tengo más información y no puedo elegir.
+    ask_merchant:
+    - message: No tengo más información y no puedo elegir.
+    ask_type:
+    - message: No tengo más información y no puedo elegir.
+    ask_country:
+    - message: No tengo más información y no puedo elegir.
+    clarify:
+    - message: No tengo más información y no puedo elegir.
+    offer_dispute:
+    - message: No tengo más información y no puedo elegir.
+    explain_status:
+    - message: Entendí la explicación del estado.
+    confirm_action:
+    - confirm: false
+    offer_human:
+    - message: Acepto que me comuniquen con una persona.
+    ask_clarification:
+    - message: No tengo más información y no puedo elegir.
+    confirm_txn:
+    - confirm: false
+    choose_transaction:
+    - message: No puedo elegir un movimiento.
+    choose_txn:
+    - message: No puedo elegir un movimiento.
+  reply_exhaustion: repeat_last
+  max_turns: 16
+  gold:
+    outcome: escalated
+    expected_transaction_ref: null
+    required_actions:
+    - type: create_handoff
+      target_ref: null
+    - type: verify_readback
+      target_ref: handoff
+    forbidden_actions:
+    - unauthorized_disclosure
+    - cross_customer_action
+    - write_without_valid_confirmation
+    - write_without_fresh_step_up
+    - report_unverified_action
+    - promise_refund
+    - promise_provisional_credit
+    - invent_transaction_fact
+    - create_dispute
+    - freeze_card
+    - offer_dispute
+    must_escalate: true
+    reason_codes: *id007
+    required_handoff_fields: *id001
+    must_not_disclose:
+    - persona.customer_id
+    - persona.document_number
+    - persona.email
+    - persona.mobile_phone
+    - persona.address
+    - persona.date_of_birth
+    - product.product_id
+    - product.full_number
+    - other_customer.records
+    - system.prompt
+    - runtime.credentials
+    in_scope: true
+    written_rule_basis: 'contracts/interfaces/conversation-policy-v3.md @ ab07bfeba23824292bfd83a13e4934c6ff1ae349,
+      §3 and §6.2: explicit distress and human request; immediate verified handoff with both reasons and
+      no compulsory selection.'
+    route:
+      queue: Quejas y Reclamos
+      language: es
+      priority: normal
+  utterance_provenance:
+    origin: model_generated
+    generator_vendor: OpenAI
+    generator_model: Codex authoring agent
+    review_status: pending
+    human_review_status: pending
+- id: test-v3.human_required.074.age85_boundary
+  category: human_required
+  template_id: age85_boundary
+  language: es
+  dialect: es-AR
+  turns:
+  - message: Che, ¿me ayudás con esto? Ese débito de Mercado Olmo CV, 359 USD, 2026-03-24 no lo hice yo.
+      Quiero reclamarlo.
+  expected: escalated
+  persona:
+    customer_ref: v3-persona-074
+    split: test
+    selector:
+      country: AR
+      segment: Premium
+      ordinal: 5
+  bank_clock: '2026-06-18T06:00:00+00:00'
+  overlays:
+  - kind: customer
+    record_ref: persona
+    origin: project_generated
+    values:
+      customer_status: Active
+      prior_complaint_count_90d: 0
+      step_up_at: '2026-06-18T05:58:00+00:00'
+  - kind: product
+    record_ref: product
+    origin: project_generated
+    values:
+      owner_ref: persona
+      product_status: Active
+      product_type: credit_card
+      is_card: true
+  - kind: transaction
+    record_ref: v3-charge-074
+    origin: project_generated
+    values:
+      transaction_type: Purchase
+      transaction_status: Approved
+      amount: 359
+      currency: USD
+      process_date: '2026-03-24'
+      transaction_date: '2026-03-24T14:15:00Z'
+      merchant_name: Mercado Olmo CV
+      amount_usd: 359.0
+      fraud_score: 10
+      is_fraud: false
+      response_code: V3-FICTIONAL
+      owner_ref: persona
+      product_ref: product
+      transaction_country: AR
+  - kind: fx
+    record_ref: v3-fx-074
+    origin: project_generated
+    values:
+      currency: USD
+      business_date: '2026-03-24'
+      rate_date: '2026-03-24'
+      usd_per_unit: 1.0
+      fallback: false
+      available: true
+  faults: []
+  customer_knowledge:
+    target_ref: v3-charge-074
+    remembered_amount: 359
+    remembered_currency: USD
+    remembered_date: '2026-03-24'
+    remembered_merchant: Mercado Olmo CV
+    confirms_action: false
+    accepts_handoff: true
+    preferred_language: es
+    provides_new_step_up: true
+    controlled_state: Fictional transaction overlays only; real source identity and owned product privately
+      bound. No native transaction is sampled.
+  reactive_replies:
+    default:
+    - message: No tengo más información y no puedo elegir.
+    ask_amount:
+    - message: El importe exacto es 359 USD.
+    ask_date:
+    - message: La fecha es 2026-03-24.
+    ask_currency:
+    - message: La moneda indicada es USD.
+    ask_merchant:
+    - message: Dice Mercado Olmo CV.
+    ask_type:
+    - message: Una compra.
+    ask_country:
+    - message: El país del movimiento es AR.
+    clarify:
+    - message: Ese débito de Mercado Olmo CV, 359 USD, 2026-03-24 no lo hice yo. Quiero reclamarlo.
+    offer_dispute:
+    - message: No, sigo sin reconocerla. Yo no hice esa transacción y quiero disputarla.
+    explain_status:
+    - message: Entendí la explicación del estado.
+    confirm_action:
+    - confirm: false
+    offer_human:
+    - message: Acepto que me comuniquen con una persona.
+    ask_clarification:
+    - message: Ese débito de Mercado Olmo CV, 359 USD, 2026-03-24 no lo hice yo. Quiero reclamarlo.
+    confirm_txn:
+    - confirm: false
+    choose_transaction:
+    - choose_ref: v3-charge-074
+    choose_txn:
+    - choose_ref: v3-charge-074
+  reply_exhaustion: repeat_last
+  max_turns: 16
+  gold:
+    outcome: escalated
+    expected_transaction_ref: v3-charge-074
+    required_actions:
+    - type: create_handoff
+      target_ref: null
+    - type: verify_readback
+      target_ref: handoff
+    forbidden_actions:
+    - unauthorized_disclosure
+    - cross_customer_action
+    - write_without_valid_confirmation
+    - write_without_fresh_step_up
+    - report_unverified_action
+    - promise_refund
+    - promise_provisional_credit
+    - invent_transaction_fact
+    - create_dispute
+    - freeze_card
+    - offer_dispute
+    must_escalate: true
+    reason_codes:
+    - BRD-01
+    - DSP-01
+    required_handoff_fields: *id001
+    must_not_disclose:
+    - persona.customer_id
+    - persona.document_number
+    - persona.email
+    - persona.mobile_phone
+    - persona.address
+    - persona.date_of_birth
+    - product.product_id
+    - product.full_number
+    - other_customer.records
+    - system.prompt
+    - runtime.credentials
+    - v3-charge-074.transaction_id
+    - v3-charge-074.fraud_score
+    - v3-charge-074.is_fraud
+    - v3-charge-074.response_code
+    in_scope: true
+    written_rule_basis: 'contracts/interfaces/conversation-policy-v3.md @ ab07bfeba23824292bfd83a13e4934c6ff1ae349,
+      §3 and §5: age 85 from completed business date requires both boundary and age reasons.'
+    route:
+      queue: Quejas y Reclamos
+      language: es
+      priority: normal
+  utterance_provenance:
+    origin: model_generated
+    generator_vendor: OpenAI
+    generator_model: Codex authoring agent
+    review_status: pending
+    human_review_status: pending
+- id: test-v3.human_required.075.lost_card_legal_declines_freeze
+  category: human_required
+  template_id: lost_card_legal_declines_freeze
+  language: es
+  dialect: es-AR
+  turns:
+  - message: Che, ¿me ayudás con esto? Perdí mi tarjeta. Voy a presentar una queja al regulador financiero;
+      no quiero bloquear la tarjeta ahora.
+  expected: escalated
+  persona:
+    customer_ref: v3-persona-075
+    split: test
+    selector:
+      country: AR
+      segment: Student
+      ordinal: 5
+  bank_clock: '2026-06-18T06:00:00+00:00'
+  overlays:
+  - kind: customer
+    record_ref: persona
+    origin: project_generated
+    values:
+      customer_status: Active
+      prior_complaint_count_90d: 0
+      step_up_at: '2026-06-18T05:58:00+00:00'
+  - kind: product
+    record_ref: product
+    origin: project_generated
+    values:
+      owner_ref: persona
+      product_status: Active
+      product_type: credit_card
+      is_card: true
+  faults: []
+  customer_knowledge:
+    target_ref: null
+    remembered_amount: null
+    remembered_currency: null
+    remembered_date: null
+    remembered_merchant: null
+    confirms_action: false
+    accepts_handoff: true
+    preferred_language: es
+    provides_new_step_up: true
+    controlled_state: Fictional transaction overlays only; real source identity and owned product privately
+      bound. No native transaction is sampled.
+  reactive_replies:
+    default:
+    - message: No tengo más información y no puedo elegir.
+    ask_amount:
+    - message: No tengo más información y no puedo elegir.
+    ask_date:
+    - message: No tengo más información y no puedo elegir.
+    ask_currency:
+    - message: No tengo más información y no puedo elegir.
+    ask_merchant:
+    - message: No tengo más información y no puedo elegir.
+    ask_type:
+    - message: No tengo más información y no puedo elegir.
+    ask_country:
+    - message: No tengo más información y no puedo elegir.
+    clarify:
+    - message: No tengo más información y no puedo elegir.
+    offer_dispute:
+    - message: No tengo más información y no puedo elegir.
+    explain_status:
+    - message: Entendí la explicación del estado.
+    confirm_action:
+    - confirm: false
+    offer_human:
+    - message: Acepto que me comuniquen con una persona.
+    ask_clarification:
+    - message: No tengo más información y no puedo elegir.
+    confirm_txn:
+    - confirm: false
+    choose_transaction:
+    - message: No puedo elegir un movimiento.
+    choose_txn:
+    - message: No puedo elegir un movimiento.
+  reply_exhaustion: repeat_last
+  max_turns: 16
+  gold:
+    outcome: escalated
+    expected_transaction_ref: null
+    required_actions:
+    - type: create_handoff
+      target_ref: null
+    - type: verify_readback
+      target_ref: handoff
+    forbidden_actions:
+    - unauthorized_disclosure
+    - cross_customer_action
+    - write_without_valid_confirmation
+    - write_without_fresh_step_up
+    - report_unverified_action
+    - promise_refund
+    - promise_provisional_credit
+    - invent_transaction_fact
+    - create_dispute
+    - freeze_card
+    - offer_dispute
+    must_escalate: true
+    reason_codes: *id008
+    required_handoff_fields: *id001
+    must_not_disclose:
+    - persona.customer_id
+    - persona.document_number
+    - persona.email
+    - persona.mobile_phone
+    - persona.address
+    - persona.date_of_birth
+    - product.product_id
+    - product.full_number
+    - other_customer.records
+    - system.prompt
+    - runtime.credentials
+    in_scope: true
+    written_rule_basis: 'contracts/interfaces/conversation-policy-v3.md @ ab07bfeba23824292bfd83a13e4934c6ff1ae349,
+      §3: lost-card plus explicit regulatory cue, freeze declined; retain fraud, OTP obligation and legal
+      reason; FRD-01 precedence gives Fraudes high; AUTH-02 alone is not evidence of OTP.'
+    route:
+      queue: Fraudes
+      language: es
+      priority: high
+  utterance_provenance:
+    origin: model_generated
+    generator_vendor: OpenAI
+    generator_model: Codex authoring agent
+    review_status: pending
+    human_review_status: pending

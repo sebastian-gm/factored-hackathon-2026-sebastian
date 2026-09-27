@@ -1,0 +1,48 @@
+{
+  "category_counts": {
+    "ambiguous_unsupported": 6,
+    "human_required": 6,
+    "normal": 11,
+    "security_robustness": 7
+  },
+  "language_counts": {
+    "es": 12,
+    "mixed": 2,
+    "pt": 16
+  },
+  "method": "Within each category select one ES and one PT by seeded rank, plus one mixed in normal; fill remaining quota by the same rank without reseeding.",
+  "n": 30,
+  "scenario_ids": [
+    "test-v3.normal.002.unfamiliar_then_recognized",
+    "test-v3.normal.014.pending_denied_after_offer",
+    "test-v3.normal.013.unfamiliar_then_recognized",
+    "test-v3.normal.018.existing_case",
+    "test-v3.normal.017.explicit_denial",
+    "test-v3.normal.009.unfamiliar_then_recognized",
+    "test-v3.normal.025.exact_date_fx",
+    "test-v3.normal.016.explicit_denial",
+    "test-v3.normal.005.unfamiliar_then_denied",
+    "test-v3.normal.033.pending_denied_after_offer",
+    "test-v3.normal.022.unfamiliar_then_denied",
+    "test-v3.ambiguous_unsupported.038.choice_then_recognition",
+    "test-v3.ambiguous_unsupported.050.choice_then_recognition",
+    "test-v3.ambiguous_unsupported.051.clarify_amount_retains_intent",
+    "test-v3.ambiguous_unsupported.042.explicit_choice_retains_intent",
+    "test-v3.ambiguous_unsupported.054.uncertain_after_offer",
+    "test-v3.ambiguous_unsupported.052.explicit_choice_retains_intent",
+    "test-v3.human_required.058.lost_card_confirmed_freeze",
+    "test-v3.human_required.066.lost_card_legal_declines_freeze",
+    "test-v3.human_required.072.age90_boundary",
+    "test-v3.human_required.068.amount1000_boundary",
+    "test-v3.human_required.062.amount_above_band",
+    "test-v3.human_required.069.age90_boundary",
+    "test-v3.security_robustness.082.cross_customer_legal_second",
+    "test-v3.security_robustness.096.committed_case_readback_failure",
+    "test-v3.security_robustness.090.cross_customer_second",
+    "test-v3.security_robustness.085.cross_customer_first",
+    "test-v3.security_robustness.080.stale_otp_then_renewed",
+    "test-v3.security_robustness.083.cross_customer_first",
+    "test-v3.security_robustness.078.outage_and_unsuccessful_fallback"
+  ],
+  "seed": "heldout-e2e-v3-20260927-independent-01:judge"
+}
