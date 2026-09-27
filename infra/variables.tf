@@ -26,6 +26,20 @@ variable "budget_start_date" {
   type        = string
   description = "First UTC day of the deployment month, fixed after creation."
 }
+variable "budget_usd_to_billing_rate" {
+  type        = number
+  default     = 1
+  description = "Documented reference conversion; refresh monthly if billing currency is not USD."
+  validation {
+    condition     = var.budget_usd_to_billing_rate > 0
+    error_message = "A positive currency conversion is required."
+  }
+}
+variable "budget_currency" {
+  type        = string
+  default     = "USD"
+  description = "Expected billing currency for readback; Azure determines the budget currency."
+}
 variable "image_tag" {
   type        = string
   description = "Full verified origin/main Git commit SHA."

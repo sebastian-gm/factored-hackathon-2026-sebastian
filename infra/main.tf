@@ -96,6 +96,8 @@ resource "azurerm_postgresql_flexible_server" "dev" {
   tags = local.tags
   lifecycle {
     prevent_destroy = true
+    # Azure selects the initial zone; preserve it on subsequent low-cost dev applies.
+    ignore_changes = [zone]
   }
 }
 resource "azurerm_postgresql_flexible_server_database" "app" {
@@ -138,7 +140,7 @@ resource "azurerm_container_app_environment" "dev" {
 resource "azurerm_consumption_budget_resource_group" "dev" {
   name              = "budget-${local.suffix}"
   resource_group_id = data.azurerm_resource_group.dev.id
-  amount            = 50
+  amount            = floor(50 * var.budget_usd_to_billing_rate * 100) / 100
   time_grain        = "Monthly"
   time_period {
     start_date = var.budget_start_date
