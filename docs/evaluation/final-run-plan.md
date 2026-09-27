@@ -6,6 +6,14 @@ Sebastian accepted Step 3 and authorized the Option A re-release. The #37 backen
 glass-box additions are deferred until after v2, with a separate video redeploy.
 PR #39's language model card is included in the release.
 
+The runtime release at `a52a8f3389a72e321c3b587a8063215a38383564` passed
+CI/safety, mock serving and replica recovery, real ES/PT/fraud smoke, browser
+verification across three surfaces, Azure controls and external access denial.
+API plus browser smoke charged **$0.00778471 / $0.10**, with zero unknown-cost
+attempts. The final release identity, any documentation-only retag with identical
+image digests, and its fresh gate evidence are recorded in
+`artifacts/azure/jev-release.json`. This remains **preparation, not a v2 go**.
+
 ### Cumulative ceiling, including the stopped attempt
 
 Postgres aggregate readback found **$0.02058083** charged exposure in the old
@@ -65,9 +73,9 @@ in the historical section are superseded. **Preparation is not a start signal.**
 artifacts. Historical commands below are retained for provenance only and must
 not be executed. Disclosure: a first final attempt was stopped at ~6/200 P cases after a dev-only finding; its results were never viewed.
 
-Before v2, the lead must report the Step 3 dev gate and stop for Sebastian's
-release approval. A further release verification and explicit v2 start signal
-are required. No v2 release or final execution is authorized by this edit.
+Sebastian accepted Step 3 and approved the re-release; the completed runtime
+gates are listed above. A separate explicit v2 start signal is still required.
+No final execution is authorized by this document.
 
 ### Simulator change decided on dev evidence
 
@@ -120,12 +128,12 @@ passed 20/20 dev, 20/20 confirmation and 12/12 fault cases with all triggers and
 zero observed unsafe/forbidden actions. Gate cost $0.08043419; shared dev charged
 spend $0.10791745, including diagnosis and reserve rounding. See the
 [acceptance report](../ml/dev-p-failure-analysis.md). Do not run the command again
-to improve the result. **Stop before re-release; await Sebastian.**
+to improve the result. Sebastian subsequently accepted these results and
+authorized the re-release; **stop before final v2 and await its separate go**.
 
-Before any later v2 release, enforce the cumulative $12 ceiling by capping v2
-at $12 minus the preserved v1 charge and all Option A dev spend, including
-unknown-cost reservations. This is a requirement for that later layer, not an
-already initialized v2 budget.
+The cumulative ceiling is now prepared as described above: the v2 cap is $11.87,
+both prior scopes are closed, and their preserved charged exposure includes
+unknown-cost reservations. The v2 scope has zero attempts at preparation.
 
 ## Historical v1 plan (superseded operational instructions)
 

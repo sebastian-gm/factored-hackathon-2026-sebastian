@@ -1,5 +1,60 @@
 # Progress log
 
+## 2026-09-27 — Option A re-release verified; STOP before final v2
+
+### Completed (verified)
+
+- Merged #39 first, followed by the cumulative-budget preparation (#42) and
+  exact smoke-run Terraform allowlist fix (#43). Runtime smoke SHA:
+  **`a52a8f3389a72e321c3b587a8063215a38383564`**. CI `36343084749`, safety
+  `36343084792`, and external-access workflow `36343714530` all passed.
+- Built and pushed both private images, set the ignored `image_tag`, reviewed
+  both Terraform plans, and ran `python -m scripts.azure_dev apply` for mock
+  and real stages. Ingress/capacity, database and storage stayed unchanged.
+  `python -m scripts.azure_verify` passed in both stages: owner IPv4 HTTPS,
+  internal API, app login, TLS database, approved Azure-services firewall
+  exception, managed identity/Key Vault and $30/$50 budget alerts.
+- `python -m scripts.azure_smoke` passed in mock mode: four personas, 15 scoped
+  transaction projections, two cases, four handoffs, two claims/resolutions,
+  and case recovery in the same session after an API replica replacement.
+  All three surfaces used organizer serving; no model calls in this stage.
+- `python -m scripts.azure_llm_smoke` passed all three real paths (ES dispute,
+  PT ambiguity, fraud). `python -m scripts.serving_browser --target azure`
+  passed customer chat, Agent Desk and Ops, with one handoff resolved.
+  Combined durable smoke readback: **$0.00778471 / $0.10**, 11 attempts,
+  four conversations, zero unknown-cost attempts. API cases had no fallback.
+- Private evidence is under `artifacts/azure/`: `option-a-serving-smoke.json`,
+  `option-a-release-smoke.json`, `option-a-browser.json`, image/plan receipts,
+  and `jev-release.json`. The release receipt binds the final main SHA to the
+  smoked digests and records any documentation-only retag, its fresh controls,
+  no-model-call BFF readback, CI/safety and external-denial workflow.
+- V2 budget prepared and read back with **zero attempts / $0**: scope
+  `final-evaluation-v2`, run `final-program-v2`, cap **$11.87**. Prior scopes are
+  closed without resetting history. V1 reserved exposure **$0.02058083** plus
+  dev **$0.10791745** plus the v2 limit = **$11.99849828**, below $12.
+  The unsettled v1 reserve is retained. No abandoned-v1 artifact was accessed.
+  Preparation receipt: `artifacts/final-program-v2/prepared-budget.json`.
+- Local Python tests, 15 Postgres integration tests, Ruff, strict mypy,
+  Terraform formatting/validation and private-image import checks passed
+  during release preparation. Live East US 2 estimate remains **$34.63/month**.
+
+### Done but not verified
+
+- No final-v2 evaluation, results, judge agreement or human ratings yet.
+  V2 is prepared only; no launcher or worker was started.
+- #37's optional backend API additions remain deferred until after v2 and a
+  separate video deployment. The Azure-services database firewall exception
+  remains the documented dev limitation; private access is future work.
+
+### Next / blocked
+
+- **STOP. Await Sebastian's separate final-v2 go after the release gates.**
+  Start/resume commands and cumulative-cap enforcement are documented in
+  [final-run-plan.md](../evaluation/final-run-plan.md). Never resume v1.
+- Continue from docs/status/progress-log.md. Next layer: explicitly approved
+  final-program-v2 execution. Same rules.
+- Disclosure: a first final attempt was stopped at ~6/200 P cases after a dev-only finding; its results were never viewed.
+
 ## 2026-09-27 — Approved Option A re-release preparation
 
 ### Completed (verified)
