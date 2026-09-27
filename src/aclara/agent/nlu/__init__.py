@@ -10,10 +10,12 @@ from aclara.agent.nlu.rules import (
     normalize_text,
     selected_candidate,
 )
+from aclara.agent.nlu.structured import NluResult, understand
 
 __all__ = [
     "Intent",
     "NluFrame",
+    "NluResult",
     "classify",
     "detect_language",
     "extract_amount",
@@ -21,4 +23,5 @@ __all__ = [
     "is_confirmation",
     "normalize_text",
     "selected_candidate",
+    "understand",
 ]

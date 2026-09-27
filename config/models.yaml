@@ -1,0 +1,19 @@
+# Candidate routes. Production default stays mock until the measured Pareto table is reviewed.
+models:
+  nlu: {provider: mock, model_id: deterministic-b1}
+  phrase: {provider: mock, model_id: deterministic-template}
+  gemini_flash_lite: {provider: gemini, model_id: gemini-2.5-flash-lite, key_env: GEMINI_API_KEY, output_mode: json_schema, price_id: gemini-2.5-flash-lite}
+  gemini_flash: {provider: gemini, model_id: gemini-2.5-flash, key_env: GEMINI_API_KEY, output_mode: json_schema, price_id: gemini-2.5-flash}
+  openrouter_gemini_lite: {provider: openai_compat, model_id: google/gemini-2.5-flash-lite, base_url: https://openrouter.ai/api/v1, key_env: OPENROUTER_API_KEY, output_mode: json_schema, price_id: gemini-2.5-flash-lite}
+  openrouter_deepseek: {provider: openai_compat, model_id: deepseek/deepseek-v3.2, base_url: https://openrouter.ai/api/v1, key_env: OPENROUTER_API_KEY, output_mode: json_schema, price_id: deepseek-v3.2}
+  openrouter_qwen: {provider: openai_compat, model_id: qwen/qwen3.5-flash-02-23, base_url: https://openrouter.ai/api/v1, key_env: OPENROUTER_API_KEY, output_mode: json_schema, price_id: qwen3.5-flash-02-23}
+  openrouter_grok: {provider: openai_compat, model_id: x-ai/grok-4.3, base_url: https://openrouter.ai/api/v1, key_env: OPENROUTER_API_KEY, output_mode: json_schema, price_id: grok-4.3}
+  openrouter_haiku: {provider: openai_compat, model_id: anthropic/claude-haiku-4.5, base_url: https://openrouter.ai/api/v1, key_env: OPENROUTER_API_KEY, output_mode: json_schema, price_id: claude-haiku-4.5}
+  openrouter_sonnet: {provider: openai_compat, model_id: anthropic/claude-sonnet-5, base_url: https://openrouter.ai/api/v1, key_env: OPENROUTER_API_KEY, output_mode: json_schema, price_id: claude-sonnet-5}
+  openrouter_opus: {provider: openai_compat, model_id: anthropic/claude-opus-5, base_url: https://openrouter.ai/api/v1, key_env: OPENROUTER_API_KEY, output_mode: json_schema, price_id: claude-opus-5}
+  direct_deepseek: {provider: openai_compat, model_id: deepseek-chat, base_url: https://api.deepseek.com, key_env: DEEPSEEK_API_KEY, output_mode: json_mode}
+  direct_xai: {provider: openai_compat, model_id: grok-4.3, base_url: https://api.x.ai/v1, key_env: XAI_API_KEY, output_mode: json_schema, price_id: grok-4.3}
+  direct_qwen: {provider: openai_compat, model_id: qwen3.5-flash, base_url: https://dashscope-intl.aliyuncs.com/compatible-mode/v1, key_env: DASHSCOPE_API_KEY, output_mode: json_mode}
+  direct_haiku: {provider: anthropic, model_id: claude-haiku-4-5, key_env: ANTHROPIC_API_KEY, output_mode: json_schema, price_id: claude-haiku-4.5}
+  direct_sonnet: {provider: anthropic, model_id: claude-sonnet-5, key_env: ANTHROPIC_API_KEY, output_mode: json_schema, price_id: claude-sonnet-5}
+  direct_opus: {provider: anthropic, model_id: claude-opus-5, key_env: ANTHROPIC_API_KEY, output_mode: json_schema, price_id: claude-opus-5}

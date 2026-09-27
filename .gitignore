@@ -22,3 +22,12 @@ mlruns/
 dist/
 build/
 *.egg-info
+# Azure local inputs and Terraform state/plans contain private identifiers/secrets.
+**/.terraform/
+*.tfvars
+*.tfvars.json
+*.tfstate
+*.tfstate.*
+*.tfplan
+*.backend.hcl
+crash.log

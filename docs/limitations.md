@@ -17,3 +17,7 @@
 - Transcript duration contradicts the dictionary: 24,029 null values are preserved and warned on. Complaint product ownership is a field-level FAIL; unsafe links and complaint text are excluded from gold/serving.
 - The app-error/contact comparison is event-level and descriptive, with activity confounding and repeated customers. No causal or independent-observation significance claim is made.
 - The pipeline scopes ten relevant source tables. Marketing and branch-table ingestion, comparison with the older organizer regeneration, cloud scheduling, and live source freshness are not verified by this lane.
+- The AI-lane provider, NLU, and NLG modules are built against the frozen `NluFrame` and `ResponsePlan` interfaces but are not yet wired into the lead lane's orchestrator. Rich slots remain internal to the AI lane until an additive interface proposal is reviewed.
+- No round-1 or final-test model metrics exist yet. The model-comparison table is intentionally pending; no default model has been selected.
+- Regex redaction, DLP, and grounding checks are conservative guards, not complete PII recognition or semantic factual verification. Unsafe or uncertain drafts fall back to an approved template.
+- The LLM budget counter is process-local. A shared durable counter is needed before a multi-replica public deployment.

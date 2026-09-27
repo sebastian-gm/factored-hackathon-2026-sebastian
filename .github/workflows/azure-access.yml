@@ -1,0 +1,28 @@
+name: azure-access
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - .github/workflows/azure-access.yml
+
+permissions:
+  contents: read
+
+jobs:
+  outside-owner-network:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Verify both app endpoints reject this non-allowlisted runner
+        env:
+          API_URL: https://ca-api-aclara-dev-eastus2.lemonbeach-1b769de0.eastus2.azurecontainerapps.io/healthz
+          WEB_URL: https://ca-web-aclara-dev-eastus2.lemonbeach-1b769de0.eastus2.azurecontainerapps.io/
+        shell: bash
+        run: |
+          set -euo pipefail
+          for endpoint in "$API_URL" "$WEB_URL"; do
+            code=$(curl --silent --show-error --max-time 30 --output /dev/null --write-out '%{http_code}' "$endpoint")
+            test "$code" = 403
+            echo "Non-allowlisted request denied: HTTP $code"
+          done
