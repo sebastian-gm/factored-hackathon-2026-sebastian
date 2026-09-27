@@ -98,7 +98,7 @@ def test_serving_personas_rls_three_surfaces_and_restart(tmp_path: Path) -> None
         proposal = client.post(
             endpoint + "/messages",
             headers=first,
-            json={"message": "No reconozco el cargo de Taller Horizonte por 20 USD"},
+            json={"message": "No hice el cargo de Taller Horizonte por 20 USD"},
         ).json()
         assert proposal["outcome"] == "dispute_proposed"
         case = client.post(

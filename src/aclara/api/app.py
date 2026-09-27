@@ -22,7 +22,12 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from aclara.agent.ai import AgentAI
 from aclara.agent.contracts import ResponsePlan, TransactionView
-from aclara.agent.conversation import changes_target, risk_reasons, unfamiliar_charge
+from aclara.agent.conversation import (
+    changes_target,
+    classify_request,
+    risk_reasons,
+    unfamiliar_charge,
+)
 from aclara.agent.matching import MatchState
 from aclara.agent.nlg.builder import render_dispute_offer
 from aclara.agent.nlg.grounding import redact_for_model
@@ -33,7 +38,6 @@ from aclara.agent.nlu import (
     is_confirmation,
     normalize_text,
 )
-from aclara.agent.nlu.rules import classify_nlu
 from aclara.agent.nlu.structured import NluResult, NormalizedSlots
 from aclara.agent.nlu.structured import understand as deterministic_understand
 from aclara.agent.runtime import InjectedFailure, Runtime
@@ -51,7 +55,7 @@ from aclara.api.workflows import (
     security_event,
 )
 from aclara.bank.repository import Transaction, TransactionRepository
-from aclara.bank.serving import Persona, ServingRepository
+from aclara.bank.serving import Persona, ServingRepository, demo_story_mappings
 from aclara.handoff.packet import create_packet
 from aclara.handoff.routing import AgentDirectory
 from aclara.llm.client import StructuredClient
@@ -335,6 +339,9 @@ def create_app(
         )
         if p.username
     }
+    app.state.demo_stories = demo_story_mappings(
+        ledger, app.state.personas, active_settings.bank_clock
+    )
     realms = {
         hashlib.sha256(p.username.encode()).hexdigest()[:12]: p.customer_id
         for p in app.state.personas.values()
@@ -656,12 +663,18 @@ def create_app(
         state["attempts"] += 1
         app.state.executions["security_state"] = state
         ended = state["attempts"] >= int(rule("SEC-01").parameters["end_session_attempts"])
-        conversation.proposal = None
-        conversation.offer_handle = None
-        conversation.candidates = []
-        conversation.slots = None
-        conversation.intent = None
-        conversation.unfamiliar_charge = False
+        # Invalidate all pending decisions in this authenticated session, including
+        # another chat tab. Scoped maps cannot enumerate another session's state.
+        for pending in app.state.conversations.values():
+            pending.proposal = None
+            pending.offer_handle = None
+            pending.candidates = []
+            pending.slots = None
+            pending.intent = None
+            pending.unfamiliar_charge = False
+        for key in list(app.state.idempotency):
+            if key.startswith("freeze-proposal:"):
+                del app.state.idempotency[key]
         result = {
             "response_type": "refuse",
             "outcome": "refused_security",
@@ -688,6 +701,8 @@ def create_app(
         conversation: Conversation | None = app.state.conversations.get(conversation_id)
         if conversation is None or conversation.session_id != principal.session_id:
             raise HTTPException(status_code=404, detail="Conversation not found")
+        if cross_customer(body.message):
+            return refuse_cross_customer(principal, conversation, conversation.language)
         if conversation.terminal_handoff_id:
             packet = app.state.handoffs[conversation.terminal_handoff_id]
             return {
@@ -714,7 +729,7 @@ def create_app(
                     ),
                 }
         nonlocal learned_matcher
-        frame = classify_nlu(body.message)
+        frame = classify_request(body.message)
         nlu: NluResult | None = None
         language = (
             conversation.language
@@ -722,8 +737,6 @@ def create_app(
             else frame.language
         )
         conversation.language = language
-        if cross_customer(body.message):
-            return refuse_cross_customer(principal, conversation, language)
         if injection(body.message):
             security_event(app, "direct_prompt_injection")
             clean = " ".join(
@@ -742,7 +755,7 @@ def create_app(
                     "policy_rules": ["SEC-02"],
                 }
             body = MessageBody(message=clean)
-            frame = classify(clean)
+            frame = classify_request(clean)
         reasons = escalations(body.message)
         if frame.intent == Intent.FRAUD:
             reasons.append("FRD-01")
@@ -857,7 +870,7 @@ def create_app(
                 ):
                     frame = frame.model_copy(update={"intent": conversation.intent})
                 # Conservative deterministic routing takes precedence over extracted intent.
-                guard = classify(body.message)
+                guard = classify_request(body.message)
                 if guard.intent in {Intent.HUMAN_REQUEST, Intent.FRAUD, Intent.FEE_DISPUTE}:
                     frame = guard
                 elif not offered_row and (

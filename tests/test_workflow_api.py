@@ -146,7 +146,7 @@ def test_case_duplicate_status_review_flag_and_fraud_burst():
             token = await _sign_in(client)
             headers = {"Authorization": f"Bearer {token}"}
             proposal, conversation = await message(
-                client, headers, "No reconozco el cargo de Mercado Verde"
+                client, headers, "No hice el cargo de Mercado Verde"
             )
             result = (
                 await client.post(
@@ -160,7 +160,7 @@ def test_case_duplicate_status_review_flag_and_fraud_burst():
             ).json()
             assert result["case"]["review_flag"] is True
             assert "15 días" in result["reply"]
-            duplicate, _ = await message(client, headers, "No reconozco el cargo de Mercado Verde")
+            duplicate, _ = await message(client, headers, "No hice el cargo de Mercado Verde")
             assert duplicate["outcome"] == "status_reported"
             assert duplicate["case"]["case_id"] == result["case"]["case_id"]
             status, _ = await message(client, headers, "Estado de mi caso")
@@ -210,7 +210,7 @@ def test_security_two_strikes_injection_legal_distress_and_language():
             )
             assert response["outcome"] == "refused_security"
             assert any(e["event"] == "log_security_event" for e in app.state.runtime.events)
-            response, _ = await message(client, headers, "No reconozco el cargo de Mercado Verde")
+            response, _ = await message(client, headers, "No hice el cargo de Mercado Verde")
             assert response["outcome"] == "dispute_proposed"
 
     asyncio.run(check())

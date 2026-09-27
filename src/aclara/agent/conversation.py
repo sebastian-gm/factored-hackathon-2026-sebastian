@@ -4,7 +4,8 @@ from __future__ import annotations
 
 import re
 
-from aclara.agent.nlu.rules import normalize_text
+from aclara.agent.contracts import Intent, NluFrame
+from aclara.agent.nlu.rules import classify_nlu, normalize_text
 from aclara.agent.nlu.structured import ExtractedNlu, NormalizedSlots
 from aclara.bank.repository import Transaction
 
@@ -51,3 +52,15 @@ def changes_target(message: str, row: Transaction, slots: NormalizedSlots) -> bo
         and slots.date_end
         and not slots.date_start <= row.process_date <= slots.date_end
     )
+
+
+def classify_request(message: str) -> NluFrame:
+    # "Someone else made it" describes a denial, not an access or human request.
+    sanitized = re.sub(
+        r"\b(?:lo hizo|la hizo|fue) otra persona\b", "no hice", normalize_text(message)
+    )
+    sanitized = re.sub(r"\b(?:foi|quem fez foi) outra pessoa\b", "nao fiz", sanitized)
+    frame = classify_nlu(sanitized)
+    if sanitized != normalize_text(message) and frame.intent == Intent.OUT_OF_SCOPE:
+        frame = frame.model_copy(update={"intent": Intent.DISPUTE_CHARGE})
+    return frame

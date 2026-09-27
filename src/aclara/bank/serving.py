@@ -9,6 +9,7 @@ from __future__ import annotations
 import hashlib
 from dataclasses import dataclass
 from datetime import datetime, timedelta
+from math import isfinite
 from typing import TYPE_CHECKING, Any
 
 from aclara.bank.repository import Customer, Product, Transaction, TransactionRepository
@@ -157,8 +158,49 @@ class ServingRepository(TransactionRepository):
         return current.identity == self.identity
 
 
-def persona_views(personas: dict[str, Persona]) -> list[dict[str, Any]]:
+def demo_story_mappings(
+    ledger: TransactionRepository, personas: dict[str, Persona], clock: datetime
+) -> dict[str, list[str]]:
+    """Owner-approved routing hints, enabled only from trusted scoped ledger facts."""
+    stories: dict[str, list[str]] = {}
+    for username, expected_locale in (("demo.es.mx", "es-MX"), ("demo.pt.br", "pt-BR")):
+        persona = personas.get(username)
+        if persona is None or persona.locale != expected_locale or persona.role != "ops":
+            continue
+        rows = ledger.for_customer(persona.customer_id, clock)
+        displayable = [
+            row
+            for _, row in rows
+            if isfinite(row.amount)
+            and row.amount >= 0
+            and row.merchant_name
+            and row.transaction_status in {"Approved", "Pending", "Reversed", "Declined"}
+        ]
+        available = []
+        if username == "demo.es.mx":
+            if displayable:
+                available.append("explain")
+            if any(
+                p.product_type in {"Credit Card", "Debit Card"} and p.status == "Active"
+                for _, p in ledger.products_for_customer(persona.customer_id)
+            ):
+                available.append("fraud")
+        elif len(displayable) >= 2:
+            available.append("ambiguous")
+        stories[username] = available
+    return stories
+
+
+def persona_views(
+    personas: dict[str, Persona], stories: dict[str, list[str]] | None = None
+) -> list[dict[str, Any]]:
     return [
-        {"username": p.username, "label": p.username, "locale": p.locale, "role": p.role}
+        {
+            "username": p.username,
+            "label": p.username,
+            "locale": p.locale,
+            "role": p.role,
+            "demo_stories": (stories or {}).get(p.username, []),
+        }
         for p in personas.values()
     ]

@@ -176,7 +176,7 @@ def test_api_session_proposal_case_handoff_and_execution_survive_restart(dsn: st
                 await client.post(
                     f"/chat/sessions/{cid}/messages",
                     headers=headers,
-                    json={"message": "No reconozco el cargo de Mercado Verde"},
+                    json={"message": "No hice el cargo de Mercado Verde"},
                 )
             ).json()
             principal = app.state.sessions[token]
@@ -396,6 +396,59 @@ def test_clarification_handoff_is_terminal_after_restart(dsn: str):
                 ):
                     assert not second.state.cases
                     assert len(second.state.handoffs) == 1
+        finally:
+            second_store.close()
+
+    asyncio.run(check())
+
+
+def test_offer_and_cross_customer_strikes_survive_postgres_restart(dsn: str):
+    from test_api_security import _settings, _sign_in
+    from test_dev_acceptance import ledger
+    from test_workflow_api import message
+
+    async def check():
+        from httpx import ASGITransport, AsyncClient
+
+        settings = _settings()
+        first_store = Store(dsn)
+        app = create_app(settings, ledger(), store=first_store)
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+            token = await _sign_in(client)
+            headers = {"Authorization": f"Bearer {token}"}
+            offer, conv = await message(client, headers, "No reconozco el cargo de Taller Prisma")
+            assert offer["response_type"] == "offer_dispute"
+        first_store.close()
+        second_store = Store(dsn)
+        app = create_app(settings, ledger(), store=second_store)
+        try:
+            async with AsyncClient(
+                transport=ASGITransport(app=app), base_url="http://test"
+            ) as client:
+                proposal, _ = await message(client, headers, "No fui yo", conv)
+                assert proposal["outcome"] == "dispute_proposed"
+                assert proposal["transaction"]["handle"] == offer["transaction"]["handle"]
+                first, _ = await message(client, headers, "Quiero ver la cuenta de mi esposo")
+                assert not first["session_ended"]
+                denied = await client.post(
+                    f"/chat/sessions/{conv}/confirm",
+                    headers=headers,
+                    json={
+                        "proposal_hash": proposal["proposal"]["proposal_hash"],
+                        "confirmed": True,
+                    },
+                )
+                assert denied.status_code == 409
+            second_store.close()
+            second_store = Store(dsn)
+            app = create_app(settings, ledger(), store=second_store)
+            async with AsyncClient(
+                transport=ASGITransport(app=app), base_url="http://test"
+            ) as client:
+                second, _ = await message(client, headers, "Soy el esposo del titular")
+                assert second["session_ended"] and second["verified"]
+                assert set(second["handoff"]["reason_codes"]) == {"SEC-01", "AUTH-03"}
+                assert (await client.get("/me", headers=headers)).status_code == 401
         finally:
             second_store.close()
 

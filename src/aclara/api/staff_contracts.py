@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import Field
 
@@ -23,6 +23,7 @@ class PersonaView(InterfaceModel):
     label: str
     role: Literal["customer", "agent", "ops"]
     locale: Literal["es-MX", "es-CO", "es-AR", "pt-BR"]
+    demo_stories: list[Literal["explain", "ambiguous", "fraud"]] = Field(default_factory=list)
 
 
 class Evidence(InterfaceModel):
@@ -67,6 +68,10 @@ class LlmMetadata(InterfaceModel):
     output_tokens: int
     cost_usd: float | None
     latency_ms: float
+    route: str | None = None
+    status: Literal["valid", "invalid_json", "provider_error", "refusal", "skipped"] | None = None
+    attempt: int | None = Field(default=None, ge=1)
+    judgments: dict[str, Any] | None = None
 
 
 class TraceEvent(InterfaceModel):

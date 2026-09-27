@@ -186,3 +186,58 @@ def test_structured_risk_union_and_cross_customer_restart():
             assert {"refuse_request", "log_security_event", "end_session"} <= actions
 
     asyncio.run(check())
+
+
+def test_dispute_intent_survives_inquiry_shaped_clarification():
+    async def check():
+        def answer(_s, user, schema):
+            if schema is not ExtractedNlu:
+                return "{}"
+            clarified = "Taller Prisma" in user
+            return json.dumps(
+                {
+                    "language": "es",
+                    "intent": "charge_inquiry" if clarified else "dispute_charge",
+                    "intent_confidence": 0.99,
+                    "merchant_expr": "Taller Prisma" if clarified else None,
+                    "amount_expr": "17.43" if clarified else "921",
+                    "currency_expr": "USD",
+                }
+            )
+
+        llm = StructuredClient(
+            {r: ModelSpec("mock", "context-fixture") for r in ("nlu", "phrase")},
+            {},
+            mock_response=answer,
+        )
+        app = create_app(_settings(), ledger(), runtime=Runtime(system="P"), llm_client=llm)
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+            headers = {"Authorization": f"Bearer {await _sign_in(client)}"}
+            first, conv = await message(client, headers, "No hice una compra de 921 USD")
+            assert first["response_type"] == "clarify"
+            second, _ = await message(
+                client, headers, "El cargo de Taller Prisma por 17.43 USD", conv
+            )
+            assert second["outcome"] == "dispute_proposed"
+            assert not app.state.cases
+
+    asyncio.run(check())
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "No hice el cargo de Taller Prisma, lo hizo otra persona",
+        "Não fiz a compra de Taller Prisma, foi outra pessoa",
+    ],
+)
+def test_denial_about_unknown_actor_is_not_cross_customer_access(text):
+    async def check():
+        app = create_app(_settings(), ledger())
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+            headers = {"Authorization": f"Bearer {await _sign_in(client)}"}
+            proposal, _ = await message(client, headers, text)
+            assert proposal["outcome"] == "dispute_proposed"
+            assert not any(e["event"] == "log_security_event" for e in app.state.runtime.events)
+
+    asyncio.run(check())

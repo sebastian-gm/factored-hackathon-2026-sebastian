@@ -38,7 +38,10 @@ def escalations(text: str) -> list[str]:
         )
     ):
         reasons.append("ESC-03")
-    if re.search(r"\b(persona|pessoa|humano|agente|atendente|falar com alguem)\b", value):
+    if re.search(
+        r"\b(?:quiero|necesito|hablar|pasame|derivame|quero|preciso|falar|fale|transfira).{0,60}\b(?:persona|pessoa|humano|agente|atendente|alguien|alguem)\b|^(?:una? |uma? )?(?:persona|pessoa|humano|agente|atendente)\b",
+        value,
+    ):
         reasons.append("ESC-01")
     return reasons
 

@@ -1020,6 +1020,18 @@
       "LlmMetadata": {
         "additionalProperties": false,
         "properties": {
+          "attempt": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Attempt"
+          },
           "cost_usd": {
             "anyOf": [
               {
@@ -1034,6 +1046,18 @@
           "input_tokens": {
             "title": "Input Tokens",
             "type": "integer"
+          },
+          "judgments": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Judgments"
           },
           "latency_ms": {
             "title": "Latency Ms",
@@ -1054,6 +1078,35 @@
           "provider": {
             "title": "Provider",
             "type": "string"
+          },
+          "route": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Route"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "valid",
+                  "invalid_json",
+                  "provider_error",
+                  "refusal",
+                  "skipped"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
           }
         },
         "required": [
@@ -1199,6 +1252,18 @@
       "PersonaView": {
         "additionalProperties": false,
         "properties": {
+          "demo_stories": {
+            "items": {
+              "enum": [
+                "explain",
+                "ambiguous",
+                "fraud"
+              ],
+              "type": "string"
+            },
+            "title": "Demo Stories",
+            "type": "array"
+          },
           "label": {
             "title": "Label",
             "type": "string"
