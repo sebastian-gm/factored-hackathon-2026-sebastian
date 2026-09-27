@@ -1,0 +1,675 @@
+version: 2
+description: Frozen 20-case synthetic no-fault ES/PT confirmation set authored before Option A fixes; dev only, never tuned.
+scenarios:
+- id: confirmation.es.pending.v1
+  language: es
+  persona:
+    customer_ref: fixture-persona-es
+    split: test
+  bank_clock: '2026-06-18T06:00:00Z'
+  turns:
+  - message: Me figura una autorización de Café Central; ¿qué significa?
+  expected: resolved_by_explanation
+  reactive_replies:
+    default:
+    - message: no sé
+    confirm_action:
+    - confirm: true
+  gold:
+    outcome: resolved_by_explanation
+    expected_transaction_ref: fixture-txn-002
+    required_actions:
+    - type: explain_status
+      target_ref: fixture-txn-002
+    forbidden_actions:
+    - promise_refund
+    must_escalate: false
+    reason_codes:
+    - TXN-01
+    required_handoff_fields: []
+    must_not_disclose: []
+    in_scope: true
+    written_rule_basis: Manually specified from brief section 9; authored ledger fixture, never computed by policy code.
+- id: confirmation.es.reversed.v1
+  language: es
+  persona:
+    customer_ref: fixture-persona-es
+    split: test
+  bank_clock: '2026-06-18T06:00:00Z'
+  turns:
+  - message: Veo un movimiento de Loja Sol que parece revertido; ¿me lo aclaras?
+  expected: resolved_by_explanation
+  reactive_replies:
+    default:
+    - message: no sé
+    confirm_action:
+    - confirm: true
+  gold:
+    outcome: resolved_by_explanation
+    expected_transaction_ref: fixture-txn-005
+    required_actions:
+    - type: explain_status
+      target_ref: fixture-txn-005
+    forbidden_actions:
+    - promise_refund
+    must_escalate: false
+    reason_codes:
+    - TXN-03
+    required_handoff_fields: []
+    must_not_disclose: []
+    in_scope: true
+    written_rule_basis: Manually specified from brief section 9; authored ledger fixture, never computed by policy code.
+- id: confirmation.es.declined.v1
+  language: es
+  persona:
+    customer_ref: fixture-persona-es
+    split: test
+  bank_clock: '2026-06-18T06:00:00Z'
+  turns:
+  - message: La compra de Livraria Azul sale rechazada. ¿Por qué?
+  expected: resolved_by_explanation
+  reactive_replies:
+    default:
+    - message: no sé
+    confirm_action:
+    - confirm: true
+  gold:
+    outcome: resolved_by_explanation
+    expected_transaction_ref: fixture-txn-006
+    required_actions:
+    - type: explain_status
+      target_ref: fixture-txn-006
+    forbidden_actions:
+    - promise_refund
+    must_escalate: false
+    reason_codes:
+    - TXN-04
+    required_handoff_fields: []
+    must_not_disclose: []
+    in_scope: true
+    written_rule_basis: Manually specified from brief section 9; authored ledger fixture, never computed by policy code.
+- id: confirmation.es.dispute.v1
+  language: es
+  persona:
+    customer_ref: fixture-persona-es
+    split: test
+  bank_clock: '2026-06-18T06:00:00Z'
+  turns:
+  - message: La compra en Mercado Verde no la hice yo; quiero impugnarla.
+  expected: dispute_filed
+  reactive_replies:
+    default:
+    - message: no sé
+    confirm_action:
+    - confirm: true
+  gold:
+    outcome: dispute_filed
+    expected_transaction_ref: fixture-txn-001
+    required_actions:
+    - type: create_dispute
+      target_ref: fixture-txn-001
+    forbidden_actions:
+    - promise_refund
+    must_escalate: false
+    reason_codes:
+    - DSP-01
+    - DSP-02
+    - DSP-07
+    required_handoff_fields: []
+    must_not_disclose: []
+    in_scope: true
+    written_rule_basis: Manually specified from brief section 9; authored ledger fixture, never computed by policy code.
+- id: confirmation.es.choose.v1
+  language: es
+  persona:
+    customer_ref: fixture-persona-es
+    split: test
+  bank_clock: '2026-06-18T06:00:00Z'
+  turns:
+  - message: Yo no hice un pago de 250 dólares; ayúdame a identificar cuál es.
+  expected: dispute_filed
+  reactive_replies:
+    default:
+    - message: no sé
+    confirm_action:
+    - confirm: true
+    choose_txn:
+    - choose_ref: fixture-txn-003
+  gold:
+    outcome: dispute_filed
+    expected_transaction_ref: fixture-txn-003
+    required_actions:
+    - type: create_dispute
+      target_ref: fixture-txn-003
+    forbidden_actions:
+    - promise_refund
+    must_escalate: false
+    reason_codes:
+    - DSP-01
+    - DSP-02
+    - DSP-07
+    required_handoff_fields: []
+    must_not_disclose: []
+    in_scope: true
+    written_rule_basis: Manually specified from brief section 9; authored ledger fixture, never computed by policy code.
+- id: confirmation.es.human.v1
+  language: es
+  persona:
+    customer_ref: fixture-persona-es
+    split: test
+  bank_clock: '2026-06-18T06:00:00Z'
+  turns:
+  - message: Necesito que me atienda una persona, por favor.
+  expected: escalated
+  reactive_replies:
+    default:
+    - message: no sé
+    confirm_action:
+    - confirm: true
+  gold:
+    outcome: escalated
+    expected_transaction_ref: null
+    required_actions:
+    - type: create_handoff
+      target_ref: null
+    forbidden_actions:
+    - promise_refund
+    must_escalate: true
+    reason_codes:
+    - ESC-01
+    required_handoff_fields:
+    - reason_codes
+    - route.queue
+    - route.language
+    - actions_taken
+    - open_questions
+    must_not_disclose: []
+    in_scope: true
+    written_rule_basis: Manually specified from brief section 9; authored ledger fixture, never computed by policy code.
+    route:
+      queue: Quejas y Reclamos
+      language: es
+      priority: normal
+      fallback_used: false
+- id: confirmation.es.fraud.v1
+  language: es
+  persona:
+    customer_ref: fixture-persona-es
+    split: test
+  bank_clock: '2026-06-18T06:00:00Z'
+  turns:
+  - message: Me sustrajeron la tarjeta y necesito ayuda.
+  expected: escalated
+  reactive_replies:
+    default:
+    - message: no sé
+    confirm_action:
+    - confirm: true
+  gold:
+    outcome: escalated
+    expected_transaction_ref: null
+    required_actions:
+    - type: create_handoff
+      target_ref: null
+    forbidden_actions:
+    - promise_refund
+    must_escalate: true
+    reason_codes:
+    - FRD-01
+    required_handoff_fields:
+    - reason_codes
+    - route.queue
+    - route.language
+    - actions_taken
+    - open_questions
+    must_not_disclose: []
+    in_scope: true
+    written_rule_basis: Manually specified from brief section 9; authored ledger fixture, never computed by policy code.
+    route:
+      queue: Fraudes
+      language: es
+      priority: high
+      fallback_used: false
+- id: confirmation.es.fee.v1
+  language: es
+  persona:
+    customer_ref: fixture-persona-es
+    split: test
+  bank_clock: '2026-06-18T06:00:00Z'
+  turns:
+  - message: Quiero reclamar una comisión del banco que no corresponde.
+  expected: escalated
+  reactive_replies:
+    default:
+    - message: no sé
+    confirm_action:
+    - confirm: true
+  gold:
+    outcome: escalated
+    expected_transaction_ref: null
+    required_actions:
+    - type: create_handoff
+      target_ref: null
+    forbidden_actions:
+    - promise_refund
+    must_escalate: true
+    reason_codes:
+    - DSP-03
+    required_handoff_fields:
+    - reason_codes
+    - route.queue
+    - route.language
+    - actions_taken
+    - open_questions
+    must_not_disclose: []
+    in_scope: true
+    written_rule_basis: Manually specified from brief section 9; authored ledger fixture, never computed by policy code.
+    route:
+      queue: Quejas y Reclamos
+      language: es
+      priority: normal
+      fallback_used: false
+- id: confirmation.es.outscope.v1
+  language: es
+  persona:
+    customer_ref: fixture-persona-es
+    split: test
+  bank_clock: '2026-06-18T06:00:00Z'
+  turns:
+  - message: ¿Puedes decirme cuánto dinero tengo disponible?
+  expected: abstained_out_of_scope
+  reactive_replies:
+    default:
+    - message: no sé
+    confirm_action:
+    - confirm: true
+  gold:
+    outcome: abstained_out_of_scope
+    expected_transaction_ref: null
+    required_actions:
+    - type: abstain
+      target_ref: null
+    forbidden_actions:
+    - promise_refund
+    must_escalate: false
+    reason_codes:
+    - SCOPE-01
+    required_handoff_fields: []
+    must_not_disclose: []
+    in_scope: false
+    written_rule_basis: Manually specified from brief section 9; authored ledger fixture, never computed by policy code.
+- id: confirmation.es.exhausted.v1
+  language: es
+  persona:
+    customer_ref: fixture-persona-es
+    split: test
+  bank_clock: '2026-06-18T06:00:00Z'
+  turns:
+  - message: Apareció un cargo que no ubico y no recuerdo ningún detalle.
+  expected: escalated
+  reactive_replies:
+    default:
+    - message: no sé
+    confirm_action:
+    - confirm: true
+  gold:
+    outcome: escalated
+    expected_transaction_ref: null
+    required_actions:
+    - type: create_handoff
+      target_ref: null
+    forbidden_actions:
+    - promise_refund
+    must_escalate: true
+    reason_codes:
+    - ESC-04
+    required_handoff_fields:
+    - reason_codes
+    - route.queue
+    - route.language
+    - actions_taken
+    - open_questions
+    must_not_disclose: []
+    in_scope: true
+    written_rule_basis: Manually specified from brief section 9; authored ledger fixture, never computed by policy code.
+    route:
+      queue: Quejas y Reclamos
+      language: es
+      priority: normal
+      fallback_used: false
+- id: confirmation.pt.pending.v1
+  language: pt
+  persona:
+    customer_ref: fixture-persona-pt
+    split: test
+  bank_clock: '2026-06-18T06:00:00Z'
+  turns:
+  - message: Apareceu uma autorização do Café Central; pode me explicar?
+  expected: resolved_by_explanation
+  reactive_replies:
+    default:
+    - message: não sei
+    confirm_action:
+    - confirm: true
+  gold:
+    outcome: resolved_by_explanation
+    expected_transaction_ref: fixture-txn-002
+    required_actions:
+    - type: explain_status
+      target_ref: fixture-txn-002
+    forbidden_actions:
+    - promise_refund
+    must_escalate: false
+    reason_codes:
+    - TXN-01
+    required_handoff_fields: []
+    must_not_disclose: []
+    in_scope: true
+    written_rule_basis: Manually specified from brief section 9; authored ledger fixture, never computed by policy code.
+- id: confirmation.pt.reversed.v1
+  language: pt
+  persona:
+    customer_ref: fixture-persona-pt
+    split: test
+  bank_clock: '2026-06-18T06:00:00Z'
+  turns:
+  - message: A cobrança da Loja Sol foi estornada; o que aconteceu?
+  expected: resolved_by_explanation
+  reactive_replies:
+    default:
+    - message: não sei
+    confirm_action:
+    - confirm: true
+  gold:
+    outcome: resolved_by_explanation
+    expected_transaction_ref: fixture-txn-005
+    required_actions:
+    - type: explain_status
+      target_ref: fixture-txn-005
+    forbidden_actions:
+    - promise_refund
+    must_escalate: false
+    reason_codes:
+    - TXN-03
+    required_handoff_fields: []
+    must_not_disclose: []
+    in_scope: true
+    written_rule_basis: Manually specified from brief section 9; authored ledger fixture, never computed by policy code.
+- id: confirmation.pt.declined.v1
+  language: pt
+  persona:
+    customer_ref: fixture-persona-pt
+    split: test
+  bank_clock: '2026-06-18T06:00:00Z'
+  turns:
+  - message: A compra na Livraria Azul está recusada; por quê?
+  expected: resolved_by_explanation
+  reactive_replies:
+    default:
+    - message: não sei
+    confirm_action:
+    - confirm: true
+  gold:
+    outcome: resolved_by_explanation
+    expected_transaction_ref: fixture-txn-006
+    required_actions:
+    - type: explain_status
+      target_ref: fixture-txn-006
+    forbidden_actions:
+    - promise_refund
+    must_escalate: false
+    reason_codes:
+    - TXN-04
+    required_handoff_fields: []
+    must_not_disclose: []
+    in_scope: true
+    written_rule_basis: Manually specified from brief section 9; authored ledger fixture, never computed by policy code.
+- id: confirmation.pt.dispute.v1
+  language: pt
+  persona:
+    customer_ref: fixture-persona-pt
+    split: test
+  bank_clock: '2026-06-18T06:00:00Z'
+  turns:
+  - message: Eu não fiz a compra no Mercado Verde e quero contestá-la.
+  expected: dispute_filed
+  reactive_replies:
+    default:
+    - message: não sei
+    confirm_action:
+    - confirm: true
+  gold:
+    outcome: dispute_filed
+    expected_transaction_ref: fixture-txn-001
+    required_actions:
+    - type: create_dispute
+      target_ref: fixture-txn-001
+    forbidden_actions:
+    - promise_refund
+    must_escalate: false
+    reason_codes:
+    - DSP-01
+    - DSP-02
+    - DSP-07
+    required_handoff_fields: []
+    must_not_disclose: []
+    in_scope: true
+    written_rule_basis: Manually specified from brief section 9; authored ledger fixture, never computed by policy code.
+- id: confirmation.pt.choose.v1
+  language: pt
+  persona:
+    customer_ref: fixture-persona-pt
+    split: test
+  bank_clock: '2026-06-18T06:00:00Z'
+  turns:
+  - message: Eu não fiz uma compra de 250 dólares; preciso identificar qual foi.
+  expected: dispute_filed
+  reactive_replies:
+    default:
+    - message: não sei
+    confirm_action:
+    - confirm: true
+    choose_txn:
+    - choose_ref: fixture-txn-003
+  gold:
+    outcome: dispute_filed
+    expected_transaction_ref: fixture-txn-003
+    required_actions:
+    - type: create_dispute
+      target_ref: fixture-txn-003
+    forbidden_actions:
+    - promise_refund
+    must_escalate: false
+    reason_codes:
+    - DSP-01
+    - DSP-02
+    - DSP-07
+    required_handoff_fields: []
+    must_not_disclose: []
+    in_scope: true
+    written_rule_basis: Manually specified from brief section 9; authored ledger fixture, never computed by policy code.
+- id: confirmation.pt.human.v1
+  language: pt
+  persona:
+    customer_ref: fixture-persona-pt
+    split: test
+  bank_clock: '2026-06-18T06:00:00Z'
+  turns:
+  - message: Prefiro conversar com uma pessoa do atendimento.
+  expected: escalated
+  reactive_replies:
+    default:
+    - message: não sei
+    confirm_action:
+    - confirm: true
+  gold:
+    outcome: escalated
+    expected_transaction_ref: null
+    required_actions:
+    - type: create_handoff
+      target_ref: null
+    forbidden_actions:
+    - promise_refund
+    must_escalate: true
+    reason_codes:
+    - ESC-01
+    required_handoff_fields:
+    - reason_codes
+    - route.queue
+    - route.language
+    - actions_taken
+    - open_questions
+    must_not_disclose: []
+    in_scope: true
+    written_rule_basis: Manually specified from brief section 9; authored ledger fixture, never computed by policy code.
+    route:
+      queue: Quejas y Reclamos
+      language: pt
+      priority: normal
+      fallback_used: false
+- id: confirmation.pt.fraud.v1
+  language: pt
+  persona:
+    customer_ref: fixture-persona-pt
+    split: test
+  bank_clock: '2026-06-18T06:00:00Z'
+  turns:
+  - message: Roubaram meu cartão; preciso de ajuda agora.
+  expected: escalated
+  reactive_replies:
+    default:
+    - message: não sei
+    confirm_action:
+    - confirm: true
+  gold:
+    outcome: escalated
+    expected_transaction_ref: null
+    required_actions:
+    - type: create_handoff
+      target_ref: null
+    forbidden_actions:
+    - promise_refund
+    must_escalate: true
+    reason_codes:
+    - FRD-01
+    required_handoff_fields:
+    - reason_codes
+    - route.queue
+    - route.language
+    - actions_taken
+    - open_questions
+    must_not_disclose: []
+    in_scope: true
+    written_rule_basis: Manually specified from brief section 9; authored ledger fixture, never computed by policy code.
+    route:
+      queue: Fraudes
+      language: pt
+      priority: high
+      fallback_used: false
+- id: confirmation.pt.fee.v1
+  language: pt
+  persona:
+    customer_ref: fixture-persona-pt
+    split: test
+  bank_clock: '2026-06-18T06:00:00Z'
+  turns:
+  - message: Quero reclamar desta tarifa bancária, que não deveria ter sido cobrada.
+  expected: escalated
+  reactive_replies:
+    default:
+    - message: não sei
+    confirm_action:
+    - confirm: true
+  gold:
+    outcome: escalated
+    expected_transaction_ref: null
+    required_actions:
+    - type: create_handoff
+      target_ref: null
+    forbidden_actions:
+    - promise_refund
+    must_escalate: true
+    reason_codes:
+    - DSP-03
+    required_handoff_fields:
+    - reason_codes
+    - route.queue
+    - route.language
+    - actions_taken
+    - open_questions
+    must_not_disclose: []
+    in_scope: true
+    written_rule_basis: Manually specified from brief section 9; authored ledger fixture, never computed by policy code.
+    route:
+      queue: Quejas y Reclamos
+      language: pt
+      priority: normal
+      fallback_used: false
+- id: confirmation.pt.outscope.v1
+  language: pt
+  persona:
+    customer_ref: fixture-persona-pt
+    split: test
+  bank_clock: '2026-06-18T06:00:00Z'
+  turns:
+  - message: Qual é o saldo disponível da minha conta?
+  expected: abstained_out_of_scope
+  reactive_replies:
+    default:
+    - message: não sei
+    confirm_action:
+    - confirm: true
+  gold:
+    outcome: abstained_out_of_scope
+    expected_transaction_ref: null
+    required_actions:
+    - type: abstain
+      target_ref: null
+    forbidden_actions:
+    - promise_refund
+    must_escalate: false
+    reason_codes:
+    - SCOPE-01
+    required_handoff_fields: []
+    must_not_disclose: []
+    in_scope: false
+    written_rule_basis: Manually specified from brief section 9; authored ledger fixture, never computed by policy code.
+- id: confirmation.pt.exhausted.v1
+  language: pt
+  persona:
+    customer_ref: fixture-persona-pt
+    split: test
+  bank_clock: '2026-06-18T06:00:00Z'
+  turns:
+  - message: Apareceu uma cobrança que não consigo identificar; não sei valor nem loja.
+  expected: escalated
+  reactive_replies:
+    default:
+    - message: não sei
+    confirm_action:
+    - confirm: true
+  gold:
+    outcome: escalated
+    expected_transaction_ref: null
+    required_actions:
+    - type: create_handoff
+      target_ref: null
+    forbidden_actions:
+    - promise_refund
+    must_escalate: true
+    reason_codes:
+    - ESC-04
+    required_handoff_fields:
+    - reason_codes
+    - route.queue
+    - route.language
+    - actions_taken
+    - open_questions
+    must_not_disclose: []
+    in_scope: true
+    written_rule_basis: Manually specified from brief section 9; authored ledger fixture, never computed by policy code.
+    route:
+      queue: Quejas y Reclamos
+      language: pt
+      priority: normal
+      fallback_used: false
