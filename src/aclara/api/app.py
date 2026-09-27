@@ -25,6 +25,7 @@ from aclara.agent.contracts import ResponsePlan, TransactionView
 from aclara.agent.conversation import (
     changes_target,
     classify_request,
+    recognizes_charge,
     risk_reasons,
     unfamiliar_charge,
 )
@@ -922,6 +923,8 @@ def create_app(
             recognition = nlu.extracted.recognition
             if normalize_text(body.message).strip(" .,!¿?¡") in {"si", "sim", "no", "nao"}:
                 recognition = "unsure"
+            elif recognition is None and recognizes_charge(body.message):
+                recognition = "recognized"
             elif recognition is None and (
                 frame.intent == Intent.DISPUTE_CHARGE or unfamiliar_charge(body.message)
             ):

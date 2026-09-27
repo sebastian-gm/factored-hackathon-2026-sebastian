@@ -14,12 +14,25 @@ from test_dev_acceptance import ledger
 from test_workflow_api import message, step_up
 
 from aclara.agent.contracts import DisputeCaseView
+from aclara.agent.conversation import recognizes_charge
 from aclara.agent.nlu.structured import ExtractedNlu
 from aclara.agent.runtime import Runtime
 from aclara.api.app import create_app
 from aclara.llm.client import StructuredClient
 from aclara.llm.types import ModelSpec
 from aclara.ops.store import Store
+
+
+def test_short_recognition_excludes_denial_assent_and_conflicting_requests():
+    for reply in (
+        "Sí",
+        "Sim",
+        "No la reconozco",
+        "Não reconheço",
+        "Sí la reconozco pero quiero disputarla",
+        "Sim reconheço, mas não fui eu",
+    ):
+        assert not recognizes_charge(reply)
 
 
 @pytest.mark.parametrize("system", ["B1", "P"])
@@ -87,6 +100,8 @@ def test_offer_denial_otp_and_verified_commit(system, language, opening, reply):
     [
         ("No reconozco el cargo de Taller Prisma", "Ah, ya me acordé, fui yo quien pagó"),
         ("Não reconheço a cobrança de Taller Prisma", "Já lembrei, fui eu que comprei"),
+        ("No reconozco el cargo de Taller Prisma", "Sí, la reconozco"),
+        ("Não reconheço a cobrança de Taller Prisma", "Sim, reconheço"),
     ],
 )
 def test_recognition_resolves_and_isolated_assent_never_files(system, opening, recognized):

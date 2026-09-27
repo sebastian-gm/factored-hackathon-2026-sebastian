@@ -10,6 +10,16 @@ from aclara.agent.nlu.structured import ExtractedNlu, NormalizedSlots
 from aclara.bank.repository import Transaction
 
 
+def recognizes_charge(message: str) -> bool:
+    """Accept an explicit short recognition reply, only in the offered-charge state."""
+    return bool(
+        re.fullmatch(
+            r"(?:si[, ]+)?(?:(?:la|lo) )?reconozco|(?:sim[, ]+)?(?:eu )?reconheco",
+            normalize_text(message).strip(" .,!¿?¡"),
+        )
+    )
+
+
 def unfamiliar_charge(message: str) -> bool:
     return bool(
         re.search(

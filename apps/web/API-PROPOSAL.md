@@ -35,10 +35,11 @@ password/OTP. No held-out suite or gold is used.
 The recognition buttons retain the requested short labels but send an explicit
 sentence: “Sí, la reconozco. Ya me acordé de esta compra.” / “Sim, reconheço.
 Agora lembrei dessa compra.” This remains ordinary user text, not a confirmation
-or trusted intent. The PR #51 B1/mock parser treats the shorter Spanish label by
-itself as out of scope; broader free-text recognition remains an AI/lead parser
-follow-up. Both fuller button messages are covered by authored browser checks;
-the Spanish message also runs through the real local API.
+or trusted intent. Lead integration reproduced and fixed the shorter ES/PT labels
+being treated as out of scope by the deterministic fallback. Authored API tests
+cover both short labels with B1/P mock, while isolated yes/no remains ambiguous.
+Both fuller button messages are covered by authored browser checks; the Spanish
+message also runs through the real local API.
 
 ## Existing integration
 

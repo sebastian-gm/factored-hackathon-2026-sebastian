@@ -15,7 +15,7 @@
   separately; **853 inputs unchanged**. Official v2 result is unchanged.
 - `python -m scripts.dev_gate mock --profile after-v2`: **20/20 no-fault, 12/12 faults**,
   all 12 triggers reached. B1 runner **32/32**, verified readbacks and safety checks.
-- Final local `make checks`: **228 passed / 14 database skips**, hooks, strict mypy,
+- Final combined local `make checks`: **234 passed / 14 database skips**, hooks, strict mypy,
   compilation, B1, interface snapshots and policy catalog passed. Local disposable
   Postgres tests passed **16/16**, including offer and security-strike restart
   recovery. Runtime policy 1.3.0 identifies the changed control/routing semantics;
@@ -23,15 +23,20 @@
 - Implemented #37 trace metadata and approved, scoped demo-story hints; seven staff,
   metadata and policy tests passed. Owner-approved model-run estimate is $0.15–$0.30
   under shared scope `dev-gate/after-v2` / run `after-v2`, hard $1 cap.
+- Reviewed frontend #52 and merged its exact green head into the lead branch at
+  `879c1b3e034c9c3f4eacbbd6f24c58200677de25` (four checks, including 29 browser checks).
+  Added a narrow contextual fallback for typed ES/PT recognition labels after
+  reproducing four B1/P failures from the frontend report. All 19 authored
+  conversation regressions pass; isolated yes/no still requires clarification.
 
 ### Done but not verified
 
 - Final candidate merge/CI and paid dev acceptance are pending. No new release,
-  Azure smoke or v3 execution. Frontend offer enum support is requested from its lane.
+  Azure smoke or v3 execution. Frontend offer/cancellation/reason support is integrated.
 
 ### Next / blocked
 
-- Finish local/Postgres checks, merge lead fixes with green CI, run the authorized
+- Finish combined CI, merge lead fixes with green CI, run the authorized
   dev gate on the merged SHA and report. Do not merge #50 without the separate go.
 - [Commands, changes and budget](../evaluation/after-v2-dev-gate.md). Stop after the
   Step 3 report; release/v3 still require Sebastian's later approval.
