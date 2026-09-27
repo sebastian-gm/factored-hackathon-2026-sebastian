@@ -126,6 +126,7 @@ The local Compose stack is left running for review.
 - Recorded intent accuracy, scored-slot F1, parsed-attempt JSON validity, p50/p95 latency, and response-reported cost per case in `docs/ml/model-comparison.md`. The five-model run had 200 attempts: 130 valid parsed responses, 70 refusal/truncation attempts, no invalid JSON or provider-error attempts, and 30 cases without a valid final model response. No default model was chosen.
 - Added response-billed-cost handling, retry budget checks, and a reproducible round-one runner under the AI lane. Ruff, strict mypy, and the targeted AI tests passed before the paid run.
 - After the run, `make checks` passed: all six pre-commit hooks, the working-tree file policy, compileall, pytest (27 passed), B1 dev harness (32/32; 12 read-backs and safety guards), and frozen interface snapshots.
+- After PR #4 was merged, merged the latest `main` into this published AI branch without rewriting history. Synced its declared extras offline, then `make checks` passed on the integrated tree: six hooks, file policy, compileall, pytest (40 passed, one skipped), B1 (32/32; 12 read-backs and safety guards), and interface snapshots.
 
 ### Done but not verified
 
