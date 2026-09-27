@@ -21,8 +21,16 @@ from psycopg_pool import PoolTimeout
 from pydantic import BaseModel, ConfigDict, Field
 
 from aclara.agent.ai import AgentAI
-from aclara.agent.contracts import ResponsePlan
+from aclara.agent.contracts import ResponsePlan, TransactionView
+from aclara.agent.conversation import (
+    changes_target,
+    classify_request,
+    recognizes_charge,
+    risk_reasons,
+    unfamiliar_charge,
+)
 from aclara.agent.matching import MatchState
+from aclara.agent.nlg.builder import render_dispute_offer
 from aclara.agent.nlg.grounding import redact_for_model
 from aclara.agent.nlu import (
     Intent,
@@ -31,7 +39,8 @@ from aclara.agent.nlu import (
     is_confirmation,
     normalize_text,
 )
-from aclara.agent.nlu.structured import NormalizedSlots
+from aclara.agent.nlu.structured import NluResult, NormalizedSlots
+from aclara.agent.nlu.structured import understand as deterministic_understand
 from aclara.agent.runtime import InjectedFailure, Runtime
 from aclara.agent.selection import candidates as identified_candidates
 from aclara.agent.selection import explicit_choice, scoped_inquiry_language, uncertain
@@ -47,7 +56,7 @@ from aclara.api.workflows import (
     security_event,
 )
 from aclara.bank.repository import Transaction, TransactionRepository
-from aclara.bank.serving import Persona, ServingRepository
+from aclara.bank.serving import Persona, ServingRepository, demo_story_mappings
 from aclara.handoff.packet import create_packet
 from aclara.handoff.routing import AgentDirectory
 from aclara.llm.client import StructuredClient
@@ -55,7 +64,7 @@ from aclara.ops.budget import PostgresSpendGate
 from aclara.ops.store import Scope, Store
 from aclara.policy.engine import PolicyDecision, evaluate
 from aclara.policy.rules import catalog, rule
-from aclara.policy.rules.guards import cross_customer, escalation, injection, unsupported_language
+from aclara.policy.rules.guards import cross_customer, escalations, injection, unsupported_language
 from aclara.settings import Settings
 
 
@@ -99,6 +108,7 @@ class Conversation:
     session_id: str
     language: str = "es"
     degraded: bool = False
+    model_failed: bool = False
     slots: NormalizedSlots | None = None
     candidates: list[tuple[str, Transaction]] = field(default_factory=list)
     intent: Intent | None = None
@@ -106,6 +116,9 @@ class Conversation:
     rounds: int = 0
     unsupported_turns: int = 0
     terminal_handoff_id: str | None = None
+    offer_handle: str | None = None
+    unfamiliar_charge: bool = False
+    recognition_rounds: int = 0
 
 
 class StrictModel(BaseModel):
@@ -327,6 +340,9 @@ def create_app(
         )
         if p.username
     }
+    app.state.demo_stories = demo_story_mappings(
+        ledger, app.state.personas, active_settings.bank_clock
+    )
     realms = {
         hashlib.sha256(p.username.encode()).hexdigest()[:12]: p.customer_id
         for p in app.state.personas.values()
@@ -574,14 +590,16 @@ def create_app(
             try:
                 app.state.runtime.checkpoint("MATCH")
                 result = await process_message(conversation_id, body, principal)
-            except InjectedFailure:
-                result = safe_failure(principal, classify(body.message).language)
+            except InjectedFailure as error:
+                result = safe_failure(principal, classify(body.message).language, str(error))
             app.state.runtime.record("response", response_type=result["response_type"])
             conversation = app.state.conversations.get(conversation_id)
             complete_packet(app, result, principal, conversation_id, body.message)
             if conversation and result.get("handoff"):
                 conversation.proposal = None
                 conversation.candidates = []
+                conversation.offer_handle = None
+                conversation.unfamiliar_charge = False
                 conversation.terminal_handoff_id = result["handoff"]["handoff_id"]
             result = ai.reply(
                 result,
@@ -618,8 +636,13 @@ def create_app(
                 }
         return result
 
-    def safe_failure(principal: Principal, language: str) -> dict[str, Any]:
-        packet = create_packet(language, "ESC-04", app.state.agent_directory)
+    def safe_failure(
+        principal: Principal, language: str, cause: str = "tool_failure"
+    ) -> dict[str, Any]:
+        reasons = ["COM-01", "ESC-04"]
+        if cause in {"database_timeout", "connection_reset"}:
+            reasons.append("DATA-01")
+        packet = create_packet(language, reasons, app.state.agent_directory)
         app.state.handoffs[packet["handoff_id"]] = {
             **packet,
             "customer_id": principal.customer_id,
@@ -633,6 +656,44 @@ def create_app(
             "handoff": {k: v for k, v in packet.items() if k != "request_summary"},
         }
 
+    def refuse_cross_customer(
+        principal: Principal, conversation: Conversation, language: str
+    ) -> dict[str, Any]:
+        security_event(app, "cross_customer_attempt")
+        state = app.state.executions.get("security_state", {"attempts": 0})
+        state["attempts"] += 1
+        app.state.executions["security_state"] = state
+        ended = state["attempts"] >= int(rule("SEC-01").parameters["end_session_attempts"])
+        # Invalidate all pending decisions in this authenticated session, including
+        # another chat tab. Scoped maps cannot enumerate another session's state.
+        for pending in app.state.conversations.values():
+            pending.proposal = None
+            pending.offer_handle = None
+            pending.candidates = []
+            pending.slots = None
+            pending.intent = None
+            pending.unfamiliar_charge = False
+        for key in list(app.state.idempotency):
+            if key.startswith("freeze-proposal:"):
+                del app.state.idempotency[key]
+        result = {
+            "response_type": "refuse",
+            "outcome": "refused_security",
+            "reply": _localized(
+                language,
+                "Solo puedo consultar los datos de tu sesión autenticada.",
+                "Só posso consultar os dados da sua sessão autenticada.",
+            ),
+            "policy_rules": ["AUTH-03", "SEC-01"],
+            "session_ended": ended,
+        }
+        app.state.runtime.record("refuse_request")
+        if ended:
+            result["handoff"] = make_handoff(app, principal, language, "SEC-01")["handoff"]
+            operational.delete("sessions", principal.capability_digest)
+            app.state.runtime.record("end_session")
+        return result
+
     async def process_message(
         conversation_id: str,
         body: MessageBody,
@@ -641,6 +702,8 @@ def create_app(
         conversation: Conversation | None = app.state.conversations.get(conversation_id)
         if conversation is None or conversation.session_id != principal.session_id:
             raise HTTPException(status_code=404, detail="Conversation not found")
+        if cross_customer(body.message):
+            return refuse_cross_customer(principal, conversation, conversation.language)
         if conversation.terminal_handoff_id:
             packet = app.state.handoffs[conversation.terminal_handoff_id]
             return {
@@ -667,33 +730,14 @@ def create_app(
                     ),
                 }
         nonlocal learned_matcher
-        frame = classify(body.message)
-        language = conversation.language if conversation.candidates else frame.language
+        frame = classify_request(body.message)
+        nlu: NluResult | None = None
+        language = (
+            conversation.language
+            if conversation.candidates or conversation.offer_handle
+            else frame.language
+        )
         conversation.language = language
-        if cross_customer(body.message):
-            security_event(app, "cross_customer_attempt")
-            state = app.state.executions.get("security_state", {"attempts": 0})
-            state["attempts"] += 1
-            app.state.executions["security_state"] = state
-            ended = state["attempts"] >= int(rule("SEC-01").parameters["end_session_attempts"])
-            conversation.proposal = None
-            result = {
-                "response_type": "refuse",
-                "outcome": "refused_security",
-                "reply": _localized(
-                    language,
-                    "Solo puedo consultar los datos de tu sesión autenticada.",
-                    "Só posso consultar os dados da sua sessão autenticada.",
-                ),
-                "policy_rules": ["AUTH-03", "SEC-01"],
-                "session_ended": ended,
-            }
-            app.state.runtime.record("refuse_request")
-            if ended:
-                result["handoff"] = make_handoff(app, principal, language, "SEC-01")["handoff"]
-                operational.delete("sessions", principal.capability_digest)
-                app.state.runtime.record("end_session")
-            return result
         if injection(body.message):
             security_event(app, "direct_prompt_injection")
             clean = " ".join(
@@ -712,11 +756,15 @@ def create_app(
                     "policy_rules": ["SEC-02"],
                 }
             body = MessageBody(message=clean)
-            frame = classify(clean)
-        reason = escalation(body.message)
-        if reason:
+            frame = classify_request(clean)
+        reasons = escalations(body.message)
+        if frame.intent == Intent.FRAUD:
+            reasons.append("FRD-01")
+        if reasons:
             conversation.proposal = None
-            return make_handoff(app, principal, language, reason)
+            if "FRD-01" in reasons:
+                return fraud_handoff(app, principal, language, reasons=reasons)
+            return make_handoff(app, principal, language, reasons)
         if unsupported_language(body.message):
             conversation.unsupported_turns += 1
             if conversation.unsupported_turns >= 2:
@@ -764,13 +812,49 @@ def create_app(
                 ),
                 "policy_rules": ["DSP-06"],
             }
+        offered_row = None
+        if conversation.offer_handle:
+            offered_row = dict(
+                ledger.for_customer(principal.customer_id, active_settings.bank_clock)
+            ).get(conversation.offer_handle)
+            if offered_row is None:
+                conversation.offer_handle = None
+                return safe_failure(principal, language, "database_timeout")
         if (
             app.state.runtime.system == "P"
             and not conversation.candidates
             and not conversation.proposal
         ):
-            nlu = ai.understand(body.message, active_settings.bank_clock)
+            nlu = ai.understand(
+                body.message,
+                active_settings.bank_clock,
+                awaiting_recognition=offered_row is not None,
+                masked_charge={
+                    k: str(v)
+                    for k, v in _masked_transaction(
+                        conversation.offer_handle or "", offered_row
+                    ).items()
+                    if k in {"merchant", "amount", "currency", "transaction_date", "status"}
+                }
+                if offered_row
+                else None,
+            )
+            if nlu.extracted.other_customer_reference:
+                return refuse_cross_customer(principal, conversation, language)
+            extracted_reasons = risk_reasons(nlu.extracted)
+            if extracted_reasons:
+                if "FRD-01" in extracted_reasons:
+                    return fraud_handoff(app, principal, language, reasons=extracted_reasons)
+                return make_handoff(app, principal, language, extracted_reasons)
             conversation.degraded = nlu.degraded
+            conversation.model_failed |= nlu.degraded and (
+                ai.client.models["nlu"].provider != "mock"
+                or ai.client.mock_configured
+                or any(
+                    e.get("event") == "fault" and e.get("kind") == "llm_outage"
+                    for e in app.state.runtime.events
+                )
+            )
             if not nlu.degraded:
                 frame = nlu.frame
                 previous = conversation.slots.model_dump() if conversation.slots else {}
@@ -787,21 +871,23 @@ def create_app(
                 ):
                     frame = frame.model_copy(update={"intent": conversation.intent})
                 # Conservative deterministic routing takes precedence over extracted intent.
-                guard = classify(body.message)
+                guard = classify_request(body.message)
                 if guard.intent in {Intent.HUMAN_REQUEST, Intent.FRAUD, Intent.FEE_DISPUTE}:
                     frame = guard
-                elif nlu.clarification or frame.confidence < float(
-                    rule("ESC-04").parameters["nlu_min_confidence"]
+                elif not offered_row and (
+                    nlu.clarification
+                    or frame.confidence < float(rule("ESC-04").parameters["nlu_min_confidence"])
                 ):
                     if frame.confidence < float(rule("ESC-04").parameters["nlu_min_confidence"]):
                         return make_handoff(app, principal, conversation.language, "ESC-04")
                     conversation.rounds += 1
-                    conversation.intent = frame.intent
+                    if conversation.intent != Intent.DISPUTE_CHARGE:
+                        conversation.intent = frame.intent
                     conversation.language = (
                         "pt" if nlu.extracted.language == "pt" else conversation.language
                     )
                     if conversation.rounds >= 2:
-                        return safe_failure(principal, conversation.language)
+                        return make_handoff(app, principal, conversation.language, "ESC-04")
                     return {
                         "response_type": "clarify",
                         "outcome": "clarification",
@@ -811,6 +897,87 @@ def create_app(
                             "Pode esclarecer o idioma, valor, moeda ou data?",
                         ),
                     }
+        if offered_row is not None:
+            if nlu is None:
+                nlu = deterministic_understand(
+                    body.message,
+                    country=app.state.runtime.country,
+                    bank_clock=active_settings.bank_clock,
+                    awaiting_recognition=True,
+                )
+            if normalize_text(body.message).strip(" .,!¿?¡") in {
+                "cancelar",
+                "cancela",
+                "deixa",
+                "deixa pra la",
+            }:
+                conversation.offer_handle = None
+                conversation.unfamiliar_charge = False
+                conversation.intent = None
+                return {
+                    "response_type": "cancelled",
+                    "outcome": "cancelled",
+                    "reply": _localized(language, "Disputa cancelada.", "Disputa cancelada."),
+                }
+            changed = changes_target(body.message, offered_row, nlu.slots)
+            recognition = nlu.extracted.recognition
+            if normalize_text(body.message).strip(" .,!¿?¡") in {"si", "sim", "no", "nao"}:
+                recognition = "unsure"
+            elif recognition is None and recognizes_charge(body.message):
+                recognition = "recognized"
+            elif recognition is None and (
+                frame.intent == Intent.DISPUTE_CHARGE or unfamiliar_charge(body.message)
+            ):
+                recognition = "denied"
+            if not changed and recognition in {"recognized", "denied"}:
+                handle = conversation.offer_handle
+                assert handle is not None
+                conversation.offer_handle = None
+                conversation.unfamiliar_charge = False
+                conversation.recognition_rounds = 0
+                conversation.rounds = 0
+                conversation.intent = (
+                    Intent.DISPUTE_CHARGE if recognition == "denied" else Intent.CHARGE_INQUIRY
+                )
+                app.state.runtime.record("recognition", value=recognition, handle=handle)
+                return _decide_for_transaction(
+                    app,
+                    conversation,
+                    principal,
+                    language,
+                    conversation.intent,
+                    handle,
+                    offered_row,
+                    active_settings,
+                )
+            if (
+                not changed
+                and frame.intent != Intent.OUT_OF_SCOPE
+                or (not changed and recognition == "unsure")
+            ):
+                conversation.recognition_rounds += 1
+                if conversation.recognition_rounds >= 2:
+                    return make_handoff(
+                        app,
+                        principal,
+                        language,
+                        ("COM-01", "ESC-04") if conversation.model_failed else "ESC-04",
+                    )
+                return {
+                    "response_type": "clarify",
+                    "outcome": "clarification",
+                    "reply": _localized(
+                        language,
+                        "¿Ahora reconoces el cargo, o quieres disputarlo? Indica una de esas opciones.",
+                        "Agora você reconhece a cobrança ou quer contestá-la? Diga uma dessas opções.",
+                    ),
+                }
+            conversation.offer_handle = None
+            conversation.intent = None
+            conversation.unfamiliar_charge = False
+            conversation.rounds = 0
+            conversation.recognition_rounds = 0
+            conversation.slots = nlu.slots if not nlu.degraded else None
         if frame.intent == Intent.OUT_OF_SCOPE and not conversation.candidates:
             contextual_language = scoped_inquiry_language(
                 body.message, ledger.for_customer(principal.customer_id, active_settings.bank_clock)
@@ -849,8 +1016,18 @@ def create_app(
 
         if conversation.intent and conversation.rounds and frame.intent == Intent.OUT_OF_SCOPE:
             frame = frame.model_copy(update={"intent": conversation.intent})
+        if conversation.intent == Intent.DISPUTE_CHARGE and (
+            conversation.rounds or conversation.candidates
+        ):
+            frame = frame.model_copy(update={"intent": Intent.DISPUTE_CHARGE})
         if frame.intent in {Intent.DISPUTE_CHARGE, Intent.CHARGE_INQUIRY}:
             conversation.intent = frame.intent
+            if frame.intent == Intent.DISPUTE_CHARGE:
+                conversation.unfamiliar_charge = False
+            else:
+                conversation.unfamiliar_charge |= unfamiliar_charge(body.message) or bool(
+                    nlu and getattr(nlu.extracted, "unfamiliar_charge", False)
+                )
         if frame.intent == Intent.OUT_OF_SCOPE and not conversation.candidates:
             handoff = make_handoff(app, principal, language, "SCOPE-01")
             app.state.runtime.record("abstain")
@@ -948,7 +1125,8 @@ def create_app(
         if not candidates:
             conversation.rounds += 1
             if conversation.rounds >= 2:
-                packet = create_packet(language, "ESC-04", app.state.agent_directory)
+                failure_reasons = ("COM-01", "ESC-04") if conversation.model_failed else ("ESC-04",)
+                packet = create_packet(language, failure_reasons, app.state.agent_directory)
                 app.state.handoffs[packet["handoff_id"]] = {
                     **packet,
                     "customer_id": principal.customer_id,
@@ -1024,6 +1202,8 @@ def create_app(
             if conversation and result.get("handoff"):
                 conversation.proposal = None
                 conversation.candidates = []
+                conversation.offer_handle = None
+                conversation.unfamiliar_charge = False
                 conversation.terminal_handoff_id = result["handoff"]["handoff_id"]
             result = ai.reply(
                 result,
@@ -1098,7 +1278,6 @@ def create_app(
         if now - principal.otp_at > timedelta(
             minutes=int(rule("AUTH-02").parameters["otp_minutes"])
         ):
-            conversation.proposal = None
             raise HTTPException(status_code=401, detail="Step-up verification required")
         current_rows = dict(ledger.for_customer(principal.customer_id, active_settings.bank_clock))
         current = current_rows.get(proposal.transaction_handle)
@@ -1231,13 +1410,24 @@ def _decide_for_transaction(
     row: Transaction,
     settings: Settings,
 ) -> dict[str, Any]:
+    current = dict(app.state.ledger.for_customer(principal.customer_id, settings.bank_clock)).get(
+        handle
+    )
+    if current is None:
+        return make_handoff(app, principal, language, ("DATA-01", "COM-01", "ESC-04"))
+    row = current
     is_dispute = intent == Intent.DISPUTE_CHARGE
     context = policy_context(app, principal, row)
-    decision = evaluate(row, settings.bank_clock, is_dispute=is_dispute, context=context)
+    decision = evaluate(
+        row,
+        settings.bank_clock,
+        is_dispute=is_dispute or bool(context.existing_case_id),
+        context=context,
+    )
     app.state.runtime.record("policy", **asdict(decision))
     row = replace(row, merchant_name=safe_merchant(row.merchant_name))
     if decision.decision == "freeze_offer":
-        return fraud_handoff(app, principal, language, row)
+        return fraud_handoff(app, principal, language, row, reasons=decision.rule_ids)
     if decision.decision == "status":
         record = app.state.cases[context.existing_case_id]
         app.state.runtime.record("status_lookup")
@@ -1255,7 +1445,7 @@ def _decide_for_transaction(
             "policy_rules": ["DSP-06"],
         }
     if decision.decision == "handoff":
-        packet = create_packet(language, decision.rule_ids[0], app.state.agent_directory)
+        packet = create_packet(language, decision.rule_ids, app.state.agent_directory)
         if not decision.reason.startswith("missing:"):
             packet["verified_facts"] = [_masked_transaction(handle, row)]
         app.state.handoffs[packet["handoff_id"]] = {
@@ -1303,6 +1493,23 @@ def _decide_for_transaction(
                 "expires_at": expires_at.isoformat(),
                 "policy_rules": list(decision.rule_ids),
             },
+        }
+    app.state.runtime.record("explain_status", handle=handle)
+    if conversation.unfamiliar_charge and not is_dispute:
+        transaction = _masked_transaction(handle, row)
+        conversation.offer_handle = handle
+        conversation.recognition_rounds = 0
+        app.state.runtime.record("offer_dispute", handle=handle)
+        return {
+            "response_type": "offer_dispute",
+            "outcome": "awaiting_dispute_decision",
+            "reply": render_dispute_offer(
+                TransactionView.model_validate(transaction),
+                language=language,
+                country=app.state.runtime.country,
+            ),
+            "transaction": transaction,
+            "policy_rules": list(decision.rule_ids),
         }
     return {
         "response_type": "explain_status",

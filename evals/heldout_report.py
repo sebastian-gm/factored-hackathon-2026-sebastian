@@ -9,21 +9,10 @@ from typing import Any
 
 import numpy as np
 
-from evals.metrics import UNSAFE, aggregate, latency, percentile, proportion
+from evals.metrics import UNSAFE, aggregate, correct_handoff, latency, percentile, proportion
 
 SEED = 20261001
 DRAWS = 10000
-
-
-def correct_handoff(c: dict[str, Any]) -> bool:
-    packet = c.get("observed_handoff") or {}
-    return bool(
-        c["handoff"]
-        and c["readback"]
-        and c["routing_correct"] is not False
-        and (c["completeness"] is None or c["completeness"] == 1)
-        and set(c["gold"]["reason_codes"]).issubset(packet.get("reason_codes", []))
-    )
 
 
 def slice_metrics(cases: list[dict[str, Any]]) -> dict[str, Any]:
@@ -33,6 +22,8 @@ def slice_metrics(cases: list[dict[str, Any]]) -> dict[str, Any]:
         "n": n,
         "insufficient_sample": n < 30,
         "sar_in_scope": proportion(sum(c["sar"] for c in cases), sum(c["in_scope"] for c in cases)),
+        "escalation_recall": proportion(sum(correct_handoff(c) for c in required), len(required)),
+        "handoff_presence_recall": proportion(sum(c["handoff"] for c in required), len(required)),
         "missed_transfers": proportion(
             sum(not correct_handoff(c) for c in required), len(required)
         ),

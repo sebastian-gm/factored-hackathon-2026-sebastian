@@ -162,7 +162,11 @@ test("fraud: customer handoff, agent evidence, claim and resolve, ops trace and 
     page.getByRole("heading", { name: "Tu solicitud está en buenas manos" }),
   ).toBeVisible();
   await switchRole(page, "Agent Desk", "demo.agent");
-  await expect(page.getByText("FRD-01", { exact: true })).toBeVisible();
+  await expect(
+    page
+      .getByRole("region", { name: "Motivos de la derivación" })
+      .getByText("FRD-01", { exact: true }),
+  ).toBeVisible();
   await expect(
     page.getByRole("heading", { name: "Hechos verificados" }),
   ).toBeVisible();
@@ -477,7 +481,11 @@ test("recording helper resets with read-back, selects all personas and reaches t
     .getByRole("button", { name: "Abrir Agent Desk", exact: true })
     .click();
   await login(page, "demo.agent");
-  await expect(page.getByText("FRD-01", { exact: true })).toBeVisible();
+  await expect(
+    page
+      .getByRole("region", { name: "Motivos de la derivación" })
+      .getByText("FRD-01", { exact: true }),
+  ).toBeVisible();
 });
 
 test("recording helper never opens a story when reset read-back fails", async ({
@@ -602,10 +610,10 @@ test("glass box shows call cost precision, partial totals, fallback and risk uni
             provider: "typesafe",
             model: "jev-1.13.0",
             judgments: {
-              ...risk,
+              gemini_raw_flags: { distress: null },
               jev_raw_probabilities: null,
               jev_threshold_flags: null,
-              union_flags: flags,
+              union_flags: {},
               degradation: "timeout",
             },
           },
@@ -624,6 +632,9 @@ test("glass box shows call cost precision, partial totals, fallback and risk uni
   await expect(cost).toContainText("1 costo desconocido");
   await expect(cost).toContainText("Subtotal conocido");
   await expect(cost).toContainText("Fallback Grok registrado");
+  await expect(
+    page.locator(".llm-metadata").filter({ hasText: "x-ai/grok-4.20" }),
+  ).toContainText("fallback_grok_4_20");
   await expect(page.getByText("nlu-v4", { exact: true })).toHaveCount(2);
   await expect(
     page.getByText("1234.5 ms", { exact: false }).first(),
@@ -649,10 +660,10 @@ test("glass box shows call cost precision, partial totals, fallback and risk uni
     page.getByRole("status").filter({ hasText: "Segunda opinión degradada" }),
   ).toContainText("timeout");
   await expect(row.getByRole("cell")).toHaveText([
-    "No",
+    "No registrado",
     "—",
     "No registrado",
-    "No",
+    "No registrado",
   ]);
   await expect(cost).toContainText("1 costo desconocido");
 });
@@ -713,6 +724,17 @@ test("trace projection accepts old events and strips non-display payloads", asyn
     events: [event],
   });
   expect(JSON.stringify(trace)).not.toContain("must-not-cross");
+  expect(
+    traceSchema.parse({
+      ...trace,
+      events: [
+        {
+          ...event,
+          llm: { ...event.llm, route: null, status: null, attempt: null },
+        },
+      ],
+    }).events[0].llm,
+  ).toMatchObject({ route: null, status: null, attempt: null });
   expect(callTotals([trace.events[0], trace.events[0]])).toMatchObject({
     count: 1,
     unknown: 1,
@@ -722,11 +744,24 @@ test("trace projection accepts old events and strips non-display payloads", asyn
     count: 0,
   });
   expect(
-    traceSchema.safeParse({
+    traceSchema.parse({
       ...trace,
       events: [
         { ...event, llm: { ...event.llm, judgments: { union_flags: {} } } },
       ],
-    }).success,
+    }).events[0].llm?.judgments,
+  ).toEqual({ union_flags: {} });
+  expect(riskSchema.parse({ degradation: null })).toEqual({
+    degradation: null,
+  });
+  expect(
+    riskSchema.parse({
+      gemini_raw_flags: { distress: null, arbitrary_text: "must-not-cross" },
+      union_flags: null,
+      thinking: "must-not-cross",
+    }),
+  ).toEqual({ gemini_raw_flags: { distress: null }, union_flags: null });
+  expect(
+    riskSchema.safeParse({ union_flags: { distress: "false" } }).success,
   ).toBe(false);
 });

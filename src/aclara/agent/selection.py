@@ -42,7 +42,17 @@ def candidates(
         for h, r in rows
         if r.merchant_name != "—" and normalize_text(r.merchant_name) in value
     ]
-    amount = extract_amount(text)
+    # Known merchant tokens and dates are identity evidence, not amounts.
+    # Remove the longest names first so a numeric suffix cannot filter the ledger.
+    amount_text = value
+    for merchant in sorted(
+        {normalize_text(r.merchant_name) for _, r in merchants}, key=len, reverse=True
+    ):
+        amount_text = amount_text.replace(merchant, " ")
+    amount_text = re.sub(
+        r"\b(?:\d{4}-\d{2}-\d{2}|\d{1,2}[/-]\d{1,2}(?:[/-]\d{2,4})?)\b", " ", amount_text
+    )
+    amount = extract_amount(amount_text)
     currencies = set(re.findall(r"\b(?:usd|mxn|brl|cop|ars|eur)\b", value))
     selected = merchants if merchants else rows
     if amount is not None:

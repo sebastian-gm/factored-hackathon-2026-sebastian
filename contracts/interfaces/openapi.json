@@ -195,6 +195,17 @@
             ],
             "title": "Policy Evaluations"
           },
+          "primary_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Primary Reason"
+          },
           "priority": {
             "enum": [
               "normal",
@@ -570,6 +581,7 @@
               "dispute_filed",
               "dispute_proposed",
               "explained",
+              "awaiting_dispute_decision",
               "status_reported",
               "refused_security"
             ],
@@ -614,6 +626,7 @@
               "report_case",
               "confirm_action",
               "explain_status",
+              "offer_dispute",
               "report_status",
               "refuse"
             ],
@@ -836,6 +849,17 @@
             ],
             "title": "Policy Evaluations"
           },
+          "primary_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Primary Reason"
+          },
           "priority": {
             "enum": [
               "normal",
@@ -996,6 +1020,18 @@
       "LlmMetadata": {
         "additionalProperties": false,
         "properties": {
+          "attempt": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Attempt"
+          },
           "cost_usd": {
             "anyOf": [
               {
@@ -1010,6 +1046,18 @@
           "input_tokens": {
             "title": "Input Tokens",
             "type": "integer"
+          },
+          "judgments": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Judgments"
           },
           "latency_ms": {
             "title": "Latency Ms",
@@ -1030,6 +1078,35 @@
           "provider": {
             "title": "Provider",
             "type": "string"
+          },
+          "route": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Route"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "valid",
+                  "invalid_json",
+                  "provider_error",
+                  "refusal",
+                  "skipped"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
           }
         },
         "required": [
@@ -1175,6 +1252,18 @@
       "PersonaView": {
         "additionalProperties": false,
         "properties": {
+          "demo_stories": {
+            "items": {
+              "enum": [
+                "explain",
+                "ambiguous",
+                "fraud"
+              ],
+              "type": "string"
+            },
+            "title": "Demo Stories",
+            "type": "array"
+          },
           "label": {
             "title": "Label",
             "type": "string"
@@ -1443,6 +1532,7 @@
               "dispute_filed",
               "dispute_proposed",
               "explained",
+              "awaiting_dispute_decision",
               "status_reported",
               "refused_security"
             ],
@@ -1487,6 +1577,7 @@
               "report_case",
               "confirm_action",
               "explain_status",
+              "offer_dispute",
               "report_status",
               "refuse"
             ],

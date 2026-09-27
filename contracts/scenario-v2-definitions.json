@@ -105,6 +105,7 @@
       "type": {
         "enum": [
           "explain_status",
+          "offer_dispute",
           "create_dispute",
           "set_review_flag",
           "freeze_card",
@@ -171,7 +172,8 @@
           "abstained_out_of_scope",
           "refused_security",
           "safe_failure_handoff",
-          "status_reported"
+          "status_reported",
+          "cancelled"
         ],
         "type": "string"
       },
@@ -768,6 +770,33 @@
         "type": "array"
       },
       "explain_status": {
+        "items": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/MessageTurn"
+            },
+            {
+              "$ref": "#/$defs/ConfirmationTurn"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "choose_ref": {
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "choose_ref"
+              ],
+              "type": "object"
+            }
+          ]
+        },
+        "minItems": 1,
+        "type": "array"
+      },
+      "offer_dispute": {
         "items": {
           "oneOf": [
             {

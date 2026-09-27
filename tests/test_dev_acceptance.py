@@ -95,7 +95,7 @@ def test_followup_invalidates_old_action_hash(system):
         app = create_app(_settings(), ledger(), runtime=Runtime(system=system))
         async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
             headers = {"Authorization": f"Bearer {await _sign_in(client)}"}
-            result, conv = await message(client, headers, "No reconozco el cargo de Taller Prisma")
+            result, conv = await message(client, headers, "No hice el cargo de Taller Prisma")
             old = result["proposal"]["proposal_hash"]
             await message(client, headers, "Quiero consultar el estado de mi caso", conv)
             denied = await client.post(
@@ -116,7 +116,7 @@ def test_positive_identification_still_commits_with_readback(system):
         async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
             headers = {"Authorization": f"Bearer {await _sign_in(client)}"}
             result, conv = await message(
-                client, headers, "No reconozco el cargo de Taller Prisma por 17.43 USD"
+                client, headers, "No hice el cargo de Taller Prisma por 17.43 USD"
             )
             confirmed = await client.post(
                 f"/chat/sessions/{conv}/confirm",
@@ -155,7 +155,7 @@ def test_changed_transaction_cannot_use_previous_confirmation(system):
         app = create_app(_settings(), repo, runtime=Runtime(system=system))
         async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
             headers = {"Authorization": f"Bearer {await _sign_in(client)}"}
-            result, conv = await message(client, headers, "No reconozco el cargo de Taller Prisma")
+            result, conv = await message(client, headers, "No hice el cargo de Taller Prisma")
             repo._rows = (replace(repo._rows[0], amount=21.19),)
             response = await client.post(
                 f"/chat/sessions/{conv}/confirm",

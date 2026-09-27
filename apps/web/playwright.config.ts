@@ -8,7 +8,7 @@ export default defineConfig({
     ? "**/staff.spec.ts"
     : live
       ? "**/live.spec.ts"
-      : "**/stories.spec.ts",
+      : ["**/stories.spec.ts", "**/conversation-contract.spec.ts"],
   fullyParallel: false,
   workers: 1,
   timeout: 45000,

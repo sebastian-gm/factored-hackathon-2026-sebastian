@@ -25,6 +25,7 @@ from aclara.api.staff_contracts import (
     TraceView,
     WorkspaceMetrics,
 )
+from aclara.api.trace_metadata import judgments_projection
 from aclara.bank.serving import persona_views
 from aclara.ops.store import Scope
 from aclara.policy.rules import catalog
@@ -162,8 +163,8 @@ def install_staff(app: FastAPI, principal_dependency: Any) -> None:
         )
 
     @app.get("/personas", response_model=list[PersonaView])
-    async def personas() -> list[dict[str, str]]:
-        return persona_views(app.state.personas)
+    async def personas() -> list[dict[str, Any]]:
+        return persona_views(app.state.personas, app.state.demo_stories)
 
     @app.post("/auth/logout")
     async def logout(principal: Any = principal_default) -> dict[str, bool]:
@@ -258,6 +259,9 @@ def install_staff(app: FastAPI, principal_dependency: Any) -> None:
                 name = event["event"]
                 stages = {
                     "nlu": "Understand",
+                    "recognition": "Understand",
+                    "offer_dispute": "Decide",
+                    "explain_status": "Act",
                     "match": "Decide",
                     "policy": "Decide",
                     "create_dispute": "Act",
@@ -278,6 +282,10 @@ def install_staff(app: FastAPI, principal_dependency: Any) -> None:
                         "output_tokens": event["output_tokens"],
                         "cost_usd": event.get("cost_usd"),
                         "latency_ms": event["latency_ms"],
+                        "route": event.get("route"),
+                        "status": event.get("status"),
+                        "attempt": event.get("attempt"),
+                        "judgments": judgments_projection(event.get("judgments")),
                     }
                     if name == "llm_call"
                     else None

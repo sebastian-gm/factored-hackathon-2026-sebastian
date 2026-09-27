@@ -6,6 +6,7 @@ import hashlib
 import hmac
 import json
 import secrets
+from collections.abc import Iterable
 from dataclasses import asdict, replace
 from datetime import UTC, datetime, timedelta
 from typing import Any, Literal, cast
@@ -66,7 +67,7 @@ def make_handoff(
     app: FastAPI,
     principal: Any,
     language: str,
-    reason: str,
+    reason: str | Iterable[str],
     *,
     freeze_outcome: str | None = None,
     facts: list[dict[str, Any]] | None = None,
@@ -81,7 +82,12 @@ def make_handoff(
         "customer_id": principal.customer_id,
         "session_id": principal.session_id,
     }
-    app.state.runtime.record("create_handoff", reason=reason, queue=packet["route"]["queue"])
+    app.state.runtime.record(
+        "create_handoff",
+        reason=packet["primary_reason"],
+        reasons=packet["reason_codes"],
+        queue=packet["route"]["queue"],
+    )
     response = {
         "response_type": "offer_human",
         "outcome": "handoff_created",
@@ -91,14 +97,19 @@ def make_handoff(
             else "Vou encaminhar sua solicitação para análise humana."
         ),
         "handoff": {k: v for k, v in packet.items() if k != "request_summary"},
-        "policy_rules": [reason],
+        "policy_rules": packet["reason_codes"],
     }
     complete_packet(app, response, principal)
     return response
 
 
 def fraud_handoff(
-    app: FastAPI, principal: Any, language: str, row: Transaction | None = None
+    app: FastAPI,
+    principal: Any,
+    language: str,
+    row: Transaction | None = None,
+    *,
+    reasons: Iterable[str] = ("FRD-01",),
 ) -> dict[str, Any]:
     products = app.state.ledger.products_for_customer(principal.customer_id)
     offers = [
@@ -109,7 +120,7 @@ def fraud_handoff(
         and (row is None or p.product_id == row.product_id)
     ]
     response = make_handoff(
-        app, principal, language, "FRD-01", freeze_outcome="offered" if offers else "not_applicable"
+        app, principal, language, reasons, freeze_outcome="offered" if offers else "not_applicable"
     )
     if offers:
         response["freeze_offer"] = offers

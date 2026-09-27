@@ -62,6 +62,7 @@ class HandoffView(InterfaceModel):
     handoff_id: str
     created_at: datetime
     reason_codes: list[str]
+    primary_reason: str | None = None
     priority: Literal["normal", "high"]
     route: HandoffRoute
     verified_facts: list[TransactionView]
@@ -77,6 +78,14 @@ class HandoffView(InterfaceModel):
     sla_due_at: datetime | None = None
     transcript_ref: str | None = None
     trace_ref: str | None = None
+
+    @model_validator(mode="after")
+    def validate_primary_reason(self) -> HandoffView:
+        if self.primary_reason is not None and self.primary_reason not in self.reason_codes:
+            raise ValueError("primary_reason must occur in reason_codes")
+        if len(set(self.reason_codes)) != len(self.reason_codes):
+            raise ValueError("reason_codes must be deduplicated")
+        return self
 
 
 class DisputeCaseView(InterfaceModel):
@@ -106,6 +115,7 @@ class ResponsePlan(InterfaceModel):
         "report_case",
         "confirm_action",
         "explain_status",
+        "offer_dispute",
         "report_status",
         "refuse",
     ]
@@ -118,6 +128,7 @@ class ResponsePlan(InterfaceModel):
         "dispute_filed",
         "dispute_proposed",
         "explained",
+        "awaiting_dispute_decision",
         "status_reported",
         "refused_security",
     ]
@@ -143,6 +154,7 @@ class ResponsePlan(InterfaceModel):
             "report_case": "dispute_filed",
             "confirm_action": "dispute_proposed",
             "explain_status": "explained",
+            "offer_dispute": "awaiting_dispute_decision",
             "report_status": "status_reported",
             "refuse": "refused_security",
         }
@@ -156,6 +168,7 @@ class ResponsePlan(InterfaceModel):
             "report_status": ("case", "verified"),
             "confirm_action": ("transaction", "proposal"),
             "explain_status": ("transaction",),
+            "offer_dispute": ("transaction",),
             "offer_human": ("handoff",),
         }
         missing = [

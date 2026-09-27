@@ -212,7 +212,7 @@ def test_action_proposal_is_session_bound_and_single_use() -> None:
             proposal = await client.post(
                 f"/chat/sessions/{conversation_id}/messages",
                 headers=owner_headers,
-                json={"message": "No reconozco el cargo de Mercado Verde"},
+                json={"message": "No hice el cargo de Mercado Verde"},
             )
             proposal_hash = proposal.json()["proposal"]["proposal_hash"]
             unauthorized = await client.post(
@@ -263,7 +263,7 @@ def test_tampered_or_expired_proposals_fail_closed() -> None:
             tampered_proposal = await client.post(
                 f"/chat/sessions/{tampered_id}/messages",
                 headers=headers,
-                json={"message": "No reconozco el cargo de Mercado Verde"},
+                json={"message": "No hice el cargo de Mercado Verde"},
             )
             changed_hash = await client.post(
                 f"/chat/sessions/{tampered_id}/confirm",
@@ -276,7 +276,7 @@ def test_tampered_or_expired_proposals_fail_closed() -> None:
             expired_proposal = await client.post(
                 f"/chat/sessions/{expired_id}/messages",
                 headers=headers,
-                json={"message": "No reconozco el cargo de Mercado Verde"},
+                json={"message": "No hice el cargo de Mercado Verde"},
             )
             principal = app.state.sessions[token]
             with app.state.store.transaction(
@@ -314,7 +314,7 @@ def test_confirmation_requires_recent_step_up_authentication() -> None:
             proposal = await client.post(
                 f"/chat/sessions/{conversation_id}/messages",
                 headers=headers,
-                json={"message": "No reconozco el cargo de Mercado Verde"},
+                json={"message": "No hice el cargo de Mercado Verde"},
             )
             principal = app.state.sessions[token]
             app.state.sessions[token] = replace(

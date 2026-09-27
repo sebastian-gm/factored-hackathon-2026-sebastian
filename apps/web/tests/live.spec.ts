@@ -17,9 +17,14 @@ async function login(page: Page) {
   await page.getByRole("button", { name: "Verificar y entrar" }).click();
   await expect(page.getByRole("textbox", { name: "Tu mensaje" })).toBeVisible();
 }
-test("live frozen API through BFF: password, OTP and verified transaction explanation", async ({
+test("live ADR-0015: password, OTP, explanation, offer, denial and separate confirmed intake", async ({
   page,
 }) => {
+  const confirms: unknown[] = [];
+  page.on("request", (request) => {
+    if (request.method() === "POST" && request.url().endsWith("/confirm"))
+      confirms.push(request.postDataJSON());
+  });
   await login(page);
   await page
     .getByRole("textbox", { name: "Tu mensaje" })
@@ -34,7 +39,30 @@ test("live frozen API through BFF: password, OTP and verified transaction explan
     .getByRole("textbox", { name: "Tu mensaje" })
     .fill("No reconozco el cargo de Mercado Verde");
   await page.getByRole("button", { name: "Enviar mensaje" }).click();
+  const offer = page.getByRole("region", {
+    name: "¿Reconoces este movimiento?",
+  });
+  await expect(offer).toBeVisible();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(
+    page.getByRole("heading", { name: "Mercado Verde", exact: true }),
+  ).toBeVisible();
+  expect(confirms).toEqual([]);
+  const denial = page.waitForRequest(
+    (request) =>
+      request.url().endsWith("/messages") && request.method() === "POST",
+  );
+  await offer
+    .getByRole("button", {
+      name: "No la reconozco, quiero disputarla",
+      exact: true,
+    })
+    .click();
+  expect((await denial).postDataJSON()).toEqual({
+    message: "No la reconozco, quiero disputarla",
+  });
   await expect(page.getByRole("dialog")).toContainText("Mercado Verde");
+  expect(confirms).toEqual([]);
   await page
     .getByRole("dialog")
     .getByRole("button", { name: "Confirmar", exact: true })
@@ -42,6 +70,9 @@ test("live frozen API through BFF: password, OTP and verified transaction explan
   await expect(
     page.getByRole("heading", { name: "Tu caso está registrado" }),
   ).toBeVisible();
+  expect(confirms).toEqual([
+    { confirmed: true, proposal_hash: expect.stringMatching(/^[a-f0-9]{64}$/) },
+  ]);
   await page
     .getByRole("textbox", { name: "Tu mensaje" })
     .fill("No reconozco el cargo de Mercado Verde");
@@ -61,6 +92,57 @@ test("live frozen API through BFF: password, OTP and verified transaction explan
   );
   expect(status).toBe(403);
 });
+
+for (const resolution of ["recognized", "cancelled"] as const) {
+  test(`live offer ends as ${resolution} without a case receipt`, async ({
+    page,
+  }) => {
+    await login(page);
+    await page
+      .getByRole("textbox", { name: "Tu mensaje" })
+      .fill("No reconozco el cargo de Mercado Verde");
+    await page.getByRole("button", { name: "Enviar mensaje" }).click();
+    await expect(
+      page.getByRole("region", { name: "¿Reconoces este movimiento?" }),
+    ).toBeVisible();
+    if (resolution === "recognized") {
+      const response = page.waitForResponse((r) =>
+        r.url().endsWith("/messages"),
+      );
+      await page
+        .getByRole("button", { name: "Sí, la reconozco", exact: true })
+        .click();
+      expect(await (await response).json()).toMatchObject({
+        response_type: "explain_status",
+        outcome: "explained",
+      });
+    } else {
+      await page
+        .getByRole("button", {
+          name: "No la reconozco, quiero disputarla",
+          exact: true,
+        })
+        .click();
+      await page
+        .getByRole("dialog")
+        .getByRole("button", { name: "Cancelar", exact: true })
+        .click();
+      await expect(
+        page.getByRole("heading", { name: "Acción cancelada" }),
+      ).toBeVisible();
+    }
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+    await expect(
+      page.getByRole("region", { name: "¿Reconoces este movimiento?" }),
+    ).toHaveCount(0);
+    await expect(
+      page.getByRole("heading", { name: "Tu caso está registrado" }),
+    ).toHaveCount(0);
+    await expect(
+      page.getByRole("textbox", { name: "Tu mensaje" }),
+    ).toBeEditable();
+  });
+}
 
 for (const confirmed of [false, true]) {
   test(`live fraud: fresh OTP and ${confirmed ? "verified freeze" : "cancel without freeze"}`, async ({
@@ -200,14 +282,25 @@ test("recording helper leaves live story/reset gates closed without bank binding
 test("recording helper uses optional bank persona binding and never auto-sends", async ({
   page,
 }) => {
+  let messagePosts = 0;
+  page.on("request", (request) => {
+    if (request.method() === "POST" && request.url().endsWith("/messages"))
+      messagePosts++;
+  });
   await page.route("**/config", async (route) => {
     const response = await route.fetch();
     const config = await response.json();
-    config.personas[0].demo_stories = ["explain"];
+    config.personas[0].demo_stories = ["explain", "fraud"];
     await route.fulfill({ json: config });
   });
   await page.goto("/");
   await page.getByText("Preparar grabación", { exact: true }).click();
+  await expect(
+    page.getByRole("button", {
+      name: "PT · escolha e confirmação",
+      exact: true,
+    }),
+  ).toBeDisabled();
   await page
     .getByRole("button", { name: "ES · cargo pendiente", exact: true })
     .click();
@@ -231,4 +324,12 @@ test("recording helper uses optional bank persona binding and never auto-sends",
   await expect(
     page.getByRole("heading", { name: "Tu caso está registrado" }),
   ).toHaveCount(0);
+  await page
+    .getByRole("button", { name: "ES · fraude → Agent Desk", exact: true })
+    .click();
+  await expect(page.getByRole("textbox", { name: "Tu mensaje" })).toHaveValue(
+    "Perdí mi tarjeta y necesito ayuda con una compra que no reconozco.",
+  );
+  await expect(page.locator("input[type=password]")).toHaveCount(0);
+  expect(messagePosts).toBe(0);
 });

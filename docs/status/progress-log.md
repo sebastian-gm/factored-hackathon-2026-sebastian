@@ -1,5 +1,76 @@
 # Progress log
 
+## 2026-09-27 — Lead Step 3 implementation and dev validation in progress
+
+### Completed (verified)
+
+- Reviewed/merged AI #49 at `dc0a9f94edd91b46f9df46fd4b37fc8431f7f192`, exact-head
+  Python/Postgres/web/safety green. Requested and verified the missing
+  `unfamiliar_charge` flag before merging. Lead consumes v5 context and masked facts.
+- Implemented durable offers, context retention, full handoff reasons, cross-customer
+  strikes/revocation, policy review ordering, B1 numeric-merchant handling, readback
+  aliases and strict slice recall. Added dev regressions; never ran held-out v2 or
+  opened suite-v3 rows. PR #50 description only was read for generic dependencies.
+- `.venv/bin/python -m scripts.v2_slice_correction`: saved-v2 aggregate tables written
+  separately; **853 inputs unchanged**. Official v2 result is unchanged.
+- `python -m scripts.dev_gate mock --profile after-v2`: **20/20 no-fault, 12/12 faults**,
+  all 12 triggers reached. B1 runner **32/32**, verified readbacks and safety checks.
+- Final combined local `make checks`: **234 passed / 14 database skips**, hooks, strict mypy,
+  compilation, B1, interface snapshots and policy catalog passed. Local disposable
+  Postgres tests passed **16/16**, including offer and security-strike restart
+  recovery. Runtime policy 1.3.0 identifies the changed control/routing semantics;
+  numerical thresholds are unchanged. PR #51 is in fresh CI.
+- Implemented #37 trace metadata and approved, scoped demo-story hints; seven staff,
+  metadata and policy tests passed. Owner-approved model-run estimate is $0.15–$0.30
+  under shared scope `dev-gate/after-v2` / run `after-v2`, hard $1 cap.
+- Reviewed frontend #52 and merged its exact green head into the lead branch at
+  `879c1b3e034c9c3f4eacbbd6f24c58200677de25` (four checks, including 29 browser checks).
+  Added a narrow contextual fallback for typed ES/PT recognition labels after
+  reproducing four B1/P failures from the frontend report. All 19 authored
+  conversation regressions pass; isolated yes/no still requires clarification.
+
+### Done but not verified
+
+- Final candidate merge/CI and paid dev acceptance are pending. No new release,
+  Azure smoke or v3 execution. Frontend offer/cancellation/reason support is integrated.
+
+### Next / blocked
+
+- Finish combined CI, merge lead fixes with green CI, run the authorized
+  dev gate on the merged SHA and report. Do not merge #50 without the separate go.
+- [Commands, changes and budget](../evaluation/after-v2-dev-gate.md). Stop after the
+  Step 3 report; release/v3 still require Sebastian's later approval.
+
+## 2026-09-27 — ADR merged; shared after-v2 dev allowance prepared
+
+### Completed (verified)
+
+- Behavior contract PR #48 merged after all four checks passed at
+  **`ab07bfeba23824292bfd83a13e4934c6ff1ae349`**; announced the SHA for independent
+  v3 authoring. Confirmation freeze #47 merged with fresh green CI at
+  **`3ad29bc388e4b9d09bbd84266a87c9e8c66b419f`**. Hash-only comparison confirmed
+  the two frozen files unchanged from `0692881`; no confirmation rows opened.
+- `.venv/bin/python -m scripts.after_v2_budget --prepare` created and read back
+  the shared durable **scope `dev-gate/after-v2`, run ID `after-v2`, lifetime cap
+  $1.00**. All paid dev callers must use both identifiers with Postgres
+  reserve-before-call accounting. Initial receipt: zero attempts, $0 charged,
+  zero unknown costs; ignored `artifacts/after-v2-dev/budget-prepared.json`.
+- Previous evaluation/Option A scopes are closed to new reservations with all
+  history and outstanding charges retained. Prior exposure $3.07369789 plus
+  the $1 dev and prospective $3 v3 limits totals $7.07369789, below $12.
+  Budget arithmetic tests passed; this setup made no model calls.
+
+### Done but not verified
+
+- Lead Step 3 implementation is in progress on a feature branch. Prompt v5,
+  NLG and dev integration are pending from the AI lane; no new dev gate run.
+
+### Next / blocked
+
+- Implement and verify the accepted contract on dev data, integrate the AI PR,
+  then run the shared-budget dev gate and report. No release or v3 execution
+  is authorized. Never access abandoned v1, rerun v2 or open suite-v3 rows.
+
 ## AI lane — after-v2 explain/offer dev confirmation, 2026-09-27 UTC
 
 ### Completed (verified)

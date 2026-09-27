@@ -120,7 +120,9 @@ def mock_client() -> StructuredClient:
     )
 
 
-def real_client(store: Store, output: Path) -> StructuredClient:
+def real_client(
+    store: Store, output: Path, *, scope: str = SCOPE, run_id: str = RUN_ID
+) -> StructuredClient:
     models = load_models(ROOT / "config/models.yaml")
     models["nlu"] = models["phrase"] = models["default"]
     fallback = load_fallback_route(ROOT / "config/models.yaml", models)
@@ -129,32 +131,32 @@ def real_client(store: Store, output: Path) -> StructuredClient:
         load_prices(ROOT / "config/pricing.yaml"),
         budget_usd=None,
         daily_budget_usd=1,
-        spend_gate=DevSpendGate(PostgresSpendGate(store, scope=SCOPE, run_id=RUN_ID)),
+        spend_gate=DevSpendGate(PostgresSpendGate(store, scope=scope, run_id=run_id)),
         fallback_routes={"nlu": fallback, "phrase": fallback} if fallback else None,
         call_timeout_seconds=45,
         response_record=journal(output),
     )
 
 
-def budget_status(dsn: str) -> dict:
+def budget_status(dsn: str, *, scope: str = SCOPE, run_id: str = RUN_ID) -> dict:
     with psycopg.connect(dsn) as connection:
         # Read-only owner access; never reset, raise, or re-enable the shared cap.
         limit = connection.execute(
-            "SELECT daily_usd, disabled FROM llm.limits WHERE scope=%s", (SCOPE,)
+            "SELECT daily_usd, disabled FROM llm.limits WHERE scope=%s", (scope,)
         ).fetchone()
         run = connection.execute(
-            "SELECT limit_usd, enabled FROM llm.runs WHERE scope=%s AND run_id=%s", (SCOPE, RUN_ID)
+            "SELECT limit_usd, enabled FROM llm.runs WHERE scope=%s AND run_id=%s", (scope, run_id)
         ).fetchone()
         if not limit or not run or float(limit[0]) != 1 or float(run[0]) != 1:
             raise DevBudgetStop("Expected shared $1 dev scope is absent or changed")
         used = connection.execute(
             "SELECT coalesce(sum(charged_usd),0), count(*) FROM llm.reservations WHERE scope=%s AND run_id=%s",
-            (SCOPE, RUN_ID),
+            (scope, run_id),
         ).fetchone()
         assert used is not None
         return {
-            "scope": SCOPE,
-            "run_id": RUN_ID,
+            "scope": scope,
+            "run_id": run_id,
             "cap_usd": 1,
             "charged_usd": float(used[0]),
             "attempts": used[1],
@@ -219,7 +221,14 @@ def summarize(items: list[dict], complete: bool) -> dict:
     }
 
 
-async def run(mode: str) -> dict:
+async def run(mode: str, *, profile: str = "option-a") -> dict:
+    if profile not in {"option-a", "after-v2"}:
+        raise ValueError("Unknown dev gate profile")
+    from scripts.after_v2_budget import RUN_ID as AFTER_RUN
+    from scripts.after_v2_budget import SCOPE as AFTER_SCOPE
+
+    scope, run_id = (AFTER_SCOPE, AFTER_RUN) if profile == "after-v2" else (SCOPE, RUN_ID)
+    output_root = ROOT / "artifacts/after-v2-dev" if profile == "after-v2" else OUTPUT
     real = mode == "real"
     if real and os.getenv("LLM_REAL_CALLS_APPROVED") != "1":
         raise RuntimeError("Owner approval required")
@@ -231,29 +240,43 @@ async def run(mode: str) -> dict:
         ).strip()
     ):
         raise RuntimeError("Real acceptance requires a clean committed candidate")
-    output = OUTPUT / ("gate-real" if real else "gate-structured-mock")
+    output = output_root / ("gate-real" if real else "gate-structured-mock")
     output.mkdir(parents=True, exist_ok=False)
     dev = yaml.safe_load(DEV.read_text())["scenarios"]
     cases = [("dev" if not s.get("faults") else "faults", s) for s in dev]
     hashes = {"dev": hashlib.sha256(DEV.read_bytes()).hexdigest()}
     if real:
-        confirmation = yaml.safe_load(CONFIRMATION.read_text())["scenarios"]
+        if profile == "after-v2":
+            from aclara.llm.dev_offer_scenarios import CASES, load_offer_scenarios
+
+            confirmation = load_offer_scenarios()
+            confirmation_path = CASES
+            expected_hash = "47e4278b017e70b679f977807e00b970aa7d67114eb68f1a168b15549c1aed2e"
+        else:
+            confirmation = yaml.safe_load(CONFIRMATION.read_text())["scenarios"]
+            confirmation_path = CONFIRMATION
+            expected_hash = "5a828ca67ffa836b29fcb6799064738c3111f990526c12a497951ee0de223ffe"
         if (
             len(confirmation) != 20
             or Counter(s["language"] for s in confirmation) != {"es": 10, "pt": 10}
             or any(s.get("faults") for s in confirmation)
         ):
             raise ValueError("Confirmation set structure changed")
-        hashes["confirmation"] = hashlib.sha256(CONFIRMATION.read_bytes()).hexdigest()
-        if (
-            hashes["confirmation"]
-            != "5a828ca67ffa836b29fcb6799064738c3111f990526c12a497951ee0de223ffe"
-        ):
+        hashes["confirmation"] = hashlib.sha256(confirmation_path.read_bytes()).hexdigest()
+        if hashes["confirmation"] != expected_hash:
             raise ValueError("Confirmation bytes changed since the pre-fix freeze")
         cases += [("confirmation", s) for s in confirmation]
     save(
         output / "launch.json",
-        {"sha": sha, "mode": mode, "input_hashes": hashes, "planned": len(cases)},
+        {
+            "sha": sha,
+            "mode": mode,
+            "profile": profile,
+            "scope": scope,
+            "run_id": run_id,
+            "input_hashes": hashes,
+            "planned": len(cases),
+        },
     )
     store = None
     owner_dsn = None
@@ -265,7 +288,7 @@ async def run(mode: str) -> dict:
             from scripts.azure_migrate_ops import connection_string
 
             owner_dsn = connection_string("aclara_admin")
-            before = budget_status(owner_dsn)
+            before = budget_status(owner_dsn, scope=scope, run_id=run_id)
             save(output / "budget-before.json", before)
             if not before["enabled"]:
                 raise DevBudgetStop("Shared scope disabled")
@@ -278,7 +301,11 @@ async def run(mode: str) -> dict:
                     "keyvault", "secret", "show", "--vault-name", VAULT, "--name", secret
                 )["value"]
         for index, (group, scenario) in enumerate(cases):
-            client = real_client(store, output / "calls.jsonl") if store else mock_client()
+            client = (
+                real_client(store, output / "calls.jsonl", scope=scope, run_id=run_id)
+                if store
+                else mock_client()
+            )
             item = {
                 "id": scenario["id"],
                 "language": scenario["language"],
@@ -311,7 +338,7 @@ async def run(mode: str) -> dict:
             store.close()
         report = {"sha": sha, "mode": mode, **summarize(items, completed)}
         if owner_dsn:
-            report["shared_budget"] = budget_status(owner_dsn)
+            report["shared_budget"] = budget_status(owner_dsn, scope=scope, run_id=run_id)
         save(output / "results.json", report)
     return report
 
@@ -319,9 +346,10 @@ async def run(mode: str) -> dict:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("mode", choices=("mock", "real"))
+    parser.add_argument("--profile", choices=("option-a", "after-v2"), default="option-a")
     args = parser.parse_args()
     try:
-        result = asyncio.run(run(args.mode))
+        result = asyncio.run(run(args.mode, profile=args.profile))
         print(json.dumps(result))
         if args.mode == "real" and not result["gate_passed"]:
             raise SystemExit(1)

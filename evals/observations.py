@@ -29,6 +29,7 @@ ACTIONS = {
     "create_handoff",
     "end_session",
     "explain_status",
+    "offer_dispute",
     "freeze_card",
     "log_security_event",
     "refuse_request",

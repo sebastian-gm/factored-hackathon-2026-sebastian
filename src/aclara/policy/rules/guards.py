@@ -12,13 +12,14 @@ def normalized(text: str) -> str:
     )
 
 
-def escalation(text: str) -> str | None:
+def escalations(text: str) -> list[str]:
     value = normalized(text)
+    reasons = []
     if re.search(
         r"\b(condusef|superintendencia financiera|bcra|procon|abogado|advogado|demanda|processo|regulador|regulator)\b",
         value,
     ):
-        return "ESC-02"
+        reasons.append("ESC-02")
     if any(
         t in value
         for t in (
@@ -36,12 +37,25 @@ def escalation(text: str) -> str | None:
             "estao me ameacando",
         )
     ):
-        return "ESC-03"
-    return None
+        reasons.append("ESC-03")
+    if re.search(
+        r"\b(?:quiero|necesito|hablar|pasame|derivame|quero|preciso|falar|fale|transfira).{0,60}\b(?:persona|pessoa|humano|agente|atendente|alguien|alguem)\b|^(?:una? |uma? )?(?:persona|pessoa|humano|agente|atendente)\b",
+        value,
+    ):
+        reasons.append("ESC-01")
+    return reasons
+
+
+def escalation(text: str) -> str | None:
+    return next((reason for reason in escalations(text) if reason != "ESC-01"), None)
 
 
 def cross_customer(text: str) -> bool:
     value = normalized(text)
+    # Describing an unknown purchase's actor is not a request for their records.
+    value = re.sub(
+        r"\b(?:lo hizo|la hizo|fue|foi|quem fez foi) (?:otra persona|outra pessoa)\b", "", value
+    )
     return bool(
         re.search(
             r"\b(otro cliente|otra persona|outro cliente|outra pessoa|other customer|other account|soy el esposo|soy la esposa|minha esposa|meu marido|cuenta de mi|conta de|minha mae|mi esposa|mi esposo|documento|cedula|cpf|dni)\b",

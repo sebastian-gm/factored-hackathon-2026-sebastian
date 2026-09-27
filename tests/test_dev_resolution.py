@@ -54,7 +54,7 @@ def test_currency_contradiction_requires_clarification(system):
         async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
             headers = {"Authorization": f"Bearer {await _sign_in(client)}"}
             result, _ = await message(
-                client, headers, "No reconozco el cargo de Taller Prisma por 17.43 BRL"
+                client, headers, "No hice el cargo de Taller Prisma por 17.43 BRL"
             )
             assert result["response_type"] == "clarify"
             assert not app.state.cases
@@ -80,7 +80,7 @@ def test_policy_packet_keeps_reasons_facts_auth_and_redacted_statement():
             result, conv = await message(
                 client,
                 headers,
-                "No reconozco el cargo de Taller Prisma; escríbeme a demo@example.test",
+                "No hice el cargo de Taller Prisma; escríbeme a demo@example.test",
             )
             packet = result["handoff"]
             assert packet["conversation_id"] == conv
@@ -124,9 +124,7 @@ def test_existing_case_readback_uses_current_persisted_status():
         async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
             token = await _sign_in(client)
             headers = {"Authorization": f"Bearer {token}"}
-            proposal, conv = await message(
-                client, headers, "No reconozco el cargo de Taller Prisma"
-            )
+            proposal, conv = await message(client, headers, "No hice el cargo de Taller Prisma")
             filed = (
                 await client.post(
                     f"/chat/sessions/{conv}/confirm",
