@@ -5,6 +5,16 @@ Current status below supersedes the earlier lane handoffs; their detailed report
 
 ## Completed-verified
 
+### Handoff 06 — policy and card-freeze slice (in progress)
+
+- Read handoff 06 fully; began tasks in order without inspecting held-out labels or running real models.
+- Added complete synthetic-policy decisions for status/window/type, ownership/status restrictions, verified USD amounts and uncertainty, strict fraud score >30 / three recent cases, duplicate status, complaint review flags, deterministic legal/distress/language/security guards and customer-safe explanations. Catalog version 1.2.0 links every brief rule to tests.
+- Added authenticated accounts/card reads, session-bound step-up OTP, action-hash freeze proposals, confirmation/cancellation, idempotency, policy recheck, independent committed readback and Fraudes handoffs containing the freeze outcome. Non-card products only escalate. Fraud chat offers the optional freeze workflow while preserving the v1 handoff response.
+- `make checks`: 51 passed, 5 database-dependent skips; B1 v1 32/32 with 12 readbacks; six hooks and generated interfaces/catalog passed. V2 B1 dev suite also passed 32/32.
+- `python -m scripts.test_postgres`: 5 passed, including step-up/proposal, freeze and handoff recovery across separate app instances. No existing application database was modified by those disposable tests.
+- Next in this handoff: attribute-based agent routing, then frozen-suite binding/evaluation, fault/security coverage and frontend interface requests. Azure still runs the previous verified release until this layer's green merges and final redeploy.
+
+
 ### Lead integration — handoff 04 tasks 1–6
 
 - Read the brief and amended handoff fully. Verified the existing restricted Azure deployment before integration. Only the private `origin` was used; every Git command targeted this repository. No organizer credential-bearing document was opened, no organizer rows or secrets were committed, and no real-model call ran.

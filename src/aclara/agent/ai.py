@@ -72,6 +72,21 @@ class AgentAI:
         self, value: dict[str, Any], language: str, *, deterministic: bool = False
     ) -> dict[str, Any]:
         plan = ResponsePlan.model_validate(value)
+        if plan.response_type in {"refuse", "report_status"}:
+            text = (
+                plan.reply.replace(plan.case.case_id, "[VERIFIED_CASE]")
+                if plan.case
+                else plan.reply
+            )
+            if scan_dlp(text):
+                plan = plan.model_copy(
+                    update={
+                        "reply": "Consulta el estado verificado del caso."
+                        if language == "es"
+                        else "Consulte o status verificado do caso."
+                    }
+                )
+            return plan.model_dump(mode="json", exclude_none=True)
         facts: list[AllowedFact] = []
         if plan.transaction:
             for key, item in plan.transaction.model_dump(mode="json").items():
