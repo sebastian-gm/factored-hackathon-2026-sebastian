@@ -482,8 +482,6 @@ def understand(
         extracted = _fallback_extract(message)
         primary_failed = True
     except Exception as exc:
-        if client.spend_gate is None:
-            raise
         extracted = _fallback_extract(message)
         primary_failed = True
         primary_error = exc

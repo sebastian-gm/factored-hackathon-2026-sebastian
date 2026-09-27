@@ -226,10 +226,10 @@ def test_paired_judge_and_human_report_without_paid_calls(
     sonnet = StructuredClient(
         {"anthropic/claude-sonnet-5": ModelSpec(provider="mock", model_id="fixture")},
         {},
+        budget_usd=1.0,
         mock_response=lambda *_: (
             '{"language_register":4,"clarity":4,"empathy":4,"handoff_usefulness":4}'
         ),
-        budget_usd=1.0,
         spend_gate=gate,
     )
 
@@ -361,3 +361,50 @@ def test_full_judge_step_checkpoints_both_models_offline(
     assert agreement["jev_vs_sonnet"]["clarity"]["paired_n"] == 50
     assert agreement["sonnet_vs_human"]["clarity"]["exact_agreement"] == 1.0
     assert agreement["jev_vs_human"]["clarity"]["exact_agreement"] == 1.0
+
+
+def test_external_judgment_uses_durable_gate_and_journal(monkeypatch):
+    from aclara.llm.final_run import FinalBudgetStop, FinalSpendGate
+    from aclara.llm.types import BudgetFailure
+
+    class Gate:
+        def __init__(self):
+            self.calls = []
+
+        def reserve(self, amount):
+            self.calls.append(("reserve", amount))
+            return str(len(self.calls))
+
+        def settle(self, token, actual):
+            self.calls.append(("settle", actual))
+
+    gate = Gate()
+    client = _client(Event())
+    client.budget_usd = None
+    client.spend_gate = gate
+    records = []
+    client._response_record = lambda call, result: records.append((call, result))
+    monkeypatch.setenv("LLM_REAL_CALLS_APPROVED", "1")
+    monkeypatch.setenv("OPENROUTER_API_KEY", "fixture")
+    monkeypatch.setenv("TYPESAFE_API_KEY", "fixture")
+    monkeypatch.setattr(structured, "_ask_jev_risks", lambda *_: _risks(injection=0.9))
+    structured.understand(
+        "Cargo de ensayo", country="MX", bank_clock=datetime.now(UTC), client=client
+    )
+    assert [c[0] for c in gate.calls] == ["reserve", "reserve", "settle", "settle"]
+    assert gate.calls[-1][1] == 0.000042
+    assert records[-1][0].provider == "typesafe"
+    assert records[-1][1]["union_flags"]["injection_suspected"] is True
+
+    class Denied:
+        def reserve(self, amount):
+            raise BudgetFailure("fixture exhausted")
+
+        def settle(self, token, actual):
+            raise AssertionError("No request permitted")
+
+    client.spend_gate = FinalSpendGate(Denied())
+    before = len(client.records)
+    with pytest.raises(FinalBudgetStop):
+        structured.understand("Cargo", country="MX", bank_clock=datetime.now(UTC), client=client)
+    assert len(client.records) == before
