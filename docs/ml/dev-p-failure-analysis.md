@@ -40,3 +40,25 @@ All eight fault fixtures share the same essential issue: their first message say
 **Data/ML matcher:** Review whether an exact named merchant should sometimes be proposed rather than offered as a three-item choice. The observed choice lists include the target in all cases, but target rank varies for Mercado Verde. Do not loosen MATCH thresholds merely to satisfy a customer simulator; the harness must handle a legitimate choice. No matcher artifact, thresholds, or shared interface changed in this PR.
 
 The shared `dev-gate/option-a` Postgres scope was independently read back before paid diagnosis: $1.00 enabled, zero charged. The 17-case diagnosis and one post-fix case used **40 reserved/settled attempts, $0.02748308 known and charged, zero unknown-cost attempts**, read back from that same scope. Every real attempt, including parallel Jev risk calls, used `PostgresSpendGate(scope="dev-gate/option-a", run_id="option-a")`; `.env` was not changed. The prior handoff-11 study spend is outside this allowance. The confirmation set and full Step 3 gate remain unrun for the lead after owner fixes/merge. No final program or release was started.
+
+## Lead harness and fixture correction
+
+The lead's structured mock P probe reproduced 8/20 no-fault failures and all
+eight unreached confirmation/write fault triggers before changes. That probe
+uses message-derived valid NLU frames and the actual learned matcher, unlike
+unconfigured mock P's deliberate degraded B1 route. It isolates the harness
+causes without paid calls; it is not an independent NLU quality estimate.
+
+The generic simulator recognizes the declared target only among actually
+offered candidates. Explicit replies/refusals take precedence; missing or absent
+targets retain uncertainty. For fault cases with security/handoff gold and no
+gold target, dev fixtures declare `customer_knowledge.selection_ref`. The existing
+dev dispute, choice, and fault utterances now explicitly deny the purchase and
+request filing. Expected outcomes, policy, and MATCH thresholds are unchanged.
+An explicit no-choice fixture still produces a handoff with no write.
+
+After these corrections, `python -m scripts.dev_gate mock` passed **20/20**
+no-fault and **12/12** faults, with **12/12 triggers fired**, zero observed unsafe
+categories and forbidden actions. `pytest tests/test_dev_gate.py
+tests/test_evaluation.py` passed all 13 checks. Real acceptance and the untouched
+20-case confirmation set remain separate required gates.
