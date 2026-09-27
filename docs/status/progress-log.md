@@ -31,6 +31,19 @@
 
 - Keep PRs open. Do not merge into main until Sebastian announces that the final run has finished; the lead merges afterward.
 
+## 2026-09-27 — Frontend handoff 11: historical submission refresh (freeze lifted by handoff 12)
+
+### Completed (verified)
+- Refreshed PR #24 against main with history-preserving merge; retained the failed mock diagnostic.
+- Updated six-slide pitch, narration and checklist with selected Gemini/Grok/Jev roles, measured development costs, matcher v2/human before-after and private real-model release evidence. Final-run metrics stay explicitly pending.
+- Refreshed PR #28 separately; no paid inference, Azure change or frozen-suite execution.
+
+### Done but not verified
+- Exported slides/video and judge-access rehearsal remain unperformed.
+
+### Next / blocked
+- Keep these PRs open throughout Sebastian's merge freeze. Add frontend glass-box and recording helper on a separate branch; lead merges only after final-run completion.
+
 
 ## Jev release and final-program preparation — 2026-09-27 UTC (current)
 
@@ -96,6 +109,43 @@
 
 Session: handoff 08, 2026-09-26 America/Vancouver; continued 2026-09-27 UTC.
 This summary supersedes earlier task lists. Earlier release evidence remains in Git history and linked reports.
+
+## Frontend lane — submission kit (2026-09-27 UTC)
+
+### Completed (verified)
+
+- Read handoff `07-docs-submission.md` fully and followed its priority order. Interrupted docs for PR #17 when the lead shipped #21; integrated trusted roles, staff/trace/Ops endpoints, upstream revocation and gated reset with independent readbacks. Private PR #17 is mergeable at `3d63bca`; GitHub `ci` run `36291326889` and `safety` run `36291326877` passed all four jobs. Local evidence: eight fixture, four customer API and one staff API browser tests, accessibility checks, TypeScript, ESLint, production build and repository hooks. Lead owns Azure connectivity verification and shared browser CI.
+- Authored the eleven requested submission documents on `docs/submission-kit`: README, R1–R14/seven-criterion traceability, system/state diagrams, STRIDE/OWASP test mapping, actual payload/provider/retention boundaries, trade-offs, projection sensitivity, limitations/readiness, six slides and the video draft. Corrected mock diagnostic aggregates remain explicitly failed-gate evidence; final model/human/deployment metrics retain visible `TODO(results)` entries.
+- Read aggregate JSON and verified quoted headline, matcher and problem-analysis values. Corrected the brief's broad charge/fee automation claim and highest-handling-time claim against pipeline output. Read named implementation/tests and linked local restore/cold-start evidence; no outcome rerun, policy tuning or frozen-suite edit.
+- A local documentation audit passed 241 link/fence/test-ID checks across the eleven documents; all requirement/criterion mappings, six-slide count and aggregate assertions passed. Narration is 297 words before rehearsal. `git diff --check` and the working-tree data/secret/size policy passed. Provider statements cite official sources; account-specific terms remain unverified. No organizer rows, credentials, Azure actions or model calls were used for this assignment.
+
+- Private [PR #24](https://github.com/sebastian-gm/bank-agent-lab/pull/24) was opened and read back with only the assigned documents plus this log. All four CI jobs passed at `a98203a` (`ci` run `36291808092`, `safety` run `36291808097`); mypy and data/secret/size hooks also passed locally. This log-only follow-up records that evidence.
+
+### Done but not verified
+
+- Mermaid source is provided; final deck export and deployed video recording/rehearsal are not performed. The requested PT staff scene depends on an authorized deployed staff workspace. Judge access and a separate access-code gate are not established; the owner-IP boundary remains.
+- Azure BFF-to-API connectivity, latest deployed browser behavior, native language/human label review, selected-provider account terms and real-model evaluation remain pending. The projection intentionally has no invented hours/savings.
+
+### Next / blocked
+
+- Lead review of PR #24 and PR #17. Keep the documentation PR review-ready only after the latest CI is green, and continue prioritizing PR #17 feedback. Lead owns release/network checks; owner approval is required for any future model spending, public submission or wider judge access. No new approval is needed for the completed local documentation work.
+
+### Pitch pass on PR #24 — 2026-09-27 UTC
+
+#### Completed (verified)
+
+- Reworked the six slides into takeaway sentences, each with three short bullets and one table or diagram. Moved methods/caveats into collapsed speaker notes and kept one explicit production/limits slide. The final real-model scorecard uses only `TODO(results)` cells, with separate B1/P and planned Gemini 3 Flash/Claude comparisons and conversation-cost definitions.
+- Rewrote the video as 248 spoken words with a customer hook, deployed product on screen at 0:10, separate stage directions and the final fifteen seconds reserved for limits. Added `docs/submission/checklist.md` for access/role/reset details, deadline confirmation, release/recording SHA, full-history Gitleaks/data review, owner-approved publication and email delivery. The sandbox remains private; checklist actions are not executed.
+- Checked the priority PR #17: no new review beyond the previously addressed backend-contract review. Merged current main `6aa0cf7` into the published docs branch without rewriting history. New lead changes preserve endpoint schemas; no frontend implementation edit was needed for this pitch pass.
+- Local structural/source audit passed: six slide headlines, three bullets and one visual each; 248 narration words; 44 links/reference targets; displayed pipeline/matcher values matched aggregate JSON. `git diff --check` passed. Checked official organizer date, Gitleaks syntax and GitHub visibility documentation; deadline time/zone still requires organizer confirmation. No Azure/model calls, credential reads, public release or email send.
+
+#### Done but not verified
+
+- Final held-out real-model B1/P and Gemini/Claude measurements, human review, actual recording duration and deployed rehearsal remain pending. The AI lane's comparison document still has no measured default; Gemini 3 Flash is explicitly a planned choice. Full-history Gitleaks and publication/access steps are checklist tasks, not completed audits.
+
+#### Next / blocked
+
+- Update PR #24 and verify final-head CI before reporting it ready. Lead review/deployed access verification and the AI lane's final model comparison remain release follow-ups. No permission is needed for this documentation edit; future spending, visibility changes and sending the submission need explicit owner authorization.
 
 ## Completed-verified
 
