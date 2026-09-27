@@ -315,13 +315,28 @@ def postprocess(extracted: ExtractedNlu, *, country: str | None, bank_clock: dat
     public_language: Literal["es", "pt"] = "pt" if language == "pt" else "es"
     currency, ambiguous = resolve_currency(extracted.currency_expr, country)
     dates = parse_relative_date(extracted.date_expr, bank_clock)
+    transaction_type = extracted.type_expr
+    # A generic word for "charge" is not a transaction type. MATCH compares this
+    # slot against concrete ledger types, so passing one makes a named charge look
+    # less certain and can force an unnecessary choice.
+    if normalize_text(transaction_type or "").strip() in {
+        "cargo",
+        "cargos",
+        "cobro",
+        "cobros",
+        "cobranca",
+        "cobrancas",
+        "charge",
+        "charges",
+    }:
+        transaction_type = None
     slots = NormalizedSlots(
         amount_value=parse_amount(extracted.amount_expr, country),
         currency=currency,
         date_start=dates[0] if dates else None,
         date_end=dates[1] if dates else None,
         merchant_expr=extracted.merchant_expr,
-        type_expr=extracted.type_expr,
+        type_expr=transaction_type,
         product_hint=extracted.product_hint,
         country_expr=extracted.country_expr,
         count_expr=extracted.count_expr,
