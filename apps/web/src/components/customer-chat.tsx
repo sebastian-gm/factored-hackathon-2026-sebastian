@@ -17,6 +17,7 @@ import { useApp } from "./workspace";
 import { Button } from "./ui/button";
 import { Modal } from "./ui/dialog";
 import { TransactionCard } from "./transaction-card";
+import { FreezeCard } from "./freeze-card";
 
 type Line = {
   id: number;
@@ -65,6 +66,10 @@ export function CustomerChat() {
       { id: current.length, speaker: "aclara", text: plan.reply, plan },
     ]);
     if (plan.proposal) setConfirmOpen(true);
+    if (plan.session_ended) {
+      setRenew(true);
+      setError(t("renew"));
+    }
   }
   async function send(text: string) {
     if (lock.current || !text.trim() || proposal || renew) return;
@@ -190,13 +195,22 @@ export function CustomerChat() {
                 <div className="receipt">
                   <FileCheck2 size={24} />
                   <div>
-                    <h3>{t("receipt")}</h3>
+                    <h3>
+                      {t(
+                        line.plan.response_type === "report_status"
+                          ? "statusTitle"
+                          : "receipt",
+                      )}
+                    </h3>
                     <strong>{line.plan.case.case_id}</strong>
                     <p>
-                      {t("caseStatus")} · <CheckCheck size={14} />{" "}
-                      {t("verified")}
+                      {line.plan.case.status === "received"
+                        ? t("caseStatus")
+                        : line.plan.case.status}{" "}
+                      · <CheckCheck size={14} /> {t("verified")}
                     </p>
                     <small>{t("receiptNote")}</small>
+                    {line.plan.case.review_flag && <p>{t("reviewFlag")}</p>}
                   </div>
                 </div>
               )}
@@ -210,7 +224,21 @@ export function CustomerChat() {
                       {line.plan.handoff.route.queue}
                     </strong>
                     <p>{t("handoffNote")}</p>
-                    <small>{t("noFreeze")}</small>
+                    <small>
+                      {t(
+                        line.plan.card?.verified
+                          ? "freezeVerified"
+                          : line.plan.handoff.freeze_outcome === "unverified"
+                            ? "mutationUnknown"
+                            : "noFreeze",
+                      )}
+                    </small>
+                    {line.plan.handoff.route.assignment_pending && (
+                      <p>{t("assignmentPending")}</p>
+                    )}
+                    {line.plan.handoff.route.fallback_used && (
+                      <p>{t("fallback")}</p>
+                    )}
                   </div>
                 </div>
               )}
@@ -278,6 +306,13 @@ export function CustomerChat() {
           </Button>
         </div>
       )}
+      {!config.fixtures && latest?.freeze_offer?.length && !renew ? (
+        <FreezeCard
+          key={latest.handoff?.handoff_id}
+          products={latest.freeze_offer}
+          onResult={receive}
+        />
+      ) : null}
       {error && (
         <div className="error" role="alert">
           {error}

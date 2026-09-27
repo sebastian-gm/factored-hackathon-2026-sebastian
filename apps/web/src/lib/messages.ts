@@ -100,6 +100,8 @@ export const es = {
   validConfirmation: "Confirmar envía esta propuesta exacta al banco simulado.",
   reviewAction: "Revisar y confirmar",
   receipt: "Tu caso está registrado",
+  statusTitle: "Estado de tu caso",
+  reviewFlag: "Marcado para revisión adicional.",
   caseStatus: "Recibido para revisión",
   receiptNote:
     "El registro fue consultado de nuevo. No implica un reembolso ni una decisión favorable.",
@@ -107,6 +109,13 @@ export const es = {
   handoffNote:
     "El equipo recibió el paquete de atención. No necesitas repetir lo que ya verificamos.",
   noFreeze: "No se ha realizado ningún bloqueo de tarjeta.",
+  freezeOffer: "Puedes solicitar el bloqueo de tu tarjeta.",
+  freezeAction: "Bloquear tarjeta",
+  freezeBody:
+    "Verifica un nuevo código OTP y revisa la tarjeta antes de confirmar. La revisión humana continúa aunque canceles.",
+  verifyAction: "Verificar y revisar acción",
+  freezeVerified: "Bloqueo de tarjeta verificado en los registros.",
+  assignmentPending: "Asignación a un agente pendiente.",
   renew: "La sesión o verificación venció. Vuelve a acceder para continuar.",
   mutationUnknown:
     "No pudimos verificar el resultado. No repetiremos la acción automáticamente. Consulta el estado antes de volver a intentarlo.",
@@ -279,6 +288,8 @@ export const pt: typeof es = {
   validConfirmation: "Confirmar envia esta proposta exata ao banco simulado.",
   reviewAction: "Revisar e confirmar",
   receipt: "Seu caso está registrado",
+  statusTitle: "Status do seu caso",
+  reviewFlag: "Marcado para análise adicional.",
   caseStatus: "Recebido para análise",
   receiptNote:
     "O registro foi consultado novamente. Isso não implica reembolso nem decisão favorável.",
@@ -286,6 +297,13 @@ export const pt: typeof es = {
   handoffNote:
     "A equipe recebeu o pacote de atendimento. Você não precisa repetir o que já verificamos.",
   noFreeze: "Nenhum cartão foi bloqueado.",
+  freezeOffer: "Você pode solicitar o bloqueio do cartão.",
+  freezeAction: "Bloquear cartão",
+  freezeBody:
+    "Verifique um novo código OTP e confira o cartão antes de confirmar. A análise humana continua mesmo se você cancelar.",
+  verifyAction: "Verificar e revisar ação",
+  freezeVerified: "Bloqueio do cartão verificado nos registros.",
+  assignmentPending: "Atribuição a um agente pendente.",
   renew: "A sessão ou verificação expirou. Entre novamente para continuar.",
   mutationUnknown:
     "Não foi possível verificar o resultado. Não repetiremos a ação automaticamente. Consulte o status antes de tentar de novo.",

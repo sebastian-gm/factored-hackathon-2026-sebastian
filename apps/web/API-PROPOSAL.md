@@ -10,9 +10,9 @@ unavailable state for missing contracts, without issuing invented upstream reque
 | Contract gap | Proposed addition / behavior |
 | --- | --- |
 | Persona discovery and staff identity | Safe alias/label/locale persona list; typed `/me` with trusted server role, locale and bank clock. Agent/ops roles must come from verified authentication, never a username or client field. Password and OTP remain mandatory. |
-| Products | Add masked product label/type/handle to transaction views, or publish owned `/accounts` views. Never expose full account/card numbers. Until then the live UI says product unavailable. |
-| Proposal integrity and freeze | Extend the proposal with explicit typed handle parameters, server-signed nonce and card-freeze action; extend confirmation input accordingly while preserving v1. Current frozen input accepts only proposal hash plus boolean. The UI submits exactly those fields and implements dispute confirmation only. Fraud currently hands off without claiming a card freeze. |
-| Session and step-up | Publish challenge refresh / fresh OTP and logout revocation endpoints. Until then expiry requires a new authenticated session and a new proposal; no client bypass. BFF logout clears cookies but cannot revoke an upstream token. |
+| Product display | Owned `/accounts` and `freeze_offer` product handles/types/status are now available and validated. Add a masked display label and transaction-to-product handle mapping; the UI does not invent these. |
+| Action contracts | Freeze proposals and confirmation now work through the live API, including fresh OTP and independent card/handoff read-back. Freeze endpoints currently publish generic object schemas; add typed response models for the implemented proposal/result shapes. Dispute confirmation still submits the frozen hash plus boolean contract. |
+| Session | Fresh OTP is now wired to `/auth/step-up` and `/auth/step-up/verify` for freeze. Expired sessions still require login and a new proposal. Publish logout revocation; BFF logout clears cookies but cannot revoke an upstream token. |
 | Agent queue | `GET /agent/handoffs`: priority, SLA due timestamp, language, reason codes, status, claimant and opaque handoff/conversation references, scoped to an authorized agent. |
 | Handoff details | Agent-scoped `GET /agent/handoffs/{id}` with the §12.4 packet: masked customer, evidence-linked verified facts with tool/dataset/time, separately labeled unverified statements, verified action timeline, routing/fallback, open questions, transcript reference. No raw scores, thinking or raw transcript payload. |
 | Claim / resolve | POST claim and resolve endpoints with authorization, version/conflict handling and idempotency. Return a result that the UI can verify using GET. Resolution must not imply a refund. |
@@ -28,7 +28,7 @@ so the proxy grants customer UI access only; staff aliases do not escalate it.
 No deployment or paid model run is part of this frontend PR. The local fixture
 backend is not suitable for multi-instance deployments: it has in-memory sessions,
 short-lived workspaces and no shared store or production rate limiting. Lead-owned
-identity, persistence, role enforcement, signed confirmation and live Ops/Desk
+identity, persistence, role enforcement, live Ops/Desk
 integration remain required before claiming those surfaces are production-ready.
 
 CI follow-up: add `pnpm exec playwright install --with-deps chromium` and

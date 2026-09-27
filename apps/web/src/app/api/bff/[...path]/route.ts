@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import {
   caseSchema,
+  cardSchema,
+  freezeProposalSchema,
+  productSchema,
   handoffSchema,
   planSchema,
   transactionSchema,
@@ -37,10 +40,10 @@ const otpSchema = z
   .strict();
 const allowed = (path: string, method: string) =>
   method === "GET"
-    ? /^(me|transactions|disputes\/[\w-]{1,80}|handoffs\/[\w-]{1,80})$/.test(
+    ? /^(me|accounts|cards\/[\w-]{1,80}|transactions|disputes\/[\w-]{1,80}|handoffs\/[\w-]{1,80})$/.test(
         path,
       )
-    : /^(chat\/sessions|chat\/sessions\/[\w-]{1,80}\/(messages|confirm))$/.test(
+    : /^(chat\/sessions|chat\/sessions\/[\w-]{1,80}\/(messages|confirm)|cards\/[\w-]{1,80}\/freeze(\/proposal)?)$/.test(
         path,
       );
 function response(data: unknown, status = 200) {
@@ -210,6 +213,28 @@ async function handle(
       return reply;
     }
     if (!token) throw new HttpError(401, "session_expired");
+    if (path === "auth/step-up" && request.method === "POST") {
+      if (fixtures()) throw new HttpError(501, "contract_pending");
+      z.object({}).strict().parse(body);
+      const auth = z
+        .object({ challenge_id: z.string(), preauth_token: z.string() })
+        .parse(await upstream(path, "POST", token));
+      const reply = response({ challenge_id: auth.challenge_id });
+      cookie(reply, PREAUTH, auth.preauth_token, 300);
+      return reply;
+    }
+    if (path === "auth/step-up/verify" && request.method === "POST") {
+      if (fixtures()) throw new HttpError(501, "contract_pending");
+      if (!preauth) throw new HttpError(401, "challenge_expired");
+      const verified = z
+        .object({ status: z.literal("verified") })
+        .parse(
+          await upstream(path, "POST", token, otpSchema.parse(body), preauth),
+        );
+      const reply = response(verified);
+      cookie(reply, PREAUTH, "", 0);
+      return reply;
+    }
     if (path.startsWith("agent/") || path.startsWith("ops/")) {
       if (!fixtures()) throw new HttpError(501, "contract_pending");
       return response(fixtureRequest(path, request.method, token, body));
@@ -220,7 +245,7 @@ async function handle(
         .object({ message: z.string().trim().min(1).max(1000) })
         .strict()
         .parse(body);
-    if (path.endsWith("/confirm"))
+    if (path.endsWith("/confirm") || path.endsWith("/freeze"))
       body = z
         .object({
           proposal_hash: z.string().regex(/^[a-f0-9]{64}$/),
@@ -228,11 +253,57 @@ async function handle(
         })
         .strict()
         .parse(body);
+    if (path.endsWith("/freeze/proposal"))
+      body = z
+        .object({ language: z.enum(["es", "pt"]) })
+        .strict()
+        .parse(body);
     const call = (p: string, method = "GET", b?: Record<string, unknown>) =>
       fixtures()
         ? Promise.resolve(fixtureRequest(p, method, token, b ?? {}))
         : upstream(p, method, token, b);
     const data = await call(path, request.method, body);
+    if (path === "accounts")
+      return response(z.array(productSchema).parse(data));
+    if (path.startsWith("cards/")) {
+      const handle = path.split("/")[1];
+      if (request.method === "GET") {
+        const card = cardSchema.parse(data);
+        if (card.handle !== handle) throw new HttpError(502, "readback_failed");
+        return response(card);
+      }
+      const proposal = freezeProposalSchema.safeParse(data);
+      if (path.endsWith("/proposal") && proposal.success) {
+        if (proposal.data.handle !== handle)
+          throw new HttpError(502, "invalid_response");
+        return response(proposal.data);
+      }
+      const plan = planSchema.parse(data);
+      if (!plan.handoff) throw new HttpError(502, "readback_failed");
+      const actual = handoffSchema.parse(
+        await call(`handoffs/${plan.handoff.handoff_id}`),
+      );
+      if (
+        actual.handoff_id !== plan.handoff.handoff_id ||
+        actual.freeze_outcome !== plan.handoff.freeze_outcome ||
+        actual.route.queue !== plan.handoff.route.queue
+      )
+        throw new HttpError(502, "readback_failed");
+      if (plan.card) {
+        const card = cardSchema.parse(await call(`cards/${handle}`));
+        if (
+          card.handle !== handle ||
+          plan.card.handle !== handle ||
+          card.status !== "Frozen" ||
+          plan.card.status !== "Frozen" ||
+          actual.freeze_outcome !== "verified"
+        )
+          throw new HttpError(502, "readback_failed");
+      } else if (actual.freeze_outcome === "verified") {
+        throw new HttpError(502, "readback_failed");
+      }
+      return response({ ...plan, verified: true });
+    }
     if (path === "me") {
       const me = z
         .object({
@@ -252,6 +323,13 @@ async function handle(
     if (path.startsWith("handoffs/"))
       return response(handoffSchema.parse(data));
     const plan = planSchema.parse(data);
+    if (plan.session_ended) {
+      // The bank has revoked this session. Show its refusal without claiming a
+      // handoff receipt that can no longer be independently read with this token.
+      const reply = response({ ...plan, handoff: null, verified: false });
+      cookie(reply, ACCESS, "", 0);
+      return reply;
+    }
     if (plan.case) {
       if (plan.verified !== true) throw new HttpError(502, "readback_failed");
       const actual = caseSchema.parse(
@@ -265,7 +343,6 @@ async function handle(
         throw new HttpError(502, "readback_failed");
     }
     if (plan.handoff) {
-      if (plan.verified !== true) throw new HttpError(502, "readback_failed");
       const actual = handoffSchema.parse(
         await call(`handoffs/${encodeURIComponent(plan.handoff.handoff_id)}`),
       );
@@ -274,6 +351,7 @@ async function handle(
         actual.route.queue !== plan.handoff.route.queue
       )
         throw new HttpError(502, "readback_failed");
+      plan.verified = true;
     }
     return response(plan);
   } catch (error) {

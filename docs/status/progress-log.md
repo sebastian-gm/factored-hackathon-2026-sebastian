@@ -119,3 +119,20 @@ For the next session: **Continue from docs/status/progress-log.md. Next layer: p
 
 - Lead review of PR #17 and its additive API proposal. Wire staff/Ops contracts and add the documented browser-test command to the shared CI workflow; this lane does not edit that workflow.
 - Deploy only through the lead's existing authorized release process. No approval is needed for this private frontend PR; any future use of the worktree's OpenRouter key requires Sebastian's explicit approval.
+
+### Frontend follow-up — submission assignment
+
+#### Completed (verified)
+
+- Read handoff `07-docs-submission.md` and checked PR #17 reviews/inline comments (none at the check). Integrated main through `dd957c7`; rebased locally and retained published ancestry with a merge so no force-push is needed.
+- Adapted the customer BFF to the shipped account/card, fresh-OTP, freeze, duplicate-case status and security plans. Live handoffs are independently read back even when the bank omits the optional verified flag. No success is inferred from missing evidence; revoked sessions show refusal without a handoff receipt.
+- Initial browser verification passed eight fixture stories and three live B1 API stories, including fresh-OTP freeze confirmation/cancellation and independent card/handoff read-back. Only project-generated fixtures and ephemeral credentials were used; no provider calls or Azure actions.
+
+#### Done but not verified
+
+- Agent Desk/Ops APIs and staff identity remain absent; their typed fixture mode stays explicit. Native language review and deployed frontend behavior remain pending.
+- The B1 phrase “Perdí mi tarjeta” did not offer a freeze in the local probe; “Me robaron la tarjeta” exercises the implemented path. Language coverage remains a lead/AI follow-up, not a frontend policy override.
+
+#### Next / blocked
+
+- Final local verification: eight fixture tests, three live API tests (including freeze-dialog accessibility), ESLint and production build passed. PR #17 follow-up is ready to push; author the submission documents on `docs/submission-kit` next. Interrupt that work for lead reviews or new staff/Ops endpoints.

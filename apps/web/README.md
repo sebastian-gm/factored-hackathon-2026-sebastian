@@ -38,7 +38,8 @@ Only team-generated fixtures appear in these browser runs. `pnpm typecheck`,
 
 `pnpm test:e2e --live` additionally starts the existing Python B1 API against its
 team-generated fixture ledger on port 8212, then verifies login, a pending-charge
-explanation and a confirmed dispute/read-back through the proxy. It requires the
+explanation, duplicate-case status, confirmed dispute/read-back, and both card-freeze
+confirmation and cancellation with fresh OTP through the proxy. It requires the
 repository's dev Python environment. Both modes force mock/B1 behavior and use a
 fresh process credential; neither loads the local provider key.
 
@@ -62,8 +63,9 @@ revocation endpoint yet, so upstream session revocation remains a lead dependenc
 
 Confirm and Cancel submit the exact server proposal hash and boolean. There is no
 client-created proposal, ordinal-based authorization, optimistic receipt, automatic
-write retry or password shortcut. A case/handoff receipt requires the API's verified
-flag plus an additional same-session read-back. Uncertain write results are shown
+write retry or password shortcut. A case receipt requires the API's verified flag plus an additional same-session
+read-back. Handoff receipts require an additional scoped GET; freeze success also
+requires an independently read Frozen card and matching verified handoff outcome. Uncertain write results are shown
 as unverified; the user is not invited to blindly repeat the write. Plan expiry is
 measured against real time; transaction dates and demo SLA use the simulated clock.
 The UI doesn't infer a product mask when the live response omits that field.
@@ -94,3 +96,9 @@ shadcn-style Button/Dialog components over Radix, and next-intl. Reference docs:
 [shadcn Dialog](https://ui.shadcn.com/docs/components/radix/dialog),
 [Tailwind Next.js setup](https://tailwindcss.com/docs/installation/framework-guides/nextjs),
 and [Playwright web servers](https://playwright.dev/docs/test-webserver).
+
+Customer API follow-up: the proxy accepts the shipped status/security plans and
+validates owned products. Fraud offers now use the live fresh-OTP and freeze APIs,
+with exact-hash confirmation/cancellation. A revoked session shows the refusal
+without claiming a handoff read-back. No freeze is simulated in the UI fixture adapter.
+Agent Desk/Ops contracts remain pending.

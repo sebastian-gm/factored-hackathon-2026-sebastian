@@ -19,7 +19,8 @@ export const proposalSchema = z.object({
 export const caseSchema = z.object({
   case_id: z.string(),
   transaction_handle: z.string(),
-  status: z.literal("received"),
+  status: z.string(),
+  review_flag: z.boolean().optional(),
   policy_rules: z.array(z.string()),
   created_at: z.string(),
 });
@@ -33,11 +34,35 @@ export const handoffSchema = z.object({
     queue: z.string(),
     language: z.enum(["es", "pt"]),
     fallback_used: z.boolean(),
+    assignment_pending: z.boolean().optional(),
+    specialty_fallback: z.boolean().optional(),
+    language_fallback: z.boolean().optional(),
   }),
   verified_facts: z.array(transactionSchema),
   actions_taken: z.array(z.string()),
   open_questions: z.array(z.string()),
+  freeze_outcome: z.string().nullish(),
 });
+export const productSchema = z.object({
+  handle: z.string().regex(/^[\w-]{1,80}$/),
+  product_type: z.string(),
+  status: z.string(),
+});
+export const cardSchema = z.object({
+  handle: z.string(),
+  status: z.string(),
+  verified: z.literal(true),
+});
+export const freezeProposalSchema = z.object({
+  response_type: z.literal("confirm_action"),
+  action: z.literal("freeze_card"),
+  handle: z.string(),
+  proposal_hash: z.string().regex(/^[a-f0-9]{64}$/),
+  expires_at: z.string(),
+  reply: z.string(),
+});
+export type Product = z.infer<typeof productSchema>;
+export type FreezeProposal = z.infer<typeof freezeProposalSchema>;
 export const planSchema = z
   .object({
     response_type: z.enum([
@@ -49,6 +74,8 @@ export const planSchema = z
       "report_case",
       "confirm_action",
       "explain_status",
+      "report_status",
+      "refuse",
     ]),
     outcome: z.enum([
       "cancelled",
@@ -59,6 +86,8 @@ export const planSchema = z
       "dispute_filed",
       "dispute_proposed",
       "explained",
+      "status_reported",
+      "refused_security",
     ]),
     reply: z.string(),
     candidates: z.array(transactionSchema).nullish(),
@@ -68,6 +97,9 @@ export const planSchema = z
     handoff: handoffSchema.nullish(),
     policy_rules: z.array(z.string()).nullish(),
     verified: z.boolean().nullish(),
+    session_ended: z.boolean().optional(),
+    freeze_offer: z.array(productSchema).nullish(),
+    card: cardSchema.optional(),
   })
   .superRefine((plan, ctx) => {
     const needs = (ok: unknown, field: string) => {
@@ -82,7 +114,8 @@ export const planSchema = z
       needs(plan.proposal, "proposal");
       needs(plan.transaction, "transaction");
     }
-    if (plan.response_type === "report_case") needs(plan.case, "case");
+    if (["report_case", "report_status"].includes(plan.response_type))
+      needs(plan.case, "case");
     if (plan.response_type === "offer_human") needs(plan.handoff, "handoff");
     if (plan.response_type === "choose_transaction")
       needs(plan.candidates?.length, "candidates");
