@@ -178,6 +178,13 @@ def test_bound_purchase_freeze_and_existing_case() -> None:
         forbidden_actions=["create_dispute"],
     )
     assert run(existing)["passed"]
+    existing["gold"]["required_actions"][1]["target_ref"] = "created-state"
+    verified = run(existing)
+    assert verified["passed"] and "existing-case" in verified["verified_refs"]
+    verified["verified_refs"] = []
+    verified["action_targets"]["verify_readback"] = []
+    verified["readback"] = False
+    assert not score(verified)["passed"]
 
 
 def test_fault_boundaries_and_authorized_write_before_failed_readback() -> None:

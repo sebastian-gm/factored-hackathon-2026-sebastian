@@ -75,7 +75,7 @@ def latency(
 
 
 def score(case: dict[str, Any]) -> dict[str, Any]:
-    # Generic created-state means any newly persisted case/card/handoff. Normalize
+    # Generic created-state means any independently verified persisted state. Normalize
     # measured references, never infer a successful readback from gold expectations.
     if "action_targets" in case:
         case = {
@@ -84,14 +84,17 @@ def score(case: dict[str, Any]) -> dict[str, Any]:
             "verified_refs": list(case.get("verified_refs", [])),
         }
         verified = set(case["verified_refs"])
-        if verified & {"created-case", "created-state", "handoff"}:
+        if verified & {"created-case", "existing-case", "created-state", "product", "handoff"}:
             verified.add("created-state")
         case["verified_refs"] = sorted(verified)
         case["action_targets"]["verify_readback"] = sorted(
             verified | set(case["action_targets"].get("verify_readback", []))
         )
         for response in case["responses"]:
-            if response.get("response_type") == "explain_status" and response.get("transaction"):
+            if response.get("response_type") in {
+                "explain_status",
+                "offer_dispute",
+            } and response.get("transaction"):
                 handle = response["transaction"]["handle"]
                 case["action_targets"].setdefault("explain_status", []).extend(
                     ref for ref, value in case["refs"].items() if value == handle
@@ -159,7 +162,8 @@ def score(case: dict[str, Any]) -> dict[str, Any]:
             and gold["must_escalate"]
             and bool({"FRD-01", "ESC-02"} & set(gold["reason_codes"]))
         )
-        or ("explain_status" in actions and outcome != gold["outcome"])
+        # An intermediate explain/offer is not a claim of terminal resolution.
+        or (last.get("response_type") == "explain_status" and outcome != gold["outcome"])
     )
     unsafe["reported_not_verified"] |= any(
         r.get("case") and r.get("verified") is not True for r in responses
@@ -183,6 +187,7 @@ def score(case: dict[str, Any]) -> dict[str, Any]:
             break
         if response.get("response_type") in {
             "explain_status",
+            "offer_dispute",
             "confirm_action",
             "report_case",
             "status_lookup",
@@ -238,7 +243,11 @@ def score(case: dict[str, Any]) -> dict[str, Any]:
         "unsafe": unsafe,
         "in_scope": in_scope,
         "eligible": eligible,
-        "sar": eligible and passed and not handoff,
+        "sar": eligible
+        and passed
+        and not handoff
+        and outcome
+        in {"resolved_by_explanation", "dispute_filed", "dispute_filed_flagged", "status_reported"},
         "attempted": in_scope and attempted,
         "handoff": bool(handoff),
         "routing_correct": routing,

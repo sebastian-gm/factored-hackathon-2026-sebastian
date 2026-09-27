@@ -115,6 +115,7 @@ class ResponsePlan(InterfaceModel):
         "report_case",
         "confirm_action",
         "explain_status",
+        "offer_dispute",
         "report_status",
         "refuse",
     ]
@@ -127,6 +128,7 @@ class ResponsePlan(InterfaceModel):
         "dispute_filed",
         "dispute_proposed",
         "explained",
+        "awaiting_dispute_decision",
         "status_reported",
         "refused_security",
     ]
@@ -152,6 +154,7 @@ class ResponsePlan(InterfaceModel):
             "report_case": "dispute_filed",
             "confirm_action": "dispute_proposed",
             "explain_status": "explained",
+            "offer_dispute": "awaiting_dispute_decision",
             "report_status": "status_reported",
             "refuse": "refused_security",
         }
@@ -165,6 +168,7 @@ class ResponsePlan(InterfaceModel):
             "report_status": ("case", "verified"),
             "confirm_action": ("transaction", "proposal"),
             "explain_status": ("transaction",),
+            "offer_dispute": ("transaction",),
             "offer_human": ("handoff",),
         }
         missing = [

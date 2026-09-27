@@ -33,6 +33,8 @@ def slice_metrics(cases: list[dict[str, Any]]) -> dict[str, Any]:
         "n": n,
         "insufficient_sample": n < 30,
         "sar_in_scope": proportion(sum(c["sar"] for c in cases), sum(c["in_scope"] for c in cases)),
+        "escalation_recall": proportion(sum(correct_handoff(c) for c in required), len(required)),
+        "handoff_presence_recall": proportion(sum(c["handoff"] for c in required), len(required)),
         "missed_transfers": proportion(
             sum(not correct_handoff(c) for c in required), len(required)
         ),
