@@ -11,7 +11,9 @@ from aclara.agent.nlg.builder import render_dispute_offer
 from aclara.agent.nlg.grounding import AllowedFact, verify_draft
 
 
-def _transaction(*, merchant: str | None = "Mercado Verde", status: str = "Approved") -> TransactionView:
+def _transaction(
+    *, merchant: str | None = "Mercado Verde", status: str = "Approved"
+) -> TransactionView:
     return TransactionView(
         handle="fixture-txn-001",
         transaction_date=datetime(2026, 6, 9, tzinfo=UTC),
@@ -64,6 +66,4 @@ def test_localized_grouped_amount_preserves_value_without_allowing_a_new_one() -
     fact = AllowedFact("amount", "1000.0", "scoped_transaction_read")
     assert verify_draft("USD 1,000.00", [fact.id], (fact,)).safe
     assert verify_draft("R$ 1.000,00", [fact.id], (fact,)).safe
-    assert "uncited_number" in verify_draft(
-        "USD 1,999.00", [fact.id], (fact,)
-    ).violations
+    assert "uncited_number" in verify_draft("USD 1,999.00", [fact.id], (fact,)).violations

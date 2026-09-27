@@ -104,9 +104,5 @@ def test_frozen_followups_have_safe_deterministic_degradation() -> None:
             bank_clock=CLOCK,
             awaiting_recognition=True,
         )
-        expected = (
-            "recognized"
-            if case["expected_path"] == "resolved_by_explanation"
-            else "denied"
-        )
+        expected = "recognized" if case["expected_path"] == "resolved_by_explanation" else "denied"
         assert result.degraded and result.extracted.recognition == expected, case["id"]
