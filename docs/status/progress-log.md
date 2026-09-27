@@ -241,7 +241,25 @@ The following sections retain the AI lane’s historical reports; later dated de
 
 ### Next / blocked
 
-- Lead must merge the Jev follow-up integration PR before the final run, bind `score_pair` into the 100 frozen reply assessments, verify TypeSafe payload terms, and read back both providers in the shared durable $12 gate. Keep production mock and do not begin frozen final evaluation until Sebastian's explicit start signal and all preflight gates are green.
+- PR #34 subsequently merged into the pinned `07bccdc` main before the merge freeze. The lead should read back `score_pair` on the 100 frozen reply assessments, TypeSafe payload terms, and both providers in the shared durable $12 gate. Keep production mock until the authorized deployment route is enabled, and do not begin frozen final evaluation until Sebastian's explicit start signal and all preflight gates are green.
+
+## AI lane — 2026-09-27 (parallel development before final run; merge freeze)
+
+### Completed (verified)
+
+- Read handoff 11 in full and kept the merge freeze: work is on a new AI feature branch; no main merge or frozen held-out access occurred. PR #34 had already merged as the pinned `07bccdc` main commit; this branch follows it. PR #36 is open, targets main and passed all four CI checks without merging.
+- Measured 20 synthetic no-fault dev conversations through the real local ASGI P path, including parallel Jev risk calls, Gemini phrasing and one forced no-network Gemini failure followed by a valid Grok fallback. Turn p50/p95 **1.782/4.354 s**, case-sum p50/p95 **2.002/8.126 s**, known per-call cost **$0.032765**, conservative cap charge **$0.052947/$0.50**. Full aggregate and limits: [live dev path study](../ml/live-dev-path-study.md).
+- Compared templates with grounded LLM phrasing on **30 assessable dev conversations** (38 attempted, eight fault-trigger misses). Four replies changed; no grounding catch in four eligible phrase calls. Both Sonnet and Jev scored clarity/empathy; the aggregate score, marginal latency and cost are in the study. All 38 attempts charged **$0.166451/$0.50** from per-call costs/reserves, with no held-out access.
+- Sonnet model-reviewed **17/17 active AI-lane pt-BR template and prompt-example strings** using only an explicit synthetic-string payload. Accepted three wording improvements in `agent/nlg` and `agent/ai`; [before/after log](../ml/pt-review.md) is labeled model-reviewed. Valid call cost **$0.044504**. An extra-scope lead-owned review returned two truncated responses; its $0.255 local reserve plus the valid call stayed below the separate $0.30 ceiling. No more Portuguese-review spend occurred.
+- `make checks` passed six hooks, strict mypy, file/secrets policy, compilation, **163 tests passed / 12 database-dependent skips**, B1 dev harness **32/32** with 12 readbacks, interface and policy catalog checks. No organizer rows, credentials, model thinking, or row-level output were staged.
+
+### Done but not verified
+
+- The local ASGI timing excludes container/network and production database overhead. The dev wording labels and pt-BR naturalness lack human review; only four LLM drafts changed the final reply, so judge-score differences are exploratory. The 34 lead-owned pt-BR strings were not successfully model-reviewed after Sonnet truncation. The final held-out results remain pending Sebastian's start/completion signal.
+
+### Next / blocked
+
+- Open and keep this AI-lane PR unmerged until Sebastian announces the final run is finished. The lead can then merge it after review. No further paid development run is planned under these caps; a complete second-vendor review of lead-owned strings would need a separate cost authorization and coordinated lead-lane edits.
 
 ## Access and continuation
 
