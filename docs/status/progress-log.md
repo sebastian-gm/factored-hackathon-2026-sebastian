@@ -5,6 +5,14 @@ Current status below supersedes the earlier lane handoffs; their detailed report
 
 ## Completed-verified
 
+### Handoff 06 — held-out diagnostic and faults
+
+- Completed B1 200, P/mock 200 and two P/mock repeats on the frozen 100 subset, at implementation `564f008`; US$0 model cost. No real provider call. B1 has two unreachable model-outage faults (198 executed), P/mock 200 executed; all workload denominators retained.
+- Corrected only a measured reference-mapping bug using independent dev regressions and rescored the same saved outputs at `25c1c4f`, without rerunning systems or changing frozen labels. Original aggregates are preserved. Corrected SAR is 67/193 (34.72%) for both; no P improvement. Six forbidden dispute writes, incomplete packets and missed paths mean acceptance gates failed. See `docs/evaluation/heldout-run01.md` and aggregate JSON for every metric/slice/interval and the access history.
+- Fault/security dev harness: 16 focused tests passed, including injected HTTP timeout/outage with bounded retry, DB/tool faults, expired/stale auth, tamper/replay, cross-customer revocation and direct/indirect injection. Specific authored attacks are covered; arbitrary-language safety is not established.
+- Next: review and ship additive frontend contracts, then local backup/restore and Azure startup diagnosis/redeployment. The deployment has not yet advanced from the previous verified release.
+
+
 ### Handoff 06 — adapter preflight (before test access)
 
 - PR #13 merged; main CI and safety both passed at `dd957c7`. Frozen manifest validation passed without changing suite/schema/protocol bytes.
