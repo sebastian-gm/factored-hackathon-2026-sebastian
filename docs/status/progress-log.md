@@ -1,125 +1,96 @@
 # Progress log
 
 Session: 2026-09-26 America/Vancouver (verification continued 2026-09-27 UTC).
-Current status below supersedes the earlier lane handoffs; their detailed reports remain in Git history.
+This summary supersedes earlier task lists; detailed evidence remains in the linked reports and Git history.
 
 ## Completed-verified
 
-### Handoff 06 — additive frontend API support
+### Handoff 06 — policy, freeze and routing
 
-- Reviewed PR #17's API proposal and code. Added typed trusted `/me`/persona discovery, logout revocation, complete packet metadata, scoped Agent Desk queue/detail/claim/resolve, redacted execution trace, actual Ops counts and confirmed fresh-OTP workspace reset. Preserved existing RLS and v1 endpoints. Cloud remains customer-only; reset is disabled by default.
-- Three new staff API tests passed (denial/isolation, conflicts/idempotency/readback, OTP/reset/logout). Disposable Postgres suite passed 7/7, including staff claim recovery across app instances and reset retaining a verified audit chain.
-- PR #17 cannot merge unchanged: its runtime schemas reject newer refusal/status plans, and its BFF still disables live staff routes. `docs/api/frontend-additions.md` records exact contracts and required frontend changes. Lead did not edit frontend-owned files.
-- These API additions were made after the frozen diagnostic, to satisfy the already-proposed frontend contracts. No held-out system rerun or policy/NLU tuning occurred; the diagnostic remains pinned to its original implementation SHA.
+- Read the full brief and handoff 06; completed tasks in order. Used only this private repository and `origin`. No credential-bearing organizer document was opened, no organizer rows/secrets were committed, and no real-model call ran in this lead session.
+- PR #18 implements every requested brief §9 rule, with boundary tests and the generated [policy catalog](../policy-catalog.md). Includes strict `fraud_score > 30`, supplied loss/theft and case-burst triggers, duplicate status, complaint review flags, age/amount/FX uncertainty and deterministic language/security guards. Catalog coverage means implementation coverage, not successful handling of every phrasing.
+- Card-only freeze requires fresh simulated OTP, an action-hash confirmation, authorization/policy recheck and independent committed readback. A Fraudes handoff includes the freeze outcome; non-card products only escalate. Idempotency, cancellation, stale/tampered confirmation and recovery across app instances were tested.
+- PR #19 routes from six contract-allowed service-agent attributes, preferring Active Digital/Hybrid agents with least load. PT fraud fallback: PT/Fraudes → PT/Quejas y Reclamos → ES/Fraudes, with explicit flags. No eligible agent yields pending assignment. Raw identifiers, names and contact fields are excluded.
+- `python -m scripts.load_service_agents --target local` and `--target azure`: committed readback passed for 1,200 projected records, 1,090 Active and exactly 7 PT/Fraudes, all Active. The API role cannot write the reference table. Azure migration and non-owner TLS/RLS readback passed.
+- `python -m scripts.routing_report`: reproduced 492,414 owned transactions in the UTC 120-day window and 254 supplied fraud-score flags (>30), **0.05158%**. Explicit string-to-UTC casts resolved the initial CSV/timezone discrepancy; this is separate from loss/theft and synthetic case-burst triggers.
 
+### Frozen evaluation and fault/security harness
 
-### Handoff 06 — held-out diagnostic and faults
+- Merged frozen PR #13 after green gates. With Sebastian's explicit permission, copied only four private binding/matcher-split artifacts from the linked Data/ML worktree into ignored mode-0600 storage. Checksums matched, including the frozen binding SHA; no rows were printed.
+- PR #20 preflight verified all 200 persona ownership/country/segment/partition bindings, dataset and binding hashes, zero matcher overlap and declared overlay/fault boundaries. The promoted lake was absent; authorized local raw hashes and identity projections were used instead. Twelve inconsistent redundant USD values on fictional distractors were flagged before execution without changing frozen inputs.
+- `python -m evals.heldout --run`: **600 saved observations** at system `564f008` — B1 200, P/mock 200 and two P/mock repeats on the frozen 100-case subset. Model cost **US$0**. B1 has two unreachable NLU-outage boundaries (198 executed); all workload denominators retained.
+- Independent dev regressions reproduced a measurement bug in generic created-state and explanation target mapping. `python -m evals.rescore --source artifacts/heldout/run-01 --output artifacts/heldout/run-01-measurement-v2` corrected measurements at `25c1c4f` using the same observations, with **zero system reruns**. Frozen labels, inputs and actions were unchanged; original aggregates are preserved.
+- **Acceptance gates failed.** Both systems: 67/200 workload passes, SAR **67/193 (34.72%; Wilson 95% 28.36–41.67%)**, six forbidden dispute writes, nine materially incorrect outcomes. Handoff presence 54/66 versus complete correct transfers 0/66; required readbacks 123/140. No improvement over B1, paired difference 0, exact McNemar p=1, 0/100 flips. See [full results and slices](../evaluation/heldout-run01.md).
+- No observed disclosure, step-up bypass, unverified success or refund promise in this diagnostic; bounded detectors and small samples do not establish zero risk. In-process latency excludes real models and network/cloud time. Complete aggregate language/dialect/segment/country and policy-by-segment metrics include uncertainty and sample caveats.
+- Fault/security dev tests cover HTTP timeout/outage with bounded retry, DB/tool failures, expired sessions, confirmation tamper/replay, cross-customer revocation and direct/indirect injection. See [fault coverage](../evaluation/fault-security.md) and [adapter limitations](../evaluation/adapter-implementation.md). Arbitrary-language safety remains unproven.
 
-- Completed B1 200, P/mock 200 and two P/mock repeats on the frozen 100 subset, at implementation `564f008`; US$0 model cost. No real provider call. B1 has two unreachable model-outage faults (198 executed), P/mock 200 executed; all workload denominators retained.
-- Corrected only a measured reference-mapping bug using independent dev regressions and rescored the same saved outputs at `25c1c4f`, without rerunning systems or changing frozen labels. Original aggregates are preserved. Corrected SAR is 67/193 (34.72%) for both; no P improvement. Six forbidden dispute writes, incomplete packets and missed paths mean acceptance gates failed. See `docs/evaluation/heldout-run01.md` and aggregate JSON for every metric/slice/interval and the access history.
-- Fault/security dev harness: 16 focused tests passed, including injected HTTP timeout/outage with bounded retry, DB/tool faults, expired/stale auth, tamper/replay, cross-customer revocation and direct/indirect injection. Specific authored attacks are covered; arbitrary-language safety is not established.
-- Next: review and ship additive frontend contracts, then local backup/restore and Azure startup diagnosis/redeployment. The deployment has not yet advanced from the previous verified release.
+### Additive frontend API support
 
+- Reviewed frontend PR #17 and shipped its additive backend contracts in PR #21: trusted role/locale discovery, real logout revocation, handoff metadata, scoped Agent Desk queue/detail/claim/resolve, redacted execution traces, measured Ops counts and confirmed fresh-OTP workspace reset. Existing endpoints and customer/run/session RLS remain in force.
+- Staff operations are restricted to the current authenticated workspace. The role comes from server configuration after login/OTP, never a username claim. Azure retains the customer default and reset disabled. Ops SAR/unsafe metrics are null without gold; fixture activity is labeled.
+- Staff API tests passed denial/isolation, claim conflicts/idempotency/readback, OTP/reset/logout. Postgres tests recovered a claim across app instances and verified that reset retains the audit chain.
+- [Frontend contract/review](../api/frontend-additions.md): PR #17 needs newer response-plan schemas, real staff BFF routes, trusted role handling and live integration tests. Its server-to-API hop must work within the owner-IP boundary. Lead did not edit frontend-owned files or merge the incompatible UI.
+- These additions follow the already-proposed frontend contracts. They were made after the diagnostic and have **not** been re-evaluated on the frozen suite. No held-out-driven policy/NLU tuning occurred.
 
-### Handoff 06 — adapter preflight (before test access)
+### Local recovery and startup investigation
 
-- PR #13 merged; main CI and safety both passed at `dd957c7`. Frozen manifest validation passed without changing suite/schema/protocol bytes.
-- Implemented private identity verification, isolated richer overlays, typed references/canaries, card workflow replay, all declared fault aliases, semantic forbidden predicates and aggregate protocol reporting. Independent authored dev fixtures cover the adapter; no B1/P held-out execution has happened yet.
-- `.venv/bin/python -m evals.heldout`: input preflight passed all 200 persona ownership/country/segment/partition checks, source dataset hash, frozen binding hash and zero matcher overlap. The promoted lake is absent, so verification used authorized local raw source hashes and identity projections. No organizer rows printed.
-- Input preflight found 12 inconsistent redundant USD amounts on fictional distractors; unchanged frozen records are flagged as inconsistent facts. See `docs/evaluation/adapter-implementation.md` for handling and limitations.
-- `make checks`: 58 passed, 6 database skips; v1 B1 32/32 with 12 readbacks. Final staged checks follow before implementation freeze and the authorized free diagnostic run.
+- PR #22: `python -m scripts.backup_restore` passed on two disposable local Postgres 16 databases. All 11 operational-table row hashes matched; original session/case/handoff/trace and card state recovered; 16 audit entries and forced RLS verified. Temporary databases/login/archive were removed. The existing application database was unchanged. [Recovery report](../ops-recovery.md).
+- `python -m scripts.azure_health_diagnostics` reproduced scale-from-zero startup (0 → 1 replicas), two 20-second health timeouts and readiness after about 49 seconds. Events show activation, image pull/start and a probe failure; warm requests took 0.29–0.38 seconds. The exact historical 120-second timeout remains unproven. [Startup diagnosis](../azure-startup-diagnosis.md).
+- Smoke now polls only idempotent health/readiness GETs within a bounded startup period; it does not retry writes. Min replicas remains zero.
 
-### Handoff 06 — frozen-suite review (in progress)
-
-- Routing PR #19 merged after all four CI gates passed at `8812dbc`. Reviewed PR #13's adapter handoff and full frozen protocol before any held-out execution; preserving all pinned suite, schema, template, tool and protocol bytes.
-- The release contains 200 independently authored scenarios. Its prior lane provenance records Portuguese generation/cross-vendor review costing $0.6073573 under Sebastian's separate $3 authorization; this lead session made no model call. Human dual-label/fluent-language review remains pending.
-- Sebastian authorized copying the four private artifacts from the linked Data/ML worktree. Copied canonical customer bindings and three matcher splits into ignored storage with mode 0600, verified source/destination checksums and the frozen binding SHA, and printed no rows. Frozen release validation passed; `make checks` passed 53 tests (6 database skips), B1 32/32, hooks and interface/catalog gates.
-
-
-### Handoff 06 — policy and card-freeze slice (in progress)
-
-- Read handoff 06 fully; began tasks in order without inspecting held-out labels or running real models.
-- Added complete synthetic-policy decisions for status/window/type, ownership/status restrictions, verified USD amounts and uncertainty, strict fraud score >30 / three recent cases, duplicate status, complaint review flags, deterministic legal/distress/language/security guards and customer-safe explanations. Catalog version 1.2.0 links every brief rule to tests.
-- Added authenticated accounts/card reads, session-bound step-up OTP, action-hash freeze proposals, confirmation/cancellation, idempotency, policy recheck, independent committed readback and Fraudes handoffs containing the freeze outcome. Non-card products only escalate. Fraud chat offers the optional freeze workflow while preserving the v1 handoff response.
-- `make checks`: 51 passed, 5 database-dependent skips; B1 v1 32/32 with 12 readbacks; six hooks and generated interfaces/catalog passed. V2 B1 dev suite also passed 32/32.
-- `python -m scripts.test_postgres`: 5 passed, including step-up/proposal, freeze and handoff recovery across separate app instances. No existing application database was modified by those disposable tests.
-- Next in this handoff: attribute-based agent routing, then frozen-suite binding/evaluation, fault/security coverage and frontend interface requests. Azure still runs the previous verified release until this layer's green merges and final redeploy.
-
-
-### Handoff 06 — routing slice (in progress)
-
-- Policy PR #18 merged after all four PR gates passed; main CI and safety also passed at `97bfb4d`.
-- Implemented deterministic routing from the six contract-allowed service-agent attributes. PT fraud fallback is PT/Fraudes → PT/Quejas y Reclamos → ES/Fraudes, with explicit specialty/language flags and an opaque assigned reference. No eligible agent produces a pending assignment instead of invented availability.
-- `python -m scripts.load_service_agents --target local` loaded and independently read back all 1,200 routing projections in the existing local Postgres: 1,090 Active; exactly 7 PT/Fraudes, all Active. Names/contact details and raw IDs are excluded. The shared reference table is read-only to the API role; ops RLS is unchanged.
-- `python -m scripts.routing_report` reproduced 492,414 owned transactions in the UTC 120-day window and 254 score flags (>30), **0.05158%**. Initial CSV inference/local-time conversion differed; explicit string-to-UTC casts reproduce the promoted pipeline aggregates. Score flags are reported separately from lost/stolen and synthetic case-burst triggers.
-- `make checks`: 53 passed, 6 database-dependent skips; B1 v1 32/32 with 12 readbacks and all hooks/contracts passed. `python -m scripts.test_postgres`: all 6 passed, including reference-table write denial. No held-out/model run yet. Cloud projection load is scheduled with the final deployment.
-
-### Lead integration — handoff 04 tasks 1–6
-
-- Read the brief and amended handoff fully. Verified the existing restricted Azure deployment before integration. Only the private `origin` was used; every Git command targeted this repository. No organizer credential-bearing document was opened, no organizer rows or secrets were committed, and no real-model call ran.
-- Reviewed and merged AI PR #4, Data/ML PR #6 and additive scenario-v2 PR #9 after green checks. Resolved shared dependency/documentation conflicts, preserved both optional extras, repaired schema generation and kept every v1 definition valid.
-- Merged reactive evaluation PR #10, P/matcher integration PR #11, durable operations PR #14 and policy/deployment verification PR #15. Main CI and safety passed after each integration; PR #11 needed formatting and an explicit `pytz` dependency before it was green.
-- V2 supports authored fixture personas, per-scenario clocks, transaction overlays, reactive response-keyed replies, bounded default replies and injected faults. Every system/scenario/repeat gets fresh state and a run ID. Gold is independent of policy. Aggregate `results.json` is the source for the rendered report: SAR denominators, attempts, containment, escalation errors, routing, handoff completeness/rubric, eight unsafe categories with upper bounds, latency intervals and costs. Organizer persona bindings and non-transaction overlays are explicitly rejected until implemented.
-- P now runs through the API with structured NLU, guarded phrasing, deterministic authorization and B1 fallback. Configured mock tests exercise extraction, slots, unsafe-draft fallback, confirmation and readback. Default unconfigured mock intentionally degrades to B1; its dev results are not model-quality evidence.
-- MATCH pins and checksum-verifies the calibrated v1 artifact, with scoped customer/window features and propose / choose-from-three / no-match decisions. Tests exercise all three decisions, cross-customer rejection and corrupted artifacts. No retraining or paid inference ran in this lead session.
-- Alembic creates durable `ops.*` cases, card states, handoffs, conversations, turns, execution records, idempotency, auth records and audit entries. Runtime uses a non-owner role, forced customer/run/session RLS, explicit transactions and at most four pooled connections. Writes commit before independent readback. Tokens are hashed; opaque prefixes select context without granting authority. The API refuses owner/BYPASSRLS roles and returns an error when storage is unavailable.
-- Audit appends use a scoped database function, sequential hashes and restricted privileges. The verifier checks scope, sequence, linkage and content hashes. A privileged owner could rewrite a whole unanchored chain; independent anchors remain future work.
-- Generated the ES/PT/EN policy catalog from versioned rules with the brief's IDs, parameters, implementation references and tests. Added deterministic pending-age, amount/age-borderline and missing-FX guards. Partial/planned rules are labeled honestly. Card-state persistence is tested; the customer-facing freeze workflow remains unfinished.
-
-### Local verification
+### Verification commands
 
 | Command | Observed result |
 |---|---|
-| `PRE_COMMIT_HOME=/tmp/aclara-precommit-cache UV_CACHE_DIR=/tmp/aclara-uv-cache make checks` | Six hooks, file policy, compilation, 44 Python tests passed / 4 database-dependent tests skipped; B1 v1 32/32 with 12 readbacks and safety guards; interfaces and catalog current. |
-| `.venv/bin/python -m scripts.test_postgres` | All 4 database tests passed in a disposable local database: migrations, RLS tables/views/functions, no-context/autocommit/pool reuse, cross-customer/run/session isolation, rollback, concurrent audit append, forbidden mutations, tamper detection, app restarts and serving-loader checksums. Database and temporary login removed afterward. |
-| `.venv/bin/python -m evals.runner --system B1 --scenarios evals/dev_scenarios_v2.yaml --repeats 2` | 64/64 with distinct run IDs. |
-| `.venv/bin/python -m evals.runner --system P --scenarios evals/dev_scenarios_v2.yaml --output artifacts/evaluation-p` | 32/32 in mock/B1 fallback; aggregate source rendered to `docs/evaluation/results.md`. |
-| `UV_CACHE_DIR=/tmp/aclara-uv-cache make up` | API/migration/web images built; migration succeeded; Postgres/API/web healthy. Startup now waits for health. |
-| `.venv/bin/python -m scripts.local_smoke` | 32/32 ES/PT scenarios, 12 dispute/handoff readbacks; login/OTP, scope, auth denial, CORS, web, mock and database readiness passed. |
-| `terraform -chdir=infra validate` | Passed with provider execution outside the restricted process sandbox. |
+| `PRE_COMMIT_HOME=/tmp/aclara-precommit-cache UV_CACHE_DIR=/tmp/aclara-uv-cache make checks` | Six hooks, file policy, compilation, interfaces/catalog; **68 passed, 7 database-dependent skips**. B1 v1 **32/32**, **12 readbacks**, safety guards. |
+| `.venv/bin/python -m scripts.test_postgres` | **7/7 passed** in an isolated disposable database: migrations, forced RLS/no-context/cross-scope/pool reuse, rollback, audit/concurrency/tamper, restarts, freeze, routing projection and staff/reset persistence. Temporary database/login removed. |
+| `.venv/bin/python -m scripts.backup_restore` | Full row hashes, recovered API access, audit and RLS passed on authored data; cleanup passed. Tiny-fixture duration is not an RTO claim. |
+| `UV_CACHE_DIR=/tmp/aclara-uv-cache make up` | API/migration/web images built; migration succeeded; Postgres/API/web healthy. |
+| `.venv/bin/python -m scripts.local_smoke` | **32/32 ES/PT**, **12 readbacks**, login/OTP, scope, auth denial, CORS, web, mock and readiness passed. |
+| `gh pr checks` / main workflow readback | PRs #18, #19, #13, #20, #21 and #22 merged after all required gates passed; main CI and safety passed at `04b3d25`. |
 
-The first immediate Compose smoke before health waiting hit a web startup connection failure. After services became healthy, the same smoke passed; `make up` now waits explicitly.
+### Restricted Azure release
 
-### Restricted Azure release — task 7
+- Only `Seb Azure Sandbox`, `rg-aclara-dev-eastus2`, East US 2, with explicit subscription selection. Owner IPv4/32 HTTPS ingress plus app login, private ACR, Key Vault references and managed pulls remain required.
+- `.venv/bin/python -m scripts.azure_prices`: live East US 2 recheck at **2026-09-27 02:54 UTC**: **US$34.63/month before tax**, below the US$40 stop threshold. B1ms US$0.017/hour, storage US$0.115/GB-month, ACR Basic US$0.1666/day. Assumes 730 DB hours, 32 GiB, 30 registry days, 100 active hours for both small apps, 100,000 requests, no ACA free grants plus allowances. With grants: US$24.19–29.19. Estimate is not a hard spending cap.
+- Built/pushed clean main `04b3d25` to private ACR after green main CI/safety. Reviewed Terraform plan in memory: only API/web image SHA and release metadata changed; **0 added, 2 changed, 0 destroyed**. Apply passed; temporary registry credentials and saved plans were removed.
+- `.venv/bin/python -m scripts.azure_smoke`: **32/32 ES/PT**, **12 readbacks**, login/OTP, scoped fixture ledger, auth denial, CORS, web, mock and database readiness passed. All **182 audit entries** verified. A different API process recovered the existing case with the original authenticated session after a revision restart.
+- `.venv/bin/python -m scripts.azure_verify`: both owner-only HTTPS ingress rules, release SHA, min 0/max 1 replicas, 0.25 vCPU/0.5 GiB sizing, managed image pulls, Key Vault references, non-owner Postgres runtime, required TLS, approved firewall exception, private ACR and state firewall passed control readback.
+- `.venv/bin/python -m scripts.azure_dev plan`: final drift check returned **No changes**. Credential-free `azure-access` workflow **36290790744** passed; both endpoints returned **HTTP 403** from a non-allowlisted GitHub runner.
+- Budget readback verified C$69.41 with 60%/100% actual-spend notifications to the confirmed owner email: approximately C$41.65/C$69.41, corresponding to US$30/US$50 at the fixed 1.3882 CAD/USD reference. Review exchange assumptions monthly; email delivery/threshold crossing were not tested.
+- This documentation-only follow-up is released through the same private-image and verification process; final exact main SHA/control evidence is retained in ignored `artifacts/azure/verified.json` and the session report. It does not change the pinned diagnostic implementation.
 
-- Used only `Seb Azure Sandbox`, `rg-aclara-dev-eastus2`, East US 2, with explicit subscription selection. Never changed or used the CLI's other default subscription. The authorized owner-IP boundary and application login remain in place.
-- `.venv/bin/python -m scripts.azure_prices`: live East US 2 check at 2026-09-27 01:10 UTC. B1ms US$0.017/hour, storage US$0.115/GB-month, ACR Basic US$0.1666/day. Modeled **US$34.63/month before tax**, below the US$40 stop threshold. Assumptions: 730 database hours, 32 GiB, 30 registry days, 100 hours with both small apps active, 100,000 requests, no ACA free grants and usage allowances. With grants: US$24.19–$29.19. This is not a hard spending cap.
-- `.venv/bin/python -m scripts.azure_migrate_ops`: existing Azure database migrated; non-owner TLS/RLS write/readback passed. No new cloud resources were required. Admin and app credentials stay separate in Key Vault; API uses `verify-full` TLS.
-- Built/pushed API and web images from clean, green main to authenticated private ACR. Temporary Docker credentials were removed. Plan and apply reported **0 added, 2 changed, 0 destroyed**.
-- `.venv/bin/python -m scripts.azure_smoke`: HTTP portion passed **32/32 ES/PT scenarios with 12 readbacks**, login/OTP, scoped fixture ledger, denial checks, CORS, web, mock and database readiness. All **150 audit entries** verified, then a different API process read the existing case using the original authenticated session after a revision restart. The initial 30-poll restart check timed out; the bounded four-minute readiness check passed. It requires an actual instance-ID change, so an old replica cannot produce a false recovery result.
-- `.venv/bin/python -m scripts.azure_verify`: read back both owner-only HTTPS ingress rules, image SHA, min 0/max 1 replicas, 0.25 vCPU/0.5 GiB sizes, managed image pulls, Key Vault references, approved PostgreSQL firewall exception, required TLS, private ACR and state firewall. P and Postgres runtime settings were verified too.
-- `.venv/bin/python -m scripts.azure_dev plan`: final read-only drift check reported **No changes. Your infrastructure matches the configuration.**
-- Credential-free `azure-access` workflow run `36285202131` passed: both endpoints return HTTP 403 from the non-allowlisted GitHub runner.
-- Budget readback verified C$69.41 with 60%/100% actual-spend notifications, approximately C$41.65/C$69.41, to the confirmed owner email. These correspond to US$30/US$50 at the fixed 1.3882 CAD/USD reference. Review monthly; delivery and actual threshold crossing were not tested.
+### Earlier evidence retained
 
-### Earlier data evidence retained from the merged lane
-
-- P1 initially validated 150,000 customers, 400,000 products and 4,425,008 transactions from 1,097 transaction objects. Brief-reference differences were reported from pipeline output. Staged fake CSV and fake-key probes were blocked and removed during initial scaffolding.
-- The merged Data/ML lane extended contracts to ten sources and nine gold marts, ran DQ gates and promoted dataset `b86f445cb468332bde984a788ef24f72f7070952b2d9292e0259e7b8f36397c9`. Six local serving tables were loaded with full projected-row checksum readback, including 492,414 serving transactions. Detailed aggregate facts and anomalies are in `docs/data-quality-report.md` and `docs/problem-analysis.md`.
-- The lane's synthetic matcher benchmark had 6,000 train, 3,000 validation and 3,000 test queries. Validation selected LightGBM; its normalized-slot test top-1 was 95.22%, with 10 wrong proposals out of 1,871. These are prior lane results, not a rerun or human-language validation in this session. Model card and paired aggregate report retain the trade-offs.
-- The lead reran fixture data/matcher tests and the isolated serving-loader test, not the organizer build or benchmark. Organizer lake outputs remain local. `LAKE_DIR` defaults to persistent `~/aclara-lake`; migration of the former temporary lake location is not claimed.
+- Initial P1 validated 150,000 customers, 400,000 products and 4,425,008 transactions from 1,097 transaction objects; reported brief-reference differences. Staged fake CSV and fake-key probes were blocked and removed.
+- Merged Data/ML lane evidence covers ten source contracts, nine gold marts and dataset `b86f445cb468332bde984a788ef24f72f7070952b2d9292e0259e7b8f36397c9`; six serving projections passed row-checksum readback, including 492,414 transactions. [DQ report](../data-quality-report.md) and [problem analysis](../problem-analysis.md).
+- Matcher v1 lane benchmark: 6,000 train / 3,000 validation / 3,000 test queries; validation selected LightGBM, normalized-slot test top-1 95.22%, 10 wrong proposals/1,871. These are prior lane results, not a human-language benchmark rerun. Lead verified pinned artifacts and fixture integration; no retraining.
+- Durable ops use non-owner Postgres, forced customer/run/session RLS, bounded pooling, transactional idempotency and committed readback. Hashed auth capabilities and append-only hash chains survive process restarts; privileged-owner rewrites of an unanchored chain remain possible.
 
 ## Done-not-verified
 
-- Real provider adapters and comparison code have mock tests only. Real-model comparison, final default selection and cross-vendor judge validation have not run.
-- Spanish human review, PT/MX/AR cross-vendor language review and catalog translation review remain pending. No fluent Portuguese reviewer is available; model-authored language is labeled as such.
-- Actual monthly charges/free-grant availability, budget email delivery, backup restore/DR, automatic retention, sustained load and manual browser visual review remain unverified. API HTTP flows and production builds were tested.
-- The persistent home lake has not been rebuilt/migrated in this session. Organizer serving data is not bound to the API; cloud data contains authored fixtures only.
+- Frozen evaluation acceptance failed; latest post-diagnostic packet/API changes have no frozen-suite outcome claim. Broader language coverage, full handoff correctness and safe automation remain gaps despite green engineering checks.
+- Real provider adapters/comparison have mock checks; no lead real-model comparison, chosen default or cross-vendor judge run. Keep `LLM_PROVIDER=mock`.
+- Human dual labels and Spanish/fluent PT review remain pending. The frozen PT authoring lane used generation and second-vendor review under its separate prior US$3 approval (reported US$0.6073573); language remains model-authored. Catalog translation review remains pending.
+- Frontend PR #17 compatibility/live BFF integration, shared browser CI and manual visual review remain pending. The minimal current-main UI is the deployed UI.
+- Azure PITR/regional DR, realistic-volume recovery, automatic retention, sustained load, actual charges/free grants and budget-email delivery are unverified. Alert thresholds have not been triggered in a test.
+- The persistent `LAKE_DIR` default is `~/aclara-lake`; this checkout's missing promoted lake was not rebuilt/migrated. Organizer transactions are not bound to the cloud API; it serves authored ledger fixtures plus the contract-allowed real routing projection.
+- Exact cause of the older 120-second health timeout is unproven. New cold-start evidence is narrower and recorded separately.
 
 ## Next-blocked
 
-- No additional approval is needed for the completed restricted deployment. Keep the same owner-only access boundary for subsequent releases.
-- Next layer: complete policy workflows (including card freeze and remaining catalog gaps), bind authorized serving/persona data, and build held-out evaluation. Add durable model spend accounting before any real-model public demo. These are implementation gaps, not completed features awaiting tests.
-- Keep `LLM_PROVIDER=mock`. Before each real-model run, show a concrete cost estimate and wait for approval. Choose the default from the same-suite comparison; the judge vendor must differ.
-- Any expanded cloud scope, access beyond the owner's IP, or estimate above US$40/month needs approval. Preserve the documented PostgreSQL Azure-services exception only for dev; VNet/private access remains production work.
+- Next layer: integrate the compatible frontend and address policy/NLU/handoff acceptance gaps using **independent development fixtures**. Preserve the frozen diagnostic; do not tune on held-out cases or silently rerun/replace its report.
+- Await frontend lane fixes for PR #17. Production staff identity, task-scoped cross-session authorization, durable model spend accounting and independent audit anchors remain implementation work.
+- Before any real-model run, show a concrete cost estimate and await Sebastian's approval. Choose the default after the same-dev-suite comparison; the judge vendor must differ. No real-model approval is implied by this handoff.
+- No additional permission is needed to complete the already-approved restricted release. Any expanded resources/access or estimate above US$40/month requires approval. Preserve the known dev PostgreSQL Azure-services firewall exception; VNet/private access is [production work](../production-readiness.md).
 
 ## Access and continuation
 
 - Restricted web: https://ca-web-aclara-dev-eastus2.lemonbeach-1b769de0.eastus2.azurecontainerapps.io/
-- Login: `demo.es.mx`. Retrieve `demo-password` from `kv-aclara-dev-eastus2` through the authenticated Azure portal. Never put it in chat, Git or logs. OTP is shown in the simulated panel.
-- Release inputs and control readback are in ignored `infra/terraform.tfvars` and `artifacts/azure/verified.json`; do not print private inputs. The local Compose stack remains running.
+- Login: `demo.es.mx`. Retrieve `demo-password` from `kv-aclara-dev-eastus2` through the authenticated Azure portal; never put it in chat, Git or logs. OTP is shown in the simulated panel.
+- Release inputs/control evidence stay in ignored `infra/terraform.tfvars` and `artifacts/azure/verified.json`; do not print private inputs. The local Compose stack remains running.
 
-For the next session: **Continue from docs/status/progress-log.md. Next layer: policy workflows and held-out evaluation bindings. Same rules.**
+For the next session: **Continue from docs/status/progress-log.md. Next layer: frontend integration and independent dev acceptance fixes. Same rules.**
 
 ## Frontend lane — 2026-09-26/27
 
@@ -178,3 +149,5 @@ For the next session: **Continue from docs/status/progress-log.md. Next layer: p
 #### Next / blocked
 
 - Publish the PR #17 review follow-up after repository hooks; lead owns shared Playwright CI wiring and release connectivity verification. No ingress expansion is authorized. Resume the submission kit with corrected held-out aggregate results and explicit failed-gate limitations.
+
+- Published staff follow-up `1bec955` and read back its remote/PR head. All six repository hooks passed. Merged lead documentation/recovery follow-ups through `6bc0c4e`, preserving both progress records; no frontend implementation changed in this merge.

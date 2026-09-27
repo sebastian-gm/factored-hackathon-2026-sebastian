@@ -95,6 +95,24 @@ def main() -> None:
     )
 
 
+def wait_for_ready(client: httpx.Client) -> httpx.Response:
+    deadline = time.monotonic() + 240
+    attempts = 0
+    while time.monotonic() < deadline:
+        attempts += 1
+        try:
+            health = client.get("/healthz", timeout=20)
+            ready = client.get("/readyz", timeout=20)
+            if health.status_code == ready.status_code == 200:
+                return health
+        except httpx.HTTPError:
+            pass
+        sys.stdout.write(f"Waiting for API cold-start readiness: attempt {attempts}\n")
+        sys.stdout.flush()
+        time.sleep(1)
+    raise RuntimeError("API did not become ready within the cold-start deadline")
+
+
 def smoke(api: str, web: str, password: str, username: str = "demo.es.mx") -> dict:
     suite = ScenarioSuite.model_validate(
         yaml.safe_load((ROOT / "evals/dev_scenarios.yaml").read_text())
@@ -102,7 +120,7 @@ def smoke(api: str, web: str, password: str, username: str = "demo.es.mx") -> di
     readbacks = 0
     evidence: dict = {"scopes": []}
     with httpx.Client(base_url=api, timeout=120) as client:
-        health = client.get("/healthz")
+        health = wait_for_ready(client)
         health.raise_for_status()
         assert health.json()["llm_provider"] == "mock"
         assert client.get("/readyz").json()["database"] == "ok"
