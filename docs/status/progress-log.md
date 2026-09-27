@@ -209,11 +209,11 @@ The following sections retain the AI lane’s historical reports; later dated de
 
 ### Done but not verified
 
-- Concurrent provider latency, Jev failure rate in production, the five non-injection risk-cue accuracies and 50-item judge–human agreement remain unmeasured. Gemini prompt v4 supplies Boolean risk flags, not per-cue probabilities. TypeSafe standard-account zero retention remains unverified. The lead's final adapter and durable gate are merged, but this PR's Jev integration and frozen private-binding preflight are not yet merged/verified together.
+- Concurrent provider latency, Jev failure rate in production, the five non-injection risk-cue accuracies and 50-item judge–human agreement remain unmeasured. Gemini prompt v4 supplies Boolean risk flags, not per-cue probabilities. TypeSafe standard-account zero retention remains unverified. PR #31 merged while this branch was being reconciled; its follow-up integration and frozen private-binding preflight are not yet merged/verified together.
 
 ### Next / blocked
 
-- Lead must merge the Jev supporting-role PR before the final run, bind `score_pair` into the 100 frozen reply assessments, verify TypeSafe payload terms, and read back both providers in the shared durable $12 gate. Keep production mock and do not begin frozen final evaluation until Sebastian's explicit start signal and all preflight gates are green.
+- Lead must merge the Jev follow-up integration PR before the final run, bind `score_pair` into the 100 frozen reply assessments, verify TypeSafe payload terms, and read back both providers in the shared durable $12 gate. Keep production mock and do not begin frozen final evaluation until Sebastian's explicit start signal and all preflight gates are green.
 
 ## Access and continuation
 
