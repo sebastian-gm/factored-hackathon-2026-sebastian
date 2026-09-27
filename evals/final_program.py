@@ -1,0 +1,362 @@
+"""One pinned, resumable final program. Importing this module opens no frozen data."""
+
+# ruff: noqa: T201 -- progress counts only.
+from __future__ import annotations
+
+import asyncio
+import csv
+import hashlib
+import io
+import json
+import os
+from dataclasses import asdict
+from datetime import UTC, datetime
+from pathlib import Path
+
+import psycopg
+import yaml
+
+from aclara.llm.config import load_models, load_prices
+from aclara.llm.dual_judge import jev_judge_adapter, score_pair
+from aclara.llm.final_run import (
+    RUN_ID,
+    SCOPE,
+    FinalBudgetStop,
+    client_for,
+    journal,
+    open_budget_store,
+    require_start,
+)
+from aclara.llm.judge_validation import DIMENSIONS, sample_rows
+from aclara.llm.prompts import load_prompt
+from evals.access import access
+from evals.bindings import ROOT, bind
+from evals.bound_execution import execute_bound
+from evals.checkpoints import Checkpoints, atomic_write, save
+from evals.heldout import failed, load
+from evals.serving import open_serving
+
+
+def digest(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def budget_receipt() -> dict:
+    with psycopg.connect(os.environ["FINAL_BUDGET_OWNER_DSN"]) as connection:
+        connection.execute("SET LOCAL ROLE aclara_owner")
+        row = connection.execute(
+            "SELECT count(*),coalesce(sum(actual_usd),0),coalesce(sum(charged_usd),0),count(*) FILTER(WHERE actual_usd IS NULL) FROM llm.reservations WHERE scope=%s AND run_id=%s",
+            (SCOPE, RUN_ID),
+        ).fetchone()
+    return {
+        "cap_usd": 12,
+        "attempts": row[0],
+        "known_cost_usd": float(row[1]),
+        "charged_with_reserves_usd": float(row[2]),
+        "unknown_cost_attempts": row[3],
+    }
+
+
+def judge_ids(scenarios: list[dict], repeat_ids: set[str]) -> set[str]:
+    chosen = set()
+    for category, count in [
+        ("normal", 18),
+        ("ambiguous_unsupported", 10),
+        ("human_required", 10),
+        ("security_robustness", 12),
+    ]:
+        rows = [s["id"] for s in scenarios if s["id"] in repeat_ids and s["category"] == category]
+        if len(rows) < count:
+            raise ValueError("Predeclared judge stratum is incomplete")
+        chosen.update(
+            sorted(
+                rows, key=lambda value: hashlib.sha256(("judge-v1:" + value).encode()).hexdigest()
+            )[:count]
+        )
+    return chosen
+
+
+def wording(case: dict) -> dict:
+    return case.get("judge_input") or {
+        "target_locale": case["dialect"],
+        "customer_message": "",
+        "customer_reply": "",
+        "handoff_summary": "",
+    }
+
+
+def human_sheet(output: Path, rows: list[dict]) -> None:
+    # Deterministic round-robin locale sample; blind to system and objective gold.
+    grouped = {}
+    for row in rows:
+        grouped.setdefault(row["target_locale"], []).append(row)
+    chosen = []
+    ordered = {
+        k: sorted(
+            v, key=lambda r: hashlib.sha256(("human20-v1:" + r["sample_id"]).encode()).hexdigest()
+        )
+        for k, v in sorted(grouped.items())
+    }
+    while len(chosen) < min(20, len(rows)):
+        for group in ordered.values():
+            if group and len(chosen) < 20:
+                chosen.append(group.pop(0))
+    path = output / "human-judge-20.csv"
+    if path.exists():
+        return  # Never overwrite Sebastian's ratings on resume.
+    fields = [
+        "sample_id",
+        "target_locale",
+        "customer_message",
+        "customer_reply",
+        "handoff_summary",
+        *(f"human_{d}" for d in DIMENSIONS),
+        "human_notes",
+    ]
+    stream = io.StringIO()
+    writer = csv.DictWriter(stream, fieldnames=fields, extrasaction="ignore")
+    writer.writeheader()
+    writer.writerows(chosen)
+    atomic_write(path, stream.getvalue())
+
+
+async def execute(suite, identities, directory, serving, store, checkpoints, repeat_ids):
+    cases = []
+    workload = [
+        ("B1", 0, None),
+        ("P", 0, "default"),
+        ("P", 1, "default"),
+        ("P", 2, "default"),
+        ("P-Sonnet", 0, "openrouter_sonnet"),
+    ]
+    for system, repeat, route in workload:
+        for scenario in suite["scenarios"]:
+            if (repeat or system == "P-Sonnet") and scenario["id"] not in repeat_ids:
+                continue
+            key = f"{system}:{repeat}:{scenario['id']}"
+            cached = checkpoints.read(key)
+            if cached is not None:
+                cases.append(cached)
+                continue
+            path = checkpoints.begin(key)
+            client = client_for(route, store, response_record=journal(path)) if route else None
+            try:
+                fixture = bind(
+                    scenario, identities[scenario["persona"]["customer_ref"]], directory, serving
+                )
+                result = await execute_bound(
+                    scenario, fixture, "P" if route else "B1", repeat, llm_client=client
+                )
+                result["system"] = system
+            except FinalBudgetStop:
+                raise
+            except Exception as error:
+                result = failed(scenario, system, repeat, error)
+            calls = [r["call"] for r in checkpoints.calls(key)]
+            result.update(
+                cost_usd=sum(c["cost_usd"] or 0 for c in calls),
+                unknown_cost_attempts=sum(c["cost_usd"] is None for c in calls),
+                recovered_attempts=len(list(checkpoints.directory(key).glob("attempt-*.json"))) - 1,
+            )
+            cases.append(checkpoints.finish(key, result))
+            save(
+                checkpoints.root / "progress.json",
+                {
+                    "phase": "systems",
+                    "completed": len(cases),
+                    "planned": 700,
+                    "at": datetime.now(UTC).isoformat(),
+                    "budget": budget_receipt(),
+                },
+            )
+    return cases
+
+
+def judges(cases, selected, checkpoints, store):
+    calibration = (
+        sample_rows()
+    )  # Exactly the existing 50 authored wording items; no objective gold.
+    rows = [{**row, "cohort": "calibration"} for row in calibration]
+    for case in cases:
+        if case["system"] not in {"B1", "P"} or case["repeat"] or case["id"] not in selected:
+            continue
+        row = wording(case)
+        sample_id = hashlib.sha256(f"judge:{case['system']}:{case['id']}".encode()).hexdigest()[:20]
+        rows.append({**row, "sample_id": sample_id, "cohort": "frozen"})
+    human_sheet(checkpoints.root, [r for r in rows if r["cohort"] == "frozen"])
+    # Mapping stays private; the models and human sheet do not receive system or objective gold.
+    save(checkpoints.root / "judge-inputs.json", rows)
+    ratings = []
+    for row in rows:
+        key = "judge:" + row["sample_id"]
+        cached = checkpoints.read(key)
+        if cached is not None:
+            ratings.append(cached)
+            continue
+        path = checkpoints.begin(key)
+        client = client_for("openrouter_sonnet", store, judge=True, response_record=journal(path))
+        try:
+            if not row["customer_reply"]:
+                result = {"status": "not_scored", "reason": "no_delivered_reply"}
+            else:
+                with jev_judge_adapter() as adapter:
+                    result = score_pair(
+                        row,
+                        sonnet_client=client,
+                        jev_adapter=adapter,
+                        prompt=load_prompt(ROOT / "prompts/judge/v1.md"),
+                    )
+                result["status"] = "scored"
+        except FinalBudgetStop:
+            raise
+        except Exception as error:
+            result = {"status": "failed", "error_type": type(error).__name__}
+        result.update(
+            sample_id=row["sample_id"], cohort=row["cohort"], target_locale=row["target_locale"]
+        )
+        ratings.append(checkpoints.finish(key, result))
+        save(
+            checkpoints.root / "progress.json",
+            {
+                "phase": "judges",
+                "completed": len(ratings),
+                "planned": 150,
+                "at": datetime.now(UTC).isoformat(),
+                "budget": budget_receipt(),
+            },
+        )
+    return ratings
+
+
+def saved_cases(suite: dict, repeat_ids: set[str], checkpoints: Checkpoints) -> list[dict]:
+    results = []
+    for system, repeat in [("B1", 0), ("P", 0), ("P", 1), ("P", 2), ("P-Sonnet", 0)]:
+        for scenario in suite["scenarios"]:
+            if (repeat or system == "P-Sonnet") and scenario["id"] not in repeat_ids:
+                continue
+            key = f"{system}:{repeat}:{scenario['id']}"
+            result = checkpoints.read(key)
+            if result is None:
+                result = failed(scenario, system, repeat, FinalBudgetStop("Program stopped"))
+                result["cost_usd"] = sum(
+                    row["call"]["cost_usd"] or 0 for row in checkpoints.calls(key)
+                )
+            results.append(result)
+    return results
+
+
+def main(output: Path, sha: str) -> None:
+    require_start()
+    # All frozen reads, including pin verification on resume, are inside the access ledger.
+    paths = sorted(p for p in (ROOT / "evals/suites/test").iterdir() if p.is_file())
+    paths += [ROOT / "artifacts/evaluation-authoring/customer-bindings.json"]
+    paths += [
+        ROOT / f"artifacts/charge_matcher/v1/dataset/{split}.jsonl"
+        for split in ("train", "validation", "test")
+    ]
+    with access(
+        "final_program", paths, "Owner-approved final program; pinned start/resume, no tuning"
+    ):
+        serving, store = open_serving(), open_budget_store()
+        try:
+            suite, identities, directory = load(serving)
+            repeat_ids = set(
+                json.loads((ROOT / "evals/suites/test/repeat-selection.json").read_text())[
+                    "scenario_ids"
+                ]
+            )
+            selected = judge_ids(suite["scenarios"], repeat_ids)
+            pins = {
+                "implementation_sha": sha,
+                "inputs": {str(p.relative_to(ROOT)): digest(p) for p in paths},
+                "dataset_version": serving.dataset_version,
+                "budget_scope": SCOPE,
+                "budget_run_id": RUN_ID,
+            }
+            checkpoints = Checkpoints(output, pins)
+            header = {
+                **pins,
+                "workload": "200 frozen organizer-ledger scenarios with declared overlays; B1 200/P 400/Sonnet 100",
+                "model": "google/gemini-3-flash-preview + jev-1.13.0 risk union",
+                "resolved_models": {
+                    k: asdict(v) for k, v in load_models(ROOT / "config/models.yaml").items()
+                },
+                "prompt_versions": {
+                    name: digest(ROOT / path)
+                    for name, path in {
+                        "nlu-v4": "prompts/nlu/v4.md",
+                        "phrase-v1": "prompts/phrase/v1.md",
+                        "judge-v1": "prompts/judge/v1.md",
+                        "jev": "src/aclara/llm/typesafe_questions.py",
+                    }.items()
+                },
+                "price_table_dates": {
+                    k: str(v.as_of) for k, v in load_prices(ROOT / "config/pricing.yaml").items()
+                },
+                "price_table_sha256": digest(ROOT / "config/pricing.yaml"),
+                "policy_version": yaml.safe_load((ROOT / "config/policy.yaml").read_text())[
+                    "version"
+                ],
+                "matcher_version": "v2",
+                "matcher_checksums": json.loads(
+                    (ROOT / "models/charge_matcher/v2/checksums.json").read_text()
+                ),
+                "cost_assumptions": "USD; provider usage plus retained conservative reserves; cumulative $12 across all attempts/restarts/vendors",
+                "monthly_infrastructure_estimate_usd": 34.63,
+                "source_rls": "forced customer RLS, organizer serving, 120-day window",
+                "operational_storage": "isolated fresh in-memory state per case; durable production separately tested",
+                "human_label_review": "pending; model-generated PT/MX/AR wording is a limitation",
+            }
+            from evals.final_report import write_report
+
+            try:
+                cases = asyncio.run(
+                    execute(suite, identities, directory, serving, store, checkpoints, repeat_ids)
+                )
+                if len({case["run_id"] for case in cases}) != len(cases):
+                    raise RuntimeError("Case isolation failed")
+                ratings = judges(cases, selected, checkpoints, store)
+            except FinalBudgetStop:
+                cases = saved_cases(suite, repeat_ids, checkpoints)
+                ratings = [
+                    json.loads(path.read_text())
+                    for path in output.glob("checkpoints/*/result.json")
+                    if "sample_id" in json.loads(path.read_text())
+                ]
+                write_report(
+                    output,
+                    cases,
+                    ratings,
+                    repeat_ids,
+                    {**header, "completion": "partial: durable budget stop"},
+                    budget_receipt(),
+                )
+                raise
+            write_report(
+                output,
+                cases,
+                ratings,
+                repeat_ids,
+                {**header, "completion": "complete"},
+                budget_receipt(),
+            )
+            save(
+                output / "COMPLETE.json",
+                {
+                    "completed_cases": len(cases),
+                    "judge_items": len(ratings),
+                    "implementation_sha": sha,
+                    "budget": budget_receipt(),
+                    "at": datetime.now(UTC).isoformat(),
+                },
+            )
+            (output / "STOPPED.json").unlink(missing_ok=True)
+            print(
+                json.dumps(
+                    {"state": "complete", "case_runs": len(cases), "judge_items": len(ratings)}
+                ),
+                flush=True,
+            )
+        finally:
+            serving.store.close()
+            store.close()
