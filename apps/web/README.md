@@ -8,8 +8,8 @@ opt-in, project-generated fixtures. There are no LLM calls in this application.
 ## Run and verify
 
 From `apps/web/`, install with `pnpm install --frozen-lockfile`, then use
-`pnpm dev --webpack --hostname 127.0.0.1 --port 3212`. The browser-test command uses
-Webpack with `WATCHPACK_POLLING=1000` because the host exhausted native file watchers;
+`WATCHPACK_POLLING=1000 pnpm dev --webpack --hostname 127.0.0.1 --port 3212`.
+The browser-test command uses Webpack with `WATCHPACK_POLLING=1000` because the host exhausted native file watchers;
 the production build also uses Next.js's supported Webpack mode because the
 Turbopack CSS worker failed to bind its worker port in this environment.
 
