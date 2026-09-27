@@ -27,6 +27,7 @@ from aclara.agent.nlu import (
     normalize_text,
     selected_candidate,
 )
+from aclara.agent.runtime import InjectedFailure, Runtime
 from aclara.bank.repository import Transaction, TransactionRepository
 from aclara.handoff.packet import create_packet
 from aclara.policy.engine import PolicyDecision, evaluate
@@ -63,6 +64,7 @@ class ActionProposal:
 @dataclass(slots=True)
 class Conversation:
     session_id: str
+    language: str = "es"
     candidates: list[tuple[str, Transaction]] = field(default_factory=list)
     intent: Intent | None = None
     proposal: ActionProposal | None = None
@@ -176,6 +178,7 @@ def _read_db_ready() -> bool:
 def create_app(
     settings: Settings | None = None,
     repository: TransactionRepository | None = None,
+    runtime: Runtime | None = None,
 ) -> FastAPI:
     active_settings = settings or Settings.from_environment()
     ledger = repository or TransactionRepository()
@@ -186,6 +189,7 @@ def create_app(
         allow_methods=["GET", "POST"],
         allow_headers=["Authorization", "Content-Type", "X-Preauth-Token"],
     )
+    app.state.runtime = runtime or Runtime()
     app.state.settings = active_settings
     app.state.ledger = ledger
     app.state.challenges = {}
@@ -310,11 +314,40 @@ def create_app(
         body: MessageBody,
         principal: Principal = Depends(get_principal),
     ) -> dict[str, Any]:
+        try:
+            app.state.runtime.checkpoint("MATCH")
+            result = await process_message(conversation_id, body, principal)
+        except InjectedFailure:
+            result = safe_failure(principal, classify(body.message).language)
+        app.state.runtime.record("response", response_type=result["response_type"])
+        return result
+
+    def safe_failure(principal: Principal, language: str) -> dict[str, Any]:
+        packet = create_packet(language, "ESC-04")
+        app.state.handoffs[packet["handoff_id"]] = {
+            **packet,
+            "customer_id": principal.customer_id,
+            "session_id": principal.session_id,
+        }
+        app.state.runtime.record("safe_failure")
+        return {
+            "response_type": "offer_human",
+            "outcome": "handoff_created",
+            "reply": _handoff_reply(language),
+            "handoff": {k: v for k, v in packet.items() if k != "request_summary"},
+        }
+
+    async def process_message(
+        conversation_id: str,
+        body: MessageBody,
+        principal: Principal = Depends(get_principal),
+    ) -> dict[str, Any]:
         conversation: Conversation | None = app.state.conversations.get(conversation_id)
         if conversation is None or conversation.session_id != principal.session_id:
             raise HTTPException(status_code=404, detail="Conversation not found")
         frame = classify(body.message)
-        language = frame.language
+        language = conversation.language if conversation.candidates else frame.language
+        conversation.language = language
 
         if conversation.proposal is not None:
             if is_cancellation(body.message):
@@ -352,7 +385,7 @@ def create_app(
                 },
             }
 
-        if frame.intent == Intent.OUT_OF_SCOPE:
+        if frame.intent == Intent.OUT_OF_SCOPE and not conversation.candidates:
             return {
                 "response_type": "abstain",
                 "outcome": "abstained_out_of_scope",
@@ -489,6 +522,24 @@ def create_app(
         body: ConfirmBody,
         principal: Principal = Depends(get_principal),
     ) -> dict[str, Any]:
+        try:
+            result = await process_confirmation(conversation_id, body, principal)
+        except InjectedFailure:
+            conversation = app.state.conversations.get(conversation_id)
+            language = (
+                conversation.proposal.language if conversation and conversation.proposal else "es"
+            )
+            if conversation:
+                conversation.proposal = None
+            result = safe_failure(principal, language)
+        app.state.runtime.record("response", response_type=result["response_type"])
+        return result
+
+    async def process_confirmation(
+        conversation_id: str,
+        body: ConfirmBody,
+        principal: Principal = Depends(get_principal),
+    ) -> dict[str, Any]:
         conversation: Conversation | None = app.state.conversations.get(conversation_id)
         if conversation is None or conversation.session_id != principal.session_id:
             raise HTTPException(status_code=404, detail="Conversation not found")
@@ -531,11 +582,17 @@ def create_app(
             "policy_rules": list(decision.rule_ids),
             "created_at": now.isoformat(),
         }
+        app.state.runtime.checkpoint("create_dispute")
         app.state.cases[case_id] = record
+        app.state.runtime.record(
+            "create_dispute", handle=proposal.transaction_handle, confirmed=True, step_up=True
+        )
+        app.state.runtime.checkpoint("read_back")
         read_back = app.state.cases.get(case_id)
         conversation.proposal = None
         if read_back is None or read_back["customer_id"] != principal.customer_id:
             raise HTTPException(status_code=503, detail="Read-back verification failed")
+        app.state.runtime.record("verify_readback", handle=proposal.transaction_handle)
         return {
             "response_type": "report_case",
             "outcome": "dispute_filed",

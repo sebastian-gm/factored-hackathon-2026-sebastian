@@ -243,6 +243,9 @@
         "route": {
           "additionalProperties": false,
           "properties": {
+            "fallback_used": {
+              "type": "boolean"
+            },
             "language": {
               "enum": [
                 "es",

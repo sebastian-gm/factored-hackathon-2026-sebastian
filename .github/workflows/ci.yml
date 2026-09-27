@@ -34,6 +34,8 @@ jobs:
         run: uv run python -m scripts.export_interfaces --check
       - name: Safety smoke
         run: uv run python -m evals.runner --system B1
+      - name: Reactive evaluation
+        run: uv run python -m evals.runner --system B1 --scenarios evals/dev_scenarios_v2.yaml
       - name: Staged-file policy
         run: uv run python scripts/check_staged_files.py --working-tree
 
