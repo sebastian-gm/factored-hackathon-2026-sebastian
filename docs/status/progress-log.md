@@ -91,3 +91,63 @@ This summary supersedes earlier task lists; detailed evidence remains in the lin
 - Release inputs/control evidence stay in ignored `infra/terraform.tfvars` and `artifacts/azure/verified.json`; do not print private inputs. The local Compose stack remains running.
 
 For the next session: **Continue from docs/status/progress-log.md. Next layer: frontend integration and independent dev acceptance fixes. Same rules.**
+
+## Frontend lane — 2026-09-26/27
+
+### Completed (verified)
+
+- Read the new frontend handoff, brief §§6.4/8/12.4/16.5, repository rules and frozen OpenAPI. Created `feat/frontend` from latest main, then rebased the unpublished implementation onto `ad62e9c` after the lead's durable-operations merges. The longer, dotted OTP challenge identifiers are supported. No backend, policy, schema, harness or infrastructure files are changed.
+- Built customer chat, Agent Desk and Ops under `apps/web/`: ES-MX/CO/AR and PT-BR formatting, password/OTP persona access, SMS panel, masked fixture products, top-three choices, exact-proposal Confirm/Cancel, read-back receipts, handoff status and a customer-safe records/rules drawer. Added queue priority/SLA/language/reasons, evidence and action timelines, claim/resolve, execution stages and model metadata, DQ/freshness/version, the existing aggregate dbt lineage image, illustrative results/cost and verified fixture reset.
+- Replaced JavaScript-held access/preauth tokens with same-origin HTTP-only, SameSite=Strict cookies (Secure in production). Added route/input/output validation, Origin checks, role separation for fixtures and explicit read-back before success. Missing live staff/Ops contracts are clearly unavailable; typed fixtures require the explicit server-side feature flag and a configured password. There are no frontend model calls and no fallback from live errors to fixtures.
+- Eight Playwright fixture tests passed: the three requested stories, cancellation, phone layouts, language switching, keyboard/dialog behavior, automated WCAG 2.1 AA checks, cookie visibility, CSRF/role rejection, idempotent confirmation replay, cross-browser ownership and five-attempt OTP lockout/restart. Desktop and phone screenshots were inspected and remain in ignored `artifacts/frontend/`.
+- The separate live-proxy Playwright test passed against current main's B1 mock API: password/OTP, pending-charge explanation, actual dispute confirmation and case read-back, with unsupported Agent Desk correctly unavailable. It used only team-generated ledger fixtures and an ephemeral credential.
+- TypeScript and ESLint passed. The production build passed using supported Webpack mode; Turbopack hit host watcher/worker-port failures, so local browser tests use Webpack polling. The worktree's ignored `.env` now uses `aclara-frontend` / ports 15442, 8212 and 3212; read-back confirmed all other entries were preserved. The separate OpenRouter key was not used, printed or committed. An explicit scan verified key exclusion and ignored screenshot paths.
+- All six pre-commit hooks and the tracked-file data/secret/size policy passed after the rebase. The final production browser chunks contain neither the provider key nor the fixture-password environment reference. `apps/web/public/dbt-lineage.svg` matches the existing aggregate diagram byte-for-byte.
+- Private [PR #17](https://github.com/sebastian-gm/bank-agent-lab/pull/17) is open and ready for review. GitHub `checks`, `postgres`, `invariants` and `web` all passed on implementation head `94eb350`; remote branch and PR state were read back. This documentation follow-up records those results and includes polling in the manual development command.
+
+### Done but not verified
+
+- Agent Desk, Ops, reset and richer metadata use labeled frontend fixtures because their live endpoints are absent from the frozen API. Signed confirmation nonces, card-freeze proposals, product masks, staff identity, step-up refresh and logout revocation remain lead-owned API dependencies, specified in `apps/web/API-PROPOSAL.md`.
+- No Azure deployment or real-model run was performed. Native ES/PT human copy review and additional browser engines remain unverified. Illustrative Ops figures are not measured evaluation results; no held-out suite was executed.
+
+### Next / blocked
+
+- Lead review of PR #17 and its additive API proposal. Wire staff/Ops contracts and add the documented browser-test command to the shared CI workflow; this lane does not edit that workflow.
+- Deploy only through the lead's existing authorized release process. No approval is needed for this private frontend PR; any future use of the worktree's OpenRouter key requires Sebastian's explicit approval.
+
+### Frontend follow-up — submission assignment
+
+#### Completed (verified)
+
+- Read handoff `07-docs-submission.md` and checked PR #17 reviews/inline comments (none at the check). Integrated main through `dd957c7`; rebased locally and retained published ancestry with a merge so no force-push is needed.
+- Adapted the customer BFF to the shipped account/card, fresh-OTP, freeze, duplicate-case status and security plans. Live handoffs are independently read back even when the bank omits the optional verified flag. No success is inferred from missing evidence; revoked sessions show refusal without a handoff receipt.
+- Initial browser verification passed eight fixture stories and three live B1 API stories, including fresh-OTP freeze confirmation/cancellation and independent card/handoff read-back. Only project-generated fixtures and ephemeral credentials were used; no provider calls or Azure actions.
+
+#### Done but not verified
+
+- Agent Desk/Ops APIs and staff identity remain absent; their typed fixture mode stays explicit. Native language review and deployed frontend behavior remain pending.
+- The B1 phrase “Perdí mi tarjeta” did not offer a freeze in the local probe; “Me robaron la tarjeta” exercises the implemented path. Language coverage remains a lead/AI follow-up, not a frontend policy override.
+
+#### Next / blocked
+
+- Final local verification: eight fixture tests, three live API tests (including freeze-dialog accessibility), ESLint and production build passed. PR #17 follow-up is ready to push; author the submission documents on `docs/submission-kit` next. Interrupt that work for lead reviews or new staff/Ops endpoints.
+
+### Frontend follow-up — shipped staff contracts (PR #21)
+
+#### Completed (verified)
+
+- Interrupted submission drafting for the lead's review and merged main through `d10ac48` into PR #17 without rewriting published history. Live persona/identity, Agent Desk, traces, Ops and reset now consume the typed APIs. Versioned claim/resolve and reset require independent readbacks. Handoffs require both the API verified flag and scoped GET.
+- Upstream logout revokes and verifies the capability; customer refusal/session-end and duplicate status render correctly. Live Ops uses measured current-workspace counts, keeps SAR/unsafe unmeasured, and does not display fixture results. Reset defaults to disabled and requires trusted flags, ops identity and fresh OTP.
+- Four live customer browser tests, one live staff workflow and eight fixture tests passed with generated records and ephemeral credentials. Coverage includes upstream revocation, customer staff denial, freeze/cancel, claim/resolve, measured Ops, reset and automated accessibility checks. The credential-free API-hop probe passed against the local API. Initial refusal test failures were locator/authentication-wait issues corrected before the passing run.
+- ESLint, TypeScript and production Webpack build passed. No Azure operations, provider calls or `.env` reads were made for these checks.
+
+#### Done but not verified
+
+- Azure web-container-to-API reachability under owner-IP restrictions remains unverified. The new `apps/web/scripts/check-api-hop.mjs` is packaged in the web image for the lead to run inside that runtime before deployment. Staff remains current-workspace only; Azure keeps customer role and reset disabled.
+- Native language review, additional browser engines and deployed behavior of this revision remain pending. The frozen mock diagnostic predates these API/UI changes and failed its acceptance gates.
+
+#### Next / blocked
+
+- Publish the PR #17 review follow-up after repository hooks; lead owns shared Playwright CI wiring and release connectivity verification. No ingress expansion is authorized. Resume the submission kit with corrected held-out aggregate results and explicit failed-gate limitations.
+
+- Published staff follow-up `1bec955` and read back its remote/PR head. All six repository hooks passed. Merged lead documentation/recovery follow-ups through `6bc0c4e`, preserving both progress records; no frontend implementation changed in this merge.

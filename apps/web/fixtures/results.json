@@ -1,0 +1,9 @@
+{
+  "source": "frontend-demo/results.json",
+  "kind": "illustrative_fixture",
+  "cases": 3,
+  "passed": 3,
+  "unsafe": 0,
+  "cost_usd": 0,
+  "human_validated": false
+}
