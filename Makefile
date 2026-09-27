@@ -1,4 +1,4 @@
-.PHONY: up down checks eval-smoke interfaces pipeline
+.PHONY: up down checks eval-smoke interfaces pipeline test-recovery
 
 up:
 	uv run --no-sync python -m scripts.local_ops
@@ -24,3 +24,6 @@ interfaces:
 
 pipeline:
 	uv run --no-sync python -m aclara.data.cli build
+
+test-recovery:
+	uv run --no-sync python -m scripts.backup_restore
