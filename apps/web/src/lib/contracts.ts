@@ -182,6 +182,7 @@ export type TraceEvent = {
   } | null;
 };
 export type OpsSnapshot = {
+  source_kind?: "authored_fixture" | "organizer_serving";
   dataset_version: string;
   bank_clock: string;
   quality: { name: string; passed: boolean; checked: number }[];

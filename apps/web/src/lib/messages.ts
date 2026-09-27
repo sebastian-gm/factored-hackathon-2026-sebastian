@@ -31,6 +31,7 @@ export const es = {
     "Borrar las operaciones de esta sesión de demostración. Se conservan la autenticación y la auditoría. Requiere un nuevo OTP y confirmación.",
   scoped_owned_fixture_rows: "Registros de ejemplo con propiedad comprobada",
   fixture: "Modo demostración · datos de ejemplo",
+  organizerSource: "Registro del organizador · últimos 120 días",
   fixtureNote:
     "Las acciones se guardan solo en este espacio de prueba. No es una evaluación del sistema.",
   live: "Servicio bancario",
@@ -237,6 +238,7 @@ export const pt: typeof es = {
     "Apagar as operações desta sessão de demonstração. A autenticação e a auditoria são preservadas. Exige um novo OTP e confirmação.",
   scoped_owned_fixture_rows: "Registros de exemplo com titularidade conferida",
   fixture: "Modo demonstração · dados de exemplo",
+  organizerSource: "Registro do organizador · últimos 120 dias",
   fixtureNote:
     "As ações ficam apenas neste espaço de teste. Isto não é uma avaliação do sistema.",
   live: "Serviço bancário",

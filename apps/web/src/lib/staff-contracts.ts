@@ -81,7 +81,7 @@ export const opsSchema = z.object({
   bank_clock: z.string(),
   loaded_at: z.string(),
   source_as_of: z.string(),
-  source_kind: z.literal("authored_fixture"),
+  source_kind: z.enum(["authored_fixture", "organizer_serving"]),
   scope: z.literal("current_workspace"),
   quality: z.array(
     z.object({

@@ -38,6 +38,7 @@ export function Ops() {
         ),
       );
       return {
+        source_kind: current.source_kind,
         dataset_version: current.dataset_version,
         bank_clock: current.bank_clock,
         quality: current.quality,
@@ -140,7 +141,13 @@ export function Ops() {
               <strong className="text-metric mono">
                 {data.dataset_version}
               </strong>
-              <small>{t("fixture")}</small>
+              <small>
+                {t(
+                  data.source_kind === "organizer_serving"
+                    ? "organizerSource"
+                    : "fixture",
+                )}
+              </small>
             </div>
           </div>
           <section className="panel trace-panel">
