@@ -1,6 +1,58 @@
 {
   "components": {
     "schemas": {
+      "ActionEvidence": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "title": "Action",
+            "type": "string"
+          },
+          "evidence_ref": {
+            "title": "Evidence Ref",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "verified",
+              "failed"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "action",
+          "status",
+          "evidence_ref"
+        ],
+        "title": "ActionEvidence",
+        "type": "object"
+      },
+      "CardStateView": {
+        "additionalProperties": false,
+        "properties": {
+          "handle": {
+            "title": "Handle",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "verified": {
+            "title": "Verified",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "handle",
+          "status",
+          "verified"
+        ],
+        "title": "CardStateView",
+        "type": "object"
+      },
       "ConfirmBody": {
         "additionalProperties": false,
         "properties": {
@@ -20,6 +72,277 @@
           "confirmed"
         ],
         "title": "ConfirmBody",
+        "type": "object"
+      },
+      "DeskPacket": {
+        "additionalProperties": false,
+        "properties": {
+          "actions": {
+            "items": {
+              "$ref": "#/components/schemas/ActionEvidence"
+            },
+            "title": "Actions",
+            "type": "array"
+          },
+          "actions_taken": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Actions Taken",
+            "type": "array"
+          },
+          "claimed_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Claimed By"
+          },
+          "conversation_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Conversation Id"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "customer": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Customer"
+          },
+          "customer_display": {
+            "title": "Customer Display",
+            "type": "string"
+          },
+          "customer_statements": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Customer Statements"
+          },
+          "evidence": {
+            "items": {
+              "$ref": "#/components/schemas/Evidence"
+            },
+            "title": "Evidence",
+            "type": "array"
+          },
+          "freeze_outcome": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Freeze Outcome"
+          },
+          "handoff_id": {
+            "title": "Handoff Id",
+            "type": "string"
+          },
+          "open_questions": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Open Questions",
+            "type": "array"
+          },
+          "policy_evaluations": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Policy Evaluations"
+          },
+          "priority": {
+            "enum": [
+              "normal",
+              "high"
+            ],
+            "title": "Priority",
+            "type": "string"
+          },
+          "reason_codes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Reason Codes",
+            "type": "array"
+          },
+          "request_summary": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object"
+                }
+              ]
+            },
+            "title": "Request Summary",
+            "type": "object"
+          },
+          "risk_flags": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Risk Flags"
+          },
+          "route": {
+            "$ref": "#/components/schemas/HandoffRoute"
+          },
+          "schema_version": {
+            "const": "1.0",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "scope": {
+            "const": "current_workspace",
+            "default": "current_workspace",
+            "title": "Scope",
+            "type": "string"
+          },
+          "sla_due_at": {
+            "format": "date-time",
+            "title": "Sla Due At",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "waiting",
+              "claimed",
+              "resolved"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "suggested_next_steps": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Suggested Next Steps"
+          },
+          "trace_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Trace Ref"
+          },
+          "transcript_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Transcript Ref"
+          },
+          "verified": {
+            "default": true,
+            "title": "Verified",
+            "type": "boolean"
+          },
+          "verified_facts": {
+            "items": {
+              "$ref": "#/components/schemas/TransactionView"
+            },
+            "title": "Verified Facts",
+            "type": "array"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "schema_version",
+          "handoff_id",
+          "created_at",
+          "reason_codes",
+          "priority",
+          "route",
+          "verified_facts",
+          "actions_taken",
+          "open_questions",
+          "conversation_id",
+          "sla_due_at",
+          "request_summary",
+          "customer_display",
+          "status",
+          "claimed_by",
+          "version",
+          "evidence",
+          "actions"
+        ],
+        "title": "DeskPacket",
         "type": "object"
       },
       "DisputeCaseView": {
@@ -65,6 +388,41 @@
         "title": "DisputeCaseView",
         "type": "object"
       },
+      "Evidence": {
+        "additionalProperties": false,
+        "properties": {
+          "dataset_version": {
+            "title": "Dataset Version",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "record_ref": {
+            "title": "Record Ref",
+            "type": "string"
+          },
+          "tool": {
+            "title": "Tool",
+            "type": "string"
+          },
+          "verified_at": {
+            "format": "date-time",
+            "title": "Verified At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "record_ref",
+          "tool",
+          "verified_at",
+          "dataset_version"
+        ],
+        "title": "Evidence",
+        "type": "object"
+      },
       "FreezeBody": {
         "additionalProperties": false,
         "properties": {
@@ -85,6 +443,49 @@
         "title": "FreezeBody",
         "type": "object"
       },
+      "FreezeProposalView": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "const": "freeze_card",
+            "default": "freeze_card",
+            "title": "Action",
+            "type": "string"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "title": "Expires At",
+            "type": "string"
+          },
+          "handle": {
+            "title": "Handle",
+            "type": "string"
+          },
+          "proposal_hash": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Proposal Hash",
+            "type": "string"
+          },
+          "reply": {
+            "title": "Reply",
+            "type": "string"
+          },
+          "response_type": {
+            "const": "confirm_action",
+            "default": "confirm_action",
+            "title": "Response Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "handle",
+          "proposal_hash",
+          "expires_at",
+          "reply"
+        ],
+        "title": "FreezeProposalView",
+        "type": "object"
+      },
       "FreezeRequest": {
         "additionalProperties": false,
         "properties": {
@@ -96,6 +497,162 @@
           }
         },
         "title": "FreezeRequest",
+        "type": "object"
+      },
+      "FreezeResultView": {
+        "additionalProperties": false,
+        "properties": {
+          "candidates": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/TransactionView"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Candidates"
+          },
+          "card": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CardStateView"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "case": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DisputeCaseView"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "freeze_offer": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ProductView"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Freeze Offer"
+          },
+          "handoff": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HandoffView"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "outcome": {
+            "enum": [
+              "cancelled",
+              "handoff_created",
+              "abstained_out_of_scope",
+              "choose_transaction",
+              "clarification",
+              "dispute_filed",
+              "dispute_proposed",
+              "explained",
+              "status_reported",
+              "refused_security"
+            ],
+            "title": "Outcome",
+            "type": "string"
+          },
+          "policy_rules": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Policy Rules"
+          },
+          "proposal": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ProposalView"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reply": {
+            "title": "Reply",
+            "type": "string"
+          },
+          "response_type": {
+            "enum": [
+              "cancelled",
+              "offer_human",
+              "abstain",
+              "choose_transaction",
+              "clarify",
+              "report_case",
+              "confirm_action",
+              "explain_status",
+              "report_status",
+              "refuse"
+            ],
+            "title": "Response Type",
+            "type": "string"
+          },
+          "session_ended": {
+            "default": false,
+            "title": "Session Ended",
+            "type": "boolean"
+          },
+          "transaction": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TransactionView"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "verified": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Verified"
+          }
+        },
+        "required": [
+          "response_type",
+          "outcome",
+          "reply"
+        ],
+        "title": "FreezeResultView",
         "type": "object"
       },
       "HTTPValidationError": {
@@ -197,10 +754,48 @@
             "title": "Actions Taken",
             "type": "array"
           },
+          "conversation_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Conversation Id"
+          },
           "created_at": {
             "format": "date-time",
             "title": "Created At",
             "type": "string"
+          },
+          "customer": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Customer"
+          },
+          "customer_statements": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Customer Statements"
           },
           "freeze_outcome": {
             "anyOf": [
@@ -224,6 +819,23 @@
             "title": "Open Questions",
             "type": "array"
           },
+          "policy_evaluations": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Policy Evaluations"
+          },
           "priority": {
             "enum": [
               "normal",
@@ -239,6 +851,20 @@
             "title": "Reason Codes",
             "type": "array"
           },
+          "risk_flags": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Risk Flags"
+          },
           "route": {
             "$ref": "#/components/schemas/HandoffRoute"
           },
@@ -246,6 +872,54 @@
             "const": "1.0",
             "title": "Schema Version",
             "type": "string"
+          },
+          "sla_due_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sla Due At"
+          },
+          "suggested_next_steps": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Suggested Next Steps"
+          },
+          "trace_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Trace Ref"
+          },
+          "transcript_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Transcript Ref"
           },
           "verified_facts": {
             "items": {
@@ -267,6 +941,107 @@
           "open_questions"
         ],
         "title": "HandoffView",
+        "type": "object"
+      },
+      "IdentityView": {
+        "additionalProperties": false,
+        "properties": {
+          "bank_clock": {
+            "format": "date-time",
+            "title": "Bank Clock",
+            "type": "string"
+          },
+          "language": {
+            "enum": [
+              "es",
+              "pt"
+            ],
+            "title": "Language",
+            "type": "string"
+          },
+          "locale": {
+            "enum": [
+              "es-MX",
+              "es-CO",
+              "es-AR",
+              "pt-BR"
+            ],
+            "title": "Locale",
+            "type": "string"
+          },
+          "role": {
+            "enum": [
+              "customer",
+              "agent",
+              "ops"
+            ],
+            "title": "Role",
+            "type": "string"
+          },
+          "username": {
+            "title": "Username",
+            "type": "string"
+          }
+        },
+        "required": [
+          "username",
+          "language",
+          "role",
+          "locale",
+          "bank_clock"
+        ],
+        "title": "IdentityView",
+        "type": "object"
+      },
+      "LlmMetadata": {
+        "additionalProperties": false,
+        "properties": {
+          "cost_usd": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cost Usd"
+          },
+          "input_tokens": {
+            "title": "Input Tokens",
+            "type": "integer"
+          },
+          "latency_ms": {
+            "title": "Latency Ms",
+            "type": "number"
+          },
+          "model": {
+            "title": "Model",
+            "type": "string"
+          },
+          "output_tokens": {
+            "title": "Output Tokens",
+            "type": "integer"
+          },
+          "prompt_version": {
+            "title": "Prompt Version",
+            "type": "string"
+          },
+          "provider": {
+            "title": "Provider",
+            "type": "string"
+          }
+        },
+        "required": [
+          "provider",
+          "model",
+          "prompt_version",
+          "input_tokens",
+          "output_tokens",
+          "cost_usd",
+          "latency_ms"
+        ],
+        "title": "LlmMetadata",
         "type": "object"
       },
       "LoginBody": {
@@ -308,6 +1083,70 @@
         "title": "MessageBody",
         "type": "object"
       },
+      "OpsView": {
+        "additionalProperties": false,
+        "properties": {
+          "bank_clock": {
+            "format": "date-time",
+            "title": "Bank Clock",
+            "type": "string"
+          },
+          "conversation_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Conversation Ids",
+            "type": "array"
+          },
+          "dataset_version": {
+            "title": "Dataset Version",
+            "type": "string"
+          },
+          "loaded_at": {
+            "format": "date-time",
+            "title": "Loaded At",
+            "type": "string"
+          },
+          "metrics": {
+            "$ref": "#/components/schemas/WorkspaceMetrics"
+          },
+          "quality": {
+            "items": {
+              "$ref": "#/components/schemas/QualityCheck"
+            },
+            "title": "Quality",
+            "type": "array"
+          },
+          "scope": {
+            "const": "current_workspace",
+            "default": "current_workspace",
+            "title": "Scope",
+            "type": "string"
+          },
+          "source_as_of": {
+            "format": "date-time",
+            "title": "Source As Of",
+            "type": "string"
+          },
+          "source_kind": {
+            "const": "authored_fixture",
+            "default": "authored_fixture",
+            "title": "Source Kind",
+            "type": "string"
+          }
+        },
+        "required": [
+          "dataset_version",
+          "bank_clock",
+          "loaded_at",
+          "source_as_of",
+          "quality",
+          "metrics",
+          "conversation_ids"
+        ],
+        "title": "OpsView",
+        "type": "object"
+      },
       "OtpBody": {
         "additionalProperties": false,
         "properties": {
@@ -328,6 +1167,46 @@
           "code"
         ],
         "title": "OtpBody",
+        "type": "object"
+      },
+      "PersonaView": {
+        "additionalProperties": false,
+        "properties": {
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "locale": {
+            "enum": [
+              "es-MX",
+              "es-CO",
+              "es-AR",
+              "pt-BR"
+            ],
+            "title": "Locale",
+            "type": "string"
+          },
+          "role": {
+            "enum": [
+              "customer",
+              "agent",
+              "ops"
+            ],
+            "title": "Role",
+            "type": "string"
+          },
+          "username": {
+            "title": "Username",
+            "type": "string"
+          }
+        },
+        "required": [
+          "username",
+          "label",
+          "role",
+          "locale"
+        ],
+        "title": "PersonaView",
         "type": "object"
       },
       "ProductView": {
@@ -387,6 +1266,116 @@
           "policy_rules"
         ],
         "title": "ProposalView",
+        "type": "object"
+      },
+      "QualityCheck": {
+        "additionalProperties": false,
+        "properties": {
+          "checked": {
+            "title": "Checked",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "passed": {
+            "title": "Passed",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name",
+          "passed",
+          "checked"
+        ],
+        "title": "QualityCheck",
+        "type": "object"
+      },
+      "ResetConfirm": {
+        "additionalProperties": false,
+        "properties": {
+          "confirmed": {
+            "title": "Confirmed",
+            "type": "boolean"
+          },
+          "proposal_hash": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Proposal Hash",
+            "type": "string"
+          }
+        },
+        "required": [
+          "proposal_hash",
+          "confirmed"
+        ],
+        "title": "ResetConfirm",
+        "type": "object"
+      },
+      "ResetProposal": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "const": "reset_current_workspace",
+            "default": "reset_current_workspace",
+            "title": "Action",
+            "type": "string"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "title": "Expires At",
+            "type": "string"
+          },
+          "proposal_hash": {
+            "title": "Proposal Hash",
+            "type": "string"
+          },
+          "scope": {
+            "const": "current_workspace_operations_except_audit_auth",
+            "default": "current_workspace_operations_except_audit_auth",
+            "title": "Scope",
+            "type": "string"
+          }
+        },
+        "required": [
+          "proposal_hash",
+          "expires_at"
+        ],
+        "title": "ResetProposal",
+        "type": "object"
+      },
+      "ResetReceipt": {
+        "additionalProperties": false,
+        "properties": {
+          "audit_retained": {
+            "default": true,
+            "title": "Audit Retained",
+            "type": "boolean"
+          },
+          "receipt_id": {
+            "title": "Receipt Id",
+            "type": "string"
+          },
+          "remaining_operations": {
+            "title": "Remaining Operations",
+            "type": "integer"
+          },
+          "reset": {
+            "title": "Reset",
+            "type": "boolean"
+          },
+          "verified": {
+            "title": "Verified",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "receipt_id",
+          "reset",
+          "verified",
+          "remaining_operations"
+        ],
+        "title": "ResetReceipt",
         "type": "object"
       },
       "ResponsePlan": {
@@ -536,6 +1525,42 @@
         "title": "ResponsePlan",
         "type": "object"
       },
+      "StaffAction": {
+        "additionalProperties": false,
+        "properties": {
+          "expected_version": {
+            "minimum": 1.0,
+            "title": "Expected Version",
+            "type": "integer"
+          },
+          "idempotency_key": {
+            "pattern": "^[A-Za-z0-9_-]{8,80}$",
+            "title": "Idempotency Key",
+            "type": "string"
+          },
+          "resolution": {
+            "anyOf": [
+              {
+                "enum": [
+                  "review_completed",
+                  "transferred"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolution"
+          }
+        },
+        "required": [
+          "expected_version",
+          "idempotency_key"
+        ],
+        "title": "StaffAction",
+        "type": "object"
+      },
       "StepUpBody": {
         "additionalProperties": false,
         "properties": {
@@ -555,6 +1580,105 @@
           "code"
         ],
         "title": "StepUpBody",
+        "type": "object"
+      },
+      "TraceEvent": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "llm": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LlmMetadata"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "rules": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Rules",
+            "type": "array"
+          },
+          "stage": {
+            "enum": [
+              "Understand",
+              "Decide",
+              "Act",
+              "Verify",
+              "Escalate"
+            ],
+            "title": "Stage",
+            "type": "string"
+          },
+          "state": {
+            "title": "State",
+            "type": "string"
+          },
+          "tool": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tool"
+          },
+          "verified": {
+            "title": "Verified",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "stage",
+          "state",
+          "tool",
+          "rules",
+          "verified"
+        ],
+        "title": "TraceEvent",
+        "type": "object"
+      },
+      "TraceView": {
+        "additionalProperties": false,
+        "properties": {
+          "conversation_id": {
+            "title": "Conversation Id",
+            "type": "string"
+          },
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/TraceEvent"
+            },
+            "title": "Events",
+            "type": "array"
+          },
+          "policy_version": {
+            "title": "Policy Version",
+            "type": "string"
+          },
+          "scope": {
+            "const": "current_workspace",
+            "default": "current_workspace",
+            "title": "Scope",
+            "type": "string"
+          }
+        },
+        "required": [
+          "conversation_id",
+          "events",
+          "policy_version"
+        ],
+        "title": "TraceView",
         "type": "object"
       },
       "TransactionView": {
@@ -649,6 +1773,59 @@
         ],
         "title": "ValidationError",
         "type": "object"
+      },
+      "WorkspaceMetrics": {
+        "additionalProperties": false,
+        "properties": {
+          "cases": {
+            "title": "Cases",
+            "type": "integer"
+          },
+          "conversations": {
+            "title": "Conversations",
+            "type": "integer"
+          },
+          "execution_records": {
+            "title": "Execution Records",
+            "type": "integer"
+          },
+          "handoffs": {
+            "title": "Handoffs",
+            "type": "integer"
+          },
+          "note": {
+            "default": "Operational counts are not evaluation results; no gold denominator available.",
+            "title": "Note",
+            "type": "string"
+          },
+          "observed_model_cost_usd": {
+            "title": "Observed Model Cost Usd",
+            "type": "number"
+          },
+          "sar": {
+            "title": "Sar",
+            "type": "null"
+          },
+          "source": {
+            "const": "current_workspace_operations",
+            "default": "current_workspace_operations",
+            "title": "Source",
+            "type": "string"
+          },
+          "unsafe_rate": {
+            "title": "Unsafe Rate",
+            "type": "null"
+          }
+        },
+        "required": [
+          "cases",
+          "handoffs",
+          "conversations",
+          "execution_records",
+          "observed_model_cost_usd"
+        ],
+        "title": "WorkspaceMetrics",
+        "type": "object"
       }
     }
   },
@@ -685,8 +1862,7 @@
               "application/json": {
                 "schema": {
                   "items": {
-                    "additionalProperties": true,
-                    "type": "object"
+                    "$ref": "#/components/schemas/ProductView"
                   },
                   "title": "Response Accounts Accounts Get",
                   "type": "array"
@@ -707,6 +1883,296 @@
           }
         },
         "summary": "Accounts"
+      }
+    },
+    "/agent/conversations/{conversation_id}": {
+      "get": {
+        "operationId": "transcript_reference_agent_conversations__conversation_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "conversation_id",
+            "required": true,
+            "schema": {
+              "title": "Conversation Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TraceView"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Transcript Reference"
+      }
+    },
+    "/agent/handoffs": {
+      "get": {
+        "operationId": "queue_agent_handoffs_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/DeskPacket"
+                  },
+                  "title": "Response Queue Agent Handoffs Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Queue"
+      }
+    },
+    "/agent/handoffs/{handoff_id}": {
+      "get": {
+        "operationId": "detail_agent_handoffs__handoff_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "handoff_id",
+            "required": true,
+            "schema": {
+              "title": "Handoff Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeskPacket"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Detail"
+      }
+    },
+    "/agent/handoffs/{handoff_id}/claim": {
+      "post": {
+        "operationId": "claim_agent_handoffs__handoff_id__claim_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "handoff_id",
+            "required": true,
+            "schema": {
+              "title": "Handoff Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StaffAction"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeskPacket"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Claim"
+      }
+    },
+    "/agent/handoffs/{handoff_id}/resolve": {
+      "post": {
+        "operationId": "resolve_agent_handoffs__handoff_id__resolve_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "handoff_id",
+            "required": true,
+            "schema": {
+              "title": "Handoff Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StaffAction"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeskPacket"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Resolve"
       }
     },
     "/auth/challenges/{challenge_id}/sms": {
@@ -808,6 +2274,56 @@
           }
         },
         "summary": "Login"
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "operationId": "logout_auth_logout_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "boolean"
+                  },
+                  "title": "Response Logout Auth Logout Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Logout"
       }
     },
     "/auth/otp/verify": {
@@ -1031,9 +2547,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response Card Cards  Handle  Get",
-                  "type": "object"
+                  "$ref": "#/components/schemas/CardStateView"
                 }
               }
             },
@@ -1098,9 +2612,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response Freeze Cards  Handle  Freeze Post",
-                  "type": "object"
+                  "$ref": "#/components/schemas/FreezeResultView"
                 }
               }
             },
@@ -1165,9 +2677,15 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response Proposal Cards  Handle  Freeze Proposal Post",
-                  "type": "object"
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/FreezeProposalView"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ResponsePlan"
+                    }
+                  ],
+                  "title": "Response Proposal Cards  Handle  Freeze Proposal Post"
                 }
               }
             },
@@ -1367,6 +2885,61 @@
         "summary": "Send Message"
       }
     },
+    "/chat/sessions/{conversation_id}/trace": {
+      "get": {
+        "operationId": "execution_trace_chat_sessions__conversation_id__trace_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "conversation_id",
+            "required": true,
+            "schema": {
+              "title": "Conversation Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TraceView"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Execution Trace"
+      }
+    },
     "/disputes/{case_id}": {
       "get": {
         "operationId": "read_dispute_disputes__case_id__get",
@@ -1529,11 +3102,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": {
-                    "type": "string"
-                  },
-                  "title": "Response Me Me Get",
-                  "type": "object"
+                  "$ref": "#/components/schemas/IdentityView"
                 }
               }
             },
@@ -1551,6 +3120,277 @@
           }
         },
         "summary": "Me"
+      }
+    },
+    "/ops/metrics": {
+      "get": {
+        "operationId": "operational_metrics_ops_metrics_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkspaceMetrics"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Operational Metrics"
+      }
+    },
+    "/ops/reset": {
+      "post": {
+        "operationId": "reset_ops_reset_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetConfirm"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResetReceipt"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Reset"
+      }
+    },
+    "/ops/reset/proposal": {
+      "post": {
+        "operationId": "reset_proposal_ops_reset_proposal_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResetProposal"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Reset Proposal"
+      }
+    },
+    "/ops/reset/{receipt_id}": {
+      "get": {
+        "operationId": "reset_receipt_ops_reset__receipt_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "receipt_id",
+            "required": true,
+            "schema": {
+              "title": "Receipt Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResetReceipt"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Reset Receipt"
+      }
+    },
+    "/ops/snapshot": {
+      "get": {
+        "operationId": "snapshot_ops_snapshot_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpsView"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Snapshot"
+      }
+    },
+    "/personas": {
+      "get": {
+        "operationId": "personas_personas_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PersonaView"
+                  },
+                  "title": "Response Personas Personas Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Personas"
       }
     },
     "/readyz": {

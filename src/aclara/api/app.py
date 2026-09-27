@@ -35,6 +35,8 @@ from aclara.agent.nlu import (
 )
 from aclara.agent.nlu.structured import NormalizedSlots
 from aclara.agent.runtime import InjectedFailure, Runtime
+from aclara.api.staff import complete_packet, install_staff
+from aclara.api.staff_contracts import IdentityView
 from aclara.api.workflows import (
     fraud_handoff,
     install_workflows,
@@ -65,6 +67,7 @@ class Principal:
     expires_at: datetime
     step_up_at: datetime | None = None
     capability_digest: str = ""
+    role: str = "customer"
 
 
 @dataclass(slots=True)
@@ -289,6 +292,8 @@ def create_app(
     app.state.instance_id = str(uuid4())
     app.state.settings = active_settings
     app.state.ledger = ledger
+    app.state.loaded_at = datetime.now(UTC)
+    app.state.dataset_version = "fixture:" + hashlib.sha256(repr(ledger._rows).encode()).hexdigest()
     operational = store or Store(
         os.getenv("OPS_DSN", "") if active_settings.ops_backend == "postgres" else None
     )
@@ -317,6 +322,7 @@ def create_app(
         events = app.state.runtime.events[cursor:]
         app.state.executions[record_id] = {
             "conversation_id": conversation_id,
+            "created_at": datetime.now(UTC).isoformat(),
             "events": events,
             "outcome": result["outcome"],
             "response": result,
@@ -461,15 +467,24 @@ def create_app(
             run_id=run_id,
             customer_id=active_settings.demo_customer_id,
             username=active_settings.demo_username,
+            role=active_settings.demo_role,
             otp_at=now,
             expires_at=now + timedelta(minutes=int(rule("AUTH-01").parameters["session_minutes"])),
         )
         del app.state.challenges[body.challenge_id]
         return {"access_token": session_token, "token_type": "bearer"}
 
-    @app.get("/me")
-    async def me(principal: Principal = Depends(get_principal)) -> dict[str, str]:
-        return {"username": principal.username, "language": "es"}
+    @app.get("/me", response_model=IdentityView)
+    async def me(principal: Principal = Depends(get_principal)) -> IdentityView:
+        return IdentityView.model_validate(
+            {
+                "username": principal.username,
+                "language": "pt" if active_settings.demo_locale == "pt-BR" else "es",
+                "role": principal.role,
+                "locale": active_settings.demo_locale,
+                "bank_clock": active_settings.bank_clock,
+            }
+        )
 
     @app.get("/transactions")
     async def list_transactions(
@@ -502,6 +517,7 @@ def create_app(
                 result = safe_failure(principal, classify(body.message).language)
             app.state.runtime.record("response", response_type=result["response_type"])
             conversation = app.state.conversations.get(conversation_id)
+            complete_packet(app, result, principal, conversation_id)
             result = ai.reply(
                 result,
                 conversation.language if conversation else "es",
@@ -525,6 +541,16 @@ def create_app(
             with operational.transaction(scope(principal)):
                 if not app.state.handoffs.get(result["handoff"]["handoff_id"]):
                     raise HTTPException(status_code=503, detail="Durable handoff read-back failed")
+                result["verified"] = True
+                app.state.executions[str(uuid4())] = {
+                    "conversation_id": conversation_id,
+                    "created_at": datetime.now(UTC).isoformat(),
+                    "events": [
+                        {"event": "verify_readback", "handle": result["handoff"]["handoff_id"]}
+                    ],
+                    "outcome": "handoff_verified",
+                    "policy_version": catalog()[0],
+                }
         return result
 
     def safe_failure(principal: Principal, language: str) -> dict[str, Any]:
@@ -919,6 +945,7 @@ def create_app(
                 result = safe_failure(principal, language)
             app.state.runtime.record("response", response_type=result["response_type"])
             conversation = app.state.conversations.get(conversation_id)
+            complete_packet(app, result, principal, conversation_id)
             result = ai.reply(
                 result,
                 conversation.language if conversation else "es",
@@ -942,6 +969,16 @@ def create_app(
             with operational.transaction(scope(principal)):
                 if not app.state.handoffs.get(result["handoff"]["handoff_id"]):
                     raise HTTPException(status_code=503, detail="Durable handoff read-back failed")
+                result["verified"] = True
+                app.state.executions[str(uuid4())] = {
+                    "conversation_id": conversation_id,
+                    "created_at": datetime.now(UTC).isoformat(),
+                    "events": [
+                        {"event": "verify_readback", "handle": result["handoff"]["handoff_id"]}
+                    ],
+                    "outcome": "handoff_verified",
+                    "policy_version": catalog()[0],
+                }
         return result
 
     async def process_confirmation(
@@ -1095,6 +1132,7 @@ def create_app(
             }
 
     install_workflows(app, get_principal)
+    install_staff(app, get_principal)
     return app
 
 
