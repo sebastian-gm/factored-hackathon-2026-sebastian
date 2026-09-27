@@ -1,37 +1,53 @@
 # Production readiness
 
-This synthetic-data development service is not ready for real customer data or real banking actions. Before production it needs:
+**This is a private synthetic-data development service, not a real bank deployment.**
+The [frozen mock diagnostic](evaluation/heldout-run01.md) failed acceptance gates.
+A successful build, local restore or smoke test does not override those failures.
+The lead's verified release history is in the [progress log](status/progress-log.md);
+this document does not claim a new deployment or approve wider access.
 
-- a real identity provider, private networking, and reviewed access policies;
-- a core banking integration and a scheduled, monitored data pipeline;
-- model-risk governance and regulatory review for each country;
-- human review of Portuguese and load behavior at scale;
-- backup, disaster recovery, and on-call ownership;
-- verified storage recovery, retention enforcement, and incident procedures.
+## Release gates and accountable work
 
-The owner-approved low-cost development deployment uses public HTTPS endpoints with owner-IP restrictions and application authentication. Treat that as a temporary development boundary. Before any production use, move the app and its dependencies behind private networking: private Container Apps ingress, PostgreSQL private access, private endpoints for Key Vault and the container registry/state storage, and controlled outbound access. Define and test the network rules, identity roles, and operational response for address and route changes before moving beyond synthetic data.
+| Area | Implemented / verified evidence | Required before real use | Owner |
+| --- | --- | --- | --- |
+| Outcome safety | Deterministic rules, scoped proposals, explicit confirmation and committed read-back; [workflow tests](../tests/test_workflow_api.py). | Fix policy/NLU/handoff failures on independent development cases; freeze a new version and follow the evaluation protocol. Passing the original diagnostic is not claimed. | Lead + AI, independent evaluator |
+| Identity and staff | Password/simulated OTP, opaque expiring capabilities, revocation and fresh step-up; typed staff roles limited to the current workspace. | Real customer/staff IdP and independent MFA; task-scoped cross-customer grants, assignment authorization and access review. Simulated SMS is not a second factor. | Lead + identity/security owner |
+| Network | Owner-IP HTTPS ingress, app login, non-owner database role, required verified TLS and Key Vault secrets. | Private app ingress, VNet/Postgres private access, private Key Vault/registry/state endpoints, controlled egress and tested DNS/route changes. | Lead + platform owner |
+| Banking integration | Authored ledger plus durable cases/cards/handoffs; eligible writes are synthetic. | Authorized core-bank adapters, reconciliation, failure semantics and independent policy/regulatory review per country. No refund/credit authority can be inferred from a demo case. | Bank owner + lead |
+| Data platform | Local contracts, incremental silver, tested complete gold promotion, checksummed serving load. | Approved cloud lake, scheduled ingestion, freshness SLOs, source-change alerts and authorization review before binding organizer-derived serving data to runtime. | Data/ML + platform |
+| Recovery | [Local logical restore](ops-recovery.md), session/case/trace read-back, forced RLS and audit checks. | Azure PITR, regional DR, realistic-volume RTO/RPO, key/identity recovery and monitored backup rehearsals. Local fixture timing is not a production recovery guarantee. | Platform + on-call |
+| Model governance | Approval, schema/privacy flags, budget reservation, DLP and fallback are mock-tested. | Same-suite approved model comparison, account/route terms, durable shared spend limits, independent language/judge review, incident rollback and provider-change monitoring. | AI + model-risk owner |
+| Language and fairness | Model-authored ES/PT workload, second-vendor PT cross-check, aggregate language/segment slices. | Human dual labels, fluent PT/Spanish review, matched workload analysis and actionable disparity review. Country cannot stand in for language. | Evaluation + language reviewers |
+| Operations | Readiness, durable state, bounded pooling and local browser/DB checks; [cold-start diagnosis](azure-startup-diagnosis.md). | Sustained-load limits, deployment-specific latency and safe startup handling, alert thresholds, incident playbooks and staffed on-call. Retry idempotent health reads only; do not retry uncertain writes. | Lead + platform |
+| Audit and retention | Restricted append-only hash chain; private turns/execution content. | Independent signed audit anchors, explicit retention ownership, verified purge/legal holds and backup deletion policy. A privileged owner can rewrite an unanchored chain. | Security + data owner |
+| Frontend release | PR #17 integrates shipped customer/staff APIs with scoped read-backs and measured Ops. | Lead must verify the web-runtime-to-API hop under the owner-IP boundary, deployed browser flows and CI browser wiring. Native copy review and additional browser engines remain pending. | Frontend + lead |
 
-The same controlled workflow could later support fee disputes, card replacement, or payment-status questions after separate policy and safety review.
+## Known development network limitation
 
-The development PostgreSQL firewall allows Azure service sources across subscriptions, plus the owner IP. Strong passwords in Key Vault, a restricted database role and verified TLS reduce the risk but do not establish app-only network isolation. Replace this exception with VNet integration and PostgreSQL private access before production. Simulated OTP is not independent MFA.
+The approved PostgreSQL firewall enables **Allow public access from Azure services**
+plus the owner's IP. It permits network sources across Azure subscriptions; it is
+not app-only isolation. Strong separate app/admin credentials in Key Vault, a
+non-owner role, forced RLS and `verify-full` TLS reduce risk but do not remove that
+network limitation. Replace it with VNet integration and PostgreSQL private access
+before production. Do not broaden ingress to make a frontend smoke pass.
 
-## Operational persistence follow-up
+Before releasing PR #17, the lead can run `node scripts/check-api-hop.mjs` inside
+its web container with the existing server-side API URL. The probe emits only
+health/persona status metadata. Local success does not prove the Azure hop. The
+restricted cloud retains customer role and reset disabled; enabling local ops tests
+does not authorize cloud staff access or reset.
 
-The dev API uses non-owner Postgres state, forced customer/run/session RLS, four pooled connections, transactional idempotency and post-commit readback. Alembic migrations use the owner credential separately. The customer-facing card-freeze workflow now includes fresh simulated OTP, action-hash confirmation, committed readback and a Fraudes handoff. Simulated OTP still is not independent MFA.
+Budget alerts are notifications, not a spending cap. Current provider accounting is
+process-local and can reset across restarts. Real calls require a concrete approved
+cost estimate; credit on a key does not supply permission. Judge access is also
+pending approval and read-back; the repository and current demo remain private.
 
-The [local logical recovery rehearsal](ops-recovery.md) passed full-table checksums, session/case/handoff/trace recovery, audit verification and forced RLS on a tiny authored fixture. Azure PITR, regional DR, scheduled backup monitoring, retention and realistic-volume recovery remain unverified. Also verify sustained concurrency, bounded model spending across restarts, and independently anchored audit exports. A privileged owner can rewrite an entire unanchored hash chain.
+## Other applications
 
-Scale-to-zero [startup diagnostics](azure-startup-diagnosis.md) reproduced a first-request timeout; warm health checks succeeded. The smoke uses bounded health/readiness polling. Production needs an explicit availability target, measured startup/load behavior and a costed capacity decision.
-
-## Evaluation acceptance
-
-The frozen B1/P-mock [diagnostic](evaluation/heldout-run01.md) failed acceptance gates: SAR was 67/193 for each system, with six forbidden dispute writes and incomplete required handoffs. Unit, integration and deployment checks passing does not establish safe end-to-end behavior on broader language. Develop fixes on independent development fixtures; preserve the diagnostic and its pinned system/measurement SHAs. Later packet additions have not been evaluated on the frozen suite. Real-model comparison, human label validation and cross-vendor judge validation remain pending.
-
-
-## Staff authorization and reset (dev limitation)
-
-Staff endpoints use a server-configured demo role and the existing customer/run/session
-RLS. They expose only the current workspace. Production needs federated staff identity,
-queue/task-scoped grants, assignment authorization across customer sessions, and an
-independently reviewed administrative reset/retention design. Azure retains the customer
-role and reset disabled; no RLS broadening or new cloud resource is implied.
+The same pattern can support fee disputes, card replacement and payment-status
+inquiries after separate scope and safety review. Each needs its own data contract,
+policy rules, exact action proposal, verification source and human escalation path.
+Fees remain human-only in this release. Card replacement would require address and
+fulfillment authorization absent here; payment status would require reconciled core
+ledger/rail evidence. Reuse the control pattern, not the current synthetic eligibility
+rules or outcome rates.
