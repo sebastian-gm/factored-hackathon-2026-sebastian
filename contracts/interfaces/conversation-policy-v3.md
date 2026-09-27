@@ -36,6 +36,9 @@ If the customer then disputes them, their recorded-status policy applies: recent
 pending/reversed/declined status is explained without filing; stale pending is
 handed off. Do not loop back into the recognition offer after explicit denial.
 
+Ordinary status questions without an unfamiliarity cue keep their terminal
+status explanation; they do not require the new recognition turn.
+
 After an offer, an unambiguous renewed denial of recognition is a denial in
 context. Explicit statements of recognizing/remembering are recognition.
 Memory uncertainty alone is not recognition or denial; isolated yes/no answers
@@ -57,8 +60,10 @@ transaction.
   count in the conversation. Re-read that handle under the same scope before
   every policy decision; never trust cached display data as write authority.
 - AI-lane `ExtractedNlu` gains optional
-  `recognition = recognized | denied | unsure | null`; absent context must not
-  imply recognition. NLU receives only an explicit `awaiting_recognition` context
+  `recognition = recognized | denied | unsure | null` and optional
+  `unfamiliar_charge: bool = false` for distinguishing an unfamiliar-charge
+  inquiry from an ordinary status question. Absent context must not imply
+  recognition. NLU receives only an explicit `awaiting_recognition` context
   flag and allowed masked facts, never gold or hidden customer binding.
   `NluFrame` stays compatible. The lead consumes recognition only in the waiting
   state. `customer_confirms` remains unable to authorize action confirmation.
@@ -200,8 +205,9 @@ routing if several review causes coexist.
 4. Apply recorded transaction-status rules: recent Pending, Reversed and Declined
    are explanations; stale Pending is `TXN-02`. Unknown/missing status requires
    review, never assumed approval.
-5. For an inquiry with sufficient trusted display facts, explain and offer the
-   recognition/dispute decision. Missing essential display facts requires review.
+5. For a bare-unfamiliarity inquiry with sufficient trusted display facts,
+   explain and offer the recognition/dispute decision. Ordinary status inquiries
+   remain terminal explanations. Missing essential display facts requires review.
 6. On dispute review of a known type: Adjustment/fee uses `DSP-03`, Transfer or
    Deposit uses `DSP-04`, other unsupported types use `DSP-02`. **A known
    unsupported type takes precedence over missing/inconsistent intake data for
