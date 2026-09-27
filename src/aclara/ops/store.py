@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from collections.abc import Iterator, MutableMapping
+from collections.abc import Callable, Iterator, MutableMapping
 from contextlib import contextmanager
 from contextvars import ContextVar
 from dataclasses import dataclass, field
@@ -170,15 +170,30 @@ class Store:
         if self.pool:
             self.pool.close()
 
-    def mapping(self, table: str, kind: Any, *, auth_scope: Scope | None = None) -> RecordMap[Any]:
+    def mapping(
+        self,
+        table: str,
+        kind: Any,
+        *,
+        auth_scope: Scope | None = None,
+        auth_customer: Callable[[str], str] | None = None,
+    ) -> RecordMap[Any]:
         if table not in TABLES:
             raise ValueError("Unknown operational table")
-        return RecordMap(self, table, kind, auth_scope)
+        return RecordMap(self, table, kind, auth_scope, auth_customer)
 
 
 class RecordMap[T](MutableMapping[str, T]):
-    def __init__(self, store: Store, table: str, kind: Any, auth_scope: Scope | None):
+    def __init__(
+        self,
+        store: Store,
+        table: str,
+        kind: Any,
+        auth_scope: Scope | None,
+        auth_customer: Callable[[str], str] | None = None,
+    ):
         self.store, self.table, self.auth_scope = store, table, auth_scope
+        self.auth_customer = auth_customer
         self.adapter: TypeAdapter[T] = TypeAdapter(kind)
 
     def _key(self, key: str) -> str:
@@ -191,7 +206,10 @@ class RecordMap[T](MutableMapping[str, T]):
         parts = key.split(".", 2)
         if len(parts) != 3 or any(not part for part in parts) or len(key) > 160:
             raise KeyError("Invalid capability")
-        return Scope(self.auth_scope.customer_id, parts[0], parts[1])
+        customer = (
+            self.auth_customer(parts[0]) if self.auth_customer else self.auth_scope.customer_id
+        )
+        return Scope(customer, parts[0], parts[1])
 
     @contextmanager
     def _context(self, key: str = "") -> Iterator[None]:

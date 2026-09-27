@@ -27,14 +27,14 @@ from aclara.agent.nlg.grounding import redact_for_model
 from aclara.agent.nlu import (
     Intent,
     classify,
-    extract_amount,
     is_cancellation,
     is_confirmation,
     normalize_text,
-    selected_candidate,
 )
 from aclara.agent.nlu.structured import NormalizedSlots
 from aclara.agent.runtime import InjectedFailure, Runtime
+from aclara.agent.selection import candidates as identified_candidates
+from aclara.agent.selection import explicit_choice, scoped_inquiry_language, uncertain
 from aclara.api.staff import complete_packet, install_staff
 from aclara.api.staff_contracts import IdentityView
 from aclara.api.workflows import (
@@ -47,6 +47,7 @@ from aclara.api.workflows import (
     security_event,
 )
 from aclara.bank.repository import Transaction, TransactionRepository
+from aclara.bank.serving import Persona, ServingRepository
 from aclara.handoff.packet import create_packet
 from aclara.handoff.routing import AgentDirectory
 from aclara.llm.client import StructuredClient
@@ -68,6 +69,7 @@ class Principal:
     step_up_at: datetime | None = None
     capability_digest: str = ""
     role: str = "customer"
+    locale: str = "es-MX"
 
 
 @dataclass(slots=True)
@@ -77,6 +79,7 @@ class OtpChallenge:
     expires_at: datetime
     attempts: int = 0
     step_up: bool = False
+    username: str = ""
 
 
 @dataclass(slots=True)
@@ -101,6 +104,7 @@ class Conversation:
     proposal: ActionProposal | None = None
     rounds: int = 0
     unsupported_turns: int = 0
+    terminal_handoff_id: str | None = None
 
 
 class StrictModel(BaseModel):
@@ -278,7 +282,14 @@ def create_app(
     store: Store | None = None,
 ) -> FastAPI:
     active_settings = settings or Settings.from_environment()
-    ledger = repository or TransactionRepository()
+    operational = store or Store(
+        os.getenv("OPS_DSN", "") if active_settings.ops_backend == "postgres" else None
+    )
+    ledger = repository or (
+        ServingRepository(operational, active_settings.bank_clock)
+        if active_settings.ledger_backend == "serving"
+        else TransactionRepository()
+    )
     app = FastAPI(title="Aclara demo API", version="0.1.0")
     app.add_middleware(
         CORSMiddleware,
@@ -292,18 +303,50 @@ def create_app(
     app.state.instance_id = str(uuid4())
     app.state.settings = active_settings
     app.state.ledger = ledger
-    app.state.loaded_at = datetime.now(UTC)
-    app.state.dataset_version = "fixture:" + hashlib.sha256(repr(ledger._rows).encode()).hexdigest()
-    operational = store or Store(
-        os.getenv("OPS_DSN", "") if active_settings.ops_backend == "postgres" else None
-    )
+    app.state.loaded_at = ledger.loaded_at
+    app.state.dataset_version = ledger.dataset_version
+    app.state.personas = {
+        p.username: p
+        for p in (
+            ledger.personas()
+            if isinstance(ledger, ServingRepository)
+            else [
+                Persona(
+                    active_settings.demo_username,
+                    active_settings.demo_customer_id,
+                    active_settings.demo_locale,
+                    active_settings.demo_role,
+                )
+            ]
+        )
+        if p.username
+    }
+    realms = {
+        hashlib.sha256(p.username.encode()).hexdigest()[:12]: p.customer_id
+        for p in app.state.personas.values()
+    }
+
+    def auth_customer(run_id: str) -> str:
+        if not isinstance(ledger, ServingRepository):
+            return active_settings.demo_customer_id
+        realm, separator, _ = run_id.partition("_")
+        if not separator or realm not in realms:
+            raise KeyError("Unknown identity realm")
+        return str(realms[realm])
+
     app.state.store = operational
-    app.state.agent_directory = AgentDirectory(store=operational)
+    app.state.agent_directory = (
+        ledger.directory()
+        if isinstance(ledger, ServingRepository)
+        else AgentDirectory(store=operational)
+    )
     auth_scope = Scope(active_settings.demo_customer_id, "auth", "auth")
     app.state.challenges = operational.mapping(
-        "otp_challenges", OtpChallenge, auth_scope=auth_scope
+        "otp_challenges", OtpChallenge, auth_scope=auth_scope, auth_customer=auth_customer
     )
-    app.state.sessions = operational.mapping("sessions", Principal, auth_scope=auth_scope)
+    app.state.sessions = operational.mapping(
+        "sessions", Principal, auth_scope=auth_scope, auth_customer=auth_customer
+    )
     app.state.conversations = operational.mapping("conversations", Conversation)
     app.state.cases = operational.mapping("cases", dict[str, Any])
     app.state.handoffs = operational.mapping("handoffs", dict[str, Any])
@@ -383,24 +426,32 @@ def create_app(
                 raise HTTPException(
                     status_code=503, detail="Operational storage unavailable"
                 ) from None
+        if isinstance(ledger, ServingRepository) and not ledger.ready():
+            raise HTTPException(503, "Serving version changed")
         return {"status": "ready", "database": "ok"}
 
     @app.post("/auth/login", status_code=status.HTTP_200_OK)
     async def login(body: LoginBody) -> dict[str, str]:
-        if not active_settings.demo_username or not active_settings.demo_password:
+        if not app.state.personas or not active_settings.demo_password:
             raise HTTPException(status_code=503, detail="Demo identity is not configured")
-        valid = hmac.compare_digest(
-            body.username, active_settings.demo_username
-        ) and hmac.compare_digest(body.password, active_settings.demo_password)
+        persona = app.state.personas.get(body.username)
+        valid = (
+            hmac.compare_digest(body.password, active_settings.demo_password)
+            and persona is not None
+        )
         if not valid:
             raise HTTPException(status_code=401, detail="Invalid login")
         session_id = secrets.token_urlsafe(18)
-        challenge_id = f"{app.state.runtime.run_id}.{session_id}.{secrets.token_urlsafe(18)}"
+        run_id = app.state.runtime.run_id
+        if isinstance(ledger, ServingRepository):
+            run_id = hashlib.sha256(body.username.encode()).hexdigest()[:12] + "_" + run_id
+        challenge_id = f"{run_id}.{session_id}.{secrets.token_urlsafe(18)}"
         preauth_token = secrets.token_urlsafe(24)
         app.state.challenges[challenge_id] = OtpChallenge(
             preauth_token=hashlib.sha256(preauth_token.encode()).hexdigest(),
             code=f"{secrets.randbelow(1_000_000):06d}",
             expires_at=datetime.now(UTC) + timedelta(minutes=5),
+            username=body.username,
         )
         return {"challenge_id": challenge_id, "preauth_token": preauth_token}
 
@@ -461,13 +512,17 @@ def create_app(
         if not hmac.compare_digest(body.code, challenge.code):
             raise HTTPException(status_code=401, detail="Invalid code")
         run_id, session_id, _ = body.challenge_id.split(".", 2)
+        persona = app.state.personas.get(challenge.username or active_settings.demo_username)
+        if persona is None or persona.customer_id != auth_customer(run_id):
+            raise HTTPException(401, "Identity unavailable")
         session_token = f"{run_id}.{session_id}.{secrets.token_urlsafe(32)}"
         app.state.sessions[session_token] = Principal(
             session_id=session_id,
             run_id=run_id,
-            customer_id=active_settings.demo_customer_id,
-            username=active_settings.demo_username,
-            role=active_settings.demo_role,
+            customer_id=persona.customer_id,
+            username=persona.username,
+            role=persona.role,
+            locale=persona.locale,
             otp_at=now,
             expires_at=now + timedelta(minutes=int(rule("AUTH-01").parameters["session_minutes"])),
         )
@@ -479,9 +534,9 @@ def create_app(
         return IdentityView.model_validate(
             {
                 "username": principal.username,
-                "language": "pt" if active_settings.demo_locale == "pt-BR" else "es",
+                "language": "pt" if principal.locale == "pt-BR" else "es",
                 "role": principal.role,
-                "locale": active_settings.demo_locale,
+                "locale": principal.locale,
                 "bank_clock": active_settings.bank_clock,
             }
         )
@@ -517,7 +572,11 @@ def create_app(
                 result = safe_failure(principal, classify(body.message).language)
             app.state.runtime.record("response", response_type=result["response_type"])
             conversation = app.state.conversations.get(conversation_id)
-            complete_packet(app, result, principal, conversation_id)
+            complete_packet(app, result, principal, conversation_id, body.message)
+            if conversation and result.get("handoff"):
+                conversation.proposal = None
+                conversation.candidates = []
+                conversation.terminal_handoff_id = result["handoff"]["handoff_id"]
             result = ai.reply(
                 result,
                 conversation.language if conversation else "es",
@@ -531,7 +590,7 @@ def create_app(
                 if (
                     not record
                     or record["transaction_handle"] != result["case"]["transaction_handle"]
-                    or record["status"] != "received"
+                    or record["status"] != result["case"]["status"]
                 ):
                     raise HTTPException(
                         status_code=503, detail="Durable read-back verification failed"
@@ -576,6 +635,31 @@ def create_app(
         conversation: Conversation | None = app.state.conversations.get(conversation_id)
         if conversation is None or conversation.session_id != principal.session_id:
             raise HTTPException(status_code=404, detail="Conversation not found")
+        if conversation.terminal_handoff_id:
+            packet = app.state.handoffs[conversation.terminal_handoff_id]
+            return {
+                "response_type": "offer_human",
+                "outcome": "handoff_created",
+                "reply": _handoff_reply(conversation.language),
+                "handoff": {
+                    k: v
+                    for k, v in packet.items()
+                    if k not in {"customer_id", "session_id", "request_summary"}
+                },
+                "policy_rules": packet["reason_codes"],
+            }
+        if conversation.proposal is not None:
+            if is_confirmation(body.message):
+                raise HTTPException(status_code=409, detail="Use the action confirmation control")
+            conversation.proposal = None
+            if is_cancellation(body.message):
+                return {
+                    "response_type": "cancelled",
+                    "outcome": "cancelled",
+                    "reply": _localized(
+                        conversation.language, "Disputa cancelada.", "Disputa cancelada."
+                    ),
+                }
         nonlocal learned_matcher
         frame = classify(body.message)
         language = conversation.language if conversation.candidates else frame.language
@@ -638,12 +722,12 @@ def create_app(
                 "policy_rules": ["ESC-04"],
             }
         normalized_message = normalize_text(body.message)
-        if re.search(
+        requested = re.search(r"DSP-[A-Za-z0-9-]+", body.message, re.IGNORECASE)
+        if requested or re.search(
             r"(estado|status|andamento).{0,30}(caso|disputa|contestacion|contestacao)|(mi caso|minha contestacao)",
             normalized_message,
         ):
             cases = list(app.state.cases.values())
-            requested = re.search(r"DSP-[A-Za-z0-9-]+", body.message, re.IGNORECASE)
             if requested:
                 cases = [
                     c for c in cases if c["case_id"].casefold() == requested.group().casefold()
@@ -721,23 +805,17 @@ def create_app(
                             "Pode esclarecer o idioma, valor, moeda ou data?",
                         ),
                     }
+        if frame.intent == Intent.OUT_OF_SCOPE and not conversation.candidates:
+            contextual_language = scoped_inquiry_language(
+                body.message, ledger.for_customer(principal.customer_id, active_settings.bank_clock)
+            )
+            if contextual_language:
+                frame = frame.model_copy(
+                    update={"intent": Intent.CHARGE_INQUIRY, "language": contextual_language}
+                )
+                app.state.runtime.record("scoped_status_context")
         language = conversation.language if conversation.candidates else frame.language
         conversation.language = language
-
-        if conversation.proposal is not None:
-            if is_cancellation(body.message):
-                conversation.proposal = None
-                return {
-                    "response_type": "cancelled",
-                    "outcome": "cancelled",
-                    "reply": _localized(
-                        language,
-                        "De acuerdo, no registraré la disputa.",
-                        "Tudo bem, não vou registrar a disputa.",
-                    ),
-                }
-            if is_confirmation(body.message):
-                raise HTTPException(status_code=409, detail="Use the action confirmation control")
 
         if frame.intent in {Intent.HUMAN_REQUEST, Intent.FRAUD, Intent.FEE_DISPUTE}:
             reason_code = {
@@ -763,6 +841,10 @@ def create_app(
                 },
             }
 
+        if conversation.intent and conversation.rounds and frame.intent == Intent.OUT_OF_SCOPE:
+            frame = frame.model_copy(update={"intent": conversation.intent})
+        if frame.intent in {Intent.DISPUTE_CHARGE, Intent.CHARGE_INQUIRY}:
+            conversation.intent = frame.intent
         if frame.intent == Intent.OUT_OF_SCOPE and not conversation.candidates:
             handoff = make_handoff(app, principal, language, "SCOPE-01")
             app.state.runtime.record("abstain")
@@ -779,7 +861,7 @@ def create_app(
             }
 
         if conversation.candidates:
-            choice = selected_candidate(body.message, len(conversation.candidates))
+            choice = explicit_choice(body.message, len(conversation.candidates))
             if choice is None:
                 conversation.rounds += 1
                 if conversation.rounds >= 2:
@@ -831,24 +913,9 @@ def create_app(
                 (handle, replace(row, merchant_name=safe_merchant(row.merchant_name)))
                 for handle, row in rows
             ]
-        normalized = normalize_text(body.message)
-        merchant_matches = [
-            (handle, row) for handle, row in rows if normalize_text(row.merchant_name) in normalized
-        ]
-        amount = extract_amount(body.message)
-        amount_matches = [
-            (handle, row)
-            for handle, row in rows
-            if amount is not None and abs(row.amount - amount) < 0.011
-        ]
-        if merchant_matches and amount_matches:
-            candidates = [item for item in merchant_matches if item in amount_matches]
-        elif merchant_matches:
-            candidates = merchant_matches
-        elif amount_matches:
-            candidates = amount_matches
-        else:
-            candidates = rows
+        candidates, needs_choice = identified_candidates(body.message, rows)
+        if uncertain(body.message):
+            candidates = []
 
         learned_choice = False
         if app.state.runtime.system == "P" and not conversation.degraded and conversation.slots:
@@ -870,6 +937,8 @@ def create_app(
             if app.state.runtime.fault("missing_fx", "MATCH"):
                 candidates = []
 
+        if uncertain(body.message):
+            candidates = []
         if not candidates:
             conversation.rounds += 1
             if conversation.rounds >= 2:
@@ -897,7 +966,7 @@ def create_app(
                 ),
             }
 
-        if len(candidates) > 1 or learned_choice:
+        if len(candidates) > 1 or learned_choice or needs_choice:
             conversation.candidates = candidates[:3]
             conversation.intent = frame.intent
             return {
@@ -946,6 +1015,10 @@ def create_app(
             app.state.runtime.record("response", response_type=result["response_type"])
             conversation = app.state.conversations.get(conversation_id)
             complete_packet(app, result, principal, conversation_id)
+            if conversation and result.get("handoff"):
+                conversation.proposal = None
+                conversation.candidates = []
+                conversation.terminal_handoff_id = result["handoff"]["handoff_id"]
             result = ai.reply(
                 result,
                 conversation.language if conversation else "es",
@@ -959,7 +1032,7 @@ def create_app(
                 if (
                     not record
                     or record["transaction_handle"] != result["case"]["transaction_handle"]
-                    or record["status"] != "received"
+                    or record["status"] != result["case"]["status"]
                 ):
                     raise HTTPException(
                         status_code=503, detail="Durable read-back verification failed"
@@ -989,6 +1062,8 @@ def create_app(
         conversation: Conversation | None = app.state.conversations.get(conversation_id)
         if conversation is None or conversation.session_id != principal.session_id:
             raise HTTPException(status_code=404, detail="Conversation not found")
+        if conversation.terminal_handoff_id:
+            raise HTTPException(status_code=409, detail="Conversation already handed off")
         proposal = conversation.proposal
         if proposal is None:
             raise HTTPException(status_code=409, detail="No pending action")
@@ -1021,8 +1096,12 @@ def create_app(
             raise HTTPException(status_code=401, detail="Step-up verification required")
         current_rows = dict(ledger.for_customer(principal.customer_id, active_settings.bank_clock))
         current = current_rows.get(proposal.transaction_handle)
-        if current is None or current.record_id != proposal.transaction.record_id:
-            raise HTTPException(409, "Transaction no longer available")
+        if (
+            current is None
+            or replace(current, merchant_name=safe_merchant(current.merchant_name))
+            != proposal.transaction
+        ):
+            raise HTTPException(409, "Transaction changed; request a new proposal")
         context = policy_context(app, principal, current)
         decision = evaluate(current, active_settings.bank_clock, is_dispute=True, context=context)
         if decision.decision == "status":

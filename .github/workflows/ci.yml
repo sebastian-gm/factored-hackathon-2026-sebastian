@@ -62,6 +62,22 @@ jobs:
       - name: Build
         working-directory: apps/web
         run: pnpm build
+      - uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38
+        with:
+          python-version: "3.12"
+      - name: Install live browser test API
+        run: |
+          python -m pip install uv==0.11.2
+          uv sync --extra dev
+      - name: Install Chromium
+        working-directory: apps/web
+        run: pnpm exec playwright install --with-deps chromium
+      - name: Browser stories and live customer/staff flows
+        working-directory: apps/web
+        run: |
+          pnpm test:e2e
+          pnpm test:e2e --live
+          pnpm test:e2e --staff
 
   postgres:
     runs-on: ubuntu-latest

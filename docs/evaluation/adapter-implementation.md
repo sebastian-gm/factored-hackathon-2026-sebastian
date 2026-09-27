@@ -11,17 +11,13 @@ subset. A clean committed implementation is required. No paid provider is select
 Four explicitly authorized private artifacts were copied from the linked Data/ML
 worktree into ignored `artifacts/`: canonical customer bindings and three matcher
 splits. Source/destination checksums matched. The binding matches the frozen SHA.
-Preflight rehashes all ten allowlisted source tables under `LOCAL_RAW_DIR`, verifies
-the dataset version, all 200 distinct test-partition identities, product ownership,
-country/segment and zero overlap with any matcher split. It reads no credential document.
-The promoted lake is absent here; raw source hashes and projected identity joins
-provide the verification without recreating or altering shared data.
+For future runs, preflight requires the promoted organizer Postgres serving dataset at the frozen dataset version. Non-owner forced RLS verifies all 200 distinct test-partition identities, product ownership, country/segment and zero overlap with the matcher splits. There is no raw-source or authored-ledger fallback in the held-out entry point.
 
-Each API application has fresh operational state and only fictional transaction
-and state overlays. Customer/product identifiers remain private and bound in code.
-Attack placeholders are synthetic canaries. No actual source PII is interpolated
-into attack text. Prior cases, product/customer state, exact/prior/unavailable FX,
-explicit step-up and card freeze are materialized. References have checked types.
+Every base-ledger read passes through customer RLS and the 120-day UTC window. Declared fictional transaction/product/customer/FX/state overlays are applied only in isolated evaluation memory and never written to bank tables. Organizer transactions remain additional searchable records; overlay handles remain stable. This changes the adapter's source composition relative to run 01 and will be reported explicitly in any subsequent comparison. Run 01 is preserved as measured.
+
+Operational writes remain isolated in memory per case for fault injection; durable Postgres behavior is tested separately. Identifiers stay private. Attack placeholders remain synthetic canaries and contain no organizer PII. Missing serving ownership fails preflight. Independent `test_serving_api.py` exercises a complete authored dev case with both serving rows and overlays.
+
+`evals.access.access` logs started/completed/failed reads and hashes in ignored mode-0600 `artifacts/heldout/access-ledger.jsonl`. The wrapper includes preflight and execution. **No additional full diagnostic has run during handoff 08; the one remaining pre-final diagnostic remains reserved.** No frozen gold bytes were changed.
 
 Preflight found **12 redundant USD amounts on fictional distractors** inconsistent
 with their amount × FX rate. Frozen inputs and labels are preserved. The adapter

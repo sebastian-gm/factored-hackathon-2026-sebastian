@@ -1129,8 +1129,11 @@
             "type": "string"
           },
           "source_kind": {
-            "const": "authored_fixture",
             "default": "authored_fixture",
+            "enum": [
+              "authored_fixture",
+              "organizer_serving"
+            ],
             "title": "Source Kind",
             "type": "string"
           }

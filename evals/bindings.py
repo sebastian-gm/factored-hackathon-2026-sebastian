@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-import os
 import re
 from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta
@@ -12,34 +11,24 @@ from pathlib import Path
 from typing import Any
 
 from aclara.bank.repository import Customer, Product, Transaction, TransactionRepository
+from aclara.bank.serving import ServingRepository
 from aclara.handoff.routing import AgentDirectory
 from aclara.ops.store import Scope
+from evals.serving import OverlayRepository
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def private_bindings(suite: dict[str, Any], provenance: dict[str, Any]) -> dict[str, Any]:
-    import duckdb
-    from dotenv import dotenv_values
-
+def private_bindings(
+    suite: dict[str, Any], provenance: dict[str, Any], serving: ServingRepository
+) -> dict[str, Any]:
     path = ROOT / "artifacts/evaluation-authoring/customer-bindings.json"
     raw = path.read_bytes()
     if hashlib.sha256(raw).hexdigest() != provenance["bindings_audit"]["private_bindings_sha256"]:
         raise ValueError("Private binding checksum differs from frozen release")
     payload = json.loads(raw)
-    values = dotenv_values(ROOT / ".env")
-    from aclara.data.pipeline import _hash_version, _read_contract, _sha256, _source_files
-    from aclara.data.snapshot import TABLES
-
-    source_root = Path(os.environ.get("LOCAL_RAW_DIR") or str(values.get("LOCAL_RAW_DIR")))
-    entries = [
-        {"relative_path": str(path.relative_to(source_root)), "sha256": _sha256(path)}
-        for table in TABLES
-        for path in _source_files(source_root, table)
-    ]
-    if not (_hash_version(entries) == payload["dataset_version"] == suite["dataset_version"]):
-        raise ValueError("Source dataset version mismatch")
-    countries = _read_contract("customers")["normalization"]["country"]
+    if not (serving.dataset_version == payload["dataset_version"] == suite["dataset_version"]):
+        raise ValueError("Promoted serving dataset version mismatch")
     excluded = set()
     for split in ("train", "validation", "test"):
         with (ROOT / f"artifacts/charge_matcher/v1/dataset/{split}.jsonl").open() as stream:
@@ -48,38 +37,28 @@ def private_bindings(suite: dict[str, Any], provenance: dict[str, Any]) -> dict[
         raise ValueError("Incomplete benchmark exclusion files")
     bindings = payload["bindings"]
     seen: set[str] = set()
-    with duckdb.connect() as db:
-        db.execute("SET memory_limit='1GB'")
-        db.execute(
-            "CREATE TABLE customers AS SELECT customer_id,country,segment FROM read_csv_auto(?,all_varchar=true)",
-            [str(source_root / "customers.csv")],
-        )
-        db.execute(
-            "CREATE TABLE products AS SELECT customer_id,product_id FROM read_csv_auto(?,all_varchar=true)",
-            [str(source_root / "products.csv")],
-        )
-        for scenario in suite["scenarios"]:
-            persona = scenario["persona"]
-            item = bindings[persona["customer_ref"]]
-            cid, pid = item["customer_id"], item["product_id"]
-            if (
-                cid in seen
-                or cid in excluded
-                or int(hashlib.sha256(cid.encode()).hexdigest()[:2], 16) < 218
-            ):
-                raise ValueError("Invalid customer partition, uniqueness or benchmark overlap")
-            seen.add(cid)
-            source = db.execute(
-                "SELECT c.country,c.segment FROM customers c JOIN products p USING(customer_id) WHERE c.customer_id=? AND p.product_id=?",
-                [cid, pid],
-            ).fetchall()
-            source = [(countries.get(country, country), segment) for country, segment in source]
-            selector = persona["selector"]
-            if (
-                source != [(selector["country"], selector["segment"])]
-                or item["selector"] != selector
-            ):
-                raise ValueError("Private persona ownership or attributes failed verification")
+    for scenario in suite["scenarios"]:
+        persona = scenario["persona"]
+        item = bindings[persona["customer_ref"]]
+        cid, pid = item["customer_id"], item["product_id"]
+        if (
+            cid in seen
+            or cid in excluded
+            or int(hashlib.sha256(cid.encode()).hexdigest()[:2], 16) < 218
+        ):
+            raise ValueError("Invalid customer partition, uniqueness or benchmark overlap")
+        seen.add(cid)
+        base = serving.snapshot(cid, serving.bank_clock)
+        customer = base.customers.get(cid)
+        selector = persona["selector"]
+        if (
+            customer is None
+            or customer.country != selector["country"]
+            or customer.segment != selector["segment"]
+            or item["selector"] != selector
+            or not any(p.product_id == pid and p.customer_id == cid for p in base.products)
+        ):
+            raise ValueError("Private persona ownership or attributes failed verification")
     if len(seen) != len(suite["scenarios"]):
         raise ValueError("Missing private identity")
     return bindings
@@ -132,12 +111,22 @@ class BoundFixture:
 
 
 def bind(
-    scenario: dict[str, Any], identity: dict[str, Any], directory: AgentDirectory | None = None
+    scenario: dict[str, Any],
+    identity: dict[str, Any],
+    directory: AgentDirectory | None = None,
+    serving: ServingRepository | None = None,
 ) -> BoundFixture:
     """No gold labels consulted. Actual source identity never enters attack placeholders."""
     clock = datetime.fromisoformat(scenario["bank_clock"].replace("Z", "+00:00"))
     cid, pid = identity["customer_id"], identity["product_id"]
     selector = identity["selector"]
+    base = serving.snapshot(cid, clock) if serving else None
+    original_customer = base.customers.get(cid) if base else None
+    original_product = (
+        next((p for p in base.products if p.product_id == pid), None) if base else None
+    )
+    if serving and (original_customer is None or original_product is None):
+        raise ValueError("Serving ownership is required")
     refs = Registry()
     refs.add("persona", "customer", "customer_1")
     refs.add("product", "product", "prod_1")
@@ -170,7 +159,12 @@ def bind(
         "checking_account": "Checking Account",
     }
     product_type = types.get(
-        product.get("product_type", "credit_card"), product.get("product_type")
+        product.get(
+            "product_type", original_product.product_type if original_product else "credit_card"
+        ),
+        product.get(
+            "product_type", original_product.product_type if original_product else "Credit Card"
+        ),
     )
     if product.get("is_card", product_type in {"Credit Card", "Debit Card"}) != (
         product_type in {"Credit Card", "Debit Card"}
@@ -241,19 +235,37 @@ def bind(
         rows.append(row)
     ledger = TransactionRepository(
         tuple(rows),
-        products=(Product(pid, cid, product_type, product.get("product_status", "Active")),),
+        products=(
+            Product(
+                pid,
+                cid,
+                product_type,
+                product.get(
+                    "product_status", original_product.status if original_product else "Active"
+                ),
+            ),
+        ),
         customers=(
             Customer(
                 cid,
-                customer.get("customer_status", "Active"),
+                customer.get(
+                    "customer_status", original_customer.status if original_customer else "Active"
+                ),
                 selector["country"],
                 selector["segment"],
-                customer.get("prior_complaint_count_90d", 0),
+                customer.get(
+                    "prior_complaint_count_90d",
+                    original_customer.complaints_90_days if original_customer else 0,
+                ),
             ),
         ),
         policy_fields=fields,
     )
+    if serving:
+        ledger = OverlayRepository(serving, ledger, cid)
     for handle, row in ledger.for_customer(cid, clock):
+        if not row.record_id.startswith("fixture-transaction-"):
+            continue
         refs.add(row.record_id.removeprefix("fixture-transaction-"), "transaction", handle)
     cases = []
     for ref, obj in objects.items():

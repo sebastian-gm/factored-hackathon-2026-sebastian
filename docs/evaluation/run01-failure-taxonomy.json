@@ -1,0 +1,621 @@
+{
+  "source": "run-01 measurement-v2; saved observations only",
+  "system_calls": 0,
+  "counts_overlap": true,
+  "systems": {
+    "B1": {
+      "forbidden_write": {
+        "n": 6,
+        "category": {
+          "ambiguous_unsupported": 4,
+          "human_required": 2
+        },
+        "language": {
+          "es": 2,
+          "pt": 4
+        },
+        "outcome": {
+          "dispute_filed": 6
+        },
+        "rule_id": {
+          "ESC-04": 6
+        },
+        "gold_outcome": {
+          "escalated": 6
+        }
+      },
+      "failed_workload": {
+        "n": 133,
+        "category": {
+          "ambiguous_unsupported": 15,
+          "human_required": 40,
+          "normal": 41,
+          "security_robustness": 37
+        },
+        "language": {
+          "es": 59,
+          "mixed": 9,
+          "other": 3,
+          "pt": 62
+        },
+        "outcome": {
+          "abstained_out_of_scope": 55,
+          "dispute_filed": 8,
+          "escalated": 50,
+          "freeze_and_escalate": 4,
+          "refused_security": 2,
+          "resolved_by_explanation": 9,
+          "safe_failure_handoff": 5
+        },
+        "rule_id": {
+          "AUTH-02": 23,
+          "AUTH-03": 11,
+          "BRD-01": 14,
+          "COM-01": 46,
+          "DATA-01": 7,
+          "DSP-01": 20,
+          "DSP-02": 15,
+          "DSP-03": 2,
+          "DSP-04": 2,
+          "DSP-05": 2,
+          "DSP-06": 10,
+          "DSP-07": 23,
+          "ESC-01": 2,
+          "ESC-02": 4,
+          "ESC-03": 2,
+          "ESC-04": 11,
+          "FRD-01": 7,
+          "SCOPE-01": 7,
+          "SEC-01": 11,
+          "SEC-02": 13,
+          "TXN-01": 22,
+          "TXN-02": 2,
+          "TXN-03": 1,
+          "TXN-04": 8
+        },
+        "gold_outcome": {
+          "abstained_out_of_scope": 7,
+          "dispute_filed": 15,
+          "escalated": 43,
+          "freeze_and_escalate": 6,
+          "refused_security": 14,
+          "resolved_by_explanation": 31,
+          "safe_failure_handoff": 7,
+          "status_reported": 10
+        }
+      },
+      "missing_handoff": {
+        "n": 12,
+        "category": {
+          "ambiguous_unsupported": 5,
+          "human_required": 7
+        },
+        "language": {
+          "es": 4,
+          "mixed": 1,
+          "pt": 7
+        },
+        "outcome": {
+          "dispute_filed": 6,
+          "resolved_by_explanation": 6
+        },
+        "rule_id": {
+          "BRD-01": 4,
+          "DSP-01": 5,
+          "ESC-04": 6,
+          "SCOPE-01": 1
+        },
+        "gold_outcome": {
+          "abstained_out_of_scope": 1,
+          "escalated": 11
+        }
+      },
+      "incomplete_handoff": {
+        "n": 54,
+        "category": {
+          "ambiguous_unsupported": 9,
+          "human_required": 33,
+          "security_robustness": 12
+        },
+        "language": {
+          "es": 21,
+          "mixed": 2,
+          "other": 3,
+          "pt": 28
+        },
+        "outcome": {
+          "abstained_out_of_scope": 17,
+          "escalated": 28,
+          "freeze_and_escalate": 4,
+          "safe_failure_handoff": 5
+        },
+        "rule_id": {
+          "AUTH-02": 6,
+          "AUTH-03": 3,
+          "BRD-01": 10,
+          "COM-01": 7,
+          "DATA-01": 2,
+          "DSP-03": 2,
+          "DSP-04": 2,
+          "DSP-05": 2,
+          "DSP-07": 8,
+          "ESC-01": 2,
+          "ESC-02": 4,
+          "ESC-03": 2,
+          "ESC-04": 5,
+          "FRD-01": 7,
+          "SCOPE-01": 6,
+          "SEC-01": 3,
+          "TXN-02": 2
+        },
+        "gold_outcome": {
+          "abstained_out_of_scope": 6,
+          "escalated": 32,
+          "freeze_and_escalate": 6,
+          "refused_security": 3,
+          "safe_failure_handoff": 7
+        }
+      },
+      "outcome_mismatch": {
+        "n": 93,
+        "category": {
+          "ambiguous_unsupported": 9,
+          "human_required": 13,
+          "normal": 41,
+          "security_robustness": 30
+        },
+        "language": {
+          "es": 42,
+          "mixed": 8,
+          "other": 3,
+          "pt": 40
+        },
+        "outcome": {
+          "abstained_out_of_scope": 49,
+          "dispute_filed": 8,
+          "escalated": 25,
+          "refused_security": 2,
+          "resolved_by_explanation": 9
+        },
+        "rule_id": {
+          "AUTH-02": 19,
+          "AUTH-03": 11,
+          "BRD-01": 4,
+          "COM-01": 41,
+          "DATA-01": 5,
+          "DSP-01": 20,
+          "DSP-02": 15,
+          "DSP-03": 2,
+          "DSP-06": 10,
+          "DSP-07": 15,
+          "ESC-04": 11,
+          "FRD-01": 2,
+          "SCOPE-01": 1,
+          "SEC-01": 11,
+          "SEC-02": 13,
+          "TXN-01": 22,
+          "TXN-02": 2,
+          "TXN-03": 1,
+          "TXN-04": 8
+        },
+        "gold_outcome": {
+          "abstained_out_of_scope": 1,
+          "dispute_filed": 15,
+          "escalated": 18,
+          "freeze_and_escalate": 2,
+          "refused_security": 14,
+          "resolved_by_explanation": 31,
+          "safe_failure_handoff": 2,
+          "status_reported": 10
+        }
+      },
+      "missing_action": {
+        "n": 82,
+        "category": {
+          "ambiguous_unsupported": 6,
+          "human_required": 9,
+          "normal": 41,
+          "security_robustness": 26
+        },
+        "language": {
+          "es": 41,
+          "mixed": 8,
+          "pt": 33
+        },
+        "outcome": {
+          "abstained_out_of_scope": 40,
+          "dispute_filed": 6,
+          "escalated": 25,
+          "refused_security": 2,
+          "resolved_by_explanation": 9
+        },
+        "rule_id": {
+          "AUTH-02": 17,
+          "AUTH-03": 11,
+          "BRD-01": 4,
+          "COM-01": 39,
+          "DATA-01": 5,
+          "DSP-01": 20,
+          "DSP-02": 15,
+          "DSP-06": 8,
+          "DSP-07": 15,
+          "ESC-04": 6,
+          "FRD-01": 2,
+          "SCOPE-01": 1,
+          "SEC-01": 11,
+          "SEC-02": 13,
+          "TXN-01": 22,
+          "TXN-03": 1,
+          "TXN-04": 8
+        },
+        "gold_outcome": {
+          "abstained_out_of_scope": 1,
+          "dispute_filed": 15,
+          "escalated": 11,
+          "freeze_and_escalate": 2,
+          "refused_security": 14,
+          "resolved_by_explanation": 31,
+          "status_reported": 8
+        }
+      },
+      "route_mismatch": {
+        "n": 4,
+        "category": {
+          "human_required": 4
+        },
+        "language": {
+          "es": 2,
+          "pt": 2
+        },
+        "outcome": {
+          "abstained_out_of_scope": 4
+        },
+        "rule_id": {
+          "AUTH-02": 2,
+          "DSP-03": 2,
+          "FRD-01": 2
+        },
+        "gold_outcome": {
+          "escalated": 2,
+          "freeze_and_escalate": 2
+        }
+      },
+      "missing_packet_fields": {
+        "conversation_id": 54,
+        "customer.auth": 54,
+        "customer.handle": 54,
+        "customer.preferred_language": 54,
+        "customer_statements": 54,
+        "policy_evaluations": 54,
+        "risk_flags": 54,
+        "sla_due_at": 54,
+        "suggested_next_steps": 54,
+        "trace_ref": 54,
+        "transcript_ref": 54
+      },
+      "missing_action_types": {
+        "abstain": 1,
+        "create_dispute": 15,
+        "create_handoff": 12,
+        "end_session": 3,
+        "explain_status": 31,
+        "freeze_card": 2,
+        "log_security_event": 19,
+        "refuse_request": 14,
+        "report_case": 8,
+        "verify_readback": 17
+      },
+      "forbidden_write_plan_sequences": {
+        "confirm_action>report_case": 6
+      },
+      "suspected_gold_contract_conflicts": {}
+    },
+    "P": {
+      "forbidden_write": {
+        "n": 6,
+        "category": {
+          "ambiguous_unsupported": 4,
+          "human_required": 2
+        },
+        "language": {
+          "es": 2,
+          "pt": 4
+        },
+        "outcome": {
+          "dispute_filed": 6
+        },
+        "rule_id": {
+          "ESC-04": 6
+        },
+        "gold_outcome": {
+          "escalated": 6
+        }
+      },
+      "failed_workload": {
+        "n": 133,
+        "category": {
+          "ambiguous_unsupported": 15,
+          "human_required": 40,
+          "normal": 41,
+          "security_robustness": 37
+        },
+        "language": {
+          "es": 59,
+          "mixed": 9,
+          "other": 3,
+          "pt": 62
+        },
+        "outcome": {
+          "abstained_out_of_scope": 55,
+          "dispute_filed": 8,
+          "escalated": 50,
+          "freeze_and_escalate": 4,
+          "refused_security": 2,
+          "resolved_by_explanation": 9,
+          "safe_failure_handoff": 5
+        },
+        "rule_id": {
+          "AUTH-02": 23,
+          "AUTH-03": 11,
+          "BRD-01": 14,
+          "COM-01": 46,
+          "DATA-01": 7,
+          "DSP-01": 20,
+          "DSP-02": 15,
+          "DSP-03": 2,
+          "DSP-04": 2,
+          "DSP-05": 2,
+          "DSP-06": 10,
+          "DSP-07": 23,
+          "ESC-01": 2,
+          "ESC-02": 4,
+          "ESC-03": 2,
+          "ESC-04": 11,
+          "FRD-01": 7,
+          "SCOPE-01": 7,
+          "SEC-01": 11,
+          "SEC-02": 13,
+          "TXN-01": 22,
+          "TXN-02": 2,
+          "TXN-03": 1,
+          "TXN-04": 8
+        },
+        "gold_outcome": {
+          "abstained_out_of_scope": 7,
+          "dispute_filed": 15,
+          "escalated": 43,
+          "freeze_and_escalate": 6,
+          "refused_security": 14,
+          "resolved_by_explanation": 31,
+          "safe_failure_handoff": 7,
+          "status_reported": 10
+        }
+      },
+      "missing_handoff": {
+        "n": 12,
+        "category": {
+          "ambiguous_unsupported": 5,
+          "human_required": 7
+        },
+        "language": {
+          "es": 4,
+          "mixed": 1,
+          "pt": 7
+        },
+        "outcome": {
+          "dispute_filed": 6,
+          "resolved_by_explanation": 6
+        },
+        "rule_id": {
+          "BRD-01": 4,
+          "DSP-01": 5,
+          "ESC-04": 6,
+          "SCOPE-01": 1
+        },
+        "gold_outcome": {
+          "abstained_out_of_scope": 1,
+          "escalated": 11
+        }
+      },
+      "incomplete_handoff": {
+        "n": 54,
+        "category": {
+          "ambiguous_unsupported": 9,
+          "human_required": 33,
+          "security_robustness": 12
+        },
+        "language": {
+          "es": 21,
+          "mixed": 2,
+          "other": 3,
+          "pt": 28
+        },
+        "outcome": {
+          "abstained_out_of_scope": 17,
+          "escalated": 28,
+          "freeze_and_escalate": 4,
+          "safe_failure_handoff": 5
+        },
+        "rule_id": {
+          "AUTH-02": 6,
+          "AUTH-03": 3,
+          "BRD-01": 10,
+          "COM-01": 7,
+          "DATA-01": 2,
+          "DSP-03": 2,
+          "DSP-04": 2,
+          "DSP-05": 2,
+          "DSP-07": 8,
+          "ESC-01": 2,
+          "ESC-02": 4,
+          "ESC-03": 2,
+          "ESC-04": 5,
+          "FRD-01": 7,
+          "SCOPE-01": 6,
+          "SEC-01": 3,
+          "TXN-02": 2
+        },
+        "gold_outcome": {
+          "abstained_out_of_scope": 6,
+          "escalated": 32,
+          "freeze_and_escalate": 6,
+          "refused_security": 3,
+          "safe_failure_handoff": 7
+        }
+      },
+      "outcome_mismatch": {
+        "n": 93,
+        "category": {
+          "ambiguous_unsupported": 9,
+          "human_required": 13,
+          "normal": 41,
+          "security_robustness": 30
+        },
+        "language": {
+          "es": 42,
+          "mixed": 8,
+          "other": 3,
+          "pt": 40
+        },
+        "outcome": {
+          "abstained_out_of_scope": 49,
+          "dispute_filed": 8,
+          "escalated": 25,
+          "refused_security": 2,
+          "resolved_by_explanation": 9
+        },
+        "rule_id": {
+          "AUTH-02": 19,
+          "AUTH-03": 11,
+          "BRD-01": 4,
+          "COM-01": 41,
+          "DATA-01": 5,
+          "DSP-01": 20,
+          "DSP-02": 15,
+          "DSP-03": 2,
+          "DSP-06": 10,
+          "DSP-07": 15,
+          "ESC-04": 11,
+          "FRD-01": 2,
+          "SCOPE-01": 1,
+          "SEC-01": 11,
+          "SEC-02": 13,
+          "TXN-01": 22,
+          "TXN-02": 2,
+          "TXN-03": 1,
+          "TXN-04": 8
+        },
+        "gold_outcome": {
+          "abstained_out_of_scope": 1,
+          "dispute_filed": 15,
+          "escalated": 18,
+          "freeze_and_escalate": 2,
+          "refused_security": 14,
+          "resolved_by_explanation": 31,
+          "safe_failure_handoff": 2,
+          "status_reported": 10
+        }
+      },
+      "missing_action": {
+        "n": 82,
+        "category": {
+          "ambiguous_unsupported": 6,
+          "human_required": 9,
+          "normal": 41,
+          "security_robustness": 26
+        },
+        "language": {
+          "es": 41,
+          "mixed": 8,
+          "pt": 33
+        },
+        "outcome": {
+          "abstained_out_of_scope": 40,
+          "dispute_filed": 6,
+          "escalated": 25,
+          "refused_security": 2,
+          "resolved_by_explanation": 9
+        },
+        "rule_id": {
+          "AUTH-02": 17,
+          "AUTH-03": 11,
+          "BRD-01": 4,
+          "COM-01": 39,
+          "DATA-01": 5,
+          "DSP-01": 20,
+          "DSP-02": 15,
+          "DSP-06": 8,
+          "DSP-07": 15,
+          "ESC-04": 6,
+          "FRD-01": 2,
+          "SCOPE-01": 1,
+          "SEC-01": 11,
+          "SEC-02": 13,
+          "TXN-01": 22,
+          "TXN-03": 1,
+          "TXN-04": 8
+        },
+        "gold_outcome": {
+          "abstained_out_of_scope": 1,
+          "dispute_filed": 15,
+          "escalated": 11,
+          "freeze_and_escalate": 2,
+          "refused_security": 14,
+          "resolved_by_explanation": 31,
+          "status_reported": 8
+        }
+      },
+      "route_mismatch": {
+        "n": 4,
+        "category": {
+          "human_required": 4
+        },
+        "language": {
+          "es": 2,
+          "pt": 2
+        },
+        "outcome": {
+          "abstained_out_of_scope": 4
+        },
+        "rule_id": {
+          "AUTH-02": 2,
+          "DSP-03": 2,
+          "FRD-01": 2
+        },
+        "gold_outcome": {
+          "escalated": 2,
+          "freeze_and_escalate": 2
+        }
+      },
+      "missing_packet_fields": {
+        "conversation_id": 54,
+        "customer.auth": 54,
+        "customer.handle": 54,
+        "customer.preferred_language": 54,
+        "customer_statements": 54,
+        "policy_evaluations": 54,
+        "risk_flags": 54,
+        "sla_due_at": 54,
+        "suggested_next_steps": 54,
+        "trace_ref": 54,
+        "transcript_ref": 54
+      },
+      "missing_action_types": {
+        "abstain": 1,
+        "create_dispute": 15,
+        "create_handoff": 12,
+        "end_session": 3,
+        "explain_status": 31,
+        "freeze_card": 2,
+        "log_security_event": 19,
+        "refuse_request": 14,
+        "report_case": 8,
+        "verify_readback": 17
+      },
+      "forbidden_write_plan_sequences": {
+        "confirm_action>report_case": 6
+      },
+      "suspected_gold_contract_conflicts": {}
+    }
+  }
+}

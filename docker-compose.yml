@@ -49,6 +49,7 @@ services:
       ALLOW_DEMO_RESET: ${ALLOW_DEMO_RESET:-false}
       DEMO_PASSWORD: ${DEMO_PASSWORD:?Set DEMO_PASSWORD in .env}
       OPS_BACKEND: postgres
+      LEDGER_BACKEND: ${LEDGER_BACKEND:-serving}
       AGENT_SYSTEM: P
       LLM_PROVIDER: ${LLM_PROVIDER:-mock}
       BANK_CLOCK: ${BANK_CLOCK:-2026-06-18T06:00:00Z}
@@ -77,7 +78,6 @@ services:
       dockerfile: Dockerfile
     environment:
       API_BASE_URL: http://api:8000
-      NEXT_PUBLIC_API_BASE_URL: http://localhost:${API_HOST_PORT:-8000}
       PORT: "3000"
     depends_on:
       api:
