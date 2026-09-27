@@ -1,0 +1,1 @@
+select product_id, customer_id, product_type, currency, product_status, opening_date, _dataset_version, _source_file, _source_sha256, _ingested_at, _pipeline_version from {{ source('silver', 'products') }}

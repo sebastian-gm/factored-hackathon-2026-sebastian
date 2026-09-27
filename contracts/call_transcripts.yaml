@@ -1,0 +1,101 @@
+contract_version: 1.1.0
+table: call_transcripts
+primary_key:
+- transcript_id
+unknown_columns: warn_and_exclude_from_silver
+missing_required_columns: fail_partition
+columns:
+  transcript_id:
+    type: string
+    nullable: false
+    pii: quasi_identifier
+    llm_exposure: never
+  interaction_id:
+    type: string
+    nullable: false
+    pii: quasi_identifier
+    llm_exposure: never
+  process_date:
+    type: date
+    nullable: false
+    pii: none
+    llm_exposure: never
+  customer_id:
+    type: string
+    nullable: false
+    pii: quasi_identifier
+    llm_exposure: never
+  agent_id:
+    type: string
+    nullable: false
+    pii: quasi_identifier
+    llm_exposure: never
+  full_text:
+    type: string
+    nullable: false
+    pii: sensitive
+    llm_exposure: never
+  customer_text:
+    type: string
+    nullable: true
+    pii: sensitive
+    llm_exposure: never
+  agent_text:
+    type: string
+    nullable: true
+    pii: sensitive
+    llm_exposure: never
+  detected_language:
+    type: string
+    nullable: false
+    pii: none
+    llm_exposure: never
+  detected_accent:
+    type: string
+    nullable: true
+    pii: none
+    llm_exposure: never
+  accent_confidence:
+    type: number
+    nullable: true
+    pii: none
+    llm_exposure: never
+  detected_keywords:
+    type: string
+    nullable: true
+    pii: none
+    llm_exposure: never
+  mentioned_entities:
+    type: string
+    nullable: true
+    pii: sensitive
+    llm_exposure: never
+  detected_intents:
+    type: string
+    nullable: true
+    pii: none
+    llm_exposure: never
+  main_topics:
+    type: string
+    nullable: true
+    pii: none
+    llm_exposure: never
+  transcription_model:
+    type: string
+    nullable: false
+    pii: none
+    llm_exposure: never
+  audio_quality:
+    type: string
+    nullable: true
+    pii: none
+    llm_exposure: never
+  duration_seconds:
+    type: integer
+    nullable: true
+    pii: none
+    llm_exposure: never
+    min: 0
+observed_deviations:
+  duration_seconds: Dictionary says required; pipeline observed 24,029 nulls. Analysis-only
+    field; warn without imputation.

@@ -1,0 +1,1 @@
+select agent_id, native_accent, agent_type, languages, specialty, total_monthly_interactions, agent_status, _dataset_version, _source_file, _source_sha256, _ingested_at, _pipeline_version from {{ source('silver', 'service_agents') }}

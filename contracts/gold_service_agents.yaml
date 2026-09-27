@@ -1,0 +1,77 @@
+contract_version: 1.0.0
+table: service_agents
+layer: gold
+primary_key:
+- agent_id
+columns:
+  agent_id:
+    type: string
+    nullable: false
+    pii: quasi_identifier
+    llm_exposure: never
+  native_accent:
+    type: string
+    nullable: false
+    pii: none
+    llm_exposure: never
+  agent_type:
+    type: string
+    nullable: false
+    pii: none
+    llm_exposure: never
+    enum:
+    - Phone
+    - In-Person
+    - Digital
+    - Hybrid
+  languages:
+    type: string
+    nullable: false
+    pii: none
+    llm_exposure: never
+  specialty:
+    type: string
+    nullable: true
+    pii: none
+    llm_exposure: never
+  total_monthly_interactions:
+    type: integer
+    nullable: true
+    pii: none
+    llm_exposure: never
+    min: 0
+  agent_status:
+    type: string
+    nullable: false
+    pii: none
+    llm_exposure: never
+    enum:
+    - Active
+    - Vacation
+    - Leave
+    - Inactive
+  _dataset_version:
+    type: string
+    nullable: false
+    pii: none
+    llm_exposure: never
+  _source_file:
+    type: string
+    nullable: false
+    pii: none
+    llm_exposure: never
+  _source_sha256:
+    type: string
+    nullable: false
+    pii: none
+    llm_exposure: never
+  _ingested_at:
+    type: timestamp
+    nullable: false
+    pii: none
+    llm_exposure: never
+  _pipeline_version:
+    type: string
+    nullable: false
+    pii: none
+    llm_exposure: never

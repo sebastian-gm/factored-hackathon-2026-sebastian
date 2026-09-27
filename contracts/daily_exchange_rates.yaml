@@ -1,0 +1,55 @@
+contract_version: 1.0.0
+table: daily_exchange_rates
+primary_key:
+- date
+- source_currency
+- target_currency
+unknown_columns: warn_and_exclude_from_silver
+missing_required_columns: fail_partition
+columns:
+  date:
+    type: date
+    nullable: false
+    pii: none
+    llm_exposure: never
+  source_currency:
+    type: string
+    nullable: false
+    pii: none
+    llm_exposure: never
+    enum:
+    - USD
+    - MXN
+    - COP
+    - ARS
+  target_currency:
+    type: string
+    nullable: false
+    pii: none
+    llm_exposure: never
+    enum:
+    - USD
+    - MXN
+    - COP
+    - ARS
+  exchange_rate:
+    type: number
+    nullable: false
+    pii: none
+    llm_exposure: never
+    exclusive_min: 0
+  buy_rate:
+    type: number
+    nullable: true
+    pii: none
+    llm_exposure: never
+  sell_rate:
+    type: number
+    nullable: true
+    pii: none
+    llm_exposure: never
+  source:
+    type: string
+    nullable: true
+    pii: none
+    llm_exposure: never

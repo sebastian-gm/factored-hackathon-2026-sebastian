@@ -1,0 +1,115 @@
+contract_version: 1.0.0
+table: call_center_interactions
+primary_key:
+- interaction_id
+unknown_columns: warn_and_exclude_from_silver
+missing_required_columns: fail_partition
+columns:
+  interaction_id:
+    type: string
+    nullable: false
+    pii: quasi_identifier
+    llm_exposure: never
+  interaction_date:
+    type: timestamp
+    nullable: false
+    pii: none
+    llm_exposure: never
+    timezone: UTC
+  process_date:
+    type: date
+    nullable: false
+    pii: none
+    llm_exposure: never
+  customer_id:
+    type: string
+    nullable: false
+    pii: quasi_identifier
+    llm_exposure: never
+  agent_id:
+    type: string
+    nullable: true
+    pii: quasi_identifier
+    llm_exposure: never
+  interaction_type:
+    type: string
+    nullable: false
+    pii: none
+    llm_exposure: never
+  channel:
+    type: string
+    nullable: false
+    pii: none
+    llm_exposure: never
+  contact_reason:
+    type: string
+    nullable: false
+    pii: none
+    llm_exposure: never
+  reason_category:
+    type: string
+    nullable: false
+    pii: none
+    llm_exposure: never
+  duration_seconds:
+    type: integer
+    nullable: true
+    pii: none
+    llm_exposure: never
+    min: 0
+  wait_time_seconds:
+    type: integer
+    nullable: true
+    pii: none
+    llm_exposure: never
+    min: 0
+  was_resolved:
+    type: boolean
+    nullable: true
+    pii: none
+    llm_exposure: never
+  requires_followup:
+    type: boolean
+    nullable: false
+    pii: none
+    llm_exposure: never
+  detected_sentiment:
+    type: string
+    nullable: true
+    pii: none
+    llm_exposure: never
+  sentiment_score:
+    type: number
+    nullable: true
+    pii: none
+    llm_exposure: never
+  customer_detected_accent:
+    type: string
+    nullable: true
+    pii: none
+    llm_exposure: never
+  agent_used_accent:
+    type: string
+    nullable: true
+    pii: none
+    llm_exposure: never
+  was_escalated:
+    type: boolean
+    nullable: false
+    pii: none
+    llm_exposure: never
+  mentioned_products:
+    type: string
+    nullable: true
+    pii: sensitive
+    llm_exposure: never
+  has_transcript:
+    type: boolean
+    nullable: false
+    pii: none
+    llm_exposure: never
+  has_recording:
+    type: boolean
+    nullable: false
+    pii: none
+    llm_exposure: never

@@ -1,0 +1,16 @@
+version: 2
+sources:
+- name: silver
+  schema: silver
+  tables:
+  - name: customers
+  - name: products
+  - name: transactions
+  - name: daily_exchange_rates
+  - name: service_agents
+  - name: complaints
+  - name: call_center_interactions
+  - name: satisfaction_surveys
+  - name: call_transcripts
+  - name: digital_events
+  - name: analysis_aggregates
