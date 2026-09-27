@@ -48,7 +48,7 @@ uv run --no-sync python -m scripts.azure_smoke
 uv run --no-sync python -m scripts.azure_verify
 ```
 
-The smoke test reads the demo password from Key Vault into memory. It checks HTTPS liveness/readiness, login/OTP, all 32 authored ES/PT scenarios, scoped transactions, dispute/handoff readbacks, unauthenticated denial, CORS, and the web page's runtime API URL. It emits only counts. Separately read back Azure ingress, replica limits, firewall, TLS, budget notifications, identities and image SHA/digests. Verify denial from a non-allowlisted network when available; configuration inspection alone is not a network denial test.
+The smoke test reads the demo password from Key Vault into memory. It checks HTTPS liveness/readiness, login/OTP, all 32 authored ES/PT scenarios, scoped transactions, dispute/handoff readbacks, unauthenticated denial, CORS, and the web page's runtime API URL. It emits only counts. Separately read back Azure ingress, replica limits, firewall, TLS, budget notifications, identities and image SHA/digests. The credential-free `azure-access` GitHub workflow checks both URLs from a non-allowlisted runner and requires HTTP 403. It can be rerun with `gh workflow run azure-access.yml --repo sebastian-gm/bank-agent-lab`. Configuration inspection alone is not a network denial test.
 
 ## Operations and limitations
 
