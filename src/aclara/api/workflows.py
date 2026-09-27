@@ -116,7 +116,7 @@ def fraud_handoff(
         response["reply"] += (
             " Puedes bloquear tu tarjeta con un nuevo OTP y confirmación."
             if language == "es"
-            else " Você pode bloquear seu cartão com um novo OTP e confirmação."
+            else " Você pode bloquear seu cartão após informar um novo código de verificação e confirmar a ação."
         )
     return response
 

@@ -1,5 +1,37 @@
 # Progress log
 
+## 2026-09-27 — Routine post-v2 merges and accepted pt-BR wording
+
+### Completed (verified)
+
+- Opened and merged analysis PR **#46** after all four checks passed: Python,
+  Postgres, web/browser and safety. Merge SHA: `791402214a2d8d5829c6c6e9e1208e80a2679945`.
+- Reviewed #45's documentation and proposed patch against the actual workflow.
+  Accepted A20 (destination is a person on the team) and W02 (verification code,
+  then confirmation); retained A15 because the handoff already exists and is
+  durably read back before the reply. Applied exactly two pt-BR string changes.
+- Exact source replacement and normalized AST comparison confirmed no logic
+  change. `git apply --check` passed before application. With
+  `LLM_PROVIDER=mock LLM_REAL_CALLS_APPROVED=0 LLM_FINAL_RUN_STARTED=0`,
+  `make checks` passed: six hooks, strict mypy, file policy, compilation,
+  **174 tests passed / 13 database-dependent skips**, B1 **32/32**, interfaces
+  and policy catalog. No paid calls, deployment, held-out access or reruns.
+- Updated #45 from main with a history-preserving merge, retaining both
+  progress-log entries. Fresh PR CI is required before merge.
+
+### Done but not verified
+
+- Fluent-human pt-BR review is still pending. The two strings have not been
+  redeployed to Azure; final v2 remains tied to its original evaluated SHA.
+
+### Next / blocked
+
+- Complete #45's green-CI merge and check main. Sebastian then authorized
+  handoff 13: merge the explain/offer/dispute and handoff/security/age/policy
+  specification first, report its SHA, then implement lead-owned fixes on dev
+  only. Never rerun v2 held-out cases or open suite-v3 rows. No release or v3 run
+  is authorized by this step.
+
 ## AI lane — lead-owned pt-BR wording review, 2026-09-27 UTC
 
 ### Completed (verified)
