@@ -235,3 +235,47 @@ def test_api_session_proposal_case_handoff_and_execution_survive_restart(dsn: st
             fourth.close()
 
     asyncio.run(check())
+
+
+def test_freeze_api_and_step_up_survive_app_restart(dsn: str) -> None:
+    from test_api_security import _settings, _sign_in
+    from test_workflow_api import step_up
+
+    async def check() -> None:
+        first = Store(dsn)
+        app = create_app(_settings(), store=first)
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+            token = await _sign_in(client)
+            headers = {"Authorization": f"Bearer {token}"}
+            await step_up(client, headers)
+            proposal = (
+                await client.post("/cards/prod_1/freeze/proposal", headers=headers, json={})
+            ).json()
+        first.close()
+        second = Store(dsn)
+        app = create_app(_settings(), store=second)
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+            response = await client.post(
+                "/cards/prod_1/freeze",
+                headers=headers,
+                json={"proposal_hash": proposal["proposal_hash"], "confirmed": True},
+            )
+            assert response.status_code == 200, response.text
+            handoff = response.json()["handoff"]["handoff_id"]
+        second.close()
+        third = Store(dsn)
+        try:
+            app = create_app(_settings(), store=third)
+            async with AsyncClient(
+                transport=ASGITransport(app=app), base_url="http://test"
+            ) as client:
+                assert (await client.get("/cards/prod_1", headers=headers)).json()[
+                    "status"
+                ] == "Frozen"
+                packet = (await client.get(f"/handoffs/{handoff}", headers=headers)).json()
+                assert packet["freeze_outcome"] == "verified"
+                assert packet["route"]["queue"] == "Fraudes"
+        finally:
+            third.close()
+
+    asyncio.run(check())
