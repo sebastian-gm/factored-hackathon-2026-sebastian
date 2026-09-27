@@ -10,7 +10,7 @@ Rank a verified customer’s already-authorized transaction candidates from norm
 
 ## Data and leakage controls
 
-Organizer synthetic ledger; team-generated normalized recollections, with 15% no-match queries. No raw source rows are committed. No real customer language or NLU quality is measured. Customer groups use SHA-256 buckets and are disjoint. Train targets are before 2026-01-01, validation targets in January–February 2026, and test targets from 2026-03-01. Each query has its own as-of clock and a half-open 120-day retrieval window. Overlay fixtures, fraud fields, generator parameters, target identity and complaint/transcript text are excluded from features.
+Organizer synthetic ledger; team-generated normalized recollections, with 15% no-match queries. No raw source rows are committed. This original benchmark measures neither real customer language nor NLU quality; the separate human spot-check below adds a small NLU diagnostic. Customer groups use SHA-256 buckets and are disjoint. Train targets are before 2026-01-01, validation targets in January–February 2026, and test targets from 2026-03-01. Each query has its own as-of clock and a half-open 120-day retrieval window. Overlay fixtures, fraud fields, generator parameters, target identity and complaint/transcript text are excluded from features.
 
 Query counts: `{"test": 3000, "train": 6000, "validation": 3000}`. Unique customer counts: `{"test": 2723, "train": 5754, "validation": 2730}`.
 
@@ -48,10 +48,29 @@ Top-1, MRR and Recall@3 use queries with a true match; NONE metrics use all quer
 | lightgbm | 4-8 | 1677 | 0.9538 | 0.9636 | 0.4699 |
 | lightgbm | 9+ | 557 | 0.9112 | 0.9048 | 0.5099 |
 
+## Human spot-check (n=9, es-CL)
+
+Nine unchanged, intentionally typo-bearing recollections from one human author
+were checked on 2026-09-27 UTC using Gemini 3 Flash Preview NLU → frozen v1 MATCH.
+Chilean Spanish is out of distribution relative to MX/CO/AR; all nine customers
+are outside the original benchmark. Intent accuracy was **5/9**, corrected
+core-slot exact accuracy **7/9**, top-1 **6/9**, and recall@3 **8/9**. MATCH returned
+**9/9 no-match**, with **0 proposals and 0 choices**; wrong-proposal rate is undefined.
+All nine model calls succeeded, costing **US$0.009933** in total.
+
+Gold preceded inference; one post-run thousands-separator annotation erratum
+changed core-slot scoring from 6/9 to 7/9, with original gold and predictions
+preserved. The [result review](result-review.md#human-spot-check-n9-es-cl) records
+methods, failure patterns and private evidence paths. One author, synthetic cards,
+single-annotator labels and no absent-target cases do not establish language
+fairness, production performance or complete agent safety. No tuning followed
+this spot-check; independent human label review and 31 Spanish recollections remain
+pending. No card values or per-case records are committed.
+
 ## Limits and review
 
 - This is an offline synthetic comparison, not measured production improvement. Donor and fabricated no-match generation may introduce artifacts; deployment requires naturally written recollections.
-- Human validation remains pending. Sebastian will write the first 40 Spanish recollections from private cards; independent NLU double-labeling and agreement statistics are not yet available. Portuguese recollections will be labeled model-generated and cross-checked by a second model vendor after model access/cost approval. Normalized slots cannot establish language fairness. Country and segment results are in metrics; cells below 30 are marked insufficient.
+- Broader human validation remains pending beyond the nine-recollection spot-check above; independent NLU double-labeling and agreement statistics are not yet available. Portuguese recollections will be labeled model-generated and cross-checked by a second model vendor after model access/cost approval. Normalized slots cannot establish language fairness. Country and segment results are in metrics; cells below 30 are marked insufficient.
 - Category and channel features are defined but unexercised in this generated slot workload (no category/channel mentions); their value is not measured. Complete feature definitions include status and weak channel match. Demographics, protected attributes, fraud labels and fraud scores are excluded. Country/segment are used for evaluation only; an explicitly mentioned transaction country is a matching feature.
 - There are no empty candidate sets in target-sampled benchmark queries; empty-set behavior is separately unit tested. Sparse large-candidate slices limit conclusions.
 - Twenty failures per model are categorized by a deterministic audit. Private per-query records permit later human review; no human failure review is claimed.
