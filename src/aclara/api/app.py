@@ -211,6 +211,7 @@ def create_app(
     app.state.runtime = runtime or Runtime(system=active_settings.agent_system)
     ai = AgentAI(active_settings, app.state.runtime, llm_client)
     app.state.ai = ai
+    app.state.instance_id = str(uuid4())
     app.state.settings = active_settings
     app.state.ledger = ledger
     operational = store or Store(
@@ -284,6 +285,8 @@ def create_app(
             "status": "ok",
             "service": "aclara-api",
             "llm_provider": active_settings.llm_provider,
+            "instance_id": app.state.instance_id,
+            "storage": "postgres" if operational.pool else "memory",
         }
 
     @app.get("/readyz")
