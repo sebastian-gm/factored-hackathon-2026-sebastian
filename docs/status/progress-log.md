@@ -5,6 +5,13 @@ Current status below supersedes the earlier lane handoffs; their detailed report
 
 ## Completed-verified
 
+### Handoff 06 — frozen-suite review (in progress)
+
+- Routing PR #19 merged after all four CI gates passed at `8812dbc`. Reviewed PR #13's adapter handoff and full frozen protocol before any held-out execution; preserving all pinned suite, schema, template, tool and protocol bytes.
+- The release contains 200 independently authored scenarios. Its prior lane provenance records Portuguese generation/cross-vendor review costing $0.6073573 under Sebastian's separate $3 authorization; this lead session made no model call. Human dual-label/fluent-language review remains pending.
+- Sebastian authorized copying the four private artifacts from the linked Data/ML worktree. Copied canonical customer bindings and three matcher splits into ignored storage with mode 0600, verified source/destination checksums and the frozen binding SHA, and printed no rows. Frozen release validation passed; `make checks` passed 53 tests (6 database skips), B1 32/32, hooks and interface/catalog gates.
+
+
 ### Handoff 06 — policy and card-freeze slice (in progress)
 
 - Read handoff 06 fully; began tasks in order without inspecting held-out labels or running real models.

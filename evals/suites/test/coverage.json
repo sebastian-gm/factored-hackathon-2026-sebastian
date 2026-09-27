@@ -1,0 +1,36 @@
+{
+  "categories": {
+    "ambiguous_unsupported": 40,
+    "human_required": 40,
+    "normal": 70,
+    "security_robustness": 50
+  },
+  "dialects": {
+    "es-AR": 32,
+    "es-CO": 32,
+    "es-MX": 32,
+    "mixed": 17,
+    "other": 3,
+    "pt-BR": 84
+  },
+  "gold_outcomes": {
+    "abstained_out_of_scope": 7,
+    "dispute_filed": 58,
+    "dispute_filed_flagged": 6,
+    "escalated": 43,
+    "freeze_and_escalate": 6,
+    "refused_security": 25,
+    "resolved_by_explanation": 38,
+    "safe_failure_handoff": 7,
+    "status_reported": 10
+  },
+  "languages": {
+    "es": 96,
+    "mixed": 17,
+    "other": 3,
+    "pt": 84
+  },
+  "must_escalate": 66,
+  "portuguese_reviewed_texts": 966,
+  "scenarios": 200
+}
