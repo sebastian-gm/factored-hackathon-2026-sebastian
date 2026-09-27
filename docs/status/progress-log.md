@@ -1,5 +1,21 @@
 # Progress log
 
+## AI lane — after-v2 explain/offer dev confirmation, 2026-09-27 UTC
+
+### Completed (verified)
+
+- Read handoff 13 and authored the 20-case synthetic [explain/offer confirmation set](../../src/aclara/llm/dev_explain_offer_20.yaml) before any v5 prompt, NLG, or scenario implementation change. Its separate first commit `0692881` freezes the file and [SHA-256 manifest](../../src/aclara/llm/dev_explain_offer_20.sha256). Structural validation passed: 20 unique cases, 10 ES/10 pt-BR, 10 denial/10 recognition follow-ups, and no verbatim opening overlap with dev-v2.
+
+### Done but not verified
+
+- The new set is semantic-only until the lead's Step 1 ADR defines state and outcome names; no API or real-model run has used it. Its slang and labels are AI-authored, not fluent-human reviewed.
+
+### Next / blocked
+
+- Merge the lead's Step 1 ADR before finalizing NLU v5 and the scenario adapter. The lead must initialize `dev-gate/after-v2` before any shared $1 dev paid call. Do not open suite-v3 rows; lead merges AI PRs after CI.
+
+---
+
 ## 2026-09-27 — Handoff 13 Step 1: accepted behavior specification
 
 ### Completed (verified)
