@@ -1,5 +1,36 @@
 # Frontend integration and remaining API requests
 
+## ADR-0015 customer decision and reason sets (2026-09-27)
+
+The frontend accepts the lead's regenerated additive contract. These fields are
+present on `feat/lead-after-v2-fixes`; main/deployment integration remains the lead's
+work. No shared schema or backend file is changed here.
+
+| Field | Frontend handling |
+| --- | --- |
+| `response_type: offer_dispute`, `outcome: awaiting_dispute_decision`, required `transaction` | Nonterminal explanation card, explicit recognition/denial buttons and free text. Buttons send only `{message}` through the existing messages endpoint. No confirmation hash or write is synthesized. Reject an offer combined with a proposal, case receipt, handoff or session end. |
+| `cancelled` outcome | A neutral cancellation notice; composer remains usable, without claiming successful dispute resolution. |
+| Optional `handoff.primary_reason: string \| null` | Show it first, then every remaining reason. It must belong to `reason_codes`. An omitted value leaves the server's reason order intact and is labeled unavailable; the UI does not infer routing precedence or completed OTP from a reason code. |
+
+The #37 optional live projections below remain wired through the existing BFF
+allowlist into Ops and the recording helper. No switch to illustrative fixtures
+occurs on a live error or absent field. The lead's announced story mapping is
+`demo.es.mx → explain, fraud` and `demo.pt.br → ambiguous`, gated on scoped serving
+data. The frontend consumes those hints **only when supplied** on customer personas;
+it never hardcodes that mapping into live mode. An absent mapping disables only
+the affected shortcut and leaves ordinary chat available. A shared persona may
+serve two stories without an unnecessary logout. Each shortcut prepares a draft,
+never sends it or confirms an action. Reset authorization remains unchanged.
+
+Remaining producer dependency: publish `LlmMetadata.route/status/attempt`, the
+allowlisted risk `judgments`, and scoped `PersonaView.demo_stories` on main. Those
+fields are absent from the lead branch's current exported #37 snapshot at this
+check; verify the final published contract before deployment. No additional field
+is requested beyond the accepted proposal below. Browser checks use new authored
+UI responses and existing local fixture/B1 data; no held-out suite or gold is used.
+
+## Existing integration
+
 PR #17 consumes the additive contracts merged in backend PR #21. No backend,
 policy, frozen interface or shared CI file is changed by the frontend lane.
 See [the lead's contract notes](../../docs/api/frontend-additions.md) and

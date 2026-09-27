@@ -870,6 +870,46 @@ h1 {
 .candidate-grid .transaction-bottom {
   flex-wrap: wrap;
 }
+.recognition-actions {
+  padding: 1rem 1.25rem;
+  border-top: 1px solid var(--line);
+}
+.recognition-actions h3 {
+  margin-bottom: 0.75rem;
+}
+.recognition-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+.recognition-buttons .button {
+  white-space: normal;
+  height: auto;
+  min-height: 44px;
+  text-align: center;
+}
+.cancelled-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+.cancelled-notice svg {
+  flex-shrink: 0;
+}
+.handoff-reasons {
+  display: flex;
+  flex-wrap: wrap;
+  list-style: none;
+  padding: 0;
+  gap: 0.75rem;
+}
+.handoff-reasons li {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
 .chooser {
   padding: 20px;
   border-top: 1px solid var(--line);

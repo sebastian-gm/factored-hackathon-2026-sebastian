@@ -1,5 +1,20 @@
 # Aclara frontend
 
+ADR-0015: customer chat renders `offer_dispute / awaiting_dispute_decision` as an
+explained charge plus explicit ES/PT recognition and dispute-request buttons.
+Both buttons use the messages endpoint; a separate server proposal is required
+before exact-hash action confirmation. Free text stays available. Cancellation
+has its own neutral notice. Agent Desk shows the supplied primary reason first,
+then every other reason, with actions and verified evidence kept distinct.
+
+`tests/conversation-contract.spec.ts` supplies new authored UI response fixtures
+for these additive fields while backend integration proceeds. It covers ES/PT
+message-only actions, separate confirmation/cancellation, free text, mobile and
+keyboard access, multi-reason ordering, missing primary values, invalid mixed
+offer/write plans and live story-hint selection. It does not use held-out rows,
+gold labels, provider calls or organizer records. See API-PROPOSAL.md for producer
+dependencies; these browser tests do not establish deployed backend readiness.
+
 Three ES/PT surfaces share one accessible workspace: customer chat, Agent Desk and
 Ops. The customer connection uses the frozen OpenAPI through a same-origin Next.js
 backend-for-frontend. The live connection includes trusted roles, Agent Desk and measured workspace Ops.

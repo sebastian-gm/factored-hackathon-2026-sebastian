@@ -9,7 +9,7 @@ import {
   FileSearch,
   Headphones,
 } from "lucide-react";
-import type { DeskPacket } from "@/lib/contracts";
+import { orderedReasons, type DeskPacket } from "@/lib/contracts";
 import { api } from "@/lib/client";
 import { date, remaining } from "@/lib/format";
 import { useApp } from "./workspace";
@@ -148,7 +148,9 @@ export function AgentDesk() {
                   </span>
                   <span className="caption">{p.customer_display}</span>
                   <span className="row-between">
-                    <span className="rule">{p.reason_codes.join(" · ")}</span>
+                    <span className="rule">
+                      {orderedReasons(p).join(" · ")}
+                    </span>
                     <span className="caption">
                       <Clock3 size={12} /> {t("sla")}:{" "}
                       {p.status === "resolved"
@@ -181,6 +183,26 @@ export function AgentDesk() {
               <p className="routing-note">
                 {t(current.route.fallback_used ? "fallback" : "noFallback")}
               </p>
+              <section
+                className="packet-section"
+                aria-labelledby="handoff-reasons-title"
+              >
+                <h3 id="handoff-reasons-title">{t("handoffReasons")}</h3>
+                <ul className="handoff-reasons">
+                  {orderedReasons(current).map((reason) => (
+                    <li key={reason}>
+                      <code className="rule">{reason}</code>
+                      {reason === current.primary_reason && (
+                        <span className="badge">{t("primaryReason")}</span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+                {!current.primary_reason && (
+                  <p className="caption">{t("primaryReasonMissing")}</p>
+                )}
+                <p className="caption">{t("reasonControls")}</p>
+              </section>
               <section className="packet-section">
                 <h3>{t("facts")}</h3>
                 {current.verified_facts.map((fact, i) => (

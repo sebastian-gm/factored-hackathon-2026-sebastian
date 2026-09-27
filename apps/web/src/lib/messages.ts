@@ -1,10 +1,23 @@
 export const es = {
+  recognitionTitle: "¿Reconoces este movimiento?",
+  recognizeCharge: "Sí, la reconozco",
+  disputeCharge: "No la reconozco, quiero disputarla",
+  recognitionHint:
+    "También puedes escribir tu respuesta. Si decides disputarla, revisaremos el caso y te pediremos confirmar la acción por separado.",
+  cancelledTitle: "Acción cancelada",
+  cancelledBody: "Puedes seguir escribiendo si necesitas ayuda.",
+  handoffReasons: "Motivos de la derivación",
+  primaryReason: "Motivo principal",
+  primaryReasonMissing: "El servicio no indicó un motivo principal.",
+  reasonControls:
+    "Los motivos incluyen requisitos y causas. Las acciones realizadas y sus verificaciones se muestran por separado.",
   notRecorded: "No registrado",
   flagYes: "Sí",
   flagNo: "No",
   tokens: "Tokens entrada / salida",
   callCostLatency: "Costo / latencia",
   callAttempt: "Intento / estado",
+  callRoute: "Ruta registrada",
   costUnknown: "Costo desconocido",
   grokFallback: "Fallback Grok registrado",
   grokObserved: "Llamada Grok registrada · ruta de fallback no disponible",
@@ -37,7 +50,9 @@ export const es = {
   recordingBody:
     "Ensaya las tres historias con personas y datos de prueba. Restablecer elimina las conversaciones de este espacio.",
   recordingLive:
-    "La grabación en vivo usa las personas del banco. Los atajos de historias esperan sus asignaciones del servidor; el restablecimiento conserva los controles de OTP y confirmación.",
+    "Elige una historia disponible para preparar su persona y mensaje. Tú decides cuándo enviarlo; cualquier acción requiere su propia confirmación.",
+  recordingUnavailable:
+    "Algunas historias no están disponibles para las personas de esta sesión. Puedes continuar con la conversación habitual.",
   resetAndStart: "Restablecer demo y abrir ES",
   recordingOpsLogin: "Entrar como Ops para restablecer",
   recordingDesk: "Abrir Agent Desk",
@@ -256,12 +271,25 @@ export const es = {
     "Esta vista estará disponible cuando el servicio publique su contrato de agente y operaciones. La conversación de cliente ya está conectada.",
 };
 export const pt: typeof es = {
+  recognitionTitle: "Você reconhece este movimento?",
+  recognizeCharge: "Sim, reconheço",
+  disputeCharge: "Não reconheço, quero contestar",
+  recognitionHint:
+    "Você também pode escrever sua resposta. Se decidir contestar, vamos revisar o caso e pedir a confirmação da ação separadamente.",
+  cancelledTitle: "Ação cancelada",
+  cancelledBody: "Você pode continuar escrevendo se precisar de ajuda.",
+  handoffReasons: "Motivos do encaminhamento",
+  primaryReason: "Motivo principal",
+  primaryReasonMissing: "O serviço não informou um motivo principal.",
+  reasonControls:
+    "Os motivos incluem requisitos e causas. As ações realizadas e suas verificações aparecem separadamente.",
   notRecorded: "Não registrado",
   flagYes: "Sim",
   flagNo: "Não",
   tokens: "Tokens de entrada / saída",
   callCostLatency: "Custo / latência",
   callAttempt: "Tentativa / estado",
+  callRoute: "Rota registrada",
   costUnknown: "Custo desconhecido",
   grokFallback: "Fallback Grok registrado",
   grokObserved: "Chamada Grok registrada · rota de fallback indisponível",
@@ -293,7 +321,9 @@ export const pt: typeof es = {
   recordingBody:
     "Ensaie as três histórias com pessoas e dados de teste. Redefinir apaga as conversas deste espaço.",
   recordingLive:
-    "A gravação ao vivo usa as pessoas do banco. Os atalhos aguardam as atribuições do servidor; a redefinição mantém OTP e confirmação.",
+    "Escolha uma história disponível para preparar a pessoa e a mensagem. Você decide quando enviar; cada ação exige sua própria confirmação.",
+  recordingUnavailable:
+    "Algumas histórias não estão disponíveis para as pessoas desta sessão. Você pode continuar pela conversa habitual.",
   resetAndStart: "Redefinir demo e abrir ES",
   recordingOpsLogin: "Entrar como Ops para redefinir",
   recordingDesk: "Abrir Agent Desk",

@@ -5,6 +5,7 @@ import {
   ArrowRight,
   CheckCheck,
   CircleHelp,
+  CircleSlash2,
   FileCheck2,
   Headphones,
   Send,
@@ -191,6 +192,15 @@ export function CustomerChat({ initialDraft = "" }: { initialDraft?: string }) {
               {line.plan?.transaction && (
                 <TransactionCard transaction={line.plan.transaction} />
               )}
+              {line.plan?.outcome === "cancelled" && (
+                <div className="cancelled-notice" role="status">
+                  <CircleSlash2 size={21} aria-hidden="true" />
+                  <div>
+                    <h3>{t("cancelledTitle")}</h3>
+                    <p>{t("cancelledBody")}</p>
+                  </div>
+                </div>
+              )}
               {line.plan?.case && line.plan.verified === true && (
                 <div className="receipt">
                   <FileCheck2 size={24} />
@@ -305,6 +315,30 @@ export function CustomerChat({ initialDraft = "" }: { initialDraft?: string }) {
             {t("reviewAction")}
           </Button>
         </div>
+      )}
+      {latest?.response_type === "offer_dispute" && !renew && (
+        <section
+          className="recognition-actions"
+          aria-labelledby="recognition-title"
+        >
+          <h3 id="recognition-title">{t("recognitionTitle")}</h3>
+          <div className="recognition-buttons">
+            <Button
+              variant="secondary"
+              disabled={busy}
+              onClick={() => void send(t("recognizeCharge"))}
+            >
+              {t("recognizeCharge")}
+            </Button>
+            <Button
+              disabled={busy}
+              onClick={() => void send(t("disputeCharge"))}
+            >
+              {t("disputeCharge")}
+            </Button>
+          </div>
+          <p className="caption">{t("recognitionHint")}</p>
+        </section>
       )}
       {!config.fixtures && latest?.freeze_offer?.length && !renew ? (
         <FreezeCard

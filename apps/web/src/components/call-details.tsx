@@ -40,6 +40,10 @@ export function CallDetails({ call }: { call: LlmCall }) {
           </dd>
         </div>
         <div>
+          <dt>{t("callRoute")}</dt>
+          <dd>{call.route ?? t("notRecorded")}</dd>
+        </div>
+        <div>
           <dt>{t("callAttempt")}</dt>
           <dd>
             {call.attempt ?? t("notRecorded")} /{" "}

@@ -200,14 +200,25 @@ test("recording helper leaves live story/reset gates closed without bank binding
 test("recording helper uses optional bank persona binding and never auto-sends", async ({
   page,
 }) => {
+  let messagePosts = 0;
+  page.on("request", (request) => {
+    if (request.method() === "POST" && request.url().endsWith("/messages"))
+      messagePosts++;
+  });
   await page.route("**/config", async (route) => {
     const response = await route.fetch();
     const config = await response.json();
-    config.personas[0].demo_stories = ["explain"];
+    config.personas[0].demo_stories = ["explain", "fraud"];
     await route.fulfill({ json: config });
   });
   await page.goto("/");
   await page.getByText("Preparar grabación", { exact: true }).click();
+  await expect(
+    page.getByRole("button", {
+      name: "PT · escolha e confirmação",
+      exact: true,
+    }),
+  ).toBeDisabled();
   await page
     .getByRole("button", { name: "ES · cargo pendiente", exact: true })
     .click();
@@ -231,4 +242,12 @@ test("recording helper uses optional bank persona binding and never auto-sends",
   await expect(
     page.getByRole("heading", { name: "Tu caso está registrado" }),
   ).toHaveCount(0);
+  await page
+    .getByRole("button", { name: "ES · fraude → Agent Desk", exact: true })
+    .click();
+  await expect(page.getByRole("textbox", { name: "Tu mensaje" })).toHaveValue(
+    "Perdí mi tarjeta y necesito ayuda con una compra que no reconozco.",
+  );
+  await expect(page.locator("input[type=password]")).toHaveCount(0);
+  expect(messagePosts).toBe(0);
 });

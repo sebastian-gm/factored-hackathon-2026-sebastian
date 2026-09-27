@@ -44,11 +44,11 @@ export const llmSchema = z.object({
   output_tokens: z.number().int().nonnegative(),
   cost_usd: z.number().nonnegative().nullable(),
   latency_ms: z.number().nonnegative(),
-  route: z.string().optional(),
+  route: z.string().nullish(),
   status: z
     .enum(["valid", "invalid_json", "provider_error", "refusal", "skipped"])
-    .optional(),
-  attempt: z.number().int().positive().optional(),
+    .nullish(),
+  attempt: z.number().int().positive().nullish(),
   judgments: riskSchema.nullish(),
 });
 export const traceEventSchema = z.object({
