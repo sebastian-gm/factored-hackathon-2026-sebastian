@@ -46,9 +46,60 @@ def _transaction_phrase(txn: TransactionView, language: str, country: str | None
     return f"{amount}, {day}"
 
 
+def render_dispute_offer(
+    transaction: TransactionView, *, language: str, country: str | None = None
+) -> str:
+    """Render an explain/offer sentence only from a scoped transaction read."""
+    merchant = (transaction.merchant or "").strip()
+    status = transaction.status.casefold()
+    statuses = {
+        "pending": ("pendente", "pendiente"),
+        "reversed": ("estornada", "reversado"),
+        "declined": ("recusada", "rechazado"),
+        "approved": ("aprovada", "aprobado"),
+    }
+    if not merchant or status not in statuses or language not in {"es", "pt"}:
+        raise ValueError("Dispute offer requires scoped merchant, status, and language")
+    amount_date = re.sub(
+        r"\b([A-Z]{3})(?=\d)", r"\1 ", _transaction_phrase(transaction, language, country)
+    )
+    if language == "pt":
+        text = (
+            f"A cobrança em {merchant}, de {amount_date}, aparece como {statuses[status][0]}. "
+            "Você ainda não a reconhece? Se quiser contestar essa cobrança, "
+            "posso preparar a proposta para sua confirmação."
+        )
+    else:
+        text = (
+            f"El cargo de {merchant}, por {amount_date}, figura como {statuses[status][1]}. "
+            "¿Todavía no lo reconoces? Si quieres disputar este cargo, "
+            "puedo preparar la propuesta para que la confirmes."
+        )
+    facts = tuple(
+        AllowedFact(key, str(value), "scoped_transaction_read")
+        for key, value in transaction.model_dump(mode="json").items()
+        if value is not None
+        and key in {"merchant", "amount", "currency", "transaction_date", "status"}
+    )
+    verdict = verify_draft(
+        text,
+        [fact.id for fact in facts],
+        facts,
+        known_merchants=(merchant,),
+    )
+    if not verdict.safe:
+        raise ValueError("Dispute offer failed grounding")
+    return text
+
+
 def render_template(plan: ResponsePlan, *, language: str, country: str | None = None) -> str:
     pt = language == "pt"
     kind = plan.response_type
+    # The additive response literal is owned by the lead lane's Step 3 contract.
+    if str(kind) == "offer_dispute":
+        if plan.transaction is None:
+            raise ValueError("Dispute offer requires a scoped transaction")
+        return render_dispute_offer(plan.transaction, language=language, country=country)
     if kind == "report_case":
         if plan.case is None or plan.verified is not True:
             raise ValueError("Cannot report an unverified case")
