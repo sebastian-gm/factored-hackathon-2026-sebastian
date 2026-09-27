@@ -1,0 +1,155 @@
+version: 1
+status: frozen_before_v5
+description: >-
+  Twenty synthetic dev conversations for Sebastian's explain-then-offer decision.
+  Authored before NLU v5 or NLG changes. Semantic expectations avoid provisional
+  orchestrator state names; the merged Step 1 ADR controls the scenario adapter.
+source_decision: agent-handoffs/13-fixes-and-fresh-suite-v3.md
+fixture_transaction_ref: fixture-txn-001
+fixture_merchant: Mercado Verde
+common_expectations:
+  opening: explain_charge_details_then_offer_dispute
+  no_dispute_before_customer_denial_or_request: true
+  no_filing_without_normal_confirmation_and_otp: true
+  no_refund_promise: true
+cases:
+  - id: offer.es.mx.deny.01
+    language: es
+    variant: es-MX
+    opening: No ubico el cobro de Mercado Verde, ¿me dices de qué va?
+    after_offer: Ya vi los datos, pero no fui yo; quiero disputarlo.
+    after_offer_semantics: denial_and_dispute_request
+    expected_path: dispute_after_offer
+  - id: offer.es.mx.recognize.01
+    language: es
+    variant: es-MX
+    opening: Me brincó una compra de Mercado Verde que no me suena.
+    after_offer: Ah, ya caigo, esa compra sí la hice yo.
+    after_offer_semantics: recognized_now
+    expected_path: resolved_by_explanation
+  - id: offer.es.co.deny.01
+    language: es
+    variant: es-CO
+    opening: Parce, no me cuadra ese cargo de Mercado Verde; ¿qué es?
+    after_offer: Parce, yo no pagué eso; abra la disputa.
+    after_offer_semantics: denial_and_dispute_request
+    expected_path: dispute_after_offer
+  - id: offer.es.co.recognize.01
+    language: es
+    variant: es-CO
+    opening: Esa vuelta de Mercado Verde no la ubico, ¿me explica?
+    after_offer: Ah, sí señor, ya recordé que fue compra mía.
+    after_offer_semantics: recognized_now
+    expected_path: resolved_by_explanation
+  - id: offer.es.ar.deny.01
+    language: es
+    variant: es-AR
+    opening: Che, no registro este consumo de Mercado Verde.
+    after_offer: Miré los datos y no compré ahí; quiero desconocerlo.
+    after_offer_semantics: denial_and_dispute_request
+    expected_path: dispute_after_offer
+  - id: offer.es.ar.recognize.01
+    language: es
+    variant: es-AR
+    opening: Me apareció un gasto de Mercado Verde que no tengo presente.
+    after_offer: Ah, ahora me acordé, ese gasto lo hice yo.
+    after_offer_semantics: recognized_now
+    expected_path: resolved_by_explanation
+  - id: offer.es.cl.deny.01
+    language: es
+    variant: es-CL
+    opening: No cacho de dónde salió el cobro de Mercado Verde, po.
+    after_offer: No, po, ni pisé ese negocio; quiero poner el reclamo.
+    after_offer_semantics: denial_and_dispute_request
+    expected_path: dispute_after_offer
+  - id: offer.es.cl.recognize.01
+    language: es
+    variant: es-CL
+    opening: Oye, no ubico esta compra de Mercado Verde, ¿me ayudas?
+    after_offer: Sí, po, ahora caché; la compra era mía.
+    after_offer_semantics: recognized_now
+    expected_path: resolved_by_explanation
+  - id: offer.es.mx.deny.02
+    language: es
+    variant: es-MX
+    opening: No me acuerdo de haber visto ese cargo de Mercado Verde.
+    after_offer: Con esos datos sigo sin reconocerlo y pido abrir disputa.
+    after_offer_semantics: explicit_dispute_request
+    expected_path: dispute_after_offer
+  - id: offer.es.ar.recognize.02
+    language: es
+    variant: es-AR
+    opening: Che, ¿qué pasó con el cargo de Mercado Verde? No me suena.
+    after_offer: Listo, ya lo ubiqué; fui yo quien pagó.
+    after_offer_semantics: recognized_now
+    expected_path: resolved_by_explanation
+  - id: offer.pt.br.deny.01
+    language: pt
+    variant: pt-BR
+    opening: Não reconheço essa cobrança do Mercado Verde; pode explicar?
+    after_offer: Vi os dados, mas não fui eu; quero contestar.
+    after_offer_semantics: denial_and_dispute_request
+    expected_path: dispute_after_offer
+  - id: offer.pt.br.recognize.01
+    language: pt
+    variant: pt-BR
+    opening: Essa compra no Mercado Verde não me veio à cabeça.
+    after_offer: Ah, agora lembrei, fui eu que comprei.
+    after_offer_semantics: recognized_now
+    expected_path: resolved_by_explanation
+  - id: offer.pt.br.deny.02
+    language: pt
+    variant: pt-BR
+    opening: Tô por fora dessa cobrança do Mercado Verde, o que é?
+    after_offer: Não passei meu cartão lá; pode abrir a contestação.
+    after_offer_semantics: denial_and_dispute_request
+    expected_path: dispute_after_offer
+  - id: offer.pt.br.recognize.02
+    language: pt
+    variant: pt-BR
+    opening: Esse gasto no Mercado Verde me parece esquisito; me explica?
+    after_offer: Saquei agora, essa compra foi minha mesmo.
+    after_offer_semantics: recognized_now
+    expected_path: resolved_by_explanation
+  - id: offer.pt.br.deny.03
+    language: pt
+    variant: pt-BR
+    opening: Não tô ligando o nome Mercado Verde a uma compra que eu lembre.
+    after_offer: Mesmo com a explicação, não autorizei esse pagamento.
+    after_offer_semantics: explicit_denial
+    expected_path: dispute_after_offer
+  - id: offer.pt.br.recognize.03
+    language: pt
+    variant: pt-BR
+    opening: Bateu uma cobrança do Mercado Verde que não lembro direito.
+    after_offer: 'Ah, pode crer, já lembrei: eu fiz essa compra.'
+    after_offer_semantics: recognized_now
+    expected_path: resolved_by_explanation
+  - id: offer.pt.br.deny.04
+    language: pt
+    variant: pt-BR
+    opening: Pintou um débito do Mercado Verde que não tô reconhecendo.
+    after_offer: Eu não comprei lá, não; quero abrir uma contestação.
+    after_offer_semantics: denial_and_dispute_request
+    expected_path: dispute_after_offer
+  - id: offer.pt.br.recognize.04
+    language: pt
+    variant: pt-BR
+    opening: Não sei de onde veio a compra do Mercado Verde.
+    after_offer: Beleza, agora caiu a ficha; fui eu mesmo.
+    after_offer_semantics: recognized_now
+    expected_path: resolved_by_explanation
+  - id: offer.pt.br.deny.05
+    language: pt
+    variant: pt-BR
+    opening: Essa cobrança do Mercado Verde não tá me soando familiar.
+    after_offer: Conferi e não fui eu que fiz; quero contestar essa compra.
+    after_offer_semantics: denial_and_dispute_request
+    expected_path: dispute_after_offer
+  - id: offer.pt.br.recognize.05
+    language: pt
+    variant: pt-BR
+    opening: Apareceu Mercado Verde no extrato e não tô lembrando.
+    after_offer: Agora entendi, eu tinha feito essa compra, sim.
+    after_offer_semantics: recognized_now
+    expected_path: resolved_by_explanation
