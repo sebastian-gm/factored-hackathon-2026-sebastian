@@ -5,6 +5,9 @@ description = "Synthetic ES/PT dispute-intake demo"
 requires-python = ">=3.12,<3.13"
 dependencies = [
   "babel>=2.17,<3",
+  "lightgbm>=4.6,<5",
+  "numpy>=2.2,<3",
+  "rapidfuzz>=3.14,<4",
   "duckdb>=1.4,<2",
   "fastapi>=0.115,<1",
   "pandera[polars]>=0.26,<1",

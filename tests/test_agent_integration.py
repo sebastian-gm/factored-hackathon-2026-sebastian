@@ -24,7 +24,12 @@ def test_p_api_extraction_grounding_and_no_model_confirmation_authority() -> Non
                         "intent": "charge_inquiry" if "Café Central" in _user else "dispute_charge",
                         "intent_confidence": 0.99,
                         "currency_expr": "USD",
-                        "merchant_expr": "Mercado Verde",
+                        "merchant_expr": "Café Central"
+                        if "Café Central" in _user
+                        else "Mercado Verde",
+                        "amount_expr": "18.75" if "Café Central" in _user else "145.50",
+                        "date_expr": "2026-06-17" if "Café Central" in _user else "2026-06-09",
+                        "type_expr": "Purchase",
                         "customer_confirms": "yes",
                     }
                 )
@@ -65,7 +70,9 @@ def test_p_api_extraction_grounding_and_no_model_confirmation_authority() -> Non
             proposal = await http.post(
                 f"/chat/sessions/{cid}/messages",
                 headers=headers,
-                json={"message": "No reconozco el cargo de Mercado Verde"},
+                json={
+                    "message": "No reconozco la compra de Mercado Verde por 145.50 USD del 2026-06-09"
+                },
             )
             assert proposal.status_code == 200
             assert proposal.json()["outcome"] == "dispute_proposed"
@@ -85,7 +92,7 @@ def test_p_api_extraction_grounding_and_no_model_confirmation_authority() -> Non
             result = await http.post(
                 f"/chat/sessions/{cid}/messages",
                 headers=headers,
-                json={"message": "¿Qué es el cargo de Café Central?"},
+                json={"message": "¿Qué es la compra de Café Central por 18.75 USD del 2026-06-17?"},
             )
             assert result.json()["outcome"] == "explained"
             assert any(e["event"] == "phrasing" and e["violations"] for e in runtime.events)
