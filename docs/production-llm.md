@@ -18,7 +18,7 @@ Handoff 09 authorizes the selected Gemini default, failure-only Grok fallback an
 3. Run `.venv/bin/python -m scripts.azure_openrouter_key` after the owner adds `OPENROUTER_API_KEY` to the ignored `.env`. The script uploads through a mode-0600 temporary file, verifies matching readback in memory, then removes the local key entry. It retains the local entry if transfer/readback fails. It never prints a value or provider response.
 4. Run `.venv/bin/python -m scripts.azure_migrate_ops` using the approved sandbox and a fresh price gate. The owner migration creates the global spending tables/functions. Runtime remains non-owner.
 5. Build/push the exact clean `origin/main` images to private ACR. Set the ignored Terraform inputs `enable_real_llm=true` and `llm_budget_run_id="handoff09-smoke"`. Review the plan in memory: unchanged owner-only web ingress, internal API, resource sizes, Postgres firewall/TLS and existing identities; one secret-scoped role grant. Apply the reviewed plan.
-6. Run `.venv/bin/python -m scripts.azure_verify`, then `.venv/bin/python -m scripts.azure_llm_smoke`. The three conversations check ES explanation/dispute/readback, PT top-three ambiguity/handoff and fraud handoff, including staff claim/resolve and measured Ops. The script requires real non-degraded NLU, prompt v4 and matcher v2 metadata. It prints aggregates only.
+6. Run `.venv/bin/python -m scripts.azure_verify`, then `.venv/bin/python -m scripts.azure_llm_smoke`. The three conversations check ES explanation/dispute/readback, PT ambiguity/clarification/handoff and fraud handoff, including staff claim/resolve and measured Ops. The script requires real non-degraded NLU, prompt v4 and matcher v2 metadata. It prints aggregates only.
 7. Use `.venv/bin/python -m scripts.serving_browser --target azure` for one additional counted conversation if the remaining allowance permits. The older broad `azure_smoke` refuses to run with real models enabled.
 8. Record the exact SHA, results and measured/unknown-reserved cost. Set the run ID to empty only after the smoke passes; apply/read back that flag change. Verify external denial and no drift. Stop and give Sebastian the SHA for the AI lane's final evaluation.
 
@@ -29,3 +29,14 @@ Current verification status is in the [progress log](status/progress-log.md); sc
 Database or budget failure uses deterministic application behavior without a new paid attempt. Model failure follows the reviewed retry/fallback bound and then deterministic behavior. The breaker reserves one UTF-8 byte per possible input token plus a framing allowance and the configured maximum output count. OpenRouter requests enforce [maximum provider prices](https://openrouter.ai/docs/guides/routing/provider-selection#max-price), ZDR and denied data collection. A measured charge above its reservation disables further spending in that scope. Provider errors are not proof of zero billing.
 
 The runtime gives each logical generation a 45-second deadline shared by primary/retry/fallback attempts. NLU and up to two grounded phrasing drafts fit within the BFF's 180-second message timeout; authentication and read endpoints retain their shorter timeout. Request cancellation is not a reason to release a committed reservation.
+
+## Handoff 09 smoke result
+
+The required ES/PT/fraud flows and browser surfaces passed on the runtime SHA in
+the progress log. Five attempted conversations (one initial verifier failure)
+used ten paid calls costing **US$0.0107415**, with no unknown-cost attempts or
+fallbacks. V2 returned no-match for the measured PT input; clarification followed
+by ESC-04 was the safe observed path. Top-three selection/rejection and explicit
+confirmation are covered by independent integration tests; this PT smoke is not
+evidence that every vague request returns choices. The smoke allowance is
+exhausted. Further real smoke conversations need a new owner approval.
