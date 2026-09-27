@@ -607,7 +607,88 @@
           "minItems": 1,
           "type": "array"
         },
+        "cancelled": {
+          "items": {
+            "oneOf": [
+              {
+                "$ref": "#/$defs/MessageTurn"
+              },
+              {
+                "$ref": "#/$defs/ConfirmationTurn"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "choose_ref": {
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "choose_ref"
+                ],
+                "type": "object"
+              }
+            ]
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "choose_transaction": {
+          "items": {
+            "oneOf": [
+              {
+                "$ref": "#/$defs/MessageTurn"
+              },
+              {
+                "$ref": "#/$defs/ConfirmationTurn"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "choose_ref": {
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "choose_ref"
+                ],
+                "type": "object"
+              }
+            ]
+          },
+          "minItems": 1,
+          "type": "array"
+        },
         "choose_txn": {
+          "items": {
+            "oneOf": [
+              {
+                "$ref": "#/$defs/MessageTurn"
+              },
+              {
+                "$ref": "#/$defs/ConfirmationTurn"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "choose_ref": {
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "choose_ref"
+                ],
+                "type": "object"
+              }
+            ]
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "clarify": {
           "items": {
             "oneOf": [
               {
