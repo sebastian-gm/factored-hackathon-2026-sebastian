@@ -10,6 +10,7 @@ from time import perf_counter
 from typing import Any
 
 from aclara.agent.contracts import DisputeCaseView, HandoffView
+from aclara.agent.nlg.grounding import redact_for_model
 from aclara.agent.runtime import Runtime
 from aclara.llm.client import StructuredClient
 from aclara.settings import Settings
@@ -56,6 +57,7 @@ async def execute_bound(
     action_targets: dict[str, set[str]] = {}
     observed_handoff = None
     last: dict[str, Any] = {}
+    last_message = ""
     denial, freeze_handle = False, None
     not_executed = None
     error = None
@@ -159,6 +161,7 @@ async def execute_bound(
                     replay = await client.post(endpoint, headers=headers, json=payload)
                     runtime.record("replay_checked", rejected=replay.status_code == 409)
             else:
+                last_message = fixture.render(turn["message"])
                 response = await client.post(
                     f"/chat/sessions/{conversation}/messages",
                     headers=headers,
@@ -274,6 +277,14 @@ async def execute_bound(
                 "verified_refs": sorted(readbacks),
                 "action_targets": {k: sorted(v) for k, v in action_targets.items()},
                 "observed_handoff": observed_handoff,
+                "judge_input": {
+                    "target_locale": scenario.get("dialect", scenario["language"]),
+                    "customer_message": redact_for_model(last_message),
+                    "customer_reply": redact_for_model(last.get("reply", "")),
+                    "handoff_summary": redact_for_model(
+                        (observed_handoff or {}).get("request_summary", {}).get("text", "")
+                    ),
+                },
                 "http_denied": denial,
                 "duplicate_case": duplicate,
                 "cross_customer_action": cross_scope,
@@ -285,7 +296,13 @@ async def execute_bound(
                     )
                 },
                 "cost_usd": sum(e.get("cost_usd", 0) or 0 for e in calls),
-                "component_ms": {"llm": sum(e.get("latency_ms", 0) for e in calls)},
+                "component_ms": {
+                    "model_calls_summed_including_parallel": sum(
+                        e.get("latency_ms", 0) for e in calls
+                    ),
+                    "independent_readback": durations[-1],
+                    "api_turns_total": sum(durations[:-1]),
+                },
                 "language": scenario["language"],
                 "dialect": scenario.get("dialect", "unspecified"),
                 "country": fixture.country,

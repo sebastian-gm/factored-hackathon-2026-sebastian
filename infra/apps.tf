@@ -27,10 +27,10 @@ resource "azurerm_container_app" "api" {
     }
   }
   dynamic "secret" {
-    for_each = var.enable_real_llm ? [1] : []
+    for_each = var.enable_real_llm ? toset(["openrouter-api-key", "typesafe-api-key"]) : toset([])
     content {
-      name                = "openrouter-api-key"
-      key_vault_secret_id = "${azurerm_key_vault.dev.vault_uri}secrets/openrouter-api-key"
+      name                = secret.value
+      key_vault_secret_id = "${azurerm_key_vault.dev.vault_uri}secrets/${secret.value}"
       identity            = azurerm_user_assigned_identity.api.id
     }
   }
@@ -81,10 +81,10 @@ resource "azurerm_container_app" "api" {
         secret_name = "demo-password"
       }
       dynamic "env" {
-        for_each = var.enable_real_llm ? [1] : []
+        for_each = var.enable_real_llm ? { OPENROUTER_API_KEY = "openrouter-api-key", TYPESAFE_API_KEY = "typesafe-api-key" } : {}
         content {
-          name        = "OPENROUTER_API_KEY"
-          secret_name = "openrouter-api-key"
+          name        = env.key
+          secret_name = env.value
         }
       }
       liveness_probe {
@@ -105,7 +105,7 @@ resource "azurerm_container_app" "api" {
     }
   }
   tags       = merge(local.tags, { release = var.image_tag })
-  depends_on = [azurerm_role_assignment.api_pull, azurerm_role_assignment.api_secrets, azurerm_role_assignment.api_openrouter_secret]
+  depends_on = [azurerm_role_assignment.api_pull, azurerm_role_assignment.api_secrets, azurerm_role_assignment.api_openrouter_secret, azurerm_role_assignment.api_typesafe_secret]
 }
 
 resource "azurerm_container_app" "web" {

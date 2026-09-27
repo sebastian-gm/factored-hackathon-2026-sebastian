@@ -1,6 +1,6 @@
 # Priced final evaluation plan — $12 approved, execution on hold
 
-**Planning status, 2026-09-27 UTC:** Sebastian pre-approved this final program with a **$12 hard ceiling**, but explicitly said **do not start** until he gives the start signal after the lead's acceptance fixes, matcher v2, and NLU prompt v4 are merged with green gates. No real-model final test has been run. The lead has since merged matcher v2, prompt v4, the real-route adapter and a durable OpenRouter spend gate; their final preflight and Jev integration must still be read back. The existing B1/P-mock diagnostic is prior test access, not a prediction of this final result. Its failed acceptance gates remain open. The frozen 200-case suite, labels, bindings, and preselected repeat IDs must not be changed in response to outcomes. Current readiness is tracked in [final-preflight.md](final-preflight.md).
+**Planning status, 2026-09-27 UTC:** Sebastian pre-approved this final program with a **$12 hard ceiling**, but explicitly said **do not start** until he gives the start signal after the lead's acceptance fixes, matcher v2, and NLU prompt v4 are merged with green gates. No real-model final test has been run. The integrated release adds the real routes, production secret references, resumable runner and shared Postgres gate. The exact accepted SHA is recorded in the private deployment receipt; execution still waits for Sebastian. The existing B1/P-mock diagnostic is prior test access, not a prediction of this final result. Its failed acceptance gates remain open. The frozen 200-case suite, labels, bindings, and preselected repeat IDs must not be changed in response to outcomes. Current readiness is tracked in [final-preflight.md](final-preflight.md).
 
 ## Fixed workload and model configuration
 
@@ -21,7 +21,7 @@ The direct TypeSafe route has a published no-training claim but standard-account
 
 Use `max_output_tokens=2048` for selected Gemini, Grok fallback, and Sonnet frontier system calls, and `max_output_tokens=256` for Sonnet judge calls. The selected and frontier system calls retain the current two-attempt limit (initial call plus one retry); Sonnet judge has the same bound. Jev's typed calls use no retry and its output is free at the published rate. Only after Sebastian's start signal and green gates, the final-run process may set process-local `LLM_FINAL_RUN_STARTED=1` and `LLM_REAL_CALLS_APPROVED=1`, inject `TYPESAFE_API_KEY`, and pin `EVAL_BUDGET_DSN` to the same final-program Postgres budget for every system and judge process. Persistent `.env` values stay mock and unapproved. Save the exact resolved configuration with the final artifacts.
 
-The lead's `evals.heldout --run --final` adapter now selects the real routes, fresh case state and cumulative Postgres gate; ordinary `--run` remains mock. The AI lane wires Jev risk calls and the paired judge through that same gate, while the lead owns final binding/readback and sample orchestration. Save per-call usage/cost and typed judgments under ignored `artifacts/`. The release must record the implementation SHA, suite manifest/binding hashes, prompt hashes, exact served model IDs, provider tags, policy/matcher versions, price-table date, and every test access. One cumulative gate across **OpenRouter and TypeSafe** and across restarts/processes must stop before the approved ceiling. Keep the deployed production setting mock until the lead explicitly enables production keys. Neither key nor model reasoning belongs in Git or reports.
+The integrated `scripts.final_program` below is the single final entry point. It drives the `evals.heldout --run --final` adapter, which selects the real routes, fresh state per case/repeat and the cumulative Postgres gate, together with the Jev risk-cue union and the paired Sonnet/Jev judge (`aclara.llm.dual_judge.score_pair`) on the preselected sample. The ordinary `evals.heldout --run` remains a mock diagnostic. Save per-call usage/cost and typed judgments under ignored `artifacts/`, and read back the final action before reporting it. The release must record the implementation SHA, suite manifest/binding hashes, prompt hashes, exact served model IDs, provider tags, policy/matcher versions, price-table date, and every test access. One cumulative gate across **OpenRouter and TypeSafe** and across restarts/processes must stop before the approved ceiling; the per-client `LLM_RUN_BUDGET_USD` alone is not a cross-process cap. Neither key nor model reasoning belongs in Git or reports.
 
 ## Model-call cost estimate
 
@@ -56,39 +56,116 @@ Before the paid final run, verify the frozen manifest and private bindings, merg
 
 For the judged final sample, preselect 50 of the repeated-subset IDs by sorting `SHA-256("judge-v1:" + scenario_id)` within category and taking 18/10/10/12 normal/ambiguous/human-required/security cases. Both judges score the B1 and Gemini reply for each, blind to system identity and objective gold. Both also score the same 50 synthetic calibration items after Sebastian completes the ignored human sheet. Report Jev–Sonnet exact/within-one agreement and quadratic-weighted κ for the 50 calibration pairs and 100 frozen reply pairs separately; report **each judge versus human** per dimension only when all 50 human pairs are complete. `aclara.llm.dual_judge.calibration_agreement` reads the ignored paired 50-row sheets and refuses incomplete human claims; `agreement_report` computes the 100-reply judge-to-judge comparison. Handoff usefulness is `null` where no summary exists. Do not use calibration or held-out judge scores to retune the final system. Record ES/PT wording limitations and any same-vendor risks explicitly.
 
-## Lead adapter integration (handoff 09)
+## Integrated final program: exact start and resume commands
 
-The integrated `evals.heldout --run --final` selects Gemini for P, adds the two
-preselected repeats and the Sonnet frontier subset, and uses prompt v4/matcher v2.
-The ordinary command remains mock. **No final input or run was opened during
-this integration.** Start still requires Sebastian's separate signal.
+**Prepared only. Do not execute these commands until Sebastian gives the final-run go.**
+Estimated model spend remains **$4.730**, with one hard **$12 cumulative ceiling**.
+Production's $3/day and the new $0.10 Azure smoke are separate budgets.
 
-After that signal only, set process-local `LLM_FINAL_RUN_STARTED=1` and
-`LLM_REAL_CALLS_APPROVED=1`; the 50-item calibration command additionally needs
-`LLM_JUDGE_FULL_RUN_APPROVED=1`. Pin `EVAL_BUDGET_DSN` in every system/judge process to
-one shared non-owner Postgres connection, with migration 0003 applied. Initialize
-its policy once using `python -m scripts.final_budget` and an owner connection in
-`FINAL_BUDGET_OWNER_DSN`. This creates the approved $12 daily/cumulative policy
-without deleting spend, raising an existing cap, or re-enabling a tripped breaker.
-DSNs and both provider keys remain environment-only. Do not use the production
-smoke's $0.10 scope for evaluation.
+Run from this checkout, with its existing `.venv`, Azure CLI sign-in and private
+binding artifacts present. No credentials are placed in shell arguments or logs.
+The launcher fetches both keys and TLS database connections from Key Vault in
+memory, explicitly using **Seb Azure Sandbox**. It uses the Azure organizer
+serving ledger with forced customer RLS and the 120-day bank-clock window.
 
-Every case gets fresh application state and a fresh client; every attempt shares
-the fixed `final-evaluation/final-program-v1` database budget. Budget denial aborts
-the program instead of silently scoring fallback cases. Known costs, unknown
-reserved exposure, validated structured outputs, served model IDs, generation IDs,
-prompt hashes and configured provider tags are saved in ignored mode-0600
-artifacts. Raw provider envelopes and reasoning are never saved. Case results
-checkpoint after each case; call journals fsync after each attempt. A stopped run
-is retained; a restart needs a new output directory and still uses the same
-cumulative budget. Do not silently rerun paid cases after interruption.
+### Separate 50-item calibration judge (after Sebastian completes the human sheet)
 
-The full 50-item calibration judge now scores Sonnet and Jev together through
-`aclara.llm.dual_judge.score_pair` under that same budget store. For the 100
-blinded final reply assessments, use `aclara.llm.final_run.client_for` with
-`route="openrouter_sonnet", judge=True` and the same `score_pair` plus
-`jev_judge_adapter`; this retains the 256-token Sonnet route while reserving and
-settling Jev against the identical cumulative gate. The AI lane owns selecting
-the predeclared 50 frozen IDs and reporting Jev–Sonnet agreement and each judge's
-agreement with the completed human calibration sheet. No lead-run judge or
-human-review completion is implied by adapter tests.
+This is not part of the start command. Set process-local `LLM_FINAL_RUN_STARTED=1`, `LLM_REAL_CALLS_APPROVED=1` and `LLM_JUDGE_FULL_RUN_APPROVED=1`, and pin `EVAL_BUDGET_DSN` to the same shared non-owner Postgres budget (migration 0003 applied; policy initialized once with `python -m scripts.final_budget` and an owner connection in `FINAL_BUDGET_OWNER_DSN`, which never deletes spend, raises a cap or re-enables a tripped breaker). DSNs and provider keys stay environment-only, and the production smoke's $0.10 scope is never used for evaluation.
+
+**Start, after the explicit go:**
+
+```bash
+cd /home/megagdev/megagdev/factored-hackathon-2026/bank-agent-lab
+LLM_FINAL_RUN_STARTED=1 LLM_REAL_CALLS_APPROVED=1 .venv/bin/python -m scripts.final_program start
+```
+
+This single command launches a detached background process and returns its PID.
+It survives a terminal or Codex interruption while the workstation stays running.
+A reboot requires the resume command; it cannot keep a process alive while the
+workstation is off. Keep this checkout and its Python environment unchanged.
+
+**Resume the same program after interruption:**
+
+```bash
+cd /home/megagdev/megagdev/factored-hackathon-2026/bank-agent-lab
+LLM_FINAL_RUN_STARTED=1 LLM_REAL_CALLS_APPROVED=1 .venv/bin/python -m scripts.final_program resume
+```
+
+**Read aggregate progress without making model calls:**
+
+```bash
+cd /home/megagdev/megagdev/factored-hackathon-2026/bank-agent-lab
+.venv/bin/python -m scripts.final_program status
+```
+
+The start/resume command requires clean `main == origin/main` and the accepted
+SHA in `artifacts/azure/jev-release.json`, including deployment, smoke and CI
+readbacks. It refuses a changed release. `launch.json` and `release.json` pin the
+SHA, dataset, suite/binding/split checksums and fixed budget identity. Each frozen
+access, including resume verification, is recorded in the existing access ledger.
+There is no prompt, label, threshold or selection tuning between passes.
+
+### Checkpoints, recovery and spending
+
+- One file lock prevents concurrent workers. Completed cases and judge pairs are
+  atomically committed with file and directory fsync, and never called again on
+  resume. Per-call journals fsync validated outputs and raw typed judgments;
+  provider envelopes and reasoning are excluded.
+- A process killed inside a case or judge pair leaves its attempt journal and
+  reservations intact. Resume restarts only that unfinished unit with fresh
+  isolated operational state. Up to three interrupted attempts per unit are
+  allowed; further interruption stops for investigation. All recovery charges
+  consume the original ceiling and are disclosed. No paid case is silently
+  discarded or overwritten; completed-case latency is reported separately from
+  interrupted-attempt exposure.
+- Both OpenRouter and TypeSafe reserve **before every network attempt** in the
+  same Postgres `final-evaluation/final-program-v1` budget. Retry, fallback,
+  parallel risk calls and both judges share it. Jev reserves $0.01 per call and
+  settles actual token cost; timeout or missing usage retains the reserve.
+  The published 64k maximum at $0.042/M input is below this reserve. A call that
+  exceeds its reservation disables the breaker. SDK retries are disabled for Jev.
+- Resume preserves the budget policy and all reservations. It refuses regressed
+  spend history; it never resets spend, raises the cap or re-enables a breaker.
+  Budget denial stops the program and writes a clearly partial aggregate report.
+- `STOPPED.json` records the exception class without row data or credentials;
+  `progress.json` records phase/count/spend. Inspect a run taking over two hours
+  before continuing. Completion means the program finished, not that safety or
+  quality gates passed; those gates are in `results.json`.
+
+### Outputs (generated only when the authorized program runs)
+
+Everything is private and ignored under **`artifacts/final-program-v1/`**:
+
+| Artifact | Contents |
+| --- | --- |
+| `results.json` | Aggregate source of truth: every §15.4 outcome/efficiency metric, Wilson and case-bootstrap intervals, language/dialect/country/segment slices with n and small-cell flags, all eight unsafe categories and upper bounds, separate infrastructure estimate |
+| `results.md` | Mandatory workload/sample/model/prompt/price-date header and the same aggregate metrics, including limitations |
+| `checkpoints/` | One immutable completion per case/repeat or paired judge item, preserved attempt markers and call journals |
+| `judge-inputs.json` | Private blinded wording inputs for 50 calibration and 100 frozen reply assessments; no objective gold is sent to a judge |
+| `human-judge-20.csv` | Twenty deterministic locale-stratified frozen wording items for Sebastian, blank four-dimension ratings, no system label or model score; never overwritten on resume |
+| `progress.json`, `STOPPED.json`, `COMPLETE.json`, `worker.log` | Aggregate progress and stop/completion receipts |
+
+The paired comparison reports B1/P differences with case bootstrap, exact McNemar
+on repeated-subset majority success, outcome/SAR/success flip rates and repeat
+ranges. Sonnet/Jev agreement reports exact/within-one Wilson intervals and
+quadratic-weighted kappa with bootstrap intervals, separately for calibration and
+frozen replies. Missing scores are counted explicitly. Human agreement remains
+**pending** until human ratings exist: the requested 20-item owner sheet does not
+substitute for the protocol's 50-item calibration. PT and dialect wording remain
+model-generated with no fluent-human PT review.
+
+The frozen suite has outcome/action gold, not independent per-slot NLU or matcher
+ranking gold. Those component metrics remain in the separate dev and matcher
+reports; the final report labels this limitation instead of deriving labels from
+system behavior. No final artifacts or frozen results were generated during
+implementation tests; tests use independent authored fixtures.
+
+TypeSafe activation uses the approved masked synthetic payload boundary. The
+[model documentation](https://docs.typesafe.ai/models) was checked on 2026-09-27:
+Jev 1.13.0 costs $0.042/M input, output free. Its [legal documentation](https://docs.typesafe.ai/legal)
+offers ZDR for enterprise accounts; this standard account's ZDR is unverified.
+The new key is a server-only Key Vault reference through managed identity.
+
+### Judge wiring (implemented in `evals/final_program.py`)
+
+The 100 blinded frozen reply assessments use `aclara.llm.final_run.client_for` with `route="openrouter_sonnet", judge=True` and `score_pair` plus `jev_judge_adapter`, which keeps the 256-token Sonnet route while reserving and settling Jev against the identical cumulative gate. The 50 frozen judge IDs are predeclared by `SHA-256("judge-v1:" + scenario_id)` within category. Jev–Sonnet agreement and each judge's agreement with the completed human calibration sheet are reported by `aclara.llm.dual_judge`; adapter tests do not imply that any lead-run judge or human review has completed.
