@@ -118,3 +118,71 @@ def test_p_outage_degrades_through_api() -> None:
         assert any(e["event"] == "nlu" and e["degraded"] for e in result["events"])
 
     asyncio.run(check())
+
+
+def test_v2_choices_reject_all_and_require_confirmation() -> None:
+    from evals.runner import _new_authenticated_client
+
+    async def check() -> None:
+        client = StructuredClient(
+            {route: ModelSpec("mock", "fixture") for route in ("nlu", "phrase")},
+            {},
+            mock_response=lambda _s, _u, schema: (
+                json.dumps(
+                    {
+                        "language": "es",
+                        "intent": "dispute_charge",
+                        "intent_confidence": 0.99,
+                        "amount_expr": "145.50",
+                        "currency_expr": "USD",
+                        "merchant_expr": "Mercado Verde",
+                        "customer_confirms": "yes",
+                    }
+                )
+                if schema is ExtractedNlu
+                else "{}"
+            ),
+        )
+        app, http, token, cid = await _new_authenticated_client(
+            runtime=Runtime(system="P"),
+            llm_client=client,
+        )
+        headers = {"Authorization": f"Bearer {token}"}
+
+        async def message(text):
+            response = await http.post(
+                f"/chat/sessions/{cid}/messages", headers=headers, json={"message": text}
+            )
+            assert response.status_code == 200
+            return response.json()
+
+        try:
+            # No literal positive identification: even a confident model must offer a choice.
+            first = await message("No reconozco un cargo")
+            assert first["response_type"] == "choose_transaction"
+            assert 1 <= len(first["candidates"]) <= 3
+            assert any(
+                e["event"] == "match" and e["matcher_version"] == "v2"
+                for e in app.state.runtime.events
+            )
+            assert not app.state.cases
+            rejected = await message("ninguno")
+            assert rejected["response_type"] == "choose_transaction"
+            rejected = await message("ninguno")
+            assert rejected["response_type"] == "offer_human"
+            assert not app.state.cases
+            cid = (await http.post("/chat/sessions", headers=headers)).json()["conversation_id"]
+            await message("No reconozco un cargo")
+            selected = await message("1")
+            assert selected["outcome"] == "dispute_proposed" and not app.state.cases
+            verified = await http.post(
+                f"/chat/sessions/{cid}/confirm",
+                headers=headers,
+                json={"proposal_hash": selected["proposal"]["proposal_hash"], "confirmed": True},
+            )
+            assert verified.json()["verified"] is True
+        finally:
+            await http.aclose()
+            app.state.store.close()
+
+    asyncio.run(check())

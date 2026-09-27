@@ -51,6 +51,7 @@ from aclara.bank.serving import Persona, ServingRepository
 from aclara.handoff.packet import create_packet
 from aclara.handoff.routing import AgentDirectory
 from aclara.llm.client import StructuredClient
+from aclara.ops.budget import PostgresSpendGate
 from aclara.ops.store import Scope, Store
 from aclara.policy.engine import PolicyDecision, evaluate
 from aclara.policy.rules import catalog, rule
@@ -298,7 +299,12 @@ def create_app(
         allow_headers=["Authorization", "Content-Type", "X-Preauth-Token"],
     )
     app.state.runtime = runtime or Runtime(system=active_settings.agent_system)
-    ai = AgentAI(active_settings, app.state.runtime, llm_client)
+    spend_gate = (
+        PostgresSpendGate(operational, run_id=os.getenv("LLM_BUDGET_RUN_ID") or None)
+        if active_settings.llm_provider != "mock" and llm_client is None
+        else None
+    )
+    ai = AgentAI(active_settings, app.state.runtime, llm_client, spend_gate=spend_gate)
     app.state.ai = ai
     app.state.instance_id = str(uuid4())
     app.state.settings = active_settings

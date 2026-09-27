@@ -16,10 +16,12 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from aclara.agent.nlg.grounding import redact_for_model
 from aclara.llm.client import StructuredClient
+from aclara.llm.final_run import client_for, journal, open_budget_store, require_start
 from aclara.llm.judge_validation import ARTIFACTS, DIMENSIONS, SHEET
 from aclara.llm.prompts import Prompt, data_block, load_prompt
 from aclara.llm.round_one import ROOT, _catalog, _local_key
 from aclara.llm.types import ModelFailure
+from aclara.ops.store import Store
 
 MODEL_ID = "anthropic/claude-sonnet-5"
 PROVIDER_ONLY = ("google-vertex/global",)
@@ -127,7 +129,9 @@ def _full_csv(results: list[dict[str, Any]]) -> None:
     pending.replace(path)
 
 
-def run(*, smoke: bool, budget_usd: float, sheet_path: Path = SHEET) -> dict[str, Any]:
+def run(
+    *, smoke: bool, budget_usd: float, sheet_path: Path = SHEET, final_store: Store | None = None
+) -> dict[str, Any]:
     if os.getenv("LLM_REAL_CALLS_APPROVED") != "1":
         raise RuntimeError("Process-local owner approval gate is required")
     if smoke:
@@ -135,6 +139,10 @@ def run(*, smoke: bool, budget_usd: float, sheet_path: Path = SHEET) -> dict[str
             raise RuntimeError("Smoke requires its process-local approval and a sub-$0.50 cap")
     elif os.getenv("LLM_JUDGE_FULL_RUN_APPROVED") != "1" or budget_usd <= 0:
         raise RuntimeError("Full paid judge calibration requires a separate owner approval")
+    if not smoke:
+        require_start()
+        if final_store is None:
+            raise RuntimeError("Full judge requires the shared final-program budget")
     rows, sheet_hash = _read_samples(sheet_path)
     selected = _smoke_sample(rows) if smoke else rows
     prompt = load_prompt(PROMPT)
@@ -161,20 +169,28 @@ def run(*, smoke: bool, budget_usd: float, sheet_path: Path = SHEET) -> dict[str
     remaining = budget_usd - _known_cost(results) - 0.05 * _unknown_attempts(results)
     if remaining <= 0:
         raise RuntimeError("Judge budget exhausted by prior attempts")
-    models, prices = _catalog((MODEL_ID,))
-    spec = replace(
-        models[MODEL_ID],
-        provider_only=PROVIDER_ONLY,
-        max_output_tokens=256,
-        timeout_seconds=60,
-    )
-    os.environ["OPENROUTER_API_KEY"] = _local_key()
-    client = StructuredClient(
-        {MODEL_ID: spec},
-        {MODEL_ID: prices[MODEL_ID]},
-        budget_usd=remaining,
-        daily_budget_usd=remaining,
-    )
+    if final_store is not None:
+        client = client_for(
+            "openrouter_sonnet",
+            final_store,
+            judge=True,
+            response_record=journal(output.with_suffix(".calls.jsonl")),
+        )
+    else:
+        models, prices = _catalog((MODEL_ID,))
+        spec = replace(
+            models[MODEL_ID],
+            provider_only=PROVIDER_ONLY,
+            max_output_tokens=256,
+            timeout_seconds=60,
+        )
+        os.environ["OPENROUTER_API_KEY"] = _local_key()
+        client = StructuredClient(
+            {MODEL_ID: spec},
+            {MODEL_ID: prices[MODEL_ID]},
+            budget_usd=remaining,
+            daily_budget_usd=remaining,
+        )
     for row in selected:
         if row["sample_id"] in done:
             continue
@@ -224,7 +240,12 @@ def main() -> int:
     choices.add_argument("--full", action="store_true")
     parser.add_argument("--budget-usd", type=float, default=SMOKE_MAX_USD)
     args = parser.parse_args()
-    data = run(smoke=args.smoke, budget_usd=args.budget_usd)
+    store = open_budget_store() if args.full else None
+    try:
+        data = run(smoke=args.smoke, budget_usd=args.budget_usd, final_store=store)
+    finally:
+        if store:
+            store.close()
     results = data["results"]
     LOGGER.info(
         f"Judge {data['mode']}: {sum(row['status'] == 'valid' for row in results)}/{len(results)} valid; "

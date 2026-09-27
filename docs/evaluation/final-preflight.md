@@ -15,3 +15,13 @@ Sebastian approved the priced [final-run plan](final-run-plan.md) with a **$12 c
 | Human judge calibration | The ignored 50-row sheet is blank; prior Sonnet and Jev smoke items were paired 3/3. The dual-judge helper has offline tests only. | Human ratings and same-item Sonnet/Jev scoring are required before judge-vs-human claims; report both judges' agreement and their mutual agreement. Never delegate objective outcomes to either judge. |
 
 The read-only `evals.heldout` invocation returned `FileNotFoundError` for the private binding after manifest verification. This is a **preflight blocker**, not an evaluation failure. It did not enter `run()` or write `access.json`. The next attempted final command must be a fresh read-only preflight; `--run` remains prohibited until Sebastian supplies the start signal and every gate above passes. Keep the 200 frozen cases, labels, bindings, repeat IDs, and final prompt fixed after the freeze.
+
+## Lead integration update
+
+PR #12 and #29 have been merged. The real-route adapter and shared Postgres
+reservation gate are implemented and tested on independent authored fixtures;
+see the current [progress log](../status/progress-log.md) for release verification.
+The table above preserves the AI lane's earlier preflight, including its missing
+private binding. No lead frozen preflight or final run was performed in this layer.
+Follow the adapter instructions in [final-run-plan.md](final-run-plan.md) only
+after Sebastian supplies the start signal.

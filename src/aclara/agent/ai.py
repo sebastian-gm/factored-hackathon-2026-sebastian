@@ -15,6 +15,7 @@ from aclara.agent.nlu.structured import NluResult, understand
 from aclara.agent.runtime import Runtime
 from aclara.llm.client import StructuredClient
 from aclara.llm.config import load_fallback_route, load_models, load_prices
+from aclara.llm.types import SpendGate
 from aclara.settings import Settings
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -22,7 +23,12 @@ ROOT = Path(__file__).resolve().parents[3]
 
 class AgentAI:
     def __init__(
-        self, settings: Settings, runtime: Runtime, client: StructuredClient | None = None
+        self,
+        settings: Settings,
+        runtime: Runtime,
+        client: StructuredClient | None = None,
+        *,
+        spend_gate: SpendGate | None = None,
     ):
         self.runtime = runtime
         if client is None:
@@ -49,10 +55,12 @@ class AgentAI:
             client = StructuredClient(
                 models,
                 load_prices(ROOT / "config/pricing.yaml"),
+                budget_usd=None if spend_gate else float(os.getenv("LLM_RUN_BUDGET_USD", "0")),
+                spend_gate=spend_gate,
+                call_timeout_seconds=45 if spend_gate else None,
                 fallback_routes={"nlu": fallback_route, "phrase": fallback_route}
                 if fallback_route is not None
                 else None,
-                budget_usd=float(os.getenv("LLM_RUN_BUDGET_USD", "0")),
             )
         self.client = client
         self.cursor = 0

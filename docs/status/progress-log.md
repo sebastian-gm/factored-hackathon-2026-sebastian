@@ -1,5 +1,39 @@
 # Progress log
 
+## Handoff 09 integration — 2026-09-27 UTC (current)
+
+### Completed-verified
+
+- Reviewed and merged PR #12 (prompt v4, Gemini default, failure-only Grok, judge) and PR #29 (matcher v2), each with all four CI checks green. Matcher v2 is now the default MATCH artifact and is included in the API image; v1 remains available. Lane-authored training/human measurements below are their reported evidence, not lead reruns.
+- Independent tests verify v2 scoped choices, rejection of all choices, explicit confirmation/readback, and denial of foreign or out-of-window candidates. No frozen inputs, labels, bindings or private matcher splits were opened during this layer.
+- Added migration 0003 and Postgres reservations before every paid attempt. Production cap US$3/UTC day, smoke cumulative US$0.10, unknown costs retained, owner-only configuration; fallback/retries share the gate. A tripped reserve cannot trigger another model.
+- Owner-authorized real-route final adapter uses fresh state, v4/v2, Gemini full/repeats and Sonnet subset; final system/judge clients share a cumulative US$12 database gate. Budget denial aborts. Journals save validated output/metadata only, never reasoning. Explicit final start gate tested without opening frozen inputs.
+- `UV_CACHE_DIR=/tmp/aclara-uv-cache make checks`: **149 passed, 12 database skips**, six hooks, strict mypy, interfaces/catalog current; B1 **32/32**, **12 readbacks**. `python -m scripts.test_postgres`: **14 passed**, including concurrent reservations, restart/rollback exposure, cumulative cap and runtime privilege denial. `pnpm typecheck`, `pnpm lint`, `pnpm build`: passed.
+- `python -m scripts.azure_prices`: live East US 2 **US$34.63/month before tax**, checked 05:33 UTC, below US$40 gate. OpenRouter public endpoint rates rechecked: Gemini standard $0.50/$3 per million input/output; Grok $1.25/$2.50. No model call in these price checks.
+- `python -m scripts.azure_openrouter_key`: uploaded owner-supplied key to the approved vault, matching readback in memory, removed local entry and temporary file. No secret value printed or committed.
+
+- Merged integration PR #30; all four PR gates and exact-main CI/safety passed. Runtime smoke release: `5b6e34e15908372d307042a01292201c3bbd8d8d`. Main CI `36297937359`, safety `36297937382`; PR CI `36297745728`, safety `36297745767`.
+- `python -m scripts.azure_migrate_ops`: migration and non-owner TLS/RLS readback passed. `terraform -chdir=infra validate`: passed. Reviewed private plan: one API-identity grant limited to the OpenRouter secret, two app updates, no deletions or ingress/capacity changes. `python -m scripts.azure_dev apply`: **1 added / 2 changed / 0 destroyed**. API remains internal; web stays owner-IP-only HTTPS plus login.
+- `python -m scripts.azure_verify`: passed deployed SHA, model flags, Key Vault/MI references, source serving, replica limits, Postgres firewall/TLS, private ACR/state and existing approximate US$30/50 alert settings. Budget alert delivery is still untested.
+- Real Azure smoke: ES explanation → explicit denial → proposal → confirmation → case readback passed; PT ambiguity → clarification → ESC-04 handoff passed; fraud FRD-01 handoff passed. Staff claim/resolve readbacks and live Ops passed. Required flows used valid, non-degraded Gemini NLU v4 and matcher v2 on charge flows, with no fallback attempts. The first PT smoke failed a verifier assumption that every ambiguous input immediately gets choices. Its corrected verifier permits clarification only with a missing-expression or matcher no-match event; the retry measured v2 no-match, then safe handoff. No model, prompt, threshold or policy was tuned.
+- `python -m scripts.serving_browser --target azure`: real browser **3 surfaces**, **1 handoff resolved**, organizer source label and measured workspace verified. Additional local `pnpm test:e2e --live`: **4/4 passed** on authored fixtures.
+- **Five conversations attempted total** (including the failed verifier attempt); **10 paid calls, US$0.0107415**, **zero unknown-cost attempts**, all below the approved US$0.10. The allowance is exhausted: do not run another real smoke without new approval. Preserve `artifacts/azure/llm-smoke-conversations.json` and the database cost ledger.
+- External access workflow **36298514693** passed: non-allowlisted web HTTP 403 and internal API HTTP 404.
+- Aggregate receipts: `artifacts/azure/handoff09-smoke.json`, `verified.json`, and the final session release receipt `handoff09-final.json`. The smoke above is pinned to the runtime SHA; the follow-up changes only documentation and the smoke verifier. Final deployed SHA/control/CI readbacks are recorded in the final receipt and owner report.
+
+### Done-not-verified
+
+- The real final evaluation, judge agreement, human PT/MX/AR language review, broad model safety and actual final cost remain unverified. The prior frozen diagnostic remains failed acceptance.
+
+### Next-blocked
+
+- Runtime layer is verified on the SHA above. The final receipt identifies the documentation/verifier-only follow-up and its control checks. Next layer: AI-lane final evaluation after Sebastian's signal. No further real conversation is authorized in this layer.
+- Sebastian must give the AI lane the separate final-run start signal. Public/judge ingress remains unapproved. No new paid evaluation or cloud capacity requested.
+
+---
+
+# Prior release and lane evidence
+
 Session: handoff 08, 2026-09-26 America/Vancouver; continued 2026-09-27 UTC.
 This summary supersedes earlier task lists. Earlier release evidence remains in Git history and linked reports.
 

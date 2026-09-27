@@ -20,6 +20,10 @@ from aclara.settings import Settings
 
 
 def main() -> None:
+    if read_variables().get("enable_real_llm"):
+        raise RuntimeError(
+            "Use the capped azure_llm_smoke for the approved real-model conversations"
+        )
     web = "https://ca-web-aclara-dev-eastus2.lemonbeach-1b769de0.eastus2.azurecontainerapps.io"
     password = az("keyvault", "secret", "show", "--vault-name", VAULT, "--name", "demo-password")[
         "value"

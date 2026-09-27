@@ -11,6 +11,7 @@ from typing import Any
 
 from aclara.agent.contracts import DisputeCaseView, HandoffView
 from aclara.agent.runtime import Runtime
+from aclara.llm.client import StructuredClient
 from aclara.settings import Settings
 from evals.bindings import BoundFixture
 from evals.metrics import score
@@ -20,7 +21,12 @@ from evals.runner import _new_authenticated_client
 
 
 async def execute_bound(
-    scenario: dict[str, Any], fixture: BoundFixture, system: str, repeat: int = 0
+    scenario: dict[str, Any],
+    fixture: BoundFixture,
+    system: str,
+    repeat: int = 0,
+    *,
+    llm_client: StructuredClient | None = None,
 ) -> dict[str, Any]:
     validate_gold(scenario["gold"], fixture.refs, fixture.protected)
     runtime = Runtime(system=system, country=fixture.country, faults=scenario.get("faults", []))
@@ -29,10 +35,10 @@ async def execute_bound(
         demo_password=secrets.token_urlsafe(32),
         demo_customer_id=fixture.customer_id,
         bank_clock=fixture.clock,
-        llm_provider="mock",
+        llm_provider="openai_compat" if llm_client is not None else "mock",
     )
     app, client, token, conversation = await _new_authenticated_client(
-        settings, fixture.ledger, runtime
+        settings, fixture.ledger, runtime, llm_client=llm_client
     )
     scope = fixture.seed(app, token)
     app.state.sessions[token] = replace(
