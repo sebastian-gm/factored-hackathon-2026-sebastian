@@ -96,6 +96,7 @@ class AgentAI:
             degraded=result.degraded,
             intent=result.frame.intent.value,
             recognition=result.extracted.recognition,
+            unfamiliar_charge=result.extracted.unfamiliar_charge,
             language=result.extracted.language,
             clarification=result.clarification,
         )

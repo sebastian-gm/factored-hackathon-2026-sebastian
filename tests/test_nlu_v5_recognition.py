@@ -6,6 +6,7 @@ import json
 from datetime import UTC, datetime
 from pathlib import Path
 
+import pytest
 import yaml
 from pydantic import BaseModel
 
@@ -106,3 +107,58 @@ def test_frozen_followups_have_safe_deterministic_degradation() -> None:
         )
         expected = "recognized" if case["expected_path"] == "resolved_by_explanation" else "denied"
         assert result.degraded and result.extracted.recognition == expected, case["id"]
+
+
+@pytest.mark.parametrize(
+    ("message", "country", "expected"),
+    [
+        ("No reconozco esta compra", "MX", True),
+        ("No reconozco", "MX", True),
+        ("No sé qué es este cargo", "MX", True),
+        ("No cacho de dónde salió este cobro, po", "CL", True),
+        ("Não sei que cobrança é essa", "BR", True),
+        ("Não reconheço", "BR", True),
+        ("Não reconheço esse lançamento", "BR", True),
+        ("Não lembro dessa compra", "BR", True),
+        ("¿Por qué está pendiente?", "MX", False),
+        ("Por que a compra está pendente?", "BR", False),
+        ("Yo no hice esa compra", "MX", False),
+        ("Não fui eu que fiz essa compra", "BR", False),
+    ],
+)
+def test_degraded_unfamiliarity_stays_separate_from_status_and_denial(
+    message: str, country: str, expected: bool
+) -> None:
+    result = understand(message, country=country, bank_clock=CLOCK)
+    assert result.degraded
+    assert result.extracted.unfamiliar_charge is expected
+
+
+@pytest.mark.parametrize(
+    ("message", "language", "expected"),
+    [
+        ("No me suena esa compra", "es", True),
+        ("Não sei que cobrança é essa", "pt", True),
+        ("¿Por qué está pendiente?", "es", False),
+        ("Por que a compra está pendente?", "pt", False),
+        ("Yo no hice esa compra", "es", False),
+        ("Não fui eu que fiz essa compra", "pt", False),
+    ],
+)
+def test_postprocess_corrects_model_unfamiliarity_for_clear_cues(
+    message: str, language: str, expected: bool
+) -> None:
+    # Simulate a model missing unfamiliarity, or overflagging a status question.
+    client = _client(
+        {
+            "language": language,
+            "intent": "charge_inquiry",
+            "intent_confidence": 0.9,
+            "unfamiliar_charge": not expected,
+        },
+        [],
+    )
+    result = understand(
+        message, country="BR" if language == "pt" else "MX", bank_clock=CLOCK, client=client
+    )
+    assert result.extracted.unfamiliar_charge is expected

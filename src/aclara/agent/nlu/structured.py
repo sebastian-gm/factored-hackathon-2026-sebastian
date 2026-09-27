@@ -64,6 +64,7 @@ class ExtractedNlu(BaseModel):
     count_expr: str | None = None
     customer_confirms: Literal["yes", "no", "unclear"] | None = None
     recognition: Literal["recognized", "denied", "unsure"] | None = None
+    unfamiliar_charge: bool = False
     human_requested: bool = False
     lost_stolen: bool = False
     regulator: bool = False
@@ -289,6 +290,44 @@ def _fallback_recognition(message: str) -> Literal["recognized", "denied", "unsu
     return None
 
 
+_CHARGE_REFERENT = re.compile(
+    r"\b(?:cargo|cobro|compra|movimiento|consumo|pago|cobranca|lancamento|debito|transacao)\b"
+)
+_UNFAMILIAR_CUE = re.compile(
+    r"\b(?:no (?:reconozco|reconoci|ubico|recuerdo|me suena|cacho|se que|se de donde|"
+    r"tengo idea|me cuadra)|desconozco|"
+    r"nao (?:reconheco|reconheci|lembro|sei que|sei de onde|faco ideia|conheco)|"
+    r"nem lembro|nao me recordo)\b"
+)
+_STRONG_UNFAMILIAR_CUE = re.compile(r"\b(?:no (?:reconozco|me suena)|nao (?:reconheco|conheco))\b")
+_WHAT_CHARGE = re.compile(
+    r"\b(?:que (?:es|sera) (?:este|ese|aquel)|"
+    r"que (?:cobranca|lancamento|debito|compra) (?:e )?ess[ae])\b"
+)
+_EXPLICIT_DISPUTE_CUE = re.compile(
+    r"\b(?:no (?:fui yo|la hice|lo hice|hice esa|compre|pague|autorice)|"
+    r"nao (?:fui eu|fiz essa|comprei|paguei|autorizei)|"
+    r"quiero (?:disputar|contestar|reclamar|abrir (?:una )?disputa)|"
+    r"quero (?:contestar|reclamar|abrir (?:uma )?contestacao))\b"
+)
+
+
+def _bare_unfamiliarity(message: str) -> bool:
+    """Recognize unfamiliarity without turning a status question into an offer."""
+    plain = normalize_text(message)
+    if _EXPLICIT_DISPUTE_CUE.search(plain):
+        return False
+    if _STRONG_UNFAMILIAR_CUE.search(plain):
+        return True
+    has_charge = bool(_CHARGE_REFERENT.search(plain))
+    if _UNFAMILIAR_CUE.search(plain) and (
+        has_charge
+        or re.search(r"\b(?:esta|este|ese|essa|isso|de donde salio|de onde veio)\b", plain)
+    ):
+        return True
+    return has_charge and bool(_WHAT_CHARGE.search(plain))
+
+
 def _fallback_extract(message: str, *, awaiting_recognition: bool = False) -> ExtractedNlu:
     frame = classify_nlu(message)
     amount = re.search(
@@ -327,6 +366,7 @@ def _fallback_extract(message: str, *, awaiting_recognition: bool = False) -> Ex
         date_expr=date_expr,
         human_requested=frame.intent == Intent.HUMAN_REQUEST,
         recognition=_fallback_recognition(message) if awaiting_recognition else None,
+        unfamiliar_charge=_bare_unfamiliarity(message) if not awaiting_recognition else False,
     )
 
 
@@ -347,6 +387,7 @@ def postprocess(
     country: str | None,
     bank_clock: datetime,
     awaiting_recognition: bool = False,
+    message: str | None = None,
 ) -> NluResult:
     language = extracted.language
     intent = _INTENT_MAP[extracted.intent]
@@ -368,6 +409,32 @@ def postprocess(
         merchant = normalize_text(extracted.merchant_expr or "")
         if merchant == "cargo" or extracted.out_of_scope_topic == "job":
             intent, confidence = Intent.OUT_OF_SCOPE, min(confidence, 0.5)
+    unfamiliar_charge = extracted.unfamiliar_charge
+    if message is not None:
+        plain = normalize_text(message)
+        bare_cue = _bare_unfamiliarity(message)
+        status_only = (
+            bool(
+                re.search(
+                    r"\b(?:pendiente|pendente|revertido|revertida|estornado|aprobado|aprovado|rechazado|recusado)\b",
+                    plain,
+                )
+            )
+            and not bare_cue
+        )
+        unfamiliar_charge = (
+            (bare_cue or unfamiliar_charge)
+            and not status_only
+            and not _EXPLICIT_DISPUTE_CUE.search(plain)
+        )
+    if (
+        awaiting_recognition
+        or intent != Intent.CHARGE_INQUIRY
+        or extracted.intent in {"refund_or_reversal_status", "dispute_status"}
+    ):
+        unfamiliar_charge = False
+    if extracted.unfamiliar_charge != unfamiliar_charge:
+        extracted = extracted.model_copy(update={"unfamiliar_charge": unfamiliar_charge})
     public_language: Literal["es", "pt"] = "pt" if language == "pt" else "es"
     currency, ambiguous = resolve_currency(extracted.currency_expr, country)
     dates = parse_relative_date(extracted.date_expr, bank_clock)
@@ -509,6 +576,7 @@ def understand(
             country=country,
             bank_clock=bank_clock,
             awaiting_recognition=awaiting_recognition,
+            message=message,
         ).model_copy(update={"degraded": True})
     prompt = load_prompt(prompt_path or Path("prompts/nlu/v5.md"))
     allowed_charge: dict[str, str] = {}
@@ -616,4 +684,5 @@ def understand(
         country=country,
         bank_clock=bank_clock,
         awaiting_recognition=awaiting_recognition,
+        message=message,
     ).model_copy(update={"degraded": primary_failed})
