@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import logging
 import os
 import re
@@ -17,7 +18,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from typesafe_sdk import RetryPolicy, TypeSafeClient
 
 from aclara.agent.contracts import Intent, NluFrame
-from aclara.agent.nlg.grounding import redact_for_model
+from aclara.agent.nlg.grounding import redact_for_model, scan_dlp
 from aclara.agent.nlu.rules import classify_nlu, normalize_text
 from aclara.llm.client import StructuredClient
 from aclara.llm.prompts import data_block, load_prompt
@@ -62,6 +63,7 @@ class ExtractedNlu(BaseModel):
     country_expr: str | None = None
     count_expr: str | None = None
     customer_confirms: Literal["yes", "no", "unclear"] | None = None
+    recognition: Literal["recognized", "denied", "unsure"] | None = None
     human_requested: bool = False
     lost_stolen: bool = False
     regulator: bool = False
@@ -251,7 +253,43 @@ def parse_relative_date(expression: str | None, bank_clock: datetime) -> tuple[d
     return None
 
 
-def _fallback_extract(message: str) -> ExtractedNlu:
+def _fallback_recognition(message: str) -> Literal["recognized", "denied", "unsure"] | None:
+    """Conservative recognition cue for a degraded reply in the waiting state."""
+    plain = normalize_text(message).strip(" .,!¿?¡")
+    if plain in {"si", "no", "sim", "nao"}:
+        return "unsure"
+    denied = bool(
+        re.search(
+            r"\b(?:no fui yo|no (?:la )?hice|no pague|no compre|ni pise|"
+            r"sigo sin reconocer|quiero (?:disput|desconoc|reclam)|"
+            r"(?:abr|pid).*disputa|nao fui eu|nao passei|nao autorizei|"
+            r"nao comprei|ainda nao reconheco|quero contestar)\b",
+            plain,
+        )
+    )
+    recognized = bool(
+        re.search(
+            r"\b(?:ya (?:caigo|me acorde|recorde|lo ubique)|"
+            r"ahora (?:cache|me acorde|entendi)|si la hice yo|"
+            r"la compra era mia|compra mia|fui yo quien pago|"
+            r"(?:agora|ja) (?:lembrei|caiu a ficha|entendi)|"
+            r"fui eu que comprei|essa compra foi minha|eu fiz essa compra|"
+            r"fui eu mesmo|eu tinha feito essa compra)\b",
+            plain,
+        )
+    )
+    if denied and recognized:
+        return "unsure"
+    if denied:
+        return "denied"
+    if recognized:
+        return "recognized"
+    if any(term in plain for term in ("no se", "no recuerdo", "nao sei", "nao lembro")):
+        return "unsure"
+    return None
+
+
+def _fallback_extract(message: str, *, awaiting_recognition: bool = False) -> ExtractedNlu:
     frame = classify_nlu(message)
     amount = re.search(
         r"\b\d+(?:[.,]\d+)?\s*(?:pesos?|dolares?|reais|lucas?|palos?|contos?|varos?|pila)?",
@@ -288,6 +326,7 @@ def _fallback_extract(message: str) -> ExtractedNlu:
         currency_expr=currency.group(0) if currency else None,
         date_expr=date_expr,
         human_requested=frame.intent == Intent.HUMAN_REQUEST,
+        recognition=_fallback_recognition(message) if awaiting_recognition else None,
     )
 
 
@@ -302,10 +341,27 @@ def _explicit_human_request(message: str) -> bool:
     )
 
 
-def postprocess(extracted: ExtractedNlu, *, country: str | None, bank_clock: datetime) -> NluResult:
+def postprocess(
+    extracted: ExtractedNlu,
+    *,
+    country: str | None,
+    bank_clock: datetime,
+    awaiting_recognition: bool = False,
+) -> NluResult:
     language = extracted.language
     intent = _INTENT_MAP[extracted.intent]
     confidence = extracted.intent_confidence
+    if not awaiting_recognition and extracted.recognition is not None:
+        extracted = extracted.model_copy(update={"recognition": None})
+    elif awaiting_recognition and intent not in {
+        Intent.HUMAN_REQUEST,
+        Intent.FRAUD,
+        Intent.FEE_DISPUTE,
+    }:
+        if extracted.recognition == "denied":
+            intent = Intent.DISPUTE_CHARGE
+        elif extracted.recognition in {"recognized", "unsure"}:
+            intent = Intent.CHARGE_INQUIRY
     if extracted.human_requested:
         intent, confidence = Intent.HUMAN_REQUEST, 1.0
     if language == "pt" and extracted.intent == "charge_inquiry":
@@ -444,12 +500,39 @@ def understand(
     bank_clock: datetime,
     client: StructuredClient | None = None,
     prompt_path: Path | None = None,
+    awaiting_recognition: bool = False,
+    masked_charge: dict[str, str] | None = None,
 ) -> NluResult:
     if client is None or (client.models["nlu"].provider == "mock" and not client.mock_configured):
         return postprocess(
-            _fallback_extract(message), country=country, bank_clock=bank_clock
+            _fallback_extract(message, awaiting_recognition=awaiting_recognition),
+            country=country,
+            bank_clock=bank_clock,
+            awaiting_recognition=awaiting_recognition,
         ).model_copy(update={"degraded": True})
-    prompt = load_prompt(prompt_path or Path("prompts/nlu/v4.md"))
+    prompt = load_prompt(prompt_path or Path("prompts/nlu/v5.md"))
+    allowed_charge: dict[str, str] = {}
+    if awaiting_recognition:
+        for fact_key, value in (masked_charge or {}).items():
+            if fact_key not in {"merchant", "transaction_date", "amount", "currency", "status"}:
+                continue
+            redacted = redact_for_model(str(value))[:160]
+            allowed_charge[fact_key] = "[REDACTED]" if scan_dlp(redacted) else redacted
+    context = "\n".join(
+        (
+            data_block(
+                "record",
+                json.dumps(
+                    {
+                        "awaiting_recognition": awaiting_recognition,
+                        "selected_charge": allowed_charge,
+                    },
+                    ensure_ascii=False,
+                ),
+            ),
+            data_block("customer_message", redact_for_model(message)),
+        )
+    )
     real_route = (
         client.models["nlu"].provider not in {"mock", "recorded"}
         and client.models["nlu"].model_id == "google/gemini-3-flash-preview"
@@ -483,21 +566,21 @@ def understand(
         extracted = client.generate(
             "nlu",
             prompt.text,
-            data_block("customer_message", redact_for_model(message)),
+            context,
             ExtractedNlu,
             prompt_id=f"{prompt.id}@{prompt.version}",
             prompt_hash=prompt.content_hash,
         )
         primary_failed = False
     except BudgetFailure as exc:
-        extracted = _fallback_extract(message)
+        extracted = _fallback_extract(message, awaiting_recognition=awaiting_recognition)
         primary_failed = True
         primary_error = exc
     except ModelFailure:
-        extracted = _fallback_extract(message)
+        extracted = _fallback_extract(message, awaiting_recognition=awaiting_recognition)
         primary_failed = True
     except Exception as exc:
-        extracted = _fallback_extract(message)
+        extracted = _fallback_extract(message, awaiting_recognition=awaiting_recognition)
         primary_failed = True
         primary_error = exc
     if real_route:
@@ -528,6 +611,9 @@ def understand(
         extracted = extracted.model_copy(
             update={"intent": "human_request", "human_requested": True}
         )
-    return postprocess(extracted, country=country, bank_clock=bank_clock).model_copy(
-        update={"degraded": primary_failed}
-    )
+    return postprocess(
+        extracted,
+        country=country,
+        bank_clock=bank_clock,
+        awaiting_recognition=awaiting_recognition,
+    ).model_copy(update={"degraded": primary_failed})

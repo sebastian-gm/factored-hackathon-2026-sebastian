@@ -70,14 +70,23 @@ class AgentAI:
             self.runtime.record("llm_call", **asdict(record))
         self.cursor = len(self.client.records)
 
-    def understand(self, message: str, clock: datetime) -> NluResult:
+    def understand(
+        self,
+        message: str,
+        clock: datetime,
+        *,
+        awaiting_recognition: bool = False,
+        masked_charge: dict[str, str] | None = None,
+    ) -> NluResult:
         outage = self.runtime.fault("llm_outage", "nlu")
         result = understand(
             message,
             country=self.runtime.country,
             bank_clock=clock,
             client=None if outage else self.client,
-            prompt_path=ROOT / "prompts/nlu/v4.md",
+            prompt_path=ROOT / "prompts/nlu/v5.md",
+            awaiting_recognition=awaiting_recognition,
+            masked_charge=masked_charge,
         )
         if self.runtime.fault("unsupported_language", "nlu"):
             result = result.model_copy(update={"clarification": "language", "degraded": False})
@@ -86,6 +95,7 @@ class AgentAI:
             "nlu",
             degraded=result.degraded,
             intent=result.frame.intent.value,
+            recognition=result.extracted.recognition,
             language=result.extracted.language,
             clarification=result.clarification,
         )
@@ -124,8 +134,9 @@ class AgentAI:
                 client=None if deterministic else self.client,
                 prompt_path=ROOT / "prompts/phrase/v1.md",
             )
-            # Retain the policy-specific deterministic explanation when phrasing falls back.
-            if not built.used_template:
+            # The offer template is mandatory and grounded. Other deterministic
+            # policy explanations retain their existing lead-owned wording.
+            if not built.used_template or str(plan.response_type) == "offer_dispute":
                 plan = built.plan
             self.runtime.record(
                 "phrasing", used_template=built.used_template, violations=list(built.violations)
