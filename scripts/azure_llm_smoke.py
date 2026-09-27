@@ -25,7 +25,8 @@ from aclara.policy.engine import evaluate
 from aclara.settings import Settings
 
 WEB = "https://ca-web-aclara-dev-eastus2.lemonbeach-1b769de0.eastus2.azurecontainerapps.io"
-CHECKPOINT = ROOT / "artifacts/azure/llm-smoke-conversations.json"
+SMOKE_RUN = "jev-support-smoke"
+CHECKPOINT = ROOT / f"artifacts/azure/{SMOKE_RUN}-conversations.json"
 
 
 @contextmanager
@@ -56,10 +57,12 @@ def budget_receipt() -> dict[str, Any]:
             "SELECT daily_usd,disabled FROM llm.limits WHERE scope='production'"
         ).fetchone() == (3, False)
         assert connection.execute(
-            "SELECT limit_usd,enabled FROM llm.runs WHERE scope='production' AND run_id='handoff09-smoke'"
+            "SELECT limit_usd,enabled FROM llm.runs WHERE scope='production' AND run_id=%s",
+            (SMOKE_RUN,),
         ).fetchone() == (Decimal("0.10"), True)
         row = connection.execute(
-            "SELECT count(*),coalesce(sum(actual_usd),0),coalesce(sum(charged_usd),0),count(*) FILTER(WHERE actual_usd IS NULL) FROM llm.reservations WHERE scope='production' AND run_id='handoff09-smoke'"
+            "SELECT count(*),coalesce(sum(actual_usd),0),coalesce(sum(charged_usd),0),count(*) FILTER(WHERE actual_usd IS NULL) FROM llm.reservations WHERE scope='production' AND run_id=%s",
+            (SMOKE_RUN,),
         ).fetchone()
     assert row is not None and float(row[2]) <= 0.10
     return {
@@ -119,7 +122,7 @@ def exercise(name: str, password: str, ledger: ServingRepository) -> dict[str, A
                 "exists_probability",
             }
             private_write(
-                ROOT / f"artifacts/azure/smoke-{name}-observations.json",
+                ROOT / f"artifacts/azure/{SMOKE_RUN}-{name}-observations.json",
                 json.dumps(
                     {
                         "outcome": response["outcome"],
@@ -243,8 +246,21 @@ def exercise(name: str, password: str, ledger: ServingRepository) -> dict[str, A
         calls = [e for e in events if e["event"] == "llm_call"]
         assert nlu and all(not e["degraded"] for e in nlu)
         assert any(e["status"] == "valid" and e["prompt_id"] == "nlu@v4" for e in calls)
-        assert all(e["provider"] == "openai_compat" for e in calls)
-        assert {e["model_id"] for e in calls} <= {"google/gemini-3-flash-preview", "x-ai/grok-4.20"}
+        assert all(e["provider"] in {"openai_compat", "typesafe"} for e in calls)
+        jev = [e for e in calls if e["provider"] == "typesafe"]
+        assert jev and all(e["status"] == "valid" for e in jev)
+        for call in jev:
+            judgments = call["judgments"]
+            assert judgments["degradation"] is None
+            assert all(
+                judgments["union_flags"][cue] == (flag or judgments["jev_threshold_flags"][cue])
+                for cue, flag in judgments["gemini_raw_flags"].items()
+            )
+        assert {e["model_id"] for e in calls} <= {
+            "google/gemini-3-flash-preview",
+            "x-ai/grok-4.20",
+            "jev-1.13.0",
+        }
         if name != "fraud":
             matches = [e for e in events if e["event"] == "match"]
             assert matches and all(e["matcher_version"].startswith("v2") for e in matches)
@@ -254,6 +270,7 @@ def exercise(name: str, password: str, ledger: ServingRepository) -> dict[str, A
             "scenario": name,
             "status": "passed",
             "model_attempts": len(calls),
+            "jev_valid_attempts": len(jev),
             "valid_attempts": sum(e["status"] == "valid" for e in calls),
             "fallback_attempts": sum(e["model_id"] == "x-ai/grok-4.20" for e in calls),
         }
@@ -266,9 +283,7 @@ def main() -> None:
     )
     args = parser.parse_args()
     variables = read_variables()
-    assert (
-        variables.get("enable_real_llm") and variables.get("llm_budget_run_id") == "handoff09-smoke"
-    )
+    assert variables.get("enable_real_llm") and variables.get("llm_budget_run_id") == SMOKE_RUN
     before = budget_receipt()
     assert before["charged_with_reserves_usd"] < 0.10
     password = az("keyvault", "secret", "show", "--vault-name", VAULT, "--name", "demo-password")[
@@ -278,7 +293,7 @@ def main() -> None:
     store = Store(connection_string("aclara_app"))
     try:
         ledger = ServingRepository(store, Settings().bank_clock)
-        receipt = ROOT / "artifacts/azure/llm-smoke.json"
+        receipt = ROOT / f"artifacts/azure/{SMOKE_RUN}.json"
         previous = json.loads(receipt.read_text()) if receipt.exists() else {}
         results = (
             previous.get("results", []) if previous.get("release") == variables["image_tag"] else []
@@ -289,7 +304,7 @@ def main() -> None:
                 results.append(result)
                 print(json.dumps(result), flush=True)
                 private_write(
-                    ROOT / "artifacts/azure/llm-smoke.json",
+                    ROOT / f"artifacts/azure/{SMOKE_RUN}.json",
                     json.dumps(
                         {
                             "release": variables["image_tag"],

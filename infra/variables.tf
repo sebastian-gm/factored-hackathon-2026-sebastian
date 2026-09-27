@@ -65,7 +65,7 @@ variable "llm_budget_run_id" {
   default     = ""
   description = "Optional owner-created cumulative smoke budget in Postgres, in addition to USD 3/day."
   validation {
-    condition     = contains(["", "handoff09-smoke"], var.llm_budget_run_id)
+    condition     = contains(["", "handoff09-smoke", "jev-support-smoke"], var.llm_budget_run_id)
     error_message = "Only the approved smoke budget or normal daily accounting is supported."
   }
 }
