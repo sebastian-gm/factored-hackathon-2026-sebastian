@@ -16,6 +16,7 @@ from aclara.agent.runtime import Runtime
 from aclara.api.app import create_app
 from aclara.bank.repository import TransactionRepository
 from aclara.evals.schema import ScenarioSuite
+from aclara.llm.client import StructuredClient
 from aclara.settings import Settings
 
 LOGGER = logging.getLogger("aclara.evals")
@@ -27,6 +28,8 @@ async def _new_authenticated_client(
     settings: Settings | None = None,
     repository: TransactionRepository | None = None,
     runtime: Runtime | None = None,
+    *,
+    llm_client: StructuredClient | None = None,
 ) -> tuple[Any, AsyncClient, str, str]:
     username = "dev.persona"
     password = secrets.token_urlsafe(32)
@@ -39,6 +42,7 @@ async def _new_authenticated_client(
         ),
         repository,
         runtime,
+        llm_client=llm_client,
     )
     username = app.state.settings.demo_username
     password = app.state.settings.demo_password
