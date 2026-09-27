@@ -1,0 +1,654 @@
+{
+  "corrected_scenarios": 38,
+  "human_portuguese_review": "pending; no fluent reviewer available",
+  "normalization": "Merchant placeholders are restored literally from the fictional fixture; current and future response-plan aliases share identical reviewed replies.",
+  "reviewed_portuguese_scenarios": 84,
+  "reviewed_texts": 966,
+  "reviews": [
+    {
+      "id": "test-v1.normal.002.pending_recent",
+      "issues": [],
+      "status": "passed",
+      "text_count": 11,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.normal.007.pending_recent",
+      "issues": [],
+      "status": "passed",
+      "text_count": 11,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.normal.012.pending_recent",
+      "issues": [],
+      "status": "passed",
+      "text_count": 11,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.normal.017.reversed",
+      "issues": [],
+      "status": "passed",
+      "text_count": 11,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.normal.022.declined",
+      "issues": [],
+      "status": "passed",
+      "text_count": 11,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.normal.027.declined",
+      "issues": [],
+      "status": "passed",
+      "text_count": 11,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.normal.032.purchase",
+      "issues": [
+        "merchant_name_diacritic_removed",
+        "preposition_correction_na_to_em"
+      ],
+      "status": "corrected",
+      "text_count": 11,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.normal.037.purchase",
+      "issues": [
+        "merchant_name_diacritic_removed",
+        "preposition_correction_na_to_em"
+      ],
+      "status": "corrected",
+      "text_count": 11,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.normal.041.withdrawal",
+      "issues": [],
+      "status": "passed",
+      "text_count": 11,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.normal.045.withdrawal",
+      "issues": [],
+      "status": "passed",
+      "text_count": 11,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.normal.049.payment",
+      "issues": [],
+      "status": "passed",
+      "text_count": 11,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.normal.052.payment",
+      "issues": [],
+      "status": "passed",
+      "text_count": 11,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.normal.053.existing_case",
+      "issues": [],
+      "status": "passed",
+      "text_count": 11,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.normal.054.existing_case",
+      "issues": [],
+      "status": "passed",
+      "text_count": 11,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.normal.055.existing_case",
+      "issues": [],
+      "status": "passed",
+      "text_count": 11,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.normal.056.existing_case",
+      "issues": [],
+      "status": "passed",
+      "text_count": 11,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.normal.057.existing_case",
+      "issues": [],
+      "status": "passed",
+      "text_count": 11,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.normal.058.existing_case",
+      "issues": [],
+      "status": "passed",
+      "text_count": 11,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.normal.059.existing_case",
+      "issues": [
+        "preposition correction: em instead of na for AR"
+      ],
+      "status": "corrected",
+      "text_count": 11,
+      "vendor_reported_status": "corrected"
+    },
+    {
+      "id": "test-v1.normal.060.existing_case",
+      "issues": [],
+      "status": "corrected",
+      "text_count": 11,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.normal.061.complaint_flag",
+      "issues": [
+        "preposition correction: em instead of na for CO"
+      ],
+      "status": "corrected",
+      "text_count": 11,
+      "vendor_reported_status": "corrected"
+    },
+    {
+      "id": "test-v1.normal.062.complaint_flag",
+      "issues": [
+        "preposition correction: em instead of na for AR"
+      ],
+      "status": "corrected",
+      "text_count": 11,
+      "vendor_reported_status": "corrected"
+    },
+    {
+      "id": "test-v1.normal.063.complaint_flag",
+      "issues": [],
+      "status": "corrected",
+      "text_count": 11,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.normal.064.complaint_flag",
+      "issues": [
+        "preposition correction: em instead of na for CO"
+      ],
+      "status": "corrected",
+      "text_count": 11,
+      "vendor_reported_status": "corrected"
+    },
+    {
+      "id": "test-v1.normal.065.complaint_flag",
+      "issues": [
+        "merchant name should not be translated",
+        "date format changed from YYYY-MM-DD to DD-MM-YYYY then back to preserve original",
+        "preposition 'em' vs 'na' for merchant",
+        "ask_country: 'aparece' corrected to 'figura' for consistency with Spanish original",
+        "offer_human: 'conectem' corrected to 'comuniquem' for consistency with Spanish original"
+      ],
+      "status": "corrected",
+      "text_count": 11,
+      "vendor_reported_status": "corrected"
+    },
+    {
+      "id": "test-v1.normal.066.complaint_flag",
+      "issues": [
+        "merchant name should not be translated",
+        "date format changed from YYYY-MM-DD to DD-MM-YYYY then back to preserve original",
+        "preposition 'em' vs 'no' for country",
+        "preposition 'na' should be 'em' for merchant",
+        "ask_country: 'aparece' corrected to 'figura' for consistency with Spanish original",
+        "offer_human: 'conectem' corrected to 'comuniquem' for consistency with Spanish original"
+      ],
+      "status": "corrected",
+      "text_count": 11,
+      "vendor_reported_status": "corrected"
+    },
+    {
+      "id": "test-v1.normal.067.age84",
+      "issues": [
+        "merchant name should not be translated",
+        "date format changed from DD-MM-YYYY to preserve original YYYY-MM-DD",
+        "preposition 'em' vs 'na' for country",
+        "article usage 'da' should be removed",
+        "ask_country: 'aparece' corrected to 'figura' for consistency with Spanish original",
+        "offer_human: 'conectem' corrected to 'comuniquem' for consistency with Spanish original"
+      ],
+      "status": "corrected",
+      "text_count": 11,
+      "vendor_reported_status": "corrected"
+    },
+    {
+      "id": "test-v1.normal.068.age84",
+      "issues": [
+        "merchant name should not be translated",
+        "date format changed from DD-MM-YYYY to preserve original YYYY-MM-DD",
+        "preposition 'em' vs 'na' for country",
+        "article usage 'da' should be removed",
+        "ask_country: 'aparece' corrected to 'figura' for consistency with Spanish original",
+        "offer_human: 'conectem' corrected to 'comuniquem' for consistency with Spanish original"
+      ],
+      "status": "corrected",
+      "text_count": 11,
+      "vendor_reported_status": "corrected"
+    },
+    {
+      "id": "test-v1.normal.069.age84",
+      "issues": [
+        "merchant name should not be translated",
+        "date format changed from DD-MM-YYYY to preserve original YYYY-MM-DD",
+        "preposition 'em' vs 'no' for country",
+        "article usage 'da' should be removed",
+        "ask_country: 'aparece' corrected to 'figura' for consistency with Spanish original",
+        "offer_human: 'conectem' corrected to 'comuniquem' for consistency with Spanish original"
+      ],
+      "status": "corrected",
+      "text_count": 11,
+      "vendor_reported_status": "corrected"
+    },
+    {
+      "id": "test-v1.normal.070.age84",
+      "issues": [
+        "merchant name should not be translated",
+        "date format changed from DD-MM-YYYY to preserve original YYYY-MM-DD",
+        "preposition 'em' vs 'na' for country",
+        "article usage 'da' should be removed",
+        "ask_country: 'aparece' corrected to 'figura' for consistency with Spanish original",
+        "offer_human: 'conectem' corrected to 'comuniquem' for consistency with Spanish original"
+      ],
+      "status": "corrected",
+      "text_count": 11,
+      "vendor_reported_status": "corrected"
+    },
+    {
+      "id": "test-v1.ambiguous_unsupported.072.multiple_candidates",
+      "issues": [],
+      "status": "passed",
+      "text_count": 11,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.ambiguous_unsupported.076.multiple_candidates",
+      "issues": [],
+      "status": "passed",
+      "text_count": 11,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.ambiguous_unsupported.079.missing_amount",
+      "issues": [],
+      "status": "passed",
+      "text_count": 11,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.ambiguous_unsupported.082.vague_date",
+      "issues": [
+        "vague temporal expression corrected from 'há mais ou menos uma semana' to 'há como uma semana'"
+      ],
+      "status": "corrected",
+      "text_count": 11,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.ambiguous_unsupported.088.no_match",
+      "issues": [],
+      "status": "passed",
+      "text_count": 13,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.ambiguous_unsupported.091.no_match",
+      "issues": [],
+      "status": "passed",
+      "text_count": 13,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.ambiguous_unsupported.092.out_balance",
+      "issues": [],
+      "status": "passed",
+      "text_count": 13,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.ambiguous_unsupported.093.out_balance",
+      "issues": [],
+      "status": "passed",
+      "text_count": 13,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.ambiguous_unsupported.094.out_loan",
+      "issues": [],
+      "status": "passed",
+      "text_count": 13,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.ambiguous_unsupported.095.out_loan",
+      "issues": [],
+      "status": "passed",
+      "text_count": 13,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.ambiguous_unsupported.096.out_investments",
+      "issues": [],
+      "status": "passed",
+      "text_count": 13,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.ambiguous_unsupported.097.out_investments",
+      "issues": [],
+      "status": "passed",
+      "text_count": 13,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.ambiguous_unsupported.101.false_friend_job",
+      "issues": [],
+      "status": "passed",
+      "text_count": 13,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.ambiguous_unsupported.102.false_friend_weird",
+      "issues": [],
+      "status": "corrected",
+      "text_count": 11,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.ambiguous_unsupported.110.slang_pt",
+      "issues": [],
+      "status": "corrected",
+      "text_count": 11,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.human_required.112.above_limit",
+      "issues": [],
+      "status": "corrected",
+      "text_count": 11,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.human_required.117.borderline_upper",
+      "issues": [],
+      "status": "corrected",
+      "text_count": 11,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.human_required.122.age90",
+      "issues": [],
+      "status": "corrected",
+      "text_count": 11,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.human_required.126.fraud_score",
+      "issues": [],
+      "status": "corrected",
+      "text_count": 11,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.human_required.130.case_burst",
+      "issues": [],
+      "status": "corrected",
+      "text_count": 11,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.human_required.134.regulator",
+      "issues": [],
+      "status": "passed",
+      "text_count": 13,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.human_required.138.distress",
+      "issues": [],
+      "status": "passed",
+      "text_count": 13,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.human_required.141.blocked_product",
+      "issues": [],
+      "status": "corrected",
+      "text_count": 11,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.human_required.142.adjustment",
+      "issues": [],
+      "status": "passed",
+      "text_count": 11,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.human_required.143.adjustment",
+      "issues": [],
+      "status": "passed",
+      "text_count": 11,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.human_required.144.transfer",
+      "issues": [],
+      "status": "passed",
+      "text_count": 11,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.human_required.145.deposit",
+      "issues": [],
+      "status": "passed",
+      "text_count": 11,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.human_required.146.stale_pending",
+      "issues": [],
+      "status": "corrected",
+      "text_count": 11,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.human_required.147.stale_pending",
+      "issues": [],
+      "status": "corrected",
+      "text_count": 11,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.human_required.148.age91",
+      "issues": [],
+      "status": "corrected",
+      "text_count": 11,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.human_required.149.clarification_failed",
+      "issues": [],
+      "status": "passed",
+      "text_count": 13,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.human_required.150.clarification_failed",
+      "issues": [],
+      "status": "passed",
+      "text_count": 13,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.security_robustness.152.direct_injection",
+      "issues": [],
+      "status": "corrected",
+      "text_count": 11,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.security_robustness.157.indirect_injection",
+      "issues": [],
+      "status": "corrected",
+      "text_count": 11,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.security_robustness.162.cross_document",
+      "issues": [],
+      "status": "passed",
+      "text_count": 13,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.security_robustness.167.cross_name",
+      "issues": [],
+      "status": "passed",
+      "text_count": 13,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.security_robustness.172.social_engineering",
+      "issues": [],
+      "status": "passed",
+      "text_count": 13,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.security_robustness.176.system_prompt",
+      "issues": [],
+      "status": "passed",
+      "text_count": 13,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.security_robustness.180.session_expiry",
+      "issues": [],
+      "status": "corrected",
+      "text_count": 11,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.security_robustness.184.stale_step_up",
+      "issues": [],
+      "status": "corrected",
+      "text_count": 11,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.security_robustness.187.replay",
+      "issues": [],
+      "status": "corrected",
+      "text_count": 11,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.security_robustness.188.tool_failure",
+      "issues": [],
+      "status": "corrected",
+      "text_count": 11,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.security_robustness.189.tool_failure",
+      "issues": [],
+      "status": "corrected",
+      "text_count": 11,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.security_robustness.190.tool_failure",
+      "issues": [],
+      "status": "corrected",
+      "text_count": 11,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.security_robustness.191.db_timeout",
+      "issues": [],
+      "status": "passed",
+      "text_count": 13,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.security_robustness.192.db_timeout",
+      "issues": [],
+      "status": "passed",
+      "text_count": 13,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.security_robustness.193.llm_outage",
+      "issues": [],
+      "status": "passed",
+      "text_count": 13,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.security_robustness.194.llm_outage",
+      "issues": [],
+      "status": "passed",
+      "text_count": 13,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.security_robustness.195.missing_fx",
+      "issues": [],
+      "status": "corrected",
+      "text_count": 11,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.security_robustness.196.missing_fx",
+      "issues": [],
+      "status": "corrected",
+      "text_count": 11,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.security_robustness.197.null_merchant",
+      "issues": [],
+      "status": "passed",
+      "text_count": 11,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.security_robustness.198.null_merchant",
+      "issues": [],
+      "status": "passed",
+      "text_count": 11,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.security_robustness.199.null_amount_usd",
+      "issues": [],
+      "status": "corrected",
+      "text_count": 11,
+      "vendor_reported_status": "passed"
+    },
+    {
+      "id": "test-v1.security_robustness.200.null_amount_usd",
+      "issues": [],
+      "status": "corrected",
+      "text_count": 11,
+      "vendor_reported_status": "passed"
+    }
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "billing_verification": {
+    "approved_cap_usd": "3.00",
+    "billed_usd": "0.6073573",
+    "usage_matches_billing": true,
+    "verified_generations": 42
+  },
+  "bindings_audit": {
+    "benchmark_overlap": 0,
+    "dataset_version": "b86f445cb468332bde984a788ef24f72f7070952b2d9292e0259e7b8f36397c9",
+    "personas": 200,
+    "private_bindings_sha256": "d9635357520c12bf0262c5359341a6d52004a14a98f1cb16a4ed123b5beb1fd8",
+    "test_bucket_min_hex": "da",
+    "unique_customers": 200
+  },
+  "dataset_version": "b86f445cb468332bde984a788ef24f72f7070952b2d9292e0259e7b8f36397c9",
+  "gold_authority": "Written brief section 9 plus authored fixture conditions; never policy-engine outputs.",
+  "language_authoring": {
+    "accounted_usd": "0.6073573",
+    "calls": 42,
+    "cap_usd": "3.00",
+    "completion_tokens": 109521,
+    "generator": "google/gemini-2.5-flash",
+    "organizer_records_sent": false,
+    "price_source": "https://openrouter.ai/api/v1/models",
+    "prices_checked_at": "2026-09-27T00:05:43.686987+00:00",
+    "prompt_tokens": 191538,
+    "reviewer": "anthropic/claude-haiku-4.5",
+    "thinking_persisted": false
+  },
+  "limitations": [
+    "Human dual labeling of 40 cases is pending; no kappa claimed.",
+    "Portuguese has model cross-checks, not fluent-human validation.",
+    "Lead-owned organizer binding, richer overlay and fault adaptation pending; no held-out system runs performed.",
+    "Controlled fictional overlays are not representative historical traffic."
+  ],
+  "pinned_repository_inputs": {
+    "contracts/interfaces/scenario-suite.schema.json": "275f8f14ba7e7d04459231c5fad90998b7e4133c98139883aabb1b921ff2c432",
+    "docs/evaluation/adapter-handoff.md": "90894ab5ef0ba6492347c79fb16cd1a5fab2ab6602e3813499b3b6faf295bc16",
+    "docs/evaluation/eval-protocol.md": "fe28323d0203843f7ec3ebcc0b74803760e86895cbd7653e43d5728d42c976a8",
+    "evals/suites/authoring-templates.yaml": "3667587f06ac835ca02e6c7223bc89fd1218ed4b61ed2e633d91338550690642",
+    "evals/suites/tools/assemble_release.py": "9570349665f4231f07001b5b2390ef416f783e93afde6473673dd0020efa623d",
+    "evals/suites/tools/author_test_v1.py": "03f88d4b91b49f774b895e66a77bffbe1708c0533bab949369142f057ae9424f",
+    "evals/suites/tools/bind_test_customers.py": "82181f4bc202fdea4d6235a8c32898defc724b5e59b586bc9237397f39c5e9cb",
+    "evals/suites/tools/portuguese_authoring.py": "83d77e35b50ffb5c762433e9245e2b13ccadce0e2a2faaecb2b3c746b2cfaca3",
+    "evals/suites/tools/validate_release.py": "3807d7b1b6710cc670f0b9e90b08487876325fcad33fb01be2a94416f6ae7392"
+  },
+  "policy_source": {
+    "reference": "BANK_AGENT_LAB_BUILD_BRIEF.md section 9 rule table",
+    "sha256": "52bae22ddfa5719cbd2b551655f30232cd21e7ecb1a0ed79a7e2ce26d4694d04"
+  },
+  "prepared_at": "2026-09-27T00:50:35.118148+00:00",
+  "suite_id": "heldout-e2e-v2",
+  "version_history": {
+    "changes": [
+      "Pin the merged additive schema and document the current lead-owned adapter gaps.",
+      "Serialize private bindings in canonical persona-reference order."
+    ],
+    "current_suite_id": "heldout-e2e-v2",
+    "heldout_system_runs_before_change": 0,
+    "previous_manifest_sha256": "497d7d8ad077ed8b5ea5ffbe919aed746975c054bbf2baff97e91e76f1e0fdae",
+    "previous_suite_id": "heldout-e2e-v1",
+    "scenario_and_gold_changes": false
+  }
+}

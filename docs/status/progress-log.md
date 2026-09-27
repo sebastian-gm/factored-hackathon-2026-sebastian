@@ -140,3 +140,27 @@ For the next session: **Continue from docs/status/progress-log.md. Next layer: d
 ### Next-blocked
 
 - Continue tasks 3–7 in order; retain mock provider. No additional approval is needed for the authorized restricted redeployment. Real-model calls still need a priced proposal and approval.
+
+## Data/ML lane — 2026-09-26/27 (held-out suite)
+
+### Completed (verified)
+
+- Authored 200 independent gold-labeled scenarios from the written brief §9 table, without invoking `aclara.policy` or observing B1/P held-out outcomes. Category counts are 70 normal, 40 ambiguous/unsupported, 40 human-required and 50 security/robustness. Language counts are 96 Spanish (32 each MX/CO/AR), 84 Portuguese, 17 mixed and 3 other. Every case includes reactive replies and the §15.2 gold fields.
+- Sebastian approved additive schema v2 in a separate small PR; [PR #9](https://github.com/sebastian-gm/bank-agent-lab/pull/9) was opened with only the schema and its validation test. The lead added compatible exporter integration and merged it before this suite PR. Current main's v1/v2 snapshot check passes. No harness code is changed here.
+- Privately materialized 200 unique test-bucket customers and owned products, excluding all matcher-benchmark customers. Binding regeneration reproduced the frozen checksum; actual identities remain in ignored artifacts. All committed fixture values are project-generated.
+- Used the approved OpenRouter authoring budget for Google-generated Portuguese and Anthropic cross-checks of all 84 cases / 966 text fields. All 42 calls were read back from billing: US$0.6073573 total of the US$3 cap. No organizer records, credentials or model thinking were sent to Git. Human validation is explicitly pending.
+- Froze `heldout-e2e-v2` in `evals/suites/test/MANIFEST.sha256` and read back schema, coverage, semantic invariants and every hash. Manifest SHA-256: `acf0f74156c938323dc2a5c752072b4fd5febc1aced81ad0aa2a670201d0683d`. Revision 1 is preserved privately; revision 2 pins the merged schema/status and canonical binding serialization. All 200 scenario bodies and gold labels are unchanged, with zero held-out system runs before either freeze.
+- Added the evaluation protocol, concrete lead adapter handoff, fixed 40-case human review selection with private blank worksheets, and fixed 100-case repeat selection. Added the requested test-cost versus wrong-proposal explanation to the matcher result review.
+- Current-main local verification passed: Ruff/format, strict mypy on 43 source files, Python compilation, interface snapshots, 38 tests (one optional local-Postgres integration skipped), and both 32-case mock dev harnesses. These dev checks are not held-out results.
+- All six pre-commit hooks and staged data/secret/size checks passed. Negative validator probes rejected non-test identity, inconsistent gold and missing default replies. An explicit scan found none of the 200 selected organizer customer/product IDs or the local OpenRouter key in staged content. Private inputs, bindings and worksheets remain ignored; the remote repository was read back as private.
+
+### Done but not verified
+
+- Independent human double labeling of the 40 selected cases and fluent-human Portuguese validation are pending; no agreement statistic is claimed. The earlier 40-card Spanish recollection packet remains private and available for Sebastian.
+- The lead's fixture harness is merged, but organizer bindings, richer overlays, fault boundaries and full scoring require the documented adapter work before the complete held-out suite can execute. No final B1/P held-out evaluation has been run.
+
+### Next / blocked
+
+- Lead review of the suite/protocol PR and implementation of `docs/evaluation/adapter-handoff.md` using separate dev fixtures.
+- Complete independent label review before claiming human-validated gold. Any resulting label change requires a new suite version.
+- Obtain a separately priced approval before paid system evaluation. The completed US$3 approval covered Portuguese authoring only; no further approval is needed for this suite PR.

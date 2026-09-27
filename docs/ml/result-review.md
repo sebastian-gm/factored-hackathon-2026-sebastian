@@ -6,6 +6,15 @@ This review reuses the one-time v1 predictions; there is no refitting or additio
 
 LightGBM was selected on validation before opening test. Test logistic regression has lower mean cost and better calibration, while LightGBM makes fewer wrong proposals. The held-out result does not change thresholds or the selected artifact. A future independent workload should revisit this trade-off.
 
+Specifically, test expected cost per query was 0.3980 for logistic regression versus
+0.4717 for LightGBM, while LightGBM made 10 wrong proposals versus logistic regression's
+41 (4.1 times fewer, approximately 4×). These are counts at their separately calibrated
+operating points, not a claim that their proposal rates are equal. The pre-registered rule
+selects the simplest model within 0.02 of the best validation cost: LightGBM scored
+0.1828 and logistic regression 0.2584, a 0.0756 gap. Logistic regression was therefore
+outside the simplicity tolerance. Selecting it after seeing the test would use held-out
+results for model selection; the frozen v1 selection remains LightGBM.
+
 | Model | Cost difference vs rules | Customer-clustered 95% interval |
 |---|---:|---|
 | logistic | -0.2217 | [-0.27330867489318195, -0.16777418521920653] |
