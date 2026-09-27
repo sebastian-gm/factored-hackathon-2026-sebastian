@@ -20,7 +20,7 @@ ROOT = Path(__file__).resolve().parents[3]
 
 class MatchState:
     def __init__(self, artifact: Path | None = None, fx: FxBook | None = None):
-        path = artifact or ROOT / "models/charge_matcher/v1"
+        path = artifact or ROOT / "models/charge_matcher/v2"
         checksums = json.loads((path / "checksums.json").read_text())
         for name in ("model.json", "lightgbm.txt", "metadata.json"):
             if hashlib.sha256((path / name).read_bytes()).hexdigest() != checksums[name]:

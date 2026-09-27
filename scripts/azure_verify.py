@@ -10,6 +10,7 @@ from scripts.azure_dev import GROUP, ROOT, STORAGE, VAULT, az, read_variables
 
 def main() -> None:
     values = read_variables()
+    real_llm = values.get("enable_real_llm", False)
     prefix = f"/subscriptions/{values['subscription_id']}/resourceGroups/{GROUP}"
 
     def resource(path: str, version: str) -> dict:
@@ -52,7 +53,11 @@ def main() -> None:
         assert properties["provisioningState"] == "Succeeded"
         if name == "api":
             env = {item["name"]: item for item in container["env"]}
-            assert env["LLM_PROVIDER"]["value"] == "mock"
+            assert env["LLM_PROVIDER"]["value"] == ("openai_compat" if real_llm else "mock")
+            assert env["LLM_REAL_CALLS_APPROVED"]["value"] == ("1" if real_llm else "0")
+            assert env["LLM_DAILY_BUDGET_USD"]["value"] == "3"
+            assert env["LLM_MODEL_ROUTE"]["value"] == "default"
+            assert env["LLM_BUDGET_RUN_ID"].get("value", "") == values.get("llm_budget_run_id", "")
             assert env["AGENT_SYSTEM"]["value"] == "P"
             assert env["OPS_BACKEND"]["value"] == "postgres"
             assert env["LEDGER_BACKEND"]["value"] == "serving"
@@ -61,9 +66,20 @@ def main() -> None:
             assert env["PGPASSWORD"]["secretRef"] == "postgres-app"
             assert env["DEMO_PASSWORD"]["secretRef"] == "demo-password"
             secrets = properties["configuration"]["secrets"]
-            assert {item["name"] for item in secrets} == {"postgres-app", "demo-password"}
+            expected_secrets = {"postgres-app", "demo-password"}
+            if real_llm:
+                expected_secrets.add("openrouter-api-key")
+                assert env["OPENROUTER_API_KEY"]["secretRef"] == "openrouter-api-key"
+                assert not env["OPENROUTER_API_KEY"].get("value")
+            else:
+                assert "OPENROUTER_API_KEY" not in env
+            assert {item["name"] for item in secrets} == expected_secrets
             assert all(
                 item.get("keyVaultUrl", "").startswith(f"https://{VAULT}.vault.azure.net/")
+                for item in secrets
+            )
+            assert all(
+                item["identity"].lower() in {identity.lower() for identity in identities}
                 for item in secrets
             )
         sys.stdout.write(

@@ -54,6 +54,22 @@ variable "deploy_apps" {
   description = "Enable only after images are pushed and the database app role is initialized."
 }
 
+variable "enable_real_llm" {
+  type        = bool
+  default     = false
+  description = "Owner-approved production OpenRouter route; local default remains mock."
+}
+
+variable "llm_budget_run_id" {
+  type        = string
+  default     = ""
+  description = "Optional owner-created cumulative smoke budget in Postgres, in addition to USD 3/day."
+  validation {
+    condition     = contains(["", "handoff09-smoke"], var.llm_budget_run_id)
+    error_message = "Only the approved smoke budget or normal daily accounting is supported."
+  }
+}
+
 locals {
   location = "eastus2"
   suffix   = "aclara-dev-eastus2"

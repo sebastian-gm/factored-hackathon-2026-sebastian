@@ -8,7 +8,7 @@ COPY src ./src
 COPY config ./config
 COPY migrations ./migrations
 COPY prompts ./prompts
-COPY models/charge_matcher/v1 ./models/charge_matcher/v1
+COPY models/charge_matcher ./models/charge_matcher
 COPY tests/fixtures/ledger ./tests/fixtures/ledger
 RUN uv sync --locked --no-dev
 ENV PATH="/app/.venv/bin:$PATH"

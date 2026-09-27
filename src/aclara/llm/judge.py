@@ -7,6 +7,7 @@ import csv
 import json
 import logging
 import os
+from contextlib import nullcontext
 from dataclasses import replace
 from hashlib import sha256
 from pathlib import Path
@@ -16,10 +17,12 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from aclara.agent.nlg.grounding import redact_for_model
 from aclara.llm.client import StructuredClient
+from aclara.llm.final_run import client_for, journal, open_budget_store, require_start
 from aclara.llm.judge_validation import ARTIFACTS, DIMENSIONS, SHEET
 from aclara.llm.prompts import Prompt, data_block, load_prompt
 from aclara.llm.round_one import ROOT, _catalog, _local_key
-from aclara.llm.types import ModelFailure
+from aclara.llm.types import BudgetFailure, ModelFailure
+from aclara.ops.store import Store
 
 MODEL_ID = "anthropic/claude-sonnet-5"
 PROVIDER_ONLY = ("google-vertex/global",)
@@ -27,6 +30,7 @@ PROMPT = ROOT / "prompts/judge/v1.md"
 SMOKE_OUTPUT = ARTIFACTS / "smoke-results.json"
 FULL_OUTPUT = ARTIFACTS / "judge-results-50.json"
 FULL_CSV = ARTIFACTS / "judge-results-50.csv"
+JEV_FULL_CSV = ARTIFACTS / "jev-results-50.csv"
 SMOKE_MAX_USD = 0.49
 SMOKE_CASES = 3
 LOGGER = logging.getLogger(__name__)
@@ -112,22 +116,28 @@ def _unknown_attempts(results: list[dict[str, Any]]) -> int:
     return sum(attempt["cost_usd"] is None for result in results for attempt in result["attempts"])
 
 
-def _full_csv(results: list[dict[str, Any]]) -> None:
-    if len(results) != 50 or any(result["status"] != "valid" for result in results):
+def _full_csv(
+    results: list[dict[str, Any]], *, path: Path | None = None, score_field: str = "scores"
+) -> None:
+    if len(results) != 50 or any(
+        result["status"] != "valid" or result.get(score_field) is None for result in results
+    ):
         return
-    path = FULL_CSV
+    path = path or FULL_CSV
     pending = path.with_suffix(".tmp")
     fd = os.open(pending, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
     with os.fdopen(fd, "w", encoding="utf-8", newline="") as stream:
         writer = csv.DictWriter(stream, fieldnames=("sample_id", *DIMENSIONS))
         writer.writeheader()
         writer.writerows(
-            {"sample_id": result["sample_id"], **result["scores"]} for result in results
+            {"sample_id": result["sample_id"], **result[score_field]} for result in results
         )
     pending.replace(path)
 
 
-def run(*, smoke: bool, budget_usd: float, sheet_path: Path = SHEET) -> dict[str, Any]:
+def run(
+    *, smoke: bool, budget_usd: float, sheet_path: Path = SHEET, final_store: Store | None = None
+) -> dict[str, Any]:
     if os.getenv("LLM_REAL_CALLS_APPROVED") != "1":
         raise RuntimeError("Process-local owner approval gate is required")
     if smoke:
@@ -135,6 +145,10 @@ def run(*, smoke: bool, budget_usd: float, sheet_path: Path = SHEET) -> dict[str
             raise RuntimeError("Smoke requires its process-local approval and a sub-$0.50 cap")
     elif os.getenv("LLM_JUDGE_FULL_RUN_APPROVED") != "1" or budget_usd <= 0:
         raise RuntimeError("Full paid judge calibration requires a separate owner approval")
+    if not smoke:
+        require_start()
+        if final_store is None:
+            raise RuntimeError("Full judge requires the shared final-program budget")
     rows, sheet_hash = _read_samples(sheet_path)
     selected = _smoke_sample(rows) if smoke else rows
     prompt = load_prompt(PROMPT)
@@ -144,9 +158,12 @@ def run(*, smoke: bool, budget_usd: float, sheet_path: Path = SHEET) -> dict[str
         data = json.loads(output.read_text(encoding="utf-8"))
         if data["sheet_sha256"] != sheet_hash or data["prompt_sha256"] != prompt.content_hash:
             raise RuntimeError("Judge sheet/prompt changed after checkpoint creation")
+        if not smoke and any("jev_scores" not in result for result in data["results"]):
+            raise RuntimeError("Full judge checkpoint predates paired Jev scoring")
     else:
         data = {
             "model_id": MODEL_ID,
+            "jev_model_id": "jev-1.13.0" if not smoke else None,
             "provider_only": list(PROVIDER_ONLY),
             "sheet_sha256": sheet_hash,
             "prompt_sha256": prompt.content_hash,
@@ -161,58 +178,87 @@ def run(*, smoke: bool, budget_usd: float, sheet_path: Path = SHEET) -> dict[str
     remaining = budget_usd - _known_cost(results) - 0.05 * _unknown_attempts(results)
     if remaining <= 0:
         raise RuntimeError("Judge budget exhausted by prior attempts")
-    models, prices = _catalog((MODEL_ID,))
-    spec = replace(
-        models[MODEL_ID],
-        provider_only=PROVIDER_ONLY,
-        max_output_tokens=256,
-        timeout_seconds=60,
-    )
-    os.environ["OPENROUTER_API_KEY"] = _local_key()
-    client = StructuredClient(
-        {MODEL_ID: spec},
-        {MODEL_ID: prices[MODEL_ID]},
-        budget_usd=remaining,
-        daily_budget_usd=remaining,
-    )
-    for row in selected:
-        if row["sample_id"] in done:
-            continue
-        first = len(client.records)
-        scores: dict[str, int | None] | None = None
-        status = "valid"
-        try:
-            scores = _score(client, row, prompt).model_dump()
-        except ModelFailure:
-            status = "no_valid_final"
-        attempts = [
-            {
-                "status": record.status,
-                "stop_reason": record.stop_reason,
-                "input_tokens": record.input_tokens,
-                "output_tokens": record.output_tokens,
-                "latency_ms": record.latency_ms,
-                "cost_usd": record.cost_usd,
-                "served_model_id": record.model_id,
-                "generation_id": record.generation_id,
-            }
-            for record in client.records[first:]
-        ]
-        if not attempts:
-            raise RuntimeError("No judge attempt recorded; preserve the budget checkpoint")
-        results.append(
-            {
-                "sample_id": row["sample_id"],
-                "scores": scores,
-                "status": status,
-                "attempts": attempts,
-            }
+    if final_store is not None:
+        client = client_for(
+            "openrouter_sonnet",
+            final_store,
+            judge=True,
+            response_record=journal(output.with_suffix(".calls.jsonl")),
         )
-        _private_write(output, data)
-        if _known_cost(results) + 0.05 * _unknown_attempts(results) >= budget_usd:
-            raise RuntimeError("Judge budget cap reached")
+    else:
+        models, prices = _catalog((MODEL_ID,))
+        spec = replace(
+            models[MODEL_ID],
+            provider_only=PROVIDER_ONLY,
+            max_output_tokens=256,
+            timeout_seconds=60,
+        )
+        os.environ["OPENROUTER_API_KEY"] = _local_key()
+        client = StructuredClient(
+            {MODEL_ID: spec},
+            {MODEL_ID: prices[MODEL_ID]},
+            budget_usd=remaining,
+            daily_budget_usd=remaining,
+        )
+    from aclara.llm.dual_judge import jev_judge_adapter, score_pair
+
+    adapter_context = nullcontext(None) if smoke else jev_judge_adapter()
+    with adapter_context as jev_adapter:
+        for row in selected:
+            if row["sample_id"] in done:
+                continue
+            first = len(client.records)
+            scores: dict[str, int | None] | None = None
+            jev_scores: dict[str, int | None] | None = None
+            jev_raw_scores: dict[str, Any] | None = None
+            status = "valid"
+            try:
+                if smoke:
+                    scores = _score(client, row, prompt).model_dump()
+                else:
+                    assert jev_adapter is not None
+                    paired = score_pair(
+                        row, sonnet_client=client, jev_adapter=jev_adapter, prompt=prompt
+                    )
+                    scores = paired["sonnet_scores"]
+                    jev_scores = paired["jev_scores"]
+                    jev_raw_scores = paired["jev_raw_scores"]
+            except BudgetFailure:
+                raise
+            except ModelFailure:
+                status = "no_valid_final"
+            attempts = [
+                {
+                    "provider": record.provider,
+                    "status": record.status,
+                    "stop_reason": record.stop_reason,
+                    "input_tokens": record.input_tokens,
+                    "output_tokens": record.output_tokens,
+                    "latency_ms": record.latency_ms,
+                    "cost_usd": record.cost_usd,
+                    "served_model_id": record.model_id,
+                    "generation_id": record.generation_id,
+                }
+                for record in client.records[first:]
+            ]
+            if not attempts:
+                raise RuntimeError("No judge attempt recorded; preserve the budget checkpoint")
+            results.append(
+                {
+                    "sample_id": row["sample_id"],
+                    "scores": scores,
+                    "jev_scores": jev_scores if not smoke else None,
+                    "jev_raw_scores": jev_raw_scores if not smoke else None,
+                    "status": status,
+                    "attempts": attempts,
+                }
+            )
+            _private_write(output, data)
+            if _known_cost(results) + 0.05 * _unknown_attempts(results) >= budget_usd:
+                raise RuntimeError("Judge budget cap reached")
     if not smoke:
         _full_csv(results)
+        _full_csv(results, path=JEV_FULL_CSV, score_field="jev_scores")
     return data
 
 
@@ -224,7 +270,12 @@ def main() -> int:
     choices.add_argument("--full", action="store_true")
     parser.add_argument("--budget-usd", type=float, default=SMOKE_MAX_USD)
     args = parser.parse_args()
-    data = run(smoke=args.smoke, budget_usd=args.budget_usd)
+    store = open_budget_store() if args.full else None
+    try:
+        data = run(smoke=args.smoke, budget_usd=args.budget_usd, final_store=store)
+    finally:
+        if store:
+            store.close()
     results = data["results"]
     LOGGER.info(
         f"Judge {data['mode']}: {sum(row['status'] == 'valid' for row in results)}/{len(results)} valid; "

@@ -96,7 +96,8 @@ async function upstream(
       method,
       cache: "no-store",
       redirect: "error",
-      signal: AbortSignal.timeout(10000),
+      // NLU and grounded phrasing have bounded provider retries. Never retry a POST here.
+      signal: AbortSignal.timeout(path.endsWith("/messages") ? 180000 : 10000),
       headers: {
         "Content-Type": "application/json",
         ...(token ? { Authorization: `Bearer ${token}` } : {}),

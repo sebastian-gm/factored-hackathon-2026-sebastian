@@ -2,9 +2,13 @@
 
 from __future__ import annotations
 
+from hashlib import sha256
+from pathlib import Path
+
 from typesafe_sdk import Choice, Noul, Score
 
 QUESTION_VERSION = "jev-questions-v1"
+QUESTION_SOURCE_HASH = sha256(Path(__file__).read_bytes()).hexdigest()
 INTENT_LABELS = (
     "charge_inquiry",
     "dispute_charge",
