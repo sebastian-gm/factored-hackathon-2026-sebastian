@@ -1,5 +1,23 @@
 # Progress log
 
+## AI lane — lead-owned pt-BR wording review, 2026-09-27 UTC
+
+### Completed (verified)
+
+- Reconciled the previously stated 34-string inventory to **35 active strings**, all found in current lead-owned API, workflow, handoff and staff source; Sebastian explicitly approved reviewing all 35 under the unchanged new $0.30 cap.
+- Created and read back separate durable scope `pt-review/lead-strings` / run `lead-strings`, cap $0.30. Nine sequential Sonnet calls reviewed 35/35 in batches of at most four with 3072 maximum output tokens. All nine responses were valid and complete; scope readback was **$0.048878 known and charged, zero unknown-cost attempts**. No final-v2 budget scope was used.
+- Rejected one model suggestion after checking the handoff packet's real creation/readback order. Proposed two wording changes only in [the lead-review patch](../ml/pt-review-lead-proposed.patch); `git apply --check` passed and lead-owned source files remain unchanged. [Before/after decisions](../ml/pt-review.md) are recorded.
+
+### Done but not verified
+
+- Model review is not a fluent-human pt-BR review. The proposed wording has not been applied or verified in an app build.
+
+### Next / blocked
+
+- Lead reviews the proposed patch after final v2 finishes, applies any accepted wording in the lead lane, and merges this documentation PR. Keep this PR unmerged during the freeze.
+
+---
+
 ## 2026-09-27 — Option A re-release verified; STOP before final v2
 
 ### Completed (verified)

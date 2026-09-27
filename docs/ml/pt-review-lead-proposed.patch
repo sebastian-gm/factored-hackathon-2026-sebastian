@@ -1,0 +1,16 @@
+diff --git a/src/aclara/api/app.py b/src/aclara/api/app.py
+--- a/src/aclara/api/app.py
++++ b/src/aclara/api/app.py
+@@ -864,3 +864,3 @@
+                     "Puedo ayudar con cargos no reconocidos. Si necesitas otro tema, puedo derivarte a una persona.",
+-                    "Posso ajudar com cobranças não reconhecidas. Para outro assunto, posso encaminhar você para uma pessoa.",
++                    "Posso ajudar com cobranças não reconhecidas. Para outro assunto, posso encaminhar você a uma pessoa da equipe.",
+                 ),
+diff --git a/src/aclara/api/workflows.py b/src/aclara/api/workflows.py
+--- a/src/aclara/api/workflows.py
++++ b/src/aclara/api/workflows.py
+@@ -118,3 +118,3 @@
+             if language == "es"
+-            else " Você pode bloquear seu cartão com um novo OTP e confirmação."
++            else " Você pode bloquear seu cartão após informar um novo código de verificação e confirmar a ação."
+         )
