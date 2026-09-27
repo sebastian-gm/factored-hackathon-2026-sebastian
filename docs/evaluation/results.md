@@ -10,8 +10,8 @@ Generated from `artifacts/evaluation-p/results.json`. No independent numbers.
 - **cost_assumptions**: "Mock calls cost USD 0; infrastructure excluded"
 - **price_table_date**: "2026-09-26"
 - **monthly_infrastructure_estimate_usd**: 34.63
-- **policy_version**: "layer1"
-- **matcher_version**: "rules"
+- **policy_version**: "1.1.0"
+- **matcher_version**: ["rules"]
 - **dataset_version**: "authored-fixtures"
 - **sample_size**: 32
 - **independent_scenarios**: 32
@@ -36,7 +36,7 @@ Containment alone is not success. Synthetic mock workload; no model-quality clai
 | handoff_rubric | `{"n": 12, "mean": 1.0, "kind": "deterministic four-field rubric; no LLM judge"}` |
 | unsafe | `{"unauthorized_disclosure": {"count": 0, "denominator": 32, "rate": 0.0, "wilson_95": [0, 0.10717919825506533], "upper_95": 0.09375}, "unauthorized_action": {"count": 0, "denominator": 32, "rate": 0.0, "wilson_95": [0, 0.10717919825506533], "upper_95": 0.09375}, "missing_confirmation_or_step_up": {"count": 0, "denominator": 32, "rate": 0.0, "wilson_95": [0, 0.10717919825506533], "upper_95": 0.09375}, "reported_not_verified": {"count": 0, "denominator": 32, "rate": 0.0, "wilson_95": [0, 0.10717919825506533], "upper_95": 0.09375}, "materially_incorrect_outcome": {"count": 0, "denominator": 32, "rate": 0.0, "wilson_95": [0, 0.10717919825506533], "upper_95": 0.09375}, "grounding_violation": {"count": 0, "denominator": 32, "rate": 0.0, "wilson_95": [0, 0.10717919825506533], "upper_95": 0.09375}, "policy_violation": {"count": 0, "denominator": 32, "rate": 0.0, "wilson_95": [0, 0.10717919825506533], "upper_95": 0.09375}, "refund_or_credit_promise": {"count": 0, "denominator": 32, "rate": 0.0, "wilson_95": [0, 0.10717919825506533], "upper_95": 0.09375}}` |
 | unsafe_note | `"0 observed in n cases does not establish zero risk; the 95% upper bound is 3/n (capped at 1). Repeats are correlated."` |
-| latency | `{"turn": {"p50_ms": 0.8070110343396664, "p95_ms": 1.1515805032104254, "case_bootstrap_95": {"p50": [0.7656939560547471, 0.9182715322822332], "p95": [1.0477335471659899, 14.528034423128664]}}, "case": {"p50_ms": 1.2237300397828221, "p95_ms": 3.0082768993452187, "case_bootstrap_95": {"p50": [0.8978304686024785, 1.6393640544265509], "p95": [1.956136373337358, 19.129683962091804]}}}` |
+| latency | `{"turn": {"p50_ms": 1.181086990982294, "p95_ms": 1.7682458157651124, "case_bootstrap_95": {"p50": [1.1626370251178741, 1.3276962446980178], "p95": [1.4662223911727779, 15.27645178284725]}}, "case": {"p50_ms": 1.850047498010099, "p95_ms": 3.6867571761831637, "case_bootstrap_95": {"p50": [1.238566474057734, 2.2627979051321745], "p95": [3.096460667438805, 19.94738378562033]}}}` |
 | cost | `{"total_usd": 0, "per_case_usd": 0.0, "per_attempted_case_usd": 0.0, "per_sar_usd": 0.0}` |
-| components | `{"api_other": 60.61329320073128, "llm": 0}` |
+| components | `{"api_other": 79.29889857769012, "llm": 0}` |
 | flip_rate | `{"count": 0, "denominator": 32, "rate": 0.0, "wilson_95": [0, 0.10717919825506533]}` |

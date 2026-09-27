@@ -14,6 +14,7 @@ checks:
 	uv run --no-sync pytest
 	uv run --no-sync python -m evals.runner --system B1
 	uv run --no-sync python -m scripts.export_interfaces --check
+	uv run --no-sync python -m scripts.generate_policy_catalog --check
 
 eval-smoke:
 	uv run --no-sync python -m evals.runner --system B1

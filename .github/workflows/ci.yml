@@ -32,6 +32,8 @@ jobs:
         run: uv run pytest
       - name: Check frozen interface snapshots
         run: uv run python -m scripts.export_interfaces --check
+      - name: Check policy catalog
+        run: uv run python -m scripts.generate_policy_catalog --check
       - name: Safety smoke
         run: uv run python -m evals.runner --system B1
       - name: Reactive evaluation
