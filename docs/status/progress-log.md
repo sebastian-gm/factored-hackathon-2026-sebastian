@@ -5,6 +5,14 @@ Current status below supersedes the earlier lane handoffs; their detailed report
 
 ## Completed-verified
 
+### Handoff 06 — adapter preflight (before test access)
+
+- PR #13 merged; main CI and safety both passed at `dd957c7`. Frozen manifest validation passed without changing suite/schema/protocol bytes.
+- Implemented private identity verification, isolated richer overlays, typed references/canaries, card workflow replay, all declared fault aliases, semantic forbidden predicates and aggregate protocol reporting. Independent authored dev fixtures cover the adapter; no B1/P held-out execution has happened yet.
+- `.venv/bin/python -m evals.heldout`: input preflight passed all 200 persona ownership/country/segment/partition checks, source dataset hash, frozen binding hash and zero matcher overlap. The promoted lake is absent, so verification used authorized local raw source hashes and identity projections. No organizer rows printed.
+- Input preflight found 12 inconsistent redundant USD amounts on fictional distractors; unchanged frozen records are flagged as inconsistent facts. See `docs/evaluation/adapter-implementation.md` for handling and limitations.
+- `make checks`: 58 passed, 6 database skips; v1 B1 32/32 with 12 readbacks. Final staged checks follow before implementation freeze and the authorized free diagnostic run.
+
 ### Handoff 06 — frozen-suite review (in progress)
 
 - Routing PR #19 merged after all four CI gates passed at `8812dbc`. Reviewed PR #13's adapter handoff and full frozen protocol before any held-out execution; preserving all pinned suite, schema, template, tool and protocol bytes.
