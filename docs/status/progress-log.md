@@ -1,6 +1,34 @@
 # Progress log
 
-## Handoff 09 integration — 2026-09-27 UTC (current)
+## Jev release and final-program preparation — 2026-09-27 UTC (current)
+
+### Completed-verified
+
+- Read handoff 10 fully and verified the orchestrator's merges of #33/#34. Clean main runtime release **`07bccdc630e2b5eeb2dc746a7c3fe000718fd22c`** passed exact-main CI **36301043518** and safety **36301043504**. CI recorded **162 passed / 13 skips**, separate Postgres **14 passed**, B1 **32/32** with 12 readbacks, and browser suites **8 + 4 + 1 passed**. Earlier lead local checks passed 161 tests before the AI follow-up; its reported local total was 163.
+- Reviewed PR #31's risk union and judges, integrated each Jev attempt with the durable shared Postgres reserve/settlement, and merged it after all four gates passed. Jev is a supporting risk opinion; Gemini retains intent/slots/phrasing, and deterministic code retains authorization and action authority. The same $12 cumulative gate covers final Gemini/Grok/Sonnet/Jev and restarts.
+- `pytest tests/test_final_program.py`: independent authored fixtures passed interruption/resume, completed-case reuse, changed-pin rejection, duplicate-writer denial, deterministic judge selection, preservation of the 20-item human sheet and report metrics. `make checks` passed; no frozen input was opened or final model run started. Private input presence was checked without opening contents.
+- Prepared the single detached `scripts.final_program start|resume|status` entry point. Exact commands are in [final-run-plan.md](../evaluation/final-run-plan.md). Atomic per-case/judge checkpoints and fsynced call journals preserve completed results and interrupted attempts; all retries/recovery retain spend. Outputs when authorized include `results.json`, `results.md`, all §15.4 outcomes/efficiency metrics and intervals/slices, repeat flips, paired B1/P comparison, Sonnet/Jev agreement, and `human-judge-20.csv`. This is implementation verification, not final evaluation evidence.
+- TypeSafe key copied into `typesafe-api-key` in the approved Key Vault, equal-value readback verified in memory, then removed from local `.env`. Both model keys are absent locally; local provider remains mock/unapproved. The production API image independently passed imports for the SDK, API and six risk questions.
+- `python -m scripts.azure_prices`: live East US 2 estimate **$34.63/month before tax**, checked **06:55 UTC**, below the $40 stop gate. Pushed both private ACR images using a temporary Docker config, then removed its token. `azure_dev plan` was reviewed: one TypeSafe-secret-only managed-identity grant and two app updates; ingress/capacity unchanged. `azure_dev apply`: **1 added / 2 changed / 0 destroyed**.
+- `python -m scripts.azure_verify`: deployed SHA, owner-IP-only web HTTPS, internal-only API, replicas 0..1, Key Vault references/MI, Postgres TLS/firewall, private registry/state and existing approximate $30/$50 budget alerts passed. The prior Azure-services firewall limitation remains documented.
+- `python -m scripts.azure_smoke` stopped at its intentional real-provider guard, before model calls. Equivalent no-model BFF checks in `artifacts/jev_readonly_smoke.py` passed **4 personas, 15 scoped organizer transactions, 4 customer-role denials**, OTP/logout and unchanged spend. Paid conversations used the capped helper below, not the uncapped generic smoke.
+- `artifacts/jev_smoke_with_recovery.py` invokes `scripts.azure_llm_smoke` under **`jev-support-smoke`**, adding a replacement-replica GET before the ES dispute readback. ES normal explanation/denial/proposal/confirmation/readback, PT ambiguity/clarification/handoff and fraud handoff passed. Jev returned **5/5 valid** risk-call records across these three flows; recorded unions were checked, and no Grok fallback occurred. Original-session dispute recovery after a new API replica passed.
+- `python -m scripts.serving_browser --target azure`: **3 surfaces**, **1 handoff claimed/resolved** passed. Across all four conversations: **14 paid calls, $0.00925008**, **zero unknown-cost attempts**, below the approved $0.10. The previous handoff-09 smoke ledger and exhausted allowance remain intact. Do not spend the remaining smoke allowance without a specific need under the owner's instructions.
+- External workflow **36301783139** passed at the runtime SHA: non-allowlisted web **403**, internal API **404**. Required private receipt **`artifacts/azure/jev-release.json`** records the verified implementation SHA, controls/smoke/CI flags and evidence. A documentation-only release follow-up records final SHA/control/CI readbacks there; its application image contents must match the smoked runtime before acceptance.
+
+### Done-not-verified
+
+- No real frozen final evaluation, final subjective judge agreement or completed human judge sheet. The 20-item sheet is generated only when the authorized program runs. PT/MX/AR model-generated wording and lack of fluent-human PT review remain limitations. Standard-account TypeSafe ZDR and actual budget-alert email delivery remain unverified.
+- The detached final command has been tested with authored fixtures; its full organizer workload remains deliberately unrun. The generic mock smoke is not a real-provider test; the capped release smoke and separate read-only/restart checks provide the deployed evidence above.
+
+### Next-blocked
+
+- **STOP for Sebastian's explicit final-run go.** The $12 ceiling is already approved; it is not a start signal. No new public ingress, cloud capacity or paid evaluation is authorized by this log.
+- After the go, use the documented single start/resume command on the pinned verified main release. Do not independently rerun the 50 calibration items under the separate legacy judge command; they are already included in this program. Human validation remains a separate, unpaid review step.
+
+---
+
+## Handoff 09 integration — 2026-09-27 UTC (prior release)
 
 ### Completed-verified
 
@@ -220,4 +248,4 @@ The following sections retain the AI lane’s historical reports; later dated de
 Restricted web: https://ca-web-aclara-dev-eastus2.lemonbeach-1b769de0.eastus2.azurecontainerapps.io/
 Use `demo.es.mx` or `demo.pt.br` for the three-surface workspace; `demo.es.co` and `demo.es.ar` are customer-only. Retrieve `demo-password` from the authenticated Key Vault portal; never paste it into chat, Git or logs. OTP is simulated. Re-login after the identity-source migration; prior fixture sessions do not grant organizer access.
 
-For later sessions, paste: **Continue from docs/status/progress-log.md. Next layer: provider comparison and independent language coverage. Same rules.**
+For later sessions, paste: **Continue from docs/status/progress-log.md. Next layer: final evaluation after Sebastian's explicit go. Same rules.**

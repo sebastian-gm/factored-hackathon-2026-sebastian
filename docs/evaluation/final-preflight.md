@@ -25,3 +25,15 @@ The table above preserves the AI lane's earlier preflight, including its missing
 private binding. No lead frozen preflight or final run was performed in this layer.
 Follow the adapter instructions in [final-run-plan.md](final-run-plan.md) only
 after Sebastian supplies the start signal.
+
+## Jev release update — handoff 10
+
+The current release has merged #31, #33 and #34. The TypeSafe key is in Key Vault,
+with no local key left. Production risk unions, the durable shared budget and the
+restricted Azure release passed the checks in the current progress-log section.
+The private final bindings/splits are present in the lead checkout; their contents
+were not reopened during this release. Frozen preflight and execution still await
+Sebastian's go and run inside the gated single command. The required accepted-SHA
+receipt is `artifacts/azure/jev-release.json`. Its flags and exact SHA are checked
+by the launcher before any frozen read or paid final call. The historical table
+above describes the AI lane's earlier worktree, not current release readiness.
