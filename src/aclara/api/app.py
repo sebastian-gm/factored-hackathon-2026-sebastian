@@ -17,6 +17,7 @@ from fastapi import Depends, FastAPI, Header, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, ConfigDict, Field
 
+from aclara.agent.ai import AgentAI
 from aclara.agent.contracts import ResponsePlan
 from aclara.agent.nlu import (
     Intent,
@@ -30,6 +31,7 @@ from aclara.agent.nlu import (
 from aclara.agent.runtime import InjectedFailure, Runtime
 from aclara.bank.repository import Transaction, TransactionRepository
 from aclara.handoff.packet import create_packet
+from aclara.llm.client import StructuredClient
 from aclara.policy.engine import PolicyDecision, evaluate
 from aclara.settings import Settings
 
@@ -65,6 +67,7 @@ class ActionProposal:
 class Conversation:
     session_id: str
     language: str = "es"
+    degraded: bool = False
     candidates: list[tuple[str, Transaction]] = field(default_factory=list)
     intent: Intent | None = None
     proposal: ActionProposal | None = None
@@ -179,6 +182,7 @@ def create_app(
     settings: Settings | None = None,
     repository: TransactionRepository | None = None,
     runtime: Runtime | None = None,
+    llm_client: StructuredClient | None = None,
 ) -> FastAPI:
     active_settings = settings or Settings.from_environment()
     ledger = repository or TransactionRepository()
@@ -189,7 +193,9 @@ def create_app(
         allow_methods=["GET", "POST"],
         allow_headers=["Authorization", "Content-Type", "X-Preauth-Token"],
     )
-    app.state.runtime = runtime or Runtime()
+    app.state.runtime = runtime or Runtime(system=active_settings.agent_system)
+    ai = AgentAI(active_settings, app.state.runtime, llm_client)
+    app.state.ai = ai
     app.state.settings = active_settings
     app.state.ledger = ledger
     app.state.challenges = {}
@@ -320,7 +326,12 @@ def create_app(
         except InjectedFailure:
             result = safe_failure(principal, classify(body.message).language)
         app.state.runtime.record("response", response_type=result["response_type"])
-        return result
+        conversation = app.state.conversations.get(conversation_id)
+        return ai.reply(
+            result,
+            conversation.language if conversation else "es",
+            deterministic=bool(conversation and conversation.degraded),
+        )
 
     def safe_failure(principal: Principal, language: str) -> dict[str, Any]:
         packet = create_packet(language, "ESC-04")
@@ -346,6 +357,35 @@ def create_app(
         if conversation is None or conversation.session_id != principal.session_id:
             raise HTTPException(status_code=404, detail="Conversation not found")
         frame = classify(body.message)
+        if (
+            app.state.runtime.system == "P"
+            and not conversation.candidates
+            and not conversation.proposal
+        ):
+            nlu = ai.understand(body.message, active_settings.bank_clock)
+            conversation.degraded = nlu.degraded
+            if not nlu.degraded:
+                frame = nlu.frame
+                # Conservative deterministic routing takes precedence over extracted intent.
+                guard = classify(body.message)
+                if guard.intent in {Intent.HUMAN_REQUEST, Intent.FRAUD, Intent.FEE_DISPUTE}:
+                    frame = guard
+                elif nlu.clarification or frame.confidence < 0.6:
+                    conversation.rounds += 1
+                    conversation.language = (
+                        "pt" if nlu.extracted.language == "pt" else conversation.language
+                    )
+                    if conversation.rounds >= 2:
+                        return safe_failure(principal, conversation.language)
+                    return {
+                        "response_type": "clarify",
+                        "outcome": "clarification",
+                        "reply": _localized(
+                            conversation.language,
+                            "¿Puedes aclarar el idioma, monto, moneda o fecha?",
+                            "Pode esclarecer o idioma, valor, moeda ou data?",
+                        ),
+                    }
         language = conversation.language if conversation.candidates else frame.language
         conversation.language = language
 
@@ -533,7 +573,12 @@ def create_app(
                 conversation.proposal = None
             result = safe_failure(principal, language)
         app.state.runtime.record("response", response_type=result["response_type"])
-        return result
+        conversation = app.state.conversations.get(conversation_id)
+        return ai.reply(
+            result,
+            conversation.language if conversation else "es",
+            deterministic=bool(conversation and conversation.degraded),
+        )
 
     async def process_confirmation(
         conversation_id: str,
