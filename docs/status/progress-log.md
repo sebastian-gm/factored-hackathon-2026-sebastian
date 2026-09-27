@@ -5,6 +5,11 @@ This summary supersedes earlier task lists. Earlier release evidence remains in 
 
 ## Completed-verified
 
+### Matcher v2 follow-up — 2026-09-27 UTC
+
+- Implemented versioned choice-first decisions while retaining v1 behavior; added deterministic sparse-language synthetic variants and a train/validation-only v2 training entry point. The [v2 protocol](../ml/matcher-v2-protocol.md) fixes noise, cost preferences, selection grids and test/human access order before fitting.
+- Ten matcher/MatchState checks passed, including scoped retrieval, legacy behavior, low-existence choice fallback, all-low/empty abstention, literal-format noise and evaluator/export policy consistency. Ruff and strict mypy passed. No frozen held-out scenario-suite access or paid calls in this implementation stage.
+
 ### Safety and resolution (tasks 1–2)
 
 - Read handoff 08 fully and followed its order. PR #25 merged after all four gates passed. No credential-bearing organizer document was opened, no organizer rows/secrets entered Git or CI, and no real-model call ran.
@@ -53,12 +58,14 @@ This summary supersedes earlier task lists. Earlier release evidence remains in 
 
 ## Done-not-verified
 
+- Matcher v2: fitting, calibration, exported artifact and reused synthetic/human diagnostics are pending. No v2 deployment or final evaluation is claimed.
 - Frozen acceptance after these fixes remains unknown; the preserved run-01 failure is the only full-suite result. Human labels, Spanish owner review and fluent Portuguese review remain pending. PT/dialect phrases are model-authored; prior cross-vendor authoring checks do not replace human review.
 - No lead real-model comparison, selected default or different-vendor judge run. Keep `LLM_PROVIDER=mock`. Durable model spend accounting remains future work.
 - Azure PITR/regional DR, realistic-volume restore, automatic retention, sustained concurrency, actual charges and budget-email delivery are unverified. Tiny local restore evidence remains in [recovery report](../ops-recovery.md).
 
 ## Next-blocked
 
+- Matcher v2: finish training and freeze the artifact before reused synthetic diagnostics and the one approved human after-check. Lead integration must select v2 before the final run; this lane will not change orchestration or the frozen suite.
 - Next layer after this release: provider comparison on the independent dev suite, broader independently authored language cases and human review. Show the cost estimate and wait for Sebastian's go before any real-model run. No cloud expansion, access broadening or estimate above US$40/month is authorized.
 - Reserve the one remaining full held-out diagnostic; log every access, preserve frozen bytes and publish only aggregates. The final evaluation must use organizer serving source and declared overlays.
 
