@@ -75,6 +75,27 @@ def latency(
 
 
 def score(case: dict[str, Any]) -> dict[str, Any]:
+    # Generic created-state means any newly persisted case/card/handoff. Normalize
+    # measured references, never infer a successful readback from gold expectations.
+    if "action_targets" in case:
+        case = {
+            **case,
+            "action_targets": {k: list(v) for k, v in case["action_targets"].items()},
+            "verified_refs": list(case.get("verified_refs", [])),
+        }
+        verified = set(case["verified_refs"])
+        if verified & {"created-case", "created-state", "handoff"}:
+            verified.add("created-state")
+        case["verified_refs"] = sorted(verified)
+        case["action_targets"]["verify_readback"] = sorted(
+            verified | set(case["action_targets"].get("verify_readback", []))
+        )
+        for response in case["responses"]:
+            if response.get("response_type") == "explain_status" and response.get("transaction"):
+                handle = response["transaction"]["handle"]
+                case["action_targets"].setdefault("explain_status", []).extend(
+                    ref for ref, value in case["refs"].items() if value == handle
+                )
     gold, responses = case["gold"], case["responses"]
     last = responses[-1] if responses else {}
     outcome = ALIASES.get(last.get("outcome"), last.get("outcome", "failed"))
