@@ -41,8 +41,12 @@
             "title": "Policy Rules",
             "type": "array"
           },
+          "review_flag": {
+            "default": false,
+            "title": "Review Flag",
+            "type": "boolean"
+          },
           "status": {
-            "const": "received",
             "title": "Status",
             "type": "string"
           },
@@ -61,6 +65,39 @@
         "title": "DisputeCaseView",
         "type": "object"
       },
+      "FreezeBody": {
+        "additionalProperties": false,
+        "properties": {
+          "confirmed": {
+            "title": "Confirmed",
+            "type": "boolean"
+          },
+          "proposal_hash": {
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Proposal Hash",
+            "type": "string"
+          }
+        },
+        "required": [
+          "proposal_hash",
+          "confirmed"
+        ],
+        "title": "FreezeBody",
+        "type": "object"
+      },
+      "FreezeRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "language": {
+            "default": "es",
+            "pattern": "^(es|pt)$",
+            "title": "Language",
+            "type": "string"
+          }
+        },
+        "title": "FreezeRequest",
+        "type": "object"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -77,6 +114,22 @@
       "HandoffRoute": {
         "additionalProperties": false,
         "properties": {
+          "assigned_agent_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Assigned Agent Ref"
+          },
+          "assignment_pending": {
+            "default": false,
+            "title": "Assignment Pending",
+            "type": "boolean"
+          },
           "fallback_used": {
             "title": "Fallback Used",
             "type": "boolean"
@@ -89,9 +142,41 @@
             "title": "Language",
             "type": "string"
           },
+          "language_fallback": {
+            "default": false,
+            "title": "Language Fallback",
+            "type": "boolean"
+          },
           "queue": {
             "title": "Queue",
             "type": "string"
+          },
+          "requested_queue": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Requested Queue"
+          },
+          "routing_explanation": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Routing Explanation"
+          },
+          "specialty_fallback": {
+            "default": false,
+            "title": "Specialty Fallback",
+            "type": "boolean"
           }
         },
         "required": [
@@ -116,6 +201,17 @@
             "format": "date-time",
             "title": "Created At",
             "type": "string"
+          },
+          "freeze_outcome": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Freeze Outcome"
           },
           "handoff_id": {
             "title": "Handoff Id",
@@ -216,7 +312,7 @@
         "additionalProperties": false,
         "properties": {
           "challenge_id": {
-            "maxLength": 80,
+            "maxLength": 160,
             "minLength": 1,
             "title": "Challenge Id",
             "type": "string"
@@ -232,6 +328,30 @@
           "code"
         ],
         "title": "OtpBody",
+        "type": "object"
+      },
+      "ProductView": {
+        "additionalProperties": false,
+        "properties": {
+          "handle": {
+            "title": "Handle",
+            "type": "string"
+          },
+          "product_type": {
+            "title": "Product Type",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "handle",
+          "product_type",
+          "status"
+        ],
+        "title": "ProductView",
         "type": "object"
       },
       "ProposalView": {
@@ -297,6 +417,20 @@
               }
             ]
           },
+          "freeze_offer": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ProductView"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Freeze Offer"
+          },
           "handoff": {
             "anyOf": [
               {
@@ -316,7 +450,9 @@
               "clarification",
               "dispute_filed",
               "dispute_proposed",
-              "explained"
+              "explained",
+              "status_reported",
+              "refused_security"
             ],
             "title": "Outcome",
             "type": "string"
@@ -358,10 +494,17 @@
               "clarify",
               "report_case",
               "confirm_action",
-              "explain_status"
+              "explain_status",
+              "report_status",
+              "refuse"
             ],
             "title": "Response Type",
             "type": "string"
+          },
+          "session_ended": {
+            "default": false,
+            "title": "Session Ended",
+            "type": "boolean"
           },
           "transaction": {
             "anyOf": [
@@ -391,6 +534,27 @@
           "reply"
         ],
         "title": "ResponsePlan",
+        "type": "object"
+      },
+      "StepUpBody": {
+        "additionalProperties": false,
+        "properties": {
+          "challenge_id": {
+            "maxLength": 160,
+            "title": "Challenge Id",
+            "type": "string"
+          },
+          "code": {
+            "pattern": "^\\d{6}$",
+            "title": "Code",
+            "type": "string"
+          }
+        },
+        "required": [
+          "challenge_id",
+          "code"
+        ],
+        "title": "StepUpBody",
         "type": "object"
       },
       "TransactionView": {
@@ -494,6 +658,57 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/accounts": {
+      "get": {
+        "operationId": "accounts_accounts_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  "title": "Response Accounts Accounts Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Accounts"
+      }
+    },
     "/auth/challenges/{challenge_id}/sms": {
       "get": {
         "operationId": "simulated_sms_auth_challenges__challenge_id__sms_get",
@@ -653,6 +868,323 @@
           }
         },
         "summary": "Verify Otp"
+      }
+    },
+    "/auth/step-up": {
+      "post": {
+        "operationId": "step_up_auth_step_up_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Step Up Auth Step Up Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Step Up"
+      }
+    },
+    "/auth/step-up/verify": {
+      "post": {
+        "operationId": "verify_step_up_auth_step_up_verify_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-preauth-token",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Preauth-Token"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StepUpBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Verify Step Up Auth Step Up Verify Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Verify Step Up"
+      }
+    },
+    "/cards/{handle}": {
+      "get": {
+        "operationId": "card_cards__handle__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "handle",
+            "required": true,
+            "schema": {
+              "title": "Handle",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Card Cards  Handle  Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Card"
+      }
+    },
+    "/cards/{handle}/freeze": {
+      "post": {
+        "operationId": "freeze_cards__handle__freeze_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "handle",
+            "required": true,
+            "schema": {
+              "title": "Handle",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FreezeBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Freeze Cards  Handle  Freeze Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Freeze"
+      }
+    },
+    "/cards/{handle}/freeze/proposal": {
+      "post": {
+        "operationId": "proposal_cards__handle__freeze_proposal_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "handle",
+            "required": true,
+            "schema": {
+              "title": "Handle",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FreezeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Proposal Cards  Handle  Freeze Proposal Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Proposal"
       }
     },
     "/chat/sessions": {

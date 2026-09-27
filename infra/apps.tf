@@ -57,6 +57,7 @@ resource "azurerm_container_app" "api" {
           DEMO_USERNAME = "demo.es.mx", LLM_PROVIDER = "mock"
           BANK_CLOCK    = "2026-06-18T06:00:00Z", WEB_ORIGIN = local.web_url
           RELEASE_SHA   = var.image_tag
+          OPS_BACKEND   = "postgres", AGENT_SYSTEM = "P"
         }
         content {
           name  = env.key

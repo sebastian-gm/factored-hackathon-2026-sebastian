@@ -1,0 +1,309 @@
+version: 1.2.0
+rules:
+- id: AUTH-01
+  es: Exigir una sesión válida.
+  pt: Exigir uma sessão válida.
+  en: Require a valid session.
+  parameters:
+    session_minutes: 15
+  status: implemented
+  enforcement:
+  - api/app.py:principal_from_token
+  tests:
+  - test_api_security.py::test_protected_routes_require_a_live_bearer_session
+- id: AUTH-02
+  es: Exigir OTP reciente para disputas o bloqueo.
+  pt: Exigir OTP recente para contestação ou bloqueio.
+  en: Require recent OTP for dispute or freeze.
+  parameters:
+    otp_minutes: 10
+  status: implemented
+  enforcement:
+  - api/app.py:process_confirmation
+  - api/workflows.py:install_workflows
+  tests:
+  - test_api_security.py::test_confirmation_requires_recent_step_up_authentication
+  - test_workflow_api.py::test_freeze_requires_step_up_hash_scope_recheck_and_readback
+  - test_operational_store.py::test_freeze_api_and_step_up_survive_app_restart
+- id: AUTH-03
+  es: La identidad escrita en el chat no concede acceso.
+  pt: Identidade escrita no chat não concede acesso.
+  en: Chat identity claims grant no access.
+  parameters: {}
+  status: implemented
+  enforcement:
+  - api/app.py:get_principal
+  tests:
+  - test_api_security.py::test_transactions_are_customer_scoped_and_mask_internal_identifiers
+- id: SCOPE-01
+  es: Ayudar solo con intenciones permitidas; derivar las demás.
+  pt: Atender apenas intenções permitidas; encaminhar as demais.
+  en: Allow only scoped intents; abstain and route others.
+  parameters: {}
+  status: implemented
+  enforcement:
+  - agent/nlu/rules.py:classify
+  tests:
+  - test_evaluation.py::test_v2_repeat_isolation_and_fault_execution
+- id: DATA-01
+  es: Usar productos propios y movimientos de los últimos 120 días.
+  pt: Usar produtos próprios e transações dos últimos 120 dias.
+  en: Use owned products and the 120-day transaction window.
+  parameters:
+    window_days: 120
+  status: implemented
+  enforcement:
+  - bank/repository.py:for_customer
+  - agent/matching.py:match
+  tests:
+  - test_match_state.py::test_exported_thresholds_cover_three_actions_and_reject_other_customer
+  - test_policy_workflows.py::test_deterministic_text_guards_and_ownership
+- id: TXN-01
+  es: Explicar una retención pendiente reciente sin inventar fechas.
+  pt: Explicar uma autorização pendente recente sem inventar datas.
+  en: Explain a recent pending authorization without invented dates.
+  parameters:
+    pending_days: 14
+    usual_settlement_days: 7
+  status: implemented
+  enforcement:
+  - policy/engine.py:evaluate
+  - api/app.py:process_confirmation
+  tests:
+  - test_policy_workflows.py::test_all_transaction_policy_rules_and_boundaries
+- id: TXN-02
+  es: Derivar pendientes con más de 14 días.
+  pt: Encaminhar pendências com mais de 14 dias.
+  en: Escalate pending transactions older than 14 days.
+  parameters:
+    pending_days: 14
+  status: implemented
+  enforcement:
+  - policy/engine.py:evaluate
+  - api/app.py:process_confirmation
+  tests:
+  - test_policy_workflows.py::test_all_transaction_policy_rules_and_boundaries
+- id: TXN-03
+  es: Explicar el reverso sin inventar su fecha.
+  pt: Explicar o estorno sem inventar sua data.
+  en: Explain reversal without inventing its date.
+  parameters: {}
+  status: implemented
+  enforcement:
+  - policy/engine.py:evaluate
+  - api/app.py:process_confirmation
+  tests:
+  - test_policy_workflows.py::test_all_transaction_policy_rules_and_boundaries
+- id: TXN-04
+  es: Explicar el rechazo sin mostrar códigos internos.
+  pt: Explicar a recusa sem mostrar códigos internos.
+  en: Explain declined status without internal response codes.
+  parameters: {}
+  status: implemented
+  enforcement:
+  - policy/engine.py:evaluate
+  - api/app.py:process_confirmation
+  tests:
+  - test_policy_workflows.py::test_all_transaction_policy_rules_and_boundaries
+- id: DSP-01
+  es: Recibir disputas hasta 90 días; derivar de 91 a 120.
+  pt: Receber contestações até 90 dias; encaminhar de 91 a 120.
+  en: Intake through day 90; escalate days 91–120.
+  parameters:
+    intake_days: 90
+  status: implemented
+  enforcement:
+  - policy/engine.py:evaluate
+  - api/app.py:process_confirmation
+  tests:
+  - test_policy_workflows.py::test_all_transaction_policy_rules_and_boundaries
+- id: DSP-02
+  es: Aceptar solo compras, retiros y pagos aprobados.
+  pt: Aceitar apenas compras, saques e pagamentos aprovados.
+  en: Allow only approved Purchase, Withdrawal or Payment.
+  parameters: {}
+  status: implemented
+  enforcement:
+  - policy/engine.py:evaluate
+  - api/app.py:process_confirmation
+  tests:
+  - test_policy_workflows.py::test_all_transaction_policy_rules_and_boundaries
+- id: DSP-03
+  es: Derivar ajustes y tarifas a Quejas y Reclamos.
+  pt: Encaminhar ajustes e tarifas para Quejas y Reclamos.
+  en: Route adjustments and fees to Quejas y Reclamos.
+  parameters: {}
+  status: implemented
+  enforcement:
+  - policy/engine.py:evaluate
+  - api/app.py:process_confirmation
+  tests:
+  - test_policy_workflows.py::test_all_transaction_policy_rules_and_boundaries
+- id: DSP-04
+  es: Derivar transferencias y depósitos a una persona.
+  pt: Encaminhar transferências e depósitos para uma pessoa.
+  en: Route transfers and deposits to a human.
+  parameters: {}
+  status: implemented
+  enforcement:
+  - policy/engine.py:evaluate
+  - api/app.py:process_confirmation
+  tests:
+  - test_policy_workflows.py::test_all_transaction_policy_rules_and_boundaries
+- id: DSP-05
+  es: Derivar clientes suspendidos/cerrados o productos cerrados/bloqueados.
+  pt: Encaminhar clientes suspensos/encerrados ou produtos encerrados/bloqueados.
+  en: Escalate suspended/closed customers or closed/blocked products.
+  parameters: {}
+  status: implemented
+  enforcement:
+  - policy/engine.py:evaluate
+  - api/app.py:process_confirmation
+  tests:
+  - test_policy_workflows.py::test_all_transaction_policy_rules_and_boundaries
+- id: DSP-06
+  es: Mostrar el estado del caso existente; evitar duplicados.
+  pt: Mostrar o estado do caso existente; evitar duplicatas.
+  en: Return existing case status without duplicate intake.
+  parameters: {}
+  status: implemented
+  enforcement:
+  - policy/engine.py:evaluate
+  - api/app.py:process_confirmation
+  tests:
+  - test_policy_workflows.py::test_all_transaction_policy_rules_and_boundaries
+  - test_workflow_api.py::test_case_duplicate_status_review_flag_and_fraud_burst
+- id: DSP-07
+  es: Limitar el monto de disputa a USD 1000.
+  pt: Limitar o valor da contestação a USD 1000.
+  en: Limit dispute amount to USD 1000.
+  parameters:
+    limit_usd: 1000
+  status: implemented
+  enforcement:
+  - policy/engine.py:evaluate
+  - api/app.py:process_confirmation
+  tests:
+  - test_policy_workflows.py::test_all_transaction_policy_rules_and_boundaries
+- id: BRD-01
+  es: Derivar casos de borde por monto, edad, FX o datos clave ausentes.
+  pt: Encaminhar casos de limite por valor, idade, câmbio ou dados essenciais ausentes.
+  en: Escalate amount/age boundaries, prior FX or missing key data.
+  parameters:
+    amount_margin: 0.05
+    age_min_days: 85
+    age_max_days: 90
+  status: implemented
+  enforcement:
+  - policy/engine.py:evaluate
+  - api/app.py:process_confirmation
+  tests:
+  - test_policy_workflows.py::test_all_transaction_policy_rules_and_boundaries
+- id: FRD-01
+  es: 'Ante fraude, pérdida o robo: ofrecer bloqueo de tarjeta y derivación urgente.'
+  pt: 'Em fraude, perda ou roubo: oferecer bloqueio do cartão e encaminhamento urgente.'
+  en: On fraud/loss/theft offer card freeze and high-priority fraud routing.
+  parameters:
+    fraud_score_gt: 30
+    cases_7_days_gte: 3
+  status: implemented
+  enforcement:
+  - policy/engine.py:fraud_required
+  - api/workflows.py:fraud_handoff
+  - api/workflows.py:install_workflows
+  tests:
+  - test_policy_workflows.py::test_fraud_threshold_is_strict_and_not_demographic
+  - test_workflow_api.py::test_freeze_requires_step_up_hash_scope_recheck_and_readback
+- id: ESC-01
+  es: Derivar inmediatamente cuando se pide una persona.
+  pt: Encaminhar imediatamente quando uma pessoa é solicitada.
+  en: Escalate immediately on explicit human request.
+  parameters: {}
+  status: implemented
+  enforcement:
+  - api/app.py:process_message
+  tests:
+  - test_ai_lane.py::test_false_friend_and_degraded_path
+- id: ESC-02
+  es: Dar prioridad alta a menciones legales o regulatorias.
+  pt: Dar prioridade alta a menções legais ou regulatórias.
+  en: Use high priority for legal/regulatory requests.
+  parameters: {}
+  status: implemented
+  enforcement:
+  - policy/rules/guards.py
+  - api/app.py:process_message
+  tests:
+  - test_workflow_api.py::test_security_two_strikes_injection_legal_distress_and_language
+- id: ESC-03
+  es: Derivar por angustia expresada, sin inferir atributos personales.
+  pt: Encaminhar por sofrimento expresso, sem inferir atributos pessoais.
+  en: Escalate expressed distress without demographic inference.
+  parameters: {}
+  status: implemented
+  enforcement:
+  - policy/rules/guards.py
+  - api/app.py:process_message
+  tests:
+  - test_workflow_api.py::test_security_two_strikes_injection_legal_distress_and_language
+- id: ESC-04
+  es: Derivar tras dos aclaraciones fallidas o baja confianza.
+  pt: Encaminhar após duas tentativas de esclarecimento ou baixa confiança.
+  en: Escalate after two failed clarifications or low confidence.
+  parameters:
+    failed_clarifications: 2
+    nlu_min_confidence: 0.6
+  status: implemented
+  enforcement:
+  - api/app.py:process_message
+  tests:
+  - test_evaluation.py::test_customer_reacts_to_plan_and_exhausts_deterministically
+  - test_workflow_api.py::test_security_two_strikes_injection_legal_distress_and_language
+- id: ESC-05
+  es: Con dos quejas en 90 días, registrar y marcar para revisión.
+  pt: Com duas reclamações em 90 dias, registrar e marcar para revisão.
+  en: At two complaints in 90 days, intake normally with a review flag.
+  parameters:
+    complaints_90_days_gte: 2
+  status: implemented
+  enforcement:
+  - policy/engine.py:evaluate
+  - api/app.py:process_confirmation
+  tests:
+  - test_policy_workflows.py::test_all_transaction_policy_rules_and_boundaries
+  - test_workflow_api.py::test_case_duplicate_status_review_flag_and_fraud_burst
+- id: SEC-01
+  es: Rechazar acceso ajeno; al segundo intento, cerrar sesión y derivar.
+  pt: Recusar acesso alheio; na segunda tentativa, encerrar sessão e encaminhar.
+  en: Refuse cross-customer access; on second attempt end session and route security.
+  parameters:
+    end_session_attempts: 2
+  status: implemented
+  enforcement:
+  - policy/rules/guards.py
+  - api/app.py:process_message
+  tests:
+  - test_workflow_api.py::test_security_two_strikes_injection_legal_distress_and_language
+- id: SEC-02
+  es: Ignorar instrucciones maliciosas, continuar de forma segura y registrar el evento.
+  pt: Ignorar instruções maliciosas, continuar com segurança e registrar o evento.
+  en: Ignore injected instructions, continue safely and log the event.
+  parameters: {}
+  status: implemented
+  enforcement:
+  - policy/rules/guards.py
+  - api/app.py:process_message
+  tests:
+  - test_workflow_api.py::test_security_two_strikes_injection_legal_distress_and_language
+- id: COM-01
+  es: No prometer reembolso ni resultado; indicar solo el siguiente paso.
+  pt: Não prometer reembolso nem resultado; indicar apenas o próximo passo.
+  en: Never promise refund/credit/outcome; state only the next step.
+  parameters:
+    synthetic_sla_days_max: 15
+  status: implemented
+  enforcement:
+  - agent/ai.py:reply
+  tests:
+  - test_agent_integration.py::test_p_api_extraction_grounding_and_no_model_confirmation_authority
+  - test_workflow_api.py::test_case_duplicate_status_review_flag_and_fraud_burst

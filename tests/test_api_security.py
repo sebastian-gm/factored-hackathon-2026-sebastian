@@ -11,6 +11,7 @@ from httpx import ASGITransport, AsyncClient
 
 from aclara.api.app import create_app
 from aclara.bank.repository import Transaction, TransactionRepository
+from aclara.ops.store import Scope
 from aclara.settings import Settings
 
 TEST_USERNAME = "test-user"
@@ -277,9 +278,13 @@ def test_tampered_or_expired_proposals_fail_closed() -> None:
                 headers=headers,
                 json={"message": "No reconozco el cargo de Mercado Verde"},
             )
-            app.state.conversations[expired_id].proposal.expires_at = datetime.now(UTC) - timedelta(
-                seconds=1
-            )
+            principal = app.state.sessions[token]
+            with app.state.store.transaction(
+                Scope(principal.customer_id, principal.run_id, principal.session_id)
+            ):
+                app.state.conversations[expired_id].proposal.expires_at = datetime.now(
+                    UTC
+                ) - timedelta(seconds=1)
             expired = await client.post(
                 f"/chat/sessions/{expired_id}/confirm",
                 headers=headers,
@@ -327,6 +332,8 @@ def test_confirmation_requires_recent_step_up_authentication() -> None:
         assert proposal.status_code == 200
         assert confirmation.status_code == 401
         assert not app.state.cases
+
+    asyncio.run(check())
 
 
 def test_request_models_reject_extra_fields_bad_otp_and_oversized_messages() -> None:

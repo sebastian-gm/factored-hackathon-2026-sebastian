@@ -149,7 +149,7 @@ class Anthropic:
             anthropic = import_module("anthropic")
         except ImportError as exc:
             raise ModelFailure("Install the llm extra for Anthropic") from exc
-        client = anthropic.Anthropic(api_key=key, timeout=20.0, max_retries=2)
+        client = anthropic.Anthropic(api_key=key, timeout=20.0, max_retries=0)
         try:
             response = client.messages.parse(
                 model=spec.model_id,

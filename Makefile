@@ -1,7 +1,8 @@
 .PHONY: up down checks eval-smoke interfaces pipeline
 
 up:
-	docker compose up --build -d
+	uv run --no-sync python -m scripts.local_ops
+	docker compose up --build -d --wait --wait-timeout 120
 
 down:
 	docker compose down
@@ -13,6 +14,7 @@ checks:
 	uv run --no-sync pytest
 	uv run --no-sync python -m evals.runner --system B1
 	uv run --no-sync python -m scripts.export_interfaces --check
+	uv run --no-sync python -m scripts.generate_policy_catalog --check
 
 eval-smoke:
 	uv run --no-sync python -m evals.runner --system B1
