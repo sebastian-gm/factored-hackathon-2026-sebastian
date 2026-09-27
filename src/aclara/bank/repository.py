@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import csv
 from dataclasses import dataclass
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from pathlib import Path
 
 
@@ -53,6 +53,7 @@ class TransactionRepository:
         candidates = [
             row
             for row in self._rows
-            if row.customer_id == customer_id and 0 <= (as_of.date() - row.process_date).days <= 120
+            if row.customer_id == customer_id
+            and as_of - timedelta(days=120) <= row.transaction_date < as_of
         ]
         return [(f"txn_{index}", row) for index, row in enumerate(candidates, start=1)]
