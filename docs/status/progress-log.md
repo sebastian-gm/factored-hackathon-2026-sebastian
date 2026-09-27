@@ -1,5 +1,23 @@
 # Progress log
 
+## AI lane — Option A dev-P gate, 2026-09-27 UTC
+
+### Completed (verified)
+
+- Read handoff 12 and froze a fresh 20-case synthetic confirmation set (10 ES, 10 pt-BR) in the first commit of this branch **before** changing NLU. Schema and unique IDs passed; it has not been run or tuned.
+- Reproduced the 9 original no-fault failures and 8 unreached fault fixtures on the mock path: 9/9 no-fault objectives passed and 8/8 faults fired. Traced all 17 real-P synthetic dev cases under the lead's existing shared Postgres `dev-gate/option-a` $1 scope; [per-case analysis](../ml/dev-p-failure-analysis.md) separates generic-type NLU extraction from choice/customer-simulator and conflicting fixture expectations.
+- Tightened NLU v4 and normalized generic `cargo/cobro/cobrança/charge` out of `type_expr`; a matcher-backed dev regression passed. A single post-fix `pt.pending.v2` real-P check passed with the correct target and explanation. Scope readback: 40 settled attempts, $0.02748308 known and charged, zero unknown-cost attempts. The local `.env` approval flag was not changed; approval was process-local for the authorized calls.
+
+### Done but not verified
+
+- The complete 20-case no-fault and 20-case confirmation real-P acceptance gates have not run on the merged candidate. The original P study omitted intermediate slots, so the new trace is a same-case reproduction; the original `pt.pending.v2` slot cause remains a supported hypothesis rather than a recorded original fact. No NLG cause was found.
+
+### Next / blocked
+
+- Lead reviews the fixture/simulated-customer and matcher handoff in the analysis, merges the AI PR, then runs the full Step 3 gate under the same shared scope. Stop before re-release and final v2 until Sebastian's later signal. Never open the abandoned final-v1 artifacts or frozen held-out inputs in this diagnosis.
+
+---
+
 ## Option A — dev gate before any re-release (in progress)
 
 ### Completed-verified
