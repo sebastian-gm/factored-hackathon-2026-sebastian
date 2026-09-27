@@ -4,6 +4,7 @@ These are versioned contracts for parallel implementation. Producers keep payloa
 
 | Interface | Source of truth | Consumer |
 |---|---|---|
+| Conversation/policy v3 semantics | [Accepted contract](../contracts/interfaces/conversation-policy-v3.md), ADR-0015; executable additions pending Step 3 | Lead, AI, web/simulator and independent suite-v3 authors |
 | HTTP API | `contracts/interfaces/openapi.json`, exported from FastAPI route models | Web client, AI lane, integrations |
 | NLU result | `NluFrame` in `src/aclara/agent/contracts.py` | Orchestrator, policy, evaluations, AI lane |
 | Orchestrator response plan | `ResponsePlan` in `src/aclara/agent/contracts.py`; used as the FastAPI response model | Web client, human-handoff flow, AI lane |

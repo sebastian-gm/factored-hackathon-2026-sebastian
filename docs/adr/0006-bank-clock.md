@@ -15,3 +15,7 @@ This differs from inclusive calendar-date counts in some reference profiles. Rec
 publish the pipeline definition rather than alter predicates to match the brief. Dimensions
 are current snapshots, not valid historical SCD2 records: historical customer attributes
 are unsuitable for causal analyses or historical eligibility claims.
+
+ADR-0015 makes the policy-age anchor explicit for gold authors and gives worked
+84/85-day examples in the [v3 contract](../../contracts/interfaces/conversation-policy-v3.md#5-age-convention-and-worked-boundary).
+The end-of-day clock uses the last completed bank business date.

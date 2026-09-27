@@ -16,6 +16,90 @@
 
 ---
 
+## 2026-09-27 — Handoff 13 Step 1: accepted behavior specification
+
+### Completed (verified)
+
+- Routine merges finished: #46 analysis at `7914022`, then #45 reviewed wording
+  at **`4470ba4957c7f90f54ac28e887bc3119ed99a02e`**. Each exact PR head passed
+  all four CI checks before merge. Only A20/W02 wording was applied; local
+  `make checks` passed (174 tests / 13 skips, B1 32/32).
+- Read handoff 13 fully. Wrote [ADR-0015](../adr/0015-post-v2-conversation-and-policy-contract.md)
+  and the [normative v3 behavior contract](../../contracts/interfaces/conversation-policy-v3.md)
+  before behavioral code changes: nonterminal explanation/dispute offer,
+  recognition/denial transitions, SAR, multi-reason handoffs, cross-customer
+  actions, business-date age, and type/data rule precedence.
+- Independently calculated the worked boundary: bank date 2026-06-17 minus
+  84/85 days gives 2026-03-25/2026-03-24. Document links, whitespace and staged
+  safety checks are checked before committing this specification.
+- Orchestrator identified confirmation freeze PR #47, `0692881`, with log
+  commit `857228e`, authored before fixes. Its rows have not been opened here.
+
+### Done but not verified
+
+- This is an accepted specification, not a claim that Step 3 is implemented.
+  Runtime schemas will be regenerated with the additive interface changes.
+- Prompt v5/NLG/dev integration is still being prepared by the AI lane on
+  `feat/ai-explain-offer-v5`; it waits for this contract's merged SHA.
+
+### Next / blocked
+
+- Merge this specification with green CI and report its exact SHA immediately
+  so the independent lane can author v3. Merge #47 after its remaining CI passes.
+- Implement lead Step 3 on dev only, using `dev-gate/after-v2` for any approved
+  real calls (new $1 cap). Never rerun v2 held-out cases or open suite-v3 rows.
+  Keep official v2 outputs unchanged; saved-slice reporting corrections must be
+  separate, disclosed artifacts. No release/v3 run before Sebastian's later go.
+
+## 2026-09-27 — Routine post-v2 merges and accepted pt-BR wording
+
+### Completed (verified)
+
+- Opened and merged analysis PR **#46** after all four checks passed: Python,
+  Postgres, web/browser and safety. Merge SHA: `791402214a2d8d5829c6c6e9e1208e80a2679945`.
+- Reviewed #45's documentation and proposed patch against the actual workflow.
+  Accepted A20 (destination is a person on the team) and W02 (verification code,
+  then confirmation); retained A15 because the handoff already exists and is
+  durably read back before the reply. Applied exactly two pt-BR string changes.
+- Exact source replacement and normalized AST comparison confirmed no logic
+  change. `git apply --check` passed before application. With
+  `LLM_PROVIDER=mock LLM_REAL_CALLS_APPROVED=0 LLM_FINAL_RUN_STARTED=0`,
+  `make checks` passed: six hooks, strict mypy, file policy, compilation,
+  **174 tests passed / 13 database-dependent skips**, B1 **32/32**, interfaces
+  and policy catalog. No paid calls, deployment, held-out access or reruns.
+- Updated #45 from main with a history-preserving merge, retaining both
+  progress-log entries. Fresh PR CI is required before merge.
+
+### Done but not verified
+
+- Fluent-human pt-BR review is still pending. The two strings have not been
+  redeployed to Azure; final v2 remains tied to its original evaluated SHA.
+
+### Next / blocked
+
+- Complete #45's green-CI merge and check main. Sebastian then authorized
+  handoff 13: merge the explain/offer/dispute and handoff/security/age/policy
+  specification first, report its SHA, then implement lead-owned fixes on dev
+  only. Never rerun v2 held-out cases or open suite-v3 rows. No release or v3 run
+  is authorized by this step.
+
+## AI lane — lead-owned pt-BR wording review, 2026-09-27 UTC
+
+### Completed (verified)
+
+- Reconciled the previously stated 34-string inventory to **35 active strings**, all found in current lead-owned API, workflow, handoff and staff source; Sebastian explicitly approved reviewing all 35 under the unchanged new $0.30 cap.
+- Created and read back separate durable scope `pt-review/lead-strings` / run `lead-strings`, cap $0.30. Nine sequential Sonnet calls reviewed 35/35 in batches of at most four with 3072 maximum output tokens. All nine responses were valid and complete; scope readback was **$0.048878 known and charged, zero unknown-cost attempts**. No final-v2 budget scope was used.
+- Rejected one model suggestion after checking the handoff packet's real creation/readback order. Proposed two wording changes only in [the lead-review patch](../ml/pt-review-lead-proposed.patch); `git apply --check` passed and lead-owned source files remain unchanged. [Before/after decisions](../ml/pt-review.md) are recorded.
+
+### Done but not verified
+
+- Model review is not a fluent-human pt-BR review. The proposed wording has not been applied or verified in an app build.
+
+### Next / blocked
+
+- Lead reviews the proposed patch after final v2 finishes, applies any accepted wording in the lead lane, and merges this documentation PR. Keep this PR unmerged during the freeze.
+
+---
 ## 2026-09-27 — Final v2 COMPLETE; post-hoc analysis; STOP
 
 ### Completed (verified)
