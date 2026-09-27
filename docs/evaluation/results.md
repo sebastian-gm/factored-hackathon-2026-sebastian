@@ -1,42 +1,42 @@
 # Evaluation results
 
-Generated from `artifacts/evaluation/results.json`. No independent numbers.
+Generated from `artifacts/evaluation-p/results.json`. No independent numbers.
 
 - **workload**: "32 authored reactive ES/PT fixture scenarios with deterministic faults; mock only; language review pending."
-- **system**: "B1"
+- **system**: "P"
 - **model**: "mock"
 - **prompt_versions**: "nlu@v1,phrase@v1"
 - **tag**: "working-tree"
 - **cost_assumptions**: "Mock calls cost USD 0; infrastructure excluded"
 - **price_table_date**: "2026-09-26"
 - **monthly_infrastructure_estimate_usd**: 34.63
-- **policy_version**: "layer1"
-- **matcher_version**: "rules"
+- **policy_version**: "1.1.0"
+- **matcher_version**: ["rules"]
 - **dataset_version**: "authored-fixtures"
-- **sample_size**: 64
+- **sample_size**: 32
 - **independent_scenarios**: 32
 
 Containment alone is not success. Synthetic mock workload; no model-quality claim.
 
 | Metric | Aggregate |
 |---|---|
-| passed | `64` |
-| sar_in_scope | `{"count": 36, "denominator": 60, "rate": 0.6, "wilson_95": [0.47366053492041094, 0.7143050946511716]}` |
-| sar_eligible | `{"count": 36, "denominator": 36, "rate": 1.0, "wilson_95": [0.9035813714055411, 0.9999999999999999]}` |
-| automation_attempt_share | `{"count": 36, "denominator": 60, "rate": 0.6, "wilson_95": [0.47366053492041094, 0.7143050946511716]}` |
+| passed | `32` |
+| sar_in_scope | `{"count": 18, "denominator": 30, "rate": 0.6, "wilson_95": [0.4232036025332294, 0.754093718831978]}` |
+| sar_eligible | `{"count": 18, "denominator": 18, "rate": 1.0, "wilson_95": [0.8241207763533505, 1]}` |
+| automation_attempt_share | `{"count": 18, "denominator": 30, "rate": 0.6, "wilson_95": [0.4232036025332294, 0.754093718831978]}` |
 | flagged_intakes | `0` |
-| containment | `{"count": 40, "denominator": 64, "rate": 0.625, "wilson_95": [0.5025037868400484, 0.7333401982117511]}` |
+| containment | `{"count": 20, "denominator": 32, "rate": 0.625, "wilson_95": [0.4525440735307791, 0.7706611269054546]}` |
 | containment_note | `"Containment alone is not success."` |
-| escalation_recall | `{"count": 24, "denominator": 24, "rate": 1.0, "wilson_95": [0.8620237953250264, 1]}` |
-| missed_transfers | `{"count": 0, "denominator": 24, "rate": 0.0, "wilson_95": [0, 0.13797620467497365]}` |
-| unnecessary_transfers | `{"count": 0, "denominator": 40, "rate": 0.0, "wilson_95": [6.938893903907228e-18, 0.08762160119728224]}` |
-| routing_accuracy | `{"count": 16, "denominator": 16, "rate": 1.0, "wilson_95": [0.8063923194655722, 1]}` |
-| routing_by_field | `{"queue": {"count": 16, "denominator": 16, "rate": 1.0, "wilson_95": [0.8063923194655722, 1]}, "language": {"count": 16, "denominator": 16, "rate": 1.0, "wilson_95": [0.8063923194655722, 1]}, "fallback_used": {"count": 16, "denominator": 16, "rate": 1.0, "wilson_95": [0.8063923194655722, 1]}}` |
-| handoff_completeness | `{"n": 16, "mean": 1.0}` |
-| handoff_rubric | `{"n": 24, "mean": 1.0, "kind": "deterministic four-field rubric; no LLM judge"}` |
-| unsafe | `{"unauthorized_disclosure": {"count": 0, "denominator": 64, "rate": 0.0, "wilson_95": [0, 0.05662405979280239], "upper_95": 0.046875}, "unauthorized_action": {"count": 0, "denominator": 64, "rate": 0.0, "wilson_95": [0, 0.05662405979280239], "upper_95": 0.046875}, "missing_confirmation_or_step_up": {"count": 0, "denominator": 64, "rate": 0.0, "wilson_95": [0, 0.05662405979280239], "upper_95": 0.046875}, "reported_not_verified": {"count": 0, "denominator": 64, "rate": 0.0, "wilson_95": [0, 0.05662405979280239], "upper_95": 0.046875}, "materially_incorrect_outcome": {"count": 0, "denominator": 64, "rate": 0.0, "wilson_95": [0, 0.05662405979280239], "upper_95": 0.046875}, "grounding_violation": {"count": 0, "denominator": 64, "rate": 0.0, "wilson_95": [0, 0.05662405979280239], "upper_95": 0.046875}, "policy_violation": {"count": 0, "denominator": 64, "rate": 0.0, "wilson_95": [0, 0.05662405979280239], "upper_95": 0.046875}, "refund_or_credit_promise": {"count": 0, "denominator": 64, "rate": 0.0, "wilson_95": [0, 0.05662405979280239], "upper_95": 0.046875}}` |
+| escalation_recall | `{"count": 12, "denominator": 12, "rate": 1.0, "wilson_95": [0.7575059933447693, 1]}` |
+| missed_transfers | `{"count": 0, "denominator": 12, "rate": 0.0, "wilson_95": [0, 0.24249400665523077]}` |
+| unnecessary_transfers | `{"count": 0, "denominator": 20, "rate": 0.0, "wilson_95": [1.3877787807814457e-17, 0.1611251580528119]}` |
+| routing_accuracy | `{"count": 8, "denominator": 8, "rate": 1.0, "wilson_95": [0.6755924351161318, 1]}` |
+| routing_by_field | `{"queue": {"count": 8, "denominator": 8, "rate": 1.0, "wilson_95": [0.6755924351161318, 1]}, "language": {"count": 8, "denominator": 8, "rate": 1.0, "wilson_95": [0.6755924351161318, 1]}, "fallback_used": {"count": 8, "denominator": 8, "rate": 1.0, "wilson_95": [0.6755924351161318, 1]}}` |
+| handoff_completeness | `{"n": 8, "mean": 1.0}` |
+| handoff_rubric | `{"n": 12, "mean": 1.0, "kind": "deterministic four-field rubric; no LLM judge"}` |
+| unsafe | `{"unauthorized_disclosure": {"count": 0, "denominator": 32, "rate": 0.0, "wilson_95": [0, 0.10717919825506533], "upper_95": 0.09375}, "unauthorized_action": {"count": 0, "denominator": 32, "rate": 0.0, "wilson_95": [0, 0.10717919825506533], "upper_95": 0.09375}, "missing_confirmation_or_step_up": {"count": 0, "denominator": 32, "rate": 0.0, "wilson_95": [0, 0.10717919825506533], "upper_95": 0.09375}, "reported_not_verified": {"count": 0, "denominator": 32, "rate": 0.0, "wilson_95": [0, 0.10717919825506533], "upper_95": 0.09375}, "materially_incorrect_outcome": {"count": 0, "denominator": 32, "rate": 0.0, "wilson_95": [0, 0.10717919825506533], "upper_95": 0.09375}, "grounding_violation": {"count": 0, "denominator": 32, "rate": 0.0, "wilson_95": [0, 0.10717919825506533], "upper_95": 0.09375}, "policy_violation": {"count": 0, "denominator": 32, "rate": 0.0, "wilson_95": [0, 0.10717919825506533], "upper_95": 0.09375}, "refund_or_credit_promise": {"count": 0, "denominator": 32, "rate": 0.0, "wilson_95": [0, 0.10717919825506533], "upper_95": 0.09375}}` |
 | unsafe_note | `"0 observed in n cases does not establish zero risk; the 95% upper bound is 3/n (capped at 1). Repeats are correlated."` |
-| latency | `{"turn": {"p50_ms": 0.6261763628572226, "p95_ms": 1.1313959257677197, "case_bootstrap_95": {"p50": [0.605810186243616, 0.6542361807078123], "p95": [0.9652390494011343, 1.4326365111628545]}}, "case": {"p50_ms": 0.8494815556332469, "p95_ms": 2.113012562040239, "case_bootstrap_95": {"p50": [0.6095876218751073, 1.2825762387365103], "p95": [1.810876234085299, 2.346159890294075]}}}` |
+| latency | `{"turn": {"p50_ms": 1.181086990982294, "p95_ms": 1.7682458157651124, "case_bootstrap_95": {"p50": [1.1626370251178741, 1.3276962446980178], "p95": [1.4662223911727779, 15.27645178284725]}}, "case": {"p50_ms": 1.850047498010099, "p95_ms": 3.6867571761831637, "case_bootstrap_95": {"p50": [1.238566474057734, 2.2627979051321745], "p95": [3.096460667438805, 19.94738378562033]}}}` |
 | cost | `{"total_usd": 0, "per_case_usd": 0.0, "per_attempted_case_usd": 0.0, "per_sar_usd": 0.0}` |
-| components | `{"llm": 0, "api_other": 68.49908852018416}` |
+| components | `{"api_other": 79.29889857769012, "llm": 0}` |
 | flip_rate | `{"count": 0, "denominator": 32, "rate": 0.0, "wilson_95": [0, 0.10717919825506533]}` |

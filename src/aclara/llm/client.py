@@ -7,6 +7,7 @@ import os
 from collections.abc import Callable
 from datetime import UTC, date, datetime
 from hashlib import sha256
+from threading import RLock
 from time import perf_counter
 from typing import Literal, TypeVar
 
@@ -33,6 +34,7 @@ class StructuredClient:
         budget_usd: float = 0.0,
         daily_budget_usd: float | None = None,
     ) -> None:
+        self._lock = RLock()
         self.models = models
         self.prices = prices
         self.mock_configured = mock_response is not None
@@ -71,6 +73,22 @@ class StructuredClient:
         prompt_id: str,
         prompt_hash: str | None = None,
     ) -> T:
+        # Reserve/retry accounting is serialized for this application instance.
+        with self._lock:
+            return self._generate(
+                route, system, user, schema, prompt_id=prompt_id, prompt_hash=prompt_hash
+            )
+
+    def _generate(
+        self,
+        route: str,
+        system: str,
+        user: str,
+        schema: type[T],
+        *,
+        prompt_id: str,
+        prompt_hash: str | None = None,
+    ) -> T:
         spec = self.models[route]
         reserve = 0.0
         if spec.provider not in {"mock", "recorded"}:
@@ -99,15 +117,11 @@ class StructuredClient:
         key = os.getenv(spec.key_env, "") if spec.key_env else ""
         digest = prompt_hash or sha256(system.encode("utf-8")).hexdigest()
         for attempt in (1, 2):
-            if (
-                attempt > 1
-                and spec.provider not in {"mock", "recorded"}
-                and (
-                    self.spent_usd + reserve > self.budget_usd
-                    or self._daily_spend_usd + reserve > self.daily_budget_usd
-                )
+            if reserve and (
+                self.spent_usd + reserve > self.budget_usd
+                or self._daily_spend_usd + reserve > self.daily_budget_usd
             ):
-                raise ModelFailure("Insufficient LLM budget for a retry")
+                raise ModelFailure("Insufficient LLM budget for another bounded attempt")
             started = perf_counter()
             response: ProviderResponse | None = None
             status: Literal["valid", "invalid_json", "provider_error", "refusal"] = "provider_error"
@@ -132,6 +146,11 @@ class StructuredClient:
                     raise
             finally:
                 cost = self._cost(spec, response)
+                if response is None and reserve:
+                    # Charge the conservative reserve to the budget, but do not report it
+                    # as a billed per-call cost when the provider returned no usage.
+                    self.spent_usd += reserve
+                    self._daily_spend_usd += reserve
                 if cost is not None:
                     self.spent_usd += cost
                     if spec.provider not in {"mock", "recorded"}:

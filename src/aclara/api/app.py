@@ -13,11 +13,16 @@ from typing import Any
 from uuid import uuid4
 
 import psycopg
-from fastapi import Depends, FastAPI, Header, HTTPException, status
+from fastapi import Depends, FastAPI, Header, HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from psycopg_pool import PoolTimeout
 from pydantic import BaseModel, ConfigDict, Field
 
+from aclara.agent.ai import AgentAI
 from aclara.agent.contracts import ResponsePlan
+from aclara.agent.matching import MatchState
+from aclara.agent.nlg.grounding import redact_for_model
 from aclara.agent.nlu import (
     Intent,
     classify,
@@ -27,16 +32,21 @@ from aclara.agent.nlu import (
     normalize_text,
     selected_candidate,
 )
+from aclara.agent.nlu.structured import NormalizedSlots
 from aclara.agent.runtime import InjectedFailure, Runtime
 from aclara.bank.repository import Transaction, TransactionRepository
 from aclara.handoff.packet import create_packet
+from aclara.llm.client import StructuredClient
+from aclara.ops.store import Scope, Store
 from aclara.policy.engine import PolicyDecision, evaluate
+from aclara.policy.rules import catalog, rule
 from aclara.settings import Settings
 
 
 @dataclass(frozen=True, slots=True)
 class Principal:
     session_id: str
+    run_id: str
     customer_id: str
     username: str
     otp_at: datetime
@@ -54,6 +64,7 @@ class OtpChallenge:
 @dataclass(slots=True)
 class ActionProposal:
     action_hash: str
+    nonce: str
     transaction_handle: str
     transaction: Transaction
     policy: PolicyDecision
@@ -65,6 +76,8 @@ class ActionProposal:
 class Conversation:
     session_id: str
     language: str = "es"
+    degraded: bool = False
+    slots: NormalizedSlots | None = None
     candidates: list[tuple[str, Transaction]] = field(default_factory=list)
     intent: Intent | None = None
     proposal: ActionProposal | None = None
@@ -81,7 +94,7 @@ class LoginBody(StrictModel):
 
 
 class OtpBody(StrictModel):
-    challenge_id: str = Field(min_length=1, max_length=80)
+    challenge_id: str = Field(min_length=1, max_length=160)
     code: str = Field(pattern=r"^\d{6}$")
 
 
@@ -94,13 +107,17 @@ class ConfirmBody(StrictModel):
     confirmed: bool
 
 
-def _digest_proposal(session_id: str, handle: str, decision: PolicyDecision) -> str:
+def _digest_proposal(
+    session_id: str, handle: str, decision: PolicyDecision, expires_at: datetime, nonce: str
+) -> str:
     content = json.dumps(
         {
             "action": "create_dispute",
             "session_id": session_id,
             "transaction_handle": handle,
             "policy_rules": decision.rule_ids,
+            "expires_at": expires_at.isoformat(),
+            "nonce": nonce,
         },
         sort_keys=True,
         separators=(",", ":"),
@@ -179,6 +196,8 @@ def create_app(
     settings: Settings | None = None,
     repository: TransactionRepository | None = None,
     runtime: Runtime | None = None,
+    llm_client: StructuredClient | None = None,
+    store: Store | None = None,
 ) -> FastAPI:
     active_settings = settings or Settings.from_environment()
     ledger = repository or TransactionRepository()
@@ -189,14 +208,60 @@ def create_app(
         allow_methods=["GET", "POST"],
         allow_headers=["Authorization", "Content-Type", "X-Preauth-Token"],
     )
-    app.state.runtime = runtime or Runtime()
+    app.state.runtime = runtime or Runtime(system=active_settings.agent_system)
+    ai = AgentAI(active_settings, app.state.runtime, llm_client)
+    app.state.ai = ai
+    app.state.instance_id = str(uuid4())
     app.state.settings = active_settings
     app.state.ledger = ledger
-    app.state.challenges = {}
-    app.state.sessions = {}
-    app.state.conversations = {}
-    app.state.cases = {}
-    app.state.handoffs = {}
+    operational = store or Store(
+        os.getenv("OPS_DSN", "") if active_settings.ops_backend == "postgres" else None
+    )
+    app.state.store = operational
+    auth_scope = Scope(active_settings.demo_customer_id, "auth", "auth")
+    app.state.challenges = operational.mapping(
+        "otp_challenges", OtpChallenge, auth_scope=auth_scope
+    )
+    app.state.sessions = operational.mapping("sessions", Principal, auth_scope=auth_scope)
+    app.state.conversations = operational.mapping("conversations", Conversation)
+    app.state.cases = operational.mapping("cases", dict[str, Any])
+    app.state.handoffs = operational.mapping("handoffs", dict[str, Any])
+    app.state.card_states = operational.mapping("card_states", dict[str, Any])
+    app.state.executions = operational.mapping("execution_records", dict[str, Any])
+    app.state.turns = operational.mapping("turns", dict[str, Any])
+    app.state.idempotency = operational.mapping("idempotency_keys", dict[str, Any])
+
+    def scope(principal: Principal) -> Scope:
+        return Scope(principal.customer_id, principal.run_id, principal.session_id)
+
+    def execution(
+        result: dict[str, Any], conversation_id: str, cursor: int, message: str | None = None
+    ) -> None:
+        record_id = str(uuid4())
+        events = app.state.runtime.events[cursor:]
+        app.state.executions[record_id] = {
+            "conversation_id": conversation_id,
+            "events": events,
+            "outcome": result["outcome"],
+            "response": result,
+            "policy_version": catalog()[0],
+            "system": app.state.runtime.system,
+        }
+        app.state.turns[record_id] = {
+            "conversation_id": conversation_id,
+            "customer_text": redact_for_model(message) if message else None,
+            "response": result,
+        }
+
+    learned_matcher: MatchState | None = None
+
+    @app.exception_handler(psycopg.Error)
+    @app.exception_handler(PoolTimeout)
+    async def database_unavailable(_request: Request, _error: Exception) -> JSONResponse:
+        return JSONResponse(
+            status_code=503,
+            content={"detail": "Operational storage unavailable; no success can be confirmed"},
+        )
 
     def principal_from_token(token: str | None) -> Principal:
         if not token:
@@ -220,12 +285,22 @@ def create_app(
             "status": "ok",
             "service": "aclara-api",
             "llm_provider": active_settings.llm_provider,
+            "instance_id": app.state.instance_id,
+            "storage": "postgres" if operational.pool else "memory",
         }
 
     @app.get("/readyz")
     async def readyz() -> dict[str, str]:
         if not _read_db_ready():
             raise HTTPException(status_code=503, detail="Database unavailable")
+        if operational.pool:
+            try:
+                with operational.transaction(Scope("", "", "")):
+                    operational.keys("cases")
+            except (psycopg.Error, PoolTimeout, PermissionError):
+                raise HTTPException(
+                    status_code=503, detail="Operational storage unavailable"
+                ) from None
         return {"status": "ready", "database": "ok"}
 
     @app.post("/auth/login", status_code=status.HTTP_200_OK)
@@ -237,10 +312,11 @@ def create_app(
         ) and hmac.compare_digest(body.password, active_settings.demo_password)
         if not valid:
             raise HTTPException(status_code=401, detail="Invalid login")
-        challenge_id = secrets.token_urlsafe(18)
+        session_id = secrets.token_urlsafe(18)
+        challenge_id = f"{app.state.runtime.run_id}.{session_id}.{secrets.token_urlsafe(18)}"
         preauth_token = secrets.token_urlsafe(24)
         app.state.challenges[challenge_id] = OtpChallenge(
-            preauth_token=preauth_token,
+            preauth_token=hashlib.sha256(preauth_token.encode()).hexdigest(),
             code=f"{secrets.randbelow(1_000_000):06d}",
             expires_at=datetime.now(UTC) + timedelta(minutes=5),
         )
@@ -256,13 +332,33 @@ def create_app(
             challenge is None
             or challenge.expires_at <= datetime.now(UTC)
             or not x_preauth_token
-            or not hmac.compare_digest(challenge.preauth_token, x_preauth_token)
+            or not hmac.compare_digest(
+                challenge.preauth_token, hashlib.sha256(x_preauth_token.encode()).hexdigest()
+            )
         ):
             raise HTTPException(status_code=404, detail="Challenge not found")
         return {"code": challenge.code, "channel": "simulated_sms"}
 
     @app.post("/auth/otp/verify")
     async def verify_otp(
+        body: OtpBody, x_preauth_token: str | None = Header(default=None)
+    ) -> dict[str, str]:
+        error = None
+        result: dict[str, str] = {}
+        try:
+            challenge_scope = app.state.challenges.auth_context(body.challenge_id)
+        except KeyError:
+            raise HTTPException(status_code=401, detail="Challenge expired or invalid") from None
+        with operational.transaction(challenge_scope):
+            try:
+                result = await process_otp(body, x_preauth_token)
+            except HTTPException as exc:
+                error = exc
+        if error:
+            raise error
+        return result
+
+    async def process_otp(
         body: OtpBody, x_preauth_token: str | None = Header(default=None)
     ) -> dict[str, str]:
         challenge: OtpChallenge | None = app.state.challenges.get(body.challenge_id)
@@ -272,19 +368,24 @@ def create_app(
             or challenge.expires_at <= now
             or challenge.attempts >= 5
             or not x_preauth_token
-            or not hmac.compare_digest(challenge.preauth_token, x_preauth_token)
+            or not hmac.compare_digest(
+                challenge.preauth_token, hashlib.sha256(x_preauth_token.encode()).hexdigest()
+            )
         ):
             raise HTTPException(status_code=401, detail="Challenge expired or invalid")
         challenge.attempts += 1
+        app.state.challenges[body.challenge_id] = challenge
         if not hmac.compare_digest(body.code, challenge.code):
             raise HTTPException(status_code=401, detail="Invalid code")
-        session_token = secrets.token_urlsafe(32)
+        run_id, session_id, _ = body.challenge_id.split(".", 2)
+        session_token = f"{run_id}.{session_id}.{secrets.token_urlsafe(32)}"
         app.state.sessions[session_token] = Principal(
-            session_id=secrets.token_urlsafe(18),
+            session_id=session_id,
+            run_id=run_id,
             customer_id=active_settings.demo_customer_id,
             username=active_settings.demo_username,
             otp_at=now,
-            expires_at=now + timedelta(minutes=15),
+            expires_at=now + timedelta(minutes=int(rule("AUTH-01").parameters["session_minutes"])),
         )
         del app.state.challenges[body.challenge_id]
         return {"access_token": session_token, "token_type": "bearer"}
@@ -304,9 +405,10 @@ def create_app(
     async def start_conversation(
         principal: Principal = Depends(get_principal),
     ) -> dict[str, str]:
-        conversation_id = str(uuid4())
-        app.state.conversations[conversation_id] = Conversation(session_id=principal.session_id)
-        return {"conversation_id": conversation_id}
+        with operational.transaction(scope(principal)):
+            conversation_id = str(uuid4())
+            app.state.conversations[conversation_id] = Conversation(session_id=principal.session_id)
+            return {"conversation_id": conversation_id}
 
     @app.post("/chat/sessions/{conversation_id}/messages", response_model=ResponsePlan)
     async def send_message(
@@ -314,12 +416,38 @@ def create_app(
         body: MessageBody,
         principal: Principal = Depends(get_principal),
     ) -> dict[str, Any]:
-        try:
-            app.state.runtime.checkpoint("MATCH")
-            result = await process_message(conversation_id, body, principal)
-        except InjectedFailure:
-            result = safe_failure(principal, classify(body.message).language)
-        app.state.runtime.record("response", response_type=result["response_type"])
+        cursor = len(app.state.runtime.events)
+        with operational.transaction(scope(principal)):
+            try:
+                app.state.runtime.checkpoint("MATCH")
+                result = await process_message(conversation_id, body, principal)
+            except InjectedFailure:
+                result = safe_failure(principal, classify(body.message).language)
+            app.state.runtime.record("response", response_type=result["response_type"])
+            conversation = app.state.conversations.get(conversation_id)
+            result = ai.reply(
+                result,
+                conversation.language if conversation else "es",
+                deterministic=bool(conversation and conversation.degraded),
+            )
+            execution(result, conversation_id, cursor, body.message)
+        # Commit precedes the independent read-back and any success response.
+        if result.get("case"):
+            with operational.transaction(scope(principal)):
+                record = app.state.cases.get(result["case"]["case_id"])
+                if (
+                    not record
+                    or record["transaction_handle"] != result["case"]["transaction_handle"]
+                    or record["status"] != "received"
+                ):
+                    raise HTTPException(
+                        status_code=503, detail="Durable read-back verification failed"
+                    )
+                operational.audit({"action": "verified_commit", "case_id": record["case_id"]})
+        if result.get("handoff"):
+            with operational.transaction(scope(principal)):
+                if not app.state.handoffs.get(result["handoff"]["handoff_id"]):
+                    raise HTTPException(status_code=503, detail="Durable handoff read-back failed")
         return result
 
     def safe_failure(principal: Principal, language: str) -> dict[str, Any]:
@@ -345,7 +473,53 @@ def create_app(
         conversation: Conversation | None = app.state.conversations.get(conversation_id)
         if conversation is None or conversation.session_id != principal.session_id:
             raise HTTPException(status_code=404, detail="Conversation not found")
+        nonlocal learned_matcher
         frame = classify(body.message)
+        if (
+            app.state.runtime.system == "P"
+            and not conversation.candidates
+            and not conversation.proposal
+        ):
+            nlu = ai.understand(body.message, active_settings.bank_clock)
+            conversation.degraded = nlu.degraded
+            if not nlu.degraded:
+                frame = nlu.frame
+                previous = conversation.slots.model_dump() if conversation.slots else {}
+                conversation.slots = NormalizedSlots.model_validate(
+                    {
+                        **previous,
+                        **{k: v for k, v in nlu.slots.model_dump().items() if v is not None},
+                    }
+                )
+                if (
+                    conversation.intent
+                    and conversation.rounds
+                    and frame.intent == Intent.OUT_OF_SCOPE
+                ):
+                    frame = frame.model_copy(update={"intent": conversation.intent})
+                # Conservative deterministic routing takes precedence over extracted intent.
+                guard = classify(body.message)
+                if guard.intent in {Intent.HUMAN_REQUEST, Intent.FRAUD, Intent.FEE_DISPUTE}:
+                    frame = guard
+                elif nlu.clarification or frame.confidence < float(
+                    rule("ESC-04").parameters["nlu_min_confidence"]
+                ):
+                    conversation.rounds += 1
+                    conversation.intent = frame.intent
+                    conversation.language = (
+                        "pt" if nlu.extracted.language == "pt" else conversation.language
+                    )
+                    if conversation.rounds >= 2:
+                        return safe_failure(principal, conversation.language)
+                    return {
+                        "response_type": "clarify",
+                        "outcome": "clarification",
+                        "reply": _localized(
+                            conversation.language,
+                            "¿Puedes aclarar el idioma, monto, moneda o fecha?",
+                            "Pode esclarecer o idioma, valor, moeda ou data?",
+                        ),
+                    }
         language = conversation.language if conversation.candidates else frame.language
         conversation.language = language
 
@@ -462,6 +636,26 @@ def create_app(
         else:
             candidates = rows
 
+        learned_choice = False
+        if app.state.runtime.system == "P" and not conversation.degraded and conversation.slots:
+            if learned_matcher is None:
+                learned_matcher = MatchState()
+            matched = learned_matcher.match(
+                conversation.slots, rows, principal.customer_id, active_settings.bank_clock
+            )
+            app.state.runtime.record(
+                "match",
+                matcher_version=learned_matcher.version,
+                action=matched.action,
+                top_probability=matched.top_correct_probability,
+                exists_probability=matched.match_exists_probability,
+            )
+            by_handle = dict(rows)
+            candidates = [(handle, by_handle[handle]) for handle in matched.transaction_ids]
+            learned_choice = matched.action == "choose"
+            if app.state.runtime.fault("missing_fx", "MATCH"):
+                candidates = []
+
         if not candidates:
             conversation.rounds += 1
             if conversation.rounds >= 2:
@@ -489,7 +683,7 @@ def create_app(
                 ),
             }
 
-        if len(candidates) > 1:
+        if len(candidates) > 1 or learned_choice:
             conversation.candidates = candidates[:3]
             conversation.intent = frame.intent
             conversation.rounds += 1
@@ -522,17 +716,45 @@ def create_app(
         body: ConfirmBody,
         principal: Principal = Depends(get_principal),
     ) -> dict[str, Any]:
-        try:
-            result = await process_confirmation(conversation_id, body, principal)
-        except InjectedFailure:
+        cursor = len(app.state.runtime.events)
+        with operational.transaction(scope(principal)):
+            try:
+                result = await process_confirmation(conversation_id, body, principal)
+            except InjectedFailure:
+                conversation = app.state.conversations.get(conversation_id)
+                language = (
+                    conversation.proposal.language
+                    if conversation and conversation.proposal
+                    else "es"
+                )
+                if conversation:
+                    conversation.proposal = None
+                result = safe_failure(principal, language)
+            app.state.runtime.record("response", response_type=result["response_type"])
             conversation = app.state.conversations.get(conversation_id)
-            language = (
-                conversation.proposal.language if conversation and conversation.proposal else "es"
+            result = ai.reply(
+                result,
+                conversation.language if conversation else "es",
+                deterministic=bool(conversation and conversation.degraded),
             )
-            if conversation:
-                conversation.proposal = None
-            result = safe_failure(principal, language)
-        app.state.runtime.record("response", response_type=result["response_type"])
+            execution(result, conversation_id, cursor, None)
+        # Commit precedes the independent read-back and any success response.
+        if result.get("case"):
+            with operational.transaction(scope(principal)):
+                record = app.state.cases.get(result["case"]["case_id"])
+                if (
+                    not record
+                    or record["transaction_handle"] != result["case"]["transaction_handle"]
+                    or record["status"] != "received"
+                ):
+                    raise HTTPException(
+                        status_code=503, detail="Durable read-back verification failed"
+                    )
+                operational.audit({"action": "verified_commit", "case_id": record["case_id"]})
+        if result.get("handoff"):
+            with operational.transaction(scope(principal)):
+                if not app.state.handoffs.get(result["handoff"]["handoff_id"]):
+                    raise HTTPException(status_code=503, detail="Durable handoff read-back failed")
         return result
 
     async def process_confirmation(
@@ -554,7 +776,11 @@ def create_app(
                 "reply": _localized(proposal.language, "Disputa cancelada.", "Disputa cancelada."),
             }
         expected_hash = _digest_proposal(
-            principal.session_id, proposal.transaction_handle, proposal.policy
+            principal.session_id,
+            proposal.transaction_handle,
+            proposal.policy,
+            proposal.expires_at,
+            proposal.nonce,
         )
         now = datetime.now(UTC)
         if (
@@ -564,7 +790,9 @@ def create_app(
         ):
             conversation.proposal = None
             raise HTTPException(status_code=409, detail="Action proposal expired or changed")
-        if now - principal.otp_at > timedelta(minutes=10):
+        if now - principal.otp_at > timedelta(
+            minutes=int(rule("AUTH-02").parameters["otp_minutes"])
+        ):
             conversation.proposal = None
             raise HTTPException(status_code=401, detail="Step-up verification required")
         decision = evaluate(proposal.transaction, active_settings.bank_clock, is_dispute=True)
@@ -572,6 +800,26 @@ def create_app(
             conversation.proposal = None
             raise HTTPException(status_code=409, detail="Policy no longer permits this action")
 
+        previous = app.state.idempotency.get(proposal.action_hash)
+        if previous:
+            record = app.state.cases.get(previous["case_id"])
+            if record:
+                conversation.proposal = None
+                return {
+                    "response_type": "report_case",
+                    "outcome": "dispute_filed",
+                    "reply": _localized(
+                        proposal.language,
+                        "El caso ya está registrado.",
+                        "O caso já está registrado.",
+                    ),
+                    "case": {
+                        k: v
+                        for k, v in record.items()
+                        if k not in {"customer_id", "transaction_id"}
+                    },
+                    "verified": True,
+                }
         case_id = f"DSP-{secrets.token_hex(4).upper()}"
         record = {
             "case_id": case_id,
@@ -584,6 +832,7 @@ def create_app(
         }
         app.state.runtime.checkpoint("create_dispute")
         app.state.cases[case_id] = record
+        app.state.idempotency[proposal.action_hash] = {"case_id": case_id}
         app.state.runtime.record(
             "create_dispute", handle=proposal.transaction_handle, confirmed=True, step_up=True
         )
@@ -614,26 +863,34 @@ def create_app(
         case_id: str,
         principal: Principal = Depends(get_principal),
     ) -> dict[str, Any]:
-        record: dict[str, Any] | None = app.state.cases.get(case_id)
-        if record is None or record["customer_id"] != principal.customer_id:
-            raise HTTPException(status_code=404, detail="Dispute not found")
-        return {
-            key: value
-            for key, value in record.items()
-            if key not in {"customer_id", "transaction_id"}
-        }
+        with operational.transaction(scope(principal)):
+            record: dict[str, Any] | None = app.state.cases.get(case_id)
+            if record is None or record["customer_id"] != principal.customer_id:
+                raise HTTPException(status_code=404, detail="Dispute not found")
+            return {
+                key: value
+                for key, value in record.items()
+                if key not in {"customer_id", "transaction_id"}
+            }
 
     @app.get("/handoffs/{handoff_id}")
     async def read_handoff(
         handoff_id: str,
         principal: Principal = Depends(get_principal),
     ) -> dict[str, Any]:
-        packet: dict[str, Any] | None = app.state.handoffs.get(handoff_id)
-        if packet is None or packet["customer_id"] != principal.customer_id:
-            raise HTTPException(status_code=404, detail="Handoff not found")
-        return {
-            key: value for key, value in packet.items() if key not in {"customer_id", "session_id"}
-        }
+        with operational.transaction(scope(principal)):
+            packet: dict[str, Any] | None = app.state.handoffs.get(handoff_id)
+            if (
+                packet is None
+                or packet["customer_id"] != principal.customer_id
+                or packet["session_id"] != principal.session_id
+            ):
+                raise HTTPException(status_code=404, detail="Handoff not found")
+            return {
+                key: value
+                for key, value in packet.items()
+                if key not in {"customer_id", "session_id"}
+            }
 
     return app
 
@@ -666,10 +923,12 @@ def _decide_for_transaction(
             "policy_rules": list(decision.rule_ids),
         }
     if decision.decision == "eligible":
-        action_hash = _digest_proposal(principal.session_id, handle, decision)
         expires_at = datetime.now(UTC) + timedelta(minutes=5)
+        nonce = secrets.token_urlsafe(24)
+        action_hash = _digest_proposal(principal.session_id, handle, decision, expires_at, nonce)
         conversation.proposal = ActionProposal(
             action_hash=action_hash,
+            nonce=nonce,
             transaction_handle=handle,
             transaction=row,
             policy=decision,

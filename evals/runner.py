@@ -185,8 +185,18 @@ async def async_main(args: argparse.Namespace) -> int:
                 "cost_assumptions": "Mock calls cost USD 0; infrastructure excluded",
                 "price_table_date": str(prices.get("as_of", "2026-09-26")),
                 "monthly_infrastructure_estimate_usd": 34.63,
-                "policy_version": "layer1",
-                "matcher_version": "rules",
+                "policy_version": yaml.safe_load((ROOT / "config/policy.yaml").read_text())[
+                    "version"
+                ],
+                "matcher_version": sorted(
+                    {
+                        e["matcher_version"]
+                        for c in cases
+                        for e in c["events"]
+                        if e["event"] == "match"
+                    }
+                )
+                or ["rules"],
                 "dataset_version": payload.get("dataset_version", "authored-fixtures"),
             },
         )

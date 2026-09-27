@@ -80,7 +80,7 @@ class Matcher:
         if kind == "logistic":
             return logistic(matrix, self.parameters["pointwise"])
         if kind == "lightgbm":
-            return np.asarray(self.booster.predict(matrix), dtype=np.float64)
+            return np.asarray(self.booster.predict(matrix, num_threads=1), dtype=np.float64)
         raise ValueError("unknown pointwise model")
 
     def decide(self, transaction_ids: tuple[str, ...], matrix: Array) -> Decision:

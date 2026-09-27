@@ -4,12 +4,16 @@ version = "0.1.0"
 description = "Synthetic ES/PT dispute-intake demo"
 requires-python = ">=3.12,<3.13"
 dependencies = [
+  "alembic>=1.15,<2",
   "babel>=2.17,<3",
+  "lightgbm>=4.6,<5",
+  "numpy>=2.2,<3",
+  "rapidfuzz>=3.14,<4",
   "duckdb>=1.4,<2",
   "fastapi>=0.115,<1",
   "pandera[polars]>=0.26,<1",
   "polars>=1.30,<2",
-  "psycopg[binary]>=3.2,<4",
+  "psycopg[binary,pool]>=3.2,<4",
   "pydantic-settings>=2.6,<3",
   "python-dotenv>=1,<2",
   "pyyaml>=6,<7",
@@ -32,6 +36,7 @@ llm = [
   "google-genai>=1.0,<2",
 ]
 dev = [
+  "pytz>=2026,<2027",
   "jsonschema>=4.26,<5",
   "httpx>=0.28,<1",
   "mypy>=1.15,<2",

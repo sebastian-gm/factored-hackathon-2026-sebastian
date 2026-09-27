@@ -258,7 +258,9 @@ def render_results(path: Path) -> None:
     lines = [
         "# Evaluation results",
         "",
-        "Generated from `" + str(path.relative_to(Path.cwd())) + "`. No independent numbers.",
+        "Generated from `"
+        + str(path.resolve().relative_to(Path.cwd()))
+        + "`. No independent numbers.",
         "",
     ]
     lines += [

@@ -259,6 +259,52 @@ def test_budget_reserve_blocks_a_real_call_before_network(
     assert client.records == []
 
 
+def test_unknown_provider_bill_uses_budget_reserve_without_reporting_case_cost(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    class FailingAdapter:
+        def complete(
+            self,
+            spec: ModelSpec,
+            system: str,
+            user: str,
+            schema: type[BaseModel],
+            key: str,
+        ) -> ProviderResponse:
+            raise ModelFailure("Synthetic provider failure")
+
+    monkeypatch.setenv("LLM_REAL_CALLS_APPROVED", "1")
+    monkeypatch.setenv("OPENROUTER_API_KEY", "fixture-only")
+    client = StructuredClient(
+        {
+            "nlu": ModelSpec(
+                provider="openai_compat",
+                model_id="fixture",
+                key_env="OPENROUTER_API_KEY",
+                price_id="fixture",
+            )
+        },
+        {
+            "fixture": Price(
+                1.0,
+                1.0,
+                1.0,
+                1.0,
+                datetime(2026, 9, 26, tzinfo=UTC).date(),
+                "https://example.test/pricing",
+            )
+        },
+        budget_usd=0.1,
+    )
+    client._adapters["openai_compat"] = FailingAdapter()
+    with pytest.raises(ModelFailure, match="Synthetic provider failure"):
+        client.generate("nlu", "system", "fixture", _Answer, prompt_id="nlu@v2")
+    assert len(client.records) == 2
+    assert all(record.cost_usd is None for record in client.records)
+    assert client.spent_usd > 0  # Conservative guard, not a billed per-case cost.
+    assert client.valid_json_rate == 0.0
+
+
 def test_local_models_and_dated_prices_are_loadable() -> None:
     models = load_models(Path("config/models.yaml"))
     prices = load_prices(Path("config/pricing.yaml"))

@@ -1,149 +1,68 @@
 # Progress log
 
-Session date: 2026-09-26 (America/Vancouver)
+Session: 2026-09-26 America/Vancouver (verification continued 2026-09-27 UTC).
+Current status below supersedes the earlier lane handoffs; their detailed reports remain in Git history.
 
 ## Completed-verified
 
-### Restricted Azure deployment
+### Lead integration — handoff 04 tasks 1–6
 
-- Read and followed Sebastian's approval: only `Seb Azure Sandbox`, East US 2, resource group `rg-aclara-dev-eastus2`; stop if the live modeled estimate exceeds US$40/month. Every Azure command selected this subscription explicitly. The CLI default was not changed. The sole remote remains `origin` and the repository remains private.
-- Ran `uv run --no-sync python scripts/azure_prices.py` against Microsoft's live East US 2 Retail Prices API. B1ms is US$0.017/hour; PostgreSQL storage US$0.115/GB-month; ACR Basic US$0.1666/day. Modeled total **US$34.63/month before tax**, including 100 hours with both small apps active, 100,000 requests, no ACA free grant, and state/Key Vault/usage allowances. With available free grants, the low-traffic estimate is US$24.19–$29.19. This is an estimate, not a spending cap.
-- `scripts/azure_dev.py bootstrap` created the resource group and Terraform state storage with owner-IP firewall, Entra Blob RBAC, TLS 1.2+, shared-key and anonymous access disabled, versioning and seven-day retention. Corrected the personal-account Graph ID versus tenant object-ID mismatch by using the sandbox ARM token's tenant object ID. The token was held in memory and never printed or committed.
-- `scripts/azure_dev.py init` initialized protected remote state. A repository-local Azure CLI wrapper forces Terraform's account/token lookups to the sandbox, resolving a multiple-signed-in-account issue without changing global defaults or copying credential files. Subscription/tenant IDs, owner IP and alert email are only in ignored local Terraform inputs; generated secrets also reside in protected Terraform state and Key Vault.
-- Foundation `plan` showed 22 additions, no changes/deletes; `apply` completed 22 additions. App `apply` completed two app additions and one budget change. The final `scripts/azure_dev.py plan` reported **No changes. Your infrastructure matches the configuration.** Preserved Azure's automatically selected PostgreSQL zone to avoid unrelated updates.
-- Provisioned PostgreSQL 16 B1ms/32 GiB, no HA/autogrow; private authenticated ACR Basic; Key Vault; separate API/web managed identities; and a Consumption environment. Both apps are configured for 0.25 vCPU/0.5 GiB, minimum zero and maximum one replica, HTTPS only, and one owner IPv4 `/32` ingress allow rule applied at creation. No VPN, NAT Gateway, Private Link, dedicated profile or planned maintenance was created.
-- Applied the owner's explicit PostgreSQL development exception: Azure-services firewall rule plus the workstation IP. The broad Azure-services rule includes other customers' subscriptions. Documented this limitation and future VNet/private access in `docs/production-readiness.md` and `docs/azure-private-dev-plan.md`.
-- `scripts/azure_dev.py seed` initialized a separate CONNECT-only application login using a generated 40-character password read from Key Vault; revoked public database access/create privileges and verified a real TLS connection with certificate verification. The API uses `PGSSLMODE=verify-full` and Key Vault references through managed identity. Administrator and app passwords are separate; none was printed or committed.
-- Created resource-group budget alerts to the owner's confirmed email. Azure readback revealed CAD billing. Converted US$30/US$50 using Microsoft's checked reference of 1.3882 CAD/USD: a **C$69.41 budget**, with 60%/100% actual-spend notifications at approximately **C$41.65/C$69.41**. Readback verified currency, thresholds and recipient. The fixed conversion needs monthly review and does not track future FX automatically.
-- Merged PR #5 after green checks into main at `7429038`; built the API and production Next.js images from that clean main commit and pushed them to private ACR using temporary Docker credentials, which were removed afterward. Main `ci` and `safety` both passed on that SHA. Merged the billing-currency/zone correction as PR #7 at `d0f22ab`; both main workflows passed there too. These subsequent changes affect infrastructure, verification and documentation, not app source.
-- `PRE_COMMIT_HOME=/tmp/aclara-precommit-cache UV_CACHE_DIR=/tmp/aclara-uv-cache make checks` passed on the release main: six hooks, file policy, compileall, **16 Python tests**, **32/32 B1 cases with 12 readbacks**, and frozen interface checks. `pnpm typecheck`, `pnpm lint`, `pnpm build`, production Docker builds and Terraform validation also passed. Terraform provider validation required execution outside the restricted process sandbox.
-- `uv run --no-sync python -m scripts.azure_smoke` passed against Azure HTTPS: **32/32 ES/PT cases, 12 dispute/handoff readbacks**, login/OTP, six scoped fixture transactions, invalid-login and unauthenticated denial, CORS, web delivery, mock mode, and database readiness. Only aggregates were logged.
-- `uv run --no-sync python -m scripts.azure_verify` passed: owner-only ingress on both apps, Key Vault references, managed image-pull identities, deployed SHA, resource sizes/replica limits, two PostgreSQL firewall rules, TLS required, private registry, state firewall, and converted budget alerts. The checker handles case-insensitive ARM resource IDs and Azure's null representation of the documented zero-replica default.
-- Added a credential-free `azure-access` workflow to verify HTTP 403 for both app endpoints from a non-allowlisted GitHub runner. Run `36281385648` completed successfully. It does not log in to Azure or receive secrets.
+- Read the brief and amended handoff fully. Verified the existing restricted Azure deployment before integration. Only the private `origin` was used; every Git command targeted this repository. No organizer credential-bearing document was opened, no organizer rows or secrets were committed, and no real-model call ran.
+- Reviewed and merged AI PR #4, Data/ML PR #6 and additive scenario-v2 PR #9 after green checks. Resolved shared dependency/documentation conflicts, preserved both optional extras, repaired schema generation and kept every v1 definition valid.
+- Merged reactive evaluation PR #10, P/matcher integration PR #11, durable operations PR #14 and policy/deployment verification PR #15. Main CI and safety passed after each integration; PR #11 needed formatting and an explicit `pytz` dependency before it was green.
+- V2 supports authored fixture personas, per-scenario clocks, transaction overlays, reactive response-keyed replies, bounded default replies and injected faults. Every system/scenario/repeat gets fresh state and a run ID. Gold is independent of policy. Aggregate `results.json` is the source for the rendered report: SAR denominators, attempts, containment, escalation errors, routing, handoff completeness/rubric, eight unsafe categories with upper bounds, latency intervals and costs. Organizer persona bindings and non-transaction overlays are explicitly rejected until implemented.
+- P now runs through the API with structured NLU, guarded phrasing, deterministic authorization and B1 fallback. Configured mock tests exercise extraction, slots, unsafe-draft fallback, confirmation and readback. Default unconfigured mock intentionally degrades to B1; its dev results are not model-quality evidence.
+- MATCH pins and checksum-verifies the calibrated v1 artifact, with scoped customer/window features and propose / choose-from-three / no-match decisions. Tests exercise all three decisions, cross-customer rejection and corrupted artifacts. No retraining or paid inference ran in this lead session.
+- Alembic creates durable `ops.*` cases, card states, handoffs, conversations, turns, execution records, idempotency, auth records and audit entries. Runtime uses a non-owner role, forced customer/run/session RLS, explicit transactions and at most four pooled connections. Writes commit before independent readback. Tokens are hashed; opaque prefixes select context without granting authority. The API refuses owner/BYPASSRLS roles and returns an error when storage is unavailable.
+- Audit appends use a scoped database function, sequential hashes and restricted privileges. The verifier checks scope, sequence, linkage and content hashes. A privileged owner could rewrite a whole unanchored chain; independent anchors remain future work.
+- Generated the ES/PT/EN policy catalog from versioned rules with the brief's IDs, parameters, implementation references and tests. Added deterministic pending-age, amount/age-borderline and missing-FX guards. Partial/planned rules are labeled honestly. Card-state persistence is tested; the customer-facing freeze workflow remains unfinished.
 
-### Prior verified local work
+### Local verification
 
-- Brief and handoff read fully; scaffold, agent rules, ADRs, sanitized brief and R1–R14 traceability created. Staged fake CSV/key probes were blocked and removed. No organizer credentials or records were added to Git.
-- Layer 1 has login/simulated OTP, code-scoped synthetic transactions, ES/PT rules NLU, deterministic policy, confirmation, dispute creation/readback, handoff packets and minimal chat UI. Operational state is still in process memory.
-- Docker Compose previously passed health and end-to-end tests with Postgres/API/web healthy on loopback. Unique project names and host ports support parallel lanes. The local stack is left running.
-- P1 bronze/manifest/silver/Pandera contracts validated 150,000 customers, 400,000 products and 4,425,008 transactions from 1,097 local objects. Eight brief-reference differences are documented; pipeline output is authoritative. BANK_CLOCK window/quantile definitions are explicit. This session did not rerun P1.
-- `LAKE_DIR` defaults to persistent `~/aclara-lake`. Existing P1 output remains at the former `/tmp/aclara-shared-lake`; it has not been moved. Frozen NLU/response/OpenAPI/scenario and gold/serving contracts remain checked by CI.
+| Command | Observed result |
+|---|---|
+| `PRE_COMMIT_HOME=/tmp/aclara-precommit-cache UV_CACHE_DIR=/tmp/aclara-uv-cache make checks` | Six hooks, file policy, compilation, 44 Python tests passed / 4 database-dependent tests skipped; B1 v1 32/32 with 12 readbacks and safety guards; interfaces and catalog current. |
+| `.venv/bin/python -m scripts.test_postgres` | All 4 database tests passed in a disposable local database: migrations, RLS tables/views/functions, no-context/autocommit/pool reuse, cross-customer/run/session isolation, rollback, concurrent audit append, forbidden mutations, tamper detection, app restarts and serving-loader checksums. Database and temporary login removed afterward. |
+| `.venv/bin/python -m evals.runner --system B1 --scenarios evals/dev_scenarios_v2.yaml --repeats 2` | 64/64 with distinct run IDs. |
+| `.venv/bin/python -m evals.runner --system P --scenarios evals/dev_scenarios_v2.yaml --output artifacts/evaluation-p` | 32/32 in mock/B1 fallback; aggregate source rendered to `docs/evaluation/results.md`. |
+| `UV_CACHE_DIR=/tmp/aclara-uv-cache make up` | API/migration/web images built; migration succeeded; Postgres/API/web healthy. Startup now waits for health. |
+| `.venv/bin/python -m scripts.local_smoke` | 32/32 ES/PT scenarios, 12 dispute/handoff readbacks; login/OTP, scope, auth denial, CORS, web, mock and database readiness passed. |
+| `terraform -chdir=infra validate` | Passed with provider execution outside the restricted process sandbox. |
+
+The first immediate Compose smoke before health waiting hit a web startup connection failure. After services became healthy, the same smoke passed; `make up` now waits explicitly.
+
+### Restricted Azure release — task 7
+
+- Used only `Seb Azure Sandbox`, `rg-aclara-dev-eastus2`, East US 2, with explicit subscription selection. Never changed or used the CLI's other default subscription. The authorized owner-IP boundary and application login remain in place.
+- `.venv/bin/python -m scripts.azure_prices`: live East US 2 check at 2026-09-27 01:10 UTC. B1ms US$0.017/hour, storage US$0.115/GB-month, ACR Basic US$0.1666/day. Modeled **US$34.63/month before tax**, below the US$40 stop threshold. Assumptions: 730 database hours, 32 GiB, 30 registry days, 100 hours with both small apps active, 100,000 requests, no ACA free grants and usage allowances. With grants: US$24.19–$29.19. This is not a hard spending cap.
+- `.venv/bin/python -m scripts.azure_migrate_ops`: existing Azure database migrated; non-owner TLS/RLS write/readback passed. No new cloud resources were required. Admin and app credentials stay separate in Key Vault; API uses `verify-full` TLS.
+- Built/pushed API and web images from clean, green main to authenticated private ACR. Temporary Docker credentials were removed. Plan and apply reported **0 added, 2 changed, 0 destroyed**.
+- `.venv/bin/python -m scripts.azure_smoke`: HTTP portion passed **32/32 ES/PT scenarios with 12 readbacks**, login/OTP, scoped fixture ledger, denial checks, CORS, web, mock and database readiness. All **150 audit entries** verified, then a different API process read the existing case using the original authenticated session after a revision restart. The initial 30-poll restart check timed out; the bounded four-minute readiness check passed. It requires an actual instance-ID change, so an old replica cannot produce a false recovery result.
+- `.venv/bin/python -m scripts.azure_verify`: read back both owner-only HTTPS ingress rules, image SHA, min 0/max 1 replicas, 0.25 vCPU/0.5 GiB sizes, managed image pulls, Key Vault references, approved PostgreSQL firewall exception, required TLS, private ACR and state firewall. P and Postgres runtime settings were verified too.
+- `.venv/bin/python -m scripts.azure_dev plan`: final read-only drift check reported **No changes. Your infrastructure matches the configuration.**
+- Credential-free `azure-access` workflow run `36285202131` passed: both endpoints return HTTP 403 from the non-allowlisted GitHub runner.
+- Budget readback verified C$69.41 with 60%/100% actual-spend notifications, approximately C$41.65/C$69.41, to the confirmed owner email. These correspond to US$30/US$50 at the fixed 1.3882 CAD/USD reference. Review monthly; delivery and actual threshold crossing were not tested.
+
+### Earlier data evidence retained from the merged lane
+
+- P1 initially validated 150,000 customers, 400,000 products and 4,425,008 transactions from 1,097 transaction objects. Brief-reference differences were reported from pipeline output. Staged fake CSV and fake-key probes were blocked and removed during initial scaffolding.
+- The merged Data/ML lane extended contracts to ten sources and nine gold marts, ran DQ gates and promoted dataset `b86f445cb468332bde984a788ef24f72f7070952b2d9292e0259e7b8f36397c9`. Six local serving tables were loaded with full projected-row checksum readback, including 492,414 serving transactions. Detailed aggregate facts and anomalies are in `docs/data-quality-report.md` and `docs/problem-analysis.md`.
+- The lane's synthetic matcher benchmark had 6,000 train, 3,000 validation and 3,000 test queries. Validation selected LightGBM; its normalized-slot test top-1 was 95.22%, with 10 wrong proposals out of 1,871. These are prior lane results, not a rerun or human-language validation in this session. Model card and paired aggregate report retain the trade-offs.
+- The lead reran fixture data/matcher tests and the isolated serving-loader test, not the organizer build or benchmark. Organizer lake outputs remain local. `LAKE_DIR` defaults to persistent `~/aclara-lake`; migration of the former temporary lake location is not claimed.
 
 ## Done-not-verified
 
-- Actual monthly charges, remaining ACA free grants, tax/discounts, and budget email delivery at a threshold have not been observed. Alerts notify; they do not stop spending. Currency conversion is a fixed reference.
-- Browser visual behavior has not been manually reviewed in Azure. HTTPS API flow, served page, runtime API URL, CORS, and production build were tested.
-- Simulated OTP is not independent MFA. Sessions/cases/handoffs are not durable and may disappear when a replica restarts or scales to zero. Backup restore/DR, load tests and production networking remain unverified.
-- The persistent home lake has not been built/migrated. Non-P1 sources, model comparison and judge evaluation remain outside this session. Portuguese and dialect material still needs the previously agreed review and model-generated labeling.
+- In the lead integration session, real provider adapters had mock tests only. The subsequent paid AI-lane comparison is recorded below. Final default selection and cross-vendor judge validation have not run.
+- Spanish human review, PT/MX/AR cross-vendor language review and catalog translation review remain pending. No fluent Portuguese reviewer is available; model-authored language is labeled as such.
+- Actual monthly charges/free-grant availability, budget email delivery, backup restore/DR, automatic retention, sustained load and manual browser visual review remain unverified. API HTTP flows and production builds were tested.
+- The persistent home lake has not been rebuilt/migrated in this session. Organizer serving data is not bound to the API; cloud data contains authored fixtures only.
 
 ## Next-blocked
 
-- **No further approval is needed for the completed restricted dev deployment.** Keep only the owner's IP allowed. Any judge/public access change, expanded cloud scope, or new estimate above the approved US$40 threshold needs approval.
-- Next layer: durable PostgreSQL operational state and resilience; then integrate the other lanes through green PRs. Do not treat the current in-memory demo as a durable banking service.
-- Keep real-model runs on hold until their individual cost estimates are shown and approved; the judge vendor must differ from the system model. `LLM_PROVIDER=mock` remains deployed.
-- Review actual spending and the CAD budget conversion monthly. Keep VNet/private networking in production-readiness work.
-
-The local Compose stack is left running for review.
-
-## Data/ML lane — 2026-09-26
-
-### Completed (verified)
-
-- Read the lane handoff, full build brief, repository rules, prior progress log, official problem statement, kickoff deck and approved dictionary. Refreshed/rebased `feat/data-ml` on `origin/main`; it was current at `88d84ca`.
-- Added ten source contracts and nine dbt gold marts. The organizer build promoted dataset `b86f445cb468332bde984a788ef24f72f7070952b2d9292e0259e7b8f36397c9`: 150,000 customers, 400,000 products, 4,425,008 matcher ledger rows, 492,414 serving transactions, 13,164 FX rates, 1,200 service agents, and 150,000 customer complaint aggregates. Evidence: `uv run --no-sync python -m aclara.data.cli build`, DQ gate, dbt contracts/tests and export read-back.
-- The first organizer build failed safely on 24,029 null transcript durations. Aggregate diagnosis confirmed a dictionary mismatch; contract 1.1.0 retains nulls, with an explicit warning. The corrected build passed.
-- Incremental and matcher unit tests: `pytest tests/test_data_pipeline.py tests/test_charge_matcher.py` passed 7 tests. Coverage includes no-op reuse, restatement, late arrivals, extra columns, invalid/duplicate rows, removal, clock changes, customer/time leakage, missing FX and empty candidates.
-- Local Postgres fixture integration passed: full row checksums, idempotent reload, RLS with no context, table/view isolation, autocommit and pooled-connection reuse, and rollback after a failed load. No organizer rows were printed or staged.
-- Ruff and strict mypy passed on 31 source files before the final reports/model export. No LLM, cloud provisioning, or paid service was used. Sebastian clarified the Azure approval was for the lead lane, then explicitly instructed this lane to ignore it.
-
-- Completed the synthetic benchmark: 6,000 train, 3,000 validation, 3,000 test queries; 15% NONE in each. The validation partition has 1,026 tuning, 995 calibration and 979 policy queries, grouped by customer. Thirty Optuna trials and their MLflow child runs completed in the local ignored `lake/mlruns` store. Test was touched once for v1.
-- Validation selected LightGBM. Test top-1: rules 86.59%, logistic 96.78%, LightGBM 95.22%. Cost/query: 0.6197 / 0.3980 / 0.4717. Wrong proposals: 29/1,684 / 41/1,958 / 10/1,871. No-match precision and calibration trade-offs are reported rather than hidden. Paired customer-bootstrap cost difference for LightGBM vs rules: -0.1480, 95% CI [-0.1921, -0.1039].
-- Exported v1 and verified model score/decision parity, file checksums, training-source digest, parent MLflow FINISHED status, all 30 finished trial runs, and one test-touch record. Model parameters and aggregate results contain no row records.
-- Full suite: 14 passed, 1 local-Postgres test skipped in the ordinary invocation; that Postgres test passed separately with the local owner connection. B1: 32/32, 12 read-backs, safety guards passed. Frozen interface snapshots were current. A clean CI-dependency environment passed strict mypy and 9 tests (3 optional/local integrations skipped).
-- Loaded all six organizer serving tables into the private local Postgres: 150,000 customers, 400,000 products, 492,414 transactions, 13,164 FX rows, 1,200 agents and 150,000 complaint aggregates. Every projected row was checksum-compared with gold before commit, and load metadata was verified from a fresh connection.
-- Hardened source-conversion cache identity to include imported conversion code; the organizer rebuild passed and its following invocation was a no-op. All ten source tables had zero invalid rows. Bronze was reused.
-- Existing web checks passed: frozen dependency install, TypeScript, ESLint, and Next.js production build. Frontend source was unchanged.
-- Rebased cleanly onto `origin/main` at `cb402af`, retaining the lead's security tests and persistent lake default. Final combined suite: 24 passed, 1 optional Postgres test skipped (verified separately); the clean dev-only environment passed 19 tests with 3 optional integrations skipped. Strict mypy, Ruff/format, compilation, six pre-commit hooks, working-tree data/secret/size policy, interface snapshots, and B1 32/32 with 12 read-backs passed.
-- The final snapshot matches the current data-source fingerprint, reused every bronze/silver object, passed all promotion gates, and then returned a no-op. Refreshed all six organizer serving tables from that snapshot and verified full row checksums and committed metadata from a fresh connection. The serving CLI now redacts driver failures; its regression test passed.
-- Pushed only `origin/feat/data-ml`; the remote commit matched local `2ecb3dd`. Opened private [PR #6](https://github.com/sebastian-gm/bank-agent-lab/pull/6) into `main` after local checks passed. Remote `checks`, `invariants`, and `web` all passed on that implementation/report head. This documentation follow-up records those results. Read-back confirmed the repository remains private and the PR is open against main.
-- Rechecked the Spanish packet: exactly 40 cards and unique customers, all recollection fields blank, zero customer overlap with the benchmark, and all three packet files ignored by Git.
-
-### Done but not verified
-
-- Lead-lane integration of serving tables and the pinned matcher into the live API has not been performed here. Existing bank/API/policy/orchestration and frozen interfaces are unchanged.
-- Human recollections and language review remain pending. Forty Spanish cards and a blank fill-in CSV were generated under ignored `artifacts/human-validation/spanish-40/`, with benchmark customers excluded; counts and ignore status were read back. Portuguese remains future model-generated data with a second-vendor cross-check, per Sebastian; no paid model call was made.
-
-### Next / blocked
-
-- Lead review/merge of PR #6 remains pending, including the additive shared dependency changes. No breaking frozen-interface change is proposed.
-- Lead lane must wire the Postgres tables and pin `models/charge_matcher/v1/` in shared configuration.
-- Sebastian can fill the 40 Spanish recollections. Human validation and any later paid Portuguese generation need their own follow-up; no Azure work is part of this lane.
-## AI lane — 2026-09-26
-
-### Completed (verified)
-
-- Read the AI-lane handoff, the build brief, repository rules, and this log. Kept `NluFrame`, `ResponsePlan`, scenario schemas, and the lead-owned orchestrator unchanged.
-- Added mock/recorded, OpenAI-compatible, Gemini SDK, and Anthropic SDK adapters; structured output validation with one retry; metadata-only call records; dated price configuration; real-call and budget gates. Added versioned NLU/phrasing prompts and optional provider key names to `.env.example`.
-- Added internal structured ES/PT NLU with deterministic relative dates, slang amount normalization, currency clarification, and false-friend handling. Added template-first response building, fact citation checks, input redaction, output DLP, and template fallback. Wrote the additive interface proposal for lead review.
-- Added provider data-terms notes and a pending comparison table. No default model was chosen and no real-model call was made.
-- Verified `.venv/bin/ruff check .`, `.venv/bin/mypy src/aclara --strict` (30 source files), and `.venv/bin/pytest` (16 passed) after `uv sync --all-extras`. The targeted tests exercise invalid JSON retry, real-call/budget guards, schema/privacy request shape without network, ES/PT normalization, grounding violations, DLP, fallback, and aggregate comparison.
-- Committed the AI implementation and docs in three conventional commits (`2f33bc3`, `24198a5`, `c7f8a6b`) and pushed them to the private `origin/feat/ai`; `git ls-remote` confirmed the branch head. Merged current `main` into the published branch without force-pushing; `main` is an ancestor of merge commit `83e8a8d`, which was also verified on `origin`.
-- After the merge, Ruff, strict mypy, pytest (25 passed), the interface snapshot check, all six pre-commit hooks, the tracked-file policy, and the B1 fixture harness (32/32; 12 read-backs) passed locally.
-- Opened private draft PR #4 from `feat/ai` to `main`. `gh pr view` confirmed its branches and draft state; `gh pr checks 4` reported `checks`, `invariants`, and `web` all passing on initial PR head `83e8a8d`.
-- Pushed the progress-log update as `5fc1058`; `git ls-remote` confirmed that head on `origin/feat/ai`. The PR's `checks`, `invariants`, and `web` passed again on that head, then `gh pr ready 4` and `gh pr view 4` confirmed PR #4 is open and ready for review.
-
-### Done but not verified
-
-- Native Gemini and Anthropic adapters, OpenRouter routes, model pricing in a billed request, and ES/PT model quality have no live-call evidence. The comparison table is pending keys, a reviewed dev utterance set, and approval of the estimated run cost.
-- The AI modules are not yet wired into the lead-owned orchestrator. The frozen `NluFrame` cannot carry mixed/other language and rich slots; the proposal documents how to integrate safely and what needs versioned lead review.
-
-### Next / blocked
-
-- Review the AI interface proposal with the lead lane, wire `understand` and `build_reply` through the orchestrator, and verify end-to-end degraded-mode behavior.
-- Build and review the same labeled dev utterance suite before model comparison. For 150 cases × five round-1 models, assuming 2,500 input and 300 output tokens per case, the dated rates imply about US$1 in token charges or about US$2 if every call retries; propose a US$3 run cap. This estimate excludes any provider routing difference, taxes, and later Claude tests. Show Sebastian the concrete suite and cost before the first paid run; wait for his approval and local `.env` keys.
-- Confirm organizer data-use terms and provider terms for a public demo; choose no default until the measured comparison table is reviewed. Obtain lead review of ready PR #4, especially its shared-file additions and interface proposal; merge only after that review.
-
-## AI lane — 2026-09-26 (local Compose isolation)
-
-### Completed (verified)
-
-- Set this worktree's ignored `.env` to `COMPOSE_PROJECT_NAME=aclara-ai`, `POSTGRES_HOST_PORT=15532`, `API_HOST_PORT=8100`, and `WEB_HOST_PORT=3100`. Read-back confirmed all four values. The edit preserved every other line, including the existing `LLM_REAL_CALLS_APPROVED` setting and the local provider key. `git check-ignore` confirmed `.env` is ignored.
-
-### Done but not verified
-
-- The isolated Compose settings have not been exercised by starting services. No real-model call was made.
-
-### Next / blocked
-
-- Ask Sebastian before the first paid model run after showing the concrete case suite and estimated cost. Keep `LLM_REAL_CALLS_APPROVED` unchanged until that approval.
-
-## AI lane — 2026-09-26/27 (approved OpenRouter round one)
-
-### Completed (verified)
-
-- Sebastian approved the first paid round-one comparison with a $5 stop limit. Queried OpenRouter's current catalog for structured-output, zero-data-retention routes and selected the five exact IDs recorded in `docs/ml/model-comparison.md`. The local `.env` key was read internally; `LLM_REAL_CALLS_APPROVED=1` was set only for the comparison process. The persistent `.env` gate and `LLM_PROVIDER=mock` were left unchanged.
-- Ran five one-case probes and then the same 32 current team-generated dev scenarios through each model. The runner checked key-level usage after every case. OpenRouter key usage increased by $0.739367 from the pre-probe baseline, below the $5 cap. The aggregate-only summary is under ignored `artifacts/ai-round-one/`; no raw messages or model thinking were logged or committed.
-- Recorded intent accuracy, scored-slot F1, parsed-attempt JSON validity, p50/p95 latency, and response-reported cost per case in `docs/ml/model-comparison.md`. The five-model run had 200 attempts: 130 valid parsed responses, 70 refusal/truncation attempts, no invalid JSON or provider-error attempts, and 30 cases without a valid final model response. No default model was chosen.
-- Added response-billed-cost handling, retry budget checks, and a reproducible round-one runner under the AI lane. Ruff, strict mypy, and the targeted AI tests passed before the paid run.
-- After the run, `make checks` passed: all six pre-commit hooks, the working-tree file policy, compileall, pytest (27 passed), B1 dev harness (32/32; 12 read-backs and safety guards), and frozen interface snapshots.
-- After PR #4 was merged, merged the latest `main` into this published AI branch without rewriting history. Synced its declared extras offline, then `make checks` passed on the integrated tree: six hooks, file policy, compileall, pytest (40 passed, one skipped), B1 (32/32; 12 read-backs and safety guards), and interface snapshots.
-
-### Done but not verified
-
-- The 32-scenario suite and its inferred NLU labels have not been human-reviewed. ES/PT quality ratings, the planned 150-case annotated dev set, and an independent final test are pending.
-- Response-reported costs for the full comparison and probes sum to about $0.140265, while OpenRouter key-level usage increased by $0.739367. The $0.599102 gap is not reconciled or assigned to a model. The aggregate artifact lacks per-model completion counts, so parsed-attempt JSON validity is not an end-to-end completion rate.
-
-### Next / blocked
-
-- Review the NLU annotations and ES/PT quality with qualified reviewers, capture per-model completion rates in a future evaluation, reconcile OpenRouter charges, and keep the model default unset pending that evidence and lead review.
-
-## Access and continuation
-
-- Restricted web: https://ca-web-aclara-dev-eastus2.lemonbeach-1b769de0.eastus2.azurecontainerapps.io/
-- Login name: `demo.es.mx`. Retrieve `demo-password` from `kv-aclara-dev-eastus2` using the authenticated Azure portal; do not put it in chat, Git or logs. OTP is shown in the simulated panel after login.
-- Current release input and control readback are available through ignored `infra/terraform.tfvars` and `artifacts/azure/verified.json`. Do not print the private inputs.
-
-For the next session: **Continue from docs/status/progress-log.md. Next layer: durable operational state and resilience. Same rules.**
+- No additional approval is needed for the completed restricted deployment. Keep the same owner-only access boundary for subsequent releases.
+- Next layer: complete policy workflows (including card freeze and remaining catalog gaps), bind authorized serving/persona data, and build held-out evaluation. Add durable model spend accounting before any real-model public demo. These are implementation gaps, not completed features awaiting tests.
+- Keep `LLM_PROVIDER=mock`. Before each real-model run, show a concrete cost estimate and wait for approval. Choose the default from the same-suite comparison; the judge vendor must differ.
+- Any expanded cloud scope, access beyond the owner's IP, or estimate above US$40/month needs approval. Preserve the documented PostgreSQL Azure-services exception only for dev; VNet/private access remains production work.
 
 ## AI lane — 2026-09-26/27 (round-one error analysis and v2 rerun)
 
@@ -153,30 +72,20 @@ For the next session: **Continue from docs/status/progress-log.md. Next layer: d
 - Built the pooled cross-model confusion matrix and identified 11 cases missed by at least three models. Most completed errors were unrecognized-charge statements classified as inquiries. Added `prompts/nlu/v2.md` with explicit intent definitions and made it the production NLU prompt default without changing deterministic policy or frozen interfaces. The inferred gold labels were not edited.
 - Reran the requested four models on the same dev suite, dropping Qwen. All four scored 32/32 inferred intents, 100% scored-slot F1, and 32/32 valid responses from 32 attempts. DeepSeek was pinned to the ZDR, schema-capable `wafer/fast` endpoint with low reasoning effort and a 2,048-token requested output limit. OpenRouter generation metadata readback confirmed Wafer service and matched per-call response cost. No model default was chosen; `LLM_PROVIDER=mock` and the persistent `.env` approval flag remain unchanged.
 - Reworked all-attempt JSON validity and follow-up cost accounting to use per-call response usage/cost, never the shared key-level delta. Original probes/full run, diagnostic repeat, and v2 rerun sum to **$0.402383** under the cumulative $5 cap. The first-run key-level gap is plausibly concurrent data/ML Portuguese generation, not assigned to this lane or a model.
-- Updated `docs/ml/model-comparison.md` with original-result caveats, full repeat and revised tables, the confusion matrix, missed-case fault analysis, a gold-label review list, and the cost ledger.
-- `make checks` passed on the staged change: all six pre-commit hooks, strict mypy, staged-file policy, compilation, 42 Python tests (one optional test skipped), B1 32/32 with 12 read-backs and safety guards, and frozen interface snapshots.
+- Updated `docs/ml/model-comparison.md` with original-result caveats, full repeat and revised tables, the confusion matrix, missed-case fault analysis, a gold-label review list, and the cost ledger. After merging current `main`, synced its declared `psycopg-pool` dependency offline and ran `make checks`: all six pre-commit hooks, strict mypy, staged-file policy, compilation, **49 Python tests passed / 4 database-dependent tests skipped**, B1 32/32 with 12 read-backs and safety guards, frozen interfaces, and policy catalog check passed.
 
 ### Done but not verified
 
-- The 32-case suite and its inferred labels remain unreviewed. In particular, Sebastian needs to confirm whether `dispute_charge` includes a first-message denial of a purchase without an explicit filing request. The original run's exact by-model failure counts and provider routes cannot be recovered from its aggregate-only artifact. ES/PT human quality ratings and independent-test accuracy remain unknown.
+- The 32-case suite and its inferred labels remain unreviewed. Sebastian needs to confirm whether `dispute_charge` includes a first-message denial of a purchase without an explicit filing request. The original run's exact by-model failure counts and provider routes cannot be recovered from its aggregate-only artifact. ES/PT human quality ratings and independent-test accuracy remain unknown.
 
 ### Next / blocked
 
 - Obtain Sebastian's label/taxonomy review and an independent annotated NLU suite before any default selection. Keep production in mock mode. Lead review of PR #12 remains pending; no model choice or further paid run is requested here.
 
-## Lead integration — 2026-09-26/27 (in progress)
+## Access and continuation
 
-### Completed-verified
+- Restricted web: https://ca-web-aclara-dev-eastus2.lemonbeach-1b769de0.eastus2.azurecontainerapps.io/
+- Login: `demo.es.mx`. Retrieve `demo-password` from `kv-aclara-dev-eastus2` through the authenticated Azure portal. Never put it in chat, Git or logs. OTP is shown in the simulated panel.
+- Release inputs and control readback are in ignored `infra/terraform.tfvars` and `artifacts/azure/verified.json`; do not print private inputs. The local Compose stack remains running.
 
-- Re-read amended `04-lead-next.md`; durable operations and hash-chained audit follow matcher integration. Fresh Azure control readback and API health passed before lane work.
-- Reviewed and merged PRs #4, #6 and #9 in order after green PR checks; main CI and safety passed at each lane merge. Resolved dependency/documentation conflicts, preserved both extras, and repaired v2 schema export while retaining all v1 definitions.
-- Data/ML optional fixture tests passed locally (33 tests before schema addition; Postgres owner-DSN test skipped). No organizer pipeline rerun or model call was performed.
-- Reactive evaluation adds isolated run IDs, clocks, fixture personas, response-keyed customer replies, fault injection, independent gold scoring and aggregate reporting. Found and fixed candidate follow-up routing and language preservation. Verification counts and remaining work will be finalized after integration.
-
-### Done-not-verified
-
-- New operational persistence, learned matcher and P orchestration are not yet integrated. The deployed revision remains the prior main.
-
-### Next-blocked
-
-- Continue tasks 3–7 in order; retain mock provider. No additional approval is needed for the authorized restricted redeployment. Real-model calls still need a priced proposal and approval.
+For the next session: **Continue from docs/status/progress-log.md. Next layer: policy workflows and held-out evaluation bindings. Same rules.**
