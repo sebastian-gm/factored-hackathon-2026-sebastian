@@ -8,7 +8,7 @@ from typing import Any
 
 import numpy as np
 
-from aclara.ml.charge_matcher.model import Array, decisions
+from aclara.ml.charge_matcher.model import Array, choice_first_decisions, decisions
 from aclara.ml.charge_matcher.types import Query
 
 COSTS = {
@@ -19,6 +19,9 @@ COSTS = {
     "correct": 0.0,
 }
 
+# Relative interaction costs, chosen before v2 fitting; not measured currency.
+V2_COSTS = {**COSTS, "false_none": 6.0}
+
 
 def summarize_queries(
     queries: list[Query],
@@ -27,8 +30,20 @@ def summarize_queries(
     top: Array,
     exists: Array,
     thresholds: dict[str, float],
+    *,
+    decision_policy: str = "legacy_v1",
+    costs: dict[str, float] | None = None,
 ) -> list[dict[str, Any]]:
-    actions = decisions(top, exists, thresholds)
+    costs = COSTS if costs is None else costs
+    if decision_policy == "choice_first_v2":
+        maximum = np.asarray(
+            [float(np.max(scores[start:end])) if end > start else 0 for start, end in groups]
+        )
+        actions = choice_first_decisions(top, exists, maximum, thresholds)
+    elif decision_policy == "legacy_v1":
+        actions = decisions(top, exists, thresholds)
+    else:
+        raise ValueError("unknown matcher decision policy")
     result = []
     for query, (start, end), p_top, p_exists, action in zip(
         queries, groups, top, exists, actions, strict=True
@@ -44,13 +59,13 @@ def summarize_queries(
         cost = (
             0.0
             if action == "propose" and correct
-            else COSTS["wrong_proposal"]
+            else costs["wrong_proposal"]
             if action == "propose"
-            else (0.0 if none else COSTS["false_none"])
+            else (0.0 if none else costs["false_none"])
             if action == "none"
-            else COSTS["extra_turn"]
+            else costs["extra_turn"]
             if none or 0 < rank <= 3
-            else COSTS["choice_missing_target"]
+            else costs["choice_missing_target"]
         )
         result.append(
             {

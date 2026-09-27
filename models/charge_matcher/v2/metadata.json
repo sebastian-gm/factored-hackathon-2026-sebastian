@@ -1,0 +1,88 @@
+{
+  "artifact_policy": "numeric parameters and aggregates only; no row data",
+  "bank_clock": "2026-06-18T06:00:00+00:00",
+  "counts": {
+    "train": 18000,
+    "validation": 9000
+  },
+  "customers": {
+    "train": 5754,
+    "validation": 2730
+  },
+  "dataset_version": "b86f445cb468332bde984a788ef24f72f7070952b2d9292e0259e7b8f36397c9",
+  "decision_policy": "choice_first_v2",
+  "export_parity_verified": true,
+  "frozen_at": "2026-09-27T05:03:59.929372+00:00",
+  "frozen_model_files": {
+    "lightgbm.txt": "8de9ee586478824860e7c9dc2ef8e8d1fa3e18d0b1e2fea43d835bc15dd9f602",
+    "model.json": "9b5c36d4405fc117b1cf31bc37c754aff039f8f17ecb67e475ee5b874bfe3cea"
+  },
+  "git_sha": "cffbe06",
+  "nlu_measurement": "template extraction + actual postprocess, not real NLU",
+  "nlu_postprocessor_sha256": "2d9b2a5a0bd4038917de03e2e50c165079572c27ff75d16ebc5c845c7394962a",
+  "noise_counts": {
+    "train": {
+      "amount_approx": 759,
+      "complete": 720,
+      "country_only": 738,
+      "currency_confusion": 751,
+      "date_fuzzy": 765,
+      "human_approx_casi": 1509,
+      "human_approx_cerca": 1529,
+      "human_approx_como": 1468,
+      "human_k_suffix": 1547,
+      "human_merchant_type": 1456,
+      "human_thousands": 1457,
+      "human_typo": 1512,
+      "human_urgency": 1522,
+      "merchant_typo": 801,
+      "partial": 723,
+      "type_only": 743
+    },
+    "validation": {
+      "amount_approx": 374,
+      "complete": 397,
+      "country_only": 387,
+      "currency_confusion": 351,
+      "date_fuzzy": 379,
+      "human_approx_casi": 719,
+      "human_approx_cerca": 751,
+      "human_approx_como": 727,
+      "human_k_suffix": 760,
+      "human_merchant_type": 762,
+      "human_thousands": 746,
+      "human_typo": 765,
+      "human_urgency": 770,
+      "merchant_typo": 360,
+      "partial": 384,
+      "type_only": 368
+    }
+  },
+  "noise_version": "2.0.0",
+  "protocol_sha256": "409201afe1801dc859192134666cdaefa636aed14498362467a3d3e0540a8632",
+  "seed": 20260926,
+  "selected_on_validation": "lightgbm",
+  "serving_projection": "category=None, channel='', country=''; default empty FX",
+  "source_files": {
+    "test.jsonl": "7ac91f29be805a8980b847e8ff7f416bbf2466ef7491571dda8f6e2cffb2b8bb",
+    "train.jsonl": "158503d6c70b071ad4f763694426cce39f931546e3c82bd5094fbded0d86f092",
+    "validation.jsonl": "495c80679d1da61c7aa21cf0a1ecb635b9691d1d0cdc71b20672f415e7c8010e"
+  },
+  "test_counts": {
+    "human_like": 6000,
+    "original": 3000
+  },
+  "test_touch": {
+    "at": "2026-09-27T05:03:59.930422+00:00",
+    "purpose": "authorized reused synthetic diagnostic"
+  },
+  "training_code_sha256": "1db470f911d96844e80204a42702e9f704068fd3d96d7f0976b4bc1ab950b1e2",
+  "trials": 20,
+  "validation_partition_counts": {
+    "calibration": 2985,
+    "policy": 2937,
+    "tune": 3078
+  },
+  "validation_policy_cost": 0.26285325161729656,
+  "version": "v2"
+}
