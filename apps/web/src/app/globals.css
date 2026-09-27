@@ -1904,3 +1904,67 @@ h1 {
     max-width: 115px;
   }
 }
+
+.recording-helper {
+  padding: 16px 20px;
+  margin-bottom: 24px;
+}
+.recording-helper summary {
+  cursor: pointer;
+  font-weight: 650;
+}
+.recording-helper p {
+  margin: 12px 0;
+}
+.recording-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.conversation-cost {
+  padding: 18px;
+  margin: 16px 0;
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+.conversation-cost > strong {
+  font-size: 1.4rem;
+}
+.conversation-cost p {
+  margin-top: 8px;
+}
+.risk-panel {
+  margin-top: 16px;
+}
+.table-scroll {
+  overflow-x: auto;
+  max-width: 100%;
+}
+.table-scroll table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 0.8rem;
+}
+.table-scroll th,
+.table-scroll td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+.call-details {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.execution-list > li > div {
+  min-width: 0;
+}
+
+.table-scroll table {
+  min-width: 460px;
+  overflow-wrap: normal;
+}
+.table-scroll th:not(:first-child),
+.table-scroll td {
+  white-space: nowrap;
+}

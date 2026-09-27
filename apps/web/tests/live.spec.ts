@@ -165,3 +165,70 @@ test("live refusal, revoked session and upstream logout", async ({
   });
   expect(response.status()).toBe(401);
 });
+
+test("recording helper leaves live story/reset gates closed without bank bindings", async ({
+  page,
+}) => {
+  await login(page);
+  await page.getByText("Preparar grabación", { exact: true }).click();
+  for (const name of [
+    "ES · cargo pendiente",
+    "PT · escolha e confirmação",
+    "ES · fraude → Agent Desk",
+  ])
+    await expect(
+      page.getByRole("button", { name, exact: true }),
+    ).toBeDisabled();
+  await expect(
+    page.getByText(
+      "Solo una identidad Ops autorizada puede iniciar el restablecimiento.",
+    ),
+  ).toBeVisible();
+  const result = await page.evaluate(
+    async () =>
+      (
+        await fetch("/api/bff/ops/reset/proposal", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: "{}",
+        })
+      ).status,
+  );
+  expect(result).toBe(403);
+});
+
+test("recording helper uses optional bank persona binding and never auto-sends", async ({
+  page,
+}) => {
+  await page.route("**/config", async (route) => {
+    const response = await route.fetch();
+    const config = await response.json();
+    config.personas[0].demo_stories = ["explain"];
+    await route.fulfill({ json: config });
+  });
+  await page.goto("/");
+  await page.getByText("Preparar grabación", { exact: true }).click();
+  await page
+    .getByRole("button", { name: "ES · cargo pendiente", exact: true })
+    .click();
+  await expect(page.getByRole("textbox", { name: "Usuario" })).toHaveValue(
+    "demo.es.mx",
+  );
+  // Explicit authentication is still required, even with a server story hint.
+  await page
+    .locator("input[type=password]")
+    .fill(process.env.FRONTEND_FIXTURE_PASSWORD!);
+  await page.getByRole("button", { name: "Continuar", exact: true }).click();
+  const sms = page.getByTestId("sms-code");
+  await expect(sms).toHaveText(/^\d{6}$/);
+  await page
+    .getByRole("textbox", { name: "Código de 6 dígitos" })
+    .fill((await sms.textContent())!);
+  await page.getByRole("button", { name: "Verificar y entrar" }).click();
+  await expect(page.getByRole("textbox", { name: "Tu mensaje" })).toHaveValue(
+    "Quiero entender un cargo pendiente.",
+  );
+  await expect(
+    page.getByRole("heading", { name: "Tu caso está registrado" }),
+  ).toHaveCount(0);
+});

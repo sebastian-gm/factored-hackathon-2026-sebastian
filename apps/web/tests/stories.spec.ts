@@ -403,3 +403,330 @@ test("OTP is required; failed challenge locks after five attempts and can restar
   await login(page);
   await expect(page.getByRole("textbox", { name: "Tu mensaje" })).toBeVisible();
 });
+
+test("recording helper resets with read-back, selects all personas and reaches the desk", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await page.getByText("Preparar grabación", { exact: true }).click();
+  await page
+    .getByRole("button", { name: "Entrar como Ops para restablecer" })
+    .click();
+  await expect(
+    page
+      .locator("select")
+      .filter({ has: page.locator("option[value='demo.ops']") }),
+  ).toHaveValue("demo.ops");
+  await login(page, "demo.ops");
+  await page
+    .getByRole("button", { name: "Restablecer demo y abrir ES" })
+    .click();
+  await expect(
+    page.getByRole("status").filter({ hasText: "Espacio restablecido" }),
+  ).toBeVisible();
+  await expect(
+    page
+      .locator("select")
+      .filter({ has: page.locator("option[value='demo.es.mx']") }),
+  ).toHaveValue("demo.es.mx");
+  await login(page);
+  await expect(page.getByRole("textbox", { name: "Tu mensaje" })).toHaveValue(
+    "¿Qué es el cargo de Café Horizonte?",
+  );
+  await page.getByRole("button", { name: "Enviar mensaje" }).click();
+  await expect(
+    page.getByText(/Es una autorización|es una autorización/),
+  ).toBeVisible();
+  await page
+    .getByRole("button", { name: "PT · escolha e confirmação" })
+    .click();
+  await expect(page.locator("html")).toHaveAttribute("lang", "pt-BR");
+  await expect(
+    page
+      .locator("select")
+      .filter({ has: page.locator("option[value='demo.pt.br']") }),
+  ).toHaveValue("demo.pt.br");
+  await login(page, "demo.pt.br");
+  await page.getByRole("button", { name: "Enviar mensagem" }).click();
+  await expect(
+    page.getByRole("button", { name: "Revisar este movimento" }),
+  ).toHaveCount(3);
+  await page
+    .getByRole("button", { name: "Revisar este movimento" })
+    .nth(1)
+    .click();
+  await page
+    .getByRole("dialog")
+    .getByRole("button", { name: "Confirmar", exact: true })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "Seu caso está registrado" }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "ES · fraude → Agent Desk" }).click();
+  await expect(
+    page
+      .locator("select")
+      .filter({ has: page.locator("option[value='demo.fraud']") }),
+  ).toHaveValue("demo.fraud");
+  await login(page, "demo.fraud");
+  await page.getByRole("button", { name: "Enviar mensaje" }).click();
+  await expect(
+    page.getByRole("heading", { name: "Tu solicitud está en buenas manos" }),
+  ).toBeVisible();
+  await page
+    .getByRole("button", { name: "Abrir Agent Desk", exact: true })
+    .click();
+  await login(page, "demo.agent");
+  await expect(page.getByText("FRD-01", { exact: true })).toBeVisible();
+});
+
+test("recording helper never opens a story when reset read-back fails", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await page.getByText("Preparar grabación", { exact: true }).click();
+  await page
+    .getByRole("button", { name: "Entrar como Ops para restablecer" })
+    .click();
+  await login(page, "demo.ops");
+  await page.route("**/ops/demo/reset", (route) =>
+    route.fulfill({ json: { verified: false } }),
+  );
+  await page
+    .getByRole("button", { name: "Restablecer demo y abrir ES" })
+    .click();
+  await expect(
+    page.locator(".recording-helper").getByRole("alert"),
+  ).toContainText("No se completó la preparación");
+  await expect(page.locator("input[type=password]")).toHaveCount(0);
+  await expect(
+    page.getByRole("heading", { name: "Cada paso, a la vista." }),
+  ).toBeVisible();
+});
+
+test("glass box shows call cost precision, partial totals, fallback and risk union without raw text", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await login(page, "demo.fraud");
+  await page
+    .getByRole("button", {
+      name: "Perdí mi tarjeta y no reconozco una compra",
+      exact: true,
+    })
+    .click();
+  const flags = {
+    lost_stolen: false,
+    regulator: false,
+    legal: false,
+    distress: false,
+    injection_suspected: false,
+    human_requested: false,
+  };
+  const probabilities = {
+    lost_stolen: 0.12,
+    regulator: 0.02,
+    legal: 0.03,
+    distress: 0.84,
+    injection_suspected: 0.1,
+    human_requested: 0.1,
+  };
+  const risk = {
+    gemini_raw_flags: flags,
+    gemini_raw_probabilities: Object.fromEntries(
+      Object.keys(flags).map((cue) => [cue, null]),
+    ),
+    jev_raw_probabilities: probabilities,
+    jev_threshold_flags: { ...flags, distress: true },
+    union_flags: { ...flags, distress: true },
+    threshold: 0.5,
+    degradation: null,
+    primary_failed: false,
+  };
+  await page.route("**/ops/overview", async (route) => {
+    const response = await route.fetch();
+    const data = await response.json();
+    const call = {
+      provider: "openai_compat",
+      model: "google/gemini-3-flash-preview",
+      prompt_version: "nlu-v4",
+      input_tokens: 321,
+      output_tokens: 21,
+      latency_ms: 1234.5,
+      cost_usd: null,
+      status: "provider_error",
+      attempt: 1,
+    };
+    const event = {
+      stage: "Understand",
+      state: "llm_call",
+      tool: null,
+      rules: [],
+      verified: false,
+    };
+    data.conversations[0].events = [
+      { ...event, id: "failure", llm: call },
+      {
+        ...event,
+        id: "fallback",
+        llm: {
+          ...call,
+          model: "x-ai/grok-4.20",
+          route: "fallback_grok_4_20",
+          cost_usd: 0.000964,
+          status: "valid",
+        },
+      },
+      {
+        ...event,
+        id: "risk",
+        llm: {
+          ...call,
+          provider: "typesafe",
+          model: "jev-1.13.0",
+          prompt_version: "risk-v1",
+          cost_usd: 0.0000392,
+          judgments: risk,
+          status: "valid",
+        },
+      },
+    ];
+    data.conversations.push({
+      id: "degraded-authored",
+      events: [
+        {
+          ...event,
+          id: "timeout",
+          llm: {
+            ...call,
+            provider: "typesafe",
+            model: "jev-1.13.0",
+            judgments: {
+              ...risk,
+              jev_raw_probabilities: null,
+              jev_threshold_flags: null,
+              union_flags: flags,
+              degradation: "timeout",
+            },
+          },
+        },
+      ],
+    });
+    await route.fulfill({ json: data });
+  });
+  await switchRole(page, "Ops · glass box", "demo.ops");
+  await page
+    .getByRole("combobox", { name: "Tu conversación", exact: true })
+    .selectOption({ index: 0 });
+  const cost = page.getByLabel("Costo de esta conversación");
+  await expect(cost).toContainText("0.0010032");
+  await expect(cost).toContainText("3 llamadas registradas");
+  await expect(cost).toContainText("1 costo desconocido");
+  await expect(cost).toContainText("Subtotal conocido");
+  await expect(cost).toContainText("Fallback Grok registrado");
+  await expect(page.getByText("nlu-v4", { exact: true })).toHaveCount(2);
+  await expect(
+    page.getByText("1234.5 ms", { exact: false }).first(),
+  ).toBeVisible();
+  const row = page
+    .getByRole("row")
+    .filter({ has: page.getByRole("rowheader", { name: "Angustia" }) });
+  await expect(row).toContainText("84.0%");
+  await expect(row.getByRole("cell")).toHaveText(["No", "84.0%", "Sí", "Sí"]);
+  await expect(page.getByText(/sin probabilidades por señal/)).toBeVisible();
+  await audit(page);
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= window.innerWidth,
+    ),
+  ).toBe(true);
+  await screenshot(page, "recording-glassbox-phone");
+  await page
+    .getByRole("combobox", { name: "Tu conversación", exact: true })
+    .selectOption("degraded-authored");
+  await expect(
+    page.getByRole("status").filter({ hasText: "Segunda opinión degradada" }),
+  ).toContainText("timeout");
+  await expect(row.getByRole("cell")).toHaveText([
+    "No",
+    "—",
+    "No registrado",
+    "No",
+  ]);
+  await expect(cost).toContainText("1 costo desconocido");
+});
+
+test("trace projection accepts old events and strips non-display payloads", async () => {
+  const { traceSchema } = await import("../src/lib/staff-contracts");
+  const { callTotals, riskSchema } = await import("../src/lib/trace");
+  const flags = {
+    lost_stolen: false,
+    regulator: false,
+    legal: false,
+    distress: false,
+    injection_suspected: false,
+    human_requested: false,
+  };
+  const incomplete = riskSchema.parse({
+    gemini_raw_flags: flags,
+    gemini_raw_probabilities: Object.fromEntries(
+      Object.keys(flags).map((cue) => [cue, null]),
+    ),
+    jev_raw_probabilities: { distress: 0.7, unexpected_text: "must-not-cross" },
+    jev_threshold_flags: null,
+    union_flags: flags,
+    threshold: 0.5,
+    degradation: "incomplete_risk_answers",
+    primary_failed: false,
+  });
+  expect(incomplete.jev_raw_probabilities).toEqual({ distress: 0.7 });
+  expect(
+    riskSchema.safeParse({
+      ...incomplete,
+      jev_raw_probabilities: { distress: 1.5 },
+    }).success,
+  ).toBe(false);
+  const event = {
+    id: "call-1",
+    stage: "Understand",
+    state: "llm_call",
+    tool: null,
+    rules: [],
+    verified: false,
+    llm: {
+      provider: "mock",
+      model: "fixture",
+      prompt_version: "none",
+      input_tokens: 0,
+      output_tokens: 0,
+      latency_ms: 0,
+      cost_usd: null,
+      thinking: "must-not-cross",
+      completion: "must-not-cross",
+    },
+  };
+  const trace = traceSchema.parse({
+    conversation_id: "authored",
+    policy_version: "v1",
+    scope: "current_workspace",
+    events: [event],
+  });
+  expect(JSON.stringify(trace)).not.toContain("must-not-cross");
+  expect(callTotals([trace.events[0], trace.events[0]])).toMatchObject({
+    count: 1,
+    unknown: 1,
+    known: 0,
+  });
+  expect(callTotals([{ ...trace.events[0], llm: null }])).toMatchObject({
+    count: 0,
+  });
+  expect(
+    traceSchema.safeParse({
+      ...trace,
+      events: [
+        { ...event, llm: { ...event.llm, judgments: { union_flags: {} } } },
+      ],
+    }).success,
+  ).toBe(false);
+});
