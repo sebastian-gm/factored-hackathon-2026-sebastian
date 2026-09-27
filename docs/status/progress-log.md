@@ -1,5 +1,31 @@
 # Progress log
 
+## Handoff 09 integration — 2026-09-27 UTC (current)
+
+### Completed-verified
+
+- Reviewed and merged PR #12 (prompt v4, Gemini default, failure-only Grok, judge) and PR #29 (matcher v2), each with all four CI checks green. Matcher v2 is now the default MATCH artifact and is included in the API image; v1 remains available. Lane-authored training/human measurements below are their reported evidence, not lead reruns.
+- Independent tests verify v2 scoped choices, rejection of all choices, explicit confirmation/readback, and denial of foreign or out-of-window candidates. No frozen inputs, labels, bindings or private matcher splits were opened during this layer.
+- Added migration 0003 and Postgres reservations before every paid attempt. Production cap US$3/UTC day, smoke cumulative US$0.10, unknown costs retained, owner-only configuration; fallback/retries share the gate. A tripped reserve cannot trigger another model.
+- Owner-authorized real-route final adapter uses fresh state, v4/v2, Gemini full/repeats and Sonnet subset; final system/judge clients share a cumulative US$12 database gate. Budget denial aborts. Journals save validated output/metadata only, never reasoning. Explicit final start gate tested without opening frozen inputs.
+- `UV_CACHE_DIR=/tmp/aclara-uv-cache make checks`: **149 passed, 12 database skips**, six hooks, strict mypy, interfaces/catalog current; B1 **32/32**, **12 readbacks**. `python -m scripts.test_postgres`: **14 passed**, including concurrent reservations, restart/rollback exposure, cumulative cap and runtime privilege denial. `pnpm typecheck`, `pnpm lint`, `pnpm build`: passed.
+- `python -m scripts.azure_prices`: live East US 2 **US$34.63/month before tax**, checked 05:33 UTC, below US$40 gate. OpenRouter public endpoint rates rechecked: Gemini standard $0.50/$3 per million input/output; Grok $1.25/$2.50. No model call in these price checks.
+- `python -m scripts.azure_openrouter_key`: uploaded owner-supplied key to the approved vault, matching readback in memory, removed local entry and temporary file. No secret value printed or committed.
+
+### Done-not-verified
+
+- Restricted real-provider deployment and at-most-five-conversation smoke are pending below; code/tests alone are not deployment evidence.
+- The real final evaluation, judge agreement, human PT/MX/AR language review, broad model safety and actual final cost remain unverified. The prior frozen diagnostic remains failed acceptance.
+
+### Next-blocked
+
+- Finish migration/release CI and deploy clean main with smoke cap; ES normal/PT ambiguous/fraud smoke, browser, access controls, no-drift readback. Then report exact SHA and stop.
+- Sebastian must give the AI lane the separate final-run start signal. Public/judge ingress remains unapproved. No new paid evaluation or cloud capacity requested.
+
+---
+
+# Prior release and lane evidence
+
 Session: handoff 08, 2026-09-26 America/Vancouver; continued 2026-09-27 UTC.
 This summary supersedes earlier task lists. Earlier release evidence remains in Git history and linked reports.
 

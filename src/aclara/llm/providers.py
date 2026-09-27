@@ -73,6 +73,12 @@ class OpenAICompat:
             payload["provider"] = {"data_collection": "deny", "zdr": True}
             if spec.output_mode == "json_schema":
                 payload["provider"]["require_parameters"] = True
+            if spec.price_ceiling is not None:
+                payload["provider"]["max_price"] = {
+                    "prompt": spec.price_ceiling[0],
+                    "completion": spec.price_ceiling[1],
+                    "request": 0,
+                }
             if spec.provider_only:
                 payload["provider"]["only"] = list(spec.provider_only)
                 payload["provider"]["allow_fallbacks"] = False
@@ -92,6 +98,15 @@ class OpenAICompat:
             content = choice["message"]["content"]
             usage = data.get("usage") or {}
             prompt_details = usage.get("prompt_tokens_details") or {}
+            usage_known = (
+                all(
+                    isinstance(usage.get(field), int)
+                    and not isinstance(usage[field], bool)
+                    and usage[field] >= 0
+                    for field in ("prompt_tokens", "completion_tokens")
+                )
+                and usage["prompt_tokens"] > 0
+            )
             raw_cost = usage.get("cost")
             billed_cost = float(raw_cost) if raw_cost is not None else None
             if billed_cost is not None and (not math.isfinite(billed_cost) or billed_cost < 0):
@@ -105,6 +120,7 @@ class OpenAICompat:
                     cache_read_tokens=int(prompt_details.get("cached_tokens") or 0),
                 ),
                 stop_reason=choice.get("finish_reason"),
+                usage_known=usage_known,
                 billed_cost_usd=billed_cost,
                 generation_id=str(data["id"]) if data.get("id") else None,
             )
