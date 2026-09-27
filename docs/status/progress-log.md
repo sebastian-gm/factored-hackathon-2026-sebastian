@@ -108,6 +108,7 @@ For the next session: **Continue from docs/status/progress-log.md. Next layer: p
 - The separate live-proxy Playwright test passed against current main's B1 mock API: password/OTP, pending-charge explanation, actual dispute confirmation and case read-back, with unsupported Agent Desk correctly unavailable. It used only team-generated ledger fixtures and an ephemeral credential.
 - TypeScript and ESLint passed. The production build passed using supported Webpack mode; Turbopack hit host watcher/worker-port failures, so local browser tests use Webpack polling. The worktree's ignored `.env` now uses `aclara-frontend` / ports 15442, 8212 and 3212; read-back confirmed all other entries were preserved. The separate OpenRouter key was not used, printed or committed. An explicit scan verified key exclusion and ignored screenshot paths.
 - All six pre-commit hooks and the tracked-file data/secret/size policy passed after the rebase. The final production browser chunks contain neither the provider key nor the fixture-password environment reference. `apps/web/public/dbt-lineage.svg` matches the existing aggregate diagram byte-for-byte.
+- Private [PR #17](https://github.com/sebastian-gm/bank-agent-lab/pull/17) is open and ready for review. GitHub `checks`, `postgres`, `invariants` and `web` all passed on implementation head `94eb350`; remote branch and PR state were read back. This documentation follow-up records those results and includes polling in the manual development command.
 
 ### Done but not verified
 
@@ -116,5 +117,5 @@ For the next session: **Continue from docs/status/progress-log.md. Next layer: p
 
 ### Next / blocked
 
-- Lead review of the frontend PR and its additive API proposal. Wire staff/Ops contracts and add the documented browser-test command to the shared CI workflow; this lane does not edit that workflow.
+- Lead review of PR #17 and its additive API proposal. Wire staff/Ops contracts and add the documented browser-test command to the shared CI workflow; this lane does not edit that workflow.
 - Deploy only through the lead's existing authorized release process. No approval is needed for this private frontend PR; any future use of the worktree's OpenRouter key requires Sebastian's explicit approval.
