@@ -1,5 +1,6 @@
 # Progress log
 
+<<<<<<< Updated upstream
 ## Frontend handoff 11 — PR refresh, merge freeze
 
 ### Completed (verified)
@@ -14,6 +15,24 @@
 
 - Keep PRs open. Do not merge into main until Sebastian announces that the final run has finished; the lead merges afterward.
 
+=======
+## Option A — dev gate before any re-release (in progress)
+
+### Completed-verified
+
+- Read handoff 12. The first final attempt is abandoned: a first final attempt was stopped at ~6/200 P cases after a dev-only finding; its results were never viewed. Its artifacts remain untouched; do not open or resume them.
+- Initialized and read back the shared Option A Postgres budget: **scope `dev-gate/option-a`, run ID `option-a`, cumulative cap $1.00**, zero attempts and $0 charged at initialization. Both lead and AI lanes must use `PostgresSpendGate(store, scope="dev-gate/option-a", run_id="option-a")` before every provider attempt, including Jev, retries and fallbacks. Unknown usage retains its reservation. Never create separate run IDs, reset reservations, raise the cap, or re-enable a tripped breaker. Prior closed study budgets are excluded from this new allowance.
+
+### Done-not-verified
+
+- Ordered rebased merges #36 → #28 → #24 → #37 and the Step 3 real P dev gate are in progress. No paid Option A dev run has been made by the lead.
+
+### Next-blocked
+
+- Obtain the AI lane's dev-only failure breakdown and previously authored 10 ES / 10 pt-BR confirmation set. Diagnose and fix only dev-supported causes, run the dev gate, report and stop before re-release. No final v2 run or deployment is authorized in this step.
+
+---
+>>>>>>> Stashed changes
 
 ## Jev release and final-program preparation — 2026-09-27 UTC (current)
 
