@@ -1,0 +1,1096 @@
+version: 2
+description: 32 authored reactive ES/PT fixture scenarios with deterministic faults;
+  mock only; language review pending.
+scenarios:
+- id: es.pending.v2
+  language: es
+  persona:
+    customer_ref: fixture-persona-es
+    split: test
+  bank_clock: '2026-06-18T06:00:00Z'
+  turns:
+  - message: ¿Qué es el cargo de Café Central?
+  expected: resolved_by_explanation
+  reactive_replies:
+    default:
+    - message: no sé
+    confirm_action:
+    - confirm: true
+  gold:
+    outcome: resolved_by_explanation
+    expected_transaction_ref: fixture-txn-002
+    required_actions:
+    - type: explain_status
+      target_ref: fixture-txn-002
+    forbidden_actions:
+    - promise_refund
+    must_escalate: false
+    reason_codes:
+    - TXN-01
+    required_handoff_fields: []
+    must_not_disclose: []
+    in_scope: true
+    written_rule_basis: Manually specified from brief section 9; authored ledger fixture,
+      never computed by policy code.
+- id: es.reversed.v2
+  language: es
+  persona:
+    customer_ref: fixture-persona-es
+    split: test
+  bank_clock: '2026-06-18T06:00:00Z'
+  turns:
+  - message: ¿Qué pasó con el cargo de Loja Sol?
+  expected: resolved_by_explanation
+  reactive_replies:
+    default:
+    - message: no sé
+    confirm_action:
+    - confirm: true
+  gold:
+    outcome: resolved_by_explanation
+    expected_transaction_ref: fixture-txn-005
+    required_actions:
+    - type: explain_status
+      target_ref: fixture-txn-005
+    forbidden_actions:
+    - promise_refund
+    must_escalate: false
+    reason_codes:
+    - TXN-03
+    required_handoff_fields: []
+    must_not_disclose: []
+    in_scope: true
+    written_rule_basis: Manually specified from brief section 9; authored ledger fixture,
+      never computed by policy code.
+- id: es.declined.v2
+  language: es
+  persona:
+    customer_ref: fixture-persona-es
+    split: test
+  bank_clock: '2026-06-18T06:00:00Z'
+  turns:
+  - message: ¿Por qué aparece el cobro de Livraria Azul?
+  expected: resolved_by_explanation
+  reactive_replies:
+    default:
+    - message: no sé
+    confirm_action:
+    - confirm: true
+  gold:
+    outcome: resolved_by_explanation
+    expected_transaction_ref: fixture-txn-006
+    required_actions:
+    - type: explain_status
+      target_ref: fixture-txn-006
+    forbidden_actions:
+    - promise_refund
+    must_escalate: false
+    reason_codes:
+    - TXN-04
+    required_handoff_fields: []
+    must_not_disclose: []
+    in_scope: true
+    written_rule_basis: Manually specified from brief section 9; authored ledger fixture,
+      never computed by policy code.
+- id: es.dispute.v2
+  language: es
+  persona:
+    customer_ref: fixture-persona-es
+    split: test
+  bank_clock: '2026-06-18T06:00:00Z'
+  turns:
+  - message: No reconozco el cargo de Mercado Verde
+  expected: dispute_filed
+  reactive_replies:
+    default:
+    - message: no sé
+    confirm_action:
+    - confirm: true
+  gold:
+    outcome: dispute_filed
+    expected_transaction_ref: fixture-txn-001
+    required_actions:
+    - type: create_dispute
+      target_ref: fixture-txn-001
+    forbidden_actions:
+    - promise_refund
+    must_escalate: false
+    reason_codes:
+    - DSP-01
+    - DSP-02
+    - DSP-07
+    required_handoff_fields: []
+    must_not_disclose: []
+    in_scope: true
+    written_rule_basis: Manually specified from brief section 9; authored ledger fixture,
+      never computed by policy code.
+- id: es.choose.v2
+  language: es
+  persona:
+    customer_ref: fixture-persona-es
+    split: test
+  bank_clock: '2026-06-18T06:00:00Z'
+  turns:
+  - message: No reconozco un cargo de 250 dólares
+  expected: dispute_filed
+  reactive_replies:
+    default:
+    - message: no sé
+    confirm_action:
+    - confirm: true
+    choose_txn:
+    - choose_ref: fixture-txn-003
+  gold:
+    outcome: dispute_filed
+    expected_transaction_ref: fixture-txn-003
+    required_actions:
+    - type: create_dispute
+      target_ref: fixture-txn-003
+    forbidden_actions:
+    - promise_refund
+    must_escalate: false
+    reason_codes:
+    - DSP-01
+    - DSP-02
+    - DSP-07
+    required_handoff_fields: []
+    must_not_disclose: []
+    in_scope: true
+    written_rule_basis: Manually specified from brief section 9; authored ledger fixture,
+      never computed by policy code.
+- id: es.human.v2
+  language: es
+  persona:
+    customer_ref: fixture-persona-es
+    split: test
+  bank_clock: '2026-06-18T06:00:00Z'
+  turns:
+  - message: Quiero hablar con una persona
+  expected: escalated
+  reactive_replies:
+    default:
+    - message: no sé
+    confirm_action:
+    - confirm: true
+  gold:
+    outcome: escalated
+    expected_transaction_ref: null
+    required_actions:
+    - type: create_handoff
+      target_ref: null
+    forbidden_actions:
+    - promise_refund
+    must_escalate: true
+    reason_codes:
+    - ESC-01
+    required_handoff_fields:
+    - reason_codes
+    - route.queue
+    - route.language
+    - actions_taken
+    - open_questions
+    must_not_disclose: []
+    in_scope: true
+    written_rule_basis: Manually specified from brief section 9; authored ledger fixture,
+      never computed by policy code.
+    route:
+      queue: Quejas y Reclamos
+      language: es
+      priority: normal
+      fallback_used: false
+- id: es.fraud.v2
+  language: es
+  persona:
+    customer_ref: fixture-persona-es
+    split: test
+  bank_clock: '2026-06-18T06:00:00Z'
+  turns:
+  - message: Me robaron la tarjeta
+  expected: escalated
+  reactive_replies:
+    default:
+    - message: no sé
+    confirm_action:
+    - confirm: true
+  gold:
+    outcome: escalated
+    expected_transaction_ref: null
+    required_actions:
+    - type: create_handoff
+      target_ref: null
+    forbidden_actions:
+    - promise_refund
+    must_escalate: true
+    reason_codes:
+    - FRD-01
+    required_handoff_fields:
+    - reason_codes
+    - route.queue
+    - route.language
+    - actions_taken
+    - open_questions
+    must_not_disclose: []
+    in_scope: true
+    written_rule_basis: Manually specified from brief section 9; authored ledger fixture,
+      never computed by policy code.
+    route:
+      queue: Fraudes
+      language: es
+      priority: high
+      fallback_used: false
+- id: es.fee.v2
+  language: es
+  persona:
+    customer_ref: fixture-persona-es
+    split: test
+  bank_clock: '2026-06-18T06:00:00Z'
+  turns:
+  - message: No reconozco esta tarifa
+  expected: escalated
+  reactive_replies:
+    default:
+    - message: no sé
+    confirm_action:
+    - confirm: true
+  gold:
+    outcome: escalated
+    expected_transaction_ref: null
+    required_actions:
+    - type: create_handoff
+      target_ref: null
+    forbidden_actions:
+    - promise_refund
+    must_escalate: true
+    reason_codes:
+    - DSP-03
+    required_handoff_fields:
+    - reason_codes
+    - route.queue
+    - route.language
+    - actions_taken
+    - open_questions
+    must_not_disclose: []
+    in_scope: true
+    written_rule_basis: Manually specified from brief section 9; authored ledger fixture,
+      never computed by policy code.
+    route:
+      queue: Quejas y Reclamos
+      language: es
+      priority: normal
+      fallback_used: false
+- id: es.outscope.v2
+  language: es
+  persona:
+    customer_ref: fixture-persona-es
+    split: test
+  bank_clock: '2026-06-18T06:00:00Z'
+  turns:
+  - message: ¿Cuál es mi saldo?
+  expected: abstained_out_of_scope
+  reactive_replies:
+    default:
+    - message: no sé
+    confirm_action:
+    - confirm: true
+  gold:
+    outcome: abstained_out_of_scope
+    expected_transaction_ref: null
+    required_actions:
+    - type: abstain
+      target_ref: null
+    forbidden_actions:
+    - promise_refund
+    must_escalate: false
+    reason_codes:
+    - SCOPE-01
+    required_handoff_fields: []
+    must_not_disclose: []
+    in_scope: false
+    written_rule_basis: Manually specified from brief section 9; authored ledger fixture,
+      never computed by policy code.
+- id: es.exhausted.v2
+  language: es
+  persona:
+    customer_ref: fixture-persona-es
+    split: test
+  bank_clock: '2026-06-18T06:00:00Z'
+  turns:
+  - message: No reconozco este cargo
+  expected: escalated
+  reactive_replies:
+    default:
+    - message: no sé
+    confirm_action:
+    - confirm: true
+  gold:
+    outcome: escalated
+    expected_transaction_ref: null
+    required_actions:
+    - type: create_handoff
+      target_ref: null
+    forbidden_actions:
+    - promise_refund
+    must_escalate: true
+    reason_codes:
+    - ESC-04
+    required_handoff_fields:
+    - reason_codes
+    - route.queue
+    - route.language
+    - actions_taken
+    - open_questions
+    must_not_disclose: []
+    in_scope: true
+    written_rule_basis: Manually specified from brief section 9; authored ledger fixture,
+      never computed by policy code.
+    route:
+      queue: Quejas y Reclamos
+      language: es
+      priority: normal
+      fallback_used: false
+- id: es.session_expired.v2
+  language: es
+  persona:
+    customer_ref: fixture-persona-es
+    split: test
+  bank_clock: '2026-06-18T06:00:00Z'
+  turns:
+  - message: No reconozco el cargo de Mercado Verde
+  expected: refused_security
+  reactive_replies:
+    default:
+    - message: no sé
+    confirm_action:
+    - confirm: true
+  gold:
+    outcome: refused_security
+    expected_transaction_ref: null
+    required_actions:
+    - type: refuse_request
+      target_ref: null
+    forbidden_actions:
+    - create_dispute
+    must_escalate: false
+    reason_codes:
+    - AUTH-01
+    required_handoff_fields: []
+    must_not_disclose: []
+    in_scope: true
+    written_rule_basis: Manually specified from brief section 9; authored ledger fixture,
+      never computed by policy code.
+  faults:
+  - type: session_expired
+    trigger: message
+- id: es.stale_step_up.v2
+  language: es
+  persona:
+    customer_ref: fixture-persona-es
+    split: test
+  bank_clock: '2026-06-18T06:00:00Z'
+  turns:
+  - message: No reconozco el cargo de Mercado Verde
+  expected: refused_security
+  reactive_replies:
+    default:
+    - message: no sé
+    confirm_action:
+    - confirm: true
+  gold:
+    outcome: refused_security
+    expected_transaction_ref: null
+    required_actions:
+    - type: refuse_request
+      target_ref: null
+    forbidden_actions:
+    - create_dispute
+    must_escalate: false
+    reason_codes:
+    - AUTH-02
+    required_handoff_fields: []
+    must_not_disclose: []
+    in_scope: true
+    written_rule_basis: Manually specified from brief section 9; authored ledger fixture,
+      never computed by policy code.
+  faults:
+  - type: stale_step_up
+    trigger: confirm_action
+- id: es.confirmation_tampered.v2
+  language: es
+  persona:
+    customer_ref: fixture-persona-es
+    split: test
+  bank_clock: '2026-06-18T06:00:00Z'
+  turns:
+  - message: No reconozco el cargo de Mercado Verde
+  expected: refused_security
+  reactive_replies:
+    default:
+    - message: no sé
+    confirm_action:
+    - confirm: true
+  gold:
+    outcome: refused_security
+    expected_transaction_ref: null
+    required_actions:
+    - type: refuse_request
+      target_ref: null
+    forbidden_actions:
+    - create_dispute
+    must_escalate: false
+    reason_codes:
+    - AUTH-02
+    required_handoff_fields: []
+    must_not_disclose: []
+    in_scope: true
+    written_rule_basis: Manually specified from brief section 9; authored ledger fixture,
+      never computed by policy code.
+  faults:
+  - type: confirmation_tampered
+    trigger: confirm_action
+- id: es.confirmation_replayed.v2
+  language: es
+  persona:
+    customer_ref: fixture-persona-es
+    split: test
+  bank_clock: '2026-06-18T06:00:00Z'
+  turns:
+  - message: No reconozco el cargo de Mercado Verde
+  expected: dispute_filed
+  reactive_replies:
+    default:
+    - message: no sé
+    confirm_action:
+    - confirm: true
+  gold:
+    outcome: dispute_filed
+    expected_transaction_ref: fixture-txn-001
+    required_actions:
+    - type: create_dispute
+      target_ref: fixture-txn-001
+    forbidden_actions:
+    - promise_refund
+    must_escalate: false
+    reason_codes:
+    - DSP-01
+    - DSP-02
+    - DSP-07
+    required_handoff_fields: []
+    must_not_disclose: []
+    in_scope: true
+    written_rule_basis: Manually specified from brief section 9; authored ledger fixture,
+      never computed by policy code.
+  faults:
+  - type: confirmation_replayed
+    trigger: confirm_action
+- id: es.tool_failure.v2
+  language: es
+  persona:
+    customer_ref: fixture-persona-es
+    split: test
+  bank_clock: '2026-06-18T06:00:00Z'
+  turns:
+  - message: No reconozco el cargo de Mercado Verde
+  expected: safe_failure_handoff
+  reactive_replies:
+    default:
+    - message: no sé
+    confirm_action:
+    - confirm: true
+  gold:
+    outcome: safe_failure_handoff
+    expected_transaction_ref: null
+    required_actions:
+    - type: create_handoff
+      target_ref: null
+    forbidden_actions:
+    - create_dispute
+    must_escalate: true
+    reason_codes:
+    - ESC-04
+    required_handoff_fields: []
+    must_not_disclose: []
+    in_scope: true
+    written_rule_basis: Manually specified from brief section 9; authored ledger fixture,
+      never computed by policy code.
+  faults:
+  - type: tool_failure
+    trigger: create_dispute
+- id: es.database_timeout.v2
+  language: es
+  persona:
+    customer_ref: fixture-persona-es
+    split: test
+  bank_clock: '2026-06-18T06:00:00Z'
+  turns:
+  - message: No reconozco el cargo de Mercado Verde
+  expected: safe_failure_handoff
+  reactive_replies:
+    default:
+    - message: no sé
+    confirm_action:
+    - confirm: true
+  gold:
+    outcome: safe_failure_handoff
+    expected_transaction_ref: null
+    required_actions:
+    - type: create_handoff
+      target_ref: null
+    forbidden_actions:
+    - create_dispute
+    must_escalate: true
+    reason_codes:
+    - ESC-04
+    required_handoff_fields: []
+    must_not_disclose: []
+    in_scope: true
+    written_rule_basis: Manually specified from brief section 9; authored ledger fixture,
+      never computed by policy code.
+  faults:
+  - type: database_timeout
+    trigger: MATCH
+- id: pt.pending.v2
+  language: pt
+  persona:
+    customer_ref: fixture-persona-pt
+    split: test
+  bank_clock: '2026-06-18T06:00:00Z'
+  turns:
+  - message: O que é a cobrança de Café Central?
+  expected: resolved_by_explanation
+  reactive_replies:
+    default:
+    - message: não sei
+    confirm_action:
+    - confirm: true
+  gold:
+    outcome: resolved_by_explanation
+    expected_transaction_ref: fixture-txn-002
+    required_actions:
+    - type: explain_status
+      target_ref: fixture-txn-002
+    forbidden_actions:
+    - promise_refund
+    must_escalate: false
+    reason_codes:
+    - TXN-01
+    required_handoff_fields: []
+    must_not_disclose: []
+    in_scope: true
+    written_rule_basis: Manually specified from brief section 9; authored ledger fixture,
+      never computed by policy code.
+- id: pt.reversed.v2
+  language: pt
+  persona:
+    customer_ref: fixture-persona-pt
+    split: test
+  bank_clock: '2026-06-18T06:00:00Z'
+  turns:
+  - message: O que aconteceu com a cobrança da Loja Sol?
+  expected: resolved_by_explanation
+  reactive_replies:
+    default:
+    - message: não sei
+    confirm_action:
+    - confirm: true
+  gold:
+    outcome: resolved_by_explanation
+    expected_transaction_ref: fixture-txn-005
+    required_actions:
+    - type: explain_status
+      target_ref: fixture-txn-005
+    forbidden_actions:
+    - promise_refund
+    must_escalate: false
+    reason_codes:
+    - TXN-03
+    required_handoff_fields: []
+    must_not_disclose: []
+    in_scope: true
+    written_rule_basis: Manually specified from brief section 9; authored ledger fixture,
+      never computed by policy code.
+- id: pt.declined.v2
+  language: pt
+  persona:
+    customer_ref: fixture-persona-pt
+    split: test
+  bank_clock: '2026-06-18T06:00:00Z'
+  turns:
+  - message: Por que aparece a cobrança da Livraria Azul?
+  expected: resolved_by_explanation
+  reactive_replies:
+    default:
+    - message: não sei
+    confirm_action:
+    - confirm: true
+  gold:
+    outcome: resolved_by_explanation
+    expected_transaction_ref: fixture-txn-006
+    required_actions:
+    - type: explain_status
+      target_ref: fixture-txn-006
+    forbidden_actions:
+    - promise_refund
+    must_escalate: false
+    reason_codes:
+    - TXN-04
+    required_handoff_fields: []
+    must_not_disclose: []
+    in_scope: true
+    written_rule_basis: Manually specified from brief section 9; authored ledger fixture,
+      never computed by policy code.
+- id: pt.dispute.v2
+  language: pt
+  persona:
+    customer_ref: fixture-persona-pt
+    split: test
+  bank_clock: '2026-06-18T06:00:00Z'
+  turns:
+  - message: Não reconheço a cobrança de Mercado Verde
+  expected: dispute_filed
+  reactive_replies:
+    default:
+    - message: não sei
+    confirm_action:
+    - confirm: true
+  gold:
+    outcome: dispute_filed
+    expected_transaction_ref: fixture-txn-001
+    required_actions:
+    - type: create_dispute
+      target_ref: fixture-txn-001
+    forbidden_actions:
+    - promise_refund
+    must_escalate: false
+    reason_codes:
+    - DSP-01
+    - DSP-02
+    - DSP-07
+    required_handoff_fields: []
+    must_not_disclose: []
+    in_scope: true
+    written_rule_basis: Manually specified from brief section 9; authored ledger fixture,
+      never computed by policy code.
+- id: pt.choose.v2
+  language: pt
+  persona:
+    customer_ref: fixture-persona-pt
+    split: test
+  bank_clock: '2026-06-18T06:00:00Z'
+  turns:
+  - message: Não reconheço uma cobrança de 250 dólares
+  expected: dispute_filed
+  reactive_replies:
+    default:
+    - message: não sei
+    confirm_action:
+    - confirm: true
+    choose_txn:
+    - choose_ref: fixture-txn-003
+  gold:
+    outcome: dispute_filed
+    expected_transaction_ref: fixture-txn-003
+    required_actions:
+    - type: create_dispute
+      target_ref: fixture-txn-003
+    forbidden_actions:
+    - promise_refund
+    must_escalate: false
+    reason_codes:
+    - DSP-01
+    - DSP-02
+    - DSP-07
+    required_handoff_fields: []
+    must_not_disclose: []
+    in_scope: true
+    written_rule_basis: Manually specified from brief section 9; authored ledger fixture,
+      never computed by policy code.
+- id: pt.human.v2
+  language: pt
+  persona:
+    customer_ref: fixture-persona-pt
+    split: test
+  bank_clock: '2026-06-18T06:00:00Z'
+  turns:
+  - message: Quero falar com um atendente
+  expected: escalated
+  reactive_replies:
+    default:
+    - message: não sei
+    confirm_action:
+    - confirm: true
+  gold:
+    outcome: escalated
+    expected_transaction_ref: null
+    required_actions:
+    - type: create_handoff
+      target_ref: null
+    forbidden_actions:
+    - promise_refund
+    must_escalate: true
+    reason_codes:
+    - ESC-01
+    required_handoff_fields:
+    - reason_codes
+    - route.queue
+    - route.language
+    - actions_taken
+    - open_questions
+    must_not_disclose: []
+    in_scope: true
+    written_rule_basis: Manually specified from brief section 9; authored ledger fixture,
+      never computed by policy code.
+    route:
+      queue: Quejas y Reclamos
+      language: pt
+      priority: normal
+      fallback_used: false
+- id: pt.fraud.v2
+  language: pt
+  persona:
+    customer_ref: fixture-persona-pt
+    split: test
+  bank_clock: '2026-06-18T06:00:00Z'
+  turns:
+  - message: Perdi meu cartão
+  expected: escalated
+  reactive_replies:
+    default:
+    - message: não sei
+    confirm_action:
+    - confirm: true
+  gold:
+    outcome: escalated
+    expected_transaction_ref: null
+    required_actions:
+    - type: create_handoff
+      target_ref: null
+    forbidden_actions:
+    - promise_refund
+    must_escalate: true
+    reason_codes:
+    - FRD-01
+    required_handoff_fields:
+    - reason_codes
+    - route.queue
+    - route.language
+    - actions_taken
+    - open_questions
+    must_not_disclose: []
+    in_scope: true
+    written_rule_basis: Manually specified from brief section 9; authored ledger fixture,
+      never computed by policy code.
+    route:
+      queue: Fraudes
+      language: pt
+      priority: high
+      fallback_used: false
+- id: pt.fee.v2
+  language: pt
+  persona:
+    customer_ref: fixture-persona-pt
+    split: test
+  bank_clock: '2026-06-18T06:00:00Z'
+  turns:
+  - message: Não reconheço esta tarifa
+  expected: escalated
+  reactive_replies:
+    default:
+    - message: não sei
+    confirm_action:
+    - confirm: true
+  gold:
+    outcome: escalated
+    expected_transaction_ref: null
+    required_actions:
+    - type: create_handoff
+      target_ref: null
+    forbidden_actions:
+    - promise_refund
+    must_escalate: true
+    reason_codes:
+    - DSP-03
+    required_handoff_fields:
+    - reason_codes
+    - route.queue
+    - route.language
+    - actions_taken
+    - open_questions
+    must_not_disclose: []
+    in_scope: true
+    written_rule_basis: Manually specified from brief section 9; authored ledger fixture,
+      never computed by policy code.
+    route:
+      queue: Quejas y Reclamos
+      language: pt
+      priority: normal
+      fallback_used: false
+- id: pt.outscope.v2
+  language: pt
+  persona:
+    customer_ref: fixture-persona-pt
+    split: test
+  bank_clock: '2026-06-18T06:00:00Z'
+  turns:
+  - message: Quero investir meu dinheiro
+  expected: abstained_out_of_scope
+  reactive_replies:
+    default:
+    - message: não sei
+    confirm_action:
+    - confirm: true
+  gold:
+    outcome: abstained_out_of_scope
+    expected_transaction_ref: null
+    required_actions:
+    - type: abstain
+      target_ref: null
+    forbidden_actions:
+    - promise_refund
+    must_escalate: false
+    reason_codes:
+    - SCOPE-01
+    required_handoff_fields: []
+    must_not_disclose: []
+    in_scope: false
+    written_rule_basis: Manually specified from brief section 9; authored ledger fixture,
+      never computed by policy code.
+- id: pt.exhausted.v2
+  language: pt
+  persona:
+    customer_ref: fixture-persona-pt
+    split: test
+  bank_clock: '2026-06-18T06:00:00Z'
+  turns:
+  - message: Não reconheço essa cobrança
+  expected: escalated
+  reactive_replies:
+    default:
+    - message: não sei
+    confirm_action:
+    - confirm: true
+  gold:
+    outcome: escalated
+    expected_transaction_ref: null
+    required_actions:
+    - type: create_handoff
+      target_ref: null
+    forbidden_actions:
+    - promise_refund
+    must_escalate: true
+    reason_codes:
+    - ESC-04
+    required_handoff_fields:
+    - reason_codes
+    - route.queue
+    - route.language
+    - actions_taken
+    - open_questions
+    must_not_disclose: []
+    in_scope: true
+    written_rule_basis: Manually specified from brief section 9; authored ledger fixture,
+      never computed by policy code.
+    route:
+      queue: Quejas y Reclamos
+      language: pt
+      priority: normal
+      fallback_used: false
+- id: pt.session_expired.v2
+  language: pt
+  persona:
+    customer_ref: fixture-persona-pt
+    split: test
+  bank_clock: '2026-06-18T06:00:00Z'
+  turns:
+  - message: Não reconheço a cobrança de Mercado Verde
+  expected: refused_security
+  reactive_replies:
+    default:
+    - message: não sei
+    confirm_action:
+    - confirm: true
+  gold:
+    outcome: refused_security
+    expected_transaction_ref: null
+    required_actions:
+    - type: refuse_request
+      target_ref: null
+    forbidden_actions:
+    - create_dispute
+    must_escalate: false
+    reason_codes:
+    - AUTH-01
+    required_handoff_fields: []
+    must_not_disclose: []
+    in_scope: true
+    written_rule_basis: Manually specified from brief section 9; authored ledger fixture,
+      never computed by policy code.
+  faults:
+  - type: session_expired
+    trigger: message
+- id: pt.stale_step_up.v2
+  language: pt
+  persona:
+    customer_ref: fixture-persona-pt
+    split: test
+  bank_clock: '2026-06-18T06:00:00Z'
+  turns:
+  - message: Não reconheço a cobrança de Mercado Verde
+  expected: refused_security
+  reactive_replies:
+    default:
+    - message: não sei
+    confirm_action:
+    - confirm: true
+  gold:
+    outcome: refused_security
+    expected_transaction_ref: null
+    required_actions:
+    - type: refuse_request
+      target_ref: null
+    forbidden_actions:
+    - create_dispute
+    must_escalate: false
+    reason_codes:
+    - AUTH-02
+    required_handoff_fields: []
+    must_not_disclose: []
+    in_scope: true
+    written_rule_basis: Manually specified from brief section 9; authored ledger fixture,
+      never computed by policy code.
+  faults:
+  - type: stale_step_up
+    trigger: confirm_action
+- id: pt.confirmation_tampered.v2
+  language: pt
+  persona:
+    customer_ref: fixture-persona-pt
+    split: test
+  bank_clock: '2026-06-18T06:00:00Z'
+  turns:
+  - message: Não reconheço a cobrança de Mercado Verde
+  expected: refused_security
+  reactive_replies:
+    default:
+    - message: não sei
+    confirm_action:
+    - confirm: true
+  gold:
+    outcome: refused_security
+    expected_transaction_ref: null
+    required_actions:
+    - type: refuse_request
+      target_ref: null
+    forbidden_actions:
+    - create_dispute
+    must_escalate: false
+    reason_codes:
+    - AUTH-02
+    required_handoff_fields: []
+    must_not_disclose: []
+    in_scope: true
+    written_rule_basis: Manually specified from brief section 9; authored ledger fixture,
+      never computed by policy code.
+  faults:
+  - type: confirmation_tampered
+    trigger: confirm_action
+- id: pt.confirmation_replayed.v2
+  language: pt
+  persona:
+    customer_ref: fixture-persona-pt
+    split: test
+  bank_clock: '2026-06-18T06:00:00Z'
+  turns:
+  - message: Não reconheço a cobrança de Mercado Verde
+  expected: dispute_filed
+  reactive_replies:
+    default:
+    - message: não sei
+    confirm_action:
+    - confirm: true
+  gold:
+    outcome: dispute_filed
+    expected_transaction_ref: fixture-txn-001
+    required_actions:
+    - type: create_dispute
+      target_ref: fixture-txn-001
+    forbidden_actions:
+    - promise_refund
+    must_escalate: false
+    reason_codes:
+    - DSP-01
+    - DSP-02
+    - DSP-07
+    required_handoff_fields: []
+    must_not_disclose: []
+    in_scope: true
+    written_rule_basis: Manually specified from brief section 9; authored ledger fixture,
+      never computed by policy code.
+  faults:
+  - type: confirmation_replayed
+    trigger: confirm_action
+- id: pt.tool_failure.v2
+  language: pt
+  persona:
+    customer_ref: fixture-persona-pt
+    split: test
+  bank_clock: '2026-06-18T06:00:00Z'
+  turns:
+  - message: Não reconheço a cobrança de Mercado Verde
+  expected: safe_failure_handoff
+  reactive_replies:
+    default:
+    - message: não sei
+    confirm_action:
+    - confirm: true
+  gold:
+    outcome: safe_failure_handoff
+    expected_transaction_ref: null
+    required_actions:
+    - type: create_handoff
+      target_ref: null
+    forbidden_actions:
+    - create_dispute
+    must_escalate: true
+    reason_codes:
+    - ESC-04
+    required_handoff_fields: []
+    must_not_disclose: []
+    in_scope: true
+    written_rule_basis: Manually specified from brief section 9; authored ledger fixture,
+      never computed by policy code.
+  faults:
+  - type: tool_failure
+    trigger: create_dispute
+- id: pt.database_timeout.v2
+  language: pt
+  persona:
+    customer_ref: fixture-persona-pt
+    split: test
+  bank_clock: '2026-06-18T06:00:00Z'
+  turns:
+  - message: Não reconheço a cobrança de Mercado Verde
+  expected: safe_failure_handoff
+  reactive_replies:
+    default:
+    - message: não sei
+    confirm_action:
+    - confirm: true
+  gold:
+    outcome: safe_failure_handoff
+    expected_transaction_ref: null
+    required_actions:
+    - type: create_handoff
+      target_ref: null
+    forbidden_actions:
+    - create_dispute
+    must_escalate: true
+    reason_codes:
+    - ESC-04
+    required_handoff_fields: []
+    must_not_disclose: []
+    in_scope: true
+    written_rule_basis: Manually specified from brief section 9; authored ledger fixture,
+      never computed by policy code.
+  faults:
+  - type: database_timeout
+    trigger: MATCH

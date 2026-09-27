@@ -12,7 +12,9 @@ from typing import Any
 import yaml
 from httpx import ASGITransport, AsyncClient
 
+from aclara.agent.runtime import Runtime
 from aclara.api.app import create_app
+from aclara.bank.repository import TransactionRepository
 from aclara.evals.schema import ScenarioSuite
 from aclara.settings import Settings
 
@@ -21,16 +23,25 @@ ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_SCENARIOS = ROOT / "evals" / "dev_scenarios.yaml"
 
 
-async def _new_authenticated_client() -> tuple[Any, AsyncClient, str, str]:
+async def _new_authenticated_client(
+    settings: Settings | None = None,
+    repository: TransactionRepository | None = None,
+    runtime: Runtime | None = None,
+) -> tuple[Any, AsyncClient, str, str]:
     username = "dev.persona"
     password = secrets.token_urlsafe(32)
     app = create_app(
-        Settings(
+        settings
+        or Settings(
             demo_username=username,
             demo_password=password,
             llm_provider="mock",
-        )
+        ),
+        repository,
+        runtime,
     )
+    username = app.state.settings.demo_username
+    password = app.state.settings.demo_password
     client = AsyncClient(transport=ASGITransport(app=app), base_url="http://testserver")
     login = await client.post("/auth/login", json={"username": username, "password": password})
     if login.status_code != 200:
@@ -143,6 +154,51 @@ async def verify_scope_and_confirmation_guards() -> bool:
 
 async def async_main(args: argparse.Namespace) -> int:
     payload = yaml.safe_load(args.scenarios.read_text(encoding="utf-8"))
+    if payload.get("version") == 2:
+        import json
+
+        import jsonschema
+
+        from evals.metrics import aggregate
+        from evals.reactive import execute, write_results
+
+        schema = json.loads((ROOT / "contracts/interfaces/scenario-suite.schema.json").read_text())
+        jsonschema.validate(payload, schema, format_checker=jsonschema.FormatChecker())
+        ids = [s["id"] for s in payload["scenarios"]]
+        if len(ids) != len(set(ids)):
+            raise ValueError("Scenario IDs must be unique")
+        cases = [
+            await execute(s, args.system, repeat, payload.get("bank_clock"))
+            for repeat in range(args.repeats)
+            for s in payload["scenarios"]
+        ]
+        assert len({c["run_id"] for c in cases}) == len(cases)
+        prices = yaml.safe_load((ROOT / "config/pricing.yaml").read_text())
+        report = aggregate(
+            cases,
+            {
+                "workload": payload["description"],
+                "system": args.system,
+                "model": args.model,
+                "prompt_versions": args.prompt_versions,
+                "tag": args.tag,
+                "cost_assumptions": "Mock calls cost USD 0; infrastructure excluded",
+                "price_table_date": str(prices.get("as_of", "2026-09-26")),
+                "monthly_infrastructure_estimate_usd": 34.63,
+                "policy_version": "layer1",
+                "matcher_version": "rules",
+                "dataset_version": payload.get("dataset_version", "authored-fixtures"),
+            },
+        )
+        write_results(args.output, cases, report)
+        LOGGER.info(
+            "%s v2: cases=%d passed=%d; aggregates: %s",
+            args.system,
+            len(cases),
+            report["passed"],
+            args.output / "results.json",
+        )
+        return 0 if report["passed"] == len(cases) else 1
     suite = ScenarioSuite.model_validate(payload)
     scenarios = [scenario.model_dump(mode="python") for scenario in suite.scenarios]
     passed = 0
@@ -171,9 +227,23 @@ async def async_main(args: argparse.Namespace) -> int:
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--system", choices=("B1",), default="B1")
+    parser.add_argument("--system", choices=("B1", "P"), default="B1")
     parser.add_argument("--scenarios", type=Path, default=DEFAULT_SCENARIOS)
+    parser.add_argument("--model", default="mock")
+    parser.add_argument("--prompt-versions", default="nlu@v1,phrase@v1")
+    parser.add_argument("--repeats", type=int, default=1)
+    parser.add_argument("--budget-usd", type=float, default=0)
+    parser.add_argument("--tag", default="working-tree")
+    parser.add_argument("--output", type=Path, default=ROOT / "artifacts/evaluation")
     args = parser.parse_args()
+    if args.model != "mock" or args.budget_usd != 0:
+        parser.error(
+            "This local workload runs mock only; real-model evaluation requires separate owner-approved setup"
+        )
+    if args.repeats < 1:
+        parser.error("repeats must be positive")
+    if not args.output.resolve().is_relative_to((ROOT / "artifacts").resolve()):
+        parser.error("Evaluation records must stay in ignored artifacts/")
     logging.basicConfig(level=logging.INFO, format="%(message)s")
     logging.getLogger("httpx").setLevel(logging.WARNING)
     return asyncio.run(async_main(args))

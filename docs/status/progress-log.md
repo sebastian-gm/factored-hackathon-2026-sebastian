@@ -123,3 +123,20 @@ The local Compose stack is left running for review.
 - Current release input and control readback are available through ignored `infra/terraform.tfvars` and `artifacts/azure/verified.json`. Do not print the private inputs.
 
 For the next session: **Continue from docs/status/progress-log.md. Next layer: durable operational state and resilience. Same rules.**
+
+## Lead integration — 2026-09-26/27 (in progress)
+
+### Completed-verified
+
+- Re-read amended `04-lead-next.md`; durable operations and hash-chained audit follow matcher integration. Fresh Azure control readback and API health passed before lane work.
+- Reviewed and merged PRs #4, #6 and #9 in order after green PR checks; main CI and safety passed at each lane merge. Resolved dependency/documentation conflicts, preserved both extras, and repaired v2 schema export while retaining all v1 definitions.
+- Data/ML optional fixture tests passed locally (33 tests before schema addition; Postgres owner-DSN test skipped). No organizer pipeline rerun or model call was performed.
+- Reactive evaluation adds isolated run IDs, clocks, fixture personas, response-keyed customer replies, fault injection, independent gold scoring and aggregate reporting. Found and fixed candidate follow-up routing and language preservation. Verification counts and remaining work will be finalized after integration.
+
+### Done-not-verified
+
+- New operational persistence, learned matcher and P orchestration are not yet integrated. The deployed revision remains the prior main.
+
+### Next-blocked
+
+- Continue tasks 3–7 in order; retain mock provider. No additional approval is needed for the authorized restricted redeployment. Real-model calls still need a priced proposal and approval.
