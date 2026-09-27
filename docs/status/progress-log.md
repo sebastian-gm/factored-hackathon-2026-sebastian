@@ -5,6 +5,15 @@ This summary supersedes earlier task lists. Earlier release evidence remains in 
 
 ## Completed-verified
 
+### Matcher v2 follow-up — 2026-09-27 UTC
+
+- Implemented versioned choice-first decisions while retaining v1 behavior; added deterministic sparse-language synthetic variants and a train/validation-only v2 training entry point. The [v2 protocol](../ml/matcher-v2-protocol.md) fixes noise, cost preferences, selection grids and test/human access order before fitting.
+- Ten matcher/MatchState checks passed, including scoped retrieval, legacy behavior, low-existence choice fallback, all-low/empty abstention, literal-format noise and evaluator/export policy consistency. Ruff and strict mypy passed. No frozen held-out scenario-suite access or paid calls in this implementation stage.
+- Trained v2 on 18,000 synthetic train / 9,000 validation queries using 20 seeded trials. Froze the model at 05:03:59 UTC before synthetic-test/human access; verified exact code/export hashes and v1 artifact bytes unchanged. Synthetic 3,000-case wrong proposals fell 30→13 under identical serving features and the v2 cost table. Sparse-language diagnostics and their generator limitations are in the [v2 model card](../ml/model-card-charge-matcher-v2.md).
+- Ran the single authorized human after-check: nine valid Gemini calls, no retries/fallbacks, **US$0.009762**. On identical fresh NLU slots, v1 returned nine no-matches; v2 returned six correct proposals, two choices containing the target and one no-match. Target top-1 was 9/9 for v2 versus 6/9 for v1. No post-check tuning. Original gold plus the existing separator erratum, recollection bytes and v1 reports remain unchanged.
+- Verified zero overlap between human customers and the actual v2 fitting splits; wrote and read back all nine private before/after cases, billing, frozen inputs and manifests under ignored artifacts. No frozen held-out scenario-suite access or card values in Git.
+- Final local regression: **123 passed, 9 database-dependent skips**, including **11 matcher checks**; Ruff, strict mypy and all pre-commit hooks passed. Verified 15 local documentation links, serving-boundary loading/ownership denial, exact training/protocol hashes, v2 checksums and unchanged v1 artifact bytes.
+
 ### Safety and resolution (tasks 1–2)
 
 - Read handoff 08 fully and followed its order. PR #25 merged after all four gates passed. No credential-bearing organizer document was opened, no organizer rows/secrets entered Git or CI, and no real-model call ran.
@@ -53,12 +62,14 @@ This summary supersedes earlier task lists. Earlier release evidence remains in 
 
 ## Done-not-verified
 
+- Matcher v2: application integration and final evaluation remain unverified. NLU intent errors and abbreviation parsing persist; one human target remains rejected by the preselected very-low-score floor. These small, synthetic-card diagnostics do not establish production accuracy or complete agent safety.
 - Frozen acceptance after these fixes remains unknown; the preserved run-01 failure is the only full-suite result. Human labels, Spanish owner review and fluent Portuguese review remain pending. PT/dialect phrases are model-authored; prior cross-vendor authoring checks do not replace human review.
 - No lead real-model comparison, selected default or different-vendor judge run. Keep `LLM_PROVIDER=mock`. Durable model spend accounting remains future work.
 - Azure PITR/regional DR, realistic-volume restore, automatic retention, sustained concurrency, actual charges and budget-email delivery are unverified. Tiny local restore evidence remains in [recovery report](../ops-recovery.md).
 
 ## Next-blocked
 
+- Matcher v2: lead must integrate the new artifact and policy dispatch before the final run, preserving confirmation and rejection of all offered choices. Keep the frozen v1/v2 results; investigate remaining language gaps on independent development cases. This lane leaves orchestration and the frozen suite untouched.
 - Next layer after this release: provider comparison on the independent dev suite, broader independently authored language cases and human review. Show the cost estimate and wait for Sebastian's go before any real-model run. No cloud expansion, access broadening or estimate above US$40/month is authorized.
 - Reserve the one remaining full held-out diagnostic; log every access, preserve frozen bytes and publish only aggregates. The final evaluation must use organizer serving source and declared overlays.
 

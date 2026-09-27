@@ -62,11 +62,39 @@ def decisions(
     ]
 
 
+def choice_first_decisions(
+    top_probability: Array,
+    exists_probability: Array,
+    maximum_scores: Array,
+    thresholds: dict[str, float],
+) -> list[str]:
+    """V2: abstain only on uniformly tiny ranking scores, otherwise offer a choice.
+
+    Calibrated existence gates proposals, never the choice fallback. Empty sets
+    are handled by the caller. A zero floor disables nonempty-set abstention.
+    """
+    return [
+        "none"
+        if maximum < thresholds["raw_score_floor"]
+        else "propose"
+        if top >= thresholds["auto"] and exists >= thresholds["propose_exists"]
+        else "choose"
+        for top, exists, maximum in zip(
+            top_probability, exists_probability, maximum_scores, strict=True
+        )
+    ]
+
+
 class Matcher:
     def __init__(self, artifact: Path) -> None:
         self.parameters: dict[str, Any] = json.loads((artifact / "model.json").read_text())
         if self.parameters["features"] != list(FEATURES):
             raise ValueError("matcher feature contract changed")
+        if self.parameters.get("decision_policy", "legacy_v1") not in {
+            "legacy_v1",
+            "choice_first_v2",
+        }:
+            raise ValueError("unknown matcher decision policy")
         self.booster: Any = None
         if self.parameters["model"] == "lightgbm":
             from lightgbm import Booster
@@ -101,9 +129,17 @@ class Matcher:
                 self.parameters["exists_calibration"],
             )[0]
         )
-        action = decisions(np.asarray([top]), np.asarray([exists]), self.parameters["thresholds"])[
-            0
-        ]
+        if self.parameters.get("decision_policy") == "choice_first_v2":
+            action = choice_first_decisions(
+                np.asarray([top]),
+                np.asarray([exists]),
+                np.asarray([float(np.max(scores))]),
+                self.parameters["thresholds"],
+            )[0]
+        else:
+            action = decisions(
+                np.asarray([top]), np.asarray([exists]), self.parameters["thresholds"]
+            )[0]
         order = np.argsort(-scores, kind="stable")
         chosen = (
             tuple(transaction_ids[int(index)] for index in order[: 1 if action == "propose" else 3])
