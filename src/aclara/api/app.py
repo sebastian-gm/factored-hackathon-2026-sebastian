@@ -39,6 +39,7 @@ from aclara.handoff.packet import create_packet
 from aclara.llm.client import StructuredClient
 from aclara.ops.store import Scope, Store
 from aclara.policy.engine import PolicyDecision, evaluate
+from aclara.policy.rules import catalog, rule
 from aclara.settings import Settings
 
 
@@ -210,6 +211,7 @@ def create_app(
     app.state.runtime = runtime or Runtime(system=active_settings.agent_system)
     ai = AgentAI(active_settings, app.state.runtime, llm_client)
     app.state.ai = ai
+    app.state.instance_id = str(uuid4())
     app.state.settings = active_settings
     app.state.ledger = ledger
     operational = store or Store(
@@ -242,7 +244,7 @@ def create_app(
             "events": events,
             "outcome": result["outcome"],
             "response": result,
-            "policy_version": "layer1",
+            "policy_version": catalog()[0],
             "system": app.state.runtime.system,
         }
         app.state.turns[record_id] = {
@@ -283,6 +285,8 @@ def create_app(
             "status": "ok",
             "service": "aclara-api",
             "llm_provider": active_settings.llm_provider,
+            "instance_id": app.state.instance_id,
+            "storage": "postgres" if operational.pool else "memory",
         }
 
     @app.get("/readyz")
@@ -381,7 +385,7 @@ def create_app(
             customer_id=active_settings.demo_customer_id,
             username=active_settings.demo_username,
             otp_at=now,
-            expires_at=now + timedelta(minutes=15),
+            expires_at=now + timedelta(minutes=int(rule("AUTH-01").parameters["session_minutes"])),
         )
         del app.state.challenges[body.challenge_id]
         return {"access_token": session_token, "token_type": "bearer"}
@@ -497,7 +501,9 @@ def create_app(
                 guard = classify(body.message)
                 if guard.intent in {Intent.HUMAN_REQUEST, Intent.FRAUD, Intent.FEE_DISPUTE}:
                     frame = guard
-                elif nlu.clarification or frame.confidence < 0.6:
+                elif nlu.clarification or frame.confidence < float(
+                    rule("ESC-04").parameters["nlu_min_confidence"]
+                ):
                     conversation.rounds += 1
                     conversation.intent = frame.intent
                     conversation.language = (
@@ -784,7 +790,9 @@ def create_app(
         ):
             conversation.proposal = None
             raise HTTPException(status_code=409, detail="Action proposal expired or changed")
-        if now - principal.otp_at > timedelta(minutes=10):
+        if now - principal.otp_at > timedelta(
+            minutes=int(rule("AUTH-02").parameters["otp_minutes"])
+        ):
             conversation.proposal = None
             raise HTTPException(status_code=401, detail="Step-up verification required")
         decision = evaluate(proposal.transaction, active_settings.bank_clock, is_dispute=True)
