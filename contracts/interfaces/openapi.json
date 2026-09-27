@@ -114,6 +114,22 @@
       "HandoffRoute": {
         "additionalProperties": false,
         "properties": {
+          "assigned_agent_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Assigned Agent Ref"
+          },
+          "assignment_pending": {
+            "default": false,
+            "title": "Assignment Pending",
+            "type": "boolean"
+          },
           "fallback_used": {
             "title": "Fallback Used",
             "type": "boolean"
@@ -126,9 +142,41 @@
             "title": "Language",
             "type": "string"
           },
+          "language_fallback": {
+            "default": false,
+            "title": "Language Fallback",
+            "type": "boolean"
+          },
           "queue": {
             "title": "Queue",
             "type": "string"
+          },
+          "requested_queue": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Requested Queue"
+          },
+          "routing_explanation": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Routing Explanation"
+          },
+          "specialty_fallback": {
+            "default": false,
+            "title": "Specialty Fallback",
+            "type": "boolean"
           }
         },
         "required": [

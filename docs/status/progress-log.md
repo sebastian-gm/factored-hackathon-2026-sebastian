@@ -15,6 +15,14 @@ Current status below supersedes the earlier lane handoffs; their detailed report
 - Next in this handoff: attribute-based agent routing, then frozen-suite binding/evaluation, fault/security coverage and frontend interface requests. Azure still runs the previous verified release until this layer's green merges and final redeploy.
 
 
+### Handoff 06 — routing slice (in progress)
+
+- Policy PR #18 merged after all four PR gates passed; main CI and safety also passed at `97bfb4d`.
+- Implemented deterministic routing from the six contract-allowed service-agent attributes. PT fraud fallback is PT/Fraudes → PT/Quejas y Reclamos → ES/Fraudes, with explicit specialty/language flags and an opaque assigned reference. No eligible agent produces a pending assignment instead of invented availability.
+- `python -m scripts.load_service_agents --target local` loaded and independently read back all 1,200 routing projections in the existing local Postgres: 1,090 Active; exactly 7 PT/Fraudes, all Active. Names/contact details and raw IDs are excluded. The shared reference table is read-only to the API role; ops RLS is unchanged.
+- `python -m scripts.routing_report` reproduced 492,414 owned transactions in the UTC 120-day window and 254 score flags (>30), **0.05158%**. Initial CSV inference/local-time conversion differed; explicit string-to-UTC casts reproduce the promoted pipeline aggregates. Score flags are reported separately from lost/stolen and synthetic case-burst triggers.
+- `make checks`: 53 passed, 6 database-dependent skips; B1 v1 32/32 with 12 readbacks and all hooks/contracts passed. `python -m scripts.test_postgres`: all 6 passed, including reference-table write denial. No held-out/model run yet. Cloud projection load is scheduled with the final deployment.
+
 ### Lead integration — handoff 04 tasks 1–6
 
 - Read the brief and amended handoff fully. Verified the existing restricted Azure deployment before integration. Only the private `origin` was used; every Git command targeted this repository. No organizer credential-bearing document was opened, no organizer rows or secrets were committed, and no real-model call ran.

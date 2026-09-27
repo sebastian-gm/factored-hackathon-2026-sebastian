@@ -46,6 +46,7 @@ from aclara.api.workflows import (
 )
 from aclara.bank.repository import Transaction, TransactionRepository
 from aclara.handoff.packet import create_packet
+from aclara.handoff.routing import AgentDirectory
 from aclara.llm.client import StructuredClient
 from aclara.ops.store import Scope, Store
 from aclara.policy.engine import PolicyDecision, evaluate
@@ -292,6 +293,7 @@ def create_app(
         os.getenv("OPS_DSN", "") if active_settings.ops_backend == "postgres" else None
     )
     app.state.store = operational
+    app.state.agent_directory = AgentDirectory(store=operational)
     auth_scope = Scope(active_settings.demo_customer_id, "auth", "auth")
     app.state.challenges = operational.mapping(
         "otp_challenges", OtpChallenge, auth_scope=auth_scope
@@ -526,7 +528,7 @@ def create_app(
         return result
 
     def safe_failure(principal: Principal, language: str) -> dict[str, Any]:
-        packet = create_packet(language, "ESC-04")
+        packet = create_packet(language, "ESC-04", app.state.agent_directory)
         app.state.handoffs[packet["handoff_id"]] = {
             **packet,
             "customer_id": principal.customer_id,
@@ -720,7 +722,7 @@ def create_app(
             conversation.proposal = None
             if reason_code == "FRD-01":
                 return fraud_handoff(app, principal, language)
-            packet = create_packet(language, reason_code)
+            packet = create_packet(language, reason_code, app.state.agent_directory)
             app.state.handoffs[packet["handoff_id"]] = {
                 **packet,
                 "customer_id": principal.customer_id,
@@ -756,7 +758,7 @@ def create_app(
                 conversation.rounds += 1
                 if conversation.rounds >= 2:
                     conversation.candidates = []
-                    packet = create_packet(language, "ESC-04")
+                    packet = create_packet(language, "ESC-04", app.state.agent_directory)
                     app.state.handoffs[packet["handoff_id"]] = {
                         **packet,
                         "customer_id": principal.customer_id,
@@ -845,7 +847,7 @@ def create_app(
         if not candidates:
             conversation.rounds += 1
             if conversation.rounds >= 2:
-                packet = create_packet(language, "ESC-04")
+                packet = create_packet(language, "ESC-04", app.state.agent_directory)
                 app.state.handoffs[packet["handoff_id"]] = {
                     **packet,
                     "customer_id": principal.customer_id,
@@ -1130,7 +1132,7 @@ def _decide_for_transaction(
             "policy_rules": ["DSP-06"],
         }
     if decision.decision == "handoff":
-        packet = create_packet(language, decision.rule_ids[0])
+        packet = create_packet(language, decision.rule_ids[0], app.state.agent_directory)
         if not decision.reason.startswith("missing:"):
             packet["verified_facts"] = [_masked_transaction(handle, row)]
         app.state.handoffs[packet["handoff_id"]] = {

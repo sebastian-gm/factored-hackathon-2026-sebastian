@@ -49,6 +49,12 @@ class HandoffRoute(InterfaceModel):
     queue: str
     language: Literal["es", "pt"]
     fallback_used: bool
+    requested_queue: str | None = None
+    specialty_fallback: bool = False
+    language_fallback: bool = False
+    assigned_agent_ref: str | None = None
+    routing_explanation: str | None = None
+    assignment_pending: bool = False
 
 
 class HandoffView(InterfaceModel):
