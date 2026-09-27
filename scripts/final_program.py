@@ -13,10 +13,10 @@ from pathlib import Path
 
 from evals.checkpoints import atomic_write, exclusive, save
 
-from aclara.llm.final_run import require_start
+from aclara.llm.final_run import RUN_ID, require_start
 
 ROOT = Path(__file__).resolve().parents[1]
-OUTPUT = ROOT / "artifacts/final-program-v1"
+OUTPUT = ROOT / "artifacts" / RUN_ID
 
 
 def git(*args: str) -> str:
@@ -69,7 +69,7 @@ def worker() -> None:
             from evals.final_program import main as evaluate
             from scripts.final_budget import main as initialize_budget
 
-            initialize_budget()  # Idempotent; preserves every reservation and tripped breaker.
+            initialize_budget()  # Validate the prepared cap; never reset or re-enable it.
             from evals.final_program import budget_receipt
 
             previous = OUTPUT / "progress.json"
@@ -118,7 +118,7 @@ def main() -> None:
         if args.action == "start":
             if launch.exists():
                 raise RuntimeError("Existing program: use resume, never reset artifacts/budget")
-            save(launch, {"implementation_sha": sha, "budget_run": "final-program-v1"})
+            save(launch, {"implementation_sha": sha, "budget_run": RUN_ID})
         elif not launch.exists() or json.loads(launch.read_text())["implementation_sha"] != sha:
             raise RuntimeError("Resume requires the existing pinned release")
         if (OUTPUT / "COMPLETE.json").exists():

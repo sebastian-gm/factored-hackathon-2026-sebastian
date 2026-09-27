@@ -16,8 +16,8 @@ from aclara.ops.budget import PostgresSpendGate
 from aclara.ops.store import Store
 
 ROOT = Path(__file__).resolve().parents[3]
-SCOPE = "final-evaluation"
-RUN_ID = "final-program-v1"
+SCOPE = "final-evaluation-v2"
+RUN_ID = "final-program-v2"
 
 
 class FinalBudgetStop(RuntimeError):

@@ -1,5 +1,64 @@
 # Priced final evaluation plan — $12 approved, execution on hold
 
+## V2 release preparation — do not start
+
+Sebastian accepted Step 3 and authorized the Option A re-release. The #37 backend
+glass-box additions are deferred until after v2, with a separate video redeploy.
+PR #39's language model card is included in the release.
+
+### Cumulative ceiling, including the stopped attempt
+
+Postgres aggregate readback found **$0.02058083** charged exposure in the old
+`final-evaluation` scope, including **one unsettled reservation**. The earlier
+$0.0119 progress figure is not the full reserved exposure. No v1 file or result
+was opened to obtain this number. The dev scope charged **$0.10791745**.
+
+`python -m scripts.final_budget --prepare` locks and closes both prior scopes to
+new calls, preserving every reservation. It prepares a new scope
+**`final-evaluation-v2`**, run **`final-program-v2`**, with a **$11.87** daily and
+cumulative run limit. It refuses preparation if prior exposure plus this limit
+exceeds $12, and never raises a limit or re-enables a disabled v2 breaker.
+
+**$0.02058083 + $0.10791745 + $11.87 = $11.99849828 ≤ $12.00.**
+Unknown costs retain their reservations. Every v2 OpenRouter/TypeSafe attempt,
+retry, fallback and judge call reserves before calling through this same durable
+run gate. Start/resume verifies the prior scopes remain closed and records both
+v2 and combined exposure. The reduced v2 ceiling applies across days, processes
+and interruptions. Later dev calls must not reopen these closed scopes.
+
+Preparation writes only `artifacts/final-program-v2/prepared-budget.json`;
+it starts no worker, reads no frozen inputs, and makes no model calls. The
+separately approved release smoke uses `production/option-a-release-smoke`,
+at most five conversations across API/browser checks and **$0.10 total**.
+Estimated smoke cost is $0.01–$0.03; production's $3 daily ceiling also applies.
+
+### Exact v2 commands, only after a separate explicit start signal
+
+The launcher now targets **only `artifacts/final-program-v2/`**. Never run or
+inspect the abandoned v1 directory. On clean accepted main:
+
+```bash
+LLM_FINAL_RUN_STARTED=1 LLM_REAL_CALLS_APPROVED=1 .venv/bin/python -m scripts.final_program start
+```
+
+This launches one detached worker with logs, per-case/per-judge checkpoints,
+validated call journals and final outputs in the v2 directory. After an
+interruption, preserve all artifacts and use:
+
+```bash
+LLM_FINAL_RUN_STARTED=1 LLM_REAL_CALLS_APPROVED=1 .venv/bin/python -m scripts.final_program resume
+```
+
+Aggregate-only status (no model calls):
+
+```bash
+.venv/bin/python -m scripts.final_program status
+```
+
+The remaining workload, repeat IDs, judge protocol, output metrics and human
+sheet described below are unchanged. The old v1 commands and budget identity
+in the historical section are superseded. **Preparation is not a start signal.**
+
 ## Option A supersedes the v1 commands below
 
 `final-program-v1` is abandoned. Never start, resume, inspect, or delete its
