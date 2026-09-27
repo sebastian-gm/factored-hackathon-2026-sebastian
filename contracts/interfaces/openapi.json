@@ -195,6 +195,17 @@
             ],
             "title": "Policy Evaluations"
           },
+          "primary_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Primary Reason"
+          },
           "priority": {
             "enum": [
               "normal",
@@ -835,6 +846,17 @@
               }
             ],
             "title": "Policy Evaluations"
+          },
+          "primary_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Primary Reason"
           },
           "priority": {
             "enum": [

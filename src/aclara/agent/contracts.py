@@ -62,6 +62,7 @@ class HandoffView(InterfaceModel):
     handoff_id: str
     created_at: datetime
     reason_codes: list[str]
+    primary_reason: str | None = None
     priority: Literal["normal", "high"]
     route: HandoffRoute
     verified_facts: list[TransactionView]
@@ -77,6 +78,14 @@ class HandoffView(InterfaceModel):
     sla_due_at: datetime | None = None
     transcript_ref: str | None = None
     trace_ref: str | None = None
+
+    @model_validator(mode="after")
+    def validate_primary_reason(self) -> HandoffView:
+        if self.primary_reason is not None and self.primary_reason not in self.reason_codes:
+            raise ValueError("primary_reason must occur in reason_codes")
+        if len(set(self.reason_codes)) != len(self.reason_codes):
+            raise ValueError("reason_codes must be deduplicated")
+        return self
 
 
 class DisputeCaseView(InterfaceModel):

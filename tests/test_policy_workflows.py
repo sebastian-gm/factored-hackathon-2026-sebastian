@@ -37,10 +37,10 @@ def test_all_transaction_policy_rules_and_boundaries():
     assert result(PolicyContext(existing_case_id="fixture")).decision == "status"
     assert result(amount=1050.01).rule_ids == ("DSP-07",)
     for amount in (950, 1000, 1050):
-        assert result(amount=amount).rule_ids == ("BRD-01",)
+        assert result(amount=amount).rule_ids == ("BRD-01", "DSP-07")
     assert result(amount=949.99).decision == "eligible"
     for age in (85, 90):
-        assert result(process_date=day - timedelta(days=age)).rule_ids == ("BRD-01",)
+        assert result(process_date=day - timedelta(days=age)).rule_ids == ("BRD-01", "DSP-01")
     for field in ("amount", "date", "status"):
         assert field in result(PolicyContext(missing_fields=(field,))).reason
     assert result(PolicyContext(amount_usd=100), currency="BRL", amount=500).decision == "eligible"
@@ -90,3 +90,35 @@ def test_deterministic_text_guards_and_ownership():
     row = TransactionRepository()._rows[0]
     repo = TransactionRepository((row,), products=(Product(row.product_id, "foreign"),))
     assert not repo.for_customer(row.customer_id, Settings().bank_clock)
+
+
+def test_review_preserves_independent_causes_and_type_precedence():
+    row = TransactionRepository()._rows[0]
+    clock = Settings().bank_clock
+    day = (clock - timedelta(hours=6, microseconds=1)).date()
+    row = replace(
+        row,
+        transaction_type="Transfer",
+        currency="BRL",
+        amount=1000,
+        process_date=day - timedelta(days=85),
+    )
+    decision = evaluate(row, clock, True, PolicyContext(missing_fields=("amount",)))
+    assert decision.rule_ids == ("DSP-04", "BRD-01", "DSP-01")
+    assert decision.reason == "missing:amount"
+    assert decision.decision == "handoff"
+    decision = evaluate(row, clock, True, PolicyContext(amount_usd=1000))
+    assert decision.rule_ids == ("DSP-04", "BRD-01", "DSP-01", "DSP-07")
+
+
+def test_handoff_primary_controls_and_concurrent_safety_reasons():
+    from aclara.handoff.packet import create_packet
+
+    packet = create_packet("es", ["ESC-03", "ESC-01", "FRD-01", "ESC-02", "FRD-01"])
+    assert packet["reason_codes"] == ["FRD-01", "ESC-02", "ESC-03", "ESC-01", "AUTH-02"]
+    assert packet["primary_reason"] == "FRD-01"
+    assert packet["route"]["requested_queue"] == "Fraudes"
+    assert packet["priority"] == "high"
+    packet = create_packet("pt", ["SEC-01", "FRD-01"])
+    assert packet["primary_reason"] == "SEC-01"
+    assert {"SEC-01", "AUTH-03", "FRD-01", "AUTH-02"} == set(packet["reason_codes"])

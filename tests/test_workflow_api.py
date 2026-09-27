@@ -179,7 +179,7 @@ def test_case_duplicate_status_review_flag_and_fraud_burst():
                         ).isoformat(),
                     }
             fraud, _ = await message(client, headers, "No reconozco la compra de Stream Box")
-            assert fraud["policy_rules"] == ["FRD-01"]
+            assert fraud["policy_rules"] == ["FRD-01", "AUTH-02"]
             assert fraud["freeze_offer"]
 
     asyncio.run(check())

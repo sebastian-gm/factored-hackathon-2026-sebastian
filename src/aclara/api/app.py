@@ -1237,7 +1237,7 @@ def _decide_for_transaction(
     app.state.runtime.record("policy", **asdict(decision))
     row = replace(row, merchant_name=safe_merchant(row.merchant_name))
     if decision.decision == "freeze_offer":
-        return fraud_handoff(app, principal, language, row)
+        return fraud_handoff(app, principal, language, row, reasons=decision.rule_ids)
     if decision.decision == "status":
         record = app.state.cases[context.existing_case_id]
         app.state.runtime.record("status_lookup")
@@ -1255,7 +1255,7 @@ def _decide_for_transaction(
             "policy_rules": ["DSP-06"],
         }
     if decision.decision == "handoff":
-        packet = create_packet(language, decision.rule_ids[0], app.state.agent_directory)
+        packet = create_packet(language, decision.rule_ids, app.state.agent_directory)
         if not decision.reason.startswith("missing:"):
             packet["verified_facts"] = [_masked_transaction(handle, row)]
         app.state.handoffs[packet["handoff_id"]] = {
