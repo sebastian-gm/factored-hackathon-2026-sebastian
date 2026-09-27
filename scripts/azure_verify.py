@@ -29,14 +29,17 @@ def main() -> None:
         identities = app["identity"]["userAssignedIdentities"]
         assert app["identity"]["type"] == "UserAssigned"
         registries = properties["configuration"]["registries"]
-        assert len(registries) == 1 and registries[0]["identity"] in identities
+        assert len(registries) == 1
+        # ARM resource IDs are case-insensitive; these two fields use different casing.
+        assert registries[0]["identity"].lower() in {identity.lower() for identity in identities}
         ingress = properties["configuration"]["ingress"]
         rules = ingress["ipSecurityRestrictions"]
         assert len(rules) == 1 and rules[0]["action"] == "Allow"
         assert rules[0]["ipAddressRange"] == values["owner_ipv4"] + "/32"
         assert ingress["external"] and not ingress.get("allowInsecure", False)
         assert properties["configuration"]["activeRevisionsMode"] == "Single"
-        assert properties["template"]["scale"]["minReplicas"] == 0
+        # ARM can return null for the documented default minimum of zero.
+        assert properties["template"]["scale"]["minReplicas"] in (None, 0)
         assert properties["template"]["scale"]["maxReplicas"] == 1
         container = properties["template"]["containers"][0]
         assert container["image"].endswith(":" + values["image_tag"])
