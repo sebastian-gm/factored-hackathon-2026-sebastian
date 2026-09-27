@@ -88,8 +88,50 @@ def exercise(name: str, password: str, ledger: ServingRepository) -> dict[str, A
         cid = check(client.post("chat/sessions", json={}))["conversation_id"]
         path = "chat/sessions/" + cid
 
+        def execution_events() -> list[dict[str, Any]]:
+            access = client.cookies.get("aclara_access")
+            assert access
+            run_id, sid, _ = access.split(".", 2)
+            with ledger.store.transaction(Scope(persona.customer_id, run_id, sid)):
+                return [
+                    event
+                    for value in ledger.store.mapping("execution_records", dict).values()
+                    if value.get("conversation_id") == cid
+                    for event in value.get("events", [])
+                ]
+
         def message(text: str) -> dict[str, Any]:
-            return check(client.post(path + "/messages", json={"message": text}))
+            response = check(client.post(path + "/messages", json={"message": text}))
+            allowed = {
+                "event",
+                "intent",
+                "degraded",
+                "clarification",
+                "response_type",
+                "matcher_version",
+                "action",
+                "status",
+                "prompt_id",
+                "provider",
+                "model_id",
+                "cost_usd",
+                "top_probability",
+                "exists_probability",
+            }
+            private_write(
+                ROOT / f"artifacts/azure/smoke-{name}-observations.json",
+                json.dumps(
+                    {
+                        "outcome": response["outcome"],
+                        "candidate_count": len(response.get("candidates") or []),
+                        "events": [
+                            {k: v for k, v in e.items() if k in allowed} for e in execution_events()
+                        ],
+                    }
+                )
+                + "\n",
+            )
+            return response
 
         result: dict[str, Any]
         if name == "es_normal":
@@ -110,12 +152,14 @@ def exercise(name: str, password: str, ledger: ServingRepository) -> dict[str, A
 
             explained = identify(message("¿Por qué aparece un cargo de " + description + "?"))
             assert explained["outcome"] == "explained"
+            assert explained["transaction"]["handle"] == handle
             proposal = identify(
                 message(
                     "Yo no autoricé esta compra de " + description + ". Quiero abrir una disputa."
                 )
             )
             assert proposal["outcome"] == "dispute_proposed"
+            assert proposal["transaction"]["handle"] == handle
             result = check(
                 client.post(
                     path + "/confirm",
@@ -126,6 +170,7 @@ def exercise(name: str, password: str, ledger: ServingRepository) -> dict[str, A
                 )
             )
             assert result["outcome"] == "dispute_filed" and result["verified"]
+            assert result["case"]["transaction_handle"] == handle
             assert DisputeCaseView.model_validate(
                 check(client.get("disputes/" + result["case"]["case_id"]))
             ) == DisputeCaseView.model_validate(result["case"])
@@ -133,8 +178,20 @@ def exercise(name: str, password: str, ledger: ServingRepository) -> dict[str, A
             result = message(
                 "Não reconheço uma cobrança no meu extrato. Pode me ajudar a identificar?"
             )
-            assert result["outcome"] == "choose_transaction" and 1 <= len(result["candidates"]) <= 3
+            assert result["outcome"] in {"choose_transaction", "clarification"}
+            if result["outcome"] == "choose_transaction":
+                assert 1 <= len(result["candidates"]) <= 3
+            else:
+                # Missing/invalid expressions or uniformly low matcher scores may
+                # legitimately request clarification before the ESC-04 boundary.
+                assert any(
+                    (e["event"] == "match" and e["action"] == "none")
+                    or (e["event"] == "nlu" and e.get("clarification"))
+                    for e in execution_events()
+                )
             for _ in range(2):
+                if result["outcome"] == "handoff_created":
+                    break
                 result = message("Não sei, não consigo escolher")
             assert result["outcome"] == "handoff_created" and result["verified"]
             assert "ESC-04" in result["handoff"]["reason_codes"]
@@ -170,6 +227,7 @@ def exercise(name: str, password: str, ledger: ServingRepository) -> dict[str, A
         snapshot = check(client.get("ops/snapshot"))
         assert snapshot["source_kind"] == "organizer_serving"
         assert snapshot["metrics"]["sar"] is None
+        assert snapshot["metrics"]["cases"] == (1 if name == "es_normal" else 0)
         access = client.cookies.get("aclara_access")
         assert access
         run_id, sid, _ = access.split(".", 2)
@@ -220,7 +278,11 @@ def main() -> None:
     store = Store(connection_string("aclara_app"))
     try:
         ledger = ServingRepository(store, Settings().bank_clock)
-        results = []
+        receipt = ROOT / "artifacts/azure/llm-smoke.json"
+        previous = json.loads(receipt.read_text()) if receipt.exists() else {}
+        results = (
+            previous.get("results", []) if previous.get("release") == variables["image_tag"] else []
+        )
         for name in cases:
             with conversation_allowance(1, name):
                 result = exercise(name, password, ledger)
