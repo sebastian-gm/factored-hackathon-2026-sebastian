@@ -12,7 +12,7 @@
 - Real-model/cloud recording of these changes is not performed. Current staff trace drops risk judgments/route and current personas omit story bindings; `apps/web/API-PROPOSAL.md` specifies the additive lead changes. Live reset remains disabled in cloud and cannot clear other personas' workspaces.
 
 ### Next / blocked
-- Open this frontend PR; keep PRs #24/#28 and this PR unmerged until Sebastian announces final-run completion. Lead supplies reviewed trace/persona projections and decides any separately authorized bulk reset; UI does not widen RLS or bypass authentication.
+- [PR #37](https://github.com/sebastian-gm/bank-agent-lab/pull/37) is open; keep it and PRs #24/#28 unmerged until Sebastian announces final-run completion. Lead supplies reviewed trace/persona projections and decides any separately authorized bulk reset; UI does not widen RLS or bypass authentication.
 
 
 ## Jev release and final-program preparation — 2026-09-27 UTC (current)
