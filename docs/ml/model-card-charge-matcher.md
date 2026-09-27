@@ -1,5 +1,8 @@
 # Charge matcher model card
 
+This card preserves v1. The [v2 model card](model-card-charge-matcher-v2.md) records
+the retrained choice-first policy, comparable diagnostics and human before/after check.
+
 Version: `v1`. Dataset: `b86f445cb468332bde984a788ef24f72f7070952b2d9292e0259e7b8f36397c9`. Seed: 20260926.
 
 Validation-selected model: **lightgbm**. Deployment recommendation after the one-time comparison: **lightgbm**.

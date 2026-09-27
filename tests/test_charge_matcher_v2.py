@@ -165,3 +165,28 @@ def test_evaluation_uses_choice_policy_and_explicit_cost_version() -> None:
         costs=V2_COSTS,
     )[0]
     assert low["action"] == "none" and low["cost"] == V2_COSTS["false_none"] == 6
+
+
+def test_exported_v2_loads_at_existing_serving_boundary() -> None:
+    from aclara.agent.matching import MatchState
+    from aclara.agent.nlu.structured import NormalizedSlots
+    from aclara.bank.repository import TransactionRepository
+    from aclara.settings import Settings
+
+    root = Path(__file__).resolve().parents[1]
+    state = MatchState(root / "models/charge_matcher/v2")
+    assert state.version == "v2"
+    assert state.matcher.parameters["decision_policy"] == "choice_first_v2"
+    settings = Settings()
+    rows = TransactionRepository().for_customer(settings.demo_customer_id, settings.bank_clock)
+    assert (
+        state.match(NormalizedSlots(), [], settings.demo_customer_id, settings.bank_clock).action
+        == "none"
+    )
+    with pytest.raises(ValueError, match="unauthorized"):
+        state.match(
+            NormalizedSlots(),
+            [("txn_1", replace(rows[0][1], customer_id="fixture-other"))],
+            settings.demo_customer_id,
+            settings.bank_clock,
+        )

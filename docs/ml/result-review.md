@@ -1,5 +1,8 @@
 # Frozen matcher result review
 
+For the authorized v2 development iteration and human before/after results, see
+the [v2 model card](model-card-charge-matcher-v2.md). The v1 results below remain preserved.
+
 This review reuses the one-time v1 predictions; there is no refitting or additional test inference.
 
 ## Selection and uncertainty
