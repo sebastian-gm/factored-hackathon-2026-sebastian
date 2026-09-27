@@ -160,3 +160,21 @@ For the next session: **Continue from docs/status/progress-log.md. Next layer: p
 #### Next / blocked
 
 - Final local verification: eight fixture tests, three live API tests (including freeze-dialog accessibility), ESLint and production build passed. PR #17 follow-up is ready to push; author the submission documents on `docs/submission-kit` next. Interrupt that work for lead reviews or new staff/Ops endpoints.
+
+### Frontend follow-up — shipped staff contracts (PR #21)
+
+#### Completed (verified)
+
+- Interrupted submission drafting for the lead's review and merged main through `d10ac48` into PR #17 without rewriting published history. Live persona/identity, Agent Desk, traces, Ops and reset now consume the typed APIs. Versioned claim/resolve and reset require independent readbacks. Handoffs require both the API verified flag and scoped GET.
+- Upstream logout revokes and verifies the capability; customer refusal/session-end and duplicate status render correctly. Live Ops uses measured current-workspace counts, keeps SAR/unsafe unmeasured, and does not display fixture results. Reset defaults to disabled and requires trusted flags, ops identity and fresh OTP.
+- Four live customer browser tests, one live staff workflow and eight fixture tests passed with generated records and ephemeral credentials. Coverage includes upstream revocation, customer staff denial, freeze/cancel, claim/resolve, measured Ops, reset and automated accessibility checks. The credential-free API-hop probe passed against the local API. Initial refusal test failures were locator/authentication-wait issues corrected before the passing run.
+- ESLint, TypeScript and production Webpack build passed. No Azure operations, provider calls or `.env` reads were made for these checks.
+
+#### Done but not verified
+
+- Azure web-container-to-API reachability under owner-IP restrictions remains unverified. The new `apps/web/scripts/check-api-hop.mjs` is packaged in the web image for the lead to run inside that runtime before deployment. Staff remains current-workspace only; Azure keeps customer role and reset disabled.
+- Native language review, additional browser engines and deployed behavior of this revision remain pending. The frozen mock diagnostic predates these API/UI changes and failed its acceptance gates.
+
+#### Next / blocked
+
+- Publish the PR #17 review follow-up after repository hooks; lead owns shared Playwright CI wiring and release connectivity verification. No ingress expansion is authorized. Resume the submission kit with corrected held-out aggregate results and explicit failed-gate limitations.

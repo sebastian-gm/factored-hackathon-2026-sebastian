@@ -2,8 +2,8 @@
 
 Three ES/PT surfaces share one accessible workspace: customer chat, Agent Desk and
 Ops. The customer connection uses the frozen OpenAPI through a same-origin Next.js
-backend-for-frontend. Missing staff/operations contracts use explicitly labeled,
-opt-in, project-generated fixtures. There are no LLM calls in this application.
+backend-for-frontend. The live connection includes trusted roles, Agent Desk and measured workspace Ops.
+An opt-in fixture mode remains for isolated UI regression tests. There are no LLM calls in this application.
 
 ## Run and verify
 
@@ -17,11 +17,12 @@ Live mode is the default. Configure server-only `API_BASE_URL` to the private ba
 API. The existing server-only `BROWSER_API_BASE_URL` is supported as a deployment
 fallback. `WEB_APP_ORIGIN` is the exact external origin when behind a reverse proxy;
 otherwise same-origin checks use the request protocol and Host header. `BANK_CLOCK`, if provided to the
-web process, supplies the simulated date; an absent clock is shown as unavailable.
+web process, supplies the initial simulated date; authenticated `/me.bank_clock`
+is authoritative. An absent clock is shown as unavailable.
 No browser environment variable or credential is needed. Never put credentials in
 `NEXT_PUBLIC_*` variables.
 
-To exercise the missing surfaces locally, set `FRONTEND_DEMO_MODE=fixtures` and
+To exercise isolated UI fixtures locally, set `FRONTEND_DEMO_MODE=fixtures` and
 supply a nonempty `FRONTEND_FIXTURE_PASSWORD` through the process environment or an
 ignored local environment file. No default password is committed. All fixture
 personas still require password and a six-digit OTP. Their aliases appear in the
@@ -40,7 +41,10 @@ Only team-generated fixtures appear in these browser runs. `pnpm typecheck`,
 team-generated fixture ledger on port 8212, then verifies login, a pending-charge
 explanation, duplicate-case status, confirmed dispute/read-back, and both card-freeze
 confirmation and cancellation with fresh OTP through the proxy. It requires the
-repository's dev Python environment. Both modes force mock/B1 behavior and use a
+repository's dev Python environment. `pnpm test:e2e --staff` configures a separate local ops identity and enabled reset
+to exercise live handoff claim/resolve, measured Ops/trace, and fresh-OTP reset.
+The customer run also verifies refusal, session revocation and upstream logout.
+All modes force mock/B1 behavior and use a
 fresh process credential; neither loads the local provider key.
 
 Eight fixture browser tests cover the three stories, cancellation, phone layouts,
@@ -58,13 +62,13 @@ require an exact same-origin Origin header and JSON body. The proxy allowlists
 frozen routes, validates outgoing inputs and incoming plans, strips unknown response
 fields, and returns generic errors rather than raw bank errors or validation input.
 The server-side cookie lifetime is bounded; the upstream remains the authority for
-expiry and ownership. Signing out removes browser credentials. The live API has no
-revocation endpoint yet, so upstream session revocation remains a lead dependency.
+expiry and ownership. Signing out revokes the upstream capability, verifies that `/me` rejects it, and
+removes browser credentials. A failure is shown without claiming verified logout.
 
 Confirm and Cancel submit the exact server proposal hash and boolean. There is no
 client-created proposal, ordinal-based authorization, optimistic receipt, automatic
 write retry or password shortcut. A case receipt requires the API's verified flag plus an additional same-session
-read-back. Handoff receipts require an additional scoped GET; freeze success also
+read-back. Handoff receipts require the backend verified flag and an additional scoped GET; freeze success also
 requires an independently read Frozen card and matching verified handoff outcome. Uncertain write results are shown
 as unverified; the user is not invited to blindly repeat the write. Plan expiry is
 measured against real time; transaction dates and demo SLA use the simulated clock.
@@ -82,8 +86,10 @@ production persistence solution. There is no fallback from a live error to fixtu
 The API gap proposal is in [API-PROPOSAL.md](API-PROPOSAL.md). The customer-safe
 “why” drawer displays response records, fired rule IDs and read-back status, never
 model thinking. Staff-only traces contain execution records and call metadata.
-The Ops `results.json` is explicitly illustrative, not a measured evaluation or a
-held-out result. The lineage image is the existing aggregate dbt-manifest diagram
+Live Ops shows current-workspace counts and observed model cost. SAR and unsafe
+rates remain unmeasured because operational records have no gold labels. Missing
+freshness thresholds are displayed as unknown. Fixture Ops alone shows an
+explicitly illustrative `results.json`; it is not a held-out result. The lineage image is the existing aggregate dbt-manifest diagram
 from `docs/data/dbt-lineage.svg`, copied unchanged for standalone web packaging;
 it is labeled as a snapshot rather than live lineage.
 
@@ -101,4 +107,20 @@ Customer API follow-up: the proxy accepts the shipped status/security plans and
 validates owned products. Fraud offers now use the live fresh-OTP and freeze APIs,
 with exact-hash confirmation/cancellation. A revoked session shows the refusal
 without claiming a handoff read-back. No freeze is simulated in the UI fixture adapter.
-Agent Desk/Ops contracts remain pending.
+Agent Desk and Ops now use the shipped typed endpoints. Trusted `/me.role` controls
+the interface; the API enforces authorization and current-workspace scope. Claim
+and resolve submit version/idempotency fields and independently read back the
+result. Staff access does not provide a global customer queue.
+
+Live reset defaults to disabled. It requires both `FRONTEND_ALLOW_DEMO_RESET=true`
+in the web process and `ALLOW_DEMO_RESET=true` in the API, a trusted ops identity,
+fresh OTP and exact-hash confirmation. The receipt is independently read back;
+authentication and audit records are retained. Azure keeps customer role and reset
+disabled. Do not enable either through browser input.
+
+Before deployment, the lead must run `node scripts/check-api-hop.mjs` **inside the
+web container** with its configured server-side API URL. It checks `/healthz` and
+`/personas`, prints only pass/status metadata and exits nonzero on failure. A
+local fixture test verifies this probe; the Azure web-to-API hop is still unverified.
+Preserve owner-IP ingress and fix private connectivity through the lead's release
+process; this change does not authorize broader ingress.

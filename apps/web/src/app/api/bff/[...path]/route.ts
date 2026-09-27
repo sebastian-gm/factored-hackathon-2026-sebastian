@@ -9,6 +9,16 @@ import {
   planSchema,
   transactionSchema,
 } from "@/lib/contracts";
+import {
+  deskSchema,
+  identitySchema,
+  metricsSchema,
+  opsSchema,
+  personaSchema,
+  resetProposalSchema,
+  resetReceiptSchema,
+  traceSchema,
+} from "@/lib/staff-contracts";
 import { BANK_CLOCK, personas } from "@/lib/server/fixture-data";
 import {
   fixtureLogin,
@@ -112,6 +122,74 @@ async function upstream(
     throw new HttpError(502, "invalid_response");
   }
 }
+async function liveStaff(
+  path: string,
+  method: string,
+  token: string,
+  body: Record<string, unknown>,
+) {
+  const call = (p: string, m = "GET", b?: unknown) => upstream(p, m, token, b);
+  if (method === "GET") {
+    if (path === "agent/handoffs")
+      return z.array(deskSchema).parse(await call(path));
+    if (/^agent\/handoffs\/[\w-]{1,80}$/.test(path))
+      return deskSchema.parse(await call(path));
+    if (/^agent\/conversations\/[\w-]{1,80}$/.test(path))
+      return traceSchema.parse(await call(path));
+    if (path === "ops/snapshot") return opsSchema.parse(await call(path));
+    if (path === "ops/metrics") return metricsSchema.parse(await call(path));
+    if (/^ops\/reset\/[a-f0-9]{64}$/.test(path))
+      return resetReceiptSchema.parse(await call(path));
+  } else if (/^agent\/handoffs\/[\w-]{1,80}\/(claim|resolve)$/.test(path)) {
+    const input = z
+      .object({
+        expected_version: z.number().int().positive(),
+        idempotency_key: z.string().regex(/^[A-Za-z0-9_-]{8,80}$/),
+        resolution: z.enum(["review_completed", "transferred"]).optional(),
+      })
+      .strict()
+      .parse(body);
+    const result = deskSchema.parse(await call(path, "POST", input));
+    const actual = deskSchema.parse(
+      await call(path.replace(/\/(claim|resolve)$/, "")),
+    );
+    if (
+      actual.handoff_id !== result.handoff_id ||
+      actual.version !== result.version ||
+      actual.status !== result.status ||
+      actual.claimed_by !== result.claimed_by
+    )
+      throw new HttpError(502, "readback_failed");
+    return actual;
+  } else if (path === "ops/reset/proposal" || path === "ops/reset") {
+    if (process.env.FRONTEND_ALLOW_DEMO_RESET !== "true")
+      throw new HttpError(403, "reset_disabled");
+    if (path.endsWith("/proposal")) {
+      z.object({}).strict().parse(body);
+      return resetProposalSchema.parse(await call(path, "POST", {}));
+    }
+    const input = z
+      .object({
+        proposal_hash: z.string().regex(/^[a-f0-9]{64}$/),
+        confirmed: z.boolean(),
+      })
+      .strict()
+      .parse(body);
+    const result = resetReceiptSchema.parse(await call(path, "POST", input));
+    const actual = resetReceiptSchema.parse(
+      await call(`ops/reset/${result.receipt_id}`),
+    );
+    if (
+      actual.receipt_id !== result.receipt_id ||
+      actual.reset !== input.confirmed ||
+      actual.remaining_operations !== result.remaining_operations ||
+      (input.confirmed && actual.remaining_operations !== 0)
+    )
+      throw new HttpError(502, "readback_failed");
+    return actual;
+  }
+  throw new HttpError(404, "not_found");
+}
 async function handle(
   request: NextRequest,
   params: Promise<{ path: string[] }>,
@@ -146,19 +224,32 @@ async function handle(
       return response({
         fixtures: fixtures(),
         bankClock: fixtures() ? BANK_CLOCK : (process.env.BANK_CLOCK ?? null),
+        resetEnabled:
+          fixtures() || process.env.FRONTEND_ALLOW_DEMO_RESET === "true",
         personas: fixtures()
           ? personas
-          : [
-              {
-                username: "demo.es.mx",
-                label: "Persona de demostración",
-                role: "customer",
-                locale: "es-MX",
-              },
-            ],
+          : z.array(personaSchema).parse(await upstream("personas", "GET")),
       });
     if (path === "auth/logout" && request.method === "POST") {
       if (fixtures()) fixtureLogout(token);
+      else if (token) {
+        try {
+          z.object({
+            signed_out: z.literal(true),
+            verified: z.literal(true),
+          }).parse(await upstream(path, "POST", token, {}));
+        } catch (error) {
+          if (!(error instanceof HttpError && error.status === 401))
+            throw error;
+        }
+        try {
+          await upstream("me", "GET", token);
+          throw new HttpError(502, "readback_failed");
+        } catch (error) {
+          if (!(error instanceof HttpError && error.status === 401))
+            throw error;
+        }
+      }
       const reply = response({ signed_out: true });
       cookie(reply, ACCESS, "", 0);
       cookie(reply, PREAUTH, "", 0);
@@ -236,9 +327,15 @@ async function handle(
       return reply;
     }
     if (path.startsWith("agent/") || path.startsWith("ops/")) {
-      if (!fixtures()) throw new HttpError(501, "contract_pending");
-      return response(fixtureRequest(path, request.method, token, body));
+      if (fixtures())
+        return response(fixtureRequest(path, request.method, token, body));
+      return response(await liveStaff(path, request.method, token, body));
     }
+    if (
+      /^chat\/sessions\/[\w-]{1,80}\/trace$/.test(path) &&
+      request.method === "GET"
+    )
+      return response(traceSchema.parse(await upstream(path, "GET", token)));
     if (!allowed(path, request.method)) throw new HttpError(404, "not_found");
     if (path.endsWith("/messages"))
       body = z
@@ -279,6 +376,7 @@ async function handle(
         return response(proposal.data);
       }
       const plan = planSchema.parse(data);
+      if (plan.verified !== true) throw new HttpError(502, "readback_failed");
       if (!plan.handoff) throw new HttpError(502, "readback_failed");
       const actual = handoffSchema.parse(
         await call(`handoffs/${plan.handoff.handoff_id}`),
@@ -305,15 +403,17 @@ async function handle(
       return response({ ...plan, verified: true });
     }
     if (path === "me") {
-      const me = z
-        .object({
-          username: z.string(),
-          language: z.enum(["es", "pt"]),
-          role: z.enum(["customer", "agent", "ops"]).optional(),
-        })
-        .parse(data);
-      // The current live contract has no staff role. Never infer one from an alias.
-      return response({ ...me, role: fixtures() ? me.role : "customer" });
+      return response(
+        fixtures()
+          ? z
+              .object({
+                username: z.string(),
+                language: z.enum(["es", "pt"]),
+                role: z.enum(["customer", "agent", "ops"]),
+              })
+              .parse(data)
+          : identitySchema.parse(data),
+      );
     }
     if (path === "transactions")
       return response(z.array(transactionSchema).parse(data));
@@ -343,6 +443,7 @@ async function handle(
         throw new HttpError(502, "readback_failed");
     }
     if (plan.handoff) {
+      if (plan.verified !== true) throw new HttpError(502, "readback_failed");
       const actual = handoffSchema.parse(
         await call(`handoffs/${encodeURIComponent(plan.handoff.handoff_id)}`),
       );

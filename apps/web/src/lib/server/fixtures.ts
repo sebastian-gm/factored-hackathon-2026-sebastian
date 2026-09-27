@@ -274,7 +274,10 @@ export function fixtureRequest(
   }
   if (path.startsWith("handoffs/") && method === "GET") {
     const p = space.packets.find((p) => p.handoff_id === path.split("/")[1]);
-    if (!p || space.conversations.get(p.conversation_id)?.token !== token)
+    if (
+      !p?.conversation_id ||
+      space.conversations.get(p.conversation_id)?.token !== token
+    )
       throw new HttpError(404, "not_found");
     return p;
   }

@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
   Activity,
@@ -9,6 +9,8 @@ import {
   RefreshCcw,
   ShieldCheck,
 } from "lucide-react";
+import { LiveReset } from "./live-reset";
+import type { LiveOps, Trace } from "@/lib/staff-contracts";
 import type { OpsSnapshot } from "@/lib/contracts";
 import { api } from "@/lib/client";
 import { date, money } from "@/lib/format";
@@ -18,22 +20,52 @@ import { Modal } from "./ui/dialog";
 const stages = ["Understand", "Decide", "Act", "Verify", "Escalate"];
 export function Ops() {
   const t = useTranslations();
-  const { locale } = useApp();
+  const { locale, config } = useApp();
   const [data, setData] = useState<OpsSnapshot | null>(null),
     [failed, setFailed] = useState(false),
     [selected, setSelected] = useState("");
   const [reset, setReset] = useState(false),
     [busy, setBusy] = useState(false),
     [done, setDone] = useState(false);
+  const load = useCallback(
+    async (signal?: AbortSignal): Promise<OpsSnapshot> => {
+      if (config.fixtures)
+        return api<OpsSnapshot>("ops/overview", undefined, signal);
+      const current = await api<LiveOps>("ops/snapshot", undefined, signal);
+      const traces = await Promise.all(
+        current.conversation_ids.map((id) =>
+          api<Trace>(`chat/sessions/${id}/trace`, undefined, signal),
+        ),
+      );
+      return {
+        dataset_version: current.dataset_version,
+        bank_clock: current.bank_clock,
+        quality: current.quality,
+        metrics: current.metrics,
+        freshness: {
+          built_at: current.loaded_at,
+          source_as_of: current.source_as_of,
+          status: "unknown",
+        },
+        conversations: traces.map((trace) => ({
+          id: trace.conversation_id,
+          events: trace.events,
+        })),
+        results: null,
+        daily_cost: [],
+      };
+    },
+    [config.fixtures],
+  );
   useEffect(() => {
     const ctrl = new AbortController();
-    api<OpsSnapshot>("ops/overview", undefined, ctrl.signal)
+    load(ctrl.signal)
       .then(setData)
       .catch(() => {
         if (!ctrl.signal.aborted) setFailed(true);
       });
     return () => ctrl.abort();
-  }, []);
+  }, [load]);
   async function resetSpace() {
     if (busy) return;
     setBusy(true);
@@ -61,6 +93,9 @@ export function Ops() {
     data?.conversations.at(-1);
   return (
     <>
+      {!config.fixtures && (
+        <p className="fixture-note">{t("workspaceScope")}</p>
+      )}
       {failed && (
         <p className="error" role="alert">
           {t("error")}{" "}
@@ -206,8 +241,10 @@ export function Ops() {
                           <div>
                             <dt>Cost / latency</dt>
                             <dd>
-                              {money(event.llm.cost_usd, "USD", locale)} /{" "}
-                              {event.llm.latency_ms} ms
+                              {event.llm.cost_usd === null
+                                ? "—"
+                                : money(event.llm.cost_usd, "USD", locale)}{" "}
+                              / {event.llm.latency_ms} ms
                             </dd>
                           </div>
                         </dl>
@@ -225,7 +262,8 @@ export function Ops() {
                 <div className="quality-row" key={q.name}>
                   <span>
                     <CheckCheck size={16} />
-                    {t(q.name)}
+                    {t.has(q.name) ? t(q.name) : q.name} ·{" "}
+                    {q.passed ? t("verified") : t("unverified")}
                   </span>
                   <span>
                     {q.checked} {t("checked")}
@@ -255,53 +293,97 @@ export function Ops() {
               <p className="caption">{t("lineageAlt")}</p>
             </section>
             <section className="panel data-panel">
-              <h2>{t("results")}</h2>
-              <p className="badge amber">{t("illustrative")}</p>
-              <div className="result-numbers">
-                <div>
-                  <strong>{data.results.cases}</strong>
-                  <span>{t("cases")}</span>
-                </div>
-                <div>
-                  <strong>{data.results.passed}</strong>
-                  <span>{t("passed")}</span>
-                </div>
-                <div>
-                  <strong>{data.results.unsafe}</strong>
-                  <span>{t("unsafe")}</span>
-                </div>
-              </div>
-              <p className="caption">
-                {data.results.source} · {t("humanPending")}
-              </p>
-              <h3>{t("daily")}</h3>
-              <div className="cost-table">
-                {data.daily_cost.map((day) => (
-                  <div key={day.date}>
-                    <span>{date(day.date, locale)}</span>
-                    <strong>{money(day.usd, "USD", locale)}</strong>
+              {data.results ? (
+                <>
+                  <h2>{t("results")}</h2>
+                  <p className="badge amber">{t("illustrative")}</p>
+                  <div className="result-numbers">
+                    <div>
+                      <strong>{data.results.cases}</strong>
+                      <span>{t("cases")}</span>
+                    </div>
+                    <div>
+                      <strong>{data.results.passed}</strong>
+                      <span>{t("passed")}</span>
+                    </div>
+                    <div>
+                      <strong>{data.results.unsafe}</strong>
+                      <span>{t("unsafe")}</span>
+                    </div>
                   </div>
-                ))}
-              </div>
-              <p className="caption">{t("zeroCost")}</p>
+                  <p className="caption">
+                    {data.results.source} · {t("humanPending")}
+                  </p>
+                  <h3>{t("daily")}</h3>
+                  <div className="cost-table">
+                    {data.daily_cost.map((day) => (
+                      <div key={day.date}>
+                        <span>{date(day.date, locale)}</span>
+                        <strong>{money(day.usd, "USD", locale)}</strong>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="caption">{t("zeroCost")}</p>
+                </>
+              ) : (
+                data.metrics && (
+                  <>
+                    <h2>{t("workspaceMetrics")}</h2>
+                    <p className="badge amber">{t("notEvaluation")}</p>
+                    <dl className="metadata-list">
+                      <dt>{t("cases")}</dt>
+                      <dd>{data.metrics.cases}</dd>
+                      <dt>{t("handoffs")}</dt>
+                      <dd>{data.metrics.handoffs}</dd>
+                      <dt>{t("conversationsCount")}</dt>
+                      <dd>{data.metrics.conversations}</dd>
+                      <dt>{t("executionRecords")}</dt>
+                      <dd>{data.metrics.execution_records}</dd>
+                      <dt>{t("observedCost")}</dt>
+                      <dd>
+                        {money(
+                          data.metrics.observed_model_cost_usd,
+                          "USD",
+                          locale,
+                        )}
+                      </dd>
+                      <dt>SAR</dt>
+                      <dd>{t("notMeasured")}</dd>
+                      <dt>{t("unsafe")}</dt>
+                      <dd>{t("notMeasured")}</dd>
+                    </dl>
+                    <p className="caption">{t("dailyUnavailable")}</p>
+                  </>
+                )
+              )}
             </section>
           </div>
-          <div className="reset-panel">
-            <div>
-              <h3>{t("reset")}</h3>
-              <p>{t("fixtureNote")}</p>
-              {done && (
-                <p className="verified-note" role="status">
-                  <CheckCheck size={17} />
-                  {t("resetDone")}
-                </p>
-              )}
+          {!config.fixtures ? (
+            <LiveReset
+              enabled={config.resetEnabled === true}
+              onReset={async () => {
+                setData(await load());
+                setSelected("");
+              }}
+            />
+          ) : (
+            <div className="reset-panel">
+              <div>
+                <h3>{t("reset")}</h3>
+                <p>{t("fixtureNote")}</p>
+                {done && (
+                  <p className="verified-note" role="status">
+                    <CheckCheck size={17} />
+                    {t("resetDone")}
+                  </p>
+                )}
+              </div>
+              <Button variant="secondary" onClick={() => setReset(true)}>
+                <RefreshCcw size={16} />
+                {t("reset")}
+              </Button>
             </div>
-            <Button variant="secondary" onClick={() => setReset(true)}>
-              <RefreshCcw size={16} />
-              {t("reset")}
-            </Button>
-          </div>
+          )}
         </>
       )}
       <Modal

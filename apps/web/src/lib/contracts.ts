@@ -99,7 +99,7 @@ export const planSchema = z
     verified: z.boolean().nullish(),
     session_ended: z.boolean().optional(),
     freeze_offer: z.array(productSchema).nullish(),
-    card: cardSchema.optional(),
+    card: cardSchema.nullish(),
   })
   .superRefine((plan, ctx) => {
     const needs = (ok: unknown, field: string) => {
@@ -126,16 +126,27 @@ export type Handoff = z.infer<typeof handoffSchema>;
 export type Role = "customer" | "agent" | "ops";
 export type Locale = "es-MX" | "es-CO" | "es-AR" | "pt-BR";
 export type Surface = "chat" | "desk" | "ops";
-export type Session = { username: string; role: Role; language: "es" | "pt" };
+export type Session = {
+  username: string;
+  role: Role;
+  language: "es" | "pt";
+  locale?: Locale;
+  bank_clock?: string;
+};
 export type Config = {
   fixtures: boolean;
+  resetEnabled?: boolean;
   bankClock: string | null;
   personas: { username: string; label: string; role: Role; locale: Locale }[];
 };
 
 // Proposed extensions: feature-flagged fixtures ONLY until the lead adds contracts.
 export type DeskPacket = Handoff & {
-  conversation_id: string;
+  conversation_id: string | null;
+  version?: number;
+  verified?: boolean;
+  risk_flags?: string[] | null;
+  suggested_next_steps?: string[] | null;
   customer_display: string;
   sla_due_at: string;
   status: "waiting" | "claimed" | "resolved";
@@ -166,7 +177,7 @@ export type TraceEvent = {
     prompt_version: string;
     input_tokens: number;
     output_tokens: number;
-    cost_usd: number;
+    cost_usd: number | null;
     latency_ms: number;
   } | null;
 };
@@ -177,17 +188,18 @@ export type OpsSnapshot = {
   freshness: {
     built_at: string;
     source_as_of: string;
-    status: "fresh" | "stale";
+    status: "fresh" | "stale" | "unknown";
   };
   conversations: { id: string; events: TraceEvent[] }[];
   daily_cost: { date: string; usd: number }[];
+  metrics?: import("./staff-contracts").WorkspaceMetrics;
   results: {
     source: string;
     kind: string;
     cases: number;
     passed: number;
     unsafe: number;
-    cost_usd: number;
+    cost_usd: number | null;
     human_validated: boolean;
-  };
+  } | null;
 };

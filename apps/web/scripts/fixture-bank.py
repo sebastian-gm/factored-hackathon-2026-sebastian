@@ -11,6 +11,8 @@ if __name__ == "__main__":
     app = create_app(
         settings=Settings(
             demo_username="demo.es.mx",
+            demo_role="ops" if os.environ.get("FRONTEND_E2E_STAFF") == "1" else "customer",
+            allow_demo_reset=os.environ.get("FRONTEND_E2E_STAFF") == "1",
             demo_password=os.environ["FRONTEND_FIXTURE_PASSWORD"],
             llm_provider="mock",
             agent_system="B1",

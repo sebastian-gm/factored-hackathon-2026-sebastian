@@ -12,6 +12,24 @@ export const es = {
   secure: "Sesión verificada",
   simulated: "Reloj simulado",
   noClock: "Reloj no disponible",
+  workspaceScope:
+    "Solo los registros de esta sesión de demostración. No es una cola global de clientes.",
+  nextSteps: "Próximos pasos sugeridos",
+  unknown: "Sin evaluación de vigencia",
+  workspaceMetrics: "Actividad de este espacio",
+  notEvaluation: "Recuentos operativos · no es una evaluación",
+  handoffs: "Derivaciones",
+  conversationsCount: "Conversaciones",
+  executionRecords: "Registros de ejecución",
+  observedCost: "Costo observado del modelo en este espacio",
+  notMeasured: "Sin medir: no hay etiquetas de referencia",
+  dailyUnavailable:
+    "El servicio informa costo acumulado del espacio; no publica un desglose diario.",
+  resetDisabled:
+    "El restablecimiento está deshabilitado en la configuración de este servicio.",
+  liveResetBody:
+    "Borrar las operaciones de esta sesión de demostración. Se conservan la autenticación y la auditoría. Requiere un nuevo OTP y confirmación.",
+  scoped_owned_fixture_rows: "Registros de ejemplo con propiedad comprobada",
   fixture: "Modo demostración · datos de ejemplo",
   fixtureNote:
     "Las acciones se guardan solo en este espacio de prueba. No es una evaluación del sistema.",
@@ -201,6 +219,23 @@ export const pt: typeof es = {
   secure: "Sessão verificada",
   simulated: "Relógio simulado",
   noClock: "Relógio indisponível",
+  workspaceScope:
+    "Somente os registros desta sessão de demonstração. Não é uma fila global de clientes.",
+  nextSteps: "Próximos passos sugeridos",
+  unknown: "Sem avaliação de atualidade",
+  workspaceMetrics: "Atividade deste espaço",
+  notEvaluation: "Contagens operacionais · não é uma avaliação",
+  handoffs: "Encaminhamentos",
+  conversationsCount: "Conversas",
+  executionRecords: "Registros de execução",
+  observedCost: "Custo observado do modelo neste espaço",
+  notMeasured: "Não medido: não há rótulos de referência",
+  dailyUnavailable:
+    "O serviço informa o custo acumulado do espaço; não publica um detalhamento diário.",
+  resetDisabled: "A redefinição está desativada na configuração deste serviço.",
+  liveResetBody:
+    "Apagar as operações desta sessão de demonstração. A autenticação e a auditoria são preservadas. Exige um novo OTP e confirmação.",
+  scoped_owned_fixture_rows: "Registros de exemplo com titularidade conferida",
   fixture: "Modo demonstração · dados de exemplo",
   fixtureNote:
     "As ações ficam apenas neste espaço de teste. Isto não é uma avaliação do sistema.",

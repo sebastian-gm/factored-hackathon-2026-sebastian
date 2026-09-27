@@ -9,7 +9,9 @@ import { Button } from "./ui/button";
 export function Login({ role }: { role: Role }) {
   const t = useTranslations();
   const { config, signedIn, setLocale } = useApp();
-  const choices = config.personas.filter((p) => p.role === role);
+  const choices = config.personas.filter(
+    (p) => !config.fixtures || p.role === role,
+  );
   const [username, setUsername] = useState(choices[0]?.username ?? "");
   const [password, setPassword] = useState(""),
     [otp, setOtp] = useState(""),

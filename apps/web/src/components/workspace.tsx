@@ -48,7 +48,11 @@ export default function Workspace() {
   const [ready, setReady] = useState(false),
     [failed, setFailed] = useState(false);
   async function signedIn() {
-    setSession(await api<Session>("me"));
+    const current = await api<Session>("me");
+    setSession(current);
+    if (current.bank_clock)
+      setConfig((c) => ({ ...c, bankClock: current.bank_clock! }));
+    if (current.locale) setLocale(current.locale);
   }
   async function signOut() {
     await api("auth/logout", {});
@@ -64,7 +68,10 @@ export default function Workspace() {
       api<Session>("me", undefined, ctrl.signal).catch(() => null),
     ])
       .then(([configuration, current]) => {
-        setConfig(configuration);
+        setConfig({
+          ...configuration,
+          bankClock: current?.bank_clock ?? configuration.bankClock,
+        });
         setSession(current);
         setReady(true);
       })
@@ -97,7 +104,11 @@ function Shell({ ready, failed }: { ready: boolean; failed: boolean }) {
     [authError, setAuthError] = useState(false);
   const role =
     surface === "chat" ? "customer" : surface === "desk" ? "agent" : "ops";
-  const allowed = session?.role === role;
+  const allowed =
+    session?.role === role ||
+    (!config.fixtures &&
+      !!session &&
+      (surface === "chat" || (surface === "desk" && session.role === "ops")));
   const nav = [
     { id: "chat" as const, icon: MessageCircle },
     { id: "desk" as const, icon: Headphones },
@@ -247,12 +258,6 @@ function Shell({ ready, failed }: { ready: boolean; failed: boolean }) {
               <CircleHelp />
               <h2>{t("error")}</h2>
               <Button onClick={() => location.reload()}>{t("retry")}</Button>
-            </div>
-          ) : !config.fixtures && surface !== "chat" ? (
-            <div className="panel empty">
-              <LayoutDashboard size={32} />
-              <h2>{t("contractTitle")}</h2>
-              <p>{t("contractBody")}</p>
             </div>
           ) : !allowed ? (
             <div className="customer-grid">

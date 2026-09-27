@@ -66,13 +66,28 @@ export function AgentDesk() {
     setBusy(true);
     setError(false);
     try {
-      await api(`agent/handoffs/${current.handoff_id}/${action}`, {});
+      if (!config.fixtures && !current.version)
+        throw new Error("Missing version");
+      await api(
+        `agent/handoffs/${current.handoff_id}/${action}`,
+        config.fixtures
+          ? {}
+          : {
+              expected_version: current.version,
+              idempotency_key: crypto.randomUUID(),
+              ...(action === "resolve"
+                ? { resolution: "review_completed" }
+                : {}),
+            },
+      );
       const verified = await api<DeskPacket>(
         `agent/handoffs/${current.handoff_id}`,
       );
       if (
         verified.handoff_id !== current.handoff_id ||
-        verified.status !== (action === "claim" ? "claimed" : "resolved")
+        verified.status !== (action === "claim" ? "claimed" : "resolved") ||
+        (!config.fixtures &&
+          (verified.version !== current.version! + 1 || !verified.verified))
       )
         throw new Error("Read-back failed");
       setPackets((items) =>
@@ -87,6 +102,9 @@ export function AgentDesk() {
   }
   return (
     <>
+      {!config.fixtures && (
+        <p className="fixture-note">{t("workspaceScope")}</p>
+      )}
       <div className="desk-grid">
         <section className="panel queue-panel">
           <header className="panel-heading">
@@ -207,6 +225,19 @@ export function AgentDesk() {
                   ))}
                 </ol>
               </section>
+              {current.risk_flags?.length ? (
+                <p className="routing-note">{current.risk_flags.join(" · ")}</p>
+              ) : null}
+              {current.suggested_next_steps?.length ? (
+                <section className="packet-section">
+                  <h3>{t("nextSteps")}</h3>
+                  <ul>
+                    {current.suggested_next_steps.map((step) => (
+                      <li key={step}>{step}</li>
+                    ))}
+                  </ul>
+                </section>
+              ) : null}
               <section className="packet-section">
                 <h3>{t("questions")}</h3>
                 <ul className="questions">

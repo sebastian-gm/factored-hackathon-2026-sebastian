@@ -1,9 +1,14 @@
 import { defineConfig, devices } from "@playwright/test";
+const staff = process.env.FRONTEND_E2E_STAFF === "1";
 const live = process.env.FRONTEND_E2E_LIVE === "1";
 const secret = process.env.FRONTEND_FIXTURE_PASSWORD ?? "";
 export default defineConfig({
   testDir: "./tests",
-  testMatch: live ? "**/live.spec.ts" : "**/stories.spec.ts",
+  testMatch: staff
+    ? "**/staff.spec.ts"
+    : live
+      ? "**/live.spec.ts"
+      : "**/stories.spec.ts",
   fullyParallel: false,
   workers: 1,
   timeout: 45000,
@@ -24,7 +29,10 @@ export default defineConfig({
             command: "../../.venv/bin/python scripts/fixture-bank.py",
             url: "http://127.0.0.1:8212/healthz",
             reuseExistingServer: false,
-            env: { FRONTEND_FIXTURE_PASSWORD: secret },
+            env: {
+              FRONTEND_FIXTURE_PASSWORD: secret,
+              FRONTEND_E2E_STAFF: staff ? "1" : "0",
+            },
             stdout: "ignore" as const,
             stderr: "pipe" as const,
           },
@@ -37,6 +45,7 @@ export default defineConfig({
       timeout: 120000,
       env: {
         WATCHPACK_POLLING: "1000",
+        FRONTEND_ALLOW_DEMO_RESET: staff ? "true" : "false",
         FRONTEND_DEMO_MODE: live ? "live" : "fixtures",
         FRONTEND_FIXTURE_PASSWORD: secret,
         NEXT_TELEMETRY_DISABLED: "1",
