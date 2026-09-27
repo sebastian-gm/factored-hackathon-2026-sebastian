@@ -27,7 +27,7 @@
 
 ### Done-not-verified
 
-- Ordered rebased merges #36 → #28 → #24 → #37 and the Step 3 real P dev gate are in progress. No paid Option A dev run has been made by the lead.
+- Merged #36 after rebase and green CI, then #28 and #24 after the owner-selected history-preserving updates and fresh green CI. #37 and the Step 3 real P dev gate remain in progress. No paid Option A dev run has been made by the lead.
 
 ### Next-blocked
 
@@ -61,6 +61,20 @@
 
 ### Next / blocked
 - Keep these PRs open throughout Sebastian's merge freeze. Add frontend glass-box and recording helper on a separate branch; lead merges only after final-run completion.
+
+## 2026-09-27 — Frontend handoff 11: historical recording helper and glass box
+
+### Completed (verified)
+- Refreshed open PRs #24 and #28 against main `3ed98c9` with history-preserving merges (no force push). Exact-head checks, web, Postgres and safety CI passed for both; PR #24 records current Gemini/Grok/Jev roles, matcher v2/human evidence and real-model deployment.
+- Added precise per-call cost/latency/tokens and conversation known-subtotal/unknown-count rendering; additive allowlisted risk-union, retry/status and Grok-route display. Missing metadata stays unavailable, Gemini risk probabilities stay absent, and risk decisions come from the server.
+- Added an authenticated recording helper using existing fixture reset plus read-back, then ES/PT/fraud persona shortcuts and Agent Desk. Prepared messages never auto-send or authorize actions. Live shortcuts require optional trusted persona bindings; existing live reset flags, fresh OTP, confirmation and scope remain enforced.
+- Fixture Playwright suite: 12 passed; local B1/mock API customer suite: 6 passed; staff claim/resolve/OTP-reset suite: 1 passed. Production build, lint, TypeScript and repository pre-commit checks passed; final targeted glass-box rerun also passed after copy/mobile-table corrections. Authored-fixture phone screenshot inspected; no paid inference, organizer-row access, Azure changes or frozen-suite execution.
+
+### Done but not verified
+- Real-model/cloud recording of these changes is not performed. Current staff trace drops risk judgments/route and current personas omit story bindings; `apps/web/API-PROPOSAL.md` specifies the additive lead changes. Live reset remains disabled in cloud and cannot clear other personas' workspaces.
+
+### Next / blocked
+- [PR #37](https://github.com/sebastian-gm/bank-agent-lab/pull/37) is open; keep it and PRs #24/#28 unmerged until Sebastian announces final-run completion. Lead supplies reviewed trace/persona projections and decides any separately authorized bulk reset; UI does not widen RLS or bypass authentication.
 
 
 ## Jev release and final-program preparation — 2026-09-27 UTC (current)

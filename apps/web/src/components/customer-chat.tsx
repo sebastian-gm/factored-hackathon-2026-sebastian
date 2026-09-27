@@ -25,12 +25,12 @@ type Line = {
   speaker: "customer" | "aclara";
   plan?: Plan;
 };
-export function CustomerChat() {
+export function CustomerChat({ initialDraft = "" }: { initialDraft?: string }) {
   const t = useTranslations();
   const { locale, config, session, signOut } = useApp();
   const [conversation, setConversation] = useState("");
   const [lines, setLines] = useState<Line[]>([]);
-  const [draft, setDraft] = useState(""),
+  const [draft, setDraft] = useState(initialDraft),
     [busy, setBusy] = useState(false),
     [error, setError] = useState("");
   const [latest, setLatest] = useState<Plan | null>(null),

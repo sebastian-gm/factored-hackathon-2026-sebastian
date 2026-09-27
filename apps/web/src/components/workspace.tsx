@@ -21,6 +21,8 @@ import { Button } from "./ui/button";
 import { Login } from "./login";
 import { CustomerChat } from "./customer-chat";
 import { AgentDesk } from "./agent-desk";
+import { RecordingHelper } from "./recording-helper";
+import { storyPersona, storyDraft, type DemoStory } from "@/lib/demo-stories";
 import { Ops } from "./ops";
 
 type AppContext = {
@@ -100,6 +102,34 @@ export default function Workspace() {
 function Shell({ ready, failed }: { ready: boolean; failed: boolean }) {
   const t = useTranslations();
   const { locale, setLocale, config, session, signOut } = useApp();
+  const [preferredPersona, setPreferredPersona] = useState("");
+  const [story, setStory] = useState<DemoStory | null>(null);
+  const [workspaceRevision, setWorkspaceRevision] = useState(0);
+  async function openStory(next: DemoStory) {
+    const persona = storyPersona(config, next);
+    if (!persona) throw new Error("Persona unavailable");
+    if (session && session.username !== persona.username) await signOut();
+    setPreferredPersona(persona.username);
+    setLocale(persona.locale);
+    setStory(next);
+    setSurface("chat");
+    setWorkspaceRevision((n) => n + 1);
+  }
+  async function openStaff(next: "ops" | "desk") {
+    if (!config.fixtures) {
+      if (
+        next === "desk" &&
+        (session?.role === "ops" || session?.role === "agent")
+      )
+        setSurface(next);
+      return;
+    }
+    const username = next === "ops" ? "demo.ops" : "demo.agent";
+    if (session && session.username !== username) await signOut();
+    setPreferredPersona(username);
+    setLocale("es-MX");
+    setSurface(next);
+  }
   const [surface, setSurface] = useState<Surface>("chat"),
     [authError, setAuthError] = useState(false);
   const role =
@@ -217,6 +247,15 @@ function Shell({ ready, failed }: { ready: boolean; failed: boolean }) {
           {config.fixtures && (
             <p className="fixture-note">{t("fixtureNote")}</p>
           )}
+          {ready && !failed && (
+            <RecordingHelper
+              onStory={openStory}
+              onStaff={openStaff}
+              onLiveReset={async () => {
+                setWorkspaceRevision((n) => n + 1);
+              }}
+            />
+          )}
           <div className="page-heading">
             <p className="eyebrow">
               {surface === "chat"
@@ -272,20 +311,32 @@ function Shell({ ready, failed }: { ready: boolean; failed: boolean }) {
                     <Button onClick={() => void exit()}>{t("restart")}</Button>
                   </>
                 ) : (
-                  <Login role={role} />
+                  <Login
+                    key={`${role}:${preferredPersona}`}
+                    role={role}
+                    preferredUsername={preferredPersona}
+                  />
                 )}
               </section>
               <Journey />
             </div>
           ) : surface === "chat" ? (
             <div className="customer-grid">
-              <CustomerChat key={session.username} />
+              <CustomerChat
+                key={`${session.username}:${workspaceRevision}`}
+                initialDraft={
+                  story &&
+                  session.username === storyPersona(config, story)?.username
+                    ? storyDraft(config, story)
+                    : ""
+                }
+              />
               <Journey />
             </div>
           ) : surface === "desk" ? (
-            <AgentDesk />
+            <AgentDesk key={workspaceRevision} />
           ) : (
-            <Ops />
+            <Ops key={workspaceRevision} />
           )}
           <footer className="page-footer">
             <span>

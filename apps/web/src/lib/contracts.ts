@@ -137,7 +137,13 @@ export type Config = {
   fixtures: boolean;
   resetEnabled?: boolean;
   bankClock: string | null;
-  personas: { username: string; label: string; role: Role; locale: Locale }[];
+  personas: {
+    username: string;
+    label: string;
+    role: Role;
+    locale: Locale;
+    demo_stories?: ("explain" | "ambiguous" | "fraud")[];
+  }[];
 };
 
 // Proposed extensions: feature-flagged fixtures ONLY until the lead adds contracts.
@@ -164,23 +170,7 @@ export type DeskPacket = Handoff & {
     evidence_ref: string;
   }[];
 };
-export type TraceEvent = {
-  id: string;
-  stage: "Understand" | "Decide" | "Act" | "Verify" | "Escalate";
-  state: string;
-  tool: string | null;
-  rules: string[];
-  verified: boolean;
-  llm: {
-    provider: string;
-    model: string;
-    prompt_version: string;
-    input_tokens: number;
-    output_tokens: number;
-    cost_usd: number | null;
-    latency_ms: number;
-  } | null;
-};
+export type TraceEvent = import("./trace").TraceEvent;
 export type OpsSnapshot = {
   source_kind?: "authored_fixture" | "organizer_serving";
   dataset_version: string;

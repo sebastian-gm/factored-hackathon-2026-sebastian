@@ -9,6 +9,8 @@ import {
   RefreshCcw,
   ShieldCheck,
 } from "lucide-react";
+import { CallDetails } from "./call-details";
+import { callTotals, usd } from "@/lib/trace";
 import { LiveReset } from "./live-reset";
 import type { LiveOps, Trace } from "@/lib/staff-contracts";
 import type { OpsSnapshot } from "@/lib/contracts";
@@ -92,6 +94,8 @@ export function Ops() {
   const conversation =
     data?.conversations.find((c) => c.id === selected) ??
     data?.conversations.at(-1);
+  const totals = callTotals(conversation?.events ?? []);
+  const hasRisk = conversation?.events.some((event) => event.llm?.judgments);
   return (
     <>
       {!config.fixtures && (
@@ -193,73 +197,74 @@ export function Ops() {
                 <p>{t("traceEmpty")}</p>
               </div>
             ) : (
-              <ol className="execution-list">
-                {conversation.events.map((event) => (
-                  <li key={event.id}>
-                    <span className="event-node">
-                      <span />
-                    </span>
-                    <div>
-                      <div className="row-between">
-                        <strong>
-                          {event.stage}{" "}
-                          <span className="caption">/ {event.state}</span>
-                        </strong>
-                        {event.verified && (
-                          <span className="badge">
-                            <CheckCheck size={13} />
-                            {t("verified")}
-                          </span>
-                        )}
-                      </div>
-                      <p className="caption">
-                        {event.tool
-                          ? `${t("tool")}: ${event.tool}`
-                          : t("noLlm")}
-                      </p>
-                      {event.rules.length > 0 && (
-                        <div className="rule-list">
-                          {event.rules.map((rule) => (
-                            <span key={rule} className="rule">
-                              {rule}
+              <div>
+                <div
+                  className="conversation-cost"
+                  aria-label={t("conversationCost")}
+                >
+                  <h3>{t("conversationCost")}</h3>
+                  <strong>
+                    {totals.count
+                      ? usd(totals.known, locale)
+                      : t("notRecorded")}
+                  </strong>
+                  <p>
+                    {t("recordedCalls", { count: totals.count })} ·{" "}
+                    {t("unknownCosts", { count: totals.unknown })}
+                  </p>
+                  <p className="caption">
+                    {t(totals.unknown ? "partialCost" : "recordedCostOnly")}
+                  </p>
+                  {totals.grok > 0 && (
+                    <p className="badge amber">
+                      {t(totals.fallback ? "grokFallback" : "grokObserved")}
+                    </p>
+                  )}
+                  {!hasRisk && (
+                    <p className="caption">{t("riskUnavailable")}</p>
+                  )}
+                </div>
+                <ol className="execution-list">
+                  {conversation.events.map((event) => (
+                    <li key={event.id}>
+                      <span className="event-node">
+                        <span />
+                      </span>
+                      <div>
+                        <div className="row-between">
+                          <strong>
+                            {event.stage}{" "}
+                            <span className="caption">/ {event.state}</span>
+                          </strong>
+                          {event.verified && (
+                            <span className="badge">
+                              <CheckCheck size={13} />
+                              {t("verified")}
                             </span>
-                          ))}
+                          )}
                         </div>
-                      )}
-                      {event.llm && (
-                        <dl className="llm-metadata" aria-label={t("llm")}>
-                          <div>
-                            <dt>Provider / model</dt>
-                            <dd>
-                              {event.llm.provider} / {event.llm.model}
-                            </dd>
+                        <p className="caption">
+                          {event.tool
+                            ? `${t("tool")}: ${event.tool}`
+                            : event.llm
+                              ? t("llm")
+                              : t("noLlm")}
+                        </p>
+                        {event.rules.length > 0 && (
+                          <div className="rule-list">
+                            {event.rules.map((rule) => (
+                              <span key={rule} className="rule">
+                                {rule}
+                              </span>
+                            ))}
                           </div>
-                          <div>
-                            <dt>Prompt</dt>
-                            <dd>{event.llm.prompt_version}</dd>
-                          </div>
-                          <div>
-                            <dt>Tokens in / out</dt>
-                            <dd>
-                              {event.llm.input_tokens} /{" "}
-                              {event.llm.output_tokens}
-                            </dd>
-                          </div>
-                          <div>
-                            <dt>Cost / latency</dt>
-                            <dd>
-                              {event.llm.cost_usd === null
-                                ? "—"
-                                : money(event.llm.cost_usd, "USD", locale)}{" "}
-                              / {event.llm.latency_ms} ms
-                            </dd>
-                          </div>
-                        </dl>
-                      )}
-                    </div>
-                  </li>
-                ))}
-              </ol>
+                        )}
+                        {event.llm && <CallDetails call={event.llm} />}
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              </div>
             )}
           </section>
           <div className="ops-grid">
