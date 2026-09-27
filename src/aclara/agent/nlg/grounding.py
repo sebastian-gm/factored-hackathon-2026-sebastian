@@ -27,8 +27,8 @@ _CARD = re.compile(r"(?<!\d)(?:\d[ -]?){13,19}(?!\d)")
 _DOCUMENT = re.compile(r"(?<!\w)\d{8,12}(?!\w)")
 _HANDLE = re.compile(r"\b(?:txn|card|prod|cust)_\d+\b", re.I)
 _CASE = re.compile(r"\b(?:DSP|HO)-[A-Z0-9-]+\b", re.I)
-_NUMBER = re.compile(r"(?<!\w)\d+(?:[.,]\d+)?(?!\w)")
-_ISO_DATE = re.compile(r"\b20\d{2}-\d{2}-\d{2}\b")
+_NUMBER = re.compile(r"(?<!\w)\d+(?:[.,]\d+)*(?!\w)")
+_ISO_DATE = re.compile(r"\b20\d{2}-\d{2}-\d{2}(?=T|\b)")
 _INJECTION = re.compile(
     r"ignore (?:all |your )?(?:previous |system )?instructions|ignora (?:tus |las )?instrucciones|mostra (?:todas|todos) as contas",
     re.I,
@@ -55,9 +55,26 @@ def _fold(text: str) -> str:
 
 def _numeric_tokens(text: str) -> set[Decimal]:
     values: set[Decimal] = set()
+    # A transaction timestamp such as 2026-06-09T00:00:00Z is a legitimate
+    # source for a localized "9 jun 2026" date. The generic number regex does
+    # not capture 09 when it is directly followed by the ISO time separator T.
+    for iso_date in _ISO_DATE.findall(text):
+        values.update(Decimal(part) for part in iso_date.split("-"))
     for token in _NUMBER.findall(text):
         try:
-            values.add(Decimal(token.replace(",", ".")))
+            if "," in token and "." in token:
+                decimal_mark = "," if token.rfind(",") > token.rfind(".") else "."
+                grouping_mark = "." if decimal_mark == "," else ","
+                token = token.replace(grouping_mark, "").replace(decimal_mark, ".")
+            elif "," in token or "." in token:
+                separator = "," if "," in token else "."
+                parts = token.split(separator)
+                token = (
+                    "".join(parts)
+                    if len(parts) > 2 or (len(parts[-1]) == 3 and len(parts[0]) <= 3)
+                    else token.replace(",", ".")
+                )
+            values.add(Decimal(token))
         except InvalidOperation:
             continue
     return values
