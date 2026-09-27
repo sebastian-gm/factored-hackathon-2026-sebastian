@@ -23,7 +23,7 @@ from evals.bound_execution import execute_bound
 from evals.heldout_report import comparison, report
 from evals.metrics import score
 from evals.observations import validate_gold
-from evals.suites.tools.validate_release import main as validate_release
+from evals.suites.tools.validate_release import check_payloads, verify_manifest
 
 
 def private_write(path: Path, data: str) -> None:
@@ -34,7 +34,10 @@ def private_write(path: Path, data: str) -> None:
 
 
 def load() -> tuple[dict, dict, AgentDirectory]:
-    validate_release()
+    release = ROOT / "evals/suites/test"
+    summary = check_payloads(release)
+    verify_manifest(release)
+    print(json.dumps(summary, sort_keys=True))
     parts = [
         yaml.safe_load(p.read_text())
         for p in sorted((ROOT / "evals/suites/test").glob("scenarios-*.yaml"))
