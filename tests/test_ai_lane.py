@@ -9,10 +9,13 @@ from pathlib import Path
 from typing import cast
 
 import pytest
+import yaml
+from evals.reactive import fixture
 from pydantic import BaseModel, ConfigDict
 
 from aclara.agent.ai import AgentAI
 from aclara.agent.contracts import ResponsePlan
+from aclara.agent.matching import MatchState
 from aclara.agent.nlg.builder import build_reply
 from aclara.agent.nlg.grounding import AllowedFact, redact_for_model, scan_dlp, verify_draft
 from aclara.agent.nlu.structured import (
@@ -556,6 +559,29 @@ def test_false_friend_and_degraded_path() -> None:
         "Quiero hablar con una persona", country="CO", bank_clock=clock, client=client
     )
     assert human.frame.intent.value == "human_request"
+
+
+def test_generic_charge_expression_keeps_named_pending_match_decisive() -> None:
+    scenarios = yaml.safe_load(Path("evals/dev_scenarios_v2.yaml").read_text())["scenarios"]
+    scenario = next(case for case in scenarios if case["id"] == "pt.pending.v2")
+    clock = datetime.fromisoformat(scenario["bank_clock"].replace("Z", "+00:00"))
+    ledger, refs, customer = fixture(scenario, clock)
+    result = postprocess(
+        ExtractedNlu(
+            language="pt",
+            intent="charge_inquiry",
+            intent_confidence=0.95,
+            merchant_expr="Café Central",
+            type_expr="cobrança",
+        ),
+        country="MX",
+        bank_clock=clock,
+    )
+    decision = MatchState().match(
+        result.slots, ledger.for_customer(customer, clock), customer, clock
+    )
+    assert decision.action == "propose"
+    assert decision.transaction_ids == (refs[scenario["gold"]["expected_transaction_ref"]],)
 
 
 def test_grounding_and_dlp_force_template_fallback() -> None:
