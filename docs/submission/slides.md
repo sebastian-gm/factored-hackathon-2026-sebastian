@@ -62,13 +62,13 @@ Access and deployment tasks belong in the [checklist](checklist.md).
 
 ## Slide 3 — The LLM handles language; code holds the authority to act.
 
-- The model extracts intent and transaction clues.
-- Code checks identity, eligibility and confirmation.
+- Gemini understands language; Grok backs up failed calls.
+- Jev adds a risk second opinion; code controls authority.
 - Every reported action needs a read-back.
 
 ```mermaid
 flowchart LR
-  U[Understand<br/>Language and clues] --> D[Decide<br/>Scoped records and rules]
+  U[Understand<br/>Gemini + Jev risk union] --> D[Decide<br/>Scoped records and rules]
   D --> A[Act<br/>Explicit confirmation]
   A --> V[Verify<br/>Committed read-back]
   D --> E[Escalate<br/>Human context]
@@ -85,52 +85,61 @@ customer/run/session RLS constrain records. Critical action language uses templa
 optional phrasing has fact/citation/DLP checks and fallback. Those checks have limits,
 covered on the final slide. Explain decisions from records and rules, never thinking.
 
+Gemini 3 Flash is the selected default; Grok 4.20 runs only after bounded primary failures. Jev probabilities at the configured threshold are unioned with Gemini Boolean risk flags. Gemini does not supply per-cue probabilities. Jev also supports the second subjective judge; neither judge grants action authority. [Model selection][model-comparison], [Jev comparison][jev].
+
 Sources: [system/state diagrams](../architecture.md),
 [threat/control/test map](../security/threat-model.md).
 
 </details>
 
-## Slide 4 — Learned matching lifts accuracy above rules on our synthetic benchmark.
+## Slide 4 — Human recollections exposed a matching gap and drove a safer choice path.
 
-- Contracted inputs → tested gold → a versioned matcher.
-- Accent matching did not justify routing.
-- The fraud-score step reflects generator structure.
+- Contracted inputs → tested gold → versioned matcher.
+- Matcher v2 offers choices when confidence is uncertain.
+- Accent and fraud-score findings limit what we infer.
 
-| Synthetic normalized-slot test [↗][matcher-metrics] | Top-1 accuracy | Wrong proposals / proposals |
+| Human es-CL spot-check · n=9 [↗][matcher-v2] | v1 | v2 |
 | --- | ---: | ---: |
-| Rules | 86.59% | 29 / 1,684 |
-| Logistic regression | 96.78% | 41 / 1,958 |
-| **LightGBM · validation-selected** | **95.22%** | **10 / 1,871** |
+| Target ranked first | 6/9 | 9/9 |
+| Propose / choose / no-match | 0 / 0 / 9 | 6 / 2 / 1 |
+| Wrong proposals / proposals | 0/0 (undefined rate) | 0/6 |
 
 <details>
 <summary>Speaker notes and sources</summary>
 
+One author's nine Chilean Spanish recollections are outside the MX/CO/AR training
+dialects. This is a small diagnostic, not a generalization claim. Human cases were
+excluded from fitting and threshold selection; v2 was trained and calibrated on
+synthetic train/validation with missing dates, approximate amounts, typos and
+merchant types. The post-freeze check ran once. Both choice sets contained the
+target. Zero observed wrong proposals among six is weak evidence. The comparison
+uses the same fresh NLU outputs for v1 and v2. [Protocol and results][matcher-v2].
+
+The original synthetic normalized-slot benchmark had rules / logistic / LightGBM
+top-1 accuracy of 86.59% / 96.78% / 95.22%, with wrong proposals 29/1,684 /
+41/1,958 / 10/1,871. Logistic had lower test expected cost, but the pre-registered
+validation rule selected LightGBM; test outcomes cannot rewrite model selection.
+These v1 metrics use a different feature/scoring path from the later serving replay.
+[Original metrics][matcher-metrics], [selection][matcher-metadata], [review][matcher-review].
+
+The v2 serving replay reduced wrong proposals on the original synthetic cohort
+from 30/1,863 to 13/1,819. Its separate sparse-text stress cohort exposed a trade-off:
+81/4,385 wrong proposals versus no v1 proposals. Choice costs less than a false
+no-match; proposals still require customer confirmation and code eligibility.
+[Versioned cost table and cohort definitions][matcher-v2].
+
 The pipeline hashes source objects, validates contracts, updates silver incrementally,
-and promotes a complete tested gold snapshot. Serving has a separate checksum
-read-back. Broken complaint/product links are excluded; schema changes quarantine.
-Customer/time splits and a held-out noise family protect the matcher comparison.
-Human recollection and language validation remain pending.
-
-The table uses each model's `overall` metrics. Ranking accuracy is over true-match
-queries; proposal counts use each model's operating point. Logistic regression had
-lower test expected cost, while LightGBM made about four times fewer wrong proposals
-at lower coverage. The pre-registered validation rule still selects LightGBM; changing
-selection after seeing test would contaminate the comparison. See
-[metrics][matcher-metrics], [selection metadata][matcher-metadata] and
-[result review][matcher-review].
-
-Accent findings are descriptive and do not justify accent-based routing. The supplied
-fraud-score discontinuity at 30 is generator structure, not independent fraud-model
-validation. Sources: [`accent_test` and `fraud_thresholds`][problem-data],
-[pipeline runbook](../data/pipeline-runbook.md), [problem analysis][problem-analysis].
+and promotes a complete tested gold snapshot. Accent findings do not justify
+accent-based routing; the fraud-score step at 30 reflects generator structure.
+[Pipeline](../data/pipeline-runbook.md), [`accent_test` / `fraud_thresholds`][problem-data].
 
 </details>
 
 ## Slide 5 — The default must earn its place on safety, resolution and conversation cost.
 
 - Final held-out comparison: B1 versus P with a real model.
-- Planned low-cost default: Gemini 3 Flash.
-- Frontier challenger: Claude, compared on the same workload.
+- Selected default: Gemini 3 Flash; frontier challenger: Claude Sonnet 5.
+- Development costs favor Gemini; final conversation outcomes decide the trade-off.
 
 | Final held-out scorecard [↗][eval-protocol] | B1 | P · real model |
 | --- | --- | --- |
@@ -139,20 +148,28 @@ validation. Sources: [`accent_test` and `fraud_thresholds`][problem-data],
 | Turn latency p50 / p95 | TODO(results): latency | TODO(results): latency |
 | USD / conversation; USD / safe resolution | TODO(results): cost | TODO(results): cost |
 | **Model comparison [↗][model-comparison]** | **Gemini 3 Flash** | **Claude frontier** |
-| Task quality and safety verdict | TODO(results): quality + safety | TODO(results): quality + safety |
+| Dev NLU USD / case · 150 cases [↗][model-comparison] | $0.0012650 | $0.0085705 |
+| Final task quality and safety verdict | TODO(results): quality + safety | TODO(results): quality + safety |
 | USD / conversation | TODO(results): cost | TODO(results): cost |
 
 <details>
 <summary>Speaker notes and sources</summary>
 
-This is a scorecard template, not a measured victory. The first block compares B1
-and real-model P on the final frozen workload. The second compares the planned
-Gemini default and an exact, named Claude frontier model under the
-[model-comparison protocol][model-comparison]. Keep the cohorts distinct. Populate
-from the final approved aggregate result exports and the AI lane's comparison;
-record the chosen P model. Gemini 3 Flash is Sebastian's planned low-cost default,
-not an evidence-based selection yet: the source comparison document still records
-no chosen default and no measured costs. “Low-cost” is the hypothesis being tested.
+The final-run cells remain unmeasured. Development selection is already recorded:
+Gemini 3 Flash is the owner-selected default; Grok 4.20 is the failure fallback;
+Jev adds risk cues and a second judge. Claude Sonnet 5 is the frontier comparator.
+The measured development NLU row comes from the same 150 AI-authored, unreviewed
+v3 cases in round two: both models had 150/150 correct intents; Gemini slot F1
+95.7% versus Sonnet 95.2%, p50/p95 call latency 1.88/2.36 versus 3.53/6.38 seconds.
+These are single NLU-case costs, not full conversation costs or final v4 performance.
+[Full comparison with uncertainty][model-comparison]. Jev's separate v4 comparison
+and three-item second-judge check are development evidence only. [Jev][jev].
+
+The private deployed real-model smoke verified four conversations and fourteen paid
+calls costing $0.00925008, with Jev risk metadata present and no Grok fallback.
+That small smoke is deployment evidence, not a latency benchmark or a substitute
+for the final scorecard. Its PT path clarified and handed off; it did not prove the
+planned ambiguous-choice recording scene. [Release receipt summary][release].
 
 Include denominators and uncertainty for SAR and each unsafe type; retain failures,
 missing executions and repeat variation. Report total model spend divided by all
@@ -175,14 +192,14 @@ For human workload and risk/coverage context, see [trade-offs](../tradeoffs.md) 
 ## Slide 6 — A bank-ready Aclara needs trusted infrastructure and proven outcomes.
 
 - Synthetic demo; the earlier mock run failed safety gates.
-- Final model evidence and human ES/PT review are pending.
+- Final acceptance and broader human language review remain pending.
 - Production savings remain unmeasured.
 
 | Path to production [↗][readiness] | What must be established |
 | --- | --- |
 | **Earn trust** | Real identity, private networking and core-bank integration |
 | **Prove outcomes** | Safety acceptance, reviewed language and measured human workload |
-| **Operate reliably** | Recovery, retention, load limits, durable budgets and on-call |
+| **Operate reliably** | Recovery, retention, load limits and staffed on-call |
 
 <details>
 <summary>Speaker notes and sources</summary>
@@ -194,6 +211,11 @@ workflow with explicit release gates, not a production banking service. Preserve
 under the frozen protocol. Local tests do not establish cloud reliability or banking
 readiness. The [business projection](../evaluation/business-projection.md) remains a
 framework until acceptable outcome evidence and workflow-specific handling times exist.
+
+Durable model spend reservations and private real-model deployment are implemented.
+Nine human es-CL cases do not validate ES/PT fluency; Portuguese remains model-authored
+and model-cross-checked, without a fluent human reviewer. Jev standard-account ZDR
+is unverified. [Human check][matcher-v2], [Jev limits][jev], [release evidence][release].
 
 Sources: [readiness][readiness], [limitations](../limitations.md),
 [privacy and retention](../security/privacy-and-retention.md). The same control
@@ -211,3 +233,7 @@ integration work; those extensions are not delivered workflows.
 [eval-protocol]: ../evaluation/eval-protocol.md
 [model-comparison]: ../ml/model-comparison.md
 [readiness]: ../production-readiness.md
+
+[matcher-v2]: ../ml/model-card-charge-matcher-v2.md
+[jev]: ../ml/typesafe-jev-comparison.md
+[release]: ../status/progress-log.md

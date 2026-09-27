@@ -4,13 +4,14 @@ Aclara helps a signed-in customer understand an unrecognized charge, file an eli
 dispute, or reach a human with verified context, in Spanish and Brazilian Portuguese.
 It is a **synthetic-data demonstration**, not a bank or a real dispute service.
 
-The scoped bank API, deterministic policy, durable operational state, calibrated
-charge matcher and guarded language adapters are implemented. The runtime defaults
-to `LLM_PROVIDER=mock`; an unconfigured proposed-system mock falls back to rules.
-The redesigned customer, Agent Desk and Ops frontend is in
-[PR #17](https://github.com/sebastian-gm/bank-agent-lab/pull/17). Customer APIs include
-fresh-OTP card freeze. Typed staff/Ops APIs are shipped and PR #17 integrates them,
-including versioned claims, measured workspace counts and gated reset. A source merge does not establish deployed behavior.
+Customer Chat, Agent Desk and Ops run against promoted organizer serving data and
+durable Postgres activity. B1 uses rules; P uses Gemini 3 Flash, failure-only Grok
+4.20 fallback, Jev risk-cue union, guarded phrasing and matcher v2. Local defaults
+remain `LLM_PROVIDER=mock`. The private real-model release and browser smoke are
+verified in the [progress log](docs/status/progress-log.md); final held-out acceptance
+is pending. See [model comparison](docs/ml/model-comparison.md),
+[Jev evidence](docs/ml/typesafe-jev-comparison.md), and
+[matcher v2](docs/ml/model-card-charge-matcher-v2.md).
 
 ## Architecture in 60 seconds
 
@@ -49,38 +50,23 @@ Use the fixture details supplied with the personas for these guided scenarios:
 | Cancel a proposed action | Cancellation must not create a dispute or freeze. Required fraud review still continues. |
 | Ask for another customer's transactions | Refusal with no other-customer records. Do not use real names or identifiers. |
 
-Live Agent Desk and Ops are limited to a trusted identity's current workspace.
-The cloud defaults to customer role with reset disabled; a global staff queue and
-production staff identity are not implemented. The [video draft](docs/submission/video-script.md) includes
-release checks before recording; these instructions do not claim the latest UI has
-been deployed.
+Live Agent Desk and Ops are limited to the trusted identity's current workspace.
+Two deployed demo personas have Ops roles; two are customers. Cloud reset is disabled.
+Judge access, recording and publication steps are in the [checklist](docs/submission/checklist.md).
 
 ## Local quickstart
 
-Requirements: Docker Compose, Python/uv and Node/pnpm, using the versions pinned in
-[CI](.github/workflows/ci.yml) and [the web package](apps/web/package.json).
+1. Copy `.env.example` to ignored `.env`; set local Postgres/demo passwords and `LOCAL_RAW_DIR`. Use persistent ignored `LAKE_DIR=./lake` in this checkout.
+2. Run `uv sync --extra dev --extra data-ml`, `python -m scripts.local_ops`, then `docker compose up -d --wait postgres` and `docker compose run --rm migrate`.
+3. Run `python -m aclara.data.cli build --lake lake --no-reports`, then `python -m scripts.load_demo_serving --target local`.
+4. Run `make up`, open <http://localhost:3000>, then run `make checks` and `python -m scripts.local_smoke`. Four server-bound personas share the configured demo password; the UI displays simulated OTP.
 
-1. Copy `.env.example` to ignored `.env` if it does not already exist. Set your own
-   local Postgres and demo login passwords. Keep `LLM_PROVIDER=mock` and real calls
-   disabled. Never overwrite an existing worktree's credentials.
-2. Run `uv sync --extra dev`, then `make up`. This prepares the non-owner app role,
-   migrates Postgres and waits for healthy services.
-3. Open `http://localhost:3000`, or your configured `WEB_HOST_PORT`. Sign in with
-   the local `DEMO_USERNAME`/`DEMO_PASSWORD`, then the simulated OTP.
-4. Run `make checks`, `uv run --no-sync python -m scripts.local_smoke`, and
-   `uv run --no-sync python -m scripts.test_postgres` for application, smoke and
-   isolated Postgres checks.
+Organizer inputs are never required for CI. Isolated browser and database tests use authored fixtures. Runtime serving mode fails closed if its promoted dataset, clock or persona bindings are missing; it never falls back to the authored ledger.
 
-Every worktree needs its own `COMPOSE_PROJECT_NAME` and host ports. Keep the shared
-absolute `LAKE_DIR` outside the checkout. Organizer inputs may be read only from
-local `LOCAL_RAW_DIR`; they are not needed for the fixture demo or CI. See the
-[data runbook](docs/data/pipeline-runbook.md) for approved local pipeline work.
+Run `uv run --no-sync python -m scripts.test_postgres` for isolated database integration tests. For reactive evaluation, use `uv run --no-sync python -m evals.runner --system P --scenarios evals/dev_scenarios_v2.yaml`. See the [harness guide](docs/evaluation/harness.md) for repeats, faults and aggregate outputs.
 
-For the new UI and its fixture/live browser commands, use
-[PR #17's frontend guide](https://github.com/sebastian-gm/bank-agent-lab/blob/feat/frontend/apps/web/README.md).
-`pnpm test:e2e --live` uses a local mock bank and project-generated records, not a
-paid model or Azure. Do not execute the frozen test suite as a development smoke;
-follow the [evaluation protocol](docs/evaluation/eval-protocol.md).
+Compose project names and host ports are set in ignored `.env`. The default pipeline lake is persistent `~/aclara-lake`; this session uses ignored `./lake` to honor repository-only writes. Source records are read only through `LOCAL_RAW_DIR`. Generated bronze/silver/gold/manifest files and serving reports remain ignored; no organizer rows are CI inputs or artifacts.
+
 
 ## Headline evaluation — mock diagnostic, acceptance failed
 
@@ -127,14 +113,13 @@ and infrastructure. It is not a forecast of real-model operating cost.
 The [paired/repeat comparison](docs/evaluation/heldout-run01-comparison.json) reports
 SAR difference 0 with a 95% interval [0, 0], exact McNemar p=1 and 0/100 repeat flips.
 [Language and segment slices](docs/evaluation/heldout-run01.md#slices) include sample
-sizes and unequal policy mix; they do not isolate causal fairness effects. Human
-labels and fluent Portuguese review remain pending.
+sizes and unequal policy mix; they do not isolate causal fairness effects. Independent held-out human labels and fluent Portuguese review remain pending. A separate [nine-case human es-CL check](docs/ml/model-card-charge-matcher-v2.md) is available.
 
 | Still required for final claims | Status |
 | --- | --- |
 | Approved real-model B1/P comparison and independent judge | TODO(results): real-model SAR, safety, repeat variability and judge validation |
-| Deployed latency, cost and operational limits | TODO(results): cloud p50/p95, per-attempt/per-SAR cost and sustained capacity |
-| Language review, human workload and phrasing ablation | TODO(results): reviewed language scores, agent handling time and template comparison |
+| Deployed latency, cost and operational limits | TODO(results): evaluation p50/p95 and per-attempt/per-SAR cost; sustained capacity remains unmeasured |
+| Language review, human workload and phrasing ablation | Pending development/human review: phrasing ablation, fluent language review and agent handling time |
 
 Containment alone is not success. The [trade-offs](docs/tradeoffs.md) distinguish the
 completed normalized-slot matcher experiment from end-to-end evaluation.

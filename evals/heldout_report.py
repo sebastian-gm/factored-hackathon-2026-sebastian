@@ -229,8 +229,9 @@ def comparison(
     if any(len(g) != 3 for g in groups.values()):
         raise ValueError("Repeated subset must have three independent runs")
     majority = {i: sum(c["sar"] for c in rows) >= 2 for i, rows in groups.items()}
-    wins = sum(not b[i]["sar"] and majority[i] for i in repeat_ids)
-    losses = sum(b[i]["sar"] and not majority[i] for i in repeat_ids)
+    majority_success = {i: sum(c["passed"] for c in rows) >= 2 for i, rows in groups.items()}
+    wins = sum(not b[i]["passed"] and majority_success[i] for i in repeat_ids)
+    losses = sum(b[i]["passed"] and not majority_success[i] for i in repeat_ids)
     discordant = wins + losses
     pvalue = (
         min(1, 2 * sum(comb(discordant, k) for k in range(min(wins, losses) + 1)) / 2**discordant)
@@ -290,6 +291,12 @@ def comparison(
             "p_value": pvalue,
         },
         "repeat_metric_ranges": ranges,
+        "success_flip_rate": proportion(
+            sum(len({c["passed"] for c in rows}) > 1 for rows in groups.values()), len(groups)
+        ),
+        "sar_flip_rate": proportion(
+            sum(len({c["sar"] for c in rows}) > 1 for rows in groups.values()), len(groups)
+        ),
         "repeat_clustered_latency": latency(
             [[t for c in group for t in c["turn_ms"]] for group in groups.values()],
             draws_count=DRAWS,
@@ -305,6 +312,7 @@ def comparison(
         "flip_rate": proportion(
             sum(len({c["outcome"] for c in rows}) > 1 for rows in groups.values()), len(groups)
         ),
-        "automation_improvement_supported": primary["paired_95"][0] > 0,
+        "automation_improvement_supported": primary["paired_95"] is not None
+        and primary["paired_95"][0] > 0,
         "interpretation": "Mock diagnostic only. P's unconfigured mock uses deterministic fallback; this does not compare real-model quality. Acceptance additionally requires all safety gates.",
     }

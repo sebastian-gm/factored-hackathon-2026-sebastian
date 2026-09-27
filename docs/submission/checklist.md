@@ -6,11 +6,15 @@ Keep access codes, passwords, private reports and recordings in approved private
 storage outside Git. The judge-facing content is in [slides](slides.md) and the
 [video script](video-script.md).
 
+## Merge freeze
+
+- [ ] Keep PRs open until Sebastian announces the final run is finished. The lead then merges; this work does not change the pinned evaluation release. Latest recorded runtime: `07bccdc630e2b5eeb2dc746a7c3fe000718fd22c`, followed by documentation-only `3ed98c9`. Verify the actual recording revision separately. [Release evidence](../status/progress-log.md).
+
 ## Timing and submission owner
 
 - [ ] Sebastian confirms the exact cutoff and format from the official email or
   pinned organizer announcement. The [organizer FAQ](https://www.factored.ai/careers/ai-data-hackathon)
-  currently gives **October 5, 2026**, without a precise time/zone. The brief records
+  is recorded in the brief as **October 5, 2026**, without a precise time/zone. The brief records
   ambiguous “midnight” wording; do not treat an interpretation as confirmation.
 - [ ] Plan to send by the internal target **October 4, 2026, 18:00 COT (UTC−5)**.
   The brief's **22:00 COT** buffer is an internal latest target, not a verified
@@ -28,11 +32,13 @@ storage outside Git. The judge-facing content is in [slides](slides.md) and the
   slide 5 from aggregate exports, with safety counts/denominators, uncertainty,
   latency and measured cost per attempted conversation. Include failures, retries
   and fallbacks in cost accounting. Link the exact result files after they exist.
-- [ ] Ask the AI lane to reconcile the planned **Gemini 3 Flash low-cost default
-  versus Claude frontier** comparison with [model-comparison.md](../ml/model-comparison.md).
-  It currently has no measured default selection. Record the exact Claude model,
-  cohort and call/task mix; per-call or single-turn cost cannot be relabeled as
-  conversation cost. Keep `TODO(results)` until the final evidence is available.
+- [ ] Preserve the selected roles: Gemini 3 Flash default, Grok 4.20 failure fallback,
+  Jev risk second opinion and second subjective judge, Claude Sonnet 5 frontier
+  comparator. [Measured development comparison](../ml/model-comparison.md),
+  [Jev evidence](../ml/typesafe-jev-comparison.md). Development NLU cost per case
+  cannot be relabeled conversation cost. Keep `TODO(results)` only for final-run
+  measurements. The AI lane's live latency, phrasing ablation and PT model review
+  are separate development follow-ups, not final-suite result placeholders.
 - [ ] Check every pitch number against its linked aggregate. If final evidence is
   still missing, submit an explicitly unfinished result; do not fill placeholders
   with mock results, list prices or estimates. Review language with human ES/PT
@@ -40,17 +46,17 @@ storage outside Git. The judge-facing content is in [slides](slides.md) and the
 
 ## Prepare judge access and rehearse the deployed product
 
-- [ ] Lead verifies the selected frontend revision and the web-container-to-API
-  connection. The current deployment permits the owner's IP; external judges are
+- [ ] The release smoke verified the web-to-API hop, all three surfaces, and a handoff
+  claim/resolve. Reverify the selected recording revision and connection. The current deployment permits the owner's IP; external judges are
   not yet covered by that boundary. Arrange explicitly approved judge access and
   test it from the judge's intended route. Do not broaden ingress to repair a proxy.
 - [ ] Verify the separate access-code gate before describing it as implemented.
   Store the code and persona passwords privately; supply them only in the submission
   email through the owner's approved delivery process. No values in Git, slides,
   video, screenshots, CI output or public release notes.
-- [ ] Cloud defaults remain customer role with reset disabled. Lead supplies an
-  authorized staff demonstration for the PT handoff/Agent Desk scene; current staff
-  APIs are workspace-scoped. Local ops tests do not authorize changing cloud roles,
+- [ ] The deployed personas include two Ops and two customer roles; reset remains
+  disabled. Staff APIs remain workspace-scoped. The recording helper must respect
+  those server gates; it cannot grant a role or enable cloud reset. Local ops tests do not authorize changing cloud roles,
   reset or cross-customer access. Rehearse the real route and show any fallback.
 - [ ] Rehearse the ES explanation, PT clarification/dispute, fraud/freeze/handoff,
   cancellation and refusal paths using only project-generated records. Verify the

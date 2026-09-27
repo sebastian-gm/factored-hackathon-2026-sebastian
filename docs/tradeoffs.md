@@ -47,15 +47,13 @@ A new independent workload should revisit the choice.
 
 ## Language model choice
 
-No application model default has been selected. The
-[model-comparison protocol](ml/model-comparison.md) requires shared labeled cases,
-invalid-output accounting, latency, cost and separate language ratings. The mock diagnostic exposed failures in control/language paths and no gain over B1.
-Provider data terms and durable spend accounting are release constraints alongside
-accuracy and price. Portuguese **scenario authoring** with a second vendor is not a
-system-model comparison and does not authorize inference spending.
-
-TODO(results): measured model accuracy/latency/cost Pareto with actual response model
-IDs, prompt versions, provider route, sample sizes and invoice reconciliation.
+Gemini 3 Flash is the owner-selected default; Grok 4.20 is a bounded failure
+fallback. [Measured development comparisons](ml/model-comparison.md) report intent,
+slots, valid responses, latency and per-NLU-case cost. Claude Sonnet 5 is the frontier
+comparator. [Jev](ml/typesafe-jev-comparison.md) adds a risk second opinion and a
+second subjective judge; its small judge sample does not validate human agreement.
+The private release verifies routing and durable spend settlement. Final-run
+conversation costs and quality remain `TODO(results)`; per-call prices cannot fill them.
 
 ## Templates and model phrasing
 
@@ -66,7 +64,7 @@ some flexibility for inspectable action claims. Templates can still be wrong or
 awkward; human ES/PT review remains necessary. Additional model calls add latency,
 cost and opportunities for error, even if they improve tone.
 
-TODO(results): templates-only versus guarded phrasing on the same preselected cases,
+Pending development: templates-only versus guarded phrasing on the same preselected cases,
 including clarity/language ratings, grounding failures, latency and cost. Do not
 substitute a model's self-rating for the required independent/human review.
 
@@ -87,7 +85,7 @@ handoff. These results predate later staff packet additions. Sources:
 `escalation_recall` in [B1](evaluation/heldout-run01-B1.json) and
 [P/mock](evaluation/heldout-run01-P-mock.json).
 
-TODO(results): human-reviewed packet quality and agent-hours per 1,000. Agent-hours require an observed
+Pending human study: human-reviewed packet quality and agent-hours per 1,000. Agent-hours require an observed
 handling-time assumption for the selected workflow; they cannot be inferred from
 an escalation count alone. The [projection](evaluation/business-projection.md)
 keeps those assumptions separate from offline outcomes.
@@ -106,3 +104,5 @@ A known B1 phrase gap found during frontend integration is the Spanish lost-card
 wording “Perdí mi tarjeta”; the stolen-card wording exercises the implemented freeze
 path. This is a limitation to investigate on development language cases, not a reason
 to give the frontend or an LLM authority to force a freeze.
+
+[Matcher v2](ml/model-card-charge-matcher-v2.md) changes the decision cost table to favor top-three choices under uncertainty; its synthetic stress cohort and nine-case human before/after are reported separately from v1.

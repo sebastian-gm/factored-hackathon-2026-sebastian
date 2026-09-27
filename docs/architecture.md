@@ -1,8 +1,7 @@
 # Architecture as built
 
-Scope: shipped backend contracts plus the customer/staff UI integration in
-[PR #17](https://github.com/sebastian-gm/bank-agent-lab/pull/17). Deployment verification
-is separate. Solid paths below exist in code; dashed paths are pending integrations.
+Scope: shipped backend contracts and the merged customer/staff UI in
+[PR #17](https://github.com/sebastian-gm/bank-agent-lab/pull/17). Private real-model deployment is verified in the [progress log](status/progress-log.md). Solid paths below exist in code; dashed paths are pending integrations.
 
 ```mermaid
 flowchart LR
@@ -11,7 +10,7 @@ flowchart LR
   D[Agent Desk and Ops: trusted role and current workspace] --> W
   A --> O[Orchestration: conversation state and guards]
   O --> N[Structured NLU: validated slots or B1 fallback]
-  N -. Approved real provider only .-> L[Provider adapter: budget and timeout]
+  N --> L[Gemini default; Grok failure fallback; Jev risk union]
   N --> M[Authorized retrieval and matcher]
   M --> P[Deterministic policy with rule IDs]
   P --> C[Exact proposal and confirmation; fresh OTP]
@@ -31,14 +30,14 @@ flowchart LR
   G --> ML[Local training and calibrated matcher artifact]
   ML --> M
   G --> SL[Explicit local serving load and checksum read-back]
-  SL -. Organizer ledger binding pending .-> M
+  SL --> M
   F[Project-generated ledger] --> M
 ```
 
-The deployed fixture ledger is held by the bank repository; operational writes use
-Postgres. Local organizer serving tables are a separate data product and are not
-silently treated as the deployed ledger. Routing may use an approved minimal service
-agent projection; no organizer row values are embedded in this diagram or UI bundle.
+The runtime binds a checksummed organizer serving snapshot and trusted personas;
+missing serving bindings fail closed. Project-generated fixtures remain the isolated
+test path. Operational writes and model budget reservations use Postgres. No organizer
+row values belong in diagrams or UI bundles. [Serving isolation](serving-demo.md).
 The [data lineage image](data/dbt-lineage.svg) comes from the aggregate dbt manifest.
 
 ## Conversation and action state
@@ -97,11 +96,11 @@ claim a new handoff read-back using its invalid token.
 
 | Concern | Implemented mechanism | Reason and boundary |
 | --- | --- | --- |
-| Intent, language, recollection slots | P uses schema-validated structured NLU; B1 uses rules. Default mock can fall back. | Language is uncertain; extracted text never grants authority. Real-model quality is pending. |
+| Intent, language, recollection slots | P uses schema-validated structured NLU; B1 uses rules. Default mock can fall back. | Language is uncertain; extracted text never grants authority. Development model comparisons exist; final acceptance is pending. |
 | Amount, relative date and currency interpretation | Deterministic normalization after extraction, using the bank clock; ambiguous currency asks a question. | Arithmetic and date semantics need repeatable tests. |
 | Candidate retrieval | Authenticated customer scope, business-time window and serving contracts. | A model cannot widen access. |
-| Transaction ranking | Validation-selected calibrated LightGBM; rules baseline. | Learned ranking addresses noisy slots; confidence controls proposal/choice/no-match, not eligibility. |
-| Fraud cues | Provided score and deterministic lost/stolen/case-burst guards. | No fraud model is trained from the generator's label leakage. Language cues have documented gaps. |
+| Transaction ranking | Validation-selected LightGBM v2; v1 and rules retained for comparison. | Learned ranking addresses noisy slots; confidence controls proposal/choice/no-match, not eligibility. |
+| Fraud cues | Gemini flags unioned with thresholded Jev risk probabilities; deterministic score/case-burst guards. | No fraud model is trained from the generator's label leakage. Language cues have documented gaps. |
 | Eligibility, escalation and routing | Versioned policy engine; active skill/language/load routing and recorded fallbacks. | Auditable rules, independent of model prose and protected characteristics. |
 | Dispute and freeze | Server-issued action hash, scoped authorization, fresh OTP, explicit confirmation, idempotency and read-back. | Code owns side effects. |
 | Critical action/status wording | Deterministic ES/PT templates. | Action claims require evidence; no promise of refund or credit. |
@@ -119,6 +118,6 @@ requires trusted flags, ops role, fresh OTP, exact confirmation and a read-back;
 authentication and audit are retained. This is not a multi-customer staff queue.
 
 OpenTelemetry export, comprehensive retention and operational SLOs remain production
-work. The frontend's live integration is locally verified; its Azure web-to-API hop
-still requires the lead's deployment check under the owner-IP restriction. The frozen
-mock diagnostic predates the staff changes and failed its acceptance gates.
+work. Private real-model deployment and browser flows are verified in the
+[release progress log](status/progress-log.md). The final held-out evaluation remains
+separate from smoke evidence. The earlier mock diagnostic failed acceptance gates.

@@ -4,7 +4,7 @@ Draft reviewed 2026-09-27 UTC. Aclara is synthetic, but data is handled as priva
 The [provenance register](../data-provenance.md) identifies input classes. Organizer
 published data-use terms still need owner confirmation before any organizer-derived
 field values are sent to an external model. This document grants no new permission.
-The application default is `LLM_PROVIDER=mock`; model selection is pending.
+The local default is `LLM_PROVIDER=mock`. The private release uses Gemini via OpenRouter, Grok failure fallback, and TypeSafe Jev risk support; see the [release record](../status/progress-log.md). Jev also serves as a second evaluation judge. Its standard-account ZDR is unverified; synthetic-fixture approval is not permission to send real customer data. [Jev limits](../ml/typesafe-jev-comparison.md).
 
 The frozen workload's Portuguese authoring already used approved, project-generated
 text through OpenRouter and a second model vendor. Its

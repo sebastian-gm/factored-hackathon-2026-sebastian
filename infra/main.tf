@@ -76,6 +76,21 @@ resource "azurerm_role_assignment" "api_secrets" {
   principal_id         = azurerm_user_assigned_identity.api.principal_id
 }
 
+# The owner-supplied key is uploaded separately; its value never enters Terraform state.
+resource "azurerm_role_assignment" "api_openrouter_secret" {
+  count                = var.enable_real_llm ? 1 : 0
+  scope                = "${azurerm_key_vault.dev.id}/secrets/openrouter-api-key"
+  role_definition_name = "Key Vault Secrets User"
+  principal_id         = azurerm_user_assigned_identity.api.principal_id
+}
+
+resource "azurerm_role_assignment" "api_typesafe_secret" {
+  count                = var.enable_real_llm ? 1 : 0
+  scope                = "${azurerm_key_vault.dev.id}/secrets/typesafe-api-key"
+  role_definition_name = "Key Vault Secrets User"
+  principal_id         = azurerm_user_assigned_identity.api.principal_id
+}
+
 resource "azurerm_postgresql_flexible_server" "dev" {
   name                          = "psql-${local.suffix}"
   resource_group_name           = data.azurerm_resource_group.dev.name

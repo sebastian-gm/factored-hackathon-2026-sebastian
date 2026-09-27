@@ -16,13 +16,13 @@ jobs:
     steps:
       - name: Verify both app endpoints reject this non-allowlisted runner
         env:
-          API_URL: https://ca-api-aclara-dev-eastus2.lemonbeach-1b769de0.eastus2.azurecontainerapps.io/healthz
+          API_URL: https://ca-api-aclara-dev-eastus2.internal.lemonbeach-1b769de0.eastus2.azurecontainerapps.io/healthz
           WEB_URL: https://ca-web-aclara-dev-eastus2.lemonbeach-1b769de0.eastus2.azurecontainerapps.io/
         shell: bash
         run: |
           set -euo pipefail
-          for endpoint in "$API_URL" "$WEB_URL"; do
-            code=$(curl --silent --show-error --max-time 30 --output /dev/null --write-out '%{http_code}' "$endpoint")
-            test "$code" = 403
-            echo "Non-allowlisted request denied: HTTP $code"
-          done
+          web_code=$(curl --silent --show-error --max-time 30 --output /dev/null --write-out '%{http_code}' "$WEB_URL")
+          test "$web_code" = 403
+          api_code=$(curl --silent --show-error --max-time 30 --output /dev/null --write-out '%{http_code}' "$API_URL")
+          test "$api_code" = 404
+          echo "Non-allowlisted web denied: HTTP $web_code; internal API unavailable externally: HTTP $api_code"

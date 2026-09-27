@@ -56,8 +56,8 @@ conversion is arithmetic, not a measured parameter.
 | SAR | Lower paired/clustered interval bound after traffic weighting | Point estimate | Upper bound, capped by eligible share |
 | Handoff and rework burden | Upper observed burden | Central observed burden | Lower observed burden |
 | Assisted handling/review time | Slower observed estimate | Central observed estimate | Faster observed estimate |
-| Projection | TODO(results): low projected agent-hours | TODO(results): base projected agent-hours | TODO(results): high projected agent-hours |
-| Time to verified intake | TODO(results): conservative intake time | TODO(results): central intake time | TODO(results): favorable intake time |
+| Projection | Pending projection inputs: low projected agent-hours | Pending projection inputs: base projected agent-hours | Pending projection inputs: high projected agent-hours |
+| Time to verified intake | Pending projection inputs: conservative intake time | Pending projection inputs: central intake time | Pending projection inputs: favorable intake time |
 
 For transparency, the current **unweighted, failed-gate diagnostic** gives a SAR
 point estimate of 34.72% and Wilson bounds 28.36–41.67% for both systems
@@ -79,12 +79,12 @@ Historical complaint resolution duration is not a valid baseline for intake time
 
 | Required input | Source / status |
 | --- | --- |
-| Period H, charge taxonomy, deduplication and overlap | TODO(results): audited addressable issue count and period from pipeline outputs |
-| SAR, transfers and unsafe rates with uncertainty | Mock diagnostic exists but fails safety gates; TODO(results): accepted B1/P result and workload reweighting |
-| Human handling, packet review and rework times | TODO(results): workflow-specific measured assumptions; historical category means are context only |
-| System latency and verified-intake subset | TODO(results): `results.json` and private per-case aggregation |
-| Authentication, think time and prior intake baseline | TODO(results): observed intake timing; no imputation from resolution days |
-| Projected net hours, agent-hours per 1,000 and time-to-case | TODO(results): low/base/high outputs after the above inputs are available |
+| Period H, charge taxonomy, deduplication and overlap | Pending projection inputs: audited addressable issue count and period from pipeline outputs |
+| SAR, transfers and unsafe rates with uncertainty | Mock diagnostic exists but fails safety gates; TODO(results): final B1/P result and workload reweighting |
+| Human handling, packet review and rework times | Pending projection inputs: workflow-specific measured assumptions; historical category means are context only |
+| System latency and verified-intake subset | TODO(results): final `results.json` and private per-case aggregation |
+| Authentication, think time and prior intake baseline | Pending projection inputs: observed intake timing; no imputation from resolution days |
+| Projected net hours, agent-hours per 1,000 and time-to-case | Pending projection inputs: low/base/high outputs after the above inputs are available |
 
 No headcount reduction, currency savings or customer-outcome improvement is claimed.
 A monetary projection would additionally need approved labor and infrastructure

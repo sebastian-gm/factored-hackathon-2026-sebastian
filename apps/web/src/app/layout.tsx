@@ -6,7 +6,9 @@ export const metadata: Metadata = {
   description: "Synthetic data · Simulated bank · Not a real service",
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default function RootLayout({
+  children,
+}: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="es">
       <body>{children}</body>

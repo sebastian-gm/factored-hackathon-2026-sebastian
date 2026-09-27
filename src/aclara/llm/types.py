@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Literal
+from typing import Any, Literal, Protocol
 
-ProviderName = Literal["openai_compat", "gemini", "anthropic", "mock", "recorded"]
+ProviderName = Literal["openai_compat", "gemini", "anthropic", "mock", "recorded", "typesafe"]
 OutputMode = Literal["json_schema", "json_mode"]
 
 
@@ -17,6 +17,13 @@ class ModelSpec:
     key_env: str | None = None
     output_mode: OutputMode = "json_schema"
     price_id: str | None = None
+    price_ceiling: tuple[float, float] | None = None
+    provider_only: tuple[str, ...] = ()
+    max_output_tokens: int = 1024
+    reasoning_effort: Literal["max", "xhigh", "high", "medium", "low", "minimal", "none"] | None = (
+        None
+    )
+    timeout_seconds: int = 20
 
 
 @dataclass(frozen=True, slots=True)
@@ -33,6 +40,9 @@ class ProviderResponse:
     model_id: str
     usage: TokenUsage
     stop_reason: str | None = None
+    usage_known: bool = True
+    billed_cost_usd: float | None = None
+    generation_id: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -49,9 +59,21 @@ class CallRecord:
     latency_ms: float
     cost_usd: float | None
     stop_reason: str | None
-    status: Literal["valid", "invalid_json", "provider_error", "refusal"]
+    status: Literal["valid", "invalid_json", "provider_error", "refusal", "skipped"]
     attempt: int
+    generation_id: str | None = None
+    judgments: dict[str, Any] | None = None
 
 
 class ModelFailure(RuntimeError):
     """A model response cannot be trusted; caller should use the deterministic path."""
+
+
+class BudgetFailure(ModelFailure):
+    """Budget denial must not invoke a retry or alternate model."""
+
+
+class SpendGate(Protocol):
+    def reserve(self, amount_usd: float) -> str: ...
+
+    def settle(self, reservation: str, actual_usd: float | None) -> None: ...

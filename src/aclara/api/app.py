@@ -47,9 +47,11 @@ from aclara.api.workflows import (
     security_event,
 )
 from aclara.bank.repository import Transaction, TransactionRepository
+from aclara.bank.serving import Persona, ServingRepository
 from aclara.handoff.packet import create_packet
 from aclara.handoff.routing import AgentDirectory
 from aclara.llm.client import StructuredClient
+from aclara.ops.budget import PostgresSpendGate
 from aclara.ops.store import Scope, Store
 from aclara.policy.engine import PolicyDecision, evaluate
 from aclara.policy.rules import catalog, rule
@@ -68,6 +70,7 @@ class Principal:
     step_up_at: datetime | None = None
     capability_digest: str = ""
     role: str = "customer"
+    locale: str = "es-MX"
 
 
 @dataclass(slots=True)
@@ -77,6 +80,7 @@ class OtpChallenge:
     expires_at: datetime
     attempts: int = 0
     step_up: bool = False
+    username: str = ""
 
 
 @dataclass(slots=True)
@@ -279,7 +283,14 @@ def create_app(
     store: Store | None = None,
 ) -> FastAPI:
     active_settings = settings or Settings.from_environment()
-    ledger = repository or TransactionRepository()
+    operational = store or Store(
+        os.getenv("OPS_DSN", "") if active_settings.ops_backend == "postgres" else None
+    )
+    ledger = repository or (
+        ServingRepository(operational, active_settings.bank_clock)
+        if active_settings.ledger_backend == "serving"
+        else TransactionRepository()
+    )
     app = FastAPI(title="Aclara demo API", version="0.1.0")
     app.add_middleware(
         CORSMiddleware,
@@ -288,23 +299,60 @@ def create_app(
         allow_headers=["Authorization", "Content-Type", "X-Preauth-Token"],
     )
     app.state.runtime = runtime or Runtime(system=active_settings.agent_system)
-    ai = AgentAI(active_settings, app.state.runtime, llm_client)
+    spend_gate = (
+        PostgresSpendGate(operational, run_id=os.getenv("LLM_BUDGET_RUN_ID") or None)
+        if active_settings.llm_provider != "mock" and llm_client is None
+        else None
+    )
+    ai = AgentAI(active_settings, app.state.runtime, llm_client, spend_gate=spend_gate)
     app.state.ai = ai
     app.state.instance_id = str(uuid4())
     app.state.settings = active_settings
     app.state.ledger = ledger
-    app.state.loaded_at = datetime.now(UTC)
-    app.state.dataset_version = "fixture:" + hashlib.sha256(repr(ledger._rows).encode()).hexdigest()
-    operational = store or Store(
-        os.getenv("OPS_DSN", "") if active_settings.ops_backend == "postgres" else None
-    )
+    app.state.loaded_at = ledger.loaded_at
+    app.state.dataset_version = ledger.dataset_version
+    app.state.personas = {
+        p.username: p
+        for p in (
+            ledger.personas()
+            if isinstance(ledger, ServingRepository)
+            else [
+                Persona(
+                    active_settings.demo_username,
+                    active_settings.demo_customer_id,
+                    active_settings.demo_locale,
+                    active_settings.demo_role,
+                )
+            ]
+        )
+        if p.username
+    }
+    realms = {
+        hashlib.sha256(p.username.encode()).hexdigest()[:12]: p.customer_id
+        for p in app.state.personas.values()
+    }
+
+    def auth_customer(run_id: str) -> str:
+        if not isinstance(ledger, ServingRepository):
+            return active_settings.demo_customer_id
+        realm, separator, _ = run_id.partition("_")
+        if not separator or realm not in realms:
+            raise KeyError("Unknown identity realm")
+        return str(realms[realm])
+
     app.state.store = operational
-    app.state.agent_directory = AgentDirectory(store=operational)
+    app.state.agent_directory = (
+        ledger.directory()
+        if isinstance(ledger, ServingRepository)
+        else AgentDirectory(store=operational)
+    )
     auth_scope = Scope(active_settings.demo_customer_id, "auth", "auth")
     app.state.challenges = operational.mapping(
-        "otp_challenges", OtpChallenge, auth_scope=auth_scope
+        "otp_challenges", OtpChallenge, auth_scope=auth_scope, auth_customer=auth_customer
     )
-    app.state.sessions = operational.mapping("sessions", Principal, auth_scope=auth_scope)
+    app.state.sessions = operational.mapping(
+        "sessions", Principal, auth_scope=auth_scope, auth_customer=auth_customer
+    )
     app.state.conversations = operational.mapping("conversations", Conversation)
     app.state.cases = operational.mapping("cases", dict[str, Any])
     app.state.handoffs = operational.mapping("handoffs", dict[str, Any])
@@ -384,24 +432,32 @@ def create_app(
                 raise HTTPException(
                     status_code=503, detail="Operational storage unavailable"
                 ) from None
+        if isinstance(ledger, ServingRepository) and not ledger.ready():
+            raise HTTPException(503, "Serving version changed")
         return {"status": "ready", "database": "ok"}
 
     @app.post("/auth/login", status_code=status.HTTP_200_OK)
     async def login(body: LoginBody) -> dict[str, str]:
-        if not active_settings.demo_username or not active_settings.demo_password:
+        if not app.state.personas or not active_settings.demo_password:
             raise HTTPException(status_code=503, detail="Demo identity is not configured")
-        valid = hmac.compare_digest(
-            body.username, active_settings.demo_username
-        ) and hmac.compare_digest(body.password, active_settings.demo_password)
+        persona = app.state.personas.get(body.username)
+        valid = (
+            hmac.compare_digest(body.password, active_settings.demo_password)
+            and persona is not None
+        )
         if not valid:
             raise HTTPException(status_code=401, detail="Invalid login")
         session_id = secrets.token_urlsafe(18)
-        challenge_id = f"{app.state.runtime.run_id}.{session_id}.{secrets.token_urlsafe(18)}"
+        run_id = app.state.runtime.run_id
+        if isinstance(ledger, ServingRepository):
+            run_id = hashlib.sha256(body.username.encode()).hexdigest()[:12] + "_" + run_id
+        challenge_id = f"{run_id}.{session_id}.{secrets.token_urlsafe(18)}"
         preauth_token = secrets.token_urlsafe(24)
         app.state.challenges[challenge_id] = OtpChallenge(
             preauth_token=hashlib.sha256(preauth_token.encode()).hexdigest(),
             code=f"{secrets.randbelow(1_000_000):06d}",
             expires_at=datetime.now(UTC) + timedelta(minutes=5),
+            username=body.username,
         )
         return {"challenge_id": challenge_id, "preauth_token": preauth_token}
 
@@ -462,13 +518,17 @@ def create_app(
         if not hmac.compare_digest(body.code, challenge.code):
             raise HTTPException(status_code=401, detail="Invalid code")
         run_id, session_id, _ = body.challenge_id.split(".", 2)
+        persona = app.state.personas.get(challenge.username or active_settings.demo_username)
+        if persona is None or persona.customer_id != auth_customer(run_id):
+            raise HTTPException(401, "Identity unavailable")
         session_token = f"{run_id}.{session_id}.{secrets.token_urlsafe(32)}"
         app.state.sessions[session_token] = Principal(
             session_id=session_id,
             run_id=run_id,
-            customer_id=active_settings.demo_customer_id,
-            username=active_settings.demo_username,
-            role=active_settings.demo_role,
+            customer_id=persona.customer_id,
+            username=persona.username,
+            role=persona.role,
+            locale=persona.locale,
             otp_at=now,
             expires_at=now + timedelta(minutes=int(rule("AUTH-01").parameters["session_minutes"])),
         )
@@ -480,9 +540,9 @@ def create_app(
         return IdentityView.model_validate(
             {
                 "username": principal.username,
-                "language": "pt" if active_settings.demo_locale == "pt-BR" else "es",
+                "language": "pt" if principal.locale == "pt-BR" else "es",
                 "role": principal.role,
-                "locale": active_settings.demo_locale,
+                "locale": principal.locale,
                 "bank_clock": active_settings.bank_clock,
             }
         )

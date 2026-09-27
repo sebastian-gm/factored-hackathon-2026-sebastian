@@ -10,6 +10,7 @@ from scripts.azure_dev import GROUP, ROOT, STORAGE, VAULT, az, read_variables
 
 def main() -> None:
     values = read_variables()
+    real_llm = values.get("enable_real_llm", False)
     prefix = f"/subscriptions/{values['subscription_id']}/resourceGroups/{GROUP}"
 
     def resource(path: str, version: str) -> dict:
@@ -33,10 +34,15 @@ def main() -> None:
         # ARM resource IDs are case-insensitive; these two fields use different casing.
         assert registries[0]["identity"].lower() in {identity.lower() for identity in identities}
         ingress = properties["configuration"]["ingress"]
-        rules = ingress["ipSecurityRestrictions"]
-        assert len(rules) == 1 and rules[0]["action"] == "Allow"
-        assert rules[0]["ipAddressRange"] == values["owner_ipv4"] + "/32"
-        assert ingress["external"] and not ingress.get("allowInsecure", False)
+        rules = ingress.get("ipSecurityRestrictions") or []
+        if name == "web":
+            assert len(rules) == 1 and rules[0]["action"] == "Allow"
+            assert rules[0]["ipAddressRange"] == values["owner_ipv4"] + "/32"
+            assert ingress["external"]
+        else:
+            assert not ingress["external"] and not rules
+            assert ".internal." in ingress["fqdn"]
+        assert not ingress.get("allowInsecure", False)
         assert properties["configuration"]["activeRevisionsMode"] == "Single"
         # ARM can return null for the documented default minimum of zero.
         assert properties["template"]["scale"]["minReplicas"] in (None, 0)
@@ -47,21 +53,38 @@ def main() -> None:
         assert properties["provisioningState"] == "Succeeded"
         if name == "api":
             env = {item["name"]: item for item in container["env"]}
-            assert env["LLM_PROVIDER"]["value"] == "mock"
+            assert env["LLM_PROVIDER"]["value"] == ("openai_compat" if real_llm else "mock")
+            assert env["LLM_REAL_CALLS_APPROVED"]["value"] == ("1" if real_llm else "0")
+            assert env["LLM_DAILY_BUDGET_USD"]["value"] == "3"
+            assert env["LLM_MODEL_ROUTE"]["value"] == "default"
+            assert env["LLM_BUDGET_RUN_ID"].get("value", "") == values.get("llm_budget_run_id", "")
             assert env["AGENT_SYSTEM"]["value"] == "P"
             assert env["OPS_BACKEND"]["value"] == "postgres"
+            assert env["LEDGER_BACKEND"]["value"] == "serving"
             assert env["PGSSLMODE"]["value"] == "verify-full"
             assert env["PGUSER"]["value"] == "aclara_app"
             assert env["PGPASSWORD"]["secretRef"] == "postgres-app"
             assert env["DEMO_PASSWORD"]["secretRef"] == "demo-password"
             secrets = properties["configuration"]["secrets"]
-            assert {item["name"] for item in secrets} == {"postgres-app", "demo-password"}
+            expected_secrets = {"postgres-app", "demo-password"}
+            if real_llm:
+                expected_secrets.update({"openrouter-api-key", "typesafe-api-key"})
+                assert env["TYPESAFE_API_KEY"]["secretRef"] == "typesafe-api-key"
+                assert env["OPENROUTER_API_KEY"]["secretRef"] == "openrouter-api-key"
+                assert not env["OPENROUTER_API_KEY"].get("value")
+            else:
+                assert "OPENROUTER_API_KEY" not in env
+            assert {item["name"] for item in secrets} == expected_secrets
             assert all(
                 item.get("keyVaultUrl", "").startswith(f"https://{VAULT}.vault.azure.net/")
                 for item in secrets
             )
+            assert all(
+                item["identity"].lower() in {identity.lower() for identity in identities}
+                for item in secrets
+            )
         sys.stdout.write(
-            f"Verified {name}: owner-only HTTPS ingress, single revision, replicas 0..1, SHA image, managed registry identity.\n"
+            f"Verified {name}: restricted HTTPS boundary, single revision, replicas 0..1, SHA image, managed registry identity.\n"
         )
     server = az(
         "postgres",
