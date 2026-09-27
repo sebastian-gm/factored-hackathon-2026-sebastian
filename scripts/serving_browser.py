@@ -30,7 +30,7 @@ def main() -> None:
         if read_variables().get("enable_real_llm"):
             from scripts.azure_llm_smoke import budget_receipt, conversation_allowance
 
-            if read_variables().get("llm_budget_run_id") != "handoff09-smoke":
+            if read_variables().get("llm_budget_run_id") != "jev-support-smoke":
                 raise RuntimeError("A real browser smoke requires the approved cumulative cap")
             budget_receipt()
             allowance = conversation_allowance(1, "browser-three-surfaces")

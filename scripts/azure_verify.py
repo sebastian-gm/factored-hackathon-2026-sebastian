@@ -68,7 +68,8 @@ def main() -> None:
             secrets = properties["configuration"]["secrets"]
             expected_secrets = {"postgres-app", "demo-password"}
             if real_llm:
-                expected_secrets.add("openrouter-api-key")
+                expected_secrets.update({"openrouter-api-key", "typesafe-api-key"})
+                assert env["TYPESAFE_API_KEY"]["secretRef"] == "typesafe-api-key"
                 assert env["OPENROUTER_API_KEY"]["secretRef"] == "openrouter-api-key"
                 assert not env["OPENROUTER_API_KEY"].get("value")
             else:
