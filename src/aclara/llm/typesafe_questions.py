@@ -98,6 +98,13 @@ def nlu_questions() -> dict[str, Choice | Noul]:
     }
 
 
+def risk_questions() -> dict[str, Noul]:
+    """The supporting runtime route asks only risk questions, never intent or slots."""
+    return {
+        name: question for name, question in nlu_questions().items() if isinstance(question, Noul)
+    }
+
+
 # Ordered descriptions correspond exactly to rubric scores 1, 2, 3, 4, 5.
 JUDGE_LEVELS = {
     "language_register": (

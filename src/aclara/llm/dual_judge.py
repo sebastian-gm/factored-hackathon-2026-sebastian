@@ -1,0 +1,168 @@
+"""Subjective-only Sonnet/Jev pair for the gated final judge step."""
+
+from __future__ import annotations
+
+import logging
+import math
+import os
+from collections.abc import Iterator, Mapping
+from contextlib import contextmanager
+from typing import Any
+
+from typesafe_sdk import RetryPolicy, TypeSafeClient
+
+from aclara.agent.nlg.grounding import redact_for_model
+from aclara.llm.client import StructuredClient
+from aclara.llm.judge import _score
+from aclara.llm.judge_validation import DIMENSIONS, quadratic_weighted_kappa
+from aclara.llm.prompts import Prompt
+from aclara.llm.typesafe import MODEL_ID as JEV_MODEL_ID
+from aclara.llm.typesafe import TypedJudgments, TypeSafeAdapter
+from aclara.llm.typesafe_questions import judge_questions
+
+LOGGER = logging.getLogger(__name__)
+
+
+@contextmanager
+def jev_judge_adapter() -> Iterator[TypeSafeAdapter]:
+    """Open the pinned no-retry second judge only after the final start signal."""
+    if os.getenv("LLM_REAL_CALLS_APPROVED") != "1" or os.getenv("FINAL_RUN_START_APPROVED") != "1":
+        raise RuntimeError("Jev judge requires the owner's explicit final-run start gate")
+    key = os.getenv("TYPESAFE_API_KEY")
+    if not key:
+        raise RuntimeError("The TypeSafe key is unavailable to the final judge")
+    with TypeSafeClient(
+        api_key=key,
+        model=JEV_MODEL_ID,
+        retry=RetryPolicy(max_retries=0),
+        timeout=20.0,
+    ) as raw:
+        yield TypeSafeAdapter(raw)
+
+
+def _jev_scores(result: TypedJudgments, *, has_handoff: bool) -> dict[str, int | None]:
+    expected = set(DIMENSIONS) if has_handoff else set(DIMENSIONS) - {"handoff_usefulness"}
+    if set(result.scores) != expected:
+        raise ValueError("Jev did not return every applicable rubric dimension")
+    scores: dict[str, int | None] = {
+        name: min(5, max(1, 1 + math.floor(value.score + 0.5)))
+        for name, value in result.scores.items()
+    }
+    if not has_handoff:
+        scores["handoff_usefulness"] = None
+    return scores
+
+
+def score_pair(
+    row: dict[str, str],
+    *,
+    sonnet_client: StructuredClient,
+    jev_adapter: TypeSafeAdapter,
+    prompt: Prompt,
+) -> dict[str, Any]:
+    """Score one blinded reply with both judges; caller persists usage under its $12 gate."""
+    if os.getenv("LLM_REAL_CALLS_APPROVED") != "1" or os.getenv("FINAL_RUN_START_APPROVED") != "1":
+        raise RuntimeError("Dual judge requires the owner's explicit final-run start gate")
+    if row.get("system_id") == "sonnet":
+        raise ValueError("Do not self-judge a Sonnet system reply with Sonnet")
+    first = len(sonnet_client.records)
+    sonnet = _score(sonnet_client, row, prompt)
+    sonnet_attempts = sonnet_client.records[first:]
+    if not sonnet_attempts:
+        raise RuntimeError("Sonnet judge made no recorded attempt")
+    handoff = row["handoff_summary"].strip() or None
+    state = {
+        "target_locale": row["target_locale"],
+        "customer_message": redact_for_model(row["customer_message"]),
+        "customer_reply": redact_for_model(row["customer_reply"]),
+        "handoff_summary": redact_for_model(handoff) if handoff else None,
+    }
+    jev_result: TypedJudgments | None = None
+    jev_scores: dict[str, int | None] | None = None
+    degradation: str | None = None
+    try:
+        jev_result = jev_adapter.ask(state, judge_questions(has_handoff=handoff is not None))
+        jev_scores = _jev_scores(jev_result, has_handoff=handoff is not None)
+    except Exception as exc:
+        degradation = type(exc).__name__
+        LOGGER.warning("Jev subjective judge degraded: %s", degradation)
+    return {
+        "sonnet_scores": sonnet.model_dump(),
+        "jev_scores": jev_scores,
+        "jev_raw_scores": (
+            {
+                name: {
+                    "zero_based_expected": score.score,
+                    "probabilities": score.probabilities,
+                }
+                for name, score in jev_result.scores.items()
+            }
+            if jev_result is not None
+            else None
+        ),
+        "sonnet_attempts": [
+            {
+                "model_id": attempt.model_id,
+                "cost_usd": attempt.cost_usd,
+                "latency_ms": attempt.latency_ms,
+                "status": attempt.status,
+            }
+            for attempt in sonnet_attempts
+        ],
+        "jev_attempt": {
+            "model_id": jev_result.model_id if jev_result else "jev-1.13.0",
+            "cost_usd": jev_result.cost_usd if jev_result else None,
+            "latency_ms": jev_result.latency_ms if jev_result else None,
+            "status": "valid" if jev_scores is not None else "provider_error",
+            "degradation": degradation,
+        },
+    }
+
+
+def _agreement(
+    left: Mapping[str, Mapping[str, int | None]],
+    right: Mapping[str, Mapping[str, int | None]],
+) -> dict[str, Any]:
+    if set(left) != set(right):
+        raise ValueError("Judge sample IDs differ")
+    dimensions: dict[str, Any] = {}
+    for name in DIMENSIONS:
+        pairs = [
+            (a, b)
+            for sample_id in sorted(left)
+            if (a := left[sample_id][name]) is not None
+            and (b := right[sample_id][name]) is not None
+        ]
+        dimensions[name] = {
+            "paired_n": len(pairs),
+            "exact_agreement": sum(a == b for a, b in pairs) / len(pairs) if pairs else None,
+            "within_one": sum(abs(a - b) <= 1 for a, b in pairs) / len(pairs) if pairs else None,
+            "quadratic_weighted_kappa": quadratic_weighted_kappa(pairs),
+        }
+    return dimensions
+
+
+def agreement_report(
+    sonnet: Mapping[str, Mapping[str, int | None]],
+    jev: Mapping[str, Mapping[str, int | None]],
+    *,
+    human: Mapping[str, Mapping[str, int | None]] | None = None,
+    require_human_n: int = 50,
+) -> dict[str, Any]:
+    """Report judge-to-judge and, after human completion, each judge-to-human agreement."""
+    out: dict[str, Any] = {"jev_vs_sonnet": _agreement(sonnet, jev)}
+    if human is not None:
+        if len(human) != require_human_n or set(human) != set(sonnet):
+            raise ValueError("Complete paired human sample is required for agreement claims")
+        sonnet_human = _agreement(sonnet, human)
+        jev_human = _agreement(jev, human)
+        for name in DIMENSIONS:
+            expected = sum(row[name] is not None for row in sonnet.values())
+            if (
+                sonnet_human[name]["paired_n"] != expected
+                or jev_human[name]["paired_n"] != expected
+            ):
+                raise ValueError("Complete paired human ratings are required for agreement claims")
+        out["sonnet_vs_human"] = sonnet_human
+        out["jev_vs_human"] = jev_human
+    return out
