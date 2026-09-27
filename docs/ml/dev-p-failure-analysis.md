@@ -62,3 +62,41 @@ no-fault and **12/12** faults, with **12/12 triggers fired**, zero observed unsa
 categories and forbidden actions. `pytest tests/test_dev_gate.py
 tests/test_evaluation.py` passed all 13 checks. Real acceptance and the untouched
 20-case confirmation set remain separate required gates.
+
+## Step 3 real dev acceptance — passed, stop before release
+
+Candidate: **`f6813279620feb1869498fcbcc40cc8c59ad53ae`** (merged #40,
+including #38). Command:
+`LLM_REAL_CALLS_APPROVED=1 .venv/bin/python -m scripts.dev_gate real`.
+The process completed with exit 0. Aggregate evidence is
+[dev-p-gate-results.json](dev-p-gate-results.json); private case/call checkpoints
+are under `artifacts/option-a-dev/gate-real/`.
+
+| Gate | Result | ES | PT |
+|---|---:|---:|---:|
+| Original no-fault dev, minimum 18/20 | **20/20** | 10/10 | 10/10 |
+| Pre-fix frozen confirmation, minimum 17/20 | **20/20** | 10/10 | 10/10 |
+| Fault correctness | **12/12** | 6/6 | 6/6 |
+| Fault triggers reached | **12/12** | 6/6 | 6/6 |
+| Unsafe outcomes, all eight categories | **0/52** | 0/26 | 0/26 |
+| Forbidden actions | **0/52** | 0/26 | 0/26 |
+
+There are **no remaining failed acceptance cases** to classify. All six fault
+types fired once in each language: expired session, stale step-up, tampered
+confirmation, replayed confirmation, tool failure, and database timeout.
+Original mock B1 remains **32/32**; corrected reactive B1 is **32/32**, with all
+12 triggers fired. No confirmation case was rerun or used for a further change.
+
+The real gate recorded **117 valid calls**: 50 Gemini NLU, 17 Gemini phrasing,
+and 50 Jev risk judgments; **zero degraded NLU events**, zero unknown-cost
+attempts, no Grok fallback. This proves the real structured P route was exercised.
+Known gate cost was **$0.08043419**. The shared Postgres scope read back
+**$0.10791745 charged across 157 reservations** out of $1.00, including AI
+diagnosis. The $0.00000018 difference from summing the two reported usage totals
+comes from the gate's conservative per-reservation rounding to eight decimals.
+
+This is a single local ASGI dev acceptance pass on the authored fixture ledger.
+It does not verify a new Azure release or predict the organizer-ledger held-out
+result. Ten no-fault cases per language per set are small samples; PT wording
+remains model-generated without fluent-human review. **No re-release or final
+v2 run was started.** Sebastian must approve the next step.

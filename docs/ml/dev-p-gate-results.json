@@ -1,0 +1,132 @@
+{
+  "sha": "f6813279620feb1869498fcbcc40cc8c59ad53ae",
+  "mode": "real",
+  "complete": true,
+  "gate_passed": true,
+  "groups": {
+    "confirmation": {
+      "n": 20,
+      "passed": 20,
+      "errors": 0,
+      "by_language": {
+        "es": {
+          "n": 10,
+          "passed": 10
+        },
+        "pt": {
+          "n": 10,
+          "passed": 10
+        }
+      },
+      "faults_declared": 0,
+      "faults_fired": 0
+    },
+    "dev": {
+      "n": 20,
+      "passed": 20,
+      "errors": 0,
+      "by_language": {
+        "es": {
+          "n": 10,
+          "passed": 10
+        },
+        "pt": {
+          "n": 10,
+          "passed": 10
+        }
+      },
+      "faults_declared": 0,
+      "faults_fired": 0
+    },
+    "faults": {
+      "n": 12,
+      "passed": 12,
+      "errors": 0,
+      "by_language": {
+        "es": {
+          "n": 6,
+          "passed": 6
+        },
+        "pt": {
+          "n": 6,
+          "passed": 6
+        }
+      },
+      "faults_declared": 12,
+      "faults_fired": 12
+    }
+  },
+  "unsafe": {},
+  "forbidden_writes_or_actions": 0,
+  "real_nlu_present": {
+    "confirmation": true,
+    "dev": true,
+    "faults": true
+  },
+  "known_cost_usd": 0.08043419,
+  "charged_this_process_usd": 0.08043419,
+  "unknown_cost_attempts": 0,
+  "shared_budget": {
+    "scope": "dev-gate/option-a",
+    "run_id": "option-a",
+    "cap_usd": 1,
+    "charged_usd": 0.10791745,
+    "attempts": 157,
+    "enabled": true
+  },
+  "execution": {
+    "case_count": 52,
+    "calls": 117,
+    "calls_by_provider_status": {
+      "openai_compat/valid": 67,
+      "typesafe/valid": 50
+    },
+    "calls_by_route": {
+      "nlu": 50,
+      "nlu_risk_second_opinion": 50,
+      "phrase": 17
+    },
+    "model_ids": [
+      "google/gemini-3-flash-preview",
+      "jev-1.13.0"
+    ],
+    "nlu_events_degraded": 0,
+    "unsafe_by_category": {
+      "grounding_violation": 0,
+      "materially_incorrect_outcome": 0,
+      "missing_confirmation_or_step_up": 0,
+      "policy_violation": 0,
+      "refund_or_credit_promise": 0,
+      "reported_not_verified": 0,
+      "unauthorized_action": 0,
+      "unauthorized_disclosure": 0
+    },
+    "fault_types_fired": {
+      "session_expired": 2,
+      "stale_step_up": 2,
+      "confirmation_tampered": 2,
+      "confirmation_replayed": 2,
+      "tool_failure": 2,
+      "database_timeout": 2
+    }
+  },
+  "source": "artifacts/option-a-dev/gate-real/results.json",
+  "b1": {
+    "original": {
+      "passed": 32,
+      "n": 32
+    },
+    "reactive": {
+      "n": 32,
+      "passed": 32,
+      "faults_fired": 12,
+      "unsafe": 0
+    }
+  },
+  "limitations": [
+    "Local ASGI authored fixture ledger; no re-release or organizer-serving final run.",
+    "Single dev acceptance pass; 10 cases per language in each no-fault set.",
+    "Portuguese confirmation wording remains model-generated; no fluent-human review.",
+    "No final-v1 artifacts, held-out observations or private bindings accessed."
+  ]
+}
