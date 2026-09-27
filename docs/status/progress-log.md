@@ -17,6 +17,61 @@
 - Lead reviews the proposed patch after final v2 finishes, applies any accepted wording in the lead lane, and merges this documentation PR. Keep this PR unmerged during the freeze.
 
 ---
+## 2026-09-27 — Final v2 COMPLETE; post-hoc analysis; STOP
+
+### Completed (verified)
+
+- Authorized v2 finished on release **`fd34c7dce11cf9db6f71e84ae4fbb2ccc19de415`**:
+  700 system case-runs and 150 judge items, about 2h20m, no restart/resume.
+  `final_program status`, the completion receipt and host process inspection
+  confirmed COMPLETE and no remaining worker. The watchdog extension preserved
+  the original start time and used 15-minute stale-progress / 3h30m limits.
+- Main equaled origin/main and was clean after completion. Evaluation/runtime
+  code, frozen suite and official results remained unchanged during the run.
+  No abandoned-v1 artifact was opened or modified.
+- Durable budget aggregate readback: v2 **$2.94519961**, 1,801 reservations,
+  zero unknown costs; known cumulative **$3.06646189**, charged/reserved exposure
+  **$3.07369789**, below $12. Older scope exposure was read only from aggregate
+  Postgres budget accounting. The v2 scope limit remains $11.87.
+- Official SAR: B1 **41/193**, Gemini **39/193**, Sonnet **26/98** on its fixed
+  subset. Pass: **65/200, 63/200, 37/100**. **None passed all safety gates**;
+  the report does not claim acceptance or improvement. Judge pairs: 143/150;
+  seven ModelFailure items were not rerun. The human sheet has 20 blank items at
+  `artifacts/final-program-v2/human-judge-20.csv`.
+- Wrote [final v2 error analysis](../evaluation/final-v2-error-analysis.md),
+  including all seven requested questions, headline metrics and cost. Ran the
+  ignored offline `posthoc-analysis.py`, `posthoc-causes.py`, `posthoc-checks.py`
+  and `posthoc-final-counts.py` under `artifacts/final-program-v2/`.
+  Reads are logged through `evals.access`; SHA-256 checks confirmed **863 inputs
+  unchanged**, including all result checkpoints, frozen metadata and official
+  result/completion files. No model calls, reruns, rescoring or code fixes.
+- `git diff --check` and staged `pre-commit run` passed: strict mypy, data-file,
+  secret and large-file policies. Ruff hooks correctly skipped the Markdown-only
+  change. No application tests or paid calls were rerun for documentation.
+- Findings: category rates; fixture 85/84-day mismatch behind the forbidden
+  filing; gold-target versus actual-action readback distinction; 15 absent and
+  24 reason-mismatched Gemini transfers; 47 terminal-dispute gold conflicts
+  with the inquiry label rule; confirmed presence/strict slice metric bug;
+  dev/final contract and B1 numeric-merchant matching gaps. One intentional B1
+  readback fault handed off without reporting successful filing.
+
+### Done but not verified
+
+- Human judge ratings and fluent-human Portuguese review remain pending.
+  Post-hoc causes have not been tested by reruns, and no adjusted/improved
+  held-out score is claimed. No live per-action database reconciliation was
+  performed during this documentation-only analysis.
+- #37's additional backend API work and the separate video redeploy remain
+  deferred. The unchanged Azure deployment is not being re-released here.
+
+### Next / blocked
+
+- **STOP after reporting.** Sebastian reviews the human sheet and decides the
+  next development task. V2 remains the official failed-gate result. Future
+  fixes need fresh evaluation evidence; never reuse this analysis to claim a
+  held-out improvement, and never access the abandoned v1 directory.
+- No new cost or deployment approval is requested for this completed analysis.
+  Later: **Continue from docs/status/progress-log.md. Next layer: [X]. Same rules.**
 
 ## 2026-09-27 — Option A re-release verified; STOP before final v2
 
