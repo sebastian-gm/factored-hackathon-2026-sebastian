@@ -6,8 +6,12 @@ import secrets
 from datetime import UTC, datetime
 from typing import Any
 
+from aclara.handoff.routing import AgentDirectory
 
-def create_packet(language: str, reason_code: str) -> dict[str, Any]:
+
+def create_packet(
+    language: str, reason_code: str, directory: AgentDirectory | None = None
+) -> dict[str, Any]:
     spanish = language == "es"
     return {
         "schema_version": "1.0",
@@ -15,11 +19,7 @@ def create_packet(language: str, reason_code: str) -> dict[str, Any]:
         "created_at": datetime.now(UTC).isoformat(),
         "reason_codes": [reason_code],
         "priority": "high" if reason_code in {"FRD-01", "ESC-02"} else "normal",
-        "route": {
-            "queue": "Fraudes" if reason_code == "FRD-01" else "Quejas y Reclamos",
-            "language": language,
-            "fallback_used": False,
-        },
+        "route": (directory or AgentDirectory()).route(language, reason_code),
         "request_summary": {
             "text": "Solicitud derivada para revisión humana."
             if spanish

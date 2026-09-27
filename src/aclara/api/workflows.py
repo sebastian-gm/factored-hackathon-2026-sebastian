@@ -69,7 +69,7 @@ def make_handoff(
     freeze_outcome: str | None = None,
     facts: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
-    packet = create_packet(language, reason)
+    packet = create_packet(language, reason, app.state.agent_directory)
     packet["verified_facts"] = facts or []
     if freeze_outcome:
         packet["freeze_outcome"] = freeze_outcome

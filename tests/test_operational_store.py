@@ -279,3 +279,23 @@ def test_freeze_api_and_step_up_survive_app_restart(dsn: str) -> None:
             third.close()
 
     asyncio.run(check())
+
+
+def test_reference_routing_is_read_only_for_api(dsn: str) -> None:
+    from aclara.handoff.routing import AgentDirectory
+
+    with psycopg.connect(os.environ["TEST_OPS_OWNER_DSN"]) as owner:
+        owner.execute(
+            "INSERT INTO reference.service_agents VALUES ('agent_fixture_pt_fraud','Active','Digital','portugués','Fraudes',3)"
+        )
+    store = Store(dsn)
+    try:
+        directory = AgentDirectory(store=store)
+        assert directory.route("pt", "FRD-01")["assigned_agent_ref"] == "agent_fixture_pt_fraud"
+        with (
+            psycopg.connect(dsn, autocommit=True) as connection,
+            pytest.raises(psycopg.errors.InsufficientPrivilege),
+        ):
+            connection.execute("DELETE FROM reference.service_agents")
+    finally:
+        store.close()
