@@ -14,7 +14,7 @@ from aclara.agent.nlg.grounding import AllowedFact, scan_dlp
 from aclara.agent.nlu.structured import NluResult, understand
 from aclara.agent.runtime import Runtime
 from aclara.llm.client import StructuredClient
-from aclara.llm.config import load_models, load_prices
+from aclara.llm.config import load_fallback_route, load_models, load_prices
 from aclara.settings import Settings
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -26,15 +26,32 @@ class AgentAI:
     ):
         self.runtime = runtime
         if client is None:
-            models = load_models(ROOT / "config/models.yaml")
+            model_path = ROOT / "config/models.yaml"
+            models = load_models(model_path)
+            fallback_route = None
             if settings.llm_provider != "mock":
                 route = os.getenv("LLM_MODEL_ROUTE", "default")
                 if route not in models or models[route].provider != settings.llm_provider:
                     raise ValueError("Select a reviewed model route matching LLM_PROVIDER")
+                fallback_route = (
+                    load_fallback_route(model_path, models) if route == "default" else None
+                )
+                if fallback_route is not None and (
+                    models[fallback_route].model_id == models[route].model_id
+                ):
+                    raise ValueError("Fallback model must differ from the selected model")
+                if fallback_route is not None and (
+                    models[fallback_route].model_id.split("/", 1)[0]
+                    == models[route].model_id.split("/", 1)[0]
+                ):
+                    raise ValueError("Fallback model must use a different vendor")
                 models["nlu"] = models["phrase"] = models[route]
             client = StructuredClient(
                 models,
                 load_prices(ROOT / "config/pricing.yaml"),
+                fallback_routes={"nlu": fallback_route, "phrase": fallback_route}
+                if fallback_route is not None
+                else None,
                 budget_usd=float(os.getenv("LLM_RUN_BUDGET_USD", "0")),
             )
         self.client = client

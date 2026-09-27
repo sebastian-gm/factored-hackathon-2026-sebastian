@@ -33,9 +33,14 @@ class StructuredClient:
         record: Callable[[CallRecord], None] | None = None,
         budget_usd: float = 0.0,
         daily_budget_usd: float | None = None,
+        fallback_routes: dict[str, str] | None = None,
     ) -> None:
         self._lock = RLock()
         self.models = models
+        self.fallback_routes = fallback_routes or {}
+        for route, alternate in self.fallback_routes.items():
+            if route not in models or alternate not in models or route == alternate:
+                raise ValueError("Fallback must name a distinct configured route")
         self.prices = prices
         self.mock_configured = mock_response is not None
         self.records: list[CallRecord] = []
@@ -75,9 +80,18 @@ class StructuredClient:
     ) -> T:
         # Reserve/retry accounting is serialized for this application instance.
         with self._lock:
-            return self._generate(
-                route, system, user, schema, prompt_id=prompt_id, prompt_hash=prompt_hash
-            )
+            first_record = len(self.records)
+            try:
+                return self._generate(
+                    route, system, user, schema, prompt_id=prompt_id, prompt_hash=prompt_hash
+                )
+            except ModelFailure:
+                alternate = self.fallback_routes.get(route)
+                if alternate is None or len(self.records) == first_record:
+                    raise
+                return self._generate(
+                    alternate, system, user, schema, prompt_id=prompt_id, prompt_hash=prompt_hash
+                )
 
     def _generate(
         self,

@@ -26,7 +26,7 @@ from aclara.agent.nlu.structured import (
 from aclara.agent.runtime import Runtime
 from aclara.llm.client import StructuredClient
 from aclara.llm.comparison import ComparisonCase, evaluate_model, markdown_table
-from aclara.llm.config import Price, load_models, load_prices
+from aclara.llm.config import Price, load_fallback_route, load_models, load_prices
 from aclara.llm.prompts import Prompt
 from aclara.llm.providers import OpenAICompat
 from aclara.llm.round_one import _cases
@@ -364,8 +364,66 @@ def test_local_models_and_dated_prices_are_loadable() -> None:
     assert models["default"].provider == "openai_compat"
     assert models["default"].model_id == "google/gemini-3-flash-preview"
     assert models["default"].price_id in prices
+    assert load_fallback_route(Path("config/models.yaml"), models) == "fallback_grok_4_20"
+    assert models["fallback_grok_4_20"].price_id in prices
+    assert models["fallback_deepseek_v4_flash"].price_id in prices
     assert models["openrouter_qwen"].key_env == "OPENROUTER_API_KEY"
     assert all(price.source_url.startswith("https://") for price in prices.values())
+
+
+def test_fallback_retries_primary_then_uses_distinct_model(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    class FixtureAdapter:
+        def complete(
+            self,
+            spec: ModelSpec,
+            system: str,
+            user: str,
+            schema: type[BaseModel],
+            key: str,
+        ) -> ProviderResponse:
+            if spec.model_id == "primary":
+                raise ModelFailure("Primary unavailable")
+            return ProviderResponse(
+                text='{"value":"alternate"}',
+                model_id=spec.model_id,
+                usage=TokenUsage(input_tokens=10, output_tokens=2),
+                billed_cost_usd=0.000012,
+            )
+
+    monkeypatch.setenv("LLM_REAL_CALLS_APPROVED", "1")
+    monkeypatch.setenv("OPENROUTER_API_KEY", "fixture-only")
+    specs = {
+        route: ModelSpec(
+            provider="openai_compat",
+            model_id=model_id,
+            key_env="OPENROUTER_API_KEY",
+            price_id="fixture",
+        )
+        for route, model_id in (("nlu", "primary"), ("alternate", "alternate"))
+    }
+    prices = {
+        "fixture": Price(
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            datetime(2026, 9, 26, tzinfo=UTC).date(),
+            "https://example.test/pricing",
+        )
+    }
+    client = StructuredClient(specs, prices, budget_usd=0.1, fallback_routes={"nlu": "alternate"})
+    client._adapters["openai_compat"] = FixtureAdapter()
+    result = client.generate("nlu", "system", "synthetic", _Answer, prompt_id="fixture@v1")
+    assert result.value == "alternate"
+    assert [record.status for record in client.records] == [
+        "provider_error",
+        "provider_error",
+        "valid",
+    ]
+    assert [record.route for record in client.records] == ["nlu", "nlu", "alternate"]
+    assert client.records[-1].cost_usd == 0.000012
 
 
 def test_selected_route_applies_only_when_real_provider_is_enabled(
@@ -379,6 +437,13 @@ def test_selected_route_applies_only_when_real_provider_is_enabled(
     selected = AgentAI(Settings(llm_provider="openai_compat"), runtime)
     assert selected.client.models["nlu"].model_id == "google/gemini-3-flash-preview"
     assert selected.client.models["phrase"].model_id == "google/gemini-3-flash-preview"
+    assert selected.client.fallback_routes == {
+        "nlu": "fallback_grok_4_20",
+        "phrase": "fallback_grok_4_20",
+    }
+    monkeypatch.setenv("LLM_MODEL_ROUTE", "openrouter_sonnet")
+    frontier = AgentAI(Settings(llm_provider="openai_compat"), runtime)
+    assert frontier.client.fallback_routes == {}
 
 
 def test_deterministic_normalization_and_currency_clarification() -> None:
