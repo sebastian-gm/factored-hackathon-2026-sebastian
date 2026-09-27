@@ -13,9 +13,24 @@ from aclara.evals.schema import ScenarioSuite
 
 ROOT = Path(__file__).resolve().parents[1]
 INTERFACES = ROOT / "contracts" / "interfaces"
+
+
+def scenario_schema() -> dict[str, Any]:
+    """Compose the authored v2 schema with the unchanged runtime v1 definitions."""
+    legacy = ScenarioSuite.model_json_schema()
+    definitions = json.loads((ROOT / "contracts/scenario-v2-definitions.json").read_text())
+    definitions.update(legacy["$defs"])
+    definitions["ScenarioSuiteV1"] = {k: v for k, v in legacy.items() if k != "$defs"}
+    return {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$defs": definitions,
+        "oneOf": [{"$ref": "#/$defs/ScenarioSuiteV1"}, {"$ref": "#/$defs/ScenarioSuiteV2"}],
+    }
+
+
 SNAPSHOTS: dict[Path, dict[str, Any]] = {
     INTERFACES / "openapi.json": app.openapi(),
-    INTERFACES / "scenario-suite.schema.json": ScenarioSuite.model_json_schema(),
+    INTERFACES / "scenario-suite.schema.json": scenario_schema(),
 }
 
 

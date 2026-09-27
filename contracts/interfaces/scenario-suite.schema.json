@@ -1,5 +1,4 @@
 {
-  "$comment": "Version 1 definitions are preserved. Version 2 is additive; the lead-owned harness must implement its execution semantics. Optional v2 metadata is required by the held-out release validator. Overlay/fault payloads describe inert project fixtures, never executable code.",
   "$defs": {
     "AuthoringProvenance": {
       "additionalProperties": false,
@@ -1182,6 +1181,5 @@
     {
       "$ref": "#/$defs/ScenarioSuiteV2"
     }
-  ],
-  "title": "ScenarioSuite"
+  ]
 }
