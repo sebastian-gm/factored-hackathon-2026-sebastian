@@ -6,10 +6,12 @@ import json
 from datetime import UTC, datetime
 from io import BytesIO
 from pathlib import Path
+from typing import cast
 
 import pytest
 from pydantic import BaseModel, ConfigDict
 
+from aclara.agent.ai import AgentAI
 from aclara.agent.contracts import ResponsePlan
 from aclara.agent.nlg.builder import build_reply
 from aclara.agent.nlg.grounding import AllowedFact, redact_for_model, scan_dlp, verify_draft
@@ -21,6 +23,7 @@ from aclara.agent.nlu.structured import (
     resolve_currency,
     understand,
 )
+from aclara.agent.runtime import Runtime
 from aclara.llm.client import StructuredClient
 from aclara.llm.comparison import ComparisonCase, evaluate_model, markdown_table
 from aclara.llm.config import Price, load_models, load_prices
@@ -28,6 +31,7 @@ from aclara.llm.prompts import Prompt
 from aclara.llm.providers import OpenAICompat
 from aclara.llm.round_one import _cases
 from aclara.llm.types import ModelFailure, ModelSpec, ProviderResponse, TokenUsage
+from aclara.settings import Settings
 
 
 class _Answer(BaseModel):
@@ -356,8 +360,25 @@ def test_local_models_and_dated_prices_are_loadable() -> None:
     models = load_models(Path("config/models.yaml"))
     prices = load_prices(Path("config/pricing.yaml"))
     assert models["nlu"].provider == "mock"
+    assert models["phrase"].provider == "mock"
+    assert models["default"].provider == "openai_compat"
+    assert models["default"].model_id == "google/gemini-3-flash-preview"
+    assert models["default"].price_id in prices
     assert models["openrouter_qwen"].key_env == "OPENROUTER_API_KEY"
     assert all(price.source_url.startswith("https://") for price in prices.values())
+
+
+def test_selected_route_applies_only_when_real_provider_is_enabled(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.delenv("LLM_MODEL_ROUTE", raising=False)
+    runtime = cast(Runtime, object())  # Constructor only stores the runtime.
+    mock = AgentAI(Settings(llm_provider="mock"), runtime)
+    assert mock.client.models["nlu"].provider == "mock"
+    assert mock.client.models["phrase"].provider == "mock"
+    selected = AgentAI(Settings(llm_provider="openai_compat"), runtime)
+    assert selected.client.models["nlu"].model_id == "google/gemini-3-flash-preview"
+    assert selected.client.models["phrase"].model_id == "google/gemini-3-flash-preview"
 
 
 def test_deterministic_normalization_and_currency_clarification() -> None:

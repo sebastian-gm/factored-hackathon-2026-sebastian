@@ -28,11 +28,9 @@ class AgentAI:
         if client is None:
             models = load_models(ROOT / "config/models.yaml")
             if settings.llm_provider != "mock":
-                route = os.getenv("LLM_MODEL_ROUTE", "")
+                route = os.getenv("LLM_MODEL_ROUTE", "default")
                 if route not in models or models[route].provider != settings.llm_provider:
-                    raise ValueError(
-                        "Select an explicit reviewed model route matching LLM_PROVIDER"
-                    )
+                    raise ValueError("Select a reviewed model route matching LLM_PROVIDER")
                 models["nlu"] = models["phrase"] = models[route]
             client = StructuredClient(
                 models,
@@ -54,7 +52,7 @@ class AgentAI:
             country=self.runtime.country,
             bank_clock=clock,
             client=None if outage else self.client,
-            prompt_path=ROOT / "prompts/nlu/v1.md",
+            prompt_path=ROOT / "prompts/nlu/v3.md",
         )
         if self.runtime.fault("unsupported_language", "nlu"):
             result = result.model_copy(update={"clarification": "language", "degraded": False})

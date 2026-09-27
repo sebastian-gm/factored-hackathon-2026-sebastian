@@ -1,7 +1,9 @@
-# Candidate routes. Production default stays mock until the measured Pareto table is reviewed.
+# Sebastian-selected NLU/phrasing route. LLM_PROVIDER=mock still uses the mock
+# nlu/phrase entries; a lead-enabled openai_compat deployment uses `default`.
 models:
   nlu: {provider: mock, model_id: deterministic-b1}
   phrase: {provider: mock, model_id: deterministic-template}
+  default: {provider: openai_compat, model_id: google/gemini-3-flash-preview, base_url: https://openrouter.ai/api/v1, key_env: OPENROUTER_API_KEY, output_mode: json_schema, price_id: gemini-3-flash-preview}
   gemini_flash_lite: {provider: gemini, model_id: gemini-2.5-flash-lite, key_env: GEMINI_API_KEY, output_mode: json_schema, price_id: gemini-2.5-flash-lite}
   gemini_flash: {provider: gemini, model_id: gemini-2.5-flash, key_env: GEMINI_API_KEY, output_mode: json_schema, price_id: gemini-2.5-flash}
   openrouter_gemini_lite: {provider: openai_compat, model_id: google/gemini-2.5-flash-lite, base_url: https://openrouter.ai/api/v1, key_env: OPENROUTER_API_KEY, output_mode: json_schema, price_id: gemini-2.5-flash-lite}
