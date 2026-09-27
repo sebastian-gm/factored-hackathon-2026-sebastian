@@ -1,5 +1,35 @@
 # Progress log
 
+## 2026-09-27 — ADR merged; shared after-v2 dev allowance prepared
+
+### Completed (verified)
+
+- Behavior contract PR #48 merged after all four checks passed at
+  **`ab07bfeba23824292bfd83a13e4934c6ff1ae349`**; announced the SHA for independent
+  v3 authoring. Confirmation freeze #47 merged with fresh green CI at
+  **`3ad29bc388e4b9d09bbd84266a87c9e8c66b419f`**. Hash-only comparison confirmed
+  the two frozen files unchanged from `0692881`; no confirmation rows opened.
+- `.venv/bin/python -m scripts.after_v2_budget --prepare` created and read back
+  the shared durable **scope `dev-gate/after-v2`, run ID `after-v2`, lifetime cap
+  $1.00**. All paid dev callers must use both identifiers with Postgres
+  reserve-before-call accounting. Initial receipt: zero attempts, $0 charged,
+  zero unknown costs; ignored `artifacts/after-v2-dev/budget-prepared.json`.
+- Previous evaluation/Option A scopes are closed to new reservations with all
+  history and outstanding charges retained. Prior exposure $3.07369789 plus
+  the $1 dev and prospective $3 v3 limits totals $7.07369789, below $12.
+  Budget arithmetic tests passed; this setup made no model calls.
+
+### Done but not verified
+
+- Lead Step 3 implementation is in progress on a feature branch. Prompt v5,
+  NLG and dev integration are pending from the AI lane; no new dev gate run.
+
+### Next / blocked
+
+- Implement and verify the accepted contract on dev data, integrate the AI PR,
+  then run the shared-budget dev gate and report. No release or v3 execution
+  is authorized. Never access abandoned v1, rerun v2 or open suite-v3 rows.
+
 ## AI lane — after-v2 explain/offer dev confirmation, 2026-09-27 UTC
 
 ### Completed (verified)
