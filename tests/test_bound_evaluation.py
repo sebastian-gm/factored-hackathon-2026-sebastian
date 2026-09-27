@@ -406,3 +406,45 @@ def test_generic_created_state_and_explanation_targets_are_measured() -> None:
         forbidden_actions=["create_dispute"],
     )
     assert run(s)["passed"]
+
+
+def test_real_route_injection_preserves_fresh_cases_and_readbacks_without_network() -> None:
+    import json
+
+    from aclara.agent.nlu.structured import ExtractedNlu
+    from aclara.llm.client import StructuredClient
+    from aclara.llm.types import ModelSpec
+
+    results = []
+    clients = []
+    for repeat in (0, 1):
+        client = StructuredClient(
+            {route: ModelSpec("mock", "independent-fixture") for route in ("nlu", "phrase")},
+            {},
+            mock_response=lambda _s, _u, schema: (
+                json.dumps(
+                    {
+                        "language": "es",
+                        "intent": "dispute_charge",
+                        "intent_confidence": 0.99,
+                        "amount_expr": "80",
+                        "currency_expr": "USD",
+                        "merchant_expr": "Tienda de Ensayo",
+                        "date_expr": "2026-06-10",
+                        "type_expr": "Purchase",
+                    }
+                )
+                if schema is ExtractedNlu
+                else "{}"
+            ),
+        )
+        scenario = authored()
+        fixture = bind(scenario, IDENTITY)
+        result = asyncio.run(execute_bound(scenario, fixture, "P", repeat, llm_client=client))
+        assert result["passed"] and result["readback"]
+        assert any(e["event"] == "match" and e["matcher_version"] == "v2" for e in result["events"])
+        assert any(r.prompt_id == "nlu@v4" for r in client.records)
+        results.append(result)
+        clients.append(client)
+    assert results[0]["run_id"] != results[1]["run_id"]
+    assert clients[0].records is not clients[1].records

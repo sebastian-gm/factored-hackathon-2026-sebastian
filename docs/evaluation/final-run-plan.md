@@ -48,3 +48,37 @@ At the existing serial case-runner setting, budget **60–90 minutes** of machin
 Before the paid final run, verify the frozen manifest and private bindings, merged lead acceptance fixes and matcher v2, merged prompt v4 and green gates, pinned provider routes, output directories, cross-process budget breaker, unchanged scope under the $12 approval, and Sebastian's explicit start signal. Run B1 and P on the same frozen cases without editing labels or prompts between systems or repeats. Use the existing 100 repeat IDs and record flips and per-scenario majority outcome as the protocol requires. Deterministic code computes SAR, unsafe outcomes, action/readback correctness, routing, cost, latency and intervals. The LLM judge receives only the requested locale, customer message, delivered reply, and optional handoff summary. It produces the four subjective scores in [judge-rubric.md](judge-rubric.md); objective outcomes are never delegated to it.
 
 For the judged final sample, preselect 50 of the repeated-subset IDs by sorting `SHA-256("judge-v1:" + scenario_id)` within category and taking 18/10/10/12 normal/ambiguous/human-required/security cases. Judge the B1 and Gemini reply for each, blind to system identity and objective gold. Independently score the 50 synthetic calibration items after Sebastian completes the ignored human sheet. Report exact agreement and quadratic-weighted κ per dimension only when all 50 pairs are present; handoff usefulness is `null` where no summary exists in the final sample. Do not use the calibration or held-out judge scores to retune the final system. Record ES/PT wording limitations and any same-vendor risks explicitly.
+
+## Lead adapter integration (handoff 09)
+
+The integrated `evals.heldout --run --final` selects Gemini for P, adds the two
+preselected repeats and the Sonnet frontier subset, and uses prompt v4/matcher v2.
+The earlier paragraph describing a hardcoded mock runner records the pre-integration
+gap. The ordinary command remains mock. **No final input or run was opened during
+this integration.** Start still requires Sebastian's separate signal.
+
+After that signal only, set process-local `LLM_FINAL_RUN_STARTED=1` and
+`LLM_REAL_CALLS_APPROVED=1`. Pin `EVAL_BUDGET_DSN` in every system/judge process to
+one shared non-owner Postgres connection, with migration 0003 applied. Initialize
+its policy once using `python -m scripts.final_budget` and an owner connection in
+`FINAL_BUDGET_OWNER_DSN`. This creates the approved $12 daily/cumulative policy
+without deleting spend, raising an existing cap, or re-enabling a tripped breaker.
+DSNs and the OpenRouter key remain environment-only. Do not use the production
+smoke's $0.10 scope for evaluation.
+
+Every case gets fresh application state and a fresh client; every attempt shares
+the fixed `final-evaluation/final-program-v1` database budget. Budget denial aborts
+the program instead of silently scoring fallback cases. Known costs, unknown
+reserved exposure, validated structured outputs, served model IDs, generation IDs,
+prompt hashes and configured provider tags are saved in ignored mode-0600
+artifacts. Raw provider envelopes and reasoning are never saved. Case results
+checkpoint after each case; call journals fsync after each attempt. A stopped run
+is retained; a restart needs a new output directory and still uses the same
+cumulative budget. Do not silently rerun paid cases after interruption.
+
+The full 50-item calibration judge now requires that same budget store. For the
+100 blinded final reply assessments, use `aclara.llm.final_run.client_for` with
+`route="openrouter_sonnet", judge=True` and `judge._score`; this gives the identical
+256-token route and cumulative gate. The AI lane owns selecting the predeclared
+50 frozen IDs and reporting the scores after the start signal. No lead-run judge
+or human-review completion is implied by adapter tests.

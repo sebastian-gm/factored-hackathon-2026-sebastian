@@ -10,7 +10,7 @@ from datetime import UTC, date, datetime
 from hashlib import sha256
 from threading import RLock
 from time import perf_counter
-from typing import Literal, TypeVar
+from typing import Any, Literal, TypeVar
 
 from pydantic import BaseModel, ValidationError
 
@@ -40,6 +40,7 @@ class StructuredClient:
         mock_response: Callable[[str, str, type[BaseModel]], str] | None = None,
         cassettes: dict[str, str] | None = None,
         record: Callable[[CallRecord], None] | None = None,
+        response_record: Callable[[CallRecord, dict[str, Any] | None], None] | None = None,
         budget_usd: float | None = 0.0,
         daily_budget_usd: float | None = None,
         spend_gate: SpendGate | None = None,
@@ -61,6 +62,7 @@ class StructuredClient:
         self.mock_configured = mock_response is not None
         self.records: list[CallRecord] = []
         self._record = record
+        self._response_record = response_record
         self.budget_usd = budget_usd
         self.spent_usd = 0.0
         self.daily_budget_usd = (
@@ -174,6 +176,7 @@ class StructuredClient:
             reservation = self.spend_gate.reserve(reserve) if reserve and self.spend_gate else None
             started = perf_counter()
             response: ProviderResponse | None = None
+            parsed: T | None = None
             status: Literal["valid", "invalid_json", "provider_error", "refusal"] = "provider_error"
             try:
                 response = self._adapters[spec.provider].complete(spec, system, user, schema, key)
@@ -226,6 +229,8 @@ class StructuredClient:
                 self.records.append(call)
                 if self._record:
                     self._record(call)
+                if self._response_record:
+                    self._response_record(call, parsed.model_dump(mode="json") if parsed else None)
                 if reservation is not None and self.spend_gate:
                     self.spend_gate.settle(reservation, cost)
             if spec.provider not in {"mock", "recorded"} and (

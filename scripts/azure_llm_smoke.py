@@ -220,9 +220,9 @@ def main() -> None:
     store = Store(connection_string("aclara_app"))
     try:
         ledger = ServingRepository(store, Settings().bank_clock)
-        with conversation_allowance(len(cases), args.case):
-            results = []
-            for name in cases:
+        results = []
+        for name in cases:
+            with conversation_allowance(1, name):
                 result = exercise(name, password, ledger)
                 results.append(result)
                 print(json.dumps(result), flush=True)
