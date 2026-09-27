@@ -1,21 +1,5 @@
 # Progress log
 
-<<<<<<< Updated upstream
-## Frontend handoff 11 — PR refresh, merge freeze
-
-### Completed (verified)
-
-- Read the complete parallel-work handoff. Refreshed PR #28 against main `3ed98c9` while preserving published history under the no-force-push rule. Resolved documentation conflicts by retaining both the original human spot-check and v2 evidence; labels, measurements and private artifacts are unchanged.
-
-### Done but not verified
-
-- Updated PR #28 CI is pending. Submission refresh and frontend recording improvements are separate follow-ups in this handoff.
-
-### Next / blocked
-
-- Keep PRs open. Do not merge into main until Sebastian announces that the final run has finished; the lead merges afterward.
-
-=======
 ## Option A — dev gate before any re-release (in progress)
 
 ### Completed-verified
@@ -32,7 +16,21 @@
 - Obtain the AI lane's dev-only failure breakdown and previously authored 10 ES / 10 pt-BR confirmation set. Diagnose and fix only dev-supported causes, run the dev gate, report and stop before re-release. No final v2 run or deployment is authorized in this step.
 
 ---
->>>>>>> Stashed changes
+
+## Frontend handoff 11 — historical PR refresh (freeze lifted by handoff 12)
+
+### Completed (verified)
+
+- Read the complete parallel-work handoff. Refreshed PR #28 against main `3ed98c9` while preserving published history under the no-force-push rule. Resolved documentation conflicts by retaining both the original human spot-check and v2 evidence; labels, measurements and private artifacts are unchanged.
+
+### Done but not verified
+
+- Updated PR #28 CI is pending. Submission refresh and frontend recording improvements are separate follow-ups in this handoff.
+
+### Next / blocked
+
+- Keep PRs open. Do not merge into main until Sebastian announces that the final run has finished; the lead merges afterward.
+
 
 ## Jev release and final-program preparation — 2026-09-27 UTC (current)
 
