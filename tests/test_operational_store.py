@@ -226,12 +226,136 @@ def test_api_session_proposal_case_handoff_and_execution_survive_restart(dsn: st
             with fourth.transaction(scope):
                 assert app.state.card_states["card_1"]["status"] == "frozen"
                 assert len(app.state.cases) == 1
-                assert len(app.state.executions) == 3
+                assert len(app.state.executions) == 4
+                assert any(
+                    r.get("outcome") == "handoff_verified" for r in app.state.executions.values()
+                )
                 assert len(app.state.turns) == 3
                 assert len(app.state.conversations) == 1
             with fourth.transaction(Scope(scope.customer_id, str(uuid4()), scope.sid)):
                 assert not app.state.cases and not app.state.handoffs
         finally:
             fourth.close()
+
+    asyncio.run(check())
+
+
+def test_freeze_api_and_step_up_survive_app_restart(dsn: str) -> None:
+    from test_api_security import _settings, _sign_in
+    from test_workflow_api import step_up
+
+    async def check() -> None:
+        first = Store(dsn)
+        app = create_app(_settings(), store=first)
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+            token = await _sign_in(client)
+            headers = {"Authorization": f"Bearer {token}"}
+            await step_up(client, headers)
+            proposal = (
+                await client.post("/cards/prod_1/freeze/proposal", headers=headers, json={})
+            ).json()
+        first.close()
+        second = Store(dsn)
+        app = create_app(_settings(), store=second)
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+            response = await client.post(
+                "/cards/prod_1/freeze",
+                headers=headers,
+                json={"proposal_hash": proposal["proposal_hash"], "confirmed": True},
+            )
+            assert response.status_code == 200, response.text
+            handoff = response.json()["handoff"]["handoff_id"]
+        second.close()
+        third = Store(dsn)
+        try:
+            app = create_app(_settings(), store=third)
+            async with AsyncClient(
+                transport=ASGITransport(app=app), base_url="http://test"
+            ) as client:
+                assert (await client.get("/cards/prod_1", headers=headers)).json()[
+                    "status"
+                ] == "Frozen"
+                packet = (await client.get(f"/handoffs/{handoff}", headers=headers)).json()
+                assert packet["freeze_outcome"] == "verified"
+                assert packet["route"]["queue"] == "Fraudes"
+        finally:
+            third.close()
+
+    asyncio.run(check())
+
+
+def test_reference_routing_is_read_only_for_api(dsn: str) -> None:
+    from aclara.handoff.routing import AgentDirectory
+
+    with psycopg.connect(os.environ["TEST_OPS_OWNER_DSN"]) as owner:
+        owner.execute(
+            "INSERT INTO reference.service_agents VALUES ('agent_fixture_pt_fraud','Active','Digital','portugués','Fraudes',3)"
+        )
+    store = Store(dsn)
+    try:
+        directory = AgentDirectory(store=store)
+        assert directory.route("pt", "FRD-01")["assigned_agent_ref"] == "agent_fixture_pt_fraud"
+        with (
+            psycopg.connect(dsn, autocommit=True) as connection,
+            pytest.raises(psycopg.errors.InsufficientPrivilege),
+        ):
+            connection.execute("DELETE FROM reference.service_agents")
+    finally:
+        store.close()
+
+
+def test_staff_claim_and_reset_are_durable_with_audit_retained(dsn: str) -> None:
+    from dataclasses import replace
+
+    from test_api_security import _settings, _sign_in
+    from test_workflow_api import message, step_up
+
+    async def check():
+        settings = replace(_settings(), demo_role="ops", allow_demo_reset=True)
+        first = Store(dsn)
+        app = create_app(settings, store=first)
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+            token = await _sign_in(client)
+            headers = {"Authorization": f"Bearer {token}"}
+            result, _ = await message(client, headers, "Quiero un agente")
+            key = result["handoff"]["handoff_id"]
+            claimed = await client.post(
+                f"/agent/handoffs/{key}/claim",
+                headers=headers,
+                json={"expected_version": 1, "idempotency_key": "durable_claim_01"},
+            )
+            assert claimed.status_code == 200
+            principal = app.state.sessions[token]
+            scope = Scope(principal.customer_id, principal.run_id, principal.session_id)
+        first.close()
+        second = Store(dsn)
+        app = create_app(settings, store=second)
+        try:
+            async with AsyncClient(
+                transport=ASGITransport(app=app), base_url="http://test"
+            ) as client:
+                assert (
+                    await client.get(f"/agent/handoffs/{key}", headers=headers)
+                ).json() == claimed.json()
+                await step_up(client, headers)
+                proposal = (await client.post("/ops/reset/proposal", headers=headers)).json()
+                result = await client.post(
+                    "/ops/reset",
+                    headers=headers,
+                    json={"proposal_hash": proposal["proposal_hash"], "confirmed": True},
+                )
+                assert result.status_code == 200 and result.json()["remaining_operations"] == 0
+                assert (await client.get("/agent/handoffs", headers=headers)).json() == []
+            with psycopg.connect(dsn) as db:
+                context(db, scope)
+                entries = db.execute(
+                    "SELECT sequence,canonical,prev_hash,row_hash FROM ops.audit_log ORDER BY sequence"
+                ).fetchall()
+                assert entries and verify(
+                    entries, (scope.customer_id, scope.run_id, scope.sid)
+                ) == len(entries)
+                assert any("workspace_reset" in row[1] for row in entries)
+        finally:
+            second.close()
 
     asyncio.run(check())

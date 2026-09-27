@@ -24,14 +24,28 @@ class Runtime:
         self.events.append({"event": event, **values})
 
     def fault(self, kind: str, trigger: str) -> bool:
+        aliases = {
+            "after_proposal_before_confirmation": "confirm_action",
+            "after_verified_first_intake": "verified_intake",
+            "verify_dispute_case": "read_back",
+            "search_transactions": "MATCH",
+            "nlu_every_call": "nlu",
+        }
         for index, item in enumerate(self.faults):
             if (
-                index not in self.fired
+                (index not in self.fired or item.get("parameters", {}).get("persistent", False))
                 and item["type"] == kind
-                and item["trigger"] in {trigger, "always", "first_turn"}
+                and aliases.get(item["trigger"], item["trigger"])
+                in {trigger, "always", "first_turn"}
             ):
                 self.fired.add(index)
-                self.record("fault", kind=kind, trigger=trigger)
+                self.record(
+                    "fault",
+                    kind=kind,
+                    trigger=trigger,
+                    declaration=index,
+                    persistent=bool(item.get("parameters", {}).get("persistent", False)),
+                )
                 return True
         return False
 

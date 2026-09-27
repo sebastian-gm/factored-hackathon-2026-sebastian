@@ -1,0 +1,155 @@
+{
+  "bootstrap_draws": 10000,
+  "seed": 20261001,
+  "primary_single_run": {
+    "n": 200,
+    "in_scope_n": 193,
+    "difference": 0.0,
+    "paired_95": [
+      0.0,
+      0.0
+    ]
+  },
+  "repeated_subset_majority": {
+    "n": 100,
+    "in_scope_n": 98,
+    "difference": 0.0,
+    "paired_95": [
+      0.0,
+      0.0
+    ]
+  },
+  "single_run_remainder": {
+    "n": 100,
+    "in_scope_n": 95,
+    "difference": 0.0,
+    "paired_95": [
+      0.0,
+      0.0
+    ]
+  },
+  "mcnemar_exact_two_sided": {
+    "n": 100,
+    "p_wins": 0,
+    "b1_wins": 0,
+    "p_value": 1
+  },
+  "repeat_metric_ranges": {
+    "passed": {
+      "mean": 0.36,
+      "min": 0.36,
+      "max": 0.36
+    },
+    "sar_eligible": {
+      "mean": 0.5142857142857142,
+      "min": 0.5142857142857142,
+      "max": 0.5142857142857142
+    },
+    "escalation_recall": {
+      "mean": 0.0,
+      "min": 0.0,
+      "max": 0.0
+    },
+    "unnecessary_transfers": {
+      "mean": 0.42857142857142855,
+      "min": 0.42857142857142855,
+      "max": 0.42857142857142855
+    },
+    "containment": {
+      "mean": 0.46,
+      "min": 0.46,
+      "max": 0.46
+    },
+    "cost_per_case_usd": {
+      "mean": 0.0,
+      "min": 0.0,
+      "max": 0.0
+    },
+    "p50_turn_ms": {
+      "mean": 1.5745566536982853,
+      "min": 1.5428820624947548,
+      "max": 1.5912679955363274
+    },
+    "p95_turn_ms": {
+      "mean": 2.1952647560586533,
+      "min": 2.0408129785209894,
+      "max": 2.336971228942275
+    },
+    "unauthorized_disclosure": {
+      "mean": 0.0,
+      "min": 0.0,
+      "max": 0.0
+    },
+    "unauthorized_action": {
+      "mean": 0.03,
+      "min": 0.03,
+      "max": 0.03
+    },
+    "missing_confirmation_or_step_up": {
+      "mean": 0.0,
+      "min": 0.0,
+      "max": 0.0
+    },
+    "reported_not_verified": {
+      "mean": 0.0,
+      "min": 0.0,
+      "max": 0.0
+    },
+    "materially_incorrect_outcome": {
+      "mean": 0.04,
+      "min": 0.04,
+      "max": 0.04
+    },
+    "grounding_violation": {
+      "mean": 0.0,
+      "min": 0.0,
+      "max": 0.0
+    },
+    "policy_violation": {
+      "mean": 0.03,
+      "min": 0.03,
+      "max": 0.03
+    },
+    "refund_or_credit_promise": {
+      "mean": 0.0,
+      "min": 0.0,
+      "max": 0.0
+    }
+  },
+  "repeat_clustered_latency": {
+    "p50_ms": 1.5733130276203156,
+    "p95_ms": 2.288384200073778,
+    "case_bootstrap_95": {
+      "p50": [
+        1.5297899954020977,
+        1.6251609195023775
+      ],
+      "p95": [
+        2.057812176644802,
+        2.49735782854259
+      ]
+    }
+  },
+  "repeat_sar_in_scope": {
+    "n_per_repeat": 100,
+    "rates": [
+      0.3673469387755102,
+      0.3673469387755102,
+      0.3673469387755102
+    ],
+    "mean": 0.3673469387755102,
+    "min": 0.3673469387755102,
+    "max": 0.3673469387755102
+  },
+  "flip_rate": {
+    "count": 0,
+    "denominator": 100,
+    "rate": 0.0,
+    "wilson_95": [
+      0,
+      0.036993498206983715
+    ]
+  },
+  "automation_improvement_supported": false,
+  "interpretation": "Mock diagnostic only. P's unconfigured mock uses deterministic fallback; this does not compare real-model quality. Acceptance additionally requires all safety gates."
+}

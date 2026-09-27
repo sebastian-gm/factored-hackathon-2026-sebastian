@@ -6,8 +6,9 @@ import hashlib
 import hmac
 import json
 import os
+import re
 import secrets
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field, replace
 from datetime import UTC, datetime, timedelta
 from typing import Any
 from uuid import uuid4
@@ -34,12 +35,25 @@ from aclara.agent.nlu import (
 )
 from aclara.agent.nlu.structured import NormalizedSlots
 from aclara.agent.runtime import InjectedFailure, Runtime
+from aclara.api.staff import complete_packet, install_staff
+from aclara.api.staff_contracts import IdentityView
+from aclara.api.workflows import (
+    fraud_handoff,
+    install_workflows,
+    make_handoff,
+    policy_context,
+    public_case,
+    safe_merchant,
+    security_event,
+)
 from aclara.bank.repository import Transaction, TransactionRepository
 from aclara.handoff.packet import create_packet
+from aclara.handoff.routing import AgentDirectory
 from aclara.llm.client import StructuredClient
 from aclara.ops.store import Scope, Store
 from aclara.policy.engine import PolicyDecision, evaluate
 from aclara.policy.rules import catalog, rule
+from aclara.policy.rules.guards import cross_customer, escalation, injection, unsupported_language
 from aclara.settings import Settings
 
 
@@ -51,6 +65,9 @@ class Principal:
     username: str
     otp_at: datetime
     expires_at: datetime
+    step_up_at: datetime | None = None
+    capability_digest: str = ""
+    role: str = "customer"
 
 
 @dataclass(slots=True)
@@ -59,6 +76,7 @@ class OtpChallenge:
     code: str
     expires_at: datetime
     attempts: int = 0
+    step_up: bool = False
 
 
 @dataclass(slots=True)
@@ -82,6 +100,7 @@ class Conversation:
     intent: Intent | None = None
     proposal: ActionProposal | None = None
     rounds: int = 0
+    unsupported_turns: int = 0
 
 
 class StrictModel(BaseModel):
@@ -132,7 +151,7 @@ def _masked_transaction(handle: str, row: Transaction) -> dict[str, Any]:
         "transaction_type": row.transaction_type,
         "amount": row.amount,
         "currency": row.currency,
-        "merchant": row.merchant_name,
+        "merchant": safe_merchant(row.merchant_name),
         "status": row.transaction_status,
     }
 
@@ -142,6 +161,7 @@ def _localized(language: str, spanish: str, portuguese: str) -> str:
 
 
 def _explanation(language: str, row: Transaction, reason: str) -> str:
+    row = replace(row, merchant_name=safe_merchant(row.merchant_name))
     amount = f"{row.amount:.2f} {row.currency}"
     if reason == "pending_authorization":
         return _localized(
@@ -152,20 +172,78 @@ def _explanation(language: str, row: Transaction, reason: str) -> str:
     if reason == "reversed":
         return _localized(
             language,
-            f"El cargo de {amount} en {row.merchant_name} aparece como reversado. No hay una fecha de reverso registrada.",
-            f"A cobrança de {amount} em {row.merchant_name} aparece como estornada. Não há uma data de estorno registrada.",
+            f"El cargo de {amount} en {row.merchant_name} aparece como reversado y el importe no fue cobrado. No hay una fecha de reverso registrada.",
+            f"A cobrança de {amount} em {row.merchant_name} aparece como estornada e o valor não foi cobrado. Não há uma data de estorno registrada.",
         )
     if reason == "declined":
         return _localized(
             language,
-            f"El cargo de {amount} en {row.merchant_name} figura como rechazado; el registro indica que no se completó.",
-            f"A cobrança de {amount} em {row.merchant_name} aparece como recusada; o registro indica que não foi concluída.",
+            f"El cargo de {amount} en {row.merchant_name} figura como rechazado; no hubo movimiento de dinero.",
+            f"A cobrança de {amount} em {row.merchant_name} aparece como recusada; não houve movimentação de dinheiro.",
         )
     return _localized(
         language,
         f"El registro muestra {amount} en {row.merchant_name}, con estado {row.transaction_status.lower()}.",
         f"O registro mostra {amount} em {row.merchant_name}, com status {row.transaction_status.lower()}.",
     )
+
+
+def _review_reason(decision: PolicyDecision, language: str) -> str:
+    reasons = {
+        "pending_over_limit": (
+            "La autorización lleva más de 14 días pendiente.",
+            "A autorização está pendente há mais de 14 dias.",
+        ),
+        "outside_intake_window": (
+            "El cargo tiene más de 90 días.",
+            "A cobrança tem mais de 90 dias.",
+        ),
+        "restricted_customer_or_product": (
+            "El estado del cliente o del producto requiere revisión.",
+            "O estado do cliente ou do produto exige análise.",
+        ),
+        "fee_or_adjustment": (
+            "Las tarifas y ajustes requieren revisión humana.",
+            "Tarifas e ajustes exigem análise humana.",
+        ),
+        "unsupported_transaction_type": (
+            "Este tipo de movimiento requiere otro proceso.",
+            "Este tipo de transação exige outro processo.",
+        ),
+        "amount_over_limit": (
+            "El monto convertido supera el límite de registro automático.",
+            "O valor convertido supera o limite de registro automático.",
+        ),
+        "policy_boundary": (
+            "El monto está cerca del límite o el cargo tiene entre 85 y 90 días.",
+            "O valor está próximo do limite ou a cobrança tem entre 85 e 90 dias.",
+        ),
+        "fx_nearest_prior": (
+            "La conversión usa un tipo de cambio de una fecha anterior.",
+            "A conversão usa uma taxa de câmbio de uma data anterior.",
+        ),
+        "fraud_review": (
+            "Una señal de riesgo requiere atención de Fraudes.",
+            "Um sinal de risco exige atendimento de Fraudes.",
+        ),
+    }
+    if decision.reason.startswith("missing:"):
+        labels = {
+            "amount": ("monto", "valor"),
+            "date": ("fecha", "data"),
+            "transaction_date": ("fecha", "data"),
+            "status": ("estado", "status"),
+            "amount_usd": ("conversión de moneda verificada", "conversão de moeda verificada"),
+        }
+        fields = ", ".join(
+            labels.get(f, ("dato necesario", "dado necessário"))[language == "pt"]
+            for f in decision.reason.split(":", 1)[1].split(",")
+        )
+        return ("Falta verificar: " if language == "es" else "Falta verificar: ") + fields + "."
+    return reasons.get(
+        decision.reason,
+        ("Se requiere revisión de los datos.", "É necessária uma análise dos dados."),
+    )[language == "pt"]
 
 
 def _handoff_reply(language: str) -> str:
@@ -214,10 +292,13 @@ def create_app(
     app.state.instance_id = str(uuid4())
     app.state.settings = active_settings
     app.state.ledger = ledger
+    app.state.loaded_at = datetime.now(UTC)
+    app.state.dataset_version = "fixture:" + hashlib.sha256(repr(ledger._rows).encode()).hexdigest()
     operational = store or Store(
         os.getenv("OPS_DSN", "") if active_settings.ops_backend == "postgres" else None
     )
     app.state.store = operational
+    app.state.agent_directory = AgentDirectory(store=operational)
     auth_scope = Scope(active_settings.demo_customer_id, "auth", "auth")
     app.state.challenges = operational.mapping(
         "otp_challenges", OtpChallenge, auth_scope=auth_scope
@@ -241,6 +322,7 @@ def create_app(
         events = app.state.runtime.events[cursor:]
         app.state.executions[record_id] = {
             "conversation_id": conversation_id,
+            "created_at": datetime.now(UTC).isoformat(),
             "events": events,
             "outcome": result["outcome"],
             "response": result,
@@ -271,7 +353,7 @@ def create_app(
         if principal is None or principal.expires_at <= now:
             app.state.sessions.pop(token, None)
             raise HTTPException(status_code=401, detail="Session expired")
-        return principal
+        return replace(principal, capability_digest=hashlib.sha256(token.encode()).hexdigest())
 
     async def get_principal(authorization: str | None = Header(default=None)) -> Principal:
         scheme, _, token = (authorization or "").partition(" ")
@@ -365,6 +447,7 @@ def create_app(
         now = datetime.now(UTC)
         if (
             challenge is None
+            or challenge.step_up
             or challenge.expires_at <= now
             or challenge.attempts >= 5
             or not x_preauth_token
@@ -384,15 +467,24 @@ def create_app(
             run_id=run_id,
             customer_id=active_settings.demo_customer_id,
             username=active_settings.demo_username,
+            role=active_settings.demo_role,
             otp_at=now,
             expires_at=now + timedelta(minutes=int(rule("AUTH-01").parameters["session_minutes"])),
         )
         del app.state.challenges[body.challenge_id]
         return {"access_token": session_token, "token_type": "bearer"}
 
-    @app.get("/me")
-    async def me(principal: Principal = Depends(get_principal)) -> dict[str, str]:
-        return {"username": principal.username, "language": "es"}
+    @app.get("/me", response_model=IdentityView)
+    async def me(principal: Principal = Depends(get_principal)) -> IdentityView:
+        return IdentityView.model_validate(
+            {
+                "username": principal.username,
+                "language": "pt" if active_settings.demo_locale == "pt-BR" else "es",
+                "role": principal.role,
+                "locale": active_settings.demo_locale,
+                "bank_clock": active_settings.bank_clock,
+            }
+        )
 
     @app.get("/transactions")
     async def list_transactions(
@@ -425,6 +517,7 @@ def create_app(
                 result = safe_failure(principal, classify(body.message).language)
             app.state.runtime.record("response", response_type=result["response_type"])
             conversation = app.state.conversations.get(conversation_id)
+            complete_packet(app, result, principal, conversation_id)
             result = ai.reply(
                 result,
                 conversation.language if conversation else "es",
@@ -448,10 +541,20 @@ def create_app(
             with operational.transaction(scope(principal)):
                 if not app.state.handoffs.get(result["handoff"]["handoff_id"]):
                     raise HTTPException(status_code=503, detail="Durable handoff read-back failed")
+                result["verified"] = True
+                app.state.executions[str(uuid4())] = {
+                    "conversation_id": conversation_id,
+                    "created_at": datetime.now(UTC).isoformat(),
+                    "events": [
+                        {"event": "verify_readback", "handle": result["handoff"]["handoff_id"]}
+                    ],
+                    "outcome": "handoff_verified",
+                    "policy_version": catalog()[0],
+                }
         return result
 
     def safe_failure(principal: Principal, language: str) -> dict[str, Any]:
-        packet = create_packet(language, "ESC-04")
+        packet = create_packet(language, "ESC-04", app.state.agent_directory)
         app.state.handoffs[packet["handoff_id"]] = {
             **packet,
             "customer_id": principal.customer_id,
@@ -475,6 +578,102 @@ def create_app(
             raise HTTPException(status_code=404, detail="Conversation not found")
         nonlocal learned_matcher
         frame = classify(body.message)
+        language = conversation.language if conversation.candidates else frame.language
+        conversation.language = language
+        if cross_customer(body.message):
+            security_event(app, "cross_customer_attempt")
+            state = app.state.executions.get("security_state", {"attempts": 0})
+            state["attempts"] += 1
+            app.state.executions["security_state"] = state
+            ended = state["attempts"] >= int(rule("SEC-01").parameters["end_session_attempts"])
+            conversation.proposal = None
+            result = {
+                "response_type": "refuse",
+                "outcome": "refused_security",
+                "reply": _localized(
+                    language,
+                    "Solo puedo consultar los datos de tu sesión autenticada.",
+                    "Só posso consultar os dados da sua sessão autenticada.",
+                ),
+                "policy_rules": ["AUTH-03", "SEC-01"],
+                "session_ended": ended,
+            }
+            app.state.runtime.record("refuse_request")
+            if ended:
+                result["handoff"] = make_handoff(app, principal, language, "SEC-01")["handoff"]
+                operational.delete("sessions", principal.capability_digest)
+                app.state.runtime.record("end_session")
+            return result
+        if injection(body.message):
+            security_event(app, "direct_prompt_injection")
+            clean = " ".join(
+                part for part in re.split(r"[.;\n]", body.message) if not injection(part)
+            )
+            if not clean.strip() or classify(clean).intent == Intent.OUT_OF_SCOPE:
+                app.state.runtime.record("refuse_request")
+                return {
+                    "response_type": "refuse",
+                    "outcome": "refused_security",
+                    "reply": _localized(
+                        language,
+                        "No puedo revelar instrucciones internas ni cambiar los controles. Puedo ayudarte con un cargo.",
+                        "Não posso revelar instruções internas nem alterar os controles. Posso ajudar com uma cobrança.",
+                    ),
+                    "policy_rules": ["SEC-02"],
+                }
+            body = MessageBody(message=clean)
+            frame = classify(clean)
+        reason = escalation(body.message)
+        if reason:
+            conversation.proposal = None
+            return make_handoff(app, principal, language, reason)
+        if unsupported_language(body.message):
+            conversation.unsupported_turns += 1
+            if conversation.unsupported_turns >= 2:
+                return make_handoff(app, principal, language, "ESC-04")
+            return {
+                "response_type": "clarify",
+                "outcome": "clarification",
+                "reply": "Puedo atenderte en español o portugués. / Posso atender em espanhol ou português.",
+                "policy_rules": ["ESC-04"],
+            }
+        normalized_message = normalize_text(body.message)
+        if re.search(
+            r"(estado|status|andamento).{0,30}(caso|disputa|contestacion|contestacao)|(mi caso|minha contestacao)",
+            normalized_message,
+        ):
+            cases = list(app.state.cases.values())
+            requested = re.search(r"DSP-[A-Za-z0-9-]+", body.message, re.IGNORECASE)
+            if requested:
+                cases = [
+                    c for c in cases if c["case_id"].casefold() == requested.group().casefold()
+                ]
+            if cases:
+                record = cases[-1]
+                app.state.runtime.record("status_lookup")
+                app.state.runtime.record("report_case", handle=record["transaction_handle"])
+                return {
+                    "response_type": "report_status",
+                    "outcome": "status_reported",
+                    "reply": _localized(
+                        language,
+                        f"El caso {record['case_id']} tiene estado {record['status']}.",
+                        f"O caso {record['case_id']} tem status {record['status']}.",
+                    ),
+                    "case": public_case(record),
+                    "verified": True,
+                    "policy_rules": ["DSP-06"],
+                }
+            return {
+                "response_type": "clarify",
+                "outcome": "clarification",
+                "reply": _localized(
+                    language,
+                    "No encontré ese caso en tu sesión. ¿Qué cargo quieres revisar?",
+                    "Não encontrei esse caso na sua sessão. Qual cobrança deseja consultar?",
+                ),
+                "policy_rules": ["DSP-06"],
+            }
         if (
             app.state.runtime.system == "P"
             and not conversation.candidates
@@ -504,6 +703,8 @@ def create_app(
                 elif nlu.clarification or frame.confidence < float(
                     rule("ESC-04").parameters["nlu_min_confidence"]
                 ):
+                    if frame.confidence < float(rule("ESC-04").parameters["nlu_min_confidence"]):
+                        return make_handoff(app, principal, conversation.language, "ESC-04")
                     conversation.rounds += 1
                     conversation.intent = frame.intent
                     conversation.language = (
@@ -544,7 +745,10 @@ def create_app(
                 Intent.FRAUD: "FRD-01",
                 Intent.FEE_DISPUTE: "DSP-03",
             }[frame.intent]
-            packet = create_packet(language, reason_code)
+            conversation.proposal = None
+            if reason_code == "FRD-01":
+                return fraud_handoff(app, principal, language)
+            packet = create_packet(language, reason_code, app.state.agent_directory)
             app.state.handoffs[packet["handoff_id"]] = {
                 **packet,
                 "customer_id": principal.customer_id,
@@ -560,7 +764,11 @@ def create_app(
             }
 
         if frame.intent == Intent.OUT_OF_SCOPE and not conversation.candidates:
+            handoff = make_handoff(app, principal, language, "SCOPE-01")
+            app.state.runtime.record("abstain")
             return {
+                "handoff": handoff["handoff"],
+                "policy_rules": ["SCOPE-01"],
                 "response_type": "abstain",
                 "outcome": "abstained_out_of_scope",
                 "reply": _localized(
@@ -576,7 +784,7 @@ def create_app(
                 conversation.rounds += 1
                 if conversation.rounds >= 2:
                     conversation.candidates = []
-                    packet = create_packet(language, "ESC-04")
+                    packet = create_packet(language, "ESC-04", app.state.agent_directory)
                     app.state.handoffs[packet["handoff_id"]] = {
                         **packet,
                         "customer_id": principal.customer_id,
@@ -617,6 +825,12 @@ def create_app(
             )
 
         rows = ledger.for_customer(principal.customer_id, active_settings.bank_clock)
+        if any(injection(row.merchant_name) for _, row in rows):
+            security_event(app, "indirect_prompt_injection")
+            rows = [
+                (handle, replace(row, merchant_name=safe_merchant(row.merchant_name)))
+                for handle, row in rows
+            ]
         normalized = normalize_text(body.message)
         merchant_matches = [
             (handle, row) for handle, row in rows if normalize_text(row.merchant_name) in normalized
@@ -659,7 +873,7 @@ def create_app(
         if not candidates:
             conversation.rounds += 1
             if conversation.rounds >= 2:
-                packet = create_packet(language, "ESC-04")
+                packet = create_packet(language, "ESC-04", app.state.agent_directory)
                 app.state.handoffs[packet["handoff_id"]] = {
                     **packet,
                     "customer_id": principal.customer_id,
@@ -686,7 +900,6 @@ def create_app(
         if len(candidates) > 1 or learned_choice:
             conversation.candidates = candidates[:3]
             conversation.intent = frame.intent
-            conversation.rounds += 1
             return {
                 "response_type": "choose_transaction",
                 "outcome": "choose_transaction",
@@ -732,6 +945,7 @@ def create_app(
                 result = safe_failure(principal, language)
             app.state.runtime.record("response", response_type=result["response_type"])
             conversation = app.state.conversations.get(conversation_id)
+            complete_packet(app, result, principal, conversation_id)
             result = ai.reply(
                 result,
                 conversation.language if conversation else "es",
@@ -755,6 +969,16 @@ def create_app(
             with operational.transaction(scope(principal)):
                 if not app.state.handoffs.get(result["handoff"]["handoff_id"]):
                     raise HTTPException(status_code=503, detail="Durable handoff read-back failed")
+                result["verified"] = True
+                app.state.executions[str(uuid4())] = {
+                    "conversation_id": conversation_id,
+                    "created_at": datetime.now(UTC).isoformat(),
+                    "events": [
+                        {"event": "verify_readback", "handle": result["handoff"]["handoff_id"]}
+                    ],
+                    "outcome": "handoff_verified",
+                    "policy_version": catalog()[0],
+                }
         return result
 
     async def process_confirmation(
@@ -795,7 +1019,25 @@ def create_app(
         ):
             conversation.proposal = None
             raise HTTPException(status_code=401, detail="Step-up verification required")
-        decision = evaluate(proposal.transaction, active_settings.bank_clock, is_dispute=True)
+        current_rows = dict(ledger.for_customer(principal.customer_id, active_settings.bank_clock))
+        current = current_rows.get(proposal.transaction_handle)
+        if current is None or current.record_id != proposal.transaction.record_id:
+            raise HTTPException(409, "Transaction no longer available")
+        context = policy_context(app, principal, current)
+        decision = evaluate(current, active_settings.bank_clock, is_dispute=True, context=context)
+        if decision.decision == "status":
+            record = app.state.cases[context.existing_case_id]
+            conversation.proposal = None
+            return {
+                "response_type": "report_status",
+                "outcome": "status_reported",
+                "reply": _localized(
+                    proposal.language, "El caso ya está registrado.", "O caso já está registrado."
+                ),
+                "case": public_case(record),
+                "verified": True,
+                "policy_rules": ["DSP-06"],
+            }
         if decision.decision != "eligible":
             conversation.proposal = None
             raise HTTPException(status_code=409, detail="Policy no longer permits this action")
@@ -829,7 +1071,10 @@ def create_app(
             "status": "received",
             "policy_rules": list(decision.rule_ids),
             "created_at": now.isoformat(),
+            "bank_created_at": active_settings.bank_clock.isoformat(),
+            "review_flag": decision.review_flag,
         }
+        app.state.runtime.record("policy", **asdict(decision))
         app.state.runtime.checkpoint("create_dispute")
         app.state.cases[case_id] = record
         app.state.idempotency[proposal.action_hash] = {"case_id": case_id}
@@ -842,19 +1087,17 @@ def create_app(
         if read_back is None or read_back["customer_id"] != principal.customer_id:
             raise HTTPException(status_code=503, detail="Read-back verification failed")
         app.state.runtime.record("verify_readback", handle=proposal.transaction_handle)
+        if decision.review_flag:
+            app.state.runtime.record("set_review_flag", handle=proposal.transaction_handle)
         return {
             "response_type": "report_case",
             "outcome": "dispute_filed",
             "reply": _localized(
                 proposal.language,
-                f"Tu disputa {case_id} fue registrada y verificada.",
-                f"Sua disputa {case_id} foi registrada e verificada.",
+                f"Tu disputa {case_id} fue registrada y verificada. El siguiente paso es la revisión; respuesta en hasta 15 días (SLA simulado).",
+                f"Sua disputa {case_id} foi registrada e verificada. A próxima etapa é a análise; resposta em até 15 dias (SLA simulado).",
             ),
-            "case": {
-                key: value
-                for key, value in read_back.items()
-                if key not in {"customer_id", "transaction_id"}
-            },
+            "case": public_case(read_back),
             "verified": True,
         }
 
@@ -867,11 +1110,7 @@ def create_app(
             record: dict[str, Any] | None = app.state.cases.get(case_id)
             if record is None or record["customer_id"] != principal.customer_id:
                 raise HTTPException(status_code=404, detail="Dispute not found")
-            return {
-                key: value
-                for key, value in record.items()
-                if key not in {"customer_id", "transaction_id"}
-            }
+            return public_case(record)
 
     @app.get("/handoffs/{handoff_id}")
     async def read_handoff(
@@ -892,6 +1131,8 @@ def create_app(
                 if key not in {"customer_id", "session_id"}
             }
 
+    install_workflows(app, get_principal)
+    install_staff(app, get_principal)
     return app
 
 
@@ -906,10 +1147,32 @@ def _decide_for_transaction(
     settings: Settings,
 ) -> dict[str, Any]:
     is_dispute = intent == Intent.DISPUTE_CHARGE
-    decision = evaluate(row, settings.bank_clock, is_dispute=is_dispute)
+    context = policy_context(app, principal, row)
+    decision = evaluate(row, settings.bank_clock, is_dispute=is_dispute, context=context)
+    app.state.runtime.record("policy", **asdict(decision))
+    row = replace(row, merchant_name=safe_merchant(row.merchant_name))
+    if decision.decision == "freeze_offer":
+        return fraud_handoff(app, principal, language, row)
+    if decision.decision == "status":
+        record = app.state.cases[context.existing_case_id]
+        app.state.runtime.record("status_lookup")
+        app.state.runtime.record("report_case", handle=handle)
+        return {
+            "response_type": "report_status",
+            "outcome": "status_reported",
+            "reply": _localized(
+                language,
+                "Ya existe un caso para este cargo.",
+                "Já existe um caso para esta cobrança.",
+            ),
+            "case": public_case(record),
+            "verified": True,
+            "policy_rules": ["DSP-06"],
+        }
     if decision.decision == "handoff":
-        packet = create_packet(language, decision.rule_ids[0])
-        packet["verified_facts"] = [_masked_transaction(handle, row)]
+        packet = create_packet(language, decision.rule_ids[0], app.state.agent_directory)
+        if not decision.reason.startswith("missing:"):
+            packet["verified_facts"] = [_masked_transaction(handle, row)]
         app.state.handoffs[packet["handoff_id"]] = {
             **packet,
             "customer_id": principal.customer_id,
@@ -918,7 +1181,10 @@ def _decide_for_transaction(
         return {
             "response_type": "offer_human",
             "outcome": "handoff_created",
-            "reply": _handoff_reply(language),
+            "reply": _handoff_reply(language)
+            + " "
+            + _localized(language, "Motivo de revisión: ", "Motivo da análise: ")
+            + _review_reason(decision, language),
             "handoff": {key: value for key, value in packet.items() if key != "request_summary"},
             "policy_rules": list(decision.rule_ids),
         }

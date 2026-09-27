@@ -22,6 +22,7 @@ class ModelSpec:
     reasoning_effort: Literal["max", "xhigh", "high", "medium", "low", "minimal", "none"] | None = (
         None
     )
+    timeout_seconds: int = 20
 
 
 @dataclass(frozen=True, slots=True)

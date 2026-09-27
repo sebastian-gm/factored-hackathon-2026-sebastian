@@ -163,7 +163,9 @@ def main() -> int:
     for model_id in MODEL_IDS:
         models[model_id] = replace(models[model_id], max_output_tokens=2048)
     haiku = "anthropic/claude-haiku-4.5"
-    models[haiku] = replace(models[haiku], provider_only=("amazon-bedrock/global",))
+    models[haiku] = replace(
+        models[haiku], provider_only=("amazon-bedrock/global",), timeout_seconds=60
+    )
     if args.dry_run:
         LOGGER.info(
             "Unreviewed 150-case suite SHA-256 %s; prompt SHA-256 %s",

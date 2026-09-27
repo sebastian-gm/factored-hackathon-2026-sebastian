@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from enum import StrEnum
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -49,6 +49,12 @@ class HandoffRoute(InterfaceModel):
     queue: str
     language: Literal["es", "pt"]
     fallback_used: bool
+    requested_queue: str | None = None
+    specialty_fallback: bool = False
+    language_fallback: bool = False
+    assigned_agent_ref: str | None = None
+    routing_explanation: str | None = None
+    assignment_pending: bool = False
 
 
 class HandoffView(InterfaceModel):
@@ -61,14 +67,31 @@ class HandoffView(InterfaceModel):
     verified_facts: list[TransactionView]
     actions_taken: list[str]
     open_questions: list[str]
+    freeze_outcome: str | None = None
+    conversation_id: str | None = None
+    customer: dict[str, Any] | None = None
+    customer_statements: list[dict[str, Any]] | None = None
+    policy_evaluations: list[dict[str, str]] | None = None
+    risk_flags: list[str] | None = None
+    suggested_next_steps: list[str] | None = None
+    sla_due_at: datetime | None = None
+    transcript_ref: str | None = None
+    trace_ref: str | None = None
 
 
 class DisputeCaseView(InterfaceModel):
     case_id: str
     transaction_handle: str
-    status: Literal["received"]
+    status: str
     policy_rules: list[str]
     created_at: datetime
+    review_flag: bool = False
+
+
+class ProductView(InterfaceModel):
+    handle: str
+    product_type: str
+    status: str
 
 
 class ResponsePlan(InterfaceModel):
@@ -83,6 +106,8 @@ class ResponsePlan(InterfaceModel):
         "report_case",
         "confirm_action",
         "explain_status",
+        "report_status",
+        "refuse",
     ]
     outcome: Literal[
         "cancelled",
@@ -93,6 +118,8 @@ class ResponsePlan(InterfaceModel):
         "dispute_filed",
         "dispute_proposed",
         "explained",
+        "status_reported",
+        "refused_security",
     ]
     reply: str
     transaction: TransactionView | None = None
@@ -102,6 +129,8 @@ class ResponsePlan(InterfaceModel):
     case: DisputeCaseView | None = None
     verified: bool | None = None
     policy_rules: list[str] | None = None
+    freeze_offer: list[ProductView] | None = None
+    session_ended: bool = False
 
     @model_validator(mode="after")
     def validate_response_shape(self) -> ResponsePlan:
@@ -114,6 +143,8 @@ class ResponsePlan(InterfaceModel):
             "report_case": "dispute_filed",
             "confirm_action": "dispute_proposed",
             "explain_status": "explained",
+            "report_status": "status_reported",
+            "refuse": "refused_security",
         }
         if self.outcome != expected_outcomes[self.response_type]:
             raise ValueError(
@@ -122,6 +153,7 @@ class ResponsePlan(InterfaceModel):
         required: dict[str, tuple[str, ...]] = {
             "choose_transaction": ("candidates",),
             "report_case": ("case", "verified"),
+            "report_status": ("case", "verified"),
             "confirm_action": ("transaction", "proposal"),
             "explain_status": ("transaction",),
             "offer_human": ("handoff",),
@@ -131,6 +163,6 @@ class ResponsePlan(InterfaceModel):
         ]
         if missing:
             raise ValueError(f"{self.response_type} requires {', '.join(missing)}")
-        if self.response_type == "report_case" and self.verified is not True:
+        if self.response_type in {"report_case", "report_status"} and self.verified is not True:
             raise ValueError("report_case requires a successful read-back")
         return self

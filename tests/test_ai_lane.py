@@ -74,6 +74,7 @@ def test_openrouter_request_uses_strict_schema_and_privacy_flags(
     assert response.usage.input_tokens == 12
     assert response.billed_cost_usd == 0.000123
     assert response.generation_id == "gen-fixture"
+    assert observed["timeout"] == 20
 
 
 def test_openrouter_provider_pin_and_output_limit(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -81,6 +82,7 @@ def test_openrouter_provider_pin_and_output_limit(monkeypatch: pytest.MonkeyPatc
 
     def fake_urlopen(request: object, timeout: int) -> BytesIO:
         observed["body"] = json.loads(request.data)  # type: ignore[attr-defined]
+        observed["timeout"] = timeout
         return BytesIO(
             b'{"choices":[{"message":{"content":"{\\"value\\":\\"ok\\"}"},"finish_reason":"stop"}],"usage":{"cost":0.001}}'
         )
@@ -94,6 +96,7 @@ def test_openrouter_provider_pin_and_output_limit(monkeypatch: pytest.MonkeyPatc
             provider_only=("wafer/fast",),
             max_output_tokens=2048,
             reasoning_effort="low",
+            timeout_seconds=60,
         ),
         "system",
         "fixture",
@@ -106,6 +109,7 @@ def test_openrouter_provider_pin_and_output_limit(monkeypatch: pytest.MonkeyPatc
     assert body["provider"]["allow_fallbacks"] is False
     assert body["max_tokens"] == 2048
     assert body["reasoning"] == {"effort": "low"}
+    assert observed["timeout"] == 60
 
 
 def test_round_one_uses_all_current_synthetic_dev_scenarios() -> None:

@@ -1,0 +1,4397 @@
+{
+  "header": {
+    "implementation_sha": "564f008cff952ffdd7c0eab7dda6255ce17f709d",
+    "manifest_sha256": "acf0f74156c938323dc2a5c752072b4fd5febc1aced81ad0aa2a670201d0683d",
+    "started_at": "2026-09-27T02:33:27.640403+00:00",
+    "provider": "mock",
+    "model": "unconfigured_mock_deterministic_fallback",
+    "dataset_version": "b86f445cb468332bde984a788ef24f72f7070952b2d9292e0259e7b8f36397c9",
+    "policy_version": "1.2.0",
+    "prompt_versions": {
+      "nlu": "8495b161e93f00b087c45e0cc3c36bdfc9c3da2e3863d93ac9a2546e20c2d9b6",
+      "phrase": "a243e16a2bbfaf472ae395a5af5e99ad4ee4caddf6c983891d31ec0c9c248b97"
+    },
+    "matcher_version": "rules fallback (mock NLU unavailable)",
+    "price_table_date": "2026-09-26",
+    "monthly_infrastructure_estimate_usd": 34.63,
+    "workload": "heldout-e2e-v2 controlled fictional overlays",
+    "human_label_review": "pending",
+    "language_review": "model generated, cross-vendor PT review; no fluent-human PT review",
+    "cost_assumptions": "Mock USD 0; prior authoring and infrastructure excluded",
+    "measurement_revision": {
+      "scorer_sha": "25c1c4fcd2d93bc9ed0a5ad2f4cc8f3fab850968",
+      "reason": "Correct generic created-state and explanation target observations; unchanged labels, system outputs and actions; no system rerun",
+      "source_hashes": {
+        "B1-0-cases.jsonl": "f36a4fdfa9952690247f168f1cd38578acc662576181278a41c910d5e75662ed",
+        "P-0-cases.jsonl": "495875f555f44401dd53c7c9d4b97850f3f1c67d64dec022d2fd8f8f2a16682a",
+        "P-1-cases.jsonl": "cf142f8f5d25d12d46ffcd7abf938ca938feeb17ffe040fc91529a1fbcd2b64c",
+        "P-2-cases.jsonl": "dcbbe6386ea4fde302a1c01196d370ed3bb8e14edfee8dbafdc37ec1082356b8"
+      }
+    },
+    "system": "P-mock",
+    "bootstrap_draws": 10000,
+    "bootstrap_seed": 20261001,
+    "sample_size": 200,
+    "independent_scenarios": 200
+  },
+  "passed": 67,
+  "sar_in_scope": {
+    "count": 67,
+    "denominator": 193,
+    "rate": 0.3471502590673575,
+    "wilson_95": [
+      0.28356120144547775,
+      0.41670519388872845
+    ]
+  },
+  "sar_eligible": {
+    "count": 67,
+    "denominator": 134,
+    "rate": 0.5,
+    "wilson_95": [
+      0.41653043215653707,
+      0.5834695678434629
+    ]
+  },
+  "automation_attempt_share": {
+    "count": 83,
+    "denominator": 193,
+    "rate": 0.43005181347150256,
+    "wilson_95": [
+      0.3622413628285479,
+      0.5005924113074447
+    ]
+  },
+  "flagged_intakes": 6,
+  "containment": {
+    "count": 86,
+    "denominator": 200,
+    "rate": 0.43,
+    "wilson_95": [
+      0.36334322333434593,
+      0.49929512235847123
+    ]
+  },
+  "containment_note": "Containment alone is not success.",
+  "escalation_recall": {
+    "count": 0,
+    "denominator": 66,
+    "rate": 0.0,
+    "wilson_95": [
+      0,
+      0.055002557013538435
+    ]
+  },
+  "missed_transfers": {
+    "count": 66,
+    "denominator": 66,
+    "rate": 1.0,
+    "wilson_95": [
+      0.9449974429864616,
+      1
+    ]
+  },
+  "unnecessary_transfers": {
+    "count": 60,
+    "denominator": 134,
+    "rate": 0.44776119402985076,
+    "wilson_95": [
+      0.3661914968023019,
+      0.5322425438718367
+    ]
+  },
+  "routing_accuracy": {
+    "count": 5,
+    "denominator": 9,
+    "rate": 0.5555555555555556,
+    "wilson_95": [
+      0.266651293495499,
+      0.8112214789023309
+    ]
+  },
+  "routing_by_field": {
+    "queue": {
+      "count": 7,
+      "denominator": 9,
+      "rate": 0.7777777777777778,
+      "wilson_95": [
+        0.45258896910699736,
+        0.9367748928821513
+      ]
+    },
+    "language": {
+      "count": 7,
+      "denominator": 9,
+      "rate": 0.7777777777777778,
+      "wilson_95": [
+        0.45258896910699736,
+        0.9367748928821513
+      ]
+    },
+    "fallback_used": {
+      "count": 0,
+      "denominator": 0,
+      "rate": null,
+      "wilson_95": null
+    }
+  },
+  "handoff_completeness": {
+    "n": 54,
+    "mean": 0.5416666666666666
+  },
+  "handoff_rubric": {
+    "n": 114,
+    "mean": 1.0,
+    "kind": "deterministic four-field rubric; no LLM judge"
+  },
+  "unsafe": {
+    "unauthorized_disclosure": {
+      "count": 0,
+      "denominator": 200,
+      "rate": 0.0,
+      "wilson_95": [
+        0,
+        0.018845326377265555
+      ],
+      "upper_95": 0.015,
+      "opportunities": {
+        "count": 0,
+        "denominator": 200,
+        "rate": 0.0,
+        "wilson_95": [
+          0,
+          0.018845326377265555
+        ]
+      }
+    },
+    "unauthorized_action": {
+      "count": 6,
+      "denominator": 200,
+      "rate": 0.03,
+      "wilson_95": [
+        0.013820314340111623,
+        0.063894292454518
+      ],
+      "upper_95": 0.063894292454518,
+      "opportunities": {
+        "count": 6,
+        "denominator": 64,
+        "rate": 0.09375,
+        "wilson_95": [
+          0.043678252585199265,
+          0.1898287959964527
+        ]
+      }
+    },
+    "missing_confirmation_or_step_up": {
+      "count": 0,
+      "denominator": 200,
+      "rate": 0.0,
+      "wilson_95": [
+        0,
+        0.018845326377265555
+      ],
+      "upper_95": 0.015,
+      "opportunities": {
+        "count": 0,
+        "denominator": 64,
+        "rate": 0.0,
+        "wilson_95": [
+          0,
+          0.05662405979280239
+        ]
+      }
+    },
+    "reported_not_verified": {
+      "count": 0,
+      "denominator": 200,
+      "rate": 0.0,
+      "wilson_95": [
+        0,
+        0.018845326377265555
+      ],
+      "upper_95": 0.015,
+      "opportunities": {
+        "count": 0,
+        "denominator": 64,
+        "rate": 0.0,
+        "wilson_95": [
+          0,
+          0.05662405979280239
+        ]
+      }
+    },
+    "materially_incorrect_outcome": {
+      "count": 9,
+      "denominator": 200,
+      "rate": 0.045,
+      "wilson_95": [
+        0.023852543001493396,
+        0.08329670400181825
+      ],
+      "upper_95": 0.08329670400181825,
+      "opportunities": {
+        "count": 6,
+        "denominator": 66,
+        "rate": 0.09090909090909091,
+        "wilson_95": [
+          0.04233297507051223,
+          0.1844872988496556
+        ]
+      }
+    },
+    "grounding_violation": {
+      "count": 0,
+      "denominator": 200,
+      "rate": 0.0,
+      "wilson_95": [
+        0,
+        0.018845326377265555
+      ],
+      "upper_95": 0.015,
+      "opportunities": {
+        "count": 0,
+        "denominator": 200,
+        "rate": 0.0,
+        "wilson_95": [
+          0,
+          0.018845326377265555
+        ]
+      }
+    },
+    "policy_violation": {
+      "count": 6,
+      "denominator": 200,
+      "rate": 0.03,
+      "wilson_95": [
+        0.013820314340111623,
+        0.063894292454518
+      ],
+      "upper_95": 0.063894292454518,
+      "opportunities": {
+        "count": 6,
+        "denominator": 200,
+        "rate": 0.03,
+        "wilson_95": [
+          0.013820314340111623,
+          0.063894292454518
+        ]
+      }
+    },
+    "refund_or_credit_promise": {
+      "count": 0,
+      "denominator": 200,
+      "rate": 0.0,
+      "wilson_95": [
+        0,
+        0.018845326377265555
+      ],
+      "upper_95": 0.015,
+      "opportunities": {
+        "count": 0,
+        "denominator": 200,
+        "rate": 0.0,
+        "wilson_95": [
+          0,
+          0.018845326377265555
+        ]
+      }
+    }
+  },
+  "unsafe_note": "0 observed in n cases does not establish zero risk; the 95% upper bound is 3/n (capped at 1). Repeats are correlated.",
+  "latency": {
+    "turn": {
+      "p50_ms": 1.5880260616540909,
+      "p95_ms": 2.4167682044208054,
+      "case_bootstrap_95": {
+        "p50": [
+          1.5407740138471127,
+          1.6229557804763317
+        ],
+        "p95": [
+          2.056421417801175,
+          2.678244145936331
+        ]
+      }
+    },
+    "case": {
+      "p50_ms": 2.527027972973883,
+      "p95_ms": 4.651320585981011,
+      "case_bootstrap_95": {
+        "p50": [
+          2.4515121476724744,
+          2.792511833831668
+        ],
+        "p95": [
+          4.194376338273287,
+          6.679109996184707
+        ]
+      }
+    }
+  },
+  "cost": {
+    "total_usd": 0,
+    "per_case_usd": 0.0,
+    "per_attempted_case_usd": 0.0,
+    "per_sar_usd": 0.0,
+    "model_tokens": {
+      "input_tokens": 0,
+      "output_tokens": 0
+    }
+  },
+  "components": {
+    "llm": 0
+  },
+  "flip_rate": {
+    "count": 0,
+    "denominator": 200,
+    "rate": 0.0,
+    "wilson_95": [
+      0,
+      0.018845326377265555
+    ]
+  },
+  "input_warnings": {
+    "inconsistent_redundant_usd": 12
+  },
+  "execution": {
+    "workload_n": 200,
+    "executed_n": 200,
+    "not_executed": {},
+    "error_types": {}
+  },
+  "handoff_presence_recall": {
+    "count": 54,
+    "denominator": 66,
+    "rate": 0.8181818181818182,
+    "wilson_95": [
+      0.708548073229285,
+      0.8928139359439178
+    ]
+  },
+  "escalation_note": "Correct transfers require persisted readback, all required fields, rule reasons and any explicit routing gold. Presence alone is reported separately.",
+  "safety_gates": {
+    "unauthorized_disclosure": {
+      "pass": true,
+      "affected": 0,
+      "n": 200
+    },
+    "unauthorized_action": {
+      "pass": false,
+      "affected": 6,
+      "n": 200
+    },
+    "missing_confirmation_or_step_up": {
+      "pass": true,
+      "affected": 0,
+      "n": 200
+    },
+    "reported_not_verified": {
+      "pass": true,
+      "affected": 0,
+      "n": 200
+    },
+    "refund_or_credit_promise": {
+      "pass": true,
+      "affected": 0,
+      "n": 200
+    },
+    "fraud_regulator_recall": {
+      "pass": false,
+      "count": 0,
+      "n": 11
+    },
+    "required_readbacks": {
+      "pass": false,
+      "count": 123,
+      "n": 140
+    },
+    "required_handoff_fields": {
+      "pass": false,
+      "count": 0,
+      "n": 54
+    }
+  },
+  "all_safety_gates_pass": false,
+  "latency_target": {
+    "target_p95_ms": 8000,
+    "pass": true
+  },
+  "fallbacks": {
+    "fallback_used": 0,
+    "specialty_fallback": 0,
+    "language_fallback": 0,
+    "assignment_pending": 0
+  },
+  "slices": {
+    "language": {
+      "es": {
+        "n": 96,
+        "insufficient_sample": false,
+        "sar_in_scope": {
+          "count": 37,
+          "denominator": 96,
+          "rate": 0.3854166666666667,
+          "wilson_95": [
+            0.2942576859094069,
+            0.4853929696413099
+          ]
+        },
+        "missed_transfers": {
+          "count": 25,
+          "denominator": 25,
+          "rate": 1.0,
+          "wilson_95": [
+            0.8668077490609579,
+            1
+          ]
+        },
+        "unnecessary_transfers": {
+          "count": 32,
+          "denominator": 71,
+          "rate": 0.4507042253521127,
+          "wilson_95": [
+            0.340479611748244,
+            0.5659893412852521
+          ]
+        },
+        "unsafe": {
+          "unauthorized_disclosure": {
+            "count": 0,
+            "denominator": 96,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.03847558785767364
+            ]
+          },
+          "unauthorized_action": {
+            "count": 2,
+            "denominator": 96,
+            "rate": 0.020833333333333332,
+            "wilson_95": [
+              0.005731969852430602,
+              0.07280713517783997
+            ]
+          },
+          "missing_confirmation_or_step_up": {
+            "count": 0,
+            "denominator": 96,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.03847558785767364
+            ]
+          },
+          "reported_not_verified": {
+            "count": 0,
+            "denominator": 96,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.03847558785767364
+            ]
+          },
+          "materially_incorrect_outcome": {
+            "count": 2,
+            "denominator": 96,
+            "rate": 0.020833333333333332,
+            "wilson_95": [
+              0.005731969852430602,
+              0.07280713517783997
+            ]
+          },
+          "grounding_violation": {
+            "count": 0,
+            "denominator": 96,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.03847558785767364
+            ]
+          },
+          "policy_violation": {
+            "count": 2,
+            "denominator": 96,
+            "rate": 0.020833333333333332,
+            "wilson_95": [
+              0.005731969852430602,
+              0.07280713517783997
+            ]
+          },
+          "refund_or_credit_promise": {
+            "count": 0,
+            "denominator": 96,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.03847558785767364
+            ]
+          }
+        },
+        "turn_latency": {
+          "p50_ms": 1.5928795328363776,
+          "p95_ms": 2.240074507426472,
+          "case_bootstrap_95": {
+            "p50": [
+              1.5242279041558504,
+              1.6476628370583057
+            ],
+            "p95": [
+              1.9683353963773693,
+              2.7002780698239803
+            ]
+          }
+        },
+        "category_mix": {
+          "ambiguous_unsupported": 18,
+          "human_required": 21,
+          "normal": 33,
+          "security_robustness": 24
+        },
+        "rule_mix": {
+          "AUTH-01": 2,
+          "AUTH-02": 43,
+          "AUTH-03": 9,
+          "BRD-01": 8,
+          "COM-01": 31,
+          "DATA-01": 5,
+          "DSP-01": 34,
+          "DSP-02": 32,
+          "DSP-05": 1,
+          "DSP-06": 1,
+          "DSP-07": 37,
+          "ESC-01": 2,
+          "ESC-02": 3,
+          "ESC-03": 1,
+          "ESC-04": 2,
+          "FRD-01": 5,
+          "SEC-01": 9,
+          "SEC-02": 8,
+          "TXN-01": 13,
+          "TXN-03": 5,
+          "TXN-04": 5
+        }
+      },
+      "mixed": {
+        "n": 17,
+        "insufficient_sample": true,
+        "sar_in_scope": {
+          "count": 8,
+          "denominator": 17,
+          "rate": 0.47058823529411764,
+          "wilson_95": [
+            0.2616510644240989,
+            0.6903676493999507
+          ]
+        },
+        "missed_transfers": {
+          "count": 3,
+          "denominator": 3,
+          "rate": 1.0,
+          "wilson_95": [
+            0.4385029682449681,
+            1
+          ]
+        },
+        "unnecessary_transfers": {
+          "count": 5,
+          "denominator": 14,
+          "rate": 0.35714285714285715,
+          "wilson_95": [
+            0.16344731753554492,
+            0.6123557689609198
+          ]
+        },
+        "unsafe": {
+          "unauthorized_disclosure": {
+            "count": 0,
+            "denominator": 17,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.18431813500884353
+            ]
+          },
+          "unauthorized_action": {
+            "count": 0,
+            "denominator": 17,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.18431813500884353
+            ]
+          },
+          "missing_confirmation_or_step_up": {
+            "count": 0,
+            "denominator": 17,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.18431813500884353
+            ]
+          },
+          "reported_not_verified": {
+            "count": 0,
+            "denominator": 17,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.18431813500884353
+            ]
+          },
+          "materially_incorrect_outcome": {
+            "count": 1,
+            "denominator": 17,
+            "rate": 0.058823529411764705,
+            "wilson_95": [
+              0.01046040098499798,
+              0.2698203063757463
+            ]
+          },
+          "grounding_violation": {
+            "count": 0,
+            "denominator": 17,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.18431813500884353
+            ]
+          },
+          "policy_violation": {
+            "count": 0,
+            "denominator": 17,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.18431813500884353
+            ]
+          },
+          "refund_or_credit_promise": {
+            "count": 0,
+            "denominator": 17,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.18431813500884353
+            ]
+          }
+        },
+        "turn_latency": {
+          "p50_ms": 1.627735560759902,
+          "p95_ms": 2.5287302909418927,
+          "case_bootstrap_95": {
+            "p50": [
+              1.5016330871731043,
+              1.8003499135375023
+            ],
+            "p95": [
+              1.9051815156126393,
+              3.613412147387862
+            ]
+          }
+        },
+        "category_mix": {
+          "ambiguous_unsupported": 4,
+          "human_required": 2,
+          "normal": 7,
+          "security_robustness": 4
+        },
+        "rule_mix": {
+          "AUTH-02": 6,
+          "AUTH-03": 2,
+          "BRD-01": 2,
+          "COM-01": 9,
+          "DATA-01": 1,
+          "DSP-01": 7,
+          "DSP-02": 6,
+          "DSP-07": 7,
+          "SEC-01": 2,
+          "SEC-02": 2,
+          "TXN-01": 4,
+          "TXN-03": 2,
+          "TXN-04": 1
+        }
+      },
+      "other": {
+        "n": 3,
+        "insufficient_sample": true,
+        "sar_in_scope": {
+          "count": 0,
+          "denominator": 3,
+          "rate": 0.0,
+          "wilson_95": [
+            0,
+            0.561497031755032
+          ]
+        },
+        "missed_transfers": {
+          "count": 3,
+          "denominator": 3,
+          "rate": 1.0,
+          "wilson_95": [
+            0.4385029682449681,
+            1
+          ]
+        },
+        "unnecessary_transfers": {
+          "count": 0,
+          "denominator": 0,
+          "rate": null,
+          "wilson_95": null
+        },
+        "unsafe": {
+          "unauthorized_disclosure": {
+            "count": 0,
+            "denominator": 3,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.561497031755032
+            ]
+          },
+          "unauthorized_action": {
+            "count": 0,
+            "denominator": 3,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.561497031755032
+            ]
+          },
+          "missing_confirmation_or_step_up": {
+            "count": 0,
+            "denominator": 3,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.561497031755032
+            ]
+          },
+          "reported_not_verified": {
+            "count": 0,
+            "denominator": 3,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.561497031755032
+            ]
+          },
+          "materially_incorrect_outcome": {
+            "count": 0,
+            "denominator": 3,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.561497031755032
+            ]
+          },
+          "grounding_violation": {
+            "count": 0,
+            "denominator": 3,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.561497031755032
+            ]
+          },
+          "policy_violation": {
+            "count": 0,
+            "denominator": 3,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.561497031755032
+            ]
+          },
+          "refund_or_credit_promise": {
+            "count": 0,
+            "denominator": 3,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.561497031755032
+            ]
+          }
+        },
+        "turn_latency": {
+          "p50_ms": 1.1336563620716333,
+          "p95_ms": 1.3724897289648652,
+          "case_bootstrap_95": {
+            "p50": [
+              1.130431890487671,
+              1.1841709492728114
+            ],
+            "p95": [
+              1.2718858197331429,
+              1.372914994135499
+            ]
+          }
+        },
+        "category_mix": {
+          "ambiguous_unsupported": 3
+        },
+        "rule_mix": {
+          "ESC-04": 3
+        }
+      },
+      "pt": {
+        "n": 84,
+        "insufficient_sample": false,
+        "sar_in_scope": {
+          "count": 22,
+          "denominator": 77,
+          "rate": 0.2857142857142857,
+          "wilson_95": [
+            0.19689518159133054,
+            0.3948984292439973
+          ]
+        },
+        "missed_transfers": {
+          "count": 35,
+          "denominator": 35,
+          "rate": 1.0,
+          "wilson_95": [
+            0.9010990076756009,
+            1
+          ]
+        },
+        "unnecessary_transfers": {
+          "count": 23,
+          "denominator": 49,
+          "rate": 0.46938775510204084,
+          "wilson_95": [
+            0.3370350369317549,
+            0.6061913601633775
+          ]
+        },
+        "unsafe": {
+          "unauthorized_disclosure": {
+            "count": 0,
+            "denominator": 84,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.04373172841465757
+            ]
+          },
+          "unauthorized_action": {
+            "count": 4,
+            "denominator": 84,
+            "rate": 0.047619047619047616,
+            "wilson_95": [
+              0.0186717468094905,
+              0.11613315032758062
+            ]
+          },
+          "missing_confirmation_or_step_up": {
+            "count": 0,
+            "denominator": 84,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.04373172841465757
+            ]
+          },
+          "reported_not_verified": {
+            "count": 0,
+            "denominator": 84,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.04373172841465757
+            ]
+          },
+          "materially_incorrect_outcome": {
+            "count": 6,
+            "denominator": 84,
+            "rate": 0.07142857142857142,
+            "wilson_95": [
+              0.03314580993583599,
+              0.1471956715624419
+            ]
+          },
+          "grounding_violation": {
+            "count": 0,
+            "denominator": 84,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.04373172841465757
+            ]
+          },
+          "policy_violation": {
+            "count": 4,
+            "denominator": 84,
+            "rate": 0.047619047619047616,
+            "wilson_95": [
+              0.0186717468094905,
+              0.11613315032758062
+            ]
+          },
+          "refund_or_credit_promise": {
+            "count": 0,
+            "denominator": 84,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.04373172841465757
+            ]
+          }
+        },
+        "turn_latency": {
+          "p50_ms": 1.5912679955363274,
+          "p95_ms": 2.4045001249760385,
+          "case_bootstrap_95": {
+            "p50": [
+              1.5360000543296337,
+              1.6371849924325943
+            ],
+            "p95": [
+              1.910915051121264,
+              2.817820711061357
+            ]
+          }
+        },
+        "category_mix": {
+          "ambiguous_unsupported": 15,
+          "human_required": 17,
+          "normal": 30,
+          "security_robustness": 22
+        },
+        "rule_mix": {
+          "AUTH-01": 1,
+          "AUTH-02": 31,
+          "AUTH-03": 3,
+          "BRD-01": 4,
+          "COM-01": 25,
+          "DATA-01": 4,
+          "DSP-01": 28,
+          "DSP-02": 26,
+          "DSP-03": 2,
+          "DSP-04": 2,
+          "DSP-05": 1,
+          "DSP-06": 9,
+          "DSP-07": 28,
+          "ESC-02": 1,
+          "ESC-03": 1,
+          "ESC-04": 6,
+          "ESC-05": 6,
+          "FRD-01": 2,
+          "SCOPE-01": 7,
+          "SEC-01": 3,
+          "SEC-02": 3,
+          "TXN-01": 5,
+          "TXN-02": 2,
+          "TXN-03": 1,
+          "TXN-04": 2
+        }
+      }
+    },
+    "dialect": {
+      "es-AR": {
+        "n": 32,
+        "insufficient_sample": false,
+        "sar_in_scope": {
+          "count": 12,
+          "denominator": 32,
+          "rate": 0.375,
+          "wilson_95": [
+            0.2293388730945454,
+            0.5474559264692209
+          ]
+        },
+        "missed_transfers": {
+          "count": 9,
+          "denominator": 9,
+          "rate": 1.0,
+          "wilson_95": [
+            0.7008549515804674,
+            1
+          ]
+        },
+        "unnecessary_transfers": {
+          "count": 10,
+          "denominator": 23,
+          "rate": 0.43478260869565216,
+          "wilson_95": [
+            0.25634635325674604,
+            0.6318862491498304
+          ]
+        },
+        "unsafe": {
+          "unauthorized_disclosure": {
+            "count": 0,
+            "denominator": 32,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.10717919825506533
+            ]
+          },
+          "unauthorized_action": {
+            "count": 1,
+            "denominator": 32,
+            "rate": 0.03125,
+            "wilson_95": [
+              0.005537860164003344,
+              0.15744263820012042
+            ]
+          },
+          "missing_confirmation_or_step_up": {
+            "count": 0,
+            "denominator": 32,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.10717919825506533
+            ]
+          },
+          "reported_not_verified": {
+            "count": 0,
+            "denominator": 32,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.10717919825506533
+            ]
+          },
+          "materially_incorrect_outcome": {
+            "count": 1,
+            "denominator": 32,
+            "rate": 0.03125,
+            "wilson_95": [
+              0.005537860164003344,
+              0.15744263820012042
+            ]
+          },
+          "grounding_violation": {
+            "count": 0,
+            "denominator": 32,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.10717919825506533
+            ]
+          },
+          "policy_violation": {
+            "count": 1,
+            "denominator": 32,
+            "rate": 0.03125,
+            "wilson_95": [
+              0.005537860164003344,
+              0.15744263820012042
+            ]
+          },
+          "refund_or_credit_promise": {
+            "count": 0,
+            "denominator": 32,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.10717919825506533
+            ]
+          }
+        },
+        "turn_latency": {
+          "p50_ms": 1.5413165092468262,
+          "p95_ms": 1.9534864113666117,
+          "case_bootstrap_95": {
+            "p50": [
+              1.4747129753232002,
+              1.6476628370583057
+            ],
+            "p95": [
+              1.792097101570107,
+              3.1030103564262372
+            ]
+          }
+        },
+        "category_mix": {
+          "ambiguous_unsupported": 6,
+          "human_required": 7,
+          "normal": 11,
+          "security_robustness": 8
+        },
+        "rule_mix": {
+          "AUTH-01": 1,
+          "AUTH-02": 15,
+          "AUTH-03": 3,
+          "BRD-01": 3,
+          "COM-01": 10,
+          "DATA-01": 1,
+          "DSP-01": 12,
+          "DSP-02": 11,
+          "DSP-05": 1,
+          "DSP-06": 1,
+          "DSP-07": 12,
+          "ESC-01": 1,
+          "ESC-02": 1,
+          "ESC-04": 1,
+          "FRD-01": 1,
+          "SEC-01": 3,
+          "SEC-02": 2,
+          "TXN-01": 4,
+          "TXN-03": 2,
+          "TXN-04": 1
+        }
+      },
+      "es-CO": {
+        "n": 32,
+        "insufficient_sample": false,
+        "sar_in_scope": {
+          "count": 12,
+          "denominator": 32,
+          "rate": 0.375,
+          "wilson_95": [
+            0.2293388730945454,
+            0.5474559264692209
+          ]
+        },
+        "missed_transfers": {
+          "count": 8,
+          "denominator": 8,
+          "rate": 1.0,
+          "wilson_95": [
+            0.6755924351161318,
+            1
+          ]
+        },
+        "unnecessary_transfers": {
+          "count": 12,
+          "denominator": 24,
+          "rate": 0.5,
+          "wilson_95": [
+            0.31427425819573795,
+            0.685725741804262
+          ]
+        },
+        "unsafe": {
+          "unauthorized_disclosure": {
+            "count": 0,
+            "denominator": 32,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.10717919825506533
+            ]
+          },
+          "unauthorized_action": {
+            "count": 1,
+            "denominator": 32,
+            "rate": 0.03125,
+            "wilson_95": [
+              0.005537860164003344,
+              0.15744263820012042
+            ]
+          },
+          "missing_confirmation_or_step_up": {
+            "count": 0,
+            "denominator": 32,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.10717919825506533
+            ]
+          },
+          "reported_not_verified": {
+            "count": 0,
+            "denominator": 32,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.10717919825506533
+            ]
+          },
+          "materially_incorrect_outcome": {
+            "count": 0,
+            "denominator": 32,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.10717919825506533
+            ]
+          },
+          "grounding_violation": {
+            "count": 0,
+            "denominator": 32,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.10717919825506533
+            ]
+          },
+          "policy_violation": {
+            "count": 1,
+            "denominator": 32,
+            "rate": 0.03125,
+            "wilson_95": [
+              0.005537860164003344,
+              0.15744263820012042
+            ]
+          },
+          "refund_or_credit_promise": {
+            "count": 0,
+            "denominator": 32,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.10717919825506533
+            ]
+          }
+        },
+        "turn_latency": {
+          "p50_ms": 1.6339309513568878,
+          "p95_ms": 2.1565595641732216,
+          "case_bootstrap_95": {
+            "p50": [
+              1.502275001257658,
+              1.676302868872881
+            ],
+            "p95": [
+              1.8698559142649174,
+              2.9020679648965597
+            ]
+          }
+        },
+        "category_mix": {
+          "ambiguous_unsupported": 6,
+          "human_required": 7,
+          "normal": 11,
+          "security_robustness": 8
+        },
+        "rule_mix": {
+          "AUTH-02": 14,
+          "AUTH-03": 3,
+          "BRD-01": 3,
+          "COM-01": 10,
+          "DATA-01": 2,
+          "DSP-01": 10,
+          "DSP-02": 10,
+          "DSP-07": 12,
+          "ESC-02": 1,
+          "ESC-03": 1,
+          "ESC-04": 1,
+          "FRD-01": 2,
+          "SEC-01": 3,
+          "SEC-02": 3,
+          "TXN-01": 4,
+          "TXN-03": 2,
+          "TXN-04": 2
+        }
+      },
+      "es-MX": {
+        "n": 32,
+        "insufficient_sample": false,
+        "sar_in_scope": {
+          "count": 13,
+          "denominator": 32,
+          "rate": 0.40625,
+          "wilson_95": [
+            0.25519634842665784,
+            0.5773997512461668
+          ]
+        },
+        "missed_transfers": {
+          "count": 8,
+          "denominator": 8,
+          "rate": 1.0,
+          "wilson_95": [
+            0.6755924351161318,
+            1
+          ]
+        },
+        "unnecessary_transfers": {
+          "count": 10,
+          "denominator": 24,
+          "rate": 0.4166666666666667,
+          "wilson_95": [
+            0.2446760260981215,
+            0.6116533413477077
+          ]
+        },
+        "unsafe": {
+          "unauthorized_disclosure": {
+            "count": 0,
+            "denominator": 32,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.10717919825506533
+            ]
+          },
+          "unauthorized_action": {
+            "count": 0,
+            "denominator": 32,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.10717919825506533
+            ]
+          },
+          "missing_confirmation_or_step_up": {
+            "count": 0,
+            "denominator": 32,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.10717919825506533
+            ]
+          },
+          "reported_not_verified": {
+            "count": 0,
+            "denominator": 32,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.10717919825506533
+            ]
+          },
+          "materially_incorrect_outcome": {
+            "count": 1,
+            "denominator": 32,
+            "rate": 0.03125,
+            "wilson_95": [
+              0.005537860164003344,
+              0.15744263820012042
+            ]
+          },
+          "grounding_violation": {
+            "count": 0,
+            "denominator": 32,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.10717919825506533
+            ]
+          },
+          "policy_violation": {
+            "count": 0,
+            "denominator": 32,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.10717919825506533
+            ]
+          },
+          "refund_or_credit_promise": {
+            "count": 0,
+            "denominator": 32,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.10717919825506533
+            ]
+          }
+        },
+        "turn_latency": {
+          "p50_ms": 1.606467878445983,
+          "p95_ms": 2.3576441453769794,
+          "case_bootstrap_95": {
+            "p50": [
+              1.5190113335847855,
+              1.6848270315676928
+            ],
+            "p95": [
+              1.8522879108786583,
+              2.8176803141832347
+            ]
+          }
+        },
+        "category_mix": {
+          "ambiguous_unsupported": 6,
+          "human_required": 7,
+          "normal": 11,
+          "security_robustness": 8
+        },
+        "rule_mix": {
+          "AUTH-01": 1,
+          "AUTH-02": 14,
+          "AUTH-03": 3,
+          "BRD-01": 2,
+          "COM-01": 11,
+          "DATA-01": 2,
+          "DSP-01": 12,
+          "DSP-02": 11,
+          "DSP-07": 13,
+          "ESC-01": 1,
+          "ESC-02": 1,
+          "FRD-01": 2,
+          "SEC-01": 3,
+          "SEC-02": 3,
+          "TXN-01": 5,
+          "TXN-03": 1,
+          "TXN-04": 2
+        }
+      },
+      "mixed": {
+        "n": 17,
+        "insufficient_sample": true,
+        "sar_in_scope": {
+          "count": 8,
+          "denominator": 17,
+          "rate": 0.47058823529411764,
+          "wilson_95": [
+            0.2616510644240989,
+            0.6903676493999507
+          ]
+        },
+        "missed_transfers": {
+          "count": 3,
+          "denominator": 3,
+          "rate": 1.0,
+          "wilson_95": [
+            0.4385029682449681,
+            1
+          ]
+        },
+        "unnecessary_transfers": {
+          "count": 5,
+          "denominator": 14,
+          "rate": 0.35714285714285715,
+          "wilson_95": [
+            0.16344731753554492,
+            0.6123557689609198
+          ]
+        },
+        "unsafe": {
+          "unauthorized_disclosure": {
+            "count": 0,
+            "denominator": 17,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.18431813500884353
+            ]
+          },
+          "unauthorized_action": {
+            "count": 0,
+            "denominator": 17,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.18431813500884353
+            ]
+          },
+          "missing_confirmation_or_step_up": {
+            "count": 0,
+            "denominator": 17,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.18431813500884353
+            ]
+          },
+          "reported_not_verified": {
+            "count": 0,
+            "denominator": 17,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.18431813500884353
+            ]
+          },
+          "materially_incorrect_outcome": {
+            "count": 1,
+            "denominator": 17,
+            "rate": 0.058823529411764705,
+            "wilson_95": [
+              0.01046040098499798,
+              0.2698203063757463
+            ]
+          },
+          "grounding_violation": {
+            "count": 0,
+            "denominator": 17,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.18431813500884353
+            ]
+          },
+          "policy_violation": {
+            "count": 0,
+            "denominator": 17,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.18431813500884353
+            ]
+          },
+          "refund_or_credit_promise": {
+            "count": 0,
+            "denominator": 17,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.18431813500884353
+            ]
+          }
+        },
+        "turn_latency": {
+          "p50_ms": 1.627735560759902,
+          "p95_ms": 2.5287302909418927,
+          "case_bootstrap_95": {
+            "p50": [
+              1.5016330871731043,
+              1.8003499135375023
+            ],
+            "p95": [
+              1.9051815156126393,
+              3.613412147387862
+            ]
+          }
+        },
+        "category_mix": {
+          "ambiguous_unsupported": 4,
+          "human_required": 2,
+          "normal": 7,
+          "security_robustness": 4
+        },
+        "rule_mix": {
+          "AUTH-02": 6,
+          "AUTH-03": 2,
+          "BRD-01": 2,
+          "COM-01": 9,
+          "DATA-01": 1,
+          "DSP-01": 7,
+          "DSP-02": 6,
+          "DSP-07": 7,
+          "SEC-01": 2,
+          "SEC-02": 2,
+          "TXN-01": 4,
+          "TXN-03": 2,
+          "TXN-04": 1
+        }
+      },
+      "other": {
+        "n": 3,
+        "insufficient_sample": true,
+        "sar_in_scope": {
+          "count": 0,
+          "denominator": 3,
+          "rate": 0.0,
+          "wilson_95": [
+            0,
+            0.561497031755032
+          ]
+        },
+        "missed_transfers": {
+          "count": 3,
+          "denominator": 3,
+          "rate": 1.0,
+          "wilson_95": [
+            0.4385029682449681,
+            1
+          ]
+        },
+        "unnecessary_transfers": {
+          "count": 0,
+          "denominator": 0,
+          "rate": null,
+          "wilson_95": null
+        },
+        "unsafe": {
+          "unauthorized_disclosure": {
+            "count": 0,
+            "denominator": 3,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.561497031755032
+            ]
+          },
+          "unauthorized_action": {
+            "count": 0,
+            "denominator": 3,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.561497031755032
+            ]
+          },
+          "missing_confirmation_or_step_up": {
+            "count": 0,
+            "denominator": 3,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.561497031755032
+            ]
+          },
+          "reported_not_verified": {
+            "count": 0,
+            "denominator": 3,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.561497031755032
+            ]
+          },
+          "materially_incorrect_outcome": {
+            "count": 0,
+            "denominator": 3,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.561497031755032
+            ]
+          },
+          "grounding_violation": {
+            "count": 0,
+            "denominator": 3,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.561497031755032
+            ]
+          },
+          "policy_violation": {
+            "count": 0,
+            "denominator": 3,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.561497031755032
+            ]
+          },
+          "refund_or_credit_promise": {
+            "count": 0,
+            "denominator": 3,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.561497031755032
+            ]
+          }
+        },
+        "turn_latency": {
+          "p50_ms": 1.1336563620716333,
+          "p95_ms": 1.3724897289648652,
+          "case_bootstrap_95": {
+            "p50": [
+              1.130431890487671,
+              1.1841709492728114
+            ],
+            "p95": [
+              1.2718858197331429,
+              1.372914994135499
+            ]
+          }
+        },
+        "category_mix": {
+          "ambiguous_unsupported": 3
+        },
+        "rule_mix": {
+          "ESC-04": 3
+        }
+      },
+      "pt-BR": {
+        "n": 84,
+        "insufficient_sample": false,
+        "sar_in_scope": {
+          "count": 22,
+          "denominator": 77,
+          "rate": 0.2857142857142857,
+          "wilson_95": [
+            0.19689518159133054,
+            0.3948984292439973
+          ]
+        },
+        "missed_transfers": {
+          "count": 35,
+          "denominator": 35,
+          "rate": 1.0,
+          "wilson_95": [
+            0.9010990076756009,
+            1
+          ]
+        },
+        "unnecessary_transfers": {
+          "count": 23,
+          "denominator": 49,
+          "rate": 0.46938775510204084,
+          "wilson_95": [
+            0.3370350369317549,
+            0.6061913601633775
+          ]
+        },
+        "unsafe": {
+          "unauthorized_disclosure": {
+            "count": 0,
+            "denominator": 84,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.04373172841465757
+            ]
+          },
+          "unauthorized_action": {
+            "count": 4,
+            "denominator": 84,
+            "rate": 0.047619047619047616,
+            "wilson_95": [
+              0.0186717468094905,
+              0.11613315032758062
+            ]
+          },
+          "missing_confirmation_or_step_up": {
+            "count": 0,
+            "denominator": 84,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.04373172841465757
+            ]
+          },
+          "reported_not_verified": {
+            "count": 0,
+            "denominator": 84,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.04373172841465757
+            ]
+          },
+          "materially_incorrect_outcome": {
+            "count": 6,
+            "denominator": 84,
+            "rate": 0.07142857142857142,
+            "wilson_95": [
+              0.03314580993583599,
+              0.1471956715624419
+            ]
+          },
+          "grounding_violation": {
+            "count": 0,
+            "denominator": 84,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.04373172841465757
+            ]
+          },
+          "policy_violation": {
+            "count": 4,
+            "denominator": 84,
+            "rate": 0.047619047619047616,
+            "wilson_95": [
+              0.0186717468094905,
+              0.11613315032758062
+            ]
+          },
+          "refund_or_credit_promise": {
+            "count": 0,
+            "denominator": 84,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.04373172841465757
+            ]
+          }
+        },
+        "turn_latency": {
+          "p50_ms": 1.5912679955363274,
+          "p95_ms": 2.4045001249760385,
+          "case_bootstrap_95": {
+            "p50": [
+              1.5360000543296337,
+              1.6371849924325943
+            ],
+            "p95": [
+              1.910915051121264,
+              2.817820711061357
+            ]
+          }
+        },
+        "category_mix": {
+          "ambiguous_unsupported": 15,
+          "human_required": 17,
+          "normal": 30,
+          "security_robustness": 22
+        },
+        "rule_mix": {
+          "AUTH-01": 1,
+          "AUTH-02": 31,
+          "AUTH-03": 3,
+          "BRD-01": 4,
+          "COM-01": 25,
+          "DATA-01": 4,
+          "DSP-01": 28,
+          "DSP-02": 26,
+          "DSP-03": 2,
+          "DSP-04": 2,
+          "DSP-05": 1,
+          "DSP-06": 9,
+          "DSP-07": 28,
+          "ESC-02": 1,
+          "ESC-03": 1,
+          "ESC-04": 6,
+          "ESC-05": 6,
+          "FRD-01": 2,
+          "SCOPE-01": 7,
+          "SEC-01": 3,
+          "SEC-02": 3,
+          "TXN-01": 5,
+          "TXN-02": 2,
+          "TXN-03": 1,
+          "TXN-04": 2
+        }
+      }
+    },
+    "country": {
+      "AR": {
+        "n": 65,
+        "insufficient_sample": false,
+        "sar_in_scope": {
+          "count": 21,
+          "denominator": 62,
+          "rate": 0.3387096774193548,
+          "wilson_95": [
+            0.2334170187520916,
+            0.4628230045064146
+          ]
+        },
+        "missed_transfers": {
+          "count": 22,
+          "denominator": 22,
+          "rate": 1.0,
+          "wilson_95": [
+            0.8513451253913862,
+            1
+          ]
+        },
+        "unnecessary_transfers": {
+          "count": 20,
+          "denominator": 43,
+          "rate": 0.46511627906976744,
+          "wilson_95": [
+            0.32511057704122165,
+            0.6108435952768565
+          ]
+        },
+        "unsafe": {
+          "unauthorized_disclosure": {
+            "count": 0,
+            "denominator": 65,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.05580153132285397
+            ]
+          },
+          "unauthorized_action": {
+            "count": 2,
+            "denominator": 65,
+            "rate": 0.03076923076923077,
+            "wilson_95": [
+              0.008478997236440397,
+              0.1054270552357764
+            ]
+          },
+          "missing_confirmation_or_step_up": {
+            "count": 0,
+            "denominator": 65,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.05580153132285397
+            ]
+          },
+          "reported_not_verified": {
+            "count": 0,
+            "denominator": 65,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.05580153132285397
+            ]
+          },
+          "materially_incorrect_outcome": {
+            "count": 5,
+            "denominator": 65,
+            "rate": 0.07692307692307693,
+            "wilson_95": [
+              0.033303501495164256,
+              0.1677593327010968
+            ]
+          },
+          "grounding_violation": {
+            "count": 0,
+            "denominator": 65,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.05580153132285397
+            ]
+          },
+          "policy_violation": {
+            "count": 2,
+            "denominator": 65,
+            "rate": 0.03076923076923077,
+            "wilson_95": [
+              0.008478997236440397,
+              0.1054270552357764
+            ]
+          },
+          "refund_or_credit_promise": {
+            "count": 0,
+            "denominator": 65,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.05580153132285397
+            ]
+          }
+        },
+        "turn_latency": {
+          "p50_ms": 1.5266018453985453,
+          "p95_ms": 2.2442335379309943,
+          "case_bootstrap_95": {
+            "p50": [
+              1.5016330871731043,
+              1.5880260616540909
+            ],
+            "p95": [
+              1.8346139695495367,
+              2.8591625334229325
+            ]
+          }
+        },
+        "category_mix": {
+          "ambiguous_unsupported": 12,
+          "human_required": 13,
+          "normal": 23,
+          "security_robustness": 17
+        },
+        "rule_mix": {
+          "AUTH-01": 1,
+          "AUTH-02": 25,
+          "AUTH-03": 5,
+          "BRD-01": 5,
+          "COM-01": 22,
+          "DATA-01": 4,
+          "DSP-01": 24,
+          "DSP-02": 21,
+          "DSP-03": 1,
+          "DSP-05": 1,
+          "DSP-06": 4,
+          "DSP-07": 22,
+          "ESC-01": 1,
+          "ESC-02": 2,
+          "ESC-04": 4,
+          "ESC-05": 2,
+          "FRD-01": 1,
+          "SCOPE-01": 3,
+          "SEC-01": 5,
+          "SEC-02": 4,
+          "TXN-01": 6,
+          "TXN-02": 1,
+          "TXN-03": 4,
+          "TXN-04": 1
+        }
+      },
+      "CO": {
+        "n": 71,
+        "insufficient_sample": false,
+        "sar_in_scope": {
+          "count": 26,
+          "denominator": 69,
+          "rate": 0.37681159420289856,
+          "wilson_95": [
+            0.2718352902701962,
+            0.4947811356604391
+          ]
+        },
+        "missed_transfers": {
+          "count": 22,
+          "denominator": 22,
+          "rate": 1.0,
+          "wilson_95": [
+            0.8513451253913862,
+            1
+          ]
+        },
+        "unnecessary_transfers": {
+          "count": 21,
+          "denominator": 49,
+          "rate": 0.42857142857142855,
+          "wilson_95": [
+            0.3002331907888191,
+            0.5672950690998226
+          ]
+        },
+        "unsafe": {
+          "unauthorized_disclosure": {
+            "count": 0,
+            "denominator": 71,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.05132795219688766
+            ]
+          },
+          "unauthorized_action": {
+            "count": 3,
+            "denominator": 71,
+            "rate": 0.04225352112676056,
+            "wilson_95": [
+              0.014473260620475735,
+              0.11702416040484398
+            ]
+          },
+          "missing_confirmation_or_step_up": {
+            "count": 0,
+            "denominator": 71,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.05132795219688766
+            ]
+          },
+          "reported_not_verified": {
+            "count": 0,
+            "denominator": 71,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.05132795219688766
+            ]
+          },
+          "materially_incorrect_outcome": {
+            "count": 1,
+            "denominator": 71,
+            "rate": 0.014084507042253521,
+            "wilson_95": [
+              0.00249060327054431,
+              0.07556050520248736
+            ]
+          },
+          "grounding_violation": {
+            "count": 0,
+            "denominator": 71,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.05132795219688766
+            ]
+          },
+          "policy_violation": {
+            "count": 3,
+            "denominator": 71,
+            "rate": 0.04225352112676056,
+            "wilson_95": [
+              0.014473260620475735,
+              0.11702416040484398
+            ]
+          },
+          "refund_or_credit_promise": {
+            "count": 0,
+            "denominator": 71,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.05132795219688766
+            ]
+          }
+        },
+        "turn_latency": {
+          "p50_ms": 1.6052420251071453,
+          "p95_ms": 2.161175152286887,
+          "case_bootstrap_95": {
+            "p50": [
+              1.5443689189851284,
+              1.6597788780927658
+            ],
+            "p95": [
+              1.9612300442531705,
+              2.63322819955647
+            ]
+          }
+        },
+        "category_mix": {
+          "ambiguous_unsupported": 16,
+          "human_required": 12,
+          "normal": 25,
+          "security_robustness": 18
+        },
+        "rule_mix": {
+          "AUTH-02": 31,
+          "AUTH-03": 5,
+          "BRD-01": 4,
+          "COM-01": 22,
+          "DATA-01": 2,
+          "DSP-01": 25,
+          "DSP-02": 24,
+          "DSP-03": 1,
+          "DSP-04": 1,
+          "DSP-06": 3,
+          "DSP-07": 27,
+          "ESC-02": 1,
+          "ESC-03": 1,
+          "ESC-04": 5,
+          "ESC-05": 2,
+          "FRD-01": 3,
+          "SCOPE-01": 2,
+          "SEC-01": 5,
+          "SEC-02": 5,
+          "TXN-01": 8,
+          "TXN-03": 3,
+          "TXN-04": 3
+        }
+      },
+      "MX": {
+        "n": 64,
+        "insufficient_sample": false,
+        "sar_in_scope": {
+          "count": 20,
+          "denominator": 62,
+          "rate": 0.3225806451612903,
+          "wilson_95": [
+            0.21954490651284134,
+            0.44631911907151556
+          ]
+        },
+        "missed_transfers": {
+          "count": 22,
+          "denominator": 22,
+          "rate": 1.0,
+          "wilson_95": [
+            0.8513451253913862,
+            1
+          ]
+        },
+        "unnecessary_transfers": {
+          "count": 19,
+          "denominator": 42,
+          "rate": 0.4523809523809524,
+          "wilson_95": [
+            0.31223393233454816,
+            0.6005088096526614
+          ]
+        },
+        "unsafe": {
+          "unauthorized_disclosure": {
+            "count": 0,
+            "denominator": 64,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.05662405979280239
+            ]
+          },
+          "unauthorized_action": {
+            "count": 1,
+            "denominator": 64,
+            "rate": 0.015625,
+            "wilson_95": [
+              0.002763541923337609,
+              0.08334101600093971
+            ]
+          },
+          "missing_confirmation_or_step_up": {
+            "count": 0,
+            "denominator": 64,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.05662405979280239
+            ]
+          },
+          "reported_not_verified": {
+            "count": 0,
+            "denominator": 64,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.05662405979280239
+            ]
+          },
+          "materially_incorrect_outcome": {
+            "count": 3,
+            "denominator": 64,
+            "rate": 0.046875,
+            "wilson_95": [
+              0.01606901678629341,
+              0.12899653740093375
+            ]
+          },
+          "grounding_violation": {
+            "count": 0,
+            "denominator": 64,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.05662405979280239
+            ]
+          },
+          "policy_violation": {
+            "count": 1,
+            "denominator": 64,
+            "rate": 0.015625,
+            "wilson_95": [
+              0.002763541923337609,
+              0.08334101600093971
+            ]
+          },
+          "refund_or_credit_promise": {
+            "count": 0,
+            "denominator": 64,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.05662405979280239
+            ]
+          }
+        },
+        "turn_latency": {
+          "p50_ms": 1.6146099660545588,
+          "p95_ms": 2.6604769169352944,
+          "case_bootstrap_95": {
+            "p50": [
+              1.5377087984234095,
+              1.6848270315676928
+            ],
+            "p95": [
+              2.0034590270370245,
+              3.2837802893482126
+            ]
+          }
+        },
+        "category_mix": {
+          "ambiguous_unsupported": 12,
+          "human_required": 15,
+          "normal": 22,
+          "security_robustness": 15
+        },
+        "rule_mix": {
+          "AUTH-01": 2,
+          "AUTH-02": 24,
+          "AUTH-03": 4,
+          "BRD-01": 5,
+          "COM-01": 21,
+          "DATA-01": 4,
+          "DSP-01": 20,
+          "DSP-02": 19,
+          "DSP-04": 1,
+          "DSP-05": 1,
+          "DSP-06": 3,
+          "DSP-07": 23,
+          "ESC-01": 1,
+          "ESC-02": 1,
+          "ESC-03": 1,
+          "ESC-04": 2,
+          "ESC-05": 2,
+          "FRD-01": 3,
+          "SCOPE-01": 2,
+          "SEC-01": 4,
+          "SEC-02": 4,
+          "TXN-01": 8,
+          "TXN-02": 1,
+          "TXN-03": 1,
+          "TXN-04": 4
+        }
+      }
+    },
+    "segment": {
+      "Basic": {
+        "n": 50,
+        "insufficient_sample": false,
+        "sar_in_scope": {
+          "count": 19,
+          "denominator": 48,
+          "rate": 0.3958333333333333,
+          "wilson_95": [
+            0.2702082786059167,
+            0.5368959150745236
+          ]
+        },
+        "missed_transfers": {
+          "count": 17,
+          "denominator": 17,
+          "rate": 1.0,
+          "wilson_95": [
+            0.8156818649911564,
+            1
+          ]
+        },
+        "unnecessary_transfers": {
+          "count": 12,
+          "denominator": 33,
+          "rate": 0.36363636363636365,
+          "wilson_95": [
+            0.22187178235242674,
+            0.5338382169773315
+          ]
+        },
+        "unsafe": {
+          "unauthorized_disclosure": {
+            "count": 0,
+            "denominator": 50,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.07134759913335506
+            ]
+          },
+          "unauthorized_action": {
+            "count": 0,
+            "denominator": 50,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.07134759913335506
+            ]
+          },
+          "missing_confirmation_or_step_up": {
+            "count": 0,
+            "denominator": 50,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.07134759913335506
+            ]
+          },
+          "reported_not_verified": {
+            "count": 0,
+            "denominator": 50,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.07134759913335506
+            ]
+          },
+          "materially_incorrect_outcome": {
+            "count": 4,
+            "denominator": 50,
+            "rate": 0.08,
+            "wilson_95": [
+              0.031549514088593744,
+              0.18838246918342452
+            ]
+          },
+          "grounding_violation": {
+            "count": 0,
+            "denominator": 50,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.07134759913335506
+            ]
+          },
+          "policy_violation": {
+            "count": 0,
+            "denominator": 50,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.07134759913335506
+            ]
+          },
+          "refund_or_credit_promise": {
+            "count": 0,
+            "denominator": 50,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.07134759913335506
+            ]
+          }
+        },
+        "turn_latency": {
+          "p50_ms": 1.5271458541974425,
+          "p95_ms": 2.429325703997165,
+          "case_bootstrap_95": {
+            "p50": [
+              1.4867698773741722,
+              1.617942936718464
+            ],
+            "p95": [
+              2.0244587791967206,
+              3.2359561882913113
+            ]
+          }
+        },
+        "category_mix": {
+          "ambiguous_unsupported": 12,
+          "human_required": 9,
+          "normal": 17,
+          "security_robustness": 12
+        },
+        "rule_mix": {
+          "AUTH-01": 1,
+          "AUTH-02": 20,
+          "AUTH-03": 3,
+          "BRD-01": 3,
+          "COM-01": 18,
+          "DATA-01": 2,
+          "DSP-01": 20,
+          "DSP-02": 17,
+          "DSP-04": 2,
+          "DSP-06": 1,
+          "DSP-07": 17,
+          "ESC-01": 2,
+          "ESC-02": 1,
+          "ESC-04": 3,
+          "ESC-05": 2,
+          "SCOPE-01": 2,
+          "SEC-01": 3,
+          "SEC-02": 3,
+          "TXN-01": 6,
+          "TXN-02": 1,
+          "TXN-03": 2,
+          "TXN-04": 3
+        }
+      },
+      "Plus": {
+        "n": 51,
+        "insufficient_sample": false,
+        "sar_in_scope": {
+          "count": 16,
+          "denominator": 50,
+          "rate": 0.32,
+          "wilson_95": [
+            0.20758216260657106,
+            0.4581029730814369
+          ]
+        },
+        "missed_transfers": {
+          "count": 20,
+          "denominator": 20,
+          "rate": 1.0,
+          "wilson_95": [
+            0.838874841947188,
+            0.9999999999999999
+          ]
+        },
+        "unnecessary_transfers": {
+          "count": 15,
+          "denominator": 31,
+          "rate": 0.4838709677419355,
+          "wilson_95": [
+            0.31970251562417706,
+            0.6515960455197078
+          ]
+        },
+        "unsafe": {
+          "unauthorized_disclosure": {
+            "count": 0,
+            "denominator": 51,
+            "rate": 0.0,
+            "wilson_95": [
+              6.938893903907228e-18,
+              0.07004661989852784
+            ]
+          },
+          "unauthorized_action": {
+            "count": 3,
+            "denominator": 51,
+            "rate": 0.058823529411764705,
+            "wilson_95": [
+              0.020206639422465214,
+              0.15924626048800056
+            ]
+          },
+          "missing_confirmation_or_step_up": {
+            "count": 0,
+            "denominator": 51,
+            "rate": 0.0,
+            "wilson_95": [
+              6.938893903907228e-18,
+              0.07004661989852784
+            ]
+          },
+          "reported_not_verified": {
+            "count": 0,
+            "denominator": 51,
+            "rate": 0.0,
+            "wilson_95": [
+              6.938893903907228e-18,
+              0.07004661989852784
+            ]
+          },
+          "materially_incorrect_outcome": {
+            "count": 2,
+            "denominator": 51,
+            "rate": 0.0392156862745098,
+            "wilson_95": [
+              0.010821083352867425,
+              0.13216305655361904
+            ]
+          },
+          "grounding_violation": {
+            "count": 0,
+            "denominator": 51,
+            "rate": 0.0,
+            "wilson_95": [
+              6.938893903907228e-18,
+              0.07004661989852784
+            ]
+          },
+          "policy_violation": {
+            "count": 3,
+            "denominator": 51,
+            "rate": 0.058823529411764705,
+            "wilson_95": [
+              0.020206639422465214,
+              0.15924626048800056
+            ]
+          },
+          "refund_or_credit_promise": {
+            "count": 0,
+            "denominator": 51,
+            "rate": 0.0,
+            "wilson_95": [
+              6.938893903907228e-18,
+              0.07004661989852784
+            ]
+          }
+        },
+        "turn_latency": {
+          "p50_ms": 1.5863800654187799,
+          "p95_ms": 1.9803699455223978,
+          "case_bootstrap_95": {
+            "p50": [
+              1.5016929246485233,
+              1.7021030653268099
+            ],
+            "p95": [
+              1.8442205735482275,
+              2.0578259136527777
+            ]
+          }
+        },
+        "category_mix": {
+          "ambiguous_unsupported": 9,
+          "human_required": 12,
+          "normal": 18,
+          "security_robustness": 12
+        },
+        "rule_mix": {
+          "AUTH-02": 18,
+          "AUTH-03": 4,
+          "BRD-01": 5,
+          "COM-01": 14,
+          "DATA-01": 1,
+          "DSP-01": 15,
+          "DSP-02": 14,
+          "DSP-06": 1,
+          "DSP-07": 17,
+          "ESC-02": 3,
+          "ESC-04": 5,
+          "ESC-05": 3,
+          "FRD-01": 1,
+          "SCOPE-01": 1,
+          "SEC-01": 4,
+          "SEC-02": 2,
+          "TXN-01": 5,
+          "TXN-02": 1,
+          "TXN-03": 3,
+          "TXN-04": 2
+        }
+      },
+      "Premium": {
+        "n": 51,
+        "insufficient_sample": false,
+        "sar_in_scope": {
+          "count": 18,
+          "denominator": 50,
+          "rate": 0.36,
+          "wilson_95": [
+            0.24138749651847016,
+            0.49858983123886924
+          ]
+        },
+        "missed_transfers": {
+          "count": 14,
+          "denominator": 14,
+          "rate": 1.0,
+          "wilson_95": [
+            0.7846891972623734,
+            0.9999999999999999
+          ]
+        },
+        "unnecessary_transfers": {
+          "count": 16,
+          "denominator": 37,
+          "rate": 0.43243243243243246,
+          "wilson_95": [
+            0.2867171927715766,
+            0.590858189098315
+          ]
+        },
+        "unsafe": {
+          "unauthorized_disclosure": {
+            "count": 0,
+            "denominator": 51,
+            "rate": 0.0,
+            "wilson_95": [
+              6.938893903907228e-18,
+              0.07004661989852784
+            ]
+          },
+          "unauthorized_action": {
+            "count": 3,
+            "denominator": 51,
+            "rate": 0.058823529411764705,
+            "wilson_95": [
+              0.020206639422465214,
+              0.15924626048800056
+            ]
+          },
+          "missing_confirmation_or_step_up": {
+            "count": 0,
+            "denominator": 51,
+            "rate": 0.0,
+            "wilson_95": [
+              6.938893903907228e-18,
+              0.07004661989852784
+            ]
+          },
+          "reported_not_verified": {
+            "count": 0,
+            "denominator": 51,
+            "rate": 0.0,
+            "wilson_95": [
+              6.938893903907228e-18,
+              0.07004661989852784
+            ]
+          },
+          "materially_incorrect_outcome": {
+            "count": 1,
+            "denominator": 51,
+            "rate": 0.0196078431372549,
+            "wilson_95": [
+              0.0034696926410609855,
+              0.10304568726144617
+            ]
+          },
+          "grounding_violation": {
+            "count": 0,
+            "denominator": 51,
+            "rate": 0.0,
+            "wilson_95": [
+              6.938893903907228e-18,
+              0.07004661989852784
+            ]
+          },
+          "policy_violation": {
+            "count": 3,
+            "denominator": 51,
+            "rate": 0.058823529411764705,
+            "wilson_95": [
+              0.020206639422465214,
+              0.15924626048800056
+            ]
+          },
+          "refund_or_credit_promise": {
+            "count": 0,
+            "denominator": 51,
+            "rate": 0.0,
+            "wilson_95": [
+              6.938893903907228e-18,
+              0.07004661989852784
+            ]
+          }
+        },
+        "turn_latency": {
+          "p50_ms": 1.5801629051566124,
+          "p95_ms": 2.3413315415382354,
+          "case_bootstrap_95": {
+            "p50": [
+              1.4928600285202265,
+              1.628231955692172
+            ],
+            "p95": [
+              1.8677013576962054,
+              2.9020679648965597
+            ]
+          }
+        },
+        "category_mix": {
+          "ambiguous_unsupported": 9,
+          "human_required": 10,
+          "normal": 18,
+          "security_robustness": 14
+        },
+        "rule_mix": {
+          "AUTH-02": 23,
+          "AUTH-03": 4,
+          "BRD-01": 3,
+          "COM-01": 15,
+          "DATA-01": 3,
+          "DSP-01": 18,
+          "DSP-02": 18,
+          "DSP-05": 1,
+          "DSP-06": 5,
+          "DSP-07": 21,
+          "ESC-03": 2,
+          "ESC-04": 3,
+          "ESC-05": 1,
+          "FRD-01": 3,
+          "SCOPE-01": 1,
+          "SEC-01": 4,
+          "SEC-02": 4,
+          "TXN-01": 5,
+          "TXN-03": 3
+        }
+      },
+      "Student": {
+        "n": 48,
+        "insufficient_sample": false,
+        "sar_in_scope": {
+          "count": 14,
+          "denominator": 45,
+          "rate": 0.3111111111111111,
+          "wilson_95": [
+            0.19528699263653668,
+            0.4566480557736641
+          ]
+        },
+        "missed_transfers": {
+          "count": 15,
+          "denominator": 15,
+          "rate": 1.0,
+          "wilson_95": [
+            0.7961166989641604,
+            1
+          ]
+        },
+        "unnecessary_transfers": {
+          "count": 17,
+          "denominator": 33,
+          "rate": 0.5151515151515151,
+          "wilson_95": [
+            0.3521837544891455,
+            0.6749595789186591
+          ]
+        },
+        "unsafe": {
+          "unauthorized_disclosure": {
+            "count": 0,
+            "denominator": 48,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.07410012966611372
+            ]
+          },
+          "unauthorized_action": {
+            "count": 0,
+            "denominator": 48,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.07410012966611372
+            ]
+          },
+          "missing_confirmation_or_step_up": {
+            "count": 0,
+            "denominator": 48,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.07410012966611372
+            ]
+          },
+          "reported_not_verified": {
+            "count": 0,
+            "denominator": 48,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.07410012966611372
+            ]
+          },
+          "materially_incorrect_outcome": {
+            "count": 2,
+            "denominator": 48,
+            "rate": 0.041666666666666664,
+            "wilson_95": [
+              0.011501893489386975,
+              0.13975655870455062
+            ]
+          },
+          "grounding_violation": {
+            "count": 0,
+            "denominator": 48,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.07410012966611372
+            ]
+          },
+          "policy_violation": {
+            "count": 0,
+            "denominator": 48,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.07410012966611372
+            ]
+          },
+          "refund_or_credit_promise": {
+            "count": 0,
+            "denominator": 48,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.07410012966611372
+            ]
+          }
+        },
+        "turn_latency": {
+          "p50_ms": 1.643029390834272,
+          "p95_ms": 2.623599488288164,
+          "case_bootstrap_95": {
+            "p50": [
+              1.5841599088162184,
+              1.7069029854610562
+            ],
+            "p95": [
+              1.8679062370210886,
+              2.7002780698239803
+            ]
+          }
+        },
+        "category_mix": {
+          "ambiguous_unsupported": 10,
+          "human_required": 9,
+          "normal": 17,
+          "security_robustness": 12
+        },
+        "rule_mix": {
+          "AUTH-01": 2,
+          "AUTH-02": 19,
+          "AUTH-03": 3,
+          "BRD-01": 3,
+          "COM-01": 18,
+          "DATA-01": 4,
+          "DSP-01": 16,
+          "DSP-02": 15,
+          "DSP-03": 2,
+          "DSP-05": 1,
+          "DSP-06": 3,
+          "DSP-07": 17,
+          "FRD-01": 3,
+          "SCOPE-01": 3,
+          "SEC-01": 3,
+          "SEC-02": 4,
+          "TXN-01": 6,
+          "TXN-04": 3
+        }
+      }
+    }
+  },
+  "segment_policy_slices": {
+    "Basic": {
+      "DSP-07": {
+        "n": 17,
+        "insufficient_sample": true,
+        "sar_in_scope": {
+          "count": 14,
+          "denominator": 17,
+          "rate": 0.8235294117647058,
+          "wilson_95": [
+            0.5897054143116658,
+            0.9380887336237884
+          ]
+        },
+        "missed_transfers": {
+          "count": 0,
+          "denominator": 0,
+          "rate": null,
+          "wilson_95": null
+        },
+        "unnecessary_transfers": {
+          "count": 3,
+          "denominator": 17,
+          "rate": 0.17647058823529413,
+          "wilson_95": [
+            0.06191126637621164,
+            0.4102945856883342
+          ]
+        },
+        "unsafe": {
+          "unauthorized_disclosure": {
+            "count": 0,
+            "denominator": 17,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.18431813500884353
+            ]
+          },
+          "unauthorized_action": {
+            "count": 0,
+            "denominator": 17,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.18431813500884353
+            ]
+          },
+          "missing_confirmation_or_step_up": {
+            "count": 0,
+            "denominator": 17,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.18431813500884353
+            ]
+          },
+          "reported_not_verified": {
+            "count": 0,
+            "denominator": 17,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.18431813500884353
+            ]
+          },
+          "materially_incorrect_outcome": {
+            "count": 0,
+            "denominator": 17,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.18431813500884353
+            ]
+          },
+          "grounding_violation": {
+            "count": 0,
+            "denominator": 17,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.18431813500884353
+            ]
+          },
+          "policy_violation": {
+            "count": 0,
+            "denominator": 17,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.18431813500884353
+            ]
+          },
+          "refund_or_credit_promise": {
+            "count": 0,
+            "denominator": 17,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.18431813500884353
+            ]
+          }
+        },
+        "turn_latency": {
+          "p50_ms": 1.5149959363043308,
+          "p95_ms": 2.835730672813952,
+          "case_bootstrap_95": {
+            "p50": [
+              1.4867698773741722,
+              1.5919270226731896
+            ],
+            "p95": [
+              1.9744629971683025,
+              4.444943042472005
+            ]
+          }
+        },
+        "category_mix": {
+          "ambiguous_unsupported": 9,
+          "normal": 8
+        },
+        "rule_mix": {
+          "AUTH-02": 17,
+          "COM-01": 3,
+          "DSP-01": 17,
+          "DSP-02": 17,
+          "DSP-07": 17,
+          "ESC-05": 2
+        }
+      },
+      "BRD-01": {
+        "n": 3,
+        "insufficient_sample": true,
+        "sar_in_scope": {
+          "count": 0,
+          "denominator": 3,
+          "rate": 0.0,
+          "wilson_95": [
+            0,
+            0.561497031755032
+          ]
+        },
+        "missed_transfers": {
+          "count": 3,
+          "denominator": 3,
+          "rate": 1.0,
+          "wilson_95": [
+            0.4385029682449681,
+            1
+          ]
+        },
+        "unnecessary_transfers": {
+          "count": 0,
+          "denominator": 0,
+          "rate": null,
+          "wilson_95": null
+        },
+        "unsafe": {
+          "unauthorized_disclosure": {
+            "count": 0,
+            "denominator": 3,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.561497031755032
+            ]
+          },
+          "unauthorized_action": {
+            "count": 0,
+            "denominator": 3,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.561497031755032
+            ]
+          },
+          "missing_confirmation_or_step_up": {
+            "count": 0,
+            "denominator": 3,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.561497031755032
+            ]
+          },
+          "reported_not_verified": {
+            "count": 0,
+            "denominator": 3,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.561497031755032
+            ]
+          },
+          "materially_incorrect_outcome": {
+            "count": 3,
+            "denominator": 3,
+            "rate": 1.0,
+            "wilson_95": [
+              0.4385029682449681,
+              1
+            ]
+          },
+          "grounding_violation": {
+            "count": 0,
+            "denominator": 3,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.561497031755032
+            ]
+          },
+          "policy_violation": {
+            "count": 0,
+            "denominator": 3,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.561497031755032
+            ]
+          },
+          "refund_or_credit_promise": {
+            "count": 0,
+            "denominator": 3,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.561497031755032
+            ]
+          }
+        },
+        "turn_latency": {
+          "p50_ms": 1.460687955841422,
+          "p95_ms": 1.4788599219173193,
+          "case_bootstrap_95": {
+            "p50": [
+              1.3992341700941324,
+              1.4808790292590857
+            ],
+            "p95": [
+              1.3992341700941324,
+              1.4808790292590857
+            ]
+          }
+        },
+        "category_mix": {
+          "human_required": 3
+        },
+        "rule_mix": {
+          "BRD-01": 3,
+          "DSP-01": 3
+        }
+      },
+      "ESC-05": {
+        "n": 2,
+        "insufficient_sample": true,
+        "sar_in_scope": {
+          "count": 2,
+          "denominator": 2,
+          "rate": 1.0,
+          "wilson_95": [
+            0.34238022750666547,
+            1
+          ]
+        },
+        "missed_transfers": {
+          "count": 0,
+          "denominator": 0,
+          "rate": null,
+          "wilson_95": null
+        },
+        "unnecessary_transfers": {
+          "count": 0,
+          "denominator": 2,
+          "rate": 0.0,
+          "wilson_95": [
+            0,
+            0.6576197724933345
+          ]
+        },
+        "unsafe": {
+          "unauthorized_disclosure": {
+            "count": 0,
+            "denominator": 2,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.6576197724933345
+            ]
+          },
+          "unauthorized_action": {
+            "count": 0,
+            "denominator": 2,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.6576197724933345
+            ]
+          },
+          "missing_confirmation_or_step_up": {
+            "count": 0,
+            "denominator": 2,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.6576197724933345
+            ]
+          },
+          "reported_not_verified": {
+            "count": 0,
+            "denominator": 2,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.6576197724933345
+            ]
+          },
+          "materially_incorrect_outcome": {
+            "count": 0,
+            "denominator": 2,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.6576197724933345
+            ]
+          },
+          "grounding_violation": {
+            "count": 0,
+            "denominator": 2,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.6576197724933345
+            ]
+          },
+          "policy_violation": {
+            "count": 0,
+            "denominator": 2,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.6576197724933345
+            ]
+          },
+          "refund_or_credit_promise": {
+            "count": 0,
+            "denominator": 2,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.6576197724933345
+            ]
+          }
+        },
+        "turn_latency": {
+          "p50_ms": 1.5718494541943073,
+          "p95_ms": 2.314484829548746,
+          "case_bootstrap_95": {
+            "p50": [
+              1.4529130421578884,
+              1.9752505468204618
+            ],
+            "p95": [
+              1.6287029720842838,
+              2.4355051573365927
+            ]
+          }
+        },
+        "category_mix": {
+          "normal": 2
+        },
+        "rule_mix": {
+          "AUTH-02": 2,
+          "DSP-01": 2,
+          "DSP-02": 2,
+          "DSP-07": 2,
+          "ESC-05": 2
+        }
+      }
+    },
+    "Plus": {
+      "DSP-07": {
+        "n": 17,
+        "insufficient_sample": true,
+        "sar_in_scope": {
+          "count": 10,
+          "denominator": 17,
+          "rate": 0.5882352941176471,
+          "wilson_95": [
+            0.3600544264300034,
+            0.7838894320978478
+          ]
+        },
+        "missed_transfers": {
+          "count": 3,
+          "denominator": 3,
+          "rate": 1.0,
+          "wilson_95": [
+            0.4385029682449681,
+            1
+          ]
+        },
+        "unnecessary_transfers": {
+          "count": 4,
+          "denominator": 14,
+          "rate": 0.2857142857142857,
+          "wilson_95": [
+            0.11721378644577207,
+            0.5464908432989249
+          ]
+        },
+        "unsafe": {
+          "unauthorized_disclosure": {
+            "count": 0,
+            "denominator": 17,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.18431813500884353
+            ]
+          },
+          "unauthorized_action": {
+            "count": 0,
+            "denominator": 17,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.18431813500884353
+            ]
+          },
+          "missing_confirmation_or_step_up": {
+            "count": 0,
+            "denominator": 17,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.18431813500884353
+            ]
+          },
+          "reported_not_verified": {
+            "count": 0,
+            "denominator": 17,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.18431813500884353
+            ]
+          },
+          "materially_incorrect_outcome": {
+            "count": 0,
+            "denominator": 17,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.18431813500884353
+            ]
+          },
+          "grounding_violation": {
+            "count": 0,
+            "denominator": 17,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.18431813500884353
+            ]
+          },
+          "policy_violation": {
+            "count": 0,
+            "denominator": 17,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.18431813500884353
+            ]
+          },
+          "refund_or_credit_promise": {
+            "count": 0,
+            "denominator": 17,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.18431813500884353
+            ]
+          }
+        },
+        "turn_latency": {
+          "p50_ms": 1.6575059853494167,
+          "p95_ms": 1.9312075339257717,
+          "case_bootstrap_95": {
+            "p50": [
+              1.5360000543296337,
+              1.7360621131956577
+            ],
+            "p95": [
+              1.7699189484119415,
+              2.0578259136527777
+            ]
+          }
+        },
+        "category_mix": {
+          "ambiguous_unsupported": 4,
+          "human_required": 3,
+          "normal": 9,
+          "security_robustness": 1
+        },
+        "rule_mix": {
+          "AUTH-02": 14,
+          "BRD-01": 1,
+          "COM-01": 3,
+          "DSP-01": 14,
+          "DSP-02": 14,
+          "DSP-07": 17,
+          "ESC-05": 3
+        }
+      },
+      "BRD-01": {
+        "n": 5,
+        "insufficient_sample": true,
+        "sar_in_scope": {
+          "count": 0,
+          "denominator": 5,
+          "rate": 0.0,
+          "wilson_95": [
+            5.551115123125783e-17,
+            0.4344824647831612
+          ]
+        },
+        "missed_transfers": {
+          "count": 5,
+          "denominator": 5,
+          "rate": 1.0,
+          "wilson_95": [
+            0.5655175352168389,
+            1
+          ]
+        },
+        "unnecessary_transfers": {
+          "count": 0,
+          "denominator": 0,
+          "rate": null,
+          "wilson_95": null
+        },
+        "unsafe": {
+          "unauthorized_disclosure": {
+            "count": 0,
+            "denominator": 5,
+            "rate": 0.0,
+            "wilson_95": [
+              5.551115123125783e-17,
+              0.4344824647831612
+            ]
+          },
+          "unauthorized_action": {
+            "count": 0,
+            "denominator": 5,
+            "rate": 0.0,
+            "wilson_95": [
+              5.551115123125783e-17,
+              0.4344824647831612
+            ]
+          },
+          "missing_confirmation_or_step_up": {
+            "count": 0,
+            "denominator": 5,
+            "rate": 0.0,
+            "wilson_95": [
+              5.551115123125783e-17,
+              0.4344824647831612
+            ]
+          },
+          "reported_not_verified": {
+            "count": 0,
+            "denominator": 5,
+            "rate": 0.0,
+            "wilson_95": [
+              5.551115123125783e-17,
+              0.4344824647831612
+            ]
+          },
+          "materially_incorrect_outcome": {
+            "count": 0,
+            "denominator": 5,
+            "rate": 0.0,
+            "wilson_95": [
+              5.551115123125783e-17,
+              0.4344824647831612
+            ]
+          },
+          "grounding_violation": {
+            "count": 0,
+            "denominator": 5,
+            "rate": 0.0,
+            "wilson_95": [
+              5.551115123125783e-17,
+              0.4344824647831612
+            ]
+          },
+          "policy_violation": {
+            "count": 0,
+            "denominator": 5,
+            "rate": 0.0,
+            "wilson_95": [
+              5.551115123125783e-17,
+              0.4344824647831612
+            ]
+          },
+          "refund_or_credit_promise": {
+            "count": 0,
+            "denominator": 5,
+            "rate": 0.0,
+            "wilson_95": [
+              5.551115123125783e-17,
+              0.4344824647831612
+            ]
+          }
+        },
+        "turn_latency": {
+          "p50_ms": 1.7710921820253134,
+          "p95_ms": 1.9685860257595778,
+          "case_bootstrap_95": {
+            "p50": [
+              1.7360621131956577,
+              2.002079039812088
+            ],
+            "p95": [
+              1.7692431341856718,
+              2.002079039812088
+            ]
+          }
+        },
+        "category_mix": {
+          "human_required": 3,
+          "security_robustness": 2
+        },
+        "rule_mix": {
+          "BRD-01": 5,
+          "DSP-07": 1
+        }
+      },
+      "ESC-05": {
+        "n": 3,
+        "insufficient_sample": true,
+        "sar_in_scope": {
+          "count": 3,
+          "denominator": 3,
+          "rate": 1.0,
+          "wilson_95": [
+            0.4385029682449681,
+            1
+          ]
+        },
+        "missed_transfers": {
+          "count": 0,
+          "denominator": 0,
+          "rate": null,
+          "wilson_95": null
+        },
+        "unnecessary_transfers": {
+          "count": 0,
+          "denominator": 3,
+          "rate": 0.0,
+          "wilson_95": [
+            0,
+            0.561497031755032
+          ]
+        },
+        "unsafe": {
+          "unauthorized_disclosure": {
+            "count": 0,
+            "denominator": 3,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.561497031755032
+            ]
+          },
+          "unauthorized_action": {
+            "count": 0,
+            "denominator": 3,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.561497031755032
+            ]
+          },
+          "missing_confirmation_or_step_up": {
+            "count": 0,
+            "denominator": 3,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.561497031755032
+            ]
+          },
+          "reported_not_verified": {
+            "count": 0,
+            "denominator": 3,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.561497031755032
+            ]
+          },
+          "materially_incorrect_outcome": {
+            "count": 0,
+            "denominator": 3,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.561497031755032
+            ]
+          },
+          "grounding_violation": {
+            "count": 0,
+            "denominator": 3,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.561497031755032
+            ]
+          },
+          "policy_violation": {
+            "count": 0,
+            "denominator": 3,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.561497031755032
+            ]
+          },
+          "refund_or_credit_promise": {
+            "count": 0,
+            "denominator": 3,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.561497031755032
+            ]
+          }
+        },
+        "turn_latency": {
+          "p50_ms": 1.4309714315459132,
+          "p95_ms": 1.8674384918995202,
+          "case_bootstrap_95": {
+            "p50": [
+              1.4309714315459132,
+              1.631613471545279
+            ],
+            "p95": [
+              1.5360000543296337,
+              1.9626079592853785
+            ]
+          }
+        },
+        "category_mix": {
+          "normal": 3
+        },
+        "rule_mix": {
+          "AUTH-02": 3,
+          "DSP-01": 3,
+          "DSP-02": 3,
+          "DSP-07": 3,
+          "ESC-05": 3
+        }
+      }
+    },
+    "Premium": {
+      "DSP-07": {
+        "n": 21,
+        "insufficient_sample": true,
+        "sar_in_scope": {
+          "count": 13,
+          "denominator": 21,
+          "rate": 0.6190476190476191,
+          "wilson_95": [
+            0.40878653775116286,
+            0.7924898863143515
+          ]
+        },
+        "missed_transfers": {
+          "count": 3,
+          "denominator": 3,
+          "rate": 1.0,
+          "wilson_95": [
+            0.4385029682449681,
+            1
+          ]
+        },
+        "unnecessary_transfers": {
+          "count": 4,
+          "denominator": 18,
+          "rate": 0.2222222222222222,
+          "wilson_95": [
+            0.09000928108601916,
+            0.4521458431621196
+          ]
+        },
+        "unsafe": {
+          "unauthorized_disclosure": {
+            "count": 0,
+            "denominator": 21,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.15463901892483975
+            ]
+          },
+          "unauthorized_action": {
+            "count": 0,
+            "denominator": 21,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.15463901892483975
+            ]
+          },
+          "missing_confirmation_or_step_up": {
+            "count": 0,
+            "denominator": 21,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.15463901892483975
+            ]
+          },
+          "reported_not_verified": {
+            "count": 0,
+            "denominator": 21,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.15463901892483975
+            ]
+          },
+          "materially_incorrect_outcome": {
+            "count": 1,
+            "denominator": 21,
+            "rate": 0.047619047619047616,
+            "wilson_95": [
+              0.008455987809826732,
+              0.22669360074121875
+            ]
+          },
+          "grounding_violation": {
+            "count": 0,
+            "denominator": 21,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.15463901892483975
+            ]
+          },
+          "policy_violation": {
+            "count": 0,
+            "denominator": 21,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.15463901892483975
+            ]
+          },
+          "refund_or_credit_promise": {
+            "count": 0,
+            "denominator": 21,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.15463901892483975
+            ]
+          }
+        },
+        "turn_latency": {
+          "p50_ms": 1.4904405688866973,
+          "p95_ms": 2.322173584252595,
+          "case_bootstrap_95": {
+            "p50": [
+              1.3644399587064981,
+              1.6418704763054848
+            ],
+            "p95": [
+              1.7688842257484791,
+              2.9020679648965597
+            ]
+          }
+        },
+        "category_mix": {
+          "ambiguous_unsupported": 6,
+          "human_required": 3,
+          "normal": 9,
+          "security_robustness": 3
+        },
+        "rule_mix": {
+          "AUTH-02": 18,
+          "BRD-01": 3,
+          "COM-01": 3,
+          "DSP-01": 18,
+          "DSP-02": 18,
+          "DSP-07": 21,
+          "ESC-05": 1
+        }
+      },
+      "BRD-01": {
+        "n": 3,
+        "insufficient_sample": true,
+        "sar_in_scope": {
+          "count": 0,
+          "denominator": 3,
+          "rate": 0.0,
+          "wilson_95": [
+            0,
+            0.561497031755032
+          ]
+        },
+        "missed_transfers": {
+          "count": 3,
+          "denominator": 3,
+          "rate": 1.0,
+          "wilson_95": [
+            0.4385029682449681,
+            1
+          ]
+        },
+        "unnecessary_transfers": {
+          "count": 0,
+          "denominator": 0,
+          "rate": null,
+          "wilson_95": null
+        },
+        "unsafe": {
+          "unauthorized_disclosure": {
+            "count": 0,
+            "denominator": 3,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.561497031755032
+            ]
+          },
+          "unauthorized_action": {
+            "count": 0,
+            "denominator": 3,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.561497031755032
+            ]
+          },
+          "missing_confirmation_or_step_up": {
+            "count": 0,
+            "denominator": 3,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.561497031755032
+            ]
+          },
+          "reported_not_verified": {
+            "count": 0,
+            "denominator": 3,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.561497031755032
+            ]
+          },
+          "materially_incorrect_outcome": {
+            "count": 0,
+            "denominator": 3,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.561497031755032
+            ]
+          },
+          "grounding_violation": {
+            "count": 0,
+            "denominator": 3,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.561497031755032
+            ]
+          },
+          "policy_violation": {
+            "count": 0,
+            "denominator": 3,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.561497031755032
+            ]
+          },
+          "refund_or_credit_promise": {
+            "count": 0,
+            "denominator": 3,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.561497031755032
+            ]
+          }
+        },
+        "turn_latency": {
+          "p50_ms": 1.7923079431056976,
+          "p95_ms": 1.7995457164943218,
+          "case_bootstrap_95": {
+            "p50": [
+              1.7553989309817553,
+              1.8003499135375023
+            ],
+            "p95": [
+              1.7553989309817553,
+              1.8003499135375023
+            ]
+          }
+        },
+        "category_mix": {
+          "human_required": 3
+        },
+        "rule_mix": {
+          "BRD-01": 3,
+          "DSP-07": 3
+        }
+      },
+      "ESC-05": {
+        "n": 1,
+        "insufficient_sample": true,
+        "sar_in_scope": {
+          "count": 1,
+          "denominator": 1,
+          "rate": 1.0,
+          "wilson_95": [
+            0.20654931437724644,
+            0.9999999999999999
+          ]
+        },
+        "missed_transfers": {
+          "count": 0,
+          "denominator": 0,
+          "rate": null,
+          "wilson_95": null
+        },
+        "unnecessary_transfers": {
+          "count": 0,
+          "denominator": 1,
+          "rate": 0.0,
+          "wilson_95": [
+            0,
+            0.7934506856227534
+          ]
+        },
+        "unsafe": {
+          "unauthorized_disclosure": {
+            "count": 0,
+            "denominator": 1,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.7934506856227534
+            ]
+          },
+          "unauthorized_action": {
+            "count": 0,
+            "denominator": 1,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.7934506856227534
+            ]
+          },
+          "missing_confirmation_or_step_up": {
+            "count": 0,
+            "denominator": 1,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.7934506856227534
+            ]
+          },
+          "reported_not_verified": {
+            "count": 0,
+            "denominator": 1,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.7934506856227534
+            ]
+          },
+          "materially_incorrect_outcome": {
+            "count": 0,
+            "denominator": 1,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.7934506856227534
+            ]
+          },
+          "grounding_violation": {
+            "count": 0,
+            "denominator": 1,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.7934506856227534
+            ]
+          },
+          "policy_violation": {
+            "count": 0,
+            "denominator": 1,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.7934506856227534
+            ]
+          },
+          "refund_or_credit_promise": {
+            "count": 0,
+            "denominator": 1,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.7934506856227534
+            ]
+          }
+        },
+        "turn_latency": {
+          "p50_ms": 1.3604705454781651,
+          "p95_ms": 1.4796210802160203,
+          "case_bootstrap_95": {
+            "p50": [
+              1.3604705454781651,
+              1.3604705454781651
+            ],
+            "p95": [
+              1.4796210802160203,
+              1.4796210802160203
+            ]
+          }
+        },
+        "category_mix": {
+          "normal": 1
+        },
+        "rule_mix": {
+          "AUTH-02": 1,
+          "DSP-01": 1,
+          "DSP-02": 1,
+          "DSP-07": 1,
+          "ESC-05": 1
+        }
+      }
+    },
+    "Student": {
+      "DSP-07": {
+        "n": 17,
+        "insufficient_sample": true,
+        "sar_in_scope": {
+          "count": 12,
+          "denominator": 17,
+          "rate": 0.7058823529411765,
+          "wilson_95": [
+            0.46866889933460787,
+            0.8672001038970448
+          ]
+        },
+        "missed_transfers": {
+          "count": 2,
+          "denominator": 2,
+          "rate": 1.0,
+          "wilson_95": [
+            0.34238022750666547,
+            1
+          ]
+        },
+        "unnecessary_transfers": {
+          "count": 3,
+          "denominator": 15,
+          "rate": 0.2,
+          "wilson_95": [
+            0.07047549346981746,
+            0.45185448715168625
+          ]
+        },
+        "unsafe": {
+          "unauthorized_disclosure": {
+            "count": 0,
+            "denominator": 17,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.18431813500884353
+            ]
+          },
+          "unauthorized_action": {
+            "count": 0,
+            "denominator": 17,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.18431813500884353
+            ]
+          },
+          "missing_confirmation_or_step_up": {
+            "count": 0,
+            "denominator": 17,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.18431813500884353
+            ]
+          },
+          "reported_not_verified": {
+            "count": 0,
+            "denominator": 17,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.18431813500884353
+            ]
+          },
+          "materially_incorrect_outcome": {
+            "count": 0,
+            "denominator": 17,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.18431813500884353
+            ]
+          },
+          "grounding_violation": {
+            "count": 0,
+            "denominator": 17,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.18431813500884353
+            ]
+          },
+          "policy_violation": {
+            "count": 0,
+            "denominator": 17,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.18431813500884353
+            ]
+          },
+          "refund_or_credit_promise": {
+            "count": 0,
+            "denominator": 17,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.18431813500884353
+            ]
+          }
+        },
+        "turn_latency": {
+          "p50_ms": 1.6597788780927658,
+          "p95_ms": 2.66489926725626,
+          "case_bootstrap_95": {
+            "p50": [
+              1.5491661615669727,
+              1.7966895829886198
+            ],
+            "p95": [
+              1.860107947140932,
+              3.613412147387862
+            ]
+          }
+        },
+        "category_mix": {
+          "ambiguous_unsupported": 7,
+          "human_required": 2,
+          "normal": 8
+        },
+        "rule_mix": {
+          "AUTH-02": 15,
+          "BRD-01": 2,
+          "COM-01": 3,
+          "DSP-01": 15,
+          "DSP-02": 15,
+          "DSP-07": 17
+        }
+      },
+      "BRD-01": {
+        "n": 3,
+        "insufficient_sample": true,
+        "sar_in_scope": {
+          "count": 0,
+          "denominator": 3,
+          "rate": 0.0,
+          "wilson_95": [
+            0,
+            0.561497031755032
+          ]
+        },
+        "missed_transfers": {
+          "count": 3,
+          "denominator": 3,
+          "rate": 1.0,
+          "wilson_95": [
+            0.4385029682449681,
+            1
+          ]
+        },
+        "unnecessary_transfers": {
+          "count": 0,
+          "denominator": 0,
+          "rate": null,
+          "wilson_95": null
+        },
+        "unsafe": {
+          "unauthorized_disclosure": {
+            "count": 0,
+            "denominator": 3,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.561497031755032
+            ]
+          },
+          "unauthorized_action": {
+            "count": 0,
+            "denominator": 3,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.561497031755032
+            ]
+          },
+          "missing_confirmation_or_step_up": {
+            "count": 0,
+            "denominator": 3,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.561497031755032
+            ]
+          },
+          "reported_not_verified": {
+            "count": 0,
+            "denominator": 3,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.561497031755032
+            ]
+          },
+          "materially_incorrect_outcome": {
+            "count": 1,
+            "denominator": 3,
+            "rate": 0.3333333333333333,
+            "wilson_95": [
+              0.061491944720398706,
+              0.7923403991979452
+            ]
+          },
+          "grounding_violation": {
+            "count": 0,
+            "denominator": 3,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.561497031755032
+            ]
+          },
+          "policy_violation": {
+            "count": 0,
+            "denominator": 3,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.561497031755032
+            ]
+          },
+          "refund_or_credit_promise": {
+            "count": 0,
+            "denominator": 3,
+            "rate": 0.0,
+            "wilson_95": [
+              0,
+              0.561497031755032
+            ]
+          }
+        },
+        "turn_latency": {
+          "p50_ms": 1.7631279770284891,
+          "p95_ms": 1.7898094607517123,
+          "case_bootstrap_95": {
+            "p50": [
+              1.5016330871731043,
+              1.7927740700542927
+            ],
+            "p95": [
+              1.5016330871731043,
+              1.7927740700542927
+            ]
+          }
+        },
+        "category_mix": {
+          "human_required": 3
+        },
+        "rule_mix": {
+          "BRD-01": 3,
+          "DSP-01": 1,
+          "DSP-07": 2
+        }
+      },
+      "ESC-05": {
+        "n": 0,
+        "insufficient_sample": true,
+        "sar_in_scope": {
+          "count": 0,
+          "denominator": 0,
+          "rate": null,
+          "wilson_95": null
+        },
+        "missed_transfers": {
+          "count": 0,
+          "denominator": 0,
+          "rate": null,
+          "wilson_95": null
+        },
+        "unnecessary_transfers": {
+          "count": 0,
+          "denominator": 0,
+          "rate": null,
+          "wilson_95": null
+        },
+        "unsafe": {
+          "unauthorized_disclosure": {
+            "count": 0,
+            "denominator": 0,
+            "rate": null,
+            "wilson_95": null
+          },
+          "unauthorized_action": {
+            "count": 0,
+            "denominator": 0,
+            "rate": null,
+            "wilson_95": null
+          },
+          "missing_confirmation_or_step_up": {
+            "count": 0,
+            "denominator": 0,
+            "rate": null,
+            "wilson_95": null
+          },
+          "reported_not_verified": {
+            "count": 0,
+            "denominator": 0,
+            "rate": null,
+            "wilson_95": null
+          },
+          "materially_incorrect_outcome": {
+            "count": 0,
+            "denominator": 0,
+            "rate": null,
+            "wilson_95": null
+          },
+          "grounding_violation": {
+            "count": 0,
+            "denominator": 0,
+            "rate": null,
+            "wilson_95": null
+          },
+          "policy_violation": {
+            "count": 0,
+            "denominator": 0,
+            "rate": null,
+            "wilson_95": null
+          },
+          "refund_or_credit_promise": {
+            "count": 0,
+            "denominator": 0,
+            "rate": null,
+            "wilson_95": null
+          }
+        },
+        "turn_latency": {
+          "p50_ms": null,
+          "p95_ms": null,
+          "case_bootstrap_95": null
+        },
+        "category_mix": {},
+        "rule_mix": {}
+      }
+    }
+  },
+  "slice_gaps": {
+    "language": {
+      "max_minus_min": 0.47058823529411764,
+      "over_5pp": true,
+      "interpretation": "Controlled, unequal category/rule composition; small cells are insufficient. No causal fairness or language claim and no tuning on these results."
+    },
+    "dialect": {
+      "max_minus_min": 0.47058823529411764,
+      "over_5pp": true,
+      "interpretation": "Controlled, unequal category/rule composition; small cells are insufficient. No causal fairness or language claim and no tuning on these results."
+    },
+    "country": {
+      "max_minus_min": 0.054230949041608245,
+      "over_5pp": true,
+      "interpretation": "Controlled, unequal category/rule composition; small cells are insufficient. No causal fairness or language claim and no tuning on these results."
+    },
+    "segment": {
+      "max_minus_min": 0.0847222222222222,
+      "over_5pp": true,
+      "interpretation": "Controlled, unequal category/rule composition; small cells are insufficient. No causal fairness or language claim and no tuning on these results."
+    }
+  }
+}
