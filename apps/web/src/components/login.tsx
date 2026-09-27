@@ -6,13 +6,23 @@ import { api } from "@/lib/client";
 import type { Role } from "@/lib/contracts";
 import { useApp } from "./workspace";
 import { Button } from "./ui/button";
-export function Login({ role }: { role: Role }) {
+export function Login({
+  role,
+  preferredUsername,
+}: {
+  role: Role;
+  preferredUsername?: string;
+}) {
   const t = useTranslations();
   const { config, signedIn, setLocale } = useApp();
   const choices = config.personas.filter(
     (p) => !config.fixtures || p.role === role,
   );
-  const [username, setUsername] = useState(choices[0]?.username ?? "");
+  const [username, setUsername] = useState(
+    choices.find((p) => p.username === preferredUsername)?.username ??
+      choices[0]?.username ??
+      "",
+  );
   const [password, setPassword] = useState(""),
     [otp, setOtp] = useState(""),
     [challenge, setChallenge] = useState(""),

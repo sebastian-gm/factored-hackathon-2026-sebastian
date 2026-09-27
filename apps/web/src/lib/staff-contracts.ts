@@ -1,7 +1,9 @@
 import { z } from "zod";
+import { traceEventSchema } from "./trace";
 import { handoffSchema } from "./contracts";
 
 export const personaSchema = z.object({
+  demo_stories: z.array(z.enum(["explain", "ambiguous", "fraud"])).optional(),
   username: z.string(),
   label: z.string(),
   role: z.enum(["customer", "agent", "ops"]),
@@ -43,27 +45,7 @@ export const traceSchema = z.object({
   conversation_id: z.string(),
   policy_version: z.string(),
   scope: z.literal("current_workspace"),
-  events: z.array(
-    z.object({
-      id: z.string(),
-      stage: z.enum(["Understand", "Decide", "Act", "Verify", "Escalate"]),
-      state: z.string(),
-      tool: z.string().nullable(),
-      rules: z.array(z.string()),
-      verified: z.boolean(),
-      llm: z
-        .object({
-          provider: z.string(),
-          model: z.string(),
-          prompt_version: z.string(),
-          input_tokens: z.number().int().nonnegative(),
-          output_tokens: z.number().int().nonnegative(),
-          cost_usd: z.number().nonnegative().nullable(),
-          latency_ms: z.number().nonnegative(),
-        })
-        .nullable(),
-    }),
-  ),
+  events: z.array(traceEventSchema),
 });
 export const metricsSchema = z.object({
   source: z.literal("current_workspace_operations"),

@@ -124,3 +124,24 @@ web container** with its configured server-side API URL. It checks `/healthz` an
 local fixture test verifies this probe; the Azure web-to-API hop is still unverified.
 Preserve owner-IP ingress and fix private connectivity through the lead's release
 process; this change does not authorize broader ingress.
+
+### Recording and call evidence
+
+Open **Preparar grabación / Preparar gravação** above the conversation. In fixture
+mode, sign in as the supplied Ops persona and choose **Restablecer demo y abrir ES**.
+The existing reset clears this browser workspace and is read back before opening
+the ES login. Use the ES, PT and fraud buttons in sequence; they preselect the
+persona and prepare the opening message. Password/OTP, sending, transaction choice
+and exact action confirmation remain explicit. **Abrir Agent Desk** prepares the
+staff login to inspect the same fixture handoff. No browser storage retains secrets.
+
+Ops shows each recorded provider/model/prompt, tokens, latency and precise USD cost,
+plus a conversation subtotal and unknown-cost count. It displays risk union and
+Grok fallback metadata when the staff API supplies the optional projection. Missing
+metadata is labeled unavailable. Fixture screenshots remain illustrative.
+
+Live recording retains the existing reset flags, OTP and workspace scope. Current
+cloud reset is disabled, and live story shortcuts need trusted persona bindings.
+See [the additive API proposal](API-PROPOSAL.md#handoff-11-recording-glass-box-additive-proposal-merge-freeze).
+No frontend fallback fabricates those fields or widens access. PRs stay open during
+the final-run merge freeze; no real model calls are needed to test these features.

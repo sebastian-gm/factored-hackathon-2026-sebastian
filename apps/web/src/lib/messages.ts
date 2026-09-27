@@ -1,4 +1,53 @@
 export const es = {
+  notRecorded: "No registrado",
+  flagYes: "Sí",
+  flagNo: "No",
+  tokens: "Tokens entrada / salida",
+  callCostLatency: "Costo / latencia",
+  callAttempt: "Intento / estado",
+  costUnknown: "Costo desconocido",
+  grokFallback: "Fallback Grok registrado",
+  grokObserved: "Llamada Grok registrada · ruta de fallback no disponible",
+  riskUnion: "Unión de señales de riesgo",
+  riskThreshold:
+    "Umbral Jev registrado: {threshold}. La unión es la decisión registrada del servidor.",
+  riskCue: "Señal",
+  riskFlag: "señal",
+  union: "Unión",
+  geminiProbabilityMissing:
+    "Gemini aporta indicadores booleanos, sin probabilidades por señal. — significa no disponible.",
+  riskDegraded: "Segunda opinión degradada",
+  lost_stolen: "Pérdida / robo",
+  regulator: "Regulador",
+  legal: "Acción legal",
+  distress: "Angustia",
+  injection_suspected: "Posible inyección",
+  human_requested: "Atención humana",
+  conversationCost: "Costo de esta conversación",
+  recordedCalls: "{count} llamadas registradas",
+  unknownCosts:
+    "{count, plural, one {# costo desconocido} other {# costos desconocidos}}",
+  partialCost:
+    "Subtotal conocido: hay costos pendientes. No es el total facturado.",
+  recordedCostOnly:
+    "Suma de los costos registrados, incluidos reintentos. Excluye infraestructura.",
+  riskUnavailable:
+    "La API actual no expone la unión de riesgo para esta conversación.",
+  recordingHelper: "Preparar grabación",
+  recordingBody:
+    "Ensaya las tres historias con personas y datos de prueba. Restablecer elimina las conversaciones de este espacio.",
+  recordingLive:
+    "La grabación en vivo usa las personas del banco. Los atajos de historias esperan sus asignaciones del servidor; el restablecimiento conserva los controles de OTP y confirmación.",
+  resetAndStart: "Restablecer demo y abrir ES",
+  recordingOpsLogin: "Entrar como Ops para restablecer",
+  recordingDesk: "Abrir Agent Desk",
+  recordingAuth:
+    "Cada cambio de persona conserva el acceso con contraseña y OTP. El mensaje queda preparado: tú decides cuándo enviarlo.",
+  recordingRequiresOps:
+    "Solo una identidad Ops autorizada puede iniciar el restablecimiento.",
+  recordingFailed:
+    "No se completó la preparación. Verifica el estado antes de continuar.",
+
   chat: "Mi conversación",
   desk: "Agent Desk",
   ops: "Ops · glass box",
@@ -207,6 +256,54 @@ export const es = {
     "Esta vista estará disponible cuando el servicio publique su contrato de agente y operaciones. La conversación de cliente ya está conectada.",
 };
 export const pt: typeof es = {
+  notRecorded: "Não registrado",
+  flagYes: "Sim",
+  flagNo: "Não",
+  tokens: "Tokens de entrada / saída",
+  callCostLatency: "Custo / latência",
+  callAttempt: "Tentativa / estado",
+  costUnknown: "Custo desconhecido",
+  grokFallback: "Fallback Grok registrado",
+  grokObserved: "Chamada Grok registrada · rota de fallback indisponível",
+  riskUnion: "União dos sinais de risco",
+  riskThreshold:
+    "Limiar Jev registrado: {threshold}. A união mostra a decisão registrada pelo servidor.",
+  riskCue: "Sinal",
+  riskFlag: "sinal",
+  union: "União",
+  geminiProbabilityMissing:
+    "Gemini fornece indicadores booleanos, sem probabilidades por sinal. — significa indisponível.",
+  riskDegraded: "Segunda opinião degradada",
+  lost_stolen: "Perda / roubo",
+  regulator: "Órgão regulador",
+  legal: "Ação judicial",
+  distress: "Angústia",
+  injection_suspected: "Possível injeção",
+  human_requested: "Atendimento humano",
+  conversationCost: "Custo desta conversa",
+  recordedCalls: "{count} chamadas registradas",
+  unknownCosts:
+    "{count, plural, one {# custo desconhecido} other {# custos desconhecidos}}",
+  partialCost:
+    "Subtotal conhecido: há custos pendentes. Não é o total faturado.",
+  recordedCostOnly:
+    "Soma dos custos registrados, incluindo novas tentativas. Exclui infraestrutura.",
+  riskUnavailable: "A API atual não expõe a união de risco desta conversa.",
+  recordingHelper: "Preparar gravação",
+  recordingBody:
+    "Ensaie as três histórias com pessoas e dados de teste. Redefinir apaga as conversas deste espaço.",
+  recordingLive:
+    "A gravação ao vivo usa as pessoas do banco. Os atalhos aguardam as atribuições do servidor; a redefinição mantém OTP e confirmação.",
+  resetAndStart: "Redefinir demo e abrir ES",
+  recordingOpsLogin: "Entrar como Ops para redefinir",
+  recordingDesk: "Abrir Agent Desk",
+  recordingAuth:
+    "Cada troca de pessoa mantém senha e OTP. A mensagem fica pronta: você decide quando enviar.",
+  recordingRequiresOps:
+    "Somente uma identidade Ops autorizada pode iniciar a redefinição.",
+  recordingFailed:
+    "A preparação não foi concluída. Confira o estado antes de continuar.",
+
   chat: "Minha conversa",
   desk: "Agent Desk",
   ops: "Ops · glass box",
