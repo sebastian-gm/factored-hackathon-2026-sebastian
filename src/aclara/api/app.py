@@ -34,7 +34,7 @@ from aclara.agent.nlu import (
 from aclara.agent.nlu.structured import NormalizedSlots
 from aclara.agent.runtime import InjectedFailure, Runtime
 from aclara.agent.selection import candidates as identified_candidates
-from aclara.agent.selection import explicit_choice, uncertain
+from aclara.agent.selection import explicit_choice, scoped_inquiry_language, uncertain
 from aclara.api.staff import complete_packet, install_staff
 from aclara.api.staff_contracts import IdentityView
 from aclara.api.workflows import (
@@ -518,7 +518,7 @@ def create_app(
                 result = safe_failure(principal, classify(body.message).language)
             app.state.runtime.record("response", response_type=result["response_type"])
             conversation = app.state.conversations.get(conversation_id)
-            complete_packet(app, result, principal, conversation_id)
+            complete_packet(app, result, principal, conversation_id, body.message)
             if conversation and result.get("handoff"):
                 conversation.proposal = None
                 conversation.candidates = []
@@ -536,7 +536,7 @@ def create_app(
                 if (
                     not record
                     or record["transaction_handle"] != result["case"]["transaction_handle"]
-                    or record["status"] != "received"
+                    or record["status"] != result["case"]["status"]
                 ):
                     raise HTTPException(
                         status_code=503, detail="Durable read-back verification failed"
@@ -668,12 +668,12 @@ def create_app(
                 "policy_rules": ["ESC-04"],
             }
         normalized_message = normalize_text(body.message)
-        if re.search(
+        requested = re.search(r"DSP-[A-Za-z0-9-]+", body.message, re.IGNORECASE)
+        if requested or re.search(
             r"(estado|status|andamento).{0,30}(caso|disputa|contestacion|contestacao)|(mi caso|minha contestacao)",
             normalized_message,
         ):
             cases = list(app.state.cases.values())
-            requested = re.search(r"DSP-[A-Za-z0-9-]+", body.message, re.IGNORECASE)
             if requested:
                 cases = [
                     c for c in cases if c["case_id"].casefold() == requested.group().casefold()
@@ -751,6 +751,15 @@ def create_app(
                             "Pode esclarecer o idioma, valor, moeda ou data?",
                         ),
                     }
+        if frame.intent == Intent.OUT_OF_SCOPE and not conversation.candidates:
+            contextual_language = scoped_inquiry_language(
+                body.message, ledger.for_customer(principal.customer_id, active_settings.bank_clock)
+            )
+            if contextual_language:
+                frame = frame.model_copy(
+                    update={"intent": Intent.CHARGE_INQUIRY, "language": contextual_language}
+                )
+                app.state.runtime.record("scoped_status_context")
         language = conversation.language if conversation.candidates else frame.language
         conversation.language = language
 
@@ -969,7 +978,7 @@ def create_app(
                 if (
                     not record
                     or record["transaction_handle"] != result["case"]["transaction_handle"]
-                    or record["status"] != "received"
+                    or record["status"] != result["case"]["status"]
                 ):
                     raise HTTPException(
                         status_code=503, detail="Durable read-back verification failed"

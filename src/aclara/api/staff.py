@@ -12,6 +12,7 @@ from typing import Any
 from fastapi import Depends, FastAPI, HTTPException
 
 from aclara.agent.contracts import HandoffView
+from aclara.agent.nlg.grounding import redact_for_model, scan_dlp
 from aclara.api.staff_contracts import (
     DeskPacket,
     OpsView,
@@ -26,12 +27,17 @@ from aclara.api.staff_contracts import (
 )
 from aclara.ops.store import Scope
 from aclara.policy.rules import catalog
+from aclara.policy.rules.guards import cross_customer, injection
 
 OPERATIONS = ("cases", "card_states", "handoffs", "conversations", "turns", "execution_records")
 
 
 def complete_packet(
-    app: FastAPI, result: dict[str, Any], principal: Any, conversation_id: str | None = None
+    app: FastAPI,
+    result: dict[str, Any],
+    principal: Any,
+    conversation_id: str | None = None,
+    message: str | None = None,
 ) -> None:
     if not result.get("handoff"):
         return
@@ -40,16 +46,25 @@ def complete_packet(
     language = packet["route"]["language"]
     if conversation_id is None:
         conversation_id = next(iter(app.state.conversations), None)
+    conversation = app.state.conversations.get(conversation_id) if conversation_id else None
+    preferred = conversation.language if conversation else language
+    statements = packet.get("customer_statements", [])
+    if message and not cross_customer(message) and not injection(message):
+        masked = redact_for_model(message)[:240]
+        if not scan_dlp(masked) and not any(
+            t in masked.casefold() for t in ("fraud_score", "is_fraud", "score", "puntua", "pontua")
+        ):
+            statements = [{"quote": masked, "verified": False, "source": "customer_message"}]
     packet.update(
         {
             "conversation_id": conversation_id,
             "customer": {
                 "handle": "customer_current",
                 "display_name_masked": "Cliente demo",
-                "preferred_language": language,
+                "preferred_language": preferred,
                 "auth": {"amr": ["pwd", "otp"], "otp_at": principal.otp_at.isoformat()},
             },
-            "customer_statements": [],
+            "customer_statements": statements,
             "policy_evaluations": [
                 {"rule_id": reason, "policy_version": catalog()[0], "outcome": "escalate"}
                 for reason in packet["reason_codes"]

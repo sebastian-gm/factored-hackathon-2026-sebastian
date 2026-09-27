@@ -53,3 +53,21 @@ def candidates(
     # scoped ledger happens to contain only one row.
     needs_choice = uncertain(text) or (not merchants and amount is None)
     return selected, needs_choice
+
+
+def scoped_inquiry_language(text: str, rows: list[tuple[str, Transaction]]) -> str | None:
+    """Recover a status inquiry from owned ledger context, never a dispute intent."""
+    value = normalize_text(text)
+    if re.search(r"\b(saldo|balance|prestamo|emprestimo|inversion|investimento|hipoteca)\b", value):
+        return None
+    if not any(
+        r.merchant_name != "—" and normalize_text(r.merchant_name) in value for _, r in rows
+    ):
+        return None
+    if re.search(r"\b(pendente|estornad[ao]|recusad[ao]|lancamento|autorizacao)\b", value):
+        return "pt"
+    if re.search(
+        r"\b(estado|pendiente|reversad[ao]|rechazad[ao]|movimiento|autorizacion)\b", value
+    ):
+        return "es"
+    return None
