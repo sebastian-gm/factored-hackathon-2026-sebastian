@@ -1,5 +1,40 @@
 # Progress log
 
+## 2026-09-27 — Handoff 13 Step 1: accepted behavior specification
+
+### Completed (verified)
+
+- Routine merges finished: #46 analysis at `7914022`, then #45 reviewed wording
+  at **`4470ba4957c7f90f54ac28e887bc3119ed99a02e`**. Each exact PR head passed
+  all four CI checks before merge. Only A20/W02 wording was applied; local
+  `make checks` passed (174 tests / 13 skips, B1 32/32).
+- Read handoff 13 fully. Wrote [ADR-0015](../adr/0015-post-v2-conversation-and-policy-contract.md)
+  and the [normative v3 behavior contract](../../contracts/interfaces/conversation-policy-v3.md)
+  before behavioral code changes: nonterminal explanation/dispute offer,
+  recognition/denial transitions, SAR, multi-reason handoffs, cross-customer
+  actions, business-date age, and type/data rule precedence.
+- Independently calculated the worked boundary: bank date 2026-06-17 minus
+  84/85 days gives 2026-03-25/2026-03-24. Document links, whitespace and staged
+  safety checks are checked before committing this specification.
+- Orchestrator identified confirmation freeze PR #47, `0692881`, with log
+  commit `857228e`, authored before fixes. Its rows have not been opened here.
+
+### Done but not verified
+
+- This is an accepted specification, not a claim that Step 3 is implemented.
+  Runtime schemas will be regenerated with the additive interface changes.
+- Prompt v5/NLG/dev integration is still being prepared by the AI lane on
+  `feat/ai-explain-offer-v5`; it waits for this contract's merged SHA.
+
+### Next / blocked
+
+- Merge this specification with green CI and report its exact SHA immediately
+  so the independent lane can author v3. Merge #47 after its remaining CI passes.
+- Implement lead Step 3 on dev only, using `dev-gate/after-v2` for any approved
+  real calls (new $1 cap). Never rerun v2 held-out cases or open suite-v3 rows.
+  Keep official v2 outputs unchanged; saved-slice reporting corrections must be
+  separate, disclosed artifacts. No release/v3 run before Sebastian's later go.
+
 ## 2026-09-27 — Routine post-v2 merges and accepted pt-BR wording
 
 ### Completed (verified)
