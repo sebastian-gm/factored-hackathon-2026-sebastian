@@ -1,0 +1,9 @@
+name: aclara_data
+version: 1.0.0
+config-version: 2
+profile: aclara_data
+model-paths: [models]
+test-paths: [tests]
+models:
+  aclara_data:
+    +materialized: table

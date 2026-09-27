@@ -1,0 +1,18 @@
+{
+  "lightgbm": {
+    "cost_difference_vs_rules": -0.148,
+    "customer_clustered_95_ci": [
+      -0.19208010109397175,
+      -0.10385692018958553
+    ],
+    "resamples": 1000
+  },
+  "logistic": {
+    "cost_difference_vs_rules": -0.22166666666666668,
+    "customer_clustered_95_ci": [
+      -0.27330867489318195,
+      -0.16777418521920653
+    ],
+    "resamples": 1000
+  }
+}

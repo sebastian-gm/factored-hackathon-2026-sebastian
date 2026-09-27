@@ -1,0 +1,2 @@
+event_id,event_date,process_date,customer_id,session_id,event_type,event_category,channel,platform,browser,app_version,page_url,page_title,action,element_id,product_id,event_value,duration_seconds,ip_address,ip_country,ip_city,is_mobile,referrer,utm_source,utm_medium,utm_campaign
+fixture-event_id,2026-06-14T12:00:00Z,2026-06-14,fixture-customer-a,fixture-session_id,Error,fixture-event_category,Android App,,,,,,view_transactions,,fixture-product-a,,,,,,true,,,,

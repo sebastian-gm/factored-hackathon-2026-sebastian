@@ -1,0 +1,1478 @@
+{
+  "accent_test": {
+    "native": [
+      {
+        "accent_match": false,
+        "contacts": 297805,
+        "csat_n": 55348,
+        "fcr": 0.7665082856231427,
+        "mean_csat": 2.765176700151767
+      },
+      {
+        "accent_match": true,
+        "contacts": 183741,
+        "csat_n": 34340,
+        "fcr": 0.7669055899336567,
+        "mean_csat": 2.7663075131042514
+      }
+    ],
+    "used": [
+      {
+        "accent_match": false,
+        "contacts": 89507,
+        "csat_n": 16616,
+        "fcr": 0.7659065771392182,
+        "mean_csat": 2.7618560423688012
+      },
+      {
+        "accent_match": true,
+        "contacts": 392039,
+        "csat_n": 73072,
+        "fcr": 0.7668318713189249,
+        "mean_csat": 2.766463214363915
+      }
+    ]
+  },
+  "agents": {
+    "active_digital_pt_fraud": 2,
+    "active_pt_fraud": 7,
+    "complaints": 78,
+    "fraud": 105,
+    "portuguese": 129,
+    "total": 1200
+  },
+  "app_error_contact": [
+    {
+      "contact_rate": 0.008489005349401665,
+      "events": 1159382,
+      "followed_by_contact": 9842,
+      "is_error": false
+    },
+    {
+      "contact_rate": 0.008583866140661135,
+      "events": 73510,
+      "followed_by_contact": 631,
+      "is_error": true
+    }
+  ],
+  "bank_clock": "2026-06-18T06:00:00+00:00",
+  "bronze_objects_copied": 0,
+  "build_fingerprint": "93f3be3456c085dd18082dda4d2ee98b7d967b270bbaaecf668812f24f90c2e2",
+  "candidate_counts": {
+    "customers": 150000,
+    "maximum": 28,
+    "p50": 3.0,
+    "p90": 7.0,
+    "transactions": 492414,
+    "zero_customers": 26561
+  },
+  "channel_type_counts": [
+    {
+      "channel": "ATM",
+      "n": 39590,
+      "transaction_type": "Adjustment"
+    },
+    {
+      "channel": "ATM",
+      "n": 182775,
+      "transaction_type": "Deposit"
+    },
+    {
+      "channel": "ATM",
+      "n": 221647,
+      "transaction_type": "Payment"
+    },
+    {
+      "channel": "ATM",
+      "n": 325993,
+      "transaction_type": "Purchase"
+    },
+    {
+      "channel": "ATM",
+      "n": 268811,
+      "transaction_type": "Transfer"
+    },
+    {
+      "channel": "ATM",
+      "n": 289518,
+      "transaction_type": "Withdrawal"
+    },
+    {
+      "channel": "App",
+      "n": 19734,
+      "transaction_type": "Adjustment"
+    },
+    {
+      "channel": "App",
+      "n": 91446,
+      "transaction_type": "Deposit"
+    },
+    {
+      "channel": "App",
+      "n": 110413,
+      "transaction_type": "Payment"
+    },
+    {
+      "channel": "App",
+      "n": 162618,
+      "transaction_type": "Purchase"
+    },
+    {
+      "channel": "App",
+      "n": 134801,
+      "transaction_type": "Transfer"
+    },
+    {
+      "channel": "App",
+      "n": 144402,
+      "transaction_type": "Withdrawal"
+    },
+    {
+      "channel": "Branch",
+      "n": 3978,
+      "transaction_type": "Adjustment"
+    },
+    {
+      "channel": "Branch",
+      "n": 18388,
+      "transaction_type": "Deposit"
+    },
+    {
+      "channel": "Branch",
+      "n": 22064,
+      "transaction_type": "Payment"
+    },
+    {
+      "channel": "Branch",
+      "n": 32314,
+      "transaction_type": "Purchase"
+    },
+    {
+      "channel": "Branch",
+      "n": 26914,
+      "transaction_type": "Transfer"
+    },
+    {
+      "channel": "Branch",
+      "n": 28837,
+      "transaction_type": "Withdrawal"
+    },
+    {
+      "channel": "POS",
+      "n": 46268,
+      "transaction_type": "Adjustment"
+    },
+    {
+      "channel": "POS",
+      "n": 213678,
+      "transaction_type": "Deposit"
+    },
+    {
+      "channel": "POS",
+      "n": 258573,
+      "transaction_type": "Payment"
+    },
+    {
+      "channel": "POS",
+      "n": 378515,
+      "transaction_type": "Purchase"
+    },
+    {
+      "channel": "POS",
+      "n": 313434,
+      "transaction_type": "Transfer"
+    },
+    {
+      "channel": "POS",
+      "n": 337693,
+      "transaction_type": "Withdrawal"
+    },
+    {
+      "channel": "Transfer",
+      "n": 2701,
+      "transaction_type": "Adjustment"
+    },
+    {
+      "channel": "Transfer",
+      "n": 12217,
+      "transaction_type": "Deposit"
+    },
+    {
+      "channel": "Transfer",
+      "n": 15052,
+      "transaction_type": "Payment"
+    },
+    {
+      "channel": "Transfer",
+      "n": 21697,
+      "transaction_type": "Purchase"
+    },
+    {
+      "channel": "Transfer",
+      "n": 18026,
+      "transaction_type": "Transfer"
+    },
+    {
+      "channel": "Transfer",
+      "n": 19466,
+      "transaction_type": "Withdrawal"
+    },
+    {
+      "channel": "Web",
+      "n": 19847,
+      "transaction_type": "Adjustment"
+    },
+    {
+      "channel": "Web",
+      "n": 90905,
+      "transaction_type": "Deposit"
+    },
+    {
+      "channel": "Web",
+      "n": 111215,
+      "transaction_type": "Payment"
+    },
+    {
+      "channel": "Web",
+      "n": 162269,
+      "transaction_type": "Purchase"
+    },
+    {
+      "channel": "Web",
+      "n": 134452,
+      "transaction_type": "Transfer"
+    },
+    {
+      "channel": "Web",
+      "n": 144757,
+      "transaction_type": "Withdrawal"
+    }
+  ],
+  "checks": [
+    {
+      "blocks_promotion": false,
+      "id": "STRUCT-customers-invalid",
+      "observed": 0,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "fail",
+      "status": "PASS",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "STRUCT-customers-pk",
+      "observed": 0,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "fail",
+      "status": "PASS",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "SCHEMA-customers-extra",
+      "observed": 0,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "warn",
+      "status": "PASS",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "VOLUME-customers",
+      "observed": 0,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "warn",
+      "status": "PASS",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "STRUCT-products-invalid",
+      "observed": 0,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "fail",
+      "status": "PASS",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "STRUCT-products-pk",
+      "observed": 0,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "fail",
+      "status": "PASS",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "SCHEMA-products-extra",
+      "observed": 0,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "warn",
+      "status": "PASS",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "VOLUME-products",
+      "observed": 0,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "warn",
+      "status": "PASS",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "FK-products-customer",
+      "observed": 0,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "fail",
+      "status": "PASS",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "STRUCT-transactions-invalid",
+      "observed": 0,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "fail",
+      "status": "PASS",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "STRUCT-transactions-pk",
+      "observed": 0,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "fail",
+      "status": "PASS",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "SCHEMA-transactions-extra",
+      "observed": 0,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "warn",
+      "status": "PASS",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "VOLUME-transactions",
+      "observed": 574992,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "warn",
+      "status": "WARN",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "FK-transactions-customer",
+      "observed": 0,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "fail",
+      "status": "PASS",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "STRUCT-daily_exchange_rates-invalid",
+      "observed": 0,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "fail",
+      "status": "PASS",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "STRUCT-daily_exchange_rates-pk",
+      "observed": 0,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "fail",
+      "status": "PASS",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "SCHEMA-daily_exchange_rates-extra",
+      "observed": 0,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "warn",
+      "status": "PASS",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "VOLUME-daily_exchange_rates",
+      "observed": 10164,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "warn",
+      "status": "WARN",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "STRUCT-service_agents-invalid",
+      "observed": 0,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "fail",
+      "status": "PASS",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "STRUCT-service_agents-pk",
+      "observed": 0,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "fail",
+      "status": "PASS",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "SCHEMA-service_agents-extra",
+      "observed": 0,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "warn",
+      "status": "PASS",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "VOLUME-service_agents",
+      "observed": 0,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "warn",
+      "status": "PASS",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "STRUCT-complaints-invalid",
+      "observed": 0,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "fail",
+      "status": "PASS",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "STRUCT-complaints-pk",
+      "observed": 0,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "fail",
+      "status": "PASS",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "SCHEMA-complaints-extra",
+      "observed": 0,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "warn",
+      "status": "PASS",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "VOLUME-complaints",
+      "observed": 12905,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "warn",
+      "status": "WARN",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "FK-complaints-customer",
+      "observed": 0,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "fail",
+      "status": "PASS",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "STRUCT-call_center_interactions-invalid",
+      "observed": 0,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "fail",
+      "status": "PASS",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "STRUCT-call_center_interactions-pk",
+      "observed": 0,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "fail",
+      "status": "PASS",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "SCHEMA-call_center_interactions-extra",
+      "observed": 0,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "warn",
+      "status": "PASS",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "VOLUME-call_center_interactions",
+      "observed": 113704,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "warn",
+      "status": "WARN",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "FK-call_center_interactions-customer",
+      "observed": 0,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "fail",
+      "status": "PASS",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "STRUCT-satisfaction_surveys-invalid",
+      "observed": 0,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "fail",
+      "status": "PASS",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "STRUCT-satisfaction_surveys-pk",
+      "observed": 0,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "fail",
+      "status": "PASS",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "SCHEMA-satisfaction_surveys-extra",
+      "observed": 0,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "warn",
+      "status": "PASS",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "VOLUME-satisfaction_surveys",
+      "observed": 37241,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "warn",
+      "status": "WARN",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "FK-satisfaction_surveys-customer",
+      "observed": 0,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "fail",
+      "status": "PASS",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "STRUCT-call_transcripts-invalid",
+      "observed": 0,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "fail",
+      "status": "PASS",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "STRUCT-call_transcripts-pk",
+      "observed": 0,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "fail",
+      "status": "PASS",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "SCHEMA-call_transcripts-extra",
+      "observed": 0,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "warn",
+      "status": "PASS",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "VOLUME-call_transcripts",
+      "observed": 28679,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "warn",
+      "status": "WARN",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "FK-call_transcripts-customer",
+      "observed": 0,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "fail",
+      "status": "PASS",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "STRUCT-digital_events-invalid",
+      "observed": 0,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "fail",
+      "status": "PASS",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "STRUCT-digital_events-pk",
+      "observed": 0,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "fail",
+      "status": "PASS",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "SCHEMA-digital_events-extra",
+      "observed": 0,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "warn",
+      "status": "PASS",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "VOLUME-digital_events",
+      "observed": 5620994,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "warn",
+      "status": "WARN",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "FK-digital_events-customer",
+      "observed": 0,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "fail",
+      "status": "PASS",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "FK-transactions-product",
+      "observed": 0,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "fail",
+      "status": "PASS",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "OWNER-transactions",
+      "observed": 0,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "fail",
+      "status": "PASS",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "FK-call_center_interactions-agent",
+      "observed": 0,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "fail",
+      "status": "PASS",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "FK-complaints-agent",
+      "observed": 0,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "fail",
+      "status": "PASS",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "FK-call_transcripts-agent",
+      "observed": 0,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "fail",
+      "status": "PASS",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "FK-satisfaction_surveys-agent",
+      "observed": 0,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "fail",
+      "status": "PASS",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "FK-call_transcripts-interaction",
+      "observed": 0,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "fail",
+      "status": "PASS",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "FK-satisfaction_surveys-interaction",
+      "observed": 0,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "fail",
+      "status": "PASS",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "OWNER-complaints-affected-product",
+      "observed": 44570,
+      "owner": "data-ml",
+      "scope": "excluded_field:complaints.affected_product_id",
+      "severity": "fail",
+      "status": "FAIL",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "DATE-business-offset",
+      "observed": 51,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "warn",
+      "status": "WARN",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "DATE-before-product-open",
+      "observed": 827610,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "warn",
+      "status": "WARN",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "DATE-customers-future-update",
+      "observed": 9301,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "warn",
+      "status": "WARN",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "DATE-products-future-update",
+      "observed": 25079,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "warn",
+      "status": "WARN",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "CURRENCY-mx-usd",
+      "observed": 2216431,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "warn",
+      "status": "WARN",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "DUP-products-number",
+      "observed": 6,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "warn",
+      "status": "WARN",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "DUP-transactions-near",
+      "observed": 0,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "warn",
+      "status": "PASS",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "FX-missing-prior-rate",
+      "observed": 0,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "fail",
+      "status": "PASS",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "FX-nearest-prior",
+      "observed": 0,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "warn",
+      "status": "PASS",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "FX-source-usd-gap",
+      "observed": 1782670,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "warn",
+      "status": "WARN",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "TEXT-transcript-placeholders",
+      "observed": 171321,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "warn",
+      "status": "WARN",
+      "threshold": 0
+    },
+    {
+      "blocks_promotion": false,
+      "id": "SCHEMA-transcript-duration-null",
+      "observed": 24029,
+      "owner": "data-ml",
+      "scope": "snapshot",
+      "severity": "warn",
+      "status": "WARN",
+      "threshold": 0
+    }
+  ],
+  "complaint_channels": [
+    {
+      "n": 33761,
+      "reception_channel": "Call Center"
+    },
+    {
+      "n": 13323,
+      "reception_channel": "Email"
+    },
+    {
+      "n": 9884,
+      "reception_channel": "Web"
+    },
+    {
+      "n": 6727,
+      "reception_channel": "App"
+    },
+    {
+      "n": 2683,
+      "reception_channel": "Branch"
+    },
+    {
+      "n": 717,
+      "reception_channel": "Regulator"
+    }
+  ],
+  "complaint_mix": [
+    {
+      "category": "Transactions",
+      "mean_resolution_calendar_days": 15.357442348008385,
+      "n": 12297,
+      "resolution_days_n": 2862,
+      "sla_breach_share": 0.20387086281206798,
+      "subcategory": "Cargo no reconocido"
+    },
+    {
+      "category": "Fees",
+      "mean_resolution_calendar_days": 15.605939876856212,
+      "n": 12194,
+      "resolution_days_n": 2761,
+      "sla_breach_share": 0.19936034115138593,
+      "subcategory": "Cobro indebido"
+    },
+    {
+      "category": "Technical",
+      "mean_resolution_calendar_days": 15.529027576197388,
+      "n": 12128,
+      "resolution_days_n": 2756,
+      "sla_breach_share": 0.20028034300791556,
+      "subcategory": "Problema con app"
+    },
+    {
+      "category": "Branch",
+      "mean_resolution_calendar_days": 15.617388114453412,
+      "n": 11892,
+      "resolution_days_n": 2726,
+      "sla_breach_share": 0.20358224016145307,
+      "subcategory": "Atenci\u00f3n en sucursal"
+    },
+    {
+      "category": "Service",
+      "mean_resolution_calendar_days": 15.867952522255193,
+      "n": 11886,
+      "resolution_days_n": 2696,
+      "sla_breach_share": 0.20292781423523473,
+      "subcategory": "Calidad de servicio"
+    },
+    {
+      "category": "Branch",
+      "mean_resolution_calendar_days": 15.412103746397694,
+      "n": 1469,
+      "resolution_days_n": 347,
+      "sla_breach_share": 0.20626276378488767,
+      "subcategory": null
+    },
+    {
+      "category": "Fees",
+      "mean_resolution_calendar_days": 15.240506329113924,
+      "n": 1359,
+      "resolution_days_n": 316,
+      "sla_breach_share": 0.18322295805739514,
+      "subcategory": null
+    },
+    {
+      "category": "Service",
+      "mean_resolution_calendar_days": 15.849180327868853,
+      "n": 1308,
+      "resolution_days_n": 305,
+      "sla_breach_share": 0.19801223241590213,
+      "subcategory": null
+    },
+    {
+      "category": "Transactions",
+      "mean_resolution_calendar_days": 15.963696369636963,
+      "n": 1283,
+      "resolution_days_n": 303,
+      "sla_breach_share": 0.18082618862042088,
+      "subcategory": null
+    },
+    {
+      "category": "Technical",
+      "mean_resolution_calendar_days": 16.006872852233677,
+      "n": 1279,
+      "resolution_days_n": 291,
+      "sla_breach_share": 0.1970289288506646,
+      "subcategory": null
+    }
+  ],
+  "complaint_ownership": {
+    "joinable": 44570,
+    "mismatched": 44570,
+    "owned": 0
+  },
+  "contact_channels": [
+    {
+      "channel": "Phone",
+      "n": 583250
+    },
+    {
+      "channel": "Email",
+      "n": 27543
+    },
+    {
+      "channel": "App",
+      "n": 26364
+    },
+    {
+      "channel": "WhatsApp",
+      "n": 22888
+    },
+    {
+      "channel": "Web Chat",
+      "n": 22856
+    },
+    {
+      "channel": "Web",
+      "n": 3395
+    }
+  ],
+  "contact_reasons": [
+    {
+      "contact_reason": "Transaccional",
+      "escalation_share": 0.09931432665711334,
+      "fcr": 0.9150823141267038,
+      "fcr_denominator": 240056,
+      "handle_time_share": 0.2403443102596888,
+      "mean_duration_seconds": 220.8028237231492,
+      "mean_wait_seconds": 119.65022549591251,
+      "n": 240056,
+      "volume_share": 0.34978493244897246
+    },
+    {
+      "contact_reason": "Producto",
+      "escalation_share": 0.09956715695697421,
+      "fcr": 0.8962634973452736,
+      "fcr_denominator": 150863,
+      "handle_time_share": 0.18207070724111804,
+      "mean_duration_seconds": 266.38199993829255,
+      "mean_wait_seconds": 119.96317583562163,
+      "n": 150863,
+      "volume_share": 0.21982205928637205
+    },
+    {
+      "contact_reason": "Queja",
+      "escalation_share": 0.10026405516958495,
+      "fcr": 0.43599866690593997,
+      "fcr_denominator": 117021,
+      "handle_time_share": 0.23079389360433955,
+      "mean_duration_seconds": 434.6059149979648,
+      "mean_wait_seconds": 119.98211789304774,
+      "n": 117021,
+      "volume_share": 0.1705109748563302
+    },
+    {
+      "contact_reason": "T\u00e9cnico",
+      "escalation_share": 0.10074927841864352,
+      "fcr": 0.699316805799862,
+      "fcr_denominator": 102899,
+      "handle_time_share": 0.16817120680745704,
+      "mean_duration_seconds": 360.46237555512863,
+      "mean_wait_seconds": 120.18458054297385,
+      "n": 102899,
+      "volume_share": 0.14993384778579505
+    },
+    {
+      "contact_reason": "Comercial",
+      "escalation_share": 0.09836185061681153,
+      "fcr": 0.6520891415659906,
+      "fcr_denominator": 54879,
+      "handle_time_share": 0.134022959907994,
+      "mean_duration_seconds": 539.9350494881271,
+      "mean_wait_seconds": 120.20650529500756,
+      "n": 54879,
+      "volume_share": 0.07996403884038374
+    },
+    {
+      "contact_reason": "Retenci\u00f3n",
+      "escalation_share": 0.09845466031684323,
+      "fcr": 0.6016133735056857,
+      "fcr_denominator": 20578,
+      "handle_time_share": 0.044596922179402546,
+      "mean_duration_seconds": 479.23970313296695,
+      "mean_wait_seconds": 120.88079883503224,
+      "n": 20578,
+      "volume_share": 0.02998414678214648
+    }
+  ],
+  "csat_by_resolution": [
+    {
+      "max_score": 3,
+      "mean_score": 2.003199466755541,
+      "min_score": 1,
+      "n": 30005,
+      "was_resolved": false
+    },
+    {
+      "max_score": 4,
+      "mean_score": 2.9989167203196696,
+      "min_score": 2,
+      "n": 97851,
+      "was_resolved": true
+    }
+  ],
+  "currency_counts": [
+    {
+      "currency": "ARS",
+      "n": 792585
+    },
+    {
+      "currency": "COP",
+      "n": 1194444
+    },
+    {
+      "currency": "USD",
+      "n": 2437979
+    }
+  ],
+  "dataset_version": "b86f445cb468332bde984a788ef24f72f7070952b2d9292e0259e7b8f36397c9",
+  "day_of_week": [
+    {
+      "contacts_per_observed_day": 613.9363057324841,
+      "n": 96388,
+      "observed_days": 157,
+      "weekday": 1
+    },
+    {
+      "contacts_per_observed_day": 731.171974522293,
+      "n": 114794,
+      "observed_days": 157,
+      "weekday": 2
+    },
+    {
+      "contacts_per_observed_day": 730.8025477707006,
+      "n": 114736,
+      "observed_days": 157,
+      "weekday": 3
+    },
+    {
+      "contacts_per_observed_day": 721.1210191082803,
+      "n": 113216,
+      "observed_days": 157,
+      "weekday": 4
+    },
+    {
+      "contacts_per_observed_day": 726.3717948717949,
+      "n": 113314,
+      "observed_days": 156,
+      "weekday": 5
+    },
+    {
+      "contacts_per_observed_day": 485.20382165605093,
+      "n": 76177,
+      "observed_days": 157,
+      "weekday": 6
+    },
+    {
+      "contacts_per_observed_day": 367.3312101910828,
+      "n": 57671,
+      "observed_days": 157,
+      "weekday": 7
+    }
+  ],
+  "foreign_transactions": 202800,
+  "fraud_thresholds": [
+    {
+      "flagged": 356055,
+      "labeled_fraud": 2484,
+      "threshold": 27,
+      "total": 4425008,
+      "window_flagged": 39530,
+      "window_n": 492414
+    },
+    {
+      "flagged": 2373,
+      "labeled_fraud": 2373,
+      "threshold": 30,
+      "total": 4425008,
+      "window_flagged": 254,
+      "window_n": 492414
+    }
+  ],
+  "fx": {
+    "comparable": 1887552,
+    "differs_over_one_cent": 1782670,
+    "disputable_usd_quantiles": [
+      319.49009412000004,
+      471.82,
+      1264.3980000000029,
+      1632.239944514,
+      1926.6737518634004
+    ],
+    "mean_relative_gap": 0.010077139556672094
+  },
+  "hour_of_day": [
+    {
+      "n": 28527,
+      "utc_hour": 0
+    },
+    {
+      "n": 28541,
+      "utc_hour": 1
+    },
+    {
+      "n": 28270,
+      "utc_hour": 2
+    },
+    {
+      "n": 28878,
+      "utc_hour": 3
+    },
+    {
+      "n": 28465,
+      "utc_hour": 4
+    },
+    {
+      "n": 28699,
+      "utc_hour": 5
+    },
+    {
+      "n": 28516,
+      "utc_hour": 6
+    },
+    {
+      "n": 28415,
+      "utc_hour": 7
+    },
+    {
+      "n": 28625,
+      "utc_hour": 8
+    },
+    {
+      "n": 28573,
+      "utc_hour": 9
+    },
+    {
+      "n": 28664,
+      "utc_hour": 10
+    },
+    {
+      "n": 28614,
+      "utc_hour": 11
+    },
+    {
+      "n": 28634,
+      "utc_hour": 12
+    },
+    {
+      "n": 28632,
+      "utc_hour": 13
+    },
+    {
+      "n": 28542,
+      "utc_hour": 14
+    },
+    {
+      "n": 28401,
+      "utc_hour": 15
+    },
+    {
+      "n": 28644,
+      "utc_hour": 16
+    },
+    {
+      "n": 29081,
+      "utc_hour": 17
+    },
+    {
+      "n": 28545,
+      "utc_hour": 18
+    },
+    {
+      "n": 28679,
+      "utc_hour": 19
+    },
+    {
+      "n": 28767,
+      "utc_hour": 20
+    },
+    {
+      "n": 28444,
+      "utc_hour": 21
+    },
+    {
+      "n": 28310,
+      "utc_hour": 22
+    },
+    {
+      "n": 28830,
+      "utc_hour": 23
+    }
+  ],
+  "manifest_status_counts": {
+    "changed": 0,
+    "new": 0,
+    "removed": 0,
+    "unchanged": 6586
+  },
+  "max_business_date": "2026-06-17",
+  "pending_window": {
+    "n": 9923,
+    "over_14_days": 8744
+  },
+  "pipeline_version": "d52ba0e",
+  "tables": {
+    "call_center_interactions": {
+      "documented_rows": 800000,
+      "duplicate_primary_keys": 0,
+      "files": 1097,
+      "invalid_rows": 0,
+      "missing_required_files": 0,
+      "rebuilt_objects": 0,
+      "rows": 686296,
+      "unknown_column_files": 0
+    },
+    "call_transcripts": {
+      "documented_rows": 200000,
+      "duplicate_primary_keys": 0,
+      "files": 1097,
+      "invalid_rows": 0,
+      "missing_required_files": 0,
+      "rebuilt_objects": 0,
+      "rows": 171321,
+      "unknown_column_files": 0
+    },
+    "complaints": {
+      "documented_rows": 80000,
+      "duplicate_primary_keys": 0,
+      "files": 1097,
+      "invalid_rows": 0,
+      "missing_required_files": 0,
+      "rebuilt_objects": 0,
+      "rows": 67095,
+      "unknown_column_files": 0
+    },
+    "customers": {
+      "documented_rows": 150000,
+      "duplicate_primary_keys": 0,
+      "files": 1,
+      "invalid_rows": 0,
+      "missing_required_files": 0,
+      "rebuilt_objects": 0,
+      "rows": 150000,
+      "unknown_column_files": 0
+    },
+    "daily_exchange_rates": {
+      "documented_rows": 3000,
+      "duplicate_primary_keys": 0,
+      "files": 1,
+      "invalid_rows": 0,
+      "missing_required_files": 0,
+      "rebuilt_objects": 0,
+      "rows": 13164,
+      "unknown_column_files": 0
+    },
+    "digital_events": {
+      "documented_rows": 10000000,
+      "duplicate_primary_keys": 0,
+      "files": 1097,
+      "invalid_rows": 0,
+      "missing_required_files": 0,
+      "rebuilt_objects": 0,
+      "rows": 15620994,
+      "unknown_column_files": 0
+    },
+    "products": {
+      "documented_rows": 400000,
+      "duplicate_primary_keys": 0,
+      "files": 1,
+      "invalid_rows": 0,
+      "missing_required_files": 0,
+      "rebuilt_objects": 0,
+      "rows": 400000,
+      "unknown_column_files": 0
+    },
+    "satisfaction_surveys": {
+      "documented_rows": 250000,
+      "duplicate_primary_keys": 0,
+      "files": 1097,
+      "invalid_rows": 0,
+      "missing_required_files": 0,
+      "rebuilt_objects": 0,
+      "rows": 212759,
+      "unknown_column_files": 0
+    },
+    "service_agents": {
+      "documented_rows": 1200,
+      "duplicate_primary_keys": 0,
+      "files": 1,
+      "invalid_rows": 0,
+      "missing_required_files": 0,
+      "rebuilt_objects": 0,
+      "rows": 1200,
+      "unknown_column_files": 0
+    },
+    "transactions": {
+      "documented_rows": 5000000,
+      "duplicate_primary_keys": 0,
+      "files": 1097,
+      "invalid_rows": 0,
+      "missing_required_files": 0,
+      "rebuilt_objects": 0,
+      "rows": 4425008,
+      "unknown_column_files": 0
+    }
+  },
+  "text_degeneracy": {
+    "complaints": {
+      "descriptions": 5,
+      "n": 67095,
+      "origin_nulls": 67095,
+      "resolution_nulls": 51785,
+      "resolutions": 5
+    },
+    "surveys": {
+      "distinct_comments": 13,
+      "n": 212759,
+      "null_comments": 111563
+    },
+    "transcripts": {
+      "distinct_texts": 546,
+      "n": 171321,
+      "portuguese_rows": 0,
+      "with_placeholders": 171321
+    }
+  }
+}

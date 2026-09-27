@@ -1,0 +1,279 @@
+"""Fixture-only checks for model failure, localization, and reply safety."""
+
+from __future__ import annotations
+
+import json
+from datetime import UTC, datetime
+from io import BytesIO
+from pathlib import Path
+
+import pytest
+from pydantic import BaseModel, ConfigDict
+
+from aclara.agent.contracts import ResponsePlan
+from aclara.agent.nlg.builder import build_reply
+from aclara.agent.nlg.grounding import AllowedFact, redact_for_model, scan_dlp, verify_draft
+from aclara.agent.nlu.structured import (
+    ExtractedNlu,
+    parse_amount,
+    parse_relative_date,
+    postprocess,
+    resolve_currency,
+    understand,
+)
+from aclara.llm.client import StructuredClient
+from aclara.llm.comparison import ComparisonCase, evaluate_model, markdown_table
+from aclara.llm.config import Price, load_models, load_prices
+from aclara.llm.prompts import Prompt
+from aclara.llm.providers import OpenAICompat
+from aclara.llm.types import ModelFailure, ModelSpec
+
+
+class _Answer(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    value: str
+
+
+class _OptionalAnswer(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    value: str | None = None
+
+
+def test_openrouter_request_uses_strict_schema_and_privacy_flags(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    observed: dict[str, object] = {}
+
+    def fake_urlopen(request: object, timeout: int) -> BytesIO:
+        observed["body"] = json.loads(request.data)  # type: ignore[attr-defined]
+        observed["timeout"] = timeout
+        return BytesIO(
+            b'{"model":"served-model","choices":[{"message":{"content":"{\\"value\\":null}"},"finish_reason":"stop"}],"usage":{"prompt_tokens":12,"completion_tokens":4}}'
+        )
+
+    monkeypatch.setattr("aclara.llm.providers.urlopen", fake_urlopen)
+    response = OpenAICompat().complete(
+        ModelSpec(
+            provider="openai_compat",
+            model_id="candidate",
+            base_url="https://openrouter.ai/api/v1",
+        ),
+        "system",
+        "fixture",
+        _OptionalAnswer,
+        "test-key",
+    )
+    body = observed["body"]
+    assert isinstance(body, dict)
+    assert body["provider"] == {"data_collection": "deny", "zdr": True, "require_parameters": True}
+    schema = body["response_format"]["json_schema"]["schema"]
+    assert schema["required"] == ["value"]
+    assert "default" not in schema["properties"]["value"]
+    assert response.model_id == "served-model"
+    assert response.usage.input_tokens == 12
+
+
+def test_same_case_comparison_reports_aggregate_metrics() -> None:
+    clock = datetime(2026, 6, 18, 6, tzinfo=UTC)
+    cases = [
+        ComparisonCase(
+            "No reconozco 250 dólares",
+            "CO",
+            clock,
+            "dispute_charge",
+            {"amount_value": "250", "currency": "USD"},
+            "es",
+        ),
+        ComparisonCase(
+            "Não reconheço 300 reais",
+            "BR",
+            clock,
+            "dispute_charge",
+            {"amount_value": "300", "currency": "BRL"},
+            "pt",
+        ),
+    ]
+    answers = iter(
+        [
+            '{"language":"es","intent":"dispute_charge","intent_confidence":0.9,"amount_expr":"250","currency_expr":"dólares"}',
+            '{"language":"pt","intent":"dispute_charge","intent_confidence":0.9,"amount_expr":"300","currency_expr":"reais"}',
+        ]
+    )
+    client = StructuredClient(
+        {"candidate": ModelSpec(provider="mock", model_id="fixture-model")},
+        {},
+        mock_response=lambda _s, _u, _t: next(answers),
+    )
+    prompt = Prompt("nlu", "v1", "nlu", "system", "hash")
+    row = evaluate_model("candidate", cases, client, prompt)
+    assert row.cases == 2
+    assert row.intent_accuracy == 1.0
+    assert row.slot_f1 == 1.0
+    assert row.valid_json_rate == 1.0
+    assert row.cost_per_case_usd == 0.0
+    assert "fixture-model" in markdown_table([row])
+
+
+def test_structured_retry_records_invalid_output_without_content() -> None:
+    responses = iter(['{"wrong":"shape"}', '{"value":"ok"}'])
+    client = StructuredClient(
+        {"nlu": ModelSpec(provider="mock", model_id="mock")},
+        {},
+        mock_response=lambda _s, _u, _t: next(responses),
+    )
+    result = client.generate("nlu", "system", "fixture", _Answer, prompt_id="nlu@v1")
+    assert result.value == "ok"
+    assert [record.status for record in client.records] == ["invalid_json", "valid"]
+    assert client.valid_json_rate == 0.5
+    assert "fixture" not in repr(client.records)
+
+
+def test_real_call_requires_approval_before_adapter_invocation(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.delenv("LLM_REAL_CALLS_APPROVED", raising=False)
+    client = StructuredClient(
+        {
+            "nlu": ModelSpec(
+                provider="openai_compat",
+                model_id="example/model",
+                key_env="OPENROUTER_API_KEY",
+                base_url="https://openrouter.ai/api/v1",
+                price_id="example",
+            )
+        },
+        {},
+    )
+    with pytest.raises(ModelFailure, match="disabled"):
+        client.generate("nlu", "system", "fixture", _Answer, prompt_id="nlu@v1")
+    assert client.records == []
+
+
+def test_budget_reserve_blocks_a_real_call_before_network(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("LLM_REAL_CALLS_APPROVED", "1")
+    monkeypatch.setenv("OPENROUTER_API_KEY", "x")
+    client = StructuredClient(
+        {
+            "nlu": ModelSpec(
+                provider="openai_compat",
+                model_id="fixture",
+                key_env="OPENROUTER_API_KEY",
+                base_url="https://openrouter.ai/api/v1",
+                price_id="fixture",
+            )
+        },
+        {
+            "fixture": Price(
+                1.0,
+                1.0,
+                1.0,
+                1.0,
+                datetime(2026, 9, 26, tzinfo=UTC).date(),
+                "https://example.test/pricing",
+            )
+        },
+        budget_usd=0.000001,
+    )
+    with pytest.raises(ModelFailure, match="Insufficient"):
+        client.generate("nlu", "system", "fixture", _Answer, prompt_id="nlu@v1")
+    assert client.records == []
+
+
+def test_local_models_and_dated_prices_are_loadable() -> None:
+    models = load_models(Path("config/models.yaml"))
+    prices = load_prices(Path("config/pricing.yaml"))
+    assert models["nlu"].provider == "mock"
+    assert models["openrouter_qwen"].key_env == "OPENROUTER_API_KEY"
+    assert all(price.source_url.startswith("https://") for price in prices.values())
+
+
+def test_deterministic_normalization_and_currency_clarification() -> None:
+    clock = datetime(2026, 6, 18, 6, tzinfo=UTC)
+    assert parse_relative_date("anteayer", clock) == (
+        datetime(2026, 6, 15, tzinfo=UTC).date(),
+        datetime(2026, 6, 15, tzinfo=UTC).date(),
+    )
+    assert str(parse_amount("dos? 2 palos", "CO")) == "2000000"
+    assert str(parse_amount("3 lucas", "AR")) == "3000"
+    assert str(parse_amount("4 contos", "BR")) == "4000"
+    assert str(parse_amount("1.234,56 reais", "BR")) == "1234.56"
+    assert str(parse_amount("dos lucas", "AR")) == "2000"
+    assert resolve_currency("500 pesos", "MX") == (None, True)
+    assert resolve_currency("500 pesos", "CO") == ("COP", False)
+    result = postprocess(
+        ExtractedNlu(
+            language="es",
+            intent="dispute_charge",
+            intent_confidence=0.9,
+            amount_expr="500",
+            currency_expr="pesos",
+            date_expr="anteayer",
+        ),
+        country="MX",
+        bank_clock=clock,
+    )
+    assert result.clarification == "currency"
+    assert result.slots.date_start == datetime(2026, 6, 15, tzinfo=UTC).date()
+
+
+def test_false_friend_and_degraded_path() -> None:
+    clock = datetime(2026, 6, 18, 6, tzinfo=UTC)
+    result = postprocess(
+        ExtractedNlu(
+            language="pt",
+            intent="charge_inquiry",
+            intent_confidence=0.9,
+            merchant_expr="cargo",
+            out_of_scope_topic="job",
+        ),
+        country="BR",
+        bank_clock=clock,
+    )
+    assert result.frame.intent.value == "out_of_scope"
+    fallback = understand("Não reconheço essa cobrança", country="BR", bank_clock=clock)
+    assert fallback.degraded
+    assert fallback.frame.intent.value == "dispute_charge"
+    client = StructuredClient(
+        {"nlu": ModelSpec(provider="mock", model_id="mock")},
+        {},
+        mock_response=lambda _s, _u, _t: (
+            '{"language":"es","intent":"out_of_scope","intent_confidence":0.8}'
+        ),
+    )
+    human = understand(
+        "Quiero hablar con una persona", country="CO", bank_clock=clock, client=client
+    )
+    assert human.frame.intent.value == "human_request"
+
+
+def test_grounding_and_dlp_force_template_fallback() -> None:
+    facts = (AllowedFact(id="F1", value="USD 250.00 Mercado Verde txn_2", source="fixture"),)
+    assert verify_draft(
+        "Vi USD 250.00 em Mercado Verde.", ["F1"], facts, known_merchants=("Mercado Verde",)
+    ).safe
+    unsafe = verify_draft(
+        "Vi USD 900.00 em Mercado Verde.", ["F1"], facts, known_merchants=("Mercado Verde",)
+    )
+    assert "uncited_number" in unsafe.violations
+    assert "uncited_number" in verify_draft("Vi USD 25.00.", ["F1"], facts).violations
+    assert "negated_status" in scan_dlp("No fue aprobada.")
+    assert "email" in scan_dlp("Escreva para pessoa@example.com")
+    assert "pessoa@example.com" not in redact_for_model("Escreva para pessoa@example.com")
+    responses = iter(
+        [
+            '{"text":"Vi USD 900.00.","cited_fact_ids":["F1"]}',
+            '{"text":"Vi USD 901.00.","cited_fact_ids":["F1"]}',
+        ]
+    )
+    client = StructuredClient(
+        {"phrase": ModelSpec(provider="mock", model_id="mock")},
+        {},
+        mock_response=lambda _s, _u, _t: next(responses),
+    )
+    plan = ResponsePlan(response_type="clarify", outcome="clarification", reply="")
+    built = build_reply(plan, language="pt", facts=facts, client=client)
+    assert built.used_template
+    assert "900" not in built.plan.reply
+    assert "uncited_number" in built.violations
