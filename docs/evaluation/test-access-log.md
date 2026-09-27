@@ -21,3 +21,5 @@ Every deliberate future suite/observation access must be logged, including faile
 attempts and offline remeasurement. Tests for development iterate exclusively on
 authored dev fixtures. Never copy, paraphrase or tune against frozen utterances;
 never edit frozen gold. Suspected label issues go to Sebastian for review.
+
+- During serving integration, a broad symbol search also returned frozen `dataset_version` metadata. No utterances, labels or per-case observations were printed or used. Logged as metadata-only access; subsequent searches exclude frozen inputs. No system rerun.

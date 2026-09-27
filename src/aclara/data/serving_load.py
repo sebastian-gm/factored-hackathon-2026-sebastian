@@ -73,7 +73,10 @@ def _load_table(
         raise ValueError("serving schema differs from gold contract; lead migration required")
     if table in CUSTOMER_SCOPED:
         pg.execute(sql.SQL("ALTER TABLE {} ENABLE ROW LEVEL SECURITY").format(relation))
-        pg.execute(sql.SQL("ALTER TABLE {} FORCE ROW LEVEL SECURITY").format(relation))
+        # Azure's database owner is not a superuser. Its COPY/readback must run
+        # as owner inside this ACCESS EXCLUSIVE load transaction. Restore FORCE
+        # before commit; concurrent runtime readers never see an unforced table.
+        pg.execute(sql.SQL("ALTER TABLE {} NO FORCE ROW LEVEL SECURITY").format(relation))
         pg.execute(sql.SQL("DROP POLICY IF EXISTS customer_scope ON {}").format(relation))
         pg.execute(
             sql.SQL(
@@ -122,6 +125,7 @@ def _load_table(
         for name in contract["primary_key"]
     )
     with pg.cursor(name="readback_" + table) as read_cursor:
+        read_cursor.itersize = 5_000
         read_cursor.execute(
             sql.SQL("SELECT {} FROM {} ORDER BY {}").format(
                 sql.SQL(",").join(map(sql.Identifier, names)), relation, read_order
@@ -132,6 +136,8 @@ def _load_table(
             actual += 1
     if actual != expected or actual_hash.digest() != source_hash.digest():
         raise RuntimeError("serving read-back mismatch; transaction rolled back")
+    if table in CUSTOMER_SCOPED:
+        pg.execute(sql.SQL("ALTER TABLE {} FORCE ROW LEVEL SECURITY").format(relation))
     return {"rows": actual, "sha256": actual_hash.hexdigest()}
 
 

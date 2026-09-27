@@ -4,20 +4,20 @@ Aclara is a synthetic-data demo for Spanish and Brazilian Portuguese charge ques
 
 ## Current layer
 
-Layer 1 and the integration layer have login and simulated OTP, scoped transactions, deterministic policy, confirmed dispute intake with readback, human handoff, and a minimal chat page. B1 uses rules; P integrates structured NLU, guarded response phrasing and a calibrated charge matcher. Postgres stores operational state with customer/run/session isolation and an append-only hash-chained audit log. Verification is recorded in the [progress log](docs/status/progress-log.md).
+Customer Chat, Agent Desk and Ops run against promoted organizer serving data and durable Postgres activity. B1 uses rules; P adds structured NLU, guarded phrasing and the calibrated matcher, with mock fallback by default. See the [progress log](docs/status/progress-log.md) for the checks actually run and [serving runbook](docs/serving-demo.md) for identity/data boundaries.
 
 ## Local quickstart
 
-1. Copy `.env.example` to `.env` and set local Postgres and demo login passwords. The demo username and password are `DEMO_USERNAME` and `DEMO_PASSWORD`; the UI shows the local simulated OTP after login.
-2. Run `uv sync --extra dev`, then `make up`. This migrates Postgres, creates the non-owner app login and waits for healthy services.
-3. Open <http://localhost:3000>. The page calls the API health endpoint through the compose network.
-4. Run `make checks` and `uv run --no-sync python -m scripts.local_smoke`.
+1. Copy `.env.example` to ignored `.env`; set local Postgres/demo passwords and `LOCAL_RAW_DIR`. Use persistent ignored `LAKE_DIR=./lake` in this checkout.
+2. Run `uv sync --extra dev --extra data-ml`, `python -m scripts.local_ops`, then `docker compose up -d --wait postgres` and `docker compose run --rm migrate`.
+3. Run `python -m aclara.data.cli build --lake lake --no-reports`, then `python -m scripts.load_demo_serving --target local`.
+4. Run `make up`, open <http://localhost:3000>, then run `make checks` and `python -m scripts.local_smoke`. Four server-bound personas share the configured demo password; the UI displays simulated OTP.
+
+Organizer inputs are never required for CI. Isolated browser and database tests use authored fixtures. Runtime serving mode fails closed if its promoted dataset, clock or persona bindings are missing; it never falls back to the authored ledger.
 
 Run `uv run --no-sync python -m scripts.test_postgres` for isolated database integration tests. For reactive evaluation, use `uv run --no-sync python -m evals.runner --system P --scenarios evals/dev_scenarios_v2.yaml`. See the [harness guide](docs/evaluation/harness.md) for repeats, faults and aggregate outputs.
 
-Each worktree needs a unique `COMPOSE_PROJECT_NAME` and host ports in its ignored `.env`; Compose scopes container names and the Postgres volume by project name. For example, a second worktree can use `COMPOSE_PROJECT_NAME=aclara-ai`, `POSTGRES_HOST_PORT=15433`, `API_HOST_PORT=18001`, and `WEB_HOST_PORT=13001`. The web origin and browser API URL follow the configured ports automatically. All worktrees should share the same persistent `LAKE_DIR` outside this repository (default `~/aclara-lake`; the pipeline expands `~` to the current user's home directory).
-
-The dataset pipeline reads `LOCAL_RAW_DIR` and writes bronze, manifest, and silver outputs to `LAKE_DIR` (outside the checkout; do not run it in CI). Set `LOCAL_RAW_DIR` in `.env`, then run `make pipeline` or `uv run python -m aclara.data.cli build` from the repository root.
+Compose project names and host ports are set in ignored `.env`. The default pipeline lake is persistent `~/aclara-lake`; this session uses ignored `./lake` to honor repository-only writes. Source records are read only through `LOCAL_RAW_DIR`. Generated bronze/silver/gold/manifest files and serving reports remain ignored; no organizer rows are CI inputs or artifacts.
 
 ## Architecture in 60 seconds
 
@@ -29,4 +29,4 @@ The lane contracts and ownership rules are in [the interface map](docs/interface
 
 ## Scope and limits
 
-The local and Azure demos use a project-generated fixture ledger and durable Postgres operational storage. Organizer gold/serving data remains local and is not yet bound to the chat API. Identity and OTP are simulated; card freeze, some policy rules and held-out model evaluation remain unfinished. Azure access requires the owner's allowed IP and app login. See [limitations](docs/limitations.md) and [production readiness](docs/production-readiness.md).
+The organizer dataset is synthetic. Identity/password sharing and OTP are development simulations. Demo Ops identities can use all three surfaces within their own customer/run/session scope; customer identities cannot access staff routes. Real-model comparison, fluent Portuguese review and frozen-suite acceptance remain pending. Azure's web endpoint requires the owner's IP and app login; its API is internal to the Container Apps environment. See [limitations](docs/limitations.md) and [production readiness](docs/production-readiness.md).

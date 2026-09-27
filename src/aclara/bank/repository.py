@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import csv
+import hashlib
 from dataclasses import dataclass
-from datetime import date, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -74,6 +75,9 @@ class TransactionRepository:
             )
         }
         self.policy_fields = policy_fields or {}
+        self.dataset_version = "fixture:" + hashlib.sha256(repr(self._rows).encode()).hexdigest()
+        self.loaded_at = datetime.now(UTC)
+        self.source_kind = "authored_fixture"
 
     def products_for_customer(self, customer_id: str) -> list[tuple[str, Product]]:
         return [

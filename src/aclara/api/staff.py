@@ -25,6 +25,7 @@ from aclara.api.staff_contracts import (
     TraceView,
     WorkspaceMetrics,
 )
+from aclara.bank.serving import persona_views
 from aclara.ops.store import Scope
 from aclara.policy.rules import catalog
 from aclara.policy.rules.guards import cross_customer, injection
@@ -162,18 +163,7 @@ def install_staff(app: FastAPI, principal_dependency: Any) -> None:
 
     @app.get("/personas", response_model=list[PersonaView])
     async def personas() -> list[dict[str, str]]:
-        return (
-            [
-                {
-                    "username": settings.demo_username,
-                    "label": "Persona de demostración",
-                    "role": settings.demo_role,
-                    "locale": settings.demo_locale,
-                }
-            ]
-            if settings.demo_username
-            else []
-        )
+        return persona_views(app.state.personas)
 
     @app.post("/auth/logout")
     async def logout(principal: Any = principal_default) -> dict[str, bool]:
@@ -358,9 +348,10 @@ def install_staff(app: FastAPI, principal_dependency: Any) -> None:
                     "bank_clock": settings.bank_clock,
                     "loaded_at": app.state.loaded_at,
                     "source_as_of": settings.bank_clock,
+                    "source_kind": app.state.ledger.source_kind,
                     "quality": [
                         {
-                            "name": "scoped_owned_fixture_rows",
+                            "name": "scoped_owned_120_day_rows",
                             "passed": all(r.customer_id == principal.customer_id for _, r in rows),
                             "checked": len(rows),
                         }

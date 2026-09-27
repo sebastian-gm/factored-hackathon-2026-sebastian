@@ -109,7 +109,7 @@ class OpsView(InterfaceModel):
     bank_clock: datetime
     loaded_at: datetime
     source_as_of: datetime
-    source_kind: Literal["authored_fixture"] = "authored_fixture"
+    source_kind: Literal["authored_fixture", "organizer_serving"] = "authored_fixture"
     quality: list[QualityCheck]
     metrics: WorkspaceMetrics
     conversation_ids: list[str]

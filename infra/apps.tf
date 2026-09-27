@@ -1,5 +1,5 @@
 locals {
-  api_url = "https://ca-api-${local.suffix}.${azurerm_container_app_environment.dev.default_domain}"
+  api_url = "https://ca-api-${local.suffix}.internal.${azurerm_container_app_environment.dev.default_domain}"
   web_url = "https://ca-web-${local.suffix}.${azurerm_container_app_environment.dev.default_domain}"
 }
 
@@ -27,15 +27,10 @@ resource "azurerm_container_app" "api" {
     }
   }
   ingress {
-    external_enabled           = true
+    external_enabled           = false
     allow_insecure_connections = false
     target_port                = 8000
     transport                  = "http"
-    ip_security_restriction {
-      name             = "owner-only"
-      action           = "Allow"
-      ip_address_range = "${var.owner_ipv4}/32"
-    }
     traffic_weight {
       latest_revision = true
       percentage      = 100
@@ -51,13 +46,14 @@ resource "azurerm_container_app" "api" {
       memory = "0.5Gi"
       dynamic "env" {
         for_each = {
-          PGHOST        = azurerm_postgresql_flexible_server.dev.fqdn
-          PGPORT        = "5432", PGUSER = "aclara_app", PGDATABASE = "aclara"
-          PGSSLMODE     = "verify-full", PGSSLROOTCERT = "/etc/ssl/certs/ca-certificates.crt"
-          DEMO_USERNAME = "demo.es.mx", LLM_PROVIDER = "mock"
-          BANK_CLOCK    = "2026-06-18T06:00:00Z", WEB_ORIGIN = local.web_url
-          RELEASE_SHA   = var.image_tag
-          OPS_BACKEND   = "postgres", AGENT_SYSTEM = "P"
+          PGHOST         = azurerm_postgresql_flexible_server.dev.fqdn
+          PGPORT         = "5432", PGUSER = "aclara_app", PGDATABASE = "aclara"
+          PGSSLMODE      = "verify-full", PGSSLROOTCERT = "/etc/ssl/certs/ca-certificates.crt"
+          DEMO_USERNAME  = "demo.es.mx", LLM_PROVIDER = "mock"
+          BANK_CLOCK     = "2026-06-18T06:00:00Z", WEB_ORIGIN = local.web_url
+          RELEASE_SHA    = var.image_tag
+          OPS_BACKEND    = "postgres", AGENT_SYSTEM = "P"
+          LEDGER_BACKEND = "serving"
         }
         content {
           name  = env.key
@@ -132,8 +128,16 @@ resource "azurerm_container_app" "web" {
       cpu    = 0.25
       memory = "0.5Gi"
       env {
-        name  = "BROWSER_API_BASE_URL"
+        name  = "API_BASE_URL"
         value = local.api_url
+      }
+      env {
+        name  = "WEB_APP_ORIGIN"
+        value = local.web_url
+      }
+      env {
+        name  = "BANK_CLOCK"
+        value = "2026-06-18T06:00:00Z"
       }
       env {
         name  = "RELEASE_SHA"

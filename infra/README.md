@@ -22,7 +22,7 @@ Terraform commands in the helper use a repository-local `az` wrapper that forces
 
 The first apply uses `deploy_apps = false`, creating the database, Key Vault secrets, managed identities, registry, environment and budget. Terraform output is captured only in ignored `artifacts/azure` because it includes resource IDs. Inspect failure logs with sensitive values redacted. Never upload plan/state/log files to CI artifacts or Git. The plan contains generated passwords; delete stale local plan files after use.
 
-`seed` reads generated passwords directly from Key Vault into memory, initializes a CONNECT-only database login, revokes public create access, and verifies TLS. Current main stores cases and sessions in process memory; no bank records are written to PostgreSQL yet.
+`seed` reads generated passwords directly from Key Vault into memory, initializes a CONNECT-only database login, revokes public create access, and verifies TLS. Then run `python -m scripts.azure_migrate_ops` for durable ops and `python -m scripts.load_demo_serving --target azure` to load promoted gold and bind private demo personas. These use separate owner credentials and verify non-owner access.
 
 ## Build and deploy main
 
@@ -39,7 +39,7 @@ docker push acraclaradeveastus2.azurecr.io/aclara-api:<main-sha>
 docker push acraclaradeveastus2.azurecr.io/aclara-web:<main-sha>
 ```
 
-Set the ignored variables `image_tag` to that full SHA and `deploy_apps = true`; run plan/apply again. Never temporarily remove IP restrictions to troubleshoot. Both apps receive the owner-only rule on creation, and neither has an unrestricted revision. Use `BROWSER_API_BASE_URL` at runtime; the same production image can be reused without embedding a hostname during its build.
+Set the ignored variables `image_tag` to that full SHA and `deploy_apps = true`; run plan/apply again. Never temporarily remove IP restrictions to troubleshoot. The web app retains the owner-only IP rule; the API has internal-only ingress in the same environment. Use `API_BASE_URL` at runtime; the same production image can be reused without embedding a hostname during its build.
 
 ```sh
 uv run --no-sync python scripts/azure_dev.py plan
@@ -48,7 +48,7 @@ uv run --no-sync python -m scripts.azure_smoke
 uv run --no-sync python -m scripts.azure_verify
 ```
 
-The smoke test reads the demo password from Key Vault into memory. It checks HTTPS liveness/readiness, login/OTP, all 32 authored ES/PT scenarios, scoped transactions, dispute/handoff readbacks, unauthenticated denial, CORS, and the web page's runtime API URL. It emits only counts. Separately read back Azure ingress, replica limits, firewall, TLS, budget notifications, identities and image SHA/digests. The credential-free `azure-access` GitHub workflow checks both URLs from a non-allowlisted runner and requires HTTP 403. It can be rerun with `gh workflow run azure-access.yml --repo sebastian-gm/bank-agent-lab`. Configuration inspection alone is not a network denial test.
+The smoke retrieves the demo password from Key Vault into memory and calls the web BFF. It verifies all four private organizer bindings, ES/PT normal/ambiguous/human paths, dispute/handoff readbacks, Agent Desk claim/resolve, measured Ops, audit chains, customer-role denials and original-session case recovery on a replacement API replica. It emits only aggregates. Control readback checks ingress, replicas, TLS, firewall, budget, identities and SHA. The credential-free `azure-access` workflow requires web HTTP 403 and internal API HTTP 404 from a non-allowlisted runner. Run `gh workflow run azure-access.yml --repo sebastian-gm/bank-agent-lab`; configuration inspection alone is insufficient.
 
 ## Operations and limitations
 
@@ -56,6 +56,6 @@ Passwords remain in Key Vault. Retrieve the `demo-password` secret through the a
 
 Azure budgets use the subscription billing currency. This subscription reports CAD. The ignored variables set `budget_currency = "CAD"` and `budget_usd_to_billing_rate = 1.3882`, derived from Microsoft retail references checked 2026-09-26. The C$69.41 budget has 60%/100% actual-spend alerts (about C$41.65/C$69.41), approximating the requested US$30/US$50. Review the rate monthly; future FX movement changes the USD equivalents. Budgets notify and do not stop resources. Check billing before increasing usage. Stopping PostgreSQL saves compute temporarily but Azure restarts it after seven days.
 
-The owner approved the broad Azure-services PostgreSQL firewall exception for this dev environment. Other Azure tenants can reach the database network port; authentication and verified TLS remain mandatory. See [production readiness](../docs/production-readiness.md) for VNet/private access and durable-state work. App replicas scale to zero, losing current in-memory sessions and cases. Re-login after a cold start.
+The owner approved the broad Azure-services PostgreSQL firewall exception for this dev environment. Other Azure tenants can reach the database network port; authentication and verified TLS remain mandatory. See [production readiness](../docs/production-readiness.md) for VNet/private access and durable-state work. App replicas scale to zero; sessions and operational records survive in Postgres. Session expiry remains enforced. Cold starts can require a retry of a read-only request. Never automatically retry unverified writes.
 
 The local state firewall prevents GitHub-hosted apply runners from accessing state. Keep deployment local until a runner/network decision is approved. Any later GitHub OIDC/environment configuration must use this private repository alone.
