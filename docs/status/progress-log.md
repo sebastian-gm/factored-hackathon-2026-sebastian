@@ -40,12 +40,12 @@ This summary supersedes earlier task lists. Earlier release evidence remains in 
 ### Restricted release preparation
 
 - Read-only probe from the existing Azure web container reproduced API HTTP 403 under the API's owner-IP rule. Prepared an **internal-only API in the same existing Container Apps environment** and retained owner-IP-only HTTPS on web plus login. No new resources, networking products, replicas or broader internet ingress. The web BFF keeps bearer tokens out of browser JavaScript.
-- Azure full gold load was initially interrupted during slow small-batch checksum readback, rolling back its uncommitted transaction. Restarted with 5,000-row batches and the same full checks. Its final completion and deployment verification are pending below.
+- Azure full gold load was initially interrupted during slow small-batch checksum readback, rolling back its uncommitted transaction. Restarted with 5,000-row batches and the same full checks. The restarted Azure load passed full checksums and independent committed readback for all six tables, four private personas and 15 scoped transactions. Deployment verification remains pending below.
 - Existing approved PostgreSQL Azure-services firewall exception, Key Vault passwords, managed identities, TLS verify-full and approximate US$30/50-equivalent budget alerts remain required. [Network plan](../azure-private-dev-plan.md), [production limits](../production-readiness.md).
 
 ## Done-not-verified
 
-- Azure organizer load final readback, clean-main deployment, BFF/browser smoke, replacement-replica recovery, control readback and final external denial/drift checks are in progress. Do not treat local success as a cloud claim.
+- Clean-main deployment, BFF/browser smoke, replacement-replica recovery, control readback and final external denial/drift checks are in progress. Do not treat local success as a cloud claim.
 - Frozen acceptance after these fixes remains unknown; the preserved run-01 failure is the only full-suite result. Human labels, Spanish owner review and fluent Portuguese review remain pending. PT/dialect phrases are model-authored; prior cross-vendor authoring checks do not replace human review.
 - No lead real-model comparison, selected default or different-vendor judge run. Keep `LLM_PROVIDER=mock`. Durable model spend accounting remains future work.
 - Azure PITR/regional DR, realistic-volume restore, automatic retention, sustained concurrency, actual charges and budget-email delivery are unverified. Tiny local restore evidence remains in [recovery report](../ops-recovery.md).

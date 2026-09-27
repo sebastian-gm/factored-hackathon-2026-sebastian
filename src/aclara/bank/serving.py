@@ -45,7 +45,7 @@ class ServingRepository(TransactionRepository):
             if datetime.fromisoformat(row[0]["bank_clock"].replace("Z", "+00:00")) != bank_clock:
                 raise ValueError("Serving bank clock differs from runtime")
             self.dataset_version, self.loaded_at = row[0]["dataset_version"], row[1]
-            self.identity = row[0]
+            self.identity: dict[str, str] = row[0]
 
     def personas(self) -> list[Persona]:
         with self.store.transaction(Scope("", "", "")):
