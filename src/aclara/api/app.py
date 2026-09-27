@@ -862,7 +862,7 @@ def create_app(
                 "reply": _localized(
                     language,
                     "Puedo ayudar con cargos no reconocidos. Si necesitas otro tema, puedo derivarte a una persona.",
-                    "Posso ajudar com cobranças não reconhecidas. Para outro assunto, posso encaminhar você para uma pessoa.",
+                    "Posso ajudar com cobranças não reconhecidas. Para outro assunto, posso encaminhar você a uma pessoa da equipe.",
                 ),
             }
 
