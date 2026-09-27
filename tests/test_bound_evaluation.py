@@ -299,7 +299,7 @@ def test_provider_failures_reach_safe_p_fallback_without_network(
     monkeypatch.setattr("aclara.llm.providers.urlopen", fail_request)
     original = AgentAI.__init__
 
-    def injected(self, settings, runtime, client=None):
+    def injected(self, settings, runtime, client=None, *, spend_gate=None):
         fixture_client = StructuredClient(
             {
                 route: ModelSpec(
@@ -311,7 +311,7 @@ def test_provider_failures_reach_safe_p_fallback_without_network(
             mock_response=lambda *args: "{}",
         )
         fixture_client._adapters["mock"] = OpenAICompat()
-        original(self, settings, runtime, fixture_client)
+        original(self, settings, runtime, fixture_client, spend_gate=spend_gate)
 
     monkeypatch.setattr(AgentAI, "__init__", injected)
     result = run(authored(), "P")

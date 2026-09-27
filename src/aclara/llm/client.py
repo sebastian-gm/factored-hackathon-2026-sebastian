@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import os
 from collections.abc import Callable
+from dataclasses import replace
 from datetime import UTC, date, datetime
 from hashlib import sha256
 from threading import RLock
@@ -15,7 +16,14 @@ from pydantic import BaseModel, ValidationError
 
 from aclara.llm.config import Price
 from aclara.llm.providers import Anthropic, Gemini, Mock, OpenAICompat, Provider, Recorded
-from aclara.llm.types import CallRecord, ModelFailure, ModelSpec, ProviderResponse, TokenUsage
+from aclara.llm.types import (
+    CallRecord,
+    ModelFailure,
+    ModelSpec,
+    ProviderResponse,
+    SpendGate,
+    TokenUsage,
+)
 
 T = TypeVar("T", bound=BaseModel)
 
@@ -31,9 +39,16 @@ class StructuredClient:
         mock_response: Callable[[str, str, type[BaseModel]], str] | None = None,
         cassettes: dict[str, str] | None = None,
         record: Callable[[CallRecord], None] | None = None,
-        budget_usd: float = 0.0,
+        budget_usd: float | None = 0.0,
         daily_budget_usd: float | None = None,
+        spend_gate: SpendGate | None = None,
+        call_timeout_seconds: float | None = None,
     ) -> None:
+        if budget_usd is None and spend_gate is None:
+            raise ValueError("Unbounded local budget requires a durable spend gate")
+        self.spend_gate = spend_gate
+        self.call_timeout_seconds = call_timeout_seconds
+        self._deadline: float | None = None
         self._lock = RLock()
         self.models = models
         self.prices = prices
@@ -76,9 +91,15 @@ class StructuredClient:
     ) -> T:
         # Reserve/retry accounting is serialized for this application instance.
         with self._lock:
-            return self._generate(
-                route, system, user, schema, prompt_id=prompt_id, prompt_hash=prompt_hash
+            self._deadline = (
+                perf_counter() + self.call_timeout_seconds if self.call_timeout_seconds else None
             )
+            try:
+                return self._generate(
+                    route, system, user, schema, prompt_id=prompt_id, prompt_hash=prompt_hash
+                )
+            finally:
+                self._deadline = None
 
     def _generate(
         self,
@@ -100,29 +121,40 @@ class StructuredClient:
                 raise ModelFailure("Real model calls are disabled until owner approval")
             if not spec.key_env or not os.getenv(spec.key_env):
                 raise ModelFailure(f"Missing local environment variable {spec.key_env}")
-            if self.budget_usd <= 0:
+            if self.budget_usd is not None and self.budget_usd <= 0:
                 raise ModelFailure("A positive run budget is required for real calls")
             if not spec.price_id or spec.price_id not in self.prices:
                 raise ModelFailure("No verified price for selected model")
-            if self.spent_usd >= self.budget_usd or self._daily_spend_usd >= self.daily_budget_usd:
+            price = self.prices[spec.price_id]
+            spec = replace(spec, price_ceiling=(price.input_per_million, price.output_per_million))
+            if (self.budget_usd is not None and self.spent_usd >= self.budget_usd) or (
+                self._daily_spend_usd >= self.daily_budget_usd
+            ):
                 raise ModelFailure("LLM budget reached")
             estimated_input = len(system.encode("utf-8")) + len(user.encode("utf-8"))
             estimated_input += len(json.dumps(schema.model_json_schema()).encode("utf-8"))
-            reserve = self.prices[spec.price_id].cost(
-                TokenUsage(input_tokens=estimated_input, output_tokens=1024)
-            )
-            if self.spent_usd + reserve > self.budget_usd or (
+            estimated_input += 1024  # Conservative chat/schema framing allowance.
+            reserve = price.cost(TokenUsage(input_tokens=estimated_input, output_tokens=1024))
+            if (self.budget_usd is not None and self.spent_usd + reserve > self.budget_usd) or (
                 self._daily_spend_usd + reserve > self.daily_budget_usd
             ):
                 raise ModelFailure("Insufficient LLM budget for a bounded call")
         key = os.getenv(spec.key_env, "") if spec.key_env else ""
         digest = prompt_hash or sha256(system.encode("utf-8")).hexdigest()
         for attempt in (1, 2):
+            if self._deadline is not None:
+                remaining = self._deadline - perf_counter()
+                if remaining <= 0:
+                    raise ModelFailure("Model call deadline reached")
+                spec = replace(
+                    spec, timeout_seconds=max(1, min(spec.timeout_seconds, int(remaining)))
+                )
             if reserve and (
-                self.spent_usd + reserve > self.budget_usd
+                (self.budget_usd is not None and self.spent_usd + reserve > self.budget_usd)
                 or self._daily_spend_usd + reserve > self.daily_budget_usd
             ):
                 raise ModelFailure("Insufficient LLM budget for another bounded attempt")
+            reservation = self.spend_gate.reserve(reserve) if reserve and self.spend_gate else None
             started = perf_counter()
             response: ProviderResponse | None = None
             status: Literal["valid", "invalid_json", "provider_error", "refusal"] = "provider_error"
@@ -147,8 +179,9 @@ class StructuredClient:
                     raise
             finally:
                 cost = self._cost(spec, response)
-                if response is None and reserve:
-                    cost = reserve  # Unknown provider billing consumes the reserved worst case.
+                if cost is None and reserve:
+                    self.spent_usd += reserve
+                    self._daily_spend_usd += reserve
                 if cost is not None:
                     self.spent_usd += cost
                     if spec.provider not in {"mock", "recorded"}:
@@ -173,14 +206,19 @@ class StructuredClient:
                 self.records.append(call)
                 if self._record:
                     self._record(call)
+                if reservation is not None and self.spend_gate:
+                    self.spend_gate.settle(reservation, cost)
             if spec.provider not in {"mock", "recorded"} and (
-                self.spent_usd >= self.budget_usd or self._daily_spend_usd >= self.daily_budget_usd
+                (self.budget_usd is not None and self.spent_usd >= self.budget_usd)
+                or self._daily_spend_usd >= self.daily_budget_usd
             ):
                 raise ModelFailure("LLM run budget reached")
         raise ModelFailure("Model validation failed twice")
 
     def _cost(self, spec: ModelSpec, response: ProviderResponse | None) -> float | None:
-        if response is None or spec.provider in {"mock", "recorded"}:
+        if spec.provider in {"mock", "recorded"}:
             return 0.0
+        if response is None or not response.usage_known:
+            return None
         price = self.prices.get(spec.price_id or "")
         return price.cost(response.usage) if price else None
