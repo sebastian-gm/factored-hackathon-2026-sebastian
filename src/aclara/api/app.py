@@ -27,14 +27,14 @@ from aclara.agent.nlg.grounding import redact_for_model
 from aclara.agent.nlu import (
     Intent,
     classify,
-    extract_amount,
     is_cancellation,
     is_confirmation,
     normalize_text,
-    selected_candidate,
 )
 from aclara.agent.nlu.structured import NormalizedSlots
 from aclara.agent.runtime import InjectedFailure, Runtime
+from aclara.agent.selection import candidates as identified_candidates
+from aclara.agent.selection import explicit_choice, scoped_inquiry_language, uncertain
 from aclara.api.staff import complete_packet, install_staff
 from aclara.api.staff_contracts import IdentityView
 from aclara.api.workflows import (
@@ -101,6 +101,7 @@ class Conversation:
     proposal: ActionProposal | None = None
     rounds: int = 0
     unsupported_turns: int = 0
+    terminal_handoff_id: str | None = None
 
 
 class StrictModel(BaseModel):
@@ -517,7 +518,11 @@ def create_app(
                 result = safe_failure(principal, classify(body.message).language)
             app.state.runtime.record("response", response_type=result["response_type"])
             conversation = app.state.conversations.get(conversation_id)
-            complete_packet(app, result, principal, conversation_id)
+            complete_packet(app, result, principal, conversation_id, body.message)
+            if conversation and result.get("handoff"):
+                conversation.proposal = None
+                conversation.candidates = []
+                conversation.terminal_handoff_id = result["handoff"]["handoff_id"]
             result = ai.reply(
                 result,
                 conversation.language if conversation else "es",
@@ -531,7 +536,7 @@ def create_app(
                 if (
                     not record
                     or record["transaction_handle"] != result["case"]["transaction_handle"]
-                    or record["status"] != "received"
+                    or record["status"] != result["case"]["status"]
                 ):
                     raise HTTPException(
                         status_code=503, detail="Durable read-back verification failed"
@@ -576,6 +581,31 @@ def create_app(
         conversation: Conversation | None = app.state.conversations.get(conversation_id)
         if conversation is None or conversation.session_id != principal.session_id:
             raise HTTPException(status_code=404, detail="Conversation not found")
+        if conversation.terminal_handoff_id:
+            packet = app.state.handoffs[conversation.terminal_handoff_id]
+            return {
+                "response_type": "offer_human",
+                "outcome": "handoff_created",
+                "reply": _handoff_reply(conversation.language),
+                "handoff": {
+                    k: v
+                    for k, v in packet.items()
+                    if k not in {"customer_id", "session_id", "request_summary"}
+                },
+                "policy_rules": packet["reason_codes"],
+            }
+        if conversation.proposal is not None:
+            if is_confirmation(body.message):
+                raise HTTPException(status_code=409, detail="Use the action confirmation control")
+            conversation.proposal = None
+            if is_cancellation(body.message):
+                return {
+                    "response_type": "cancelled",
+                    "outcome": "cancelled",
+                    "reply": _localized(
+                        conversation.language, "Disputa cancelada.", "Disputa cancelada."
+                    ),
+                }
         nonlocal learned_matcher
         frame = classify(body.message)
         language = conversation.language if conversation.candidates else frame.language
@@ -638,12 +668,12 @@ def create_app(
                 "policy_rules": ["ESC-04"],
             }
         normalized_message = normalize_text(body.message)
-        if re.search(
+        requested = re.search(r"DSP-[A-Za-z0-9-]+", body.message, re.IGNORECASE)
+        if requested or re.search(
             r"(estado|status|andamento).{0,30}(caso|disputa|contestacion|contestacao)|(mi caso|minha contestacao)",
             normalized_message,
         ):
             cases = list(app.state.cases.values())
-            requested = re.search(r"DSP-[A-Za-z0-9-]+", body.message, re.IGNORECASE)
             if requested:
                 cases = [
                     c for c in cases if c["case_id"].casefold() == requested.group().casefold()
@@ -721,23 +751,17 @@ def create_app(
                             "Pode esclarecer o idioma, valor, moeda ou data?",
                         ),
                     }
+        if frame.intent == Intent.OUT_OF_SCOPE and not conversation.candidates:
+            contextual_language = scoped_inquiry_language(
+                body.message, ledger.for_customer(principal.customer_id, active_settings.bank_clock)
+            )
+            if contextual_language:
+                frame = frame.model_copy(
+                    update={"intent": Intent.CHARGE_INQUIRY, "language": contextual_language}
+                )
+                app.state.runtime.record("scoped_status_context")
         language = conversation.language if conversation.candidates else frame.language
         conversation.language = language
-
-        if conversation.proposal is not None:
-            if is_cancellation(body.message):
-                conversation.proposal = None
-                return {
-                    "response_type": "cancelled",
-                    "outcome": "cancelled",
-                    "reply": _localized(
-                        language,
-                        "De acuerdo, no registraré la disputa.",
-                        "Tudo bem, não vou registrar a disputa.",
-                    ),
-                }
-            if is_confirmation(body.message):
-                raise HTTPException(status_code=409, detail="Use the action confirmation control")
 
         if frame.intent in {Intent.HUMAN_REQUEST, Intent.FRAUD, Intent.FEE_DISPUTE}:
             reason_code = {
@@ -763,6 +787,10 @@ def create_app(
                 },
             }
 
+        if conversation.intent and conversation.rounds and frame.intent == Intent.OUT_OF_SCOPE:
+            frame = frame.model_copy(update={"intent": conversation.intent})
+        if frame.intent in {Intent.DISPUTE_CHARGE, Intent.CHARGE_INQUIRY}:
+            conversation.intent = frame.intent
         if frame.intent == Intent.OUT_OF_SCOPE and not conversation.candidates:
             handoff = make_handoff(app, principal, language, "SCOPE-01")
             app.state.runtime.record("abstain")
@@ -779,7 +807,7 @@ def create_app(
             }
 
         if conversation.candidates:
-            choice = selected_candidate(body.message, len(conversation.candidates))
+            choice = explicit_choice(body.message, len(conversation.candidates))
             if choice is None:
                 conversation.rounds += 1
                 if conversation.rounds >= 2:
@@ -831,24 +859,9 @@ def create_app(
                 (handle, replace(row, merchant_name=safe_merchant(row.merchant_name)))
                 for handle, row in rows
             ]
-        normalized = normalize_text(body.message)
-        merchant_matches = [
-            (handle, row) for handle, row in rows if normalize_text(row.merchant_name) in normalized
-        ]
-        amount = extract_amount(body.message)
-        amount_matches = [
-            (handle, row)
-            for handle, row in rows
-            if amount is not None and abs(row.amount - amount) < 0.011
-        ]
-        if merchant_matches and amount_matches:
-            candidates = [item for item in merchant_matches if item in amount_matches]
-        elif merchant_matches:
-            candidates = merchant_matches
-        elif amount_matches:
-            candidates = amount_matches
-        else:
-            candidates = rows
+        candidates, needs_choice = identified_candidates(body.message, rows)
+        if uncertain(body.message):
+            candidates = []
 
         learned_choice = False
         if app.state.runtime.system == "P" and not conversation.degraded and conversation.slots:
@@ -870,6 +883,8 @@ def create_app(
             if app.state.runtime.fault("missing_fx", "MATCH"):
                 candidates = []
 
+        if uncertain(body.message):
+            candidates = []
         if not candidates:
             conversation.rounds += 1
             if conversation.rounds >= 2:
@@ -897,7 +912,7 @@ def create_app(
                 ),
             }
 
-        if len(candidates) > 1 or learned_choice:
+        if len(candidates) > 1 or learned_choice or needs_choice:
             conversation.candidates = candidates[:3]
             conversation.intent = frame.intent
             return {
@@ -946,6 +961,10 @@ def create_app(
             app.state.runtime.record("response", response_type=result["response_type"])
             conversation = app.state.conversations.get(conversation_id)
             complete_packet(app, result, principal, conversation_id)
+            if conversation and result.get("handoff"):
+                conversation.proposal = None
+                conversation.candidates = []
+                conversation.terminal_handoff_id = result["handoff"]["handoff_id"]
             result = ai.reply(
                 result,
                 conversation.language if conversation else "es",
@@ -959,7 +978,7 @@ def create_app(
                 if (
                     not record
                     or record["transaction_handle"] != result["case"]["transaction_handle"]
-                    or record["status"] != "received"
+                    or record["status"] != result["case"]["status"]
                 ):
                     raise HTTPException(
                         status_code=503, detail="Durable read-back verification failed"
@@ -989,6 +1008,8 @@ def create_app(
         conversation: Conversation | None = app.state.conversations.get(conversation_id)
         if conversation is None or conversation.session_id != principal.session_id:
             raise HTTPException(status_code=404, detail="Conversation not found")
+        if conversation.terminal_handoff_id:
+            raise HTTPException(status_code=409, detail="Conversation already handed off")
         proposal = conversation.proposal
         if proposal is None:
             raise HTTPException(status_code=409, detail="No pending action")
@@ -1021,8 +1042,12 @@ def create_app(
             raise HTTPException(status_code=401, detail="Step-up verification required")
         current_rows = dict(ledger.for_customer(principal.customer_id, active_settings.bank_clock))
         current = current_rows.get(proposal.transaction_handle)
-        if current is None or current.record_id != proposal.transaction.record_id:
-            raise HTTPException(409, "Transaction no longer available")
+        if (
+            current is None
+            or replace(current, merchant_name=safe_merchant(current.merchant_name))
+            != proposal.transaction
+        ):
+            raise HTTPException(409, "Transaction changed; request a new proposal")
         context = policy_context(app, principal, current)
         decision = evaluate(current, active_settings.bank_clock, is_dispute=True, context=context)
         if decision.decision == "status":
