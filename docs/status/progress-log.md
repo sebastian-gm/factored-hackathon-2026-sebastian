@@ -81,7 +81,7 @@ This summary supersedes earlier task lists; detailed evidence remains in the lin
 
 - Next layer: integrate the compatible frontend and address policy/NLU/handoff acceptance gaps using **independent development fixtures**. Preserve the frozen diagnostic; do not tune on held-out cases or silently rerun/replace its report.
 - Await frontend lane fixes for PR #17. Production staff identity, task-scoped cross-session authorization, durable model spend accounting and independent audit anchors remain implementation work.
-- Sebastian approved the completed AI-lane comparison under a $10 cumulative cap. Any further paid run needs a new approval; keep the selected default in mock production mode and the cross-vendor fallback undecided. The judge vendor remains distinct.
+- Sebastian approved the completed AI-lane comparison under a $10 cumulative cap and a separate sub-$0.50 judge smoke. Any further paid run needs a new approval; keep the selected default and Grok failure-only fallback in mock production mode. The Sonnet judge vendor remains distinct from Gemini.
 - No additional permission is needed to complete the already-approved restricted release. Any expanded resources/access or estimate above US$40/month requires approval. Preserve the known dev PostgreSQL Azure-services firewall exception; VNet/private access is [production work](../production-readiness.md).
 
 ## AI lane — 2026-09-27 (label decision and round two)
@@ -117,7 +117,25 @@ This summary supersedes earlier task lists; detailed evidence remains in the lin
 
 ### Next / blocked
 
-- Sebastian to review the cheaper cross-vendor fallback trade-off; none is configured. DeepSeek is the cost-first candidate, while Grok 4.20 is the stronger injection-flag/speed alternative. Claude stays reserved for the independent final held-out frontier comparison and judge candidacy. A new approval is needed before additional paid model runs.
+- Superseded by Sebastian's later choice of Grok 4.20 as the failure-only fallback. Claude remains reserved for the independent final held-out frontier comparison and judge validation. A new approval is needed before additional paid model runs.
+
+## AI lane — 2026-09-27 (fallback, judge and final-run plan)
+
+### Completed (verified)
+
+- Configured `x-ai/grok-4.20` on the ZDR `xai/zdr` route as Gemini 3 Flash's **failure-only** cross-vendor fallback. The structured client retries Gemini once before invoking Grok; the same run budget and approval gate cover both, and non-default frontier routes have no fallback. Persistent production settings remain `LLM_PROVIDER=mock`, `LLM_REAL_CALLS_APPROVED=0`; no production key or route was activated.
+- Added [subjective judge rubric](../evaluation/judge-rubric.md), score-only Sonnet 5 OpenRouter harness, and quadratic-weighted κ/paired-agreement computation. The judge input excludes gold and objective outcomes; scoring is limited to language/register, clarity, empathy, and handoff-summary usefulness. Generated an ignored mode-0600, 50-row synthetic human sheet at `artifacts/judge/human-validation-50.csv` (SHA-256 `4f862e442d1cce88c8f90b38a22cb53691ed8efe9352bf4ca878c952520f5794`), with all human ratings blank and no frozen held-out cases.
+- Sebastian authorized only a sub-$0.50 judge smoke. Sonnet 5 on ZDR `google-vertex/global` returned **3/3 valid** strict score-only responses; known per-call cost **$0.008042**. An advertised Bedrock route returned six no-usage provider errors and a diagnostic HTTP 404; all seven unknown-cost attempts are kept in ignored metadata with a conservative **$0.35** guard. Known spend plus guard is **$0.358042**, below the $0.50 limit. No 50-case judge calibration or final held-out real-model run was made.
+- Wrote the [priced final-run plan](../evaluation/final-run-plan.md): B1 200; Gemini P 200 full plus two additional 100-case passes (three total subset runs, 400 P case-runs); Sonnet P once on the same 100; 50 human-calibration and 100 B1/Gemini judge assessments. It gives exact route/prompt settings, per-component token and cost estimates, a 5% Grok fallback sensitivity, a **$4.590 illustrative model-cost total**, a proposed **$12 future stop ceiling**, and **60–90 minutes** estimated serial machine time. It explicitly requires lead acceptance fixes and a separate approval before execution.
+- `make checks` passed: six hooks, strict mypy, file policy, compilation, **81 tests passed / 7 database-dependent skips**, B1 dev harness **32/32** with 12 readbacks, interfaces and policy catalog.
+
+### Done but not verified
+
+- The human sheet has no ratings, so no judge agreement or weighted κ is claimed. The three-item smoke proves route/schema operation only; the 50-item judge run, human ES/PT wording review, final system costs/latency, and real-model safety remain unmeasured. The final-run cost and time are estimates using current public ZDR rates and conservative token assumptions.
+
+### Next / blocked
+
+- Sebastian to fill the 50 human scores and approve a fresh priced judge calibration/final run after the lead's independent acceptance fixes, frozen SHA, production-key deployment, and a cross-process spend breaker. The current `evals.heldout` adapter still hardcodes mock metadata/execution and needs the lead's real-route integration. Do not run the frozen real-model test or additional paid judge calls under this session's smoke approval.
 
 ## Access and continuation
 
