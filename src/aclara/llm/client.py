@@ -17,6 +17,7 @@ from pydantic import BaseModel, ValidationError
 from aclara.llm.config import Price
 from aclara.llm.providers import Anthropic, Gemini, Mock, OpenAICompat, Provider, Recorded
 from aclara.llm.types import (
+    BudgetFailure,
     CallRecord,
     ModelFailure,
     ModelSpec,
@@ -43,6 +44,7 @@ class StructuredClient:
         daily_budget_usd: float | None = None,
         spend_gate: SpendGate | None = None,
         call_timeout_seconds: float | None = None,
+        fallback_routes: dict[str, str] | None = None,
     ) -> None:
         if budget_usd is None and spend_gate is None:
             raise ValueError("Unbounded local budget requires a durable spend gate")
@@ -51,6 +53,10 @@ class StructuredClient:
         self._deadline: float | None = None
         self._lock = RLock()
         self.models = models
+        self.fallback_routes = fallback_routes or {}
+        for route, alternate in self.fallback_routes.items():
+            if route not in models or alternate not in models or route == alternate:
+                raise ValueError("Fallback must name a distinct configured route")
         self.prices = prices
         self.mock_configured = mock_response is not None
         self.records: list[CallRecord] = []
@@ -74,10 +80,9 @@ class StructuredClient:
 
     @property
     def valid_json_rate(self) -> float | None:
-        attempts = [r for r in self.records if r.status in {"valid", "invalid_json"}]
-        if not attempts:
+        if not self.records:
             return None
-        return sum(r.status == "valid" for r in attempts) / len(attempts)
+        return sum(r.status == "valid" for r in self.records) / len(self.records)
 
     def generate(
         self,
@@ -94,9 +99,19 @@ class StructuredClient:
             self._deadline = (
                 perf_counter() + self.call_timeout_seconds if self.call_timeout_seconds else None
             )
+            first_record = len(self.records)
             try:
                 return self._generate(
                     route, system, user, schema, prompt_id=prompt_id, prompt_hash=prompt_hash
+                )
+            except BudgetFailure:
+                raise
+            except ModelFailure:
+                alternate = self.fallback_routes.get(route)
+                if alternate is None or len(self.records) == first_record:
+                    raise
+                return self._generate(
+                    alternate, system, user, schema, prompt_id=prompt_id, prompt_hash=prompt_hash
                 )
             finally:
                 self._deadline = None
@@ -134,7 +149,9 @@ class StructuredClient:
             estimated_input = len(system.encode("utf-8")) + len(user.encode("utf-8"))
             estimated_input += len(json.dumps(schema.model_json_schema()).encode("utf-8"))
             estimated_input += 1024  # Conservative chat/schema framing allowance.
-            reserve = price.cost(TokenUsage(input_tokens=estimated_input, output_tokens=1024))
+            reserve = price.cost(
+                TokenUsage(input_tokens=estimated_input, output_tokens=spec.max_output_tokens)
+            )
             if (self.budget_usd is not None and self.spent_usd + reserve > self.budget_usd) or (
                 self._daily_spend_usd + reserve > self.daily_budget_usd
             ):
@@ -180,6 +197,8 @@ class StructuredClient:
             finally:
                 cost = self._cost(spec, response)
                 if cost is None and reserve:
+                    # Charge the conservative reserve to the budget, but do not report it
+                    # as a billed per-call cost when the provider returned no usage.
                     self.spent_usd += reserve
                     self._daily_spend_usd += reserve
                 if cost is not None:
@@ -202,6 +221,7 @@ class StructuredClient:
                     stop_reason=response.stop_reason if response else None,
                     status=status,
                     attempt=attempt,
+                    generation_id=response.generation_id if response else None,
                 )
                 self.records.append(call)
                 if self._record:
@@ -218,7 +238,11 @@ class StructuredClient:
     def _cost(self, spec: ModelSpec, response: ProviderResponse | None) -> float | None:
         if spec.provider in {"mock", "recorded"}:
             return 0.0
-        if response is None or not response.usage_known:
+        if response is None:
+            return None
+        if response.billed_cost_usd is not None:
+            return response.billed_cost_usd
+        if not response.usage_known:
             return None
         price = self.prices.get(spec.price_id or "")
         return price.cost(response.usage) if price else None

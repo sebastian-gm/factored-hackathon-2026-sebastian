@@ -18,6 +18,11 @@ class ModelSpec:
     output_mode: OutputMode = "json_schema"
     price_id: str | None = None
     price_ceiling: tuple[float, float] | None = None
+    provider_only: tuple[str, ...] = ()
+    max_output_tokens: int = 1024
+    reasoning_effort: Literal["max", "xhigh", "high", "medium", "low", "minimal", "none"] | None = (
+        None
+    )
     timeout_seconds: int = 20
 
 
@@ -36,6 +41,8 @@ class ProviderResponse:
     usage: TokenUsage
     stop_reason: str | None = None
     usage_known: bool = True
+    billed_cost_usd: float | None = None
+    generation_id: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -54,6 +61,7 @@ class CallRecord:
     stop_reason: str | None
     status: Literal["valid", "invalid_json", "provider_error", "refusal"]
     attempt: int
+    generation_id: str | None = None
 
 
 class ModelFailure(RuntimeError):

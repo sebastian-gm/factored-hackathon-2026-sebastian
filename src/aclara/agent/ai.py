@@ -14,7 +14,7 @@ from aclara.agent.nlg.grounding import AllowedFact, scan_dlp
 from aclara.agent.nlu.structured import NluResult, understand
 from aclara.agent.runtime import Runtime
 from aclara.llm.client import StructuredClient
-from aclara.llm.config import load_models, load_prices
+from aclara.llm.config import load_fallback_route, load_models, load_prices
 from aclara.llm.types import SpendGate
 from aclara.settings import Settings
 
@@ -32,13 +32,25 @@ class AgentAI:
     ):
         self.runtime = runtime
         if client is None:
-            models = load_models(ROOT / "config/models.yaml")
+            model_path = ROOT / "config/models.yaml"
+            models = load_models(model_path)
+            fallback_route = None
             if settings.llm_provider != "mock":
-                route = os.getenv("LLM_MODEL_ROUTE", "")
+                route = os.getenv("LLM_MODEL_ROUTE", "default")
                 if route not in models or models[route].provider != settings.llm_provider:
-                    raise ValueError(
-                        "Select an explicit reviewed model route matching LLM_PROVIDER"
-                    )
+                    raise ValueError("Select a reviewed model route matching LLM_PROVIDER")
+                fallback_route = (
+                    load_fallback_route(model_path, models) if route == "default" else None
+                )
+                if fallback_route is not None and (
+                    models[fallback_route].model_id == models[route].model_id
+                ):
+                    raise ValueError("Fallback model must differ from the selected model")
+                if fallback_route is not None and (
+                    models[fallback_route].model_id.split("/", 1)[0]
+                    == models[route].model_id.split("/", 1)[0]
+                ):
+                    raise ValueError("Fallback model must use a different vendor")
                 models["nlu"] = models["phrase"] = models[route]
             client = StructuredClient(
                 models,
@@ -46,6 +58,9 @@ class AgentAI:
                 budget_usd=None if spend_gate else float(os.getenv("LLM_RUN_BUDGET_USD", "0")),
                 spend_gate=spend_gate,
                 call_timeout_seconds=45 if spend_gate else None,
+                fallback_routes={"nlu": fallback_route, "phrase": fallback_route}
+                if fallback_route is not None
+                else None,
             )
         self.client = client
         self.cursor = 0
@@ -62,7 +77,7 @@ class AgentAI:
             country=self.runtime.country,
             bank_clock=clock,
             client=None if outage else self.client,
-            prompt_path=ROOT / "prompts/nlu/v1.md",
+            prompt_path=ROOT / "prompts/nlu/v4.md",
         )
         if self.runtime.fault("unsupported_language", "nlu"):
             result = result.model_copy(update={"clarification": "language", "degraded": False})
