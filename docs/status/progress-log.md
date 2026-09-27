@@ -5,14 +5,15 @@
 ### Completed (verified)
 
 - Read handoff 13 and authored the 20-case synthetic [explain/offer confirmation set](../../src/aclara/llm/dev_explain_offer_20.yaml) before any v5 prompt, NLG, or scenario implementation change. Its separate first commit `0692881` freezes the file and [SHA-256 manifest](../../src/aclara/llm/dev_explain_offer_20.sha256). Structural validation passed: 20 unique cases, 10 ES/10 pt-BR, 10 denial/10 recognition follow-ups, and no verbatim opening overlap with dev-v2.
+- Read merged ADR-0015 at `ab07bfe` and aligned [NLU v5 and grounded ES/PT offer templates](../ml/dev-explain-offer-v5.md) to `offer_dispute` / `awaiting_dispute_decision` and the internal recognition signal. The scenario adapter reads the frozen hash and supplies explicit offer, choice and confirmation replies. Focused mock/unit tests, Ruff and strict mypy passed; no paid call or suite-v3 row access occurred.
 
 ### Done but not verified
 
-- The new set is semantic-only until the lead's Step 1 ADR defines state and outcome names; no API or real-model run has used it. Its slang and labels are AI-authored, not fluent-human reviewed.
+- The new set's slang and labels are AI-authored, not fluent-human reviewed. End-to-end dev behavior and real-model prompt v5 remain unverified until the lead's executable response contract, simulator and scorer changes merge.
 
 ### Next / blocked
 
-- Merge the lead's Step 1 ADR before finalizing NLU v5 and the scenario adapter. The lead must initialize `dev-gate/after-v2` before any shared $1 dev paid call. Do not open suite-v3 rows; lead merges AI PRs after CI.
+- Lead merges the frozen fixture PR and integrates additive `offer_dispute` API/scenario/scorer behavior, then runs the dev gate. The lead must initialize `dev-gate/after-v2` before any shared $1 dev paid call. Do not open suite-v3 rows; lead merges AI PRs after CI.
 
 ---
 
