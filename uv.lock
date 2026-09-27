@@ -20,6 +20,7 @@ dependencies = [
     { name = "python-dotenv" },
     { name = "pyyaml" },
     { name = "rapidfuzz" },
+    { name = "typesafe-sdk" },
     { name = "uvicorn", extra = ["standard"] },
 ]
 
@@ -43,12 +44,10 @@ dev = [
     { name = "pytest" },
     { name = "pytz" },
     { name = "ruff" },
-    { name = "typesafe-sdk" },
 ]
 llm = [
     { name = "anthropic" },
     { name = "google-genai" },
-    { name = "typesafe-sdk" },
 ]
 
 [package.metadata]
@@ -84,8 +83,7 @@ requires-dist = [
     { name = "rapidfuzz", marker = "extra == 'data-ml'", specifier = ">=3.14,<4" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.11,<1" },
     { name = "scikit-learn", marker = "extra == 'data-ml'", specifier = ">=1.7,<2" },
-    { name = "typesafe-sdk", marker = "extra == 'dev'", specifier = ">=0.7.2" },
-    { name = "typesafe-sdk", marker = "extra == 'llm'", specifier = ">=0.7.2" },
+    { name = "typesafe-sdk", specifier = ">=0.7.2,<0.8" },
     { name = "uvicorn", extras = ["standard"], specifier = ">=0.34,<1" },
 ]
 provides-extras = ["data-ml", "llm", "dev"]

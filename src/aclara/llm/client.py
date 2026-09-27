@@ -93,7 +93,7 @@ class StructuredClient:
 
     def reserve_external_judgment(
         self, reserve_usd: float, *, primary_floor_usd: float = 0.05
-    ) -> None:
+    ) -> str | None:
         """Reserve budget for a concurrent typed judgment before its network call."""
         with self._lock:
             if os.getenv("LLM_REAL_CALLS_APPROVED") != "1" or reserve_usd <= 0:
@@ -102,15 +102,21 @@ class StructuredClient:
             if today != self._daily_date:
                 self._daily_date, self._daily_spend_usd = today, 0.0
             if (
-                self.budget_usd <= 0
-                or self.spent_usd + reserve_usd + primary_floor_usd > self.budget_usd
-                or self._daily_spend_usd + reserve_usd + primary_floor_usd > self.daily_budget_usd
-            ):
+                self.budget_usd is not None
+                and (
+                    self.budget_usd <= 0
+                    or self.spent_usd + reserve_usd + primary_floor_usd > self.budget_usd
+                )
+            ) or self._daily_spend_usd + reserve_usd + primary_floor_usd > self.daily_budget_usd:
                 raise ModelFailure("Insufficient shared LLM budget for typed judgment")
+            reservation = self.spend_gate.reserve(reserve_usd) if self.spend_gate else None
             self.spent_usd += reserve_usd
             self._daily_spend_usd += reserve_usd
+            return reservation
 
-    def finish_external_judgment(self, record: CallRecord, *, reserve_usd: float = 0.0) -> None:
+    def finish_external_judgment(
+        self, record: CallRecord, *, reserve_usd: float = 0.0, reservation: str | None = None
+    ) -> None:
         """Persist cost and evidence through the existing execution-record path."""
         with self._lock:
             if record.cost_usd is not None:
@@ -120,6 +126,10 @@ class StructuredClient:
             self.records.append(record)
             if self._record:
                 self._record(record)
+            if self._response_record:
+                self._response_record(record, record.judgments)
+            if reservation is not None and self.spend_gate:
+                self.spend_gate.settle(reservation, record.cost_usd)
 
     def generate(
         self,

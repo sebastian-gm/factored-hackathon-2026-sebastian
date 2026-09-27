@@ -7,6 +7,9 @@ import math
 import os
 from collections.abc import Iterator, Mapping
 from contextlib import contextmanager
+from hashlib import sha256
+from pathlib import Path
+from time import perf_counter
 from typing import Any
 
 from typesafe_sdk import RetryPolicy, TypeSafeClient
@@ -16,6 +19,7 @@ from aclara.llm.client import StructuredClient
 from aclara.llm.judge import _score
 from aclara.llm.judge_validation import DIMENSIONS, quadratic_weighted_kappa
 from aclara.llm.prompts import Prompt
+from aclara.llm.types import CallRecord
 from aclara.llm.typesafe import MODEL_ID as JEV_MODEL_ID
 from aclara.llm.typesafe import TypedJudgments, TypeSafeAdapter
 from aclara.llm.typesafe_questions import judge_questions
@@ -80,12 +84,47 @@ def score_pair(
     jev_result: TypedJudgments | None = None
     jev_scores: dict[str, int | None] | None = None
     degradation: str | None = None
+    reservation = sonnet_client.reserve_external_judgment(0.01, primary_floor_usd=0)
+    started = perf_counter()
     try:
         jev_result = jev_adapter.ask(state, judge_questions(has_handoff=handoff is not None))
         jev_scores = _jev_scores(jev_result, has_handoff=handoff is not None)
     except Exception as exc:
         degradation = type(exc).__name__
         LOGGER.warning("Jev subjective judge degraded: %s", degradation)
+    finally:
+        sonnet_client.finish_external_judgment(
+            CallRecord(
+                route="subjective_second_judge",
+                provider="typesafe",
+                model_id=JEV_MODEL_ID,
+                prompt_id="jev-subjective-v1",
+                prompt_hash=sha256(
+                    Path(__file__).with_name("typesafe_questions.py").read_bytes()
+                ).hexdigest(),
+                input_tokens=(jev_result.input_tokens or 0) if jev_result else 0,
+                output_tokens=(jev_result.output_tokens or 0) if jev_result else 0,
+                cache_read_tokens=0,
+                cache_write_tokens=0,
+                latency_ms=(perf_counter() - started) * 1000,
+                cost_usd=jev_result.cost_usd if jev_result else None,
+                stop_reason=None,
+                status="valid" if jev_scores is not None else "provider_error",
+                attempt=1,
+                judgments={
+                    "scores": jev_scores,
+                    "degradation": degradation,
+                    "raw": {
+                        name: {"score": value.score, "probabilities": value.probabilities}
+                        for name, value in jev_result.scores.items()
+                    }
+                    if jev_result
+                    else None,
+                },
+            ),
+            reserve_usd=0.01,
+            reservation=reservation,
+        )
     return {
         "sonnet_scores": sonnet.model_dump(),
         "jev_scores": jev_scores,

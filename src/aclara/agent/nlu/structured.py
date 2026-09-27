@@ -364,6 +364,7 @@ def _record_risk_opinion(
     reserve_usd: float,
     latency_ms: float,
     primary_failed: bool,
+    reservation: str | None,
 ) -> ExtractedNlu:
     gemini_flags = _risk_flags(extracted)
     raw_jev_probabilities = result.nouls if result is not None else None
@@ -384,13 +385,13 @@ def _record_risk_opinion(
         provider="typesafe",
         model_id=JEV_MODEL_ID,
         prompt_id=QUESTION_VERSION,
-        prompt_hash=sha256(QUESTION_VERSION.encode()).hexdigest(),
+        prompt_hash=sha256(Path("src/aclara/llm/typesafe_questions.py").read_bytes()).hexdigest(),
         input_tokens=(result.input_tokens or 0) if result else 0,
         output_tokens=(result.output_tokens or 0) if result else 0,
         cache_read_tokens=0,
         cache_write_tokens=0,
         latency_ms=result.latency_ms if result else latency_ms,
-        cost_usd=result.cost_usd if result else None,
+        cost_usd=result.cost_usd if result else (None if reserve_usd else 0.0),
         stop_reason=None,
         status="valid"
         if jev_probabilities is not None
@@ -411,7 +412,7 @@ def _record_risk_opinion(
             "primary_failed": primary_failed,
         },
     )
-    client.finish_external_judgment(record, reserve_usd=reserve_usd)
+    client.finish_external_judgment(record, reserve_usd=reserve_usd, reservation=reservation)
     if degradation:
         LOGGER.warning("Jev NLU risk second opinion degraded: %s", degradation)
     return extracted.model_copy(update=union)
@@ -437,6 +438,7 @@ def understand(
     future: Future[TypedJudgments] | None = None
     executor: ThreadPoolExecutor | None = None
     reserve_usd = 0.0
+    reservation: str | None = None
     degradation: str | None = None
     started = perf_counter()
     if real_route:
@@ -445,14 +447,14 @@ def understand(
             degradation = "missing_typesafe_key"
         else:
             try:
-                client.reserve_external_judgment(JEV_RESERVE_USD)
+                reservation = client.reserve_external_judgment(JEV_RESERVE_USD)
                 reserve_usd = JEV_RESERVE_USD
                 executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix="jev-risk")
                 future = executor.submit(_ask_jev_risks, message, key)
             except ModelFailure:
                 degradation = "typesafe_budget_or_approval"
-            except Exception as exc:
-                degradation = f"typesafe_setup_{type(exc).__name__}"
+    extracted = _fallback_extract(message)
+    primary_failed = True
     try:
         extracted = client.generate(
             "nlu",
@@ -466,27 +468,29 @@ def understand(
     except ModelFailure:
         extracted = _fallback_extract(message)
         primary_failed = True
-    if real_route:
-        result: TypedJudgments | None = None
-        if future is not None:
-            try:
-                result = future.result(timeout=JEV_WAIT_SECONDS)
-            except FutureTimeout:
-                degradation = "typesafe_timeout"
-            except Exception as exc:
-                degradation = f"typesafe_{type(exc).__name__}"
-            finally:
-                assert executor is not None
-                executor.shutdown(wait=False, cancel_futures=True)
-        extracted = _record_risk_opinion(
-            client,
-            extracted,
-            result,
-            degradation=degradation,
-            reserve_usd=reserve_usd,
-            latency_ms=(perf_counter() - started) * 1000 if future is not None else 0.0,
-            primary_failed=primary_failed,
-        )
+    finally:
+        if real_route:
+            result: TypedJudgments | None = None
+            if future is not None:
+                try:
+                    result = future.result(timeout=JEV_WAIT_SECONDS)
+                except FutureTimeout:
+                    degradation = "typesafe_timeout"
+                except Exception as exc:
+                    degradation = f"typesafe_{type(exc).__name__}"
+                finally:
+                    assert executor is not None
+                    executor.shutdown(wait=False, cancel_futures=True)
+            extracted = _record_risk_opinion(
+                client,
+                extracted,
+                result,
+                degradation=degradation,
+                reserve_usd=reserve_usd,
+                latency_ms=(perf_counter() - started) * 1000 if future is not None else 0.0,
+                primary_failed=primary_failed,
+                reservation=reservation,
+            )
     if _explicit_human_request(message):
         extracted = extracted.model_copy(
             update={"intent": "human_request", "human_requested": True}
