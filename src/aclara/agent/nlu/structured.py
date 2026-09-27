@@ -12,7 +12,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from aclara.agent.contracts import Intent, NluFrame
 from aclara.agent.nlg.grounding import redact_for_model
-from aclara.agent.nlu.rules import classify, normalize_text
+from aclara.agent.nlu.rules import classify_nlu, normalize_text
 from aclara.llm.client import StructuredClient
 from aclara.llm.prompts import data_block, load_prompt
 from aclara.llm.types import ModelFailure
@@ -234,7 +234,7 @@ def parse_relative_date(expression: str | None, bank_clock: datetime) -> tuple[d
 
 
 def _fallback_extract(message: str) -> ExtractedNlu:
-    frame = classify(message)
+    frame = classify_nlu(message)
     amount = re.search(
         r"\b\d+(?:[.,]\d+)?\s*(?:pesos?|dolares?|reais|lucas?|palos?|contos?|varos?|pila)?",
         normalize_text(message),
@@ -337,7 +337,7 @@ def understand(
         return postprocess(
             _fallback_extract(message), country=country, bank_clock=bank_clock
         ).model_copy(update={"degraded": True})
-    prompt = load_prompt(prompt_path or Path("prompts/nlu/v1.md"))
+    prompt = load_prompt(prompt_path or Path("prompts/nlu/v4.md"))
     try:
         extracted = client.generate(
             "nlu",

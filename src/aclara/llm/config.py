@@ -32,7 +32,31 @@ class Price:
 
 def load_models(path: Path) -> dict[str, ModelSpec]:
     data = yaml.safe_load(path.read_text(encoding="utf-8"))
-    return {name: ModelSpec(**fields) for name, fields in data["models"].items()}
+    models: dict[str, ModelSpec] = {}
+    for name, fields in data["models"].items():
+        providers = fields.get("provider_only", [])
+        if not isinstance(providers, list) or any(
+            not isinstance(provider, str) or not provider for provider in providers
+        ):
+            raise ValueError("provider_only must be a list of nonempty provider names")
+        models[name] = ModelSpec(**{**fields, "provider_only": tuple(providers)})
+    return models
+
+
+def load_fallback_route(path: Path, models: dict[str, ModelSpec]) -> str | None:
+    """Validate the selected alternate model; None disables automatic failover."""
+    data = yaml.safe_load(path.read_text(encoding="utf-8"))
+    selection = data.get("routing", {})
+    if not isinstance(selection, dict):
+        raise ValueError("Model routing configuration must be a mapping")
+    route = selection.get("fallback_route")
+    if route is None:
+        return None
+    if not isinstance(route, str) or route not in models:
+        raise ValueError("Fallback route must name a configured model")
+    if route == "default" or models[route].provider in {"mock", "recorded"}:
+        raise ValueError("Fallback route must be a distinct real model")
+    return route
 
 
 def load_prices(path: Path) -> dict[str, Price]:

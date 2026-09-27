@@ -1,0 +1,28 @@
+version: 1
+description: Synthetic paired denial and recognition development cases for NLU v4; not human spot-check or held-out utterances.
+source: team_authored_unreviewed
+cases:
+  - {id: cl.d01, country: CL, language: es, group: denial, message: 'Ese pago en Almacén Rayo no lo hice yo, po.', gold_intent: dispute_charge}
+  - {id: cl.d02, country: CL, language: es, group: denial, message: 'Jamás pasé mi tarjeta por Botillería Loma.', gold_intent: dispute_charge}
+  - {id: cl.d03, country: CL, language: es, group: denial, message: 'Ni pisé la Tienda Arrayán el sábado; ese cargo no es mío.', gold_intent: dispute_charge}
+  - {id: cl.d04, country: CL, language: es, group: denial, message: 'La compra de la Ferretería Cordillera no la autoricé.', gold_intent: dispute_charge}
+  - {id: cl.d05, country: CL, language: es, group: denial, message: 'No he comprado nada en Librería Puerto, ¿cachai?', gold_intent: dispute_charge}
+  - {id: cl.d06, country: CL, language: es, group: denial, message: 'Ese cobro de Café Isla no fui yo quien lo pagó.', gold_intent: dispute_charge}
+  - {id: br.d01, country: BR, language: pt, group: denial, message: 'Eu não comprei na Padaria Ipê; essa cobrança é indevida.', gold_intent: dispute_charge}
+  - {id: br.d02, country: BR, language: pt, group: denial, message: 'Nem passei meu cartão na Loja Aurora ontem.', gold_intent: dispute_charge}
+  - {id: br.d03, country: BR, language: pt, group: denial, message: 'Nunca estive no Mercado Vento; não fiz essa compra.', gold_intent: dispute_charge}
+  - {id: br.d04, country: BR, language: pt, group: denial, message: 'Esse pagamento na Farmácia Rio não foi meu.', gold_intent: dispute_charge}
+  - {id: ar.d01, country: AR, language: es, group: denial, message: 'Yo jamás compré en Mercado Lirio y aparece un cargo.', gold_intent: dispute_charge}
+  - {id: mx.d01, country: MX, language: es, group: denial, message: 'Esa transacción de Tienda Nube la hizo otra persona, no yo.', gold_intent: dispute_charge}
+  - {id: cl.q01, country: CL, language: es, group: inquiry, message: 'No cacho de dónde salió el pago de Almacén Rayo.', gold_intent: charge_inquiry}
+  - {id: cl.q02, country: CL, language: es, group: inquiry, message: 'No me suena la compra de Botillería Loma; ¿qué será?', gold_intent: charge_inquiry}
+  - {id: cl.q03, country: CL, language: es, group: inquiry, message: 'No recuerdo ese cargo de Tienda Arrayán, ¿me explican?', gold_intent: charge_inquiry}
+  - {id: cl.q04, country: CL, language: es, group: inquiry, message: 'Ese movimiento de Librería Puerto me parece raro.', gold_intent: charge_inquiry}
+  - {id: cl.q05, country: CL, language: es, group: inquiry, message: 'No sé qué es lo de Café Isla; cuéntame primero.', gold_intent: charge_inquiry}
+  - {id: cl.q06, country: CL, language: es, group: inquiry, message: 'Me figura un cobro de Ferretería Cordillera que no ubico.', gold_intent: charge_inquiry}
+  - {id: br.q01, country: BR, language: pt, group: inquiry, message: 'Não reconheço a cobrança da Padaria Ipê; pode explicar?', gold_intent: charge_inquiry}
+  - {id: br.q02, country: BR, language: pt, group: inquiry, message: 'Não lembro dessa compra na Loja Aurora.', gold_intent: charge_inquiry}
+  - {id: br.q03, country: BR, language: pt, group: inquiry, message: 'Não sei de onde veio o débito do Mercado Vento.', gold_intent: charge_inquiry}
+  - {id: br.q04, country: BR, language: pt, group: inquiry, message: 'Achei estranho o lançamento da Farmácia Rio.', gold_intent: charge_inquiry}
+  - {id: ar.q01, country: AR, language: es, group: inquiry, message: 'El cargo de Mercado Lirio me resulta desconocido, ¿qué es?', gold_intent: charge_inquiry}
+  - {id: mx.q01, country: MX, language: es, group: inquiry, message: 'No ubico ese consumo de Tienda Nube, explícame.', gold_intent: charge_inquiry}
