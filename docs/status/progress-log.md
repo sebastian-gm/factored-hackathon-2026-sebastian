@@ -5,6 +5,13 @@ Current status below supersedes the earlier lane handoffs; their detailed report
 
 ## Completed-verified
 
+### Handoff 06 — local recovery
+
+- `python -m scripts.backup_restore`: logical dump/restore passed on two disposable local Postgres 16 databases. Full-row hashes matched across all 11 ops tables; original session/case/handoff/trace and card state recovered; 16 audit entries verified; forced RLS and no-context denial survived. Temporary databases/login/archive removed, application database unchanged. Aggregate-only report: `docs/ops-recovery.md`.
+- `python -m scripts.azure_health_diagnostics`: reproduced scale-from-zero startup (0 → 1 replicas), two 20s health timeouts, then readiness after about 49s total. Azure event classes show activation/image pull/start/probe failure; warm requests were 0.29–0.38s. Exact historical 120s cause remains unproven. Smoke now uses bounded readiness GET polling; no capacity/access/cost change. See `docs/azure-startup-diagnosis.md`.
+- `python -m scripts.azure_prices`: live East US 2 recheck at 2026-09-27 02:54 UTC still US$34.63/month under the US$40 stop threshold. No new cloud resources planned. Azure PITR/DR and budget-email delivery remain unverified.
+
+
 ### Handoff 06 — additive frontend API support
 
 - Reviewed PR #17's API proposal and code. Added typed trusted `/me`/persona discovery, logout revocation, complete packet metadata, scoped Agent Desk queue/detail/claim/resolve, redacted execution trace, actual Ops counts and confirmed fresh-OTP workspace reset. Preserved existing RLS and v1 endpoints. Cloud remains customer-only; reset is disabled by default.
@@ -103,7 +110,7 @@ The first immediate Compose smoke before health waiting hit a web startup connec
 
 - Real provider adapters and comparison code have mock tests only. Real-model comparison, final default selection and cross-vendor judge validation have not run.
 - Spanish human review, PT/MX/AR cross-vendor language review and catalog translation review remain pending. No fluent Portuguese reviewer is available; model-authored language is labeled as such.
-- Actual monthly charges/free-grant availability, budget email delivery, backup restore/DR, automatic retention, sustained load and manual browser visual review remain unverified. API HTTP flows and production builds were tested.
+- Actual monthly charges/free-grant availability, budget email delivery, Azure PITR/DR, automatic retention, sustained load and manual browser visual review remain unverified. API HTTP flows and production builds were tested.
 - The persistent home lake has not been rebuilt/migrated in this session. Organizer serving data is not bound to the API; cloud data contains authored fixtures only.
 
 ## Next-blocked
