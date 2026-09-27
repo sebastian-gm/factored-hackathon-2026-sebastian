@@ -33,6 +33,7 @@ class ProviderResponse:
     model_id: str
     usage: TokenUsage
     stop_reason: str | None = None
+    billed_cost_usd: float | None = None
 
 
 @dataclass(frozen=True, slots=True)

@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
+from contextlib import suppress
 from dataclasses import dataclass
 from datetime import datetime
+from decimal import Decimal, InvalidOperation
 from statistics import mean
 
 from aclara.agent.nlg.grounding import redact_for_model
@@ -22,6 +24,7 @@ class ComparisonCase:
     gold_intent: str
     gold_slots: dict[str, str]
     language: str
+    scored_slot_keys: tuple[str, ...] | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -48,8 +51,19 @@ def _percentile(values: list[float], proportion: float) -> float:
     return ordered[low] + (ordered[high] - ordered[low]) * (pos - low)
 
 
-def _slot_pairs(values: Mapping[str, object]) -> set[tuple[str, str]]:
-    return {(key, str(value).casefold()) for key, value in values.items() if value is not None}
+def _slot_pairs(
+    values: Mapping[str, object], scored_keys: tuple[str, ...] | None = None
+) -> set[tuple[str, str]]:
+    result: set[tuple[str, str]] = set()
+    for key, value in values.items():
+        if value is None or (scored_keys is not None and key not in scored_keys):
+            continue
+        normalized = str(value).strip().casefold()
+        if key == "amount_value":
+            with suppress(InvalidOperation):
+                normalized = str(Decimal(normalized).normalize())
+        result.add((key, normalized))
+    return result
 
 
 def evaluate_model(
@@ -59,6 +73,7 @@ def evaluate_model(
     prompt: Prompt,
     *,
     quality_scores: dict[str, list[float]] | None = None,
+    after_case: Callable[[], None] | None = None,
 ) -> ComparisonRow:
     if not cases:
         raise ValueError("Comparison requires cases")
@@ -79,14 +94,16 @@ def evaluate_model(
             )
             result = postprocess(extracted, country=case.country, bank_clock=case.bank_clock)
             correct_intent += result.extracted.intent == case.gold_intent
-            predicted = _slot_pairs(result.slots.model_dump())
-            gold = _slot_pairs(case.gold_slots)
+            predicted = _slot_pairs(result.slots.model_dump(), case.scored_slot_keys)
+            gold = _slot_pairs(case.gold_slots, case.scored_slot_keys)
             tp += len(predicted & gold)
             fp += len(predicted - gold)
             fn += len(gold - predicted)
         except ModelFailure:
-            fn += len(_slot_pairs(case.gold_slots))
+            fn += len(_slot_pairs(case.gold_slots, case.scored_slot_keys))
         case_latencies.append(sum(record.latency_ms for record in client.records[prior:]))
+        if after_case is not None:
+            after_case()
     records = client.records[start_record:]
     parsed = [record for record in records if record.status in {"valid", "invalid_json"}]
     valid_rate = (

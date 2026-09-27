@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import math
 from collections.abc import Callable
 from importlib import import_module
 from typing import Any, Protocol
@@ -86,6 +87,10 @@ class OpenAICompat:
             content = choice["message"]["content"]
             usage = data.get("usage") or {}
             prompt_details = usage.get("prompt_tokens_details") or {}
+            raw_cost = usage.get("cost")
+            billed_cost = float(raw_cost) if raw_cost is not None else None
+            if billed_cost is not None and (not math.isfinite(billed_cost) or billed_cost < 0):
+                raise ValueError("Invalid billed cost")
             return ProviderResponse(
                 text=content if isinstance(content, str) else "",
                 model_id=str(data.get("model") or spec.model_id),
@@ -95,6 +100,7 @@ class OpenAICompat:
                     cache_read_tokens=int(prompt_details.get("cached_tokens") or 0),
                 ),
                 stop_reason=choice.get("finish_reason"),
+                billed_cost_usd=billed_cost,
             )
         except (KeyError, IndexError, TypeError, ValueError) as exc:
             raise ModelFailure("Malformed provider response") from exc

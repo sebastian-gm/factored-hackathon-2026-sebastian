@@ -73,6 +73,7 @@ class StructuredClient:
         prompt_hash: str | None = None,
     ) -> T:
         spec = self.models[route]
+        reserve = 0.0
         if spec.provider not in {"mock", "recorded"}:
             today = datetime.now(UTC).date()
             if today != self._daily_date:
@@ -99,6 +100,15 @@ class StructuredClient:
         key = os.getenv(spec.key_env, "") if spec.key_env else ""
         digest = prompt_hash or sha256(system.encode("utf-8")).hexdigest()
         for attempt in (1, 2):
+            if (
+                attempt > 1
+                and spec.provider not in {"mock", "recorded"}
+                and (
+                    self.spent_usd + reserve > self.budget_usd
+                    or self._daily_spend_usd + reserve > self.daily_budget_usd
+                )
+            ):
+                raise ModelFailure("Insufficient LLM budget for a retry")
             started = perf_counter()
             response: ProviderResponse | None = None
             status: Literal["valid", "invalid_json", "provider_error", "refusal"] = "provider_error"
@@ -156,5 +166,7 @@ class StructuredClient:
     def _cost(self, spec: ModelSpec, response: ProviderResponse | None) -> float | None:
         if response is None or spec.provider in {"mock", "recorded"}:
             return 0.0
+        if response.billed_cost_usd is not None:
+            return response.billed_cost_usd
         price = self.prices.get(spec.price_id or "")
         return price.cost(response.usage) if price else None

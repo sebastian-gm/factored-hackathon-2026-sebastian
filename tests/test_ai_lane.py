@@ -26,7 +26,8 @@ from aclara.llm.comparison import ComparisonCase, evaluate_model, markdown_table
 from aclara.llm.config import Price, load_models, load_prices
 from aclara.llm.prompts import Prompt
 from aclara.llm.providers import OpenAICompat
-from aclara.llm.types import ModelFailure, ModelSpec
+from aclara.llm.round_one import _cases
+from aclara.llm.types import ModelFailure, ModelSpec, ProviderResponse, TokenUsage
 
 
 class _Answer(BaseModel):
@@ -48,7 +49,7 @@ def test_openrouter_request_uses_strict_schema_and_privacy_flags(
         observed["body"] = json.loads(request.data)  # type: ignore[attr-defined]
         observed["timeout"] = timeout
         return BytesIO(
-            b'{"model":"served-model","choices":[{"message":{"content":"{\\"value\\":null}"},"finish_reason":"stop"}],"usage":{"prompt_tokens":12,"completion_tokens":4}}'
+            b'{"model":"served-model","choices":[{"message":{"content":"{\\"value\\":null}"},"finish_reason":"stop"}],"usage":{"prompt_tokens":12,"completion_tokens":4,"cost":0.000123}}'
         )
 
     monkeypatch.setattr("aclara.llm.providers.urlopen", fake_urlopen)
@@ -71,6 +72,26 @@ def test_openrouter_request_uses_strict_schema_and_privacy_flags(
     assert "default" not in schema["properties"]["value"]
     assert response.model_id == "served-model"
     assert response.usage.input_tokens == 12
+    assert response.billed_cost_usd == 0.000123
+
+
+def test_round_one_uses_all_current_synthetic_dev_scenarios() -> None:
+    cases, suite_hash = _cases()
+    assert len(cases) == 32
+    assert len(suite_hash) == 64
+    assert all(
+        case.scored_slot_keys == ("amount_value", "currency", "merchant_expr") for case in cases
+    )
+    assert sum(case.gold_intent == "dispute_charge" for case in cases) == 12
+    assert sum(bool(case.gold_slots) for case in cases) == 15
+
+
+def test_openrouter_billed_cost_takes_priority_over_catalog_estimate() -> None:
+    spec = ModelSpec(provider="openai_compat", model_id="candidate", price_id="candidate")
+    price = Price(1.0, 1.0, 1.0, 1.0, datetime(2026, 9, 26, tzinfo=UTC).date(), "test")
+    client = StructuredClient({"candidate": spec}, {"candidate": price})
+    response = ProviderResponse("{}", "candidate", TokenUsage(100, 100), billed_cost_usd=0.000123)
+    assert client._cost(spec, response) == 0.000123
 
 
 def test_same_case_comparison_reports_aggregate_metrics() -> None:
