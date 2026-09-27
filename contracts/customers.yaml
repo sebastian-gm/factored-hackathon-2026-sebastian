@@ -1,4 +1,4 @@
-contract_version: 1.0.0
+contract_version: 1.1.0
 table: customers
 primary_key: [customer_id]
 unknown_columns: warn_and_exclude_from_silver
@@ -17,10 +17,10 @@ columns:
   address: {type: string, nullable: true, pii: direct_identifier, llm_exposure: never}
   city: {type: string, nullable: false, pii: quasi_identifier, llm_exposure: never}
   state: {type: string, nullable: false, pii: quasi_identifier, llm_exposure: never}
-  country: {type: string, nullable: false, pii: quasi_identifier, llm_exposure: never}
+  country: {type: string, nullable: false, pii: quasi_identifier, llm_exposure: never, enum: [MX, CO, AR]}
   postal_code: {type: string, nullable: true, pii: quasi_identifier, llm_exposure: never}
   detected_accent: {type: string, nullable: true, pii: sensitive, llm_exposure: never}
-  segment: {type: string, nullable: false, pii: sensitive, llm_exposure: never}
+  segment: {type: string, nullable: false, pii: sensitive, llm_exposure: never, enum: [Basic, Plus, Premium, Student]}
   credit_score: {type: integer, nullable: true, pii: sensitive, llm_exposure: never, min: 300, max: 850}
   estimated_monthly_income: {type: number, nullable: true, pii: sensitive, llm_exposure: never}
   occupation: {type: string, nullable: true, pii: sensitive, llm_exposure: never}
@@ -28,8 +28,8 @@ columns:
   education_level: {type: string, nullable: true, pii: sensitive, llm_exposure: never}
   registration_date: {type: date, nullable: false, pii: none, llm_exposure: never}
   registration_branch_id: {type: string, nullable: false, pii: quasi_identifier, llm_exposure: never}
-  customer_status: {type: string, nullable: false, pii: sensitive, llm_exposure: never}
-  last_updated: {type: timestamp, nullable: false, pii: none, llm_exposure: never}
+  customer_status: {type: string, nullable: false, pii: sensitive, llm_exposure: never, enum: [Active, Inactive, Suspended, Closed]}
+  last_updated: {type: timestamp, nullable: false, pii: none, llm_exposure: never, timezone: UTC}
   accepts_marketing: {type: boolean, nullable: false, pii: sensitive, llm_exposure: never}
 normalization:
   country:

@@ -1,0 +1,3 @@
+product_id,customer_id,product_type,product_number,currency,current_balance,credit_limit,interest_rate,opening_date,expiration_date,opening_branch_id,product_status,opening_channel,has_linked_app,days_past_due,last_transaction_date,last_updated
+fixture-product-a,fixture-customer-a,savings_account,fixture-product_number,USD,1.0,,,2023-01-01,,fixture-opening_branch_id,Active,fixture-opening_channel,true,,,2026-06-14T12:00:00Z
+fixture-product-b,fixture-customer-b,savings_account,fixture-number-b,USD,1.0,,,2023-01-01,,fixture-opening_branch_id,Active,fixture-opening_channel,true,,,2026-06-14T12:00:00Z

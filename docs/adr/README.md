@@ -6,13 +6,13 @@
 | 0002 | LLM provider and model | Deferred pending access and budget approval |
 | 0003 | AI and deterministic split | Planned |
 | 0004 | Serving data isolation | Planned |
-| 0005 | Local data stack | Planned |
-| 0006 | Bank clock and timestamp interpretation | Planned |
-| 0007 | Charge matcher labels and baseline | Deferred |
+| [0005](0005-data-platform.md) | Contracted local gold tables | Accepted |
+| [0006](0006-bank-clock.md) | UTC timestamps and bank clock | Accepted |
+| [0007](0007-charge-matcher.md) | Leakage-safe matcher comparison | Experimental |
 | 0008 | Templates and phrasing | Planned |
 | 0009 | Test identity service | Planned |
 | 0010 | Hosting | Deferred pending explicit approval |
-| 0011 | Batch processing and source versioning | Planned |
+| [0011](0011-incremental-snapshots.md) | Incremental objects and atomic snapshots | Accepted |
 | 0012 | Fraud score threshold | Deferred |
 
 Copy [the ADR template](template.md) for each new decision.

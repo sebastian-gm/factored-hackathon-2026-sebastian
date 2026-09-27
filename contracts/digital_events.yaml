@@ -1,0 +1,139 @@
+contract_version: 1.0.0
+table: digital_events
+primary_key:
+- event_id
+unknown_columns: warn_and_exclude_from_silver
+missing_required_columns: fail_partition
+columns:
+  event_id:
+    type: string
+    nullable: false
+    pii: quasi_identifier
+    llm_exposure: never
+  event_date:
+    type: timestamp
+    nullable: false
+    pii: none
+    llm_exposure: never
+    timezone: UTC
+  process_date:
+    type: date
+    nullable: false
+    pii: none
+    llm_exposure: never
+  customer_id:
+    type: string
+    nullable: true
+    pii: quasi_identifier
+    llm_exposure: never
+  session_id:
+    type: string
+    nullable: false
+    pii: quasi_identifier
+    llm_exposure: never
+  event_type:
+    type: string
+    nullable: false
+    pii: none
+    llm_exposure: never
+  event_category:
+    type: string
+    nullable: false
+    pii: none
+    llm_exposure: never
+  channel:
+    type: string
+    nullable: false
+    pii: none
+    llm_exposure: never
+  platform:
+    type: string
+    nullable: true
+    pii: none
+    llm_exposure: never
+  browser:
+    type: string
+    nullable: true
+    pii: none
+    llm_exposure: never
+  app_version:
+    type: string
+    nullable: true
+    pii: none
+    llm_exposure: never
+  page_url:
+    type: string
+    nullable: true
+    pii: none
+    llm_exposure: never
+  page_title:
+    type: string
+    nullable: true
+    pii: none
+    llm_exposure: never
+  action:
+    type: string
+    nullable: true
+    pii: none
+    llm_exposure: never
+  element_id:
+    type: string
+    nullable: true
+    pii: quasi_identifier
+    llm_exposure: never
+  product_id:
+    type: string
+    nullable: true
+    pii: quasi_identifier
+    llm_exposure: never
+  event_value:
+    type: number
+    nullable: true
+    pii: none
+    llm_exposure: never
+  duration_seconds:
+    type: integer
+    nullable: true
+    pii: none
+    llm_exposure: never
+    min: 0
+  ip_address:
+    type: string
+    nullable: true
+    pii: direct_identifier
+    llm_exposure: never
+  ip_country:
+    type: string
+    nullable: true
+    pii: none
+    llm_exposure: never
+  ip_city:
+    type: string
+    nullable: true
+    pii: none
+    llm_exposure: never
+  is_mobile:
+    type: boolean
+    nullable: false
+    pii: none
+    llm_exposure: never
+  referrer:
+    type: string
+    nullable: true
+    pii: none
+    llm_exposure: never
+  utm_source:
+    type: string
+    nullable: true
+    pii: none
+    llm_exposure: never
+  utm_medium:
+    type: string
+    nullable: true
+    pii: none
+    llm_exposure: never
+  utm_campaign:
+    type: string
+    nullable: true
+    pii: none
+    llm_exposure: never

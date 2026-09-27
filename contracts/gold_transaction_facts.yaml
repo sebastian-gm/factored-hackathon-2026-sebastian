@@ -1,0 +1,118 @@
+contract_version: 1.0.0
+table: transaction_facts
+layer: gold
+primary_key:
+- transaction_id
+columns:
+  transaction_id:
+    type: string
+    nullable: false
+    pii: quasi_identifier
+    llm_exposure: never
+  customer_id:
+    type: string
+    nullable: false
+    pii: quasi_identifier
+    llm_exposure: never
+  product_id:
+    type: string
+    nullable: false
+    pii: quasi_identifier
+    llm_exposure: never
+  transaction_date:
+    type: timestamp
+    timezone: UTC
+    nullable: false
+    pii: quasi_identifier
+    llm_exposure: masked
+  process_date:
+    type: date
+    nullable: false
+    pii: none
+    llm_exposure: never
+  transaction_type:
+    type: string
+    nullable: false
+    pii: none
+    llm_exposure: masked
+  transaction_category:
+    type: string
+    nullable: true
+    pii: none
+    llm_exposure: masked
+  amount:
+    type: number
+    nullable: false
+    pii: sensitive
+    llm_exposure: masked
+    min: 0
+  currency:
+    type: string
+    nullable: false
+    pii: none
+    llm_exposure: masked
+  amount_usd:
+    type: number
+    nullable: true
+    pii: sensitive
+    llm_exposure: never
+  channel:
+    type: string
+    nullable: false
+    pii: none
+    llm_exposure: never
+  merchant_name:
+    type: string
+    nullable: true
+    pii: none
+    llm_exposure: masked
+  merchant_category:
+    type: string
+    nullable: true
+    pii: none
+    llm_exposure: masked
+  transaction_country:
+    type: string
+    nullable: false
+    pii: quasi_identifier
+    llm_exposure: masked
+  transaction_status:
+    type: string
+    nullable: false
+    pii: none
+    llm_exposure: masked
+  customer_country:
+    type: string
+    nullable: false
+    pii: quasi_identifier
+    llm_exposure: never
+  product_status:
+    type: string
+    nullable: false
+    pii: sensitive
+    llm_exposure: never
+  _dataset_version:
+    type: string
+    nullable: false
+    pii: none
+    llm_exposure: never
+  _source_file:
+    type: string
+    nullable: false
+    pii: none
+    llm_exposure: never
+  _source_sha256:
+    type: string
+    nullable: false
+    pii: none
+    llm_exposure: never
+  _ingested_at:
+    type: timestamp
+    nullable: false
+    pii: none
+    llm_exposure: never
+  _pipeline_version:
+    type: string
+    nullable: false
+    pii: none
+    llm_exposure: never

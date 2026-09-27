@@ -1,0 +1,529 @@
+version: 2
+models:
+- name: customers
+  config:
+    contract:
+      enforced: true
+  columns:
+  - name: customer_id
+    data_type: varchar
+    constraints:
+    - type: not_null
+    data_tests:
+    - unique
+    - not_null
+  - name: country
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: segment
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: customer_status
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: _dataset_version
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: _source_file
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: _source_sha256
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: _ingested_at
+    data_type: timestamptz
+    constraints:
+    - type: not_null
+  - name: _pipeline_version
+    data_type: varchar
+    constraints:
+    - type: not_null
+- name: products
+  config:
+    contract:
+      enforced: true
+  columns:
+  - name: product_id
+    data_type: varchar
+    constraints:
+    - type: not_null
+    data_tests:
+    - unique
+    - not_null
+  - name: customer_id
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: product_type
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: currency
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: product_status
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: opening_date
+    data_type: date
+    constraints:
+    - type: not_null
+  - name: _dataset_version
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: _source_file
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: _source_sha256
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: _ingested_at
+    data_type: timestamptz
+    constraints:
+    - type: not_null
+  - name: _pipeline_version
+    data_type: varchar
+    constraints:
+    - type: not_null
+- name: fx_rates
+  config:
+    contract:
+      enforced: true
+  columns:
+  - name: date
+    data_type: date
+    constraints:
+    - type: not_null
+  - name: source_currency
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: target_currency
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: exchange_rate
+    data_type: double
+    constraints:
+    - type: not_null
+  - name: _dataset_version
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: _source_file
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: _source_sha256
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: _ingested_at
+    data_type: timestamptz
+    constraints:
+    - type: not_null
+  - name: _pipeline_version
+    data_type: varchar
+    constraints:
+    - type: not_null
+- name: service_agents
+  config:
+    contract:
+      enforced: true
+  columns:
+  - name: agent_id
+    data_type: varchar
+    constraints:
+    - type: not_null
+    data_tests:
+    - unique
+    - not_null
+  - name: native_accent
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: agent_type
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: languages
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: specialty
+    data_type: varchar
+  - name: total_monthly_interactions
+    data_type: bigint
+  - name: agent_status
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: _dataset_version
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: _source_file
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: _source_sha256
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: _ingested_at
+    data_type: timestamptz
+    constraints:
+    - type: not_null
+  - name: _pipeline_version
+    data_type: varchar
+    constraints:
+    - type: not_null
+- name: transaction_facts
+  config:
+    contract:
+      enforced: true
+  columns:
+  - name: transaction_id
+    data_type: varchar
+    constraints:
+    - type: not_null
+    data_tests:
+    - unique
+    - not_null
+  - name: customer_id
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: product_id
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: transaction_date
+    data_type: timestamptz
+    constraints:
+    - type: not_null
+  - name: process_date
+    data_type: date
+    constraints:
+    - type: not_null
+  - name: transaction_type
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: transaction_category
+    data_type: varchar
+  - name: amount
+    data_type: double
+    constraints:
+    - type: not_null
+  - name: currency
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: amount_usd
+    data_type: double
+  - name: channel
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: merchant_name
+    data_type: varchar
+  - name: merchant_category
+    data_type: varchar
+  - name: transaction_country
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: transaction_status
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: customer_country
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: product_status
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: _dataset_version
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: _source_file
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: _source_sha256
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: _ingested_at
+    data_type: timestamptz
+    constraints:
+    - type: not_null
+  - name: _pipeline_version
+    data_type: varchar
+    constraints:
+    - type: not_null
+- name: matcher_ledger
+  config:
+    contract:
+      enforced: true
+  columns:
+  - name: transaction_id
+    data_type: varchar
+    constraints:
+    - type: not_null
+    data_tests:
+    - unique
+    - not_null
+  - name: customer_id
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: product_id
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: transaction_date
+    data_type: timestamptz
+    constraints:
+    - type: not_null
+  - name: process_date
+    data_type: date
+    constraints:
+    - type: not_null
+  - name: transaction_type
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: transaction_category
+    data_type: varchar
+  - name: amount
+    data_type: double
+    constraints:
+    - type: not_null
+  - name: currency
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: amount_usd
+    data_type: double
+  - name: channel
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: merchant_name
+    data_type: varchar
+  - name: merchant_category
+    data_type: varchar
+  - name: transaction_country
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: transaction_status
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: customer_country
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: product_status
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: _dataset_version
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: _source_file
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: _source_sha256
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: _ingested_at
+    data_type: timestamptz
+    constraints:
+    - type: not_null
+  - name: _pipeline_version
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: amount_usd_recomputed
+    data_type: double
+  - name: fx_date
+    data_type: date
+  - name: fx_nearest_prior
+    data_type: boolean
+    constraints:
+    - type: not_null
+  - name: foreign_transaction
+    data_type: boolean
+    constraints:
+    - type: not_null
+- name: transactions
+  config:
+    contract:
+      enforced: true
+  columns:
+  - name: transaction_id
+    data_type: varchar
+    constraints:
+    - type: not_null
+    data_tests:
+    - unique
+    - not_null
+  - name: customer_id
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: product_id
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: transaction_date
+    data_type: timestamptz
+    constraints:
+    - type: not_null
+  - name: process_date
+    data_type: date
+    constraints:
+    - type: not_null
+  - name: transaction_type
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: transaction_category
+    data_type: varchar
+  - name: amount
+    data_type: double
+    constraints:
+    - type: not_null
+  - name: currency
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: amount_usd
+    data_type: double
+  - name: channel
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: merchant_name
+    data_type: varchar
+  - name: merchant_category
+    data_type: varchar
+  - name: transaction_country
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: transaction_status
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: customer_country
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: product_status
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: _dataset_version
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: _source_file
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: _source_sha256
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: _ingested_at
+    data_type: timestamptz
+    constraints:
+    - type: not_null
+  - name: _pipeline_version
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: amount_usd_recomputed
+    data_type: double
+  - name: fx_date
+    data_type: date
+  - name: fx_nearest_prior
+    data_type: boolean
+    constraints:
+    - type: not_null
+  - name: foreign_transaction
+    data_type: boolean
+    constraints:
+    - type: not_null
+  - name: fraud_score
+    data_type: double
+- name: complaint_history_agg
+  config:
+    contract:
+      enforced: true
+  columns:
+  - name: customer_id
+    data_type: varchar
+    constraints:
+    - type: not_null
+    data_tests:
+    - unique
+    - not_null
+  - name: complaint_count_90d
+    data_type: bigint
+    constraints:
+    - type: not_null
+  - name: _dataset_version
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: _source_file
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: _source_sha256
+    data_type: varchar
+    constraints:
+    - type: not_null
+  - name: _ingested_at
+    data_type: timestamptz
+    constraints:
+    - type: not_null
+  - name: _pipeline_version
+    data_type: varchar
+    constraints:
+    - type: not_null
+- name: problem_analysis
+  config:
+    contract:
+      enforced: true
+  columns:
+  - {name: metric, data_type: varchar, data_tests: [unique, not_null]}
+  - {name: value, data_type: varchar}
+  - {name: _dataset_version, data_type: varchar}
+  - {name: _source_file, data_type: varchar}
+  - {name: _source_sha256, data_type: varchar}
+  - {name: _ingested_at, data_type: timestamptz}
+  - {name: _pipeline_version, data_type: varchar}

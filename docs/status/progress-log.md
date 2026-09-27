@@ -45,6 +45,39 @@ Session date: 2026-09-26 (America/Vancouver)
 
 The local Compose stack is left running for review.
 
+## Data/ML lane — 2026-09-26
+
+### Completed (verified)
+
+- Read the lane handoff, full build brief, repository rules, prior progress log, official problem statement, kickoff deck and approved dictionary. Refreshed/rebased `feat/data-ml` on `origin/main`; it was current at `88d84ca`.
+- Added ten source contracts and nine dbt gold marts. The organizer build promoted dataset `b86f445cb468332bde984a788ef24f72f7070952b2d9292e0259e7b8f36397c9`: 150,000 customers, 400,000 products, 4,425,008 matcher ledger rows, 492,414 serving transactions, 13,164 FX rates, 1,200 service agents, and 150,000 customer complaint aggregates. Evidence: `uv run --no-sync python -m aclara.data.cli build`, DQ gate, dbt contracts/tests and export read-back.
+- The first organizer build failed safely on 24,029 null transcript durations. Aggregate diagnosis confirmed a dictionary mismatch; contract 1.1.0 retains nulls, with an explicit warning. The corrected build passed.
+- Incremental and matcher unit tests: `pytest tests/test_data_pipeline.py tests/test_charge_matcher.py` passed 7 tests. Coverage includes no-op reuse, restatement, late arrivals, extra columns, invalid/duplicate rows, removal, clock changes, customer/time leakage, missing FX and empty candidates.
+- Local Postgres fixture integration passed: full row checksums, idempotent reload, RLS with no context, table/view isolation, autocommit and pooled-connection reuse, and rollback after a failed load. No organizer rows were printed or staged.
+- Ruff and strict mypy passed on 31 source files before the final reports/model export. No LLM, cloud provisioning, or paid service was used. Sebastian clarified the Azure approval was for the lead lane, then explicitly instructed this lane to ignore it.
+
+- Completed the synthetic benchmark: 6,000 train, 3,000 validation, 3,000 test queries; 15% NONE in each. The validation partition has 1,026 tuning, 995 calibration and 979 policy queries, grouped by customer. Thirty Optuna trials and their MLflow child runs completed in the local ignored `lake/mlruns` store. Test was touched once for v1.
+- Validation selected LightGBM. Test top-1: rules 86.59%, logistic 96.78%, LightGBM 95.22%. Cost/query: 0.6197 / 0.3980 / 0.4717. Wrong proposals: 29/1,684 / 41/1,958 / 10/1,871. No-match precision and calibration trade-offs are reported rather than hidden. Paired customer-bootstrap cost difference for LightGBM vs rules: -0.1480, 95% CI [-0.1921, -0.1039].
+- Exported v1 and verified model score/decision parity, file checksums, training-source digest, parent MLflow FINISHED status, all 30 finished trial runs, and one test-touch record. Model parameters and aggregate results contain no row records.
+- Full suite: 14 passed, 1 local-Postgres test skipped in the ordinary invocation; that Postgres test passed separately with the local owner connection. B1: 32/32, 12 read-backs, safety guards passed. Frozen interface snapshots were current. A clean CI-dependency environment passed strict mypy and 9 tests (3 optional/local integrations skipped).
+- Loaded all six organizer serving tables into the private local Postgres: 150,000 customers, 400,000 products, 492,414 transactions, 13,164 FX rows, 1,200 agents and 150,000 complaint aggregates. Every projected row was checksum-compared with gold before commit, and load metadata was verified from a fresh connection.
+- Hardened source-conversion cache identity to include imported conversion code; the organizer rebuild passed and its following invocation was a no-op. All ten source tables had zero invalid rows. Bronze was reused.
+- Existing web checks passed: frozen dependency install, TypeScript, ESLint, and Next.js production build. Frontend source was unchanged.
+- Rebased cleanly onto `origin/main` at `cb402af`, retaining the lead's security tests and persistent lake default. Final combined suite: 24 passed, 1 optional Postgres test skipped (verified separately); the clean dev-only environment passed 19 tests with 3 optional integrations skipped. Strict mypy, Ruff/format, compilation, six pre-commit hooks, working-tree data/secret/size policy, interface snapshots, and B1 32/32 with 12 read-backs passed.
+- The final snapshot matches the current data-source fingerprint, reused every bronze/silver object, passed all promotion gates, and then returned a no-op. Refreshed all six organizer serving tables from that snapshot and verified full row checksums and committed metadata from a fresh connection. The serving CLI now redacts driver failures; its regression test passed.
+- Pushed only `origin/feat/data-ml`; the remote commit matched local `2ecb3dd`. Opened private [PR #6](https://github.com/sebastian-gm/bank-agent-lab/pull/6) into `main` after local checks passed. Remote `checks`, `invariants`, and `web` all passed on that implementation/report head. This documentation follow-up records those results. Read-back confirmed the repository remains private and the PR is open against main.
+- Rechecked the Spanish packet: exactly 40 cards and unique customers, all recollection fields blank, zero customer overlap with the benchmark, and all three packet files ignored by Git.
+
+### Done but not verified
+
+- Lead-lane integration of serving tables and the pinned matcher into the live API has not been performed here. Existing bank/API/policy/orchestration and frozen interfaces are unchanged.
+- Human recollections and language review remain pending. Forty Spanish cards and a blank fill-in CSV were generated under ignored `artifacts/human-validation/spanish-40/`, with benchmark customers excluded; counts and ignore status were read back. Portuguese remains future model-generated data with a second-vendor cross-check, per Sebastian; no paid model call was made.
+
+### Next / blocked
+
+- Lead review/merge of PR #6 remains pending, including the additive shared dependency changes. No breaking frozen-interface change is proposed.
+- Lead lane must wire the Postgres tables and pin `models/charge_matcher/v1/` in shared configuration.
+- Sebastian can fill the 40 Spanish recollections. Human validation and any later paid Portuguese generation need their own follow-up; no Azure work is part of this lane.
 ## AI lane — 2026-09-26
 
 ### Completed (verified)
@@ -110,3 +143,20 @@ The local Compose stack is left running for review.
 - Current release input and control readback are available through ignored `infra/terraform.tfvars` and `artifacts/azure/verified.json`. Do not print the private inputs.
 
 For the next session: **Continue from docs/status/progress-log.md. Next layer: durable operational state and resilience. Same rules.**
+
+## Lead integration — 2026-09-26/27 (in progress)
+
+### Completed-verified
+
+- Re-read amended `04-lead-next.md`; durable operations and hash-chained audit follow matcher integration. Fresh Azure control readback and API health passed before lane work.
+- Reviewed and merged PRs #4, #6 and #9 in order after green PR checks; main CI and safety passed at each lane merge. Resolved dependency/documentation conflicts, preserved both extras, and repaired v2 schema export while retaining all v1 definitions.
+- Data/ML optional fixture tests passed locally (33 tests before schema addition; Postgres owner-DSN test skipped). No organizer pipeline rerun or model call was performed.
+- Reactive evaluation adds isolated run IDs, clocks, fixture personas, response-keyed customer replies, fault injection, independent gold scoring and aggregate reporting. Found and fixed candidate follow-up routing and language preservation. Verification counts and remaining work will be finalized after integration.
+
+### Done-not-verified
+
+- New operational persistence, learned matcher and P orchestration are not yet integrated. The deployed revision remains the prior main.
+
+### Next-blocked
+
+- Continue tasks 3–7 in order; retain mock provider. No additional approval is needed for the authorized restricted redeployment. Real-model calls still need a priced proposal and approval.

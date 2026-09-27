@@ -1,0 +1,104 @@
+{
+  "artifact_policy": "numeric parameters and aggregates only; no row data",
+  "bank_clock": "2026-06-18T06:00:00+00:00",
+  "candidate_window": "[query_as_of - 120 days, query_as_of)",
+  "counts": {
+    "test": 3000,
+    "train": 6000,
+    "validation": 3000
+  },
+  "customers": {
+    "test": 2723,
+    "train": 5754,
+    "validation": 2730
+  },
+  "dataset_version": "b86f445cb468332bde984a788ef24f72f7070952b2d9292e0259e7b8f36397c9",
+  "excluded_inputs": [
+    "overlays",
+    "fraud_score",
+    "is_fraud",
+    "generator parameters",
+    "complaint text",
+    "transcripts"
+  ],
+  "export_parity_verified": true,
+  "features": [
+    "amount_relative_error",
+    "amount_log_error",
+    "amount_missing",
+    "fx_missing",
+    "date_distance_days",
+    "date_in_range",
+    "date_missing",
+    "merchant_wratio",
+    "merchant_token_set",
+    "merchant_missing",
+    "type_match",
+    "type_missing",
+    "category_match",
+    "category_missing",
+    "channel_match",
+    "channel_missing",
+    "country_match",
+    "country_missing",
+    "status_approved",
+    "status_pending",
+    "status_declined",
+    "status_reversed",
+    "recency_rank",
+    "candidate_set_size",
+    "amount_rank",
+    "slot_coverage"
+  ],
+  "files": {
+    "test.jsonl": "7ac91f29be805a8980b847e8ff7f416bbf2466ef7491571dda8f6e2cffb2b8bb",
+    "train.jsonl": "158503d6c70b071ad4f763694426cce39f931546e3c82bd5094fbded0d86f092",
+    "validation.jsonl": "495c80679d1da61c7aa21cf0a1ecb635b9691d1d0cdc71b20672f415e7c8010e"
+  },
+  "git_sha": "88d84ca",
+  "mlflow_run_id": "6dd6cff6a9bc45a3a39bb5b685f66104",
+  "no_match_share": {
+    "test": 0.15,
+    "train": 0.15,
+    "validation": 0.15
+  },
+  "noise_version": "1.0.0",
+  "recommendation": "lightgbm",
+  "seed": 20260926,
+  "selected_on_validation": "lightgbm",
+  "source_class": "organizer synthetic ledger + team-generated normalized recollections",
+  "test_only_noise_families": [
+    "stress_rounded_partial",
+    "stress_amount_date"
+  ],
+  "test_target_start": "2026-03-01",
+  "test_touch": {
+    "at": "2026-09-26T23:30:55.331004+00:00",
+    "dataset_version": "b86f445cb468332bde984a788ef24f72f7070952b2d9292e0259e7b8f36397c9",
+    "selected": "lightgbm",
+    "systems": [
+      "rules",
+      "logistic",
+      "lightgbm"
+    ],
+    "version": "v1"
+  },
+  "train_target_end_exclusive": "2026-01-01",
+  "training_code_sha256": "d0846b40baf406d2d1f2f25e33998d829c6152d4913530d642fd489424a45ef9",
+  "trials": 30,
+  "validation_partition_counts": {
+    "calibration": 995,
+    "policy": 979,
+    "tune": 1026
+  },
+  "validation_policy_costs": {
+    "lightgbm": 0.18283963227783454,
+    "logistic": 0.25842696629213485,
+    "rules": 0.449438202247191
+  },
+  "validation_target_range": [
+    "2026-01-01",
+    "2026-03-01"
+  ],
+  "version": "v1"
+}
