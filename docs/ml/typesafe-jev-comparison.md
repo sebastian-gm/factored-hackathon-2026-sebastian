@@ -34,4 +34,21 @@ Jev received the **same three synthetic items** as the saved Sonnet 5 judge smok
 
 Jev's three judge calls cost **$0.000124** from input-token usage and had 0.132-second median API latency; Sonnet's prior three calls cost **$0.008042**. These three pairs are too few to validate a judge or interpret κ as stable, and Sonnet agreement is not human agreement. Sebastian's ignored 50-sample human sheet remains blank. Do not replace Sonnet or use Jev judge scores for objective acceptance without separate human validation and approval.
 
-The [TypeSafe data-term record](../data-provenance.md) notes that its published policy says inputs are not used for training, while standard-account zero retention is not verified. TypeSafe's [model page](https://docs.typesafe.ai/models) identifies English as its strongest language, consistent with treating these ES/PT outcomes as a measured limitation rather than assuming parity. This task sent only team-authored synthetic fixtures. Jev is a typed-judgment challenger, not a selected provider or production route.
+The [TypeSafe data-term record](../data-provenance.md) notes that its published policy says inputs are not used for training, while standard-account zero retention is not verified. TypeSafe's [model page](https://docs.typesafe.ai/models) identifies English as its strongest language, consistent with treating these ES/PT outcomes as a measured limitation rather than assuming parity. This comparison sent only team-authored synthetic fixtures. Sebastian's later supporting-role decision is described below; production remains mock.
+
+## Supporting risk-cue union, replayed after Sebastian's decision
+
+Sebastian selected Jev as a **risk-cue second opinion**, with Gemini still providing intent, slots and phrasing. The NLU lane now starts one risk-only Jev `Noul` call concurrently with the selected Gemini NLU call, unions each cue at Jev probability `>=0.5`, and keeps Gemini-only flags if Jev fails or times out. Its execution record includes both models' raw flags, Jev's raw probabilities, union flags, per-call cost and a degradation code. Gemini v4 exposes boolean cues but no per-cue probabilities, so its per-cue probability fields are explicitly `null`; `intent_confidence` is recorded separately and is not passed off as risk confidence. Mock and Sonnet frontier routes do not call Jev. This path has offline fixture tests and has **not** been exercised with live paired providers.
+
+The [aggregate-only paired replay](../../src/aclara/llm/typesafe_union_report.py) uses the already saved 150 Gemini and Jev dev observations; it made **no new paid calls**. It preserves the original case IDs, labels and fixed `0.5` threshold.
+
+| Cue | Gemini flags | Jev flags | Union flags |
+|---|---:|---:|---:|
+| Lost/stolen | 7 | 5 | 7 |
+| Regulator | 0 | 0 | 0 |
+| Legal | 0 | 0 | 0 |
+| Distress | 2 | 3 | 4 |
+| Injection suspected | 9 | 6 | **9** |
+| Human requested | 5 | 5 | 5 |
+
+Injection detection is **9/10** for Gemini and the union, with **0/140 false flags** for both. Jev adds no injection flag on this set; it adds two distress flags, whose truth is not independently labeled. Taking the larger of each saved pair's separate call durations gives a **1.897 s median / 2.224 s p95 parallel-latency proxy**, identical to Gemini's saved timings. This is only a replay proxy: concurrent network contention, scheduling overhead and timeout behavior require a separate authorized live measurement. No improvement in injection recall or real latency is claimed from these reused dev fixtures.

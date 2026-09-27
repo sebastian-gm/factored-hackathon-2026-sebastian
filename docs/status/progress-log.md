@@ -164,6 +164,23 @@ The following sections retain the AI lane’s historical reports; later dated de
 
 - Sebastian decides whether any later Jev experiment is useful; this PR does not change the selected default or judge. Keep the $12 final program on hold until the lead's acceptance fixes, matcher v2, prompt v4 merge, private binding/preflight, spend breaker and green gates are read back, then wait for Sebastian's explicit start signal.
 
+## AI lane — 2026-09-27 (Jev supporting roles)
+
+### Completed (verified)
+
+- Added risk-only Jev `Noul` second opinion in the NLU lane for selected Gemini 3 Flash calls. It runs concurrently, unions each cue at `>=0.5`, and records Gemini raw booleans, unavailable Gemini per-cue probabilities as `null`, Jev raw probabilities/flags, the union, usage/cost and degradation in the existing execution-record path. Jev failure, timeout, missing key or insufficient supporting-call reserve leaves Gemini flags intact; no orchestrator or `NluFrame` interface changed. Mock and Sonnet frontier routes do not invoke Jev.
+- Replayed the 150 saved paired development cases without new paid calls: Gemini injection **9/10**, Jev **6/10**, union **9/10**, all **0/140 false flags**. Jev adds two distress flags without independent distress gold. The paired max-of-two latency **proxy** is 1.897 s median / 2.224 s p95, unchanged from Gemini; live parallel latency is not measured. [Aggregate report](../ml/typesafe-jev-comparison.md).
+- Added a gated [dual subjective judge helper](../../src/aclara/llm/dual_judge.py) for same-item Sonnet and Jev Scores, raw Jev score distributions, and Jev–Sonnet plus separate judge–human weighted κ. It has offline tests; no final or new judge paid calls were made. [Final plan](../evaluation/final-run-plan.md) now prices 410 Jev risk calls and 150 Jev judge calls at $0.02583 and $0.01260 before rounding, for an illustrative **$4.730** total below the existing $12 ceiling. The final start is still withheld.
+- `make checks` passed six hooks, strict mypy, staged-file policy, compilation, **145 tests passed / 9 database-dependent skips**, B1 dev harness **32/32** with 12 readbacks, interfaces and policy catalog. No organizer rows, credentials, model thinking or paid-call artifacts were staged.
+
+### Done but not verified
+
+- Concurrent provider latency, Jev failure rate in production, the five non-injection risk-cue accuracies and 50-item judge–human agreement remain unmeasured. Gemini prompt v4 supplies Boolean risk flags, not per-cue probabilities. TypeSafe standard-account zero retention remains unverified. The final adapter and durable shared OpenRouter/TypeSafe cost gate are lead work.
+
+### Next / blocked
+
+- Lead must merge the Jev supporting-role PR before the final run, bind `score_pair` into the final judge sample, verify TypeSafe payload terms, and include both providers in one durable $12 gate. Keep production mock and do not begin frozen final evaluation until Sebastian's explicit start signal and all preflight gates are green.
+
 ## Access and continuation
 
 Restricted web: https://ca-web-aclara-dev-eastus2.lemonbeach-1b769de0.eastus2.azurecontainerapps.io/
