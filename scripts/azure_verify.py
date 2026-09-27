@@ -33,10 +33,15 @@ def main() -> None:
         # ARM resource IDs are case-insensitive; these two fields use different casing.
         assert registries[0]["identity"].lower() in {identity.lower() for identity in identities}
         ingress = properties["configuration"]["ingress"]
-        rules = ingress["ipSecurityRestrictions"]
-        assert len(rules) == 1 and rules[0]["action"] == "Allow"
-        assert rules[0]["ipAddressRange"] == values["owner_ipv4"] + "/32"
-        assert ingress["external"] and not ingress.get("allowInsecure", False)
+        rules = ingress.get("ipSecurityRestrictions") or []
+        if name == "web":
+            assert len(rules) == 1 and rules[0]["action"] == "Allow"
+            assert rules[0]["ipAddressRange"] == values["owner_ipv4"] + "/32"
+            assert ingress["external"]
+        else:
+            assert not ingress["external"] and not rules
+            assert ".internal." in ingress["fqdn"]
+        assert not ingress.get("allowInsecure", False)
         assert properties["configuration"]["activeRevisionsMode"] == "Single"
         # ARM can return null for the documented default minimum of zero.
         assert properties["template"]["scale"]["minReplicas"] in (None, 0)
@@ -50,6 +55,7 @@ def main() -> None:
             assert env["LLM_PROVIDER"]["value"] == "mock"
             assert env["AGENT_SYSTEM"]["value"] == "P"
             assert env["OPS_BACKEND"]["value"] == "postgres"
+            assert env["LEDGER_BACKEND"]["value"] == "serving"
             assert env["PGSSLMODE"]["value"] == "verify-full"
             assert env["PGUSER"]["value"] == "aclara_app"
             assert env["PGPASSWORD"]["secretRef"] == "postgres-app"
@@ -61,7 +67,7 @@ def main() -> None:
                 for item in secrets
             )
         sys.stdout.write(
-            f"Verified {name}: owner-only HTTPS ingress, single revision, replicas 0..1, SHA image, managed registry identity.\n"
+            f"Verified {name}: restricted HTTPS boundary, single revision, replicas 0..1, SHA image, managed registry identity.\n"
         )
     server = az(
         "postgres",

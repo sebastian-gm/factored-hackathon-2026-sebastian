@@ -9,7 +9,7 @@ This synthetic-data development service is not ready for real customer data or r
 - backup, disaster recovery, and on-call ownership;
 - verified storage recovery, retention enforcement, and incident procedures.
 
-The owner-approved low-cost development deployment uses public HTTPS endpoints with owner-IP restrictions and application authentication. Treat that as a temporary development boundary. Before any production use, move the app and its dependencies behind private networking: private Container Apps ingress, PostgreSQL private access, private endpoints for Key Vault and the container registry/state storage, and controlled outbound access. Define and test the network rules, identity roles, and operational response for address and route changes before moving beyond synthetic data.
+The owner-approved low-cost development deployment uses an owner-IP-restricted HTTPS web endpoint, an internal API in the same managed Container Apps environment, and application authentication. Treat that as a temporary development boundary. Before any production use, move the app and its dependencies behind private networking: private Container Apps ingress, PostgreSQL private access, private endpoints for Key Vault and the container registry/state storage, and controlled outbound access. Define and test the network rules, identity roles, and operational response for address and route changes before moving beyond synthetic data.
 
 The same controlled workflow could later support fee disputes, card replacement, or payment-status questions after separate policy and safety review.
 
@@ -33,5 +33,4 @@ The frozen B1/P-mock [diagnostic](evaluation/heldout-run01.md) failed acceptance
 Staff endpoints use a server-configured demo role and the existing customer/run/session
 RLS. They expose only the current workspace. Production needs federated staff identity,
 queue/task-scoped grants, assignment authorization across customer sessions, and an
-independently reviewed administrative reset/retention design. Azure retains the customer
-role and reset disabled; no RLS broadening or new cloud resource is implied.
+independently reviewed administrative reset/retention design. Four private organizer-backed demo personas have server-bound roles; two Ops personas can demonstrate their own workspace, and two remain customers. They share the owner-only demo credential; production needs individual staff credentials. Reset remains disabled. No cross-customer or cross-session RLS widening is introduced.
