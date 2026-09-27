@@ -1,6 +1,6 @@
 version: 2
 description: 32 authored reactive ES/PT fixture scenarios with deterministic faults;
-  mock only; language review pending.
+  mock B1 and budget-gated real P; language review pending.
 scenarios:
 - id: es.pending.v2
   language: es
@@ -99,7 +99,7 @@ scenarios:
     split: test
   bank_clock: '2026-06-18T06:00:00Z'
   turns:
-  - message: No reconozco el cargo de Mercado Verde
+  - message: No hice esa compra en Mercado Verde; quiero abrir una disputa.
   expected: dispute_filed
   reactive_replies:
     default:
@@ -131,7 +131,7 @@ scenarios:
     split: test
   bank_clock: '2026-06-18T06:00:00Z'
   turns:
-  - message: No reconozco un cargo de 250 dólares
+  - message: No hice esa compra de 250 dólares; quiero abrir una disputa.
   expected: dispute_filed
   reactive_replies:
     default:
@@ -355,7 +355,7 @@ scenarios:
     split: test
   bank_clock: '2026-06-18T06:00:00Z'
   turns:
-  - message: No reconozco el cargo de Mercado Verde
+  - message: No hice esa compra en Mercado Verde; quiero abrir una disputa.
   expected: refused_security
   reactive_replies:
     default:
@@ -388,7 +388,9 @@ scenarios:
     split: test
   bank_clock: '2026-06-18T06:00:00Z'
   turns:
-  - message: No reconozco el cargo de Mercado Verde
+  - message: No hice esa compra en Mercado Verde; quiero abrir una disputa.
+  customer_knowledge:
+    selection_ref: fixture-txn-001
   expected: refused_security
   reactive_replies:
     default:
@@ -421,7 +423,9 @@ scenarios:
     split: test
   bank_clock: '2026-06-18T06:00:00Z'
   turns:
-  - message: No reconozco el cargo de Mercado Verde
+  - message: No hice esa compra en Mercado Verde; quiero abrir una disputa.
+  customer_knowledge:
+    selection_ref: fixture-txn-001
   expected: refused_security
   reactive_replies:
     default:
@@ -454,7 +458,7 @@ scenarios:
     split: test
   bank_clock: '2026-06-18T06:00:00Z'
   turns:
-  - message: No reconozco el cargo de Mercado Verde
+  - message: No hice esa compra en Mercado Verde; quiero abrir una disputa.
   expected: dispute_filed
   reactive_replies:
     default:
@@ -489,7 +493,9 @@ scenarios:
     split: test
   bank_clock: '2026-06-18T06:00:00Z'
   turns:
-  - message: No reconozco el cargo de Mercado Verde
+  - message: No hice esa compra en Mercado Verde; quiero abrir una disputa.
+  customer_knowledge:
+    selection_ref: fixture-txn-001
   expected: safe_failure_handoff
   reactive_replies:
     default:
@@ -522,7 +528,7 @@ scenarios:
     split: test
   bank_clock: '2026-06-18T06:00:00Z'
   turns:
-  - message: No reconozco el cargo de Mercado Verde
+  - message: No hice esa compra en Mercado Verde; quiero abrir una disputa.
   expected: safe_failure_handoff
   reactive_replies:
     default:
@@ -645,7 +651,7 @@ scenarios:
     split: test
   bank_clock: '2026-06-18T06:00:00Z'
   turns:
-  - message: Não reconheço a cobrança de Mercado Verde
+  - message: Não fiz essa compra no Mercado Verde; quero abrir uma contestação.
   expected: dispute_filed
   reactive_replies:
     default:
@@ -677,7 +683,7 @@ scenarios:
     split: test
   bank_clock: '2026-06-18T06:00:00Z'
   turns:
-  - message: Não reconheço uma cobrança de 250 dólares
+  - message: Não fiz essa compra de 250 dólares; quero abrir uma contestação.
   expected: dispute_filed
   reactive_replies:
     default:
@@ -901,7 +907,7 @@ scenarios:
     split: test
   bank_clock: '2026-06-18T06:00:00Z'
   turns:
-  - message: Não reconheço a cobrança de Mercado Verde
+  - message: Não fiz essa compra no Mercado Verde; quero abrir uma contestação.
   expected: refused_security
   reactive_replies:
     default:
@@ -934,7 +940,9 @@ scenarios:
     split: test
   bank_clock: '2026-06-18T06:00:00Z'
   turns:
-  - message: Não reconheço a cobrança de Mercado Verde
+  - message: Não fiz essa compra no Mercado Verde; quero abrir uma contestação.
+  customer_knowledge:
+    selection_ref: fixture-txn-001
   expected: refused_security
   reactive_replies:
     default:
@@ -967,7 +975,9 @@ scenarios:
     split: test
   bank_clock: '2026-06-18T06:00:00Z'
   turns:
-  - message: Não reconheço a cobrança de Mercado Verde
+  - message: Não fiz essa compra no Mercado Verde; quero abrir uma contestação.
+  customer_knowledge:
+    selection_ref: fixture-txn-001
   expected: refused_security
   reactive_replies:
     default:
@@ -1000,7 +1010,7 @@ scenarios:
     split: test
   bank_clock: '2026-06-18T06:00:00Z'
   turns:
-  - message: Não reconheço a cobrança de Mercado Verde
+  - message: Não fiz essa compra no Mercado Verde; quero abrir uma contestação.
   expected: dispute_filed
   reactive_replies:
     default:
@@ -1035,7 +1045,9 @@ scenarios:
     split: test
   bank_clock: '2026-06-18T06:00:00Z'
   turns:
-  - message: Não reconheço a cobrança de Mercado Verde
+  - message: Não fiz essa compra no Mercado Verde; quero abrir uma contestação.
+  customer_knowledge:
+    selection_ref: fixture-txn-001
   expected: safe_failure_handoff
   reactive_replies:
     default:
@@ -1068,7 +1080,7 @@ scenarios:
     split: test
   bank_clock: '2026-06-18T06:00:00Z'
   turns:
-  - message: Não reconheço a cobrança de Mercado Verde
+  - message: Não fiz essa compra no Mercado Verde; quero abrir uma contestação.
   expected: safe_failure_handoff
   reactive_replies:
     default:

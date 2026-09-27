@@ -14,6 +14,7 @@ from aclara.agent.contracts import DisputeCaseView, HandoffView
 from aclara.agent.nlg.grounding import scan_dlp
 from aclara.agent.runtime import Runtime
 from aclara.bank.repository import Transaction, TransactionRepository
+from aclara.llm.client import StructuredClient
 from aclara.settings import Settings
 from evals.metrics import score
 
@@ -25,12 +26,36 @@ class Customer:
         self.default = {"message": "não sei" if scenario["language"] == "pt" else "no sé"}
         self.counts: dict[str, int] = {}
         self.refs = refs
+        # Simulator-only knowledge: never sent to NLU, MATCH, or policy. Explicit
+        # replies (including refusals) override this generic recognition behavior.
+        self.target_ref = scenario.get("customer_knowledge", {}).get("selection_ref") or (
+            scenario.get("gold") or {}
+        ).get("expected_transaction_ref")
+
+    def choose(self, ref: str, plan: dict[str, Any]) -> dict[str, Any]:
+        target = self.refs.get(ref)
+        for index, candidate in enumerate((plan.get("candidates") or [])[:3]):
+            if target is not None and candidate["handle"] == target:
+                return {
+                    "message": (
+                        ("primeiro", "segundo", "terceiro")
+                        if self.language == "pt"
+                        else ("primero", "segundo", "tercero")
+                    )[index]
+                }
+        return self.default
 
     def reply(self, plan: dict[str, Any]) -> dict[str, Any]:
         key = plan.get("response_type", plan.get("type", "default"))
         aliases = {"choose_transaction": "choose_txn", "clarify": "ask_clarification"}
         if key not in self.table:
             key = aliases.get(key, key)
+        if (
+            key in {"choose_transaction", "choose_txn"}
+            and key not in self.table
+            and self.target_ref
+        ):
+            return self.choose(self.target_ref, plan)
         if key not in self.table:
             key = "default"
         choices = self.table.get(key, [self.default])
@@ -38,17 +63,7 @@ class Customer:
         self.counts[key] = index + 1
         reply = choices[min(index, len(choices) - 1)]
         if "choose_ref" in reply:
-            target = self.refs[reply["choose_ref"]]
-            for index, candidate in enumerate(plan.get("candidates") or []):
-                if candidate["handle"] == target:
-                    return {
-                        "message": (
-                            ("primeiro", "segundo", "terceiro")
-                            if self.language == "pt"
-                            else ("primero", "segundo", "tercero")
-                        )[index]
-                    }
-            return self.default
+            return self.choose(reply["choose_ref"], plan)
         return reply
 
 
@@ -100,7 +115,13 @@ def fixture(
 
 
 async def execute(
-    scenario: dict[str, Any], system: str, repeat: int = 0, suite_clock: str | None = None
+    scenario: dict[str, Any],
+    system: str,
+    repeat: int = 0,
+    suite_clock: str | None = None,
+    *,
+    llm_client: StructuredClient | None = None,
+    require_faults: bool = True,
 ) -> dict[str, Any]:
     from evals.runner import _new_authenticated_client
 
@@ -121,7 +142,9 @@ async def execute(
         demo_customer_id=persona,
         bank_clock=clock,
     )
-    app, client, token, conversation = await _new_authenticated_client(settings, ledger, runtime)
+    app, client, token, conversation = await _new_authenticated_client(
+        settings, ledger, runtime, llm_client=llm_client
+    )
     assert not app.state.cases and not app.state.handoffs
     customer = Customer(scenario, refs)
     headers = {"Authorization": f"Bearer {token}"}
@@ -217,7 +240,8 @@ async def execute(
                 ).model_dump(mode="json")
                 == last["handoff"]
             )
-        if len(runtime.fired) != len(runtime.faults):
+        faults_reached = len(runtime.fired) == len(runtime.faults)
+        if require_faults and not faults_reached:
             raise ValueError("Scenario contains an unsupported or unreached fault trigger")
         calls = [e for e in runtime.events if e["event"] == "llm_call"]
         cost = sum(e.get("cost_usd", 0) or 0 for e in calls)
@@ -236,6 +260,10 @@ async def execute(
                 "http_denied": http_denied,
                 "unsafe": unsafe,
                 "cost_usd": cost,
+                "faults_declared": len(runtime.faults),
+                "faults_fired": len(runtime.fired),
+                "execution_status": "executed" if faults_reached else "not_executed",
+                "execution_error": None if faults_reached else "unreached_fault",
                 "component_ms": {
                     "llm": sum(e.get("latency_ms", 0) for e in calls),
                     "api_other": max(

@@ -1,5 +1,68 @@
 # Priced final evaluation plan — $12 approved, execution on hold
 
+## Option A supersedes the v1 commands below
+
+`final-program-v1` is abandoned. Never start, resume, inspect, or delete its
+artifacts. Historical commands below are retained for provenance only and must
+not be executed. Disclosure: a first final attempt was stopped at ~6/200 P cases after a dev-only finding; its results were never viewed.
+
+Before v2, the lead must report the Step 3 dev gate and stop for Sebastian's
+release approval. A further release verification and explicit v2 start signal
+are required. No v2 release or final execution is authorized by this edit.
+
+### Simulator change decided on dev evidence
+
+The shared `evals.reactive.Customer` now chooses the scenario's known transaction
+when that transaction is actually offered by MATCH. The knowledge comes from
+`customer_knowledge.selection_ref` when declared, otherwise the existing
+`gold.expected_transaction_ref`. Only that reference identity is used to model
+customer recognition; no outcome/action gold reaches NLU, MATCH, or policy.
+The same simulator serves B1 and P. It never chooses an absent target, invents a
+target, or confirms an action implicitly. Explicit choice replies and refusals
+take precedence. An authored no-choice fixture still verifies escalation without
+a write. No MATCH thresholds, eligibility rules, frozen suite bytes, or bindings
+changed. This repair follows the dev findings in
+[dev-p-failure-analysis.md](../ml/dev-p-failure-analysis.md).
+
+The authorized static audit conservatively includes all 200 frozen scenarios:
+200 already have explicit choice behavior; 152 reference a transaction overlay
+and match the declared expected target. Of the other 48 explicit behaviors,
+45 have no expected target and 3 do. These 48 are not statically proven usable
+choices; their explicit behavior remains authoritative. Zero frozen scenarios
+use the new implicit fallback. No scenario text, outcomes, bindings, or saved
+observations were inspected or reported. Static coverage cannot prove which
+paths a live model will take. The count-only command is
+`python -m scripts.audit_simulator_choices`; accesses are logged, and suite hashes
+are asserted unchanged.
+
+### Option A dev gate and budget
+
+The exact shared Postgres identity is scope `dev-gate/option-a`, run `option-a`,
+with a $1 cumulative cap. Both lanes reserve before every provider attempt,
+including parallel Jev, retries and fallback; unknown usage retains its reserve.
+The gate never resets spend or re-enables a breaker. AI diagnosis used
+$0.02748308 before lead acceptance. Expected additional gate spend is $0.15–$0.25,
+within the existing $1 approval. The real gate runs the corrected original 20
+no-fault cases, 12 faults, and the pre-fix frozen 20-case dev confirmation set.
+Only authored data is used; the confirmation set is neither edited nor used to
+tune. Its SHA-256 is `5a828ca67ffa836b29fcb6799064738c3111f990526c12a497951ee0de223ffe`.
+
+On a clean committed candidate, the authorized command is
+`LLM_REAL_CALLS_APPROVED=1 .venv/bin/python -m scripts.dev_gate real`.
+It checkpoints private dev evidence and call costs under
+`artifacts/option-a-dev/gate-real/`, refuses an existing output directory, and
+records the shared budget before and after. A partial/error result does not pass.
+Do not rerun confirmation cases or delete checkpoints to obtain a better score.
+`python -m scripts.dev_gate mock` is a separate message-derived structured-NLU
+diagnostic and never opens the confirmation set.
+
+Before any later v2 release, enforce the cumulative $12 ceiling by capping v2
+at $12 minus the preserved v1 charge and all Option A dev spend, including
+unknown-cost reservations. This is a requirement for that later layer, not an
+already initialized v2 budget.
+
+## Historical v1 plan (superseded operational instructions)
+
 **Planning status, 2026-09-27 UTC:** Sebastian pre-approved this final program with a **$12 hard ceiling**, but explicitly said **do not start** until he gives the start signal after the lead's acceptance fixes, matcher v2, and NLU prompt v4 are merged with green gates. No real-model final test has been run. The integrated release adds the real routes, production secret references, resumable runner and shared Postgres gate. The exact accepted SHA is recorded in the private deployment receipt; execution still waits for Sebastian. The existing B1/P-mock diagnostic is prior test access, not a prediction of this final result. Its failed acceptance gates remain open. The frozen 200-case suite, labels, bindings, and preselected repeat IDs must not be changed in response to outcomes. Current readiness is tracked in [final-preflight.md](final-preflight.md).
 
 ## Fixed workload and model configuration

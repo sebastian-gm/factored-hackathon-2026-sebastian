@@ -1,5 +1,56 @@
 # Progress log
 
+## 2026-09-27 — Option A lead integration and dev gate preparation
+
+### Completed (verified)
+
+- Merged #36, #28, #24, #37 in order after all four checks passed on each
+  updated head. Conflicting branches used history-preserving merge updates as
+  requested. #37 merge: `b3e8f1501ab932970626478457d751e958a26cca`.
+- Reviewed and merged #38, including the AI root-cause report and generic
+  transaction-type normalization. Fresh CI: `36339767762`, safety:
+  `36339767753`; merge `55cea748f539fa8589b008f75edccf1e748f6ae6`.
+- Shared durable dev budget is **scope `dev-gate/option-a`, run `option-a`**,
+  cumulative cap **$1.00**. Initial readback was zero; AI reports 40 attempts and
+  $0.02748308 charged before lead acceptance. Every lane must share both names.
+- Generic simulated customer selects its known target only when offered;
+  explicit replies/refusals win. Corrected authored dispute/fault requests to
+  explicit denial/filing, leaving gold outcomes, MATCH thresholds and policy
+  unchanged. Faults without a gold transaction declare customer knowledge.
+- `.venv/bin/python -m scripts.dev_gate mock`: structured P diagnostic **20/20**
+  no-fault, **12/12** faults with all triggers reached; zero unsafe/forbidden
+  actions. `.venv/bin/python -m evals.runner --system B1`: original **32/32**, safety
+  guards passed. Direct `evals.reactive.execute(..., "B1")` on corrected v2:
+  **32/32**, all 12 faults reached, zero unsafe. Receipts in ignored
+  `artifacts/option-a-dev/`.
+- `.venv/bin/pytest -q`: suite passed (Postgres-only tests skipped locally;
+  their CI job passed on #38). `.venv/bin/ruff check .` and strict mypy passed.
+- Confirmation metadata verified without reading conversation text: 20 cases,
+  10 ES / 10 PT, no faults; bytes unchanged from pre-fix commit `88288a9`.
+- Authorized static frozen choice audit, `.venv/bin/python -m
+  scripts.audit_simulator_choices`: 200 explicit behaviors, 152 target-matching
+  overlay references; 48 unproven explicit behaviors (45 without a target,
+  3 with a target). Zero frozen cases use the new fallback. Counts only;
+  suite hashes unchanged, no bindings/results accessed. These are structural
+  counts, not executed path coverage. The abandoned v1 directory stayed untouched.
+
+### Done but not verified
+
+- Real Step 3 acceptance runner is prepared with per-case checkpoints,
+  metadata-only/validated call journals, and the shared reserve-before-call
+  Postgres cap. Paid acceptance and confirmation results are not yet available.
+- Optional #37 backend glass-box additions are deferred to keep this layer
+  focused on acceptance; no new deployed behavior is claimed.
+
+### Next / blocked
+
+- Run the committed candidate's real 20 dev + 12 fault + 20 confirmation cases
+  under the approved shared $1 cap; report numbers and remaining failures.
+- **Stop before re-release.** No cloud deployment or final v2 start is authorized.
+  No changes based on confirmation results. The 3 target-bearing frozen explicit
+  behaviors remain a disclosed static limitation; do not tune or edit suite bytes.
+- Disclosure: a first final attempt was stopped at ~6/200 P cases after a dev-only finding; its results were never viewed.
+
 ## AI lane — Option A dev-P gate, 2026-09-27 UTC
 
 ### Completed (verified)

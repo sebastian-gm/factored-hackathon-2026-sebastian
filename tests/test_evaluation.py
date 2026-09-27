@@ -4,6 +4,7 @@ import asyncio
 from copy import deepcopy
 from pathlib import Path
 
+import pytest
 import yaml
 from evals.metrics import aggregate, score
 from evals.reactive import Customer, execute
@@ -33,6 +34,40 @@ def test_customer_reacts_to_plan_and_exhausts_deterministically() -> None:
         }
     ) == {"message": "segundo"}
     assert customer.reply({"type": "unknown"}) == {"message": "não sei"}
+
+
+@pytest.mark.parametrize(
+    "language,ordinal,uncertain", [("es", "tercero", "no sé"), ("pt", "terceiro", "não sei")]
+)
+def test_customer_recognizes_only_offered_target(language, ordinal, uncertain):
+    scenario = {"language": language, "gold": {"expected_transaction_ref": "known"}}
+    customer = Customer(scenario, {"known": "txn_target"})
+    plan = {
+        "response_type": "choose_transaction",
+        "candidates": [{"handle": "txn_a"}, {"handle": "txn_b"}, {"handle": "txn_target"}],
+    }
+    assert customer.reply(plan) == {"message": ordinal}
+    assert customer.reply({**plan, "candidates": [{"handle": "txn_a"}]}) == {"message": uncertain}
+    assert customer.reply({"response_type": "confirm_action"}) == {"message": uncertain}
+    assert Customer({"language": language}, customer.refs).reply(plan) == {"message": uncertain}
+    # Known target can be declared without changing security/handoff gold labels.
+    declared = {"language": language, "customer_knowledge": {"selection_ref": "known"}}
+    assert Customer(declared, customer.refs).reply(plan) == {"message": ordinal}
+
+
+@pytest.mark.parametrize("key", ["choose_txn", "choose_transaction"])
+def test_explicit_choice_refusal_overrides_target_recognition(key):
+    customer = Customer(
+        {
+            "language": "es",
+            "gold": {"expected_transaction_ref": "known"},
+            "reactive_replies": {key: [{"message": "no puedo elegir"}]},
+        },
+        {"known": "txn_1"},
+    )
+    plan = {"response_type": "choose_transaction", "candidates": [{"handle": "txn_1"}]}
+    assert customer.reply(plan) == {"message": "no puedo elegir"}
+    assert customer.reply(plan) == {"message": "no puedo elegir"}
 
 
 def test_v2_repeat_isolation_and_fault_execution() -> None:
