@@ -5,6 +5,14 @@ Current status below supersedes the earlier lane handoffs; their detailed report
 
 ## Completed-verified
 
+### Handoff 06 — additive frontend API support
+
+- Reviewed PR #17's API proposal and code. Added typed trusted `/me`/persona discovery, logout revocation, complete packet metadata, scoped Agent Desk queue/detail/claim/resolve, redacted execution trace, actual Ops counts and confirmed fresh-OTP workspace reset. Preserved existing RLS and v1 endpoints. Cloud remains customer-only; reset is disabled by default.
+- Three new staff API tests passed (denial/isolation, conflicts/idempotency/readback, OTP/reset/logout). Disposable Postgres suite passed 7/7, including staff claim recovery across app instances and reset retaining a verified audit chain.
+- PR #17 cannot merge unchanged: its runtime schemas reject newer refusal/status plans, and its BFF still disables live staff routes. `docs/api/frontend-additions.md` records exact contracts and required frontend changes. Lead did not edit frontend-owned files.
+- These API additions were made after the frozen diagnostic, to satisfy the already-proposed frontend contracts. No held-out system rerun or policy/NLU tuning occurred; the diagnostic remains pinned to its original implementation SHA.
+
+
 ### Handoff 06 — held-out diagnostic and faults
 
 - Completed B1 200, P/mock 200 and two P/mock repeats on the frozen 100 subset, at implementation `564f008`; US$0 model cost. No real provider call. B1 has two unreachable model-outage faults (198 executed), P/mock 200 executed; all workload denominators retained.

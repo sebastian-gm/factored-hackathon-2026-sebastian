@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from enum import StrEnum
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -68,6 +68,15 @@ class HandoffView(InterfaceModel):
     actions_taken: list[str]
     open_questions: list[str]
     freeze_outcome: str | None = None
+    conversation_id: str | None = None
+    customer: dict[str, Any] | None = None
+    customer_statements: list[dict[str, Any]] | None = None
+    policy_evaluations: list[dict[str, str]] | None = None
+    risk_flags: list[str] | None = None
+    suggested_next_steps: list[str] | None = None
+    sla_due_at: datetime | None = None
+    transcript_ref: str | None = None
+    trace_ref: str | None = None
 
 
 class DisputeCaseView(InterfaceModel):

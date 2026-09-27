@@ -18,3 +18,12 @@ The development PostgreSQL firewall allows Azure service sources across subscrip
 ## Operational persistence follow-up
 
 The dev API uses non-owner Postgres state, forced customer/run/session RLS, four pooled connections, transactional idempotency and post-commit readback. Alembic migrations use the owner credential separately. Verify backup restore and retention, sustained concurrency, bounded model spending across restarts, and independently anchored audit exports before production. A privileged owner can rewrite an entire unanchored hash chain. The card-state repository is durable; a customer-facing freeze/step-up workflow remains separate work. Simulated OTP still is not independent MFA.
+
+
+## Staff authorization and reset (dev limitation)
+
+Staff endpoints use a server-configured demo role and the existing customer/run/session
+RLS. They expose only the current workspace. Production needs federated staff identity,
+queue/task-scoped grants, assignment authorization across customer sessions, and an
+independently reviewed administrative reset/retention design. Azure retains the customer
+role and reset disabled; no RLS broadening or new cloud resource is implied.

@@ -8,11 +8,13 @@ import json
 import secrets
 from dataclasses import asdict, replace
 from datetime import UTC, datetime, timedelta
-from typing import Any, cast
+from typing import Any, Literal, cast
 
 from fastapi import Depends, FastAPI, Header, HTTPException
 from pydantic import BaseModel, ConfigDict, Field
 
+from aclara.agent.contracts import InterfaceModel, ProductView, ResponsePlan
+from aclara.api.staff import complete_packet
 from aclara.bank.repository import Transaction
 from aclara.handoff.packet import create_packet
 from aclara.ops.store import Scope
@@ -80,7 +82,7 @@ def make_handoff(
         "session_id": principal.session_id,
     }
     app.state.runtime.record("create_handoff", reason=reason, queue=packet["route"]["queue"])
-    return {
+    response = {
         "response_type": "offer_human",
         "outcome": "handoff_created",
         "reply": (
@@ -91,6 +93,8 @@ def make_handoff(
         "handoff": {k: v for k, v in packet.items() if k != "request_summary"},
         "policy_rules": [reason],
     }
+    complete_packet(app, response, principal)
+    return response
 
 
 def fraud_handoff(
@@ -134,6 +138,25 @@ class FreezeRequest(BaseModel):
     language: str = Field(pattern=r"^(es|pt)$", default="es")
 
 
+class CardStateView(InterfaceModel):
+    handle: str
+    status: str
+    verified: bool
+
+
+class FreezeProposalView(InterfaceModel):
+    response_type: Literal["confirm_action"] = "confirm_action"
+    action: Literal["freeze_card"] = "freeze_card"
+    handle: str
+    proposal_hash: str = Field(pattern=r"^[a-f0-9]{64}$")
+    expires_at: datetime
+    reply: str
+
+
+class FreezeResultView(ResponsePlan):
+    card: CardStateView | None = None
+
+
 def freeze_hash(proposal: dict[str, Any]) -> str:
     return hashlib.sha256(
         json.dumps(
@@ -159,7 +182,7 @@ def install_workflows(app: FastAPI, principal_dependency: Any) -> None:
             raise HTTPException(404, "Product not found")
         return product
 
-    @app.get("/accounts")
+    @app.get("/accounts", response_model=list[ProductView])
     async def accounts(principal: Any = principal_default) -> list[dict[str, Any]]:
         return [
             {"handle": handle, "product_type": p.product_type, "status": p.status}
@@ -220,7 +243,7 @@ def install_workflows(app: FastAPI, principal_dependency: Any) -> None:
             raise error
         return {"status": "verified"}
 
-    @app.get("/cards/{handle}")
+    @app.get("/cards/{handle}", response_model=CardStateView)
     async def card(handle: str, principal: Any = principal_default) -> dict[str, Any]:
         product = product_for(handle, principal)
         if product.product_type not in {"Credit Card", "Debit Card"}:
@@ -233,7 +256,7 @@ def install_workflows(app: FastAPI, principal_dependency: Any) -> None:
                 "verified": True,
             }
 
-    @app.post("/cards/{handle}/freeze/proposal")
+    @app.post("/cards/{handle}/freeze/proposal", response_model=FreezeProposalView | ResponsePlan)
     async def proposal(
         handle: str, body: FreezeRequest, principal: Any = principal_default
     ) -> dict[str, Any]:
@@ -276,7 +299,7 @@ def install_workflows(app: FastAPI, principal_dependency: Any) -> None:
                 else "Confirma o bloqueio deste cartão?",
             }
 
-    @app.post("/cards/{handle}/freeze")
+    @app.post("/cards/{handle}/freeze", response_model=FreezeResultView)
     async def freeze(
         handle: str, body: FreezeBody, principal: Any = principal_default
     ) -> dict[str, Any]:
@@ -336,6 +359,25 @@ def install_workflows(app: FastAPI, principal_dependency: Any) -> None:
                         if proposal["language"] == "es"
                         else "O bloqueio do cartão foi verificado. Encaminhei o caso a Fraudes."
                     )
+                result["verified"] = True
+                app.state.executions["freeze:" + body.proposal_hash] = {
+                    "conversation_id": result["handoff"].get("conversation_id"),
+                    "created_at": datetime.now(UTC).isoformat(),
+                    "events": [
+                        {
+                            "event": "freeze_card",
+                            "handle": handle,
+                            "confirmed": body.confirmed,
+                            "step_up": True,
+                        },
+                        {"event": "verify_readback", "handle": handle},
+                    ]
+                    if outcome == "verified"
+                    else [
+                        {"event": "safe_failure" if outcome == "unverified" else "freeze_declined"}
+                    ],
+                    "outcome": outcome,
+                }
                 app.state.idempotency["freeze-result:" + body.proposal_hash] = result
                 store.audit({"action": "freeze_result", "outcome": outcome})
         # A separate transaction verifies committed state before success leaves the API.
