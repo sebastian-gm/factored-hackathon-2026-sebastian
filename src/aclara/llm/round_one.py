@@ -107,9 +107,9 @@ def _catalog(
 
 def _intent(scenario_id: str) -> str:
     if ".normal." in scenario_id:
-        return "dispute_charge" if scenario_id.endswith(".dispute") else "charge_inquiry"
+        return "charge_inquiry"
     if ".ambiguous." in scenario_id:
-        return "dispute_charge"
+        return "dispute_charge" if scenario_id.endswith(".vague.purchase") else "charge_inquiry"
     if ".human.explicit." in scenario_id:
         return "human_request"
     if ".human.fee.dispute" in scenario_id:

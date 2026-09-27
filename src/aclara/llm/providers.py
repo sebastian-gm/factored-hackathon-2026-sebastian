@@ -83,7 +83,7 @@ class OpenAICompat:
             method="POST",
         )
         try:
-            with urlopen(request, timeout=20) as response:  # noqa: S310 - HTTPS URL checked above
+            with urlopen(request, timeout=60) as response:  # noqa: S310 - HTTPS URL checked above
                 data = json.load(response)
         except (HTTPError, URLError, TimeoutError, ValueError) as exc:
             raise ModelFailure("OpenAI-compatible request failed") from exc

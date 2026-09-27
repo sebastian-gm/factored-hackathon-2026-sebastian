@@ -115,8 +115,51 @@ def test_round_one_uses_all_current_synthetic_dev_scenarios() -> None:
     assert all(
         case.scored_slot_keys == ("amount_value", "currency", "merchant_expr") for case in cases
     )
-    assert sum(case.gold_intent == "dispute_charge" for case in cases) == 12
+    assert sum(case.gold_intent == "dispute_charge" for case in cases) == 2
     assert sum(bool(case.gold_slots) for case in cases) == 15
+
+
+def test_sebastian_recognition_rule_and_independent_hard_dev_suite() -> None:
+    from collections import Counter
+
+    from aclara.agent.nlu.rules import classify_nlu
+    from aclara.llm.round_two import load_cases, sample_for
+
+    assert classify_nlu("No reconozco esta compra").intent.value == "charge_inquiry"
+    assert classify_nlu("No fui yo quien compró esto").intent.value == "dispute_charge"
+    assert classify_nlu("Não reconheço essa cobrança").intent.value == "charge_inquiry"
+    assert classify_nlu("Não autorizei essa cobrança").intent.value == "dispute_charge"
+    cases, metadata, suite_hash = load_cases()
+    assert len(cases) == 150
+    assert len(suite_hash) == 64
+    assert Counter(case.country for case in cases) == {
+        "MX": 30,
+        "CO": 30,
+        "AR": 30,
+        "BR": 30,
+        "": 30,
+    }
+    assert len(sample_for("anthropic/claude-opus-5", cases)) == 30
+    old_cases, _ = _cases()
+    assert not {case.message for case in cases} & {case.message for case in old_cases}
+    assert {tag for tags in metadata.values() for tag in tags["tags"]} >= {
+        "slang",
+        "false_friend",
+        "code_switch",
+        "vague_date",
+        "vague_amount",
+        "pesos",
+        "injection",
+    }
+
+
+def test_round_two_wilson_interval_handles_zero_and_perfect_success() -> None:
+    from aclara.llm.round_two_report import wilson
+
+    assert wilson(0, 150)[0] == 0
+    assert 0 < wilson(0, 150)[1] < 0.03
+    assert 0.97 < wilson(150, 150)[0] < 1
+    assert wilson(150, 150)[1] == 1
 
 
 def test_openrouter_billed_cost_takes_priority_over_catalog_estimate() -> None:
@@ -358,7 +401,13 @@ def test_false_friend_and_degraded_path() -> None:
     assert result.frame.intent.value == "out_of_scope"
     fallback = understand("Não reconheço essa cobrança", country="BR", bank_clock=clock)
     assert fallback.degraded
-    assert fallback.frame.intent.value == "dispute_charge"
+    assert fallback.frame.intent.value == "charge_inquiry"
+    assert (
+        understand(
+            "No fui yo quien hizo la compra", country="CO", bank_clock=clock
+        ).frame.intent.value
+        == "dispute_charge"
+    )
     client = StructuredClient(
         {"nlu": ModelSpec(provider="mock", model_id="mock")},
         {},

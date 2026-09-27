@@ -58,6 +58,33 @@ def classify(text: str) -> NluFrame:
     return NluFrame(language=language, intent=Intent.OUT_OF_SCOPE, confidence=0.70)
 
 
+def classify_nlu(text: str) -> NluFrame:
+    """New NLU label rule; B1's frozen outcome classifier remains a separate baseline."""
+    frame = classify(text)
+    if frame.intent in {Intent.HUMAN_REQUEST, Intent.FRAUD, Intent.FEE_DISPUTE}:
+        return frame
+    normalized = normalize_text(text)
+    denial_or_filing = (
+        "no hice",
+        "no fui yo",
+        "no autorice",
+        "nao fiz",
+        "nao fui eu",
+        "nao autorizei",
+        "quiero disputar",
+        "abrir una disputa",
+        "presentar un reclamo",
+        "quero contestar",
+        "abrir uma contestacao",
+        "registrar uma contestacao",
+    )
+    if any(term in normalized for term in denial_or_filing):
+        return NluFrame(language=frame.language, intent=Intent.DISPUTE_CHARGE, confidence=0.93)
+    if any(term in normalized for term in ("no reconozco", "nao reconheco")):
+        return NluFrame(language=frame.language, intent=Intent.CHARGE_INQUIRY, confidence=0.82)
+    return frame
+
+
 def is_confirmation(text: str) -> bool:
     normalized = normalize_text(text).strip(" .,!¿?¡")
     return bool(
