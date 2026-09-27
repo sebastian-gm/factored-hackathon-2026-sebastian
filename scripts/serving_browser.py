@@ -28,9 +28,9 @@ def main() -> None:
             "keyvault", "secret", "show", "--vault-name", VAULT, "--name", "demo-password"
         )["value"]
         if read_variables().get("enable_real_llm"):
-            from scripts.azure_llm_smoke import budget_receipt, conversation_allowance
+            from scripts.azure_llm_smoke import SMOKE_RUN, budget_receipt, conversation_allowance
 
-            if read_variables().get("llm_budget_run_id") != "jev-support-smoke":
+            if read_variables().get("llm_budget_run_id") != SMOKE_RUN:
                 raise RuntimeError("A real browser smoke requires the approved cumulative cap")
             budget_receipt()
             allowance = conversation_allowance(1, "browser-three-surfaces")

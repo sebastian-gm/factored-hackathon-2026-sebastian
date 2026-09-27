@@ -25,7 +25,7 @@ from aclara.policy.engine import evaluate
 from aclara.settings import Settings
 
 WEB = "https://ca-web-aclara-dev-eastus2.lemonbeach-1b769de0.eastus2.azurecontainerapps.io"
-SMOKE_RUN = "jev-support-smoke"
+SMOKE_RUN = "option-a-release-smoke"
 CHECKPOINT = ROOT / f"artifacts/azure/{SMOKE_RUN}-conversations.json"
 
 

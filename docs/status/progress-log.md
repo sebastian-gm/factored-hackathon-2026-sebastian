@@ -1,5 +1,39 @@
 # Progress log
 
+## 2026-09-27 — Approved Option A re-release preparation
+
+### Completed (verified)
+
+- Merged #39 at its all-green head; merge `5608e6b73a68c69b562f9a9c897b3109e3f0b868`.
+  Corrected its stale deployment/confirmation status in this follow-up.
+- `python -m scripts.azure_prices`: live East US 2 estimate **$34.63/month**,
+  below the approved $40 stop gate (no new resource class or public access).
+- Aggregate Postgres budget readback: v1 exposure **$0.02058083**, including one
+  unsettled reserve; dev **$0.10791745**. The earlier v1 $0.0119 figure omitted
+  part of reserved exposure. No abandoned-v1 artifact was opened.
+- `python -m scripts.test_postgres`: **15 passed**, including v2 preparation,
+  cumulative cap, preserving unsettled reserves, closing prior budgets and
+  refusing to re-enable a tripped breaker. Focused final-run tests passed;
+  Ruff and strict mypy passed.
+- Prepared the launcher/budget support for `artifacts/final-program-v2/`, scope
+  `final-evaluation-v2`, run `final-program-v2`, **$11.87** cap. Combined maximum
+  at current reserved exposure: **$11.99849828**. Runtime start/resume verifies
+  the closed prior scopes and reduced cap; it cannot initialize/reset budgets.
+- Fresh release smoke identity is `production/option-a-release-smoke`, **$0.10**
+  across API and browser, maximum five attempted conversations. Old smoke
+  accounting remains intact. Estimated new smoke usage: **$0.01–$0.03**.
+
+### Done but not verified
+
+- New image build/push, Terraform plan/apply, deployed smoke, browser, external
+  access and release receipt remain pending the prepared main release SHA.
+
+### Next / blocked
+
+- Run the approved Step 4 release gates, update this log with evidence, report
+  the exact SHA and **STOP**. Do not start v2 without Sebastian's separate go.
+- Skip #37's backend API additions until after v2 and a separate video redeploy.
+
 ## 2026-09-27 — Option A Step 3 complete; STOP before re-release
 
 ### Completed (verified)
