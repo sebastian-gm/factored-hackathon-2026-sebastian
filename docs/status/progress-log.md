@@ -71,3 +71,25 @@ The first immediate Compose smoke before health waiting hit a web startup connec
 - Release inputs and control readback are in ignored `infra/terraform.tfvars` and `artifacts/azure/verified.json`; do not print private inputs. The local Compose stack remains running.
 
 For the next session: **Continue from docs/status/progress-log.md. Next layer: policy workflows and held-out evaluation bindings. Same rules.**
+
+## Frontend lane — 2026-09-26/27
+
+### Completed (verified)
+
+- Read the new frontend handoff, brief §§6.4/8/12.4/16.5, repository rules and frozen OpenAPI. Created `feat/frontend` from latest main, then rebased the unpublished implementation onto `ad62e9c` after the lead's durable-operations merges. The longer, dotted OTP challenge identifiers are supported. No backend, policy, schema, harness or infrastructure files are changed.
+- Built customer chat, Agent Desk and Ops under `apps/web/`: ES-MX/CO/AR and PT-BR formatting, password/OTP persona access, SMS panel, masked fixture products, top-three choices, exact-proposal Confirm/Cancel, read-back receipts, handoff status and a customer-safe records/rules drawer. Added queue priority/SLA/language/reasons, evidence and action timelines, claim/resolve, execution stages and model metadata, DQ/freshness/version, the existing aggregate dbt lineage image, illustrative results/cost and verified fixture reset.
+- Replaced JavaScript-held access/preauth tokens with same-origin HTTP-only, SameSite=Strict cookies (Secure in production). Added route/input/output validation, Origin checks, role separation for fixtures and explicit read-back before success. Missing live staff/Ops contracts are clearly unavailable; typed fixtures require the explicit server-side feature flag and a configured password. There are no frontend model calls and no fallback from live errors to fixtures.
+- Eight Playwright fixture tests passed: the three requested stories, cancellation, phone layouts, language switching, keyboard/dialog behavior, automated WCAG 2.1 AA checks, cookie visibility, CSRF/role rejection, idempotent confirmation replay, cross-browser ownership and five-attempt OTP lockout/restart. Desktop and phone screenshots were inspected and remain in ignored `artifacts/frontend/`.
+- The separate live-proxy Playwright test passed against current main's B1 mock API: password/OTP, pending-charge explanation, actual dispute confirmation and case read-back, with unsupported Agent Desk correctly unavailable. It used only team-generated ledger fixtures and an ephemeral credential.
+- TypeScript and ESLint passed. The production build passed using supported Webpack mode; Turbopack hit host watcher/worker-port failures, so local browser tests use Webpack polling. The worktree's ignored `.env` now uses `aclara-frontend` / ports 15442, 8212 and 3212; read-back confirmed all other entries were preserved. The separate OpenRouter key was not used, printed or committed. An explicit scan verified key exclusion and ignored screenshot paths.
+- All six pre-commit hooks and the tracked-file data/secret/size policy passed after the rebase. The final production browser chunks contain neither the provider key nor the fixture-password environment reference. `apps/web/public/dbt-lineage.svg` matches the existing aggregate diagram byte-for-byte.
+
+### Done but not verified
+
+- Agent Desk, Ops, reset and richer metadata use labeled frontend fixtures because their live endpoints are absent from the frozen API. Signed confirmation nonces, card-freeze proposals, product masks, staff identity, step-up refresh and logout revocation remain lead-owned API dependencies, specified in `apps/web/API-PROPOSAL.md`.
+- No Azure deployment or real-model run was performed. Native ES/PT human copy review and additional browser engines remain unverified. Illustrative Ops figures are not measured evaluation results; no held-out suite was executed.
+
+### Next / blocked
+
+- Lead review of the frontend PR and its additive API proposal. Wire staff/Ops contracts and add the documented browser-test command to the shared CI workflow; this lane does not edit that workflow.
+- Deploy only through the lead's existing authorized release process. No approval is needed for this private frontend PR; any future use of the worktree's OpenRouter key requires Sebastian's explicit approval.
