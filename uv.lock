@@ -40,6 +40,7 @@ dev = [
     { name = "numpy" },
     { name = "pre-commit" },
     { name = "pytest" },
+    { name = "pytz" },
     { name = "ruff" },
 ]
 llm = [
@@ -73,6 +74,7 @@ requires-dist = [
     { name = "pydantic-settings", specifier = ">=2.6,<3" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.3,<9" },
     { name = "python-dotenv", specifier = ">=1,<2" },
+    { name = "pytz", marker = "extra == 'dev'", specifier = ">=2026,<2027" },
     { name = "pyyaml", specifier = ">=6,<7" },
     { name = "rapidfuzz", specifier = ">=3.14,<4" },
     { name = "rapidfuzz", marker = "extra == 'data-ml'", specifier = ">=3.14,<4" },
