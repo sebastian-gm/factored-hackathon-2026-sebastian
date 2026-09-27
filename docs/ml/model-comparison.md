@@ -1,6 +1,6 @@
 # OpenRouter NLU comparisons and error analysis
 
-**No default model has been chosen.** Production remains `LLM_PROVIDER=mock`, and the persistent `.env` approval flag was not changed. Sebastian approved a **$5 cumulative cap** for round one and a **$10 cumulative cap** for round two. Round one cost **$0.402383** from this lane's per-call response usage/cost fields, including the original probes. The round-two spend and results are reported below.
+**Sebastian selected `google/gemini-3-flash-preview` as the NLU and phrasing default.** The selected route is configured in `config/models.yaml`; production remains `LLM_PROVIDER=mock` until the lead enables it with a production key. The persistent `.env` approval flag was not changed. Sebastian approved a **$5 cumulative cap** for round one and a **$10 cumulative cap** for rounds two and three. Round one cost **$0.402383** from this lane's per-call response usage/cost fields, including the original probes. Later spend and results are reported below. No cross-vendor fallback has been locked.
 
 ## Sebastian's 2026-09-27 label decision
 
@@ -168,3 +168,67 @@ Five of the six full-suite models were perfect on intent; Haiku missed only one 
 The full scored Haiku run used the schema-capable, ZDR [`amazon-bedrock/global` endpoint](https://openrouter.ai/docs/api/api-reference/endpoints/list-endpoints-zdr) at the catalog rate of $1/M input and $5/M output; [generation metadata](https://openrouter.ai/docs/api/api-reference/generations/get-generation) readback for two calls showed Amazon Bedrock and matched their response costs. A prior unpinned 25-case pass cost **$0.072047** in known per-call charges and was archived privately, excluded from Haiku's accuracy/latency/cost-per-case row, but **included** in the cumulative ledger. It stopped on an attempt with no response usage/cost. A first pinned pass also had a no-usage interruption after 29 scored cases; those cases were resumed on the same endpoint with a three-second inter-request gap. The first parallel pass used a 20-second HTTP timeout; the pinned Haiku passes used 60 seconds. Pacing was outside measured call latency. The exact charges for the two no-usage interruptions are unknown and are **not assigned to any case or model cost estimate**; a separate $0.30 conservative cap guard covers potential billing. There were no no-final cases in the scored 930-case checkpoint. Gemini 3.5 Flash-Lite needed two extra attempts after invalid JSON and recovered both.
 
 The known per-call cumulative ledger is **$0.402383** round one + **$0.034314** seven-model pilot + **$0.072047** archived Haiku first pass + **$3.012058** scored round two = **$3.520801**. Even including the $0.30 unknown-billing guard, this remains below Sebastian's $10 cumulative cap. The open questions are human verification of the new labels, human ES/PT quality ratings, and a genuinely independent NLU challenge set. The frozen end-to-end held-out suite was not used to tune the prompt or select a model.
+
+## Round three: cheap cross-vendor challengers
+
+Sebastian selected Gemini 3 Flash as the default before this run; round three did not reopen that choice. The same **frozen, AI-authored and unreviewed 150-case dev suite** (SHA-256 `d234931baccb1ebe4523d3a58c7e09d49fc15232322dc115ac47055559ed2d01`) and v3 prompt (SHA-256 `0a358ef723aefcbdefd65441f519455dc9da384ce6e2f0a03dff3bb19c387b03`) were used. No dev label or prompt was changed for these challengers. The table repeats the round-two Gemini baseline on the same cases. Intent and final-response intervals use 95% Wilson bounds; macro-F1, slot F1, latency and known per-call cost use 2,000 case-cluster bootstrap resamples. Paired slot differences resample matching case IDs. Injection-flag intervals are Wilson bounds on ten synthetic attempts. These intervals exclude label and authoring uncertainty. ES/PT fluency quality still needs human review.
+
+Exact IDs and displayed catalog rate floors were checked on 2026-09-27 against the [OpenRouter live model catalog](https://openrouter.ai/docs/api/api-reference/models/get-models), filtered for `response_format` and [ZDR endpoints](https://openrouter.ai/docs/api/api-reference/endpoints/list-endpoints-zdr). The two canonical OpenAI GPT mini/nano IDs are the cheapest eligible non-batch models in those classes; [OpenAI lists those API families](https://developers.openai.com/api/docs/models/all). `x-ai/grok-4.20` is the current fast general-purpose Grok challenger; the cheaper `grok-build-0.1` is specialized for coding and was excluded from this NLU comparison. Qwen uses the non-thinking 80B instruct model, not the prior 9B route. Mistral Small 4 is cataloged as `mistralai/mistral-small-2603`. The catalog floors are for orientation; the actual per-case column sums each response's per-call usage/cost, including retries, and never uses the shared key-level account delta. A ZDR provider may bill above the floor. All scored calls required strict JSON schema, ZDR, `data_collection=deny`, `require_parameters=true`, and a 2,048-token output limit.
+
+The OpenAI routes required `reasoning=minimal`: their ZDR endpoint rejected `reasoning=none` with HTTP 400 during the one-case preflight. Mistral Small's unpinned preflight returned HTTP 429, so the full run pinned `mistral/us`. DeepSeek used `reasoning=none` and `provider.only=["wafer/fast"]`, with provider fallback disabled. A separate three-case-per-provider probe found **3/3 valid** from Wafer, DeepInfra, and OpenInference; observed median latency was **2.65, 5.37, and 7.08 seconds**, respectively. This is a small route choice check, not proof Wafer is always fastest. The initial preflight produced six HTTP 400/429 attempts without per-call usage/cost. They are accounted for as unknown charges under a conservative guard, not assigned a billed cost.
+
+| Exact OpenRouter model ID | Catalog input / output USD per 1M | n | Intent, 95% CI | Macro-F1, 95% CI | Slot F1, 95% CI | Valid JSON / all attempts, 95% CI | Valid final, 95% CI | Language ID, 95% CI | Injection flags / 10; false flags / 140 | ES / PT quality | p50 / p95 latency s, 95% CI | Known cost / case USD, 95% CI |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|
+| `google/gemini-3-flash-preview` | $0.25 / $1.5 | 150 | 100.0% [97.5, 100.0] | 100.0 [100.0, 100.0] | 95.7 [93.2, 97.8] | 150/150 (100.0% [97.5, 100.0]) | 150/150 (100.0% [97.5, 100.0]) | 90.0% [84.2, 93.8] | 10/10 [72.2, 100.0]%; 0/140 | Pending / pending | 1.88 [1.86, 1.93] / 2.36 [2.17, 2.69] | $0.0012650 [0.0012620, 0.0012689] |
+| `openai/gpt-5-nano` | $0.025 / $0.2 | 150 | 89.3% [83.4, 93.3] | 92.6 [86.7, 96.7] | 88.7 [84.9, 92.3] | 148/152 (97.4% [93.4, 99.0]) | 148/150 (98.7% [95.3, 99.6]) | 70.0% [62.2, 76.8] | 1/10 [1.8, 40.4]%; 0/140 | Pending / pending | 1.26 [1.23, 1.30] / 2.57 [1.73, 2.97] | $0.0000735 [0.0000719, 0.0000749] |
+| `openai/gpt-5-mini` | $0.125 / $1 | 150 | 97.3% [93.3, 99.0] | 99.2 [98.2, 99.9] | 93.6 [90.7, 96.2] | 148/152 (97.4% [93.4, 99.0]) | 148/150 (98.7% [95.3, 99.6]) | 88.7% [82.6, 92.8] | 6/10 [31.3, 83.2]%; 0/140 | Pending / pending | 2.02 [1.95, 2.06] / 3.90 [2.95, 4.35] | $0.0003494 [0.0003410, 0.0003568] |
+| `x-ai/grok-4.20` | $1.25 / $2.5 | 150 | 99.3% [96.3, 99.9] | 99.4 [97.7, 100.0] | 93.2 [90.3, 95.9] | 150/150 (100.0% [97.5, 100.0]) | 150/150 (100.0% [97.5, 100.0]) | 92.0% [86.5, 95.4] | 9/10 [59.6, 98.2]%; 0/140 | Pending / pending | 1.60 [1.57, 1.63] / 1.94 [1.84, 2.03] | $0.0009640 [0.0008887, 0.0010403] |
+| `qwen/qwen3-next-80b-a3b-instruct` | $0.1 / $1.1 | 150 | 98.0% [94.3, 99.3] | 98.4 [95.8, 100.0] | 93.0 [89.9, 95.8] | 150/150 (100.0% [97.5, 100.0]) | 150/150 (100.0% [97.5, 100.0]) | 88.0% [81.8, 92.3] | 4/10 [16.8, 68.7]%; 0/140 | Pending / pending | 1.56 [1.44, 1.70] / 5.14 [4.84, 5.60] | $0.0002881 [0.0002839, 0.0002926] |
+| `deepseek/deepseek-v4-flash-0731` | $0.0215 / $0.3 | 150 | 99.3% [96.3, 99.9] | 99.4 [97.6, 100.0] | 94.0 [91.4, 96.4] | 150/150 (100.0% [97.5, 100.0]) | 150/150 (100.0% [97.5, 100.0]) | 88.7% [82.6, 92.8] | 8/10 [49.0, 94.3]%; 0/140 | Pending / pending | 2.41 [2.28, 2.56] / 3.66 [3.52, 3.80] | $0.0001122 [0.0001118, 0.0001126] |
+| `mistralai/mistral-small-2603` | $0.15 / $0.6 | 150 | 94.7% [89.8, 97.3] | 94.4 [88.6, 98.1] | 94.3 [91.6, 96.8] | 150/150 (100.0% [97.5, 100.0]) | 150/150 (100.0% [97.5, 100.0]) | 87.3% [81.1, 91.7] | 6/10 [31.3, 83.2]%; 0/140 | Pending / pending | 1.17 [1.15, 1.19] / 1.49 [1.43, 1.73] | $0.0001337 [0.0001317, 0.0001359] |
+
+Paired slot-F1 differences versus the selected Gemini 3 Flash baseline on the same 150 cases (2,000 case-pair bootstrap resamples; percentage points):
+
+| Challenger | Difference, 95% CI | Injection flags and false flags match baseline? |
+|---|---:|---:|
+| `openai/gpt-5-nano` | -6.9 [-10.2, -3.8] | No |
+| `openai/gpt-5-mini` | -2.1 [-4.1, -0.2] | No |
+| `x-ai/grok-4.20` | -2.5 [-4.4, -1.0] | No |
+| `qwen/qwen3-next-80b-a3b-instruct` | -2.7 [-5.0, -0.9] | No |
+| `deepseek/deepseek-v4-flash-0731` | -1.6 [-3.7, +0.4] | No |
+| `mistralai/mistral-small-2603` | -1.4 [-3.4, +0.5] | No |
+
+Dialect and challenge-slice intent accuracy:
+
+| Model | ES-MX / 30 | ES-CO / 30 | ES-AR / 30 | pt-BR / 30 | Mixed / 30 | Slang | False friends | Injection intent | Out-of-scope precision / recall |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| `google/gemini-3-flash-preview` | 30/30 | 30/30 | 30/30 | 30/30 | 30/30 | 14/14 | 7/7 | 10/10 | 9/9 / 9/9 |
+| `openai/gpt-5-nano` | 27/30 | 28/30 | 25/30 | 26/30 | 28/30 | 13/14 | 7/7 | 5/10 | 7/7 / 7/9 |
+| `openai/gpt-5-mini` | 29/30 | 30/30 | 29/30 | 29/30 | 29/30 | 14/14 | 7/7 | 6/10 | 9/9 / 9/9 |
+| `x-ai/grok-4.20` | 30/30 | 30/30 | 30/30 | 29/30 | 30/30 | 14/14 | 7/7 | 10/10 | 9/9 / 9/9 |
+| `qwen/qwen3-next-80b-a3b-instruct` | 30/30 | 30/30 | 29/30 | 28/30 | 30/30 | 14/14 | 7/7 | 8/10 | 9/10 / 9/9 |
+| `deepseek/deepseek-v4-flash-0731` | 30/30 | 30/30 | 29/30 | 30/30 | 30/30 | 14/14 | 7/7 | 9/10 | 9/9 / 9/9 |
+| `mistralai/mistral-small-2603` | 28/30 | 28/30 | 28/30 | 29/30 | 29/30 | 14/14 | 7/7 | 3/10 | 9/14 / 9/9 |
+
+Cross-model intent confusions (challengers only):
+
+| Gold / predicted | charge_inquiry | dispute_charge | duplicate_charge | refund_or_reversal_status | dispute_status | fee_dispute | card_lost_or_fraud | human_request | out_of_scope | no_final |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| charge_inquiry | 375 | 7 | 0 | 2 | 0 | 1 | 0 | 1 | 6 | 4 |
+| dispute_charge | 9 | 141 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| duplicate_charge | 0 | 0 | 60 | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| refund_or_reversal_status | 0 | 0 | 0 | 60 | 0 | 0 | 0 | 0 | 0 | 0 |
+| dispute_status | 0 | 0 | 0 | 0 | 30 | 0 | 0 | 0 | 0 | 0 |
+| fee_dispute | 0 | 0 | 0 | 0 | 0 | 60 | 0 | 0 | 0 | 0 |
+| card_lost_or_fraud | 0 | 0 | 0 | 0 | 0 | 0 | 60 | 0 | 0 | 0 |
+| human_request | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 29 | 0 | 0 |
+| out_of_scope | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 2 | 52 | 0 |
+
+Non-valid scored attempts: openai/gpt-5-nano refusal/content_filter: 4; openai/gpt-5-mini refusal/content_filter: 4.
+Known round-three pilot, provider-probe, and scored-response spend: **$0.292253**; cumulative known per-call spend: **$3.813054**. There are 6 no-response attempts without per-call cost, including six initial preflight errors. They are excluded from cost per case; a separate $0.02/attempt guard plus a $0.30 reserve protects the cumulative $10 cap.
+
+The OpenAI **scored** failures are provider `content_filter` stops, not output truncation: each of `gpt-5-nano` and `gpt-5-mini` lacked a final response on the same two cases after one retry, four non-valid attempts per model. They count against intent, slots, JSON validity over **all** attempts, and final-response rate. The six initial no-response preflight attempts are separate from the 900 scored model-case outcomes. Their actual charge is unknown because the provider returned no usage/cost; the $0.12 unknown-attempt guard and $0.30 reserve keep the approved $10 cumulative cap protected.
+
+**No challenger meets the full parity goal.** Gemini 3 Flash recorded 95.7% slot F1 and 10/10 injection flags with zero false flags. The nearest observed slot results among the cheaper vendors were Mistral Small 4 (94.3%) and DeepSeek V4 Flash (94.0%), but they flagged only 6/10 and 8/10 injected utterances. Grok 4.20 flagged 9/10 with zero false flags, had 1.60/1.94-second p50/p95 latency and $0.000964 known cost/case, but its 93.2% slot F1 was 2.5 points below Gemini (paired 95% interval −4.4 to −1.0). The flags measure suspicion on this small authored slice, not arbitrary injection resistance.
+
+On cost-first criteria, **DeepSeek V4 Flash is the strongest cheap cross-vendor fallback candidate for Sebastian to review**, at $0.0001122/case (about 91% below Gemini) with 99.3% intent, 94.0% slot F1, 8/10 injection flags and no false flags. Its p50/p95 latency was 2.41/3.66 seconds, slower than Gemini. Grok 4.20 is the stronger flag-recall/speed alternative but cost about 8.6 times as much as DeepSeek per case. Neither is configured as the fallback. Claude remains reserved for the independent final held-out frontier comparison and as a judge candidate; no Claude calls were made in round three. The 150-case dev set has been reused for comparison and cannot establish independent production accuracy or safety.

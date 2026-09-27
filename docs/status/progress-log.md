@@ -70,7 +70,7 @@ This summary supersedes earlier task lists; detailed evidence remains in the lin
 ## Done-not-verified
 
 - Frozen evaluation acceptance failed; latest post-diagnostic packet/API changes have no frozen-suite outcome claim. Broader language coverage, full handoff correctness and safe automation remain gaps despite green engineering checks.
-- AI-lane real-model round one and round two are reported in [model comparison](../ml/model-comparison.md); no production default or cross-vendor judge run. Keep `LLM_PROVIDER=mock`.
+- AI-lane real-model rounds one through three are reported in [model comparison](../ml/model-comparison.md). Sebastian selected Gemini 3 Flash as the configured NLU/phrasing default; no real model or cross-vendor judge has been deployed. Keep `LLM_PROVIDER=mock`.
 - Human dual labels and Spanish/fluent PT review remain pending. The frozen PT authoring lane used generation and second-vendor review under its separate prior US$3 approval (reported US$0.6073573); language remains model-authored. Catalog translation review remains pending.
 - Frontend PR #17 compatibility/live BFF integration, shared browser CI and manual visual review remain pending. The minimal current-main UI is the deployed UI.
 - Azure PITR/regional DR, realistic-volume recovery, automatic retention, sustained load, actual charges/free grants and budget-email delivery are unverified. Alert thresholds have not been triggered in a test.
@@ -81,7 +81,7 @@ This summary supersedes earlier task lists; detailed evidence remains in the lin
 
 - Next layer: integrate the compatible frontend and address policy/NLU/handoff acceptance gaps using **independent development fixtures**. Preserve the frozen diagnostic; do not tune on held-out cases or silently rerun/replace its report.
 - Await frontend lane fixes for PR #17. Production staff identity, task-scoped cross-session authorization, durable model spend accounting and independent audit anchors remain implementation work.
-- Sebastian approved the completed AI-lane comparison under a $10 cumulative cap. Any further paid run needs a new approval; keep the default undecided and the judge vendor distinct.
+- Sebastian approved the completed AI-lane comparison under a $10 cumulative cap. Any further paid run needs a new approval; keep the selected default in mock production mode and the cross-vendor fallback undecided. The judge vendor remains distinct.
 - No additional permission is needed to complete the already-approved restricted release. Any expanded resources/access or estimate above US$40/month requires approval. Preserve the known dev PostgreSQL Azure-services firewall exception; VNet/private access is [production work](../production-readiness.md).
 
 ## AI lane — 2026-09-27 (label decision and round two)
@@ -100,6 +100,24 @@ This summary supersedes earlier task lists; detailed evidence remains in the lin
 ### Next / blocked
 
 - Sebastian will decide a default after reviewing the aggregate trade-offs and obtaining stronger independent human-checked NLU evidence. Lead review of PR #12 and the B1 workflow transition remain. No further paid run is authorized by this section; keep production in mock mode.
+
+## AI lane — 2026-09-27 (selected default and round three)
+
+### Completed (verified)
+
+- Configured Sebastian's selected `google/gemini-3-flash-preview` route for both NLU and phrasing. `LLM_PROVIDER=mock` still selects the mock entries; a lead-enabled `openai_compat` deployment selects the reviewed `default` route. The runtime NLU prompt now uses the evaluated v3 taxonomy. Persistent `.env` remains mock with its approval flag unchanged; the real-call gate was process-local for this approved comparison.
+- Ran six cheap challengers on the same frozen 150-case unreviewed NLU dev suite and v3 prompt: GPT-5 nano/mini, Grok 4.20, Qwen3 Next 80B instruct, DeepSeek V4 Flash 0731, and Mistral Small 4. All 900 model-case outcomes are checkpointed under ignored `artifacts/ai-round-three/`. The [comparison](../ml/model-comparison.md) reports exact IDs, 95% intervals, all-attempt JSON validity, injection flags/false flags, latency, per-call cost and paired slot-F1 differences. No challenger matched Gemini 3 Flash's 10/10 injection flags and 95.7% slot F1.
+- DeepSeek's `wafer/fast` ZDR route was fastest in a fixed three-case/provider probe: 2.65-second median versus 5.37 on DeepInfra and 7.08 on OpenInference. DeepSeek used `reasoning=none`; OpenAI required `minimal`; Mistral was pinned to `mistral/us` after an unpinned 429. The scored OpenAI failures were `content_filter` stops, four non-valid attempts and two missing finals per model, not output truncation.
+- Known round-three per-call spend, including successful pilot and provider probes, was **$0.292253**. Known cumulative spend across rounds was **$3.813054**, below the $10 cap. Six initial HTTP 400/429 attempts had no usage/cost response and remain unassigned; a separate $0.12 guard plus $0.30 reserve protects the cap. No key-level account delta was used for model cost.
+- `make checks` passed: six hooks, file policy, compilation, **76 tests passed and 7 database-dependent skips**, B1 dev harness **32/32** with 12 readbacks, interfaces and policy catalog. No model messages, model thinking, credentials, or organizer rows were committed.
+
+### Done but not verified
+
+- The 150-case dev set and ES/PT fluency judgments still lack independent human review. Ten synthetic injection cases measure suspicion flags, not arbitrary attack resistance. The chosen Gemini route has not been exercised in deployed production; deployment needs the lead's production key and activation.
+
+### Next / blocked
+
+- Sebastian to review the cheaper cross-vendor fallback trade-off; none is configured. DeepSeek is the cost-first candidate, while Grok 4.20 is the stronger injection-flag/speed alternative. Claude stays reserved for the independent final held-out frontier comparison and judge candidacy. A new approval is needed before additional paid model runs.
 
 ## Access and continuation
 
