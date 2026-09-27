@@ -13,7 +13,7 @@
 
 ### Next / blocked
 
-- Lead merges the frozen fixture PR and integrates additive `offer_dispute` API/scenario/scorer behavior, then runs the dev gate. The lead must initialize `dev-gate/after-v2` before any shared $1 dev paid call. Do not open suite-v3 rows; lead merges AI PRs after CI.
+- Lead merged fixture PR #47; next integrate additive `offer_dispute` API/scenario/scorer behavior, then runs the dev gate. The lead must initialize `dev-gate/after-v2` before any shared $1 dev paid call. Do not open suite-v3 rows; lead merges AI PRs after CI.
 
 ---
 
