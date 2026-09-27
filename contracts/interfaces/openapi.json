@@ -216,7 +216,7 @@
         "additionalProperties": false,
         "properties": {
           "challenge_id": {
-            "maxLength": 80,
+            "maxLength": 160,
             "minLength": 1,
             "title": "Challenge Id",
             "type": "string"

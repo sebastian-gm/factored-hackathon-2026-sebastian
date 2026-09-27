@@ -140,3 +140,10 @@ For the next session: **Continue from docs/status/progress-log.md. Next layer: d
 ### Next-blocked
 
 - Continue tasks 3–7 in order; retain mock provider. No additional approval is needed for the authorized restricted redeployment. Real-model calls still need a priced proposal and approval.
+
+### Durable operations implementation (local evidence)
+
+- PR #10 merged after green checks; PR #11 merged after correcting formatting and the previously implicit DuckDB `pytz` test dependency. Both integrations remain mock-only.
+- `python -m scripts.test_postgres`: four integration tests passed, including serving load; the command creates and removes a dedicated local test database. Forced RLS, invoker views/functions, no-context/autocommit/pool-context reset, customer/run/session isolation, rollback, concurrent audit append, append-only permissions, chain tamper detection and multiple application restarts were exercised.
+- `docker compose up --build -d` built the API/migration/web images and started a separate non-owner API login after successful migrations. Current source adds session/run-scoped authentication capabilities and expiry-bound proposal hashes; a final image rebuild/smoke will follow policy documentation.
+- Card-state persistence is restart-tested through its repository. The customer freeze/confirmation UI/API workflow is not implemented; do not claim it is available.

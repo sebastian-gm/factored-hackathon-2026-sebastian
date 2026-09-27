@@ -14,3 +14,7 @@ The owner-approved low-cost development deployment uses public HTTPS endpoints w
 The same controlled workflow could later support fee disputes, card replacement, or payment-status questions after separate policy and safety review.
 
 The development PostgreSQL firewall allows Azure service sources across subscriptions, plus the owner IP. Strong passwords in Key Vault, a restricted database role and verified TLS reduce the risk but do not establish app-only network isolation. Replace this exception with VNet integration and PostgreSQL private access before production. Simulated OTP is not independent MFA, and current in-memory cases/sessions are lost on replica restart or scale-to-zero; durable storage is required before those records have operational value.
+
+## Operational persistence follow-up
+
+The dev API uses non-owner Postgres state, forced customer/run/session RLS, four pooled connections, transactional idempotency and post-commit readback. Alembic migrations use the owner credential separately. Verify backup restore and retention, sustained concurrency, bounded model spending across restarts, and independently anchored audit exports before production. A privileged owner can rewrite an entire unanchored hash chain. The card-state repository is durable; a customer-facing freeze/step-up workflow remains separate work. Simulated OTP still is not independent MFA.

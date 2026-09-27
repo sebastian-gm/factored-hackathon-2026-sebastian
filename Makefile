@@ -1,6 +1,7 @@
 .PHONY: up down checks eval-smoke interfaces pipeline
 
 up:
+	uv run --no-sync python -m scripts.local_ops
 	docker compose up --build -d
 
 down:

@@ -17,6 +17,22 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    command: ["python", "-m", "aclara.ops.migrate", "--app-role", "aclara_app"]
+    environment:
+      PGHOST: postgres
+      PGPORT: "5432"
+      PGUSER: ${POSTGRES_USER:?Set POSTGRES_USER in .env}
+      PGPASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      PGDATABASE: ${POSTGRES_DB:?Set POSTGRES_DB in .env}
+      OPS_APP_PASSWORD: ${OPS_APP_PASSWORD:?Run python -m scripts.local_ops first}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
   api:
     build:
       context: .
@@ -24,17 +40,19 @@ services:
     environment:
       PGHOST: postgres
       PGPORT: "5432"
-      PGUSER: ${POSTGRES_USER:?Set POSTGRES_USER in .env}
-      PGPASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      PGUSER: aclara_app
+      PGPASSWORD: ${OPS_APP_PASSWORD:?Run python -m scripts.local_ops first}
       PGDATABASE: ${POSTGRES_DB:?Set POSTGRES_DB in .env}
       DEMO_USERNAME: ${DEMO_USERNAME:?Set DEMO_USERNAME in .env}
       DEMO_PASSWORD: ${DEMO_PASSWORD:?Set DEMO_PASSWORD in .env}
+      OPS_BACKEND: postgres
+      AGENT_SYSTEM: P
       LLM_PROVIDER: ${LLM_PROVIDER:-mock}
       BANK_CLOCK: ${BANK_CLOCK:-2026-06-18T06:00:00Z}
       WEB_ORIGIN: http://localhost:${WEB_HOST_PORT:-3000}
     depends_on:
-      postgres:
-        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     ports:
       - "127.0.0.1:${API_HOST_PORT:-8000}:8000"
     healthcheck:
