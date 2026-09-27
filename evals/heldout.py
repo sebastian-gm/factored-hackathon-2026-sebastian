@@ -15,14 +15,16 @@ from pathlib import Path
 from uuid import uuid4
 
 import yaml
-from dotenv import dotenv_values
 
-from aclara.handoff.routing import AgentDirectory, read_source
+from aclara.bank.serving import ServingRepository
+from aclara.handoff.routing import AgentDirectory
+from evals.access import access
 from evals.bindings import ROOT, bind, private_bindings
 from evals.bound_execution import execute_bound
 from evals.heldout_report import comparison, report
 from evals.metrics import score
 from evals.observations import validate_gold
+from evals.serving import open_serving
 from evals.suites.tools.validate_release import check_payloads, verify_manifest
 
 
@@ -33,7 +35,7 @@ def private_write(path: Path, data: str) -> None:
         stream.write(data)
 
 
-def load() -> tuple[dict, dict, AgentDirectory]:
+def load(serving: ServingRepository) -> tuple[dict, dict, AgentDirectory]:
     release = ROOT / "evals/suites/test"
     summary = check_payloads(release)
     verify_manifest(release)
@@ -44,13 +46,11 @@ def load() -> tuple[dict, dict, AgentDirectory]:
     ]
     suite = {**parts[0], "scenarios": [c for part in parts for c in part["scenarios"]]}
     provenance = json.loads((ROOT / "evals/suites/test/provenance.json").read_text())
-    identities = private_bindings(suite, provenance)
-    values = dotenv_values(ROOT / ".env")
-    raw = Path(os.environ.get("LOCAL_RAW_DIR") or str(values.get("LOCAL_RAW_DIR")))
-    directory = AgentDirectory(read_source(raw / "service_agents.csv"))
+    identities = private_bindings(suite, provenance, serving)
+    directory = serving.directory()
     warnings: Counter[str] = Counter()
     for s in suite["scenarios"]:
-        fixture = bind(s, identities[s["persona"]["customer_ref"]], directory)
+        fixture = bind(s, identities[s["persona"]["customer_ref"]], directory, serving)
         warnings.update(fixture.input_warnings)
         validate_gold(s["gold"], fixture.refs, fixture.protected)
         for turn in s["turns"]:
@@ -102,7 +102,13 @@ def failed(s: dict, system: str, repeat: int, error: Exception) -> dict:
     )
 
 
-async def run(suite: dict, identities: dict, directory: AgentDirectory, output: Path) -> None:
+async def run(
+    suite: dict,
+    identities: dict,
+    directory: AgentDirectory,
+    output: Path,
+    serving: ServingRepository,
+) -> None:
     if subprocess.check_output(
         ["git", "-C", str(ROOT), "status", "--porcelain"], text=True
     ).strip():
@@ -131,7 +137,10 @@ async def run(suite: dict, identities: dict, directory: AgentDirectory, output: 
             yaml.safe_load((ROOT / "config/pricing.yaml").read_text()).get("as_of", "2026-09-26")
         ),
         "monthly_infrastructure_estimate_usd": 34.63,
-        "workload": "heldout-e2e-v2 controlled fictional overlays",
+        "workload": "heldout-e2e-v2 organizer serving base plus declared fictional overlays",
+        "source_kind": "organizer_serving_with_declared_overlays",
+        "source_rls": "forced customer RLS on every base read",
+        "operational_storage": "isolated in-memory per case; persistence tested separately",
         "human_label_review": "pending",
         "language_review": "model generated, cross-vendor PT review; no fluent-human PT review",
         "cost_assumptions": "Mock USD 0; prior authoring and infrastructure excluded",
@@ -143,7 +152,9 @@ async def run(suite: dict, identities: dict, directory: AgentDirectory, output: 
         cases = []
         for index, scenario in enumerate(selected, 1):
             try:
-                fixture = bind(scenario, identities[scenario["persona"]["customer_ref"]], directory)
+                fixture = bind(
+                    scenario, identities[scenario["persona"]["customer_ref"]], directory, serving
+                )
                 result = await execute_bound(scenario, fixture, system, repeat)
             except Exception as error:
                 result = failed(scenario, system, repeat, error)
@@ -196,9 +207,24 @@ def main() -> None:
     output = args.output.resolve()
     if not output.is_relative_to(ROOT / "artifacts"):
         raise ValueError("Private output must remain under ignored artifacts")
-    suite, identities, directory = load()
-    if args.run:
-        asyncio.run(run(suite, identities, directory, output))
+    paths = sorted(p for p in (ROOT / "evals/suites/test").iterdir() if p.is_file())
+    paths += [ROOT / "artifacts/evaluation-authoring/customer-bindings.json"]
+    paths += [
+        ROOT / f"artifacts/charge_matcher/v1/dataset/{split}.jsonl"
+        for split in ("train", "validation", "test")
+    ]
+    serving = open_serving()
+    try:
+        with access(
+            "full_diagnostic" if args.run else "preflight",
+            paths,
+            "Explicit frozen access; serving ownership, overlays and hashes; no gold edits",
+        ):
+            suite, identities, directory = load(serving)
+            if args.run:
+                asyncio.run(run(suite, identities, directory, output, serving))
+    finally:
+        serving.store.close()
 
 
 if __name__ == "__main__":
