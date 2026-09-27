@@ -15,8 +15,11 @@ to a wrong proposal; lower coverage consumes more clarification and human attent
 Frozen matcher risk/coverage points and thresholds are in
 [metrics.json](../models/charge_matcher/v1/metrics.json). Those points measure candidate
 proposal errors, not end-to-end unsafe writes. Do not retune thresholds on the frozen
-test suite. TODO(results): paired B1/P SAR, unsafe outcomes and escalation load across
-pre-registered operating points, with intervals and denominators.
+test suite. The [corrected mock diagnostic](evaluation/heldout-run01.md) reports
+67/193 SAR/in-scope for both systems (34.7%, Wilson 95% interval 28.36–41.67%). Each
+made six forbidden ESC-04 dispute writes and nine materially incorrect outcomes;
+acceptance failed. P used rules fallback, so this does not measure a learned-system
+gain. TODO(results): approved real-model operating-point comparison and risk/coverage.
 
 ## Learned matcher choice
 
@@ -46,8 +49,7 @@ A new independent workload should revisit the choice.
 
 No application model default has been selected. The
 [model-comparison protocol](ml/model-comparison.md) requires shared labeled cases,
-invalid-output accounting, latency, cost and separate language ratings. The current
-mock fallback proves control flow, not that the proposed language system beats B1.
+invalid-output accounting, latency, cost and separate language ratings. The mock diagnostic exposed failures in control/language paths and no gain over B1.
 Provider data terms and durable spend accounting are release constraints alongside
 accuracy and price. Portuguese **scenario authoring** with a second vendor is not a
 system-model comparison and does not authorize inference spending.
@@ -77,8 +79,15 @@ not been measured. Routing prefers active skill/language matches, then load, wit
 explicit fallback. The source directory is a staffing snapshot, not a live capacity
 or availability feed.
 
-TODO(results): handoffs per 1,000 attempted cases, missed/unnecessary transfers,
-packet completeness and agent-hours per 1,000. Agent-hours require an observed
+In the frozen diagnostic, each system had 60/134 unnecessary transfers, 54/66
+required handoffs present, but 0/54 required complete packets and 0/66 fully correct
+transfers. Packet presence and a safety decision do not establish a useful human
+handoff. These results predate later staff packet additions. Sources:
+`unnecessary_transfers`, `handoff_presence_recall`, `safety_gates.required_handoff_fields` and
+`escalation_recall` in [B1](evaluation/heldout-run01-B1.json) and
+[P/mock](evaluation/heldout-run01-P-mock.json).
+
+TODO(results): human-reviewed packet quality and agent-hours per 1,000. Agent-hours require an observed
 handling-time assumption for the selected workflow; they cannot be inferred from
 an escalation count alone. The [projection](evaluation/business-projection.md)
 keeps those assumptions separate from offline outcomes.

@@ -1,8 +1,9 @@
 # Business projection — not a measured production improvement
 
-Status: calculation framework with visible missing inputs. No savings estimate is
-reported until approved held-out `results.json` and workflow-specific operating
-assumptions are available. Historical synthetic operations, controlled scenario
+Status: calculation framework with visible missing inputs. The
+[held-out mock diagnostic](heldout-run01.md) failed safety gates; its SAR cannot
+support a deployable-benefit claim. No savings estimate is reported until an
+acceptable approved result and workflow-specific operating assumptions are available. Historical synthetic operations, controlled scenario
 results and this projection are three different workloads.
 
 ## Historical base and exclusions
@@ -58,6 +59,13 @@ conversion is arithmetic, not a measured parameter.
 | Projection | TODO(results): low projected agent-hours | TODO(results): base projected agent-hours | TODO(results): high projected agent-hours |
 | Time to verified intake | TODO(results): conservative intake time | TODO(results): central intake time | TODO(results): favorable intake time |
 
+For transparency, the current **unweighted, failed-gate diagnostic** gives a SAR
+point estimate of 34.71% and Wilson bounds 28.36–41.67% for both systems
+([B1 `sar_in_scope`](heldout-run01-B1.json), [P/mock](heldout-run01-P-mock.json)).
+Those are measured diagnostic inputs, not traffic-weighted low/base/high production
+assumptions. We do not turn them into savings while safety and operating inputs
+remain unresolved.
+
 These sensitivity directions define scenarios, not invented numerical assumptions.
 They are not a joint confidence interval; correlation between SAR, handoffs and case
 mix must be retained when joint case-level evidence becomes available.
@@ -72,7 +80,7 @@ Historical complaint resolution duration is not a valid baseline for intake time
 | Required input | Source / status |
 | --- | --- |
 | Period H, charge taxonomy, deduplication and overlap | TODO(results): audited addressable issue count and period from pipeline outputs |
-| SAR, transfers and unsafe rates with uncertainty | TODO(results): approved B1/P `results.json` and workload reweighting |
+| SAR, transfers and unsafe rates with uncertainty | Mock diagnostic exists but fails safety gates; TODO(results): accepted B1/P result and workload reweighting |
 | Human handling, packet review and rework times | TODO(results): workflow-specific measured assumptions; historical category means are context only |
 | System latency and verified-intake subset | TODO(results): `results.json` and private per-case aggregation |
 | Authentication, think time and prior intake baseline | TODO(results): observed intake timing; no imputation from resolution days |

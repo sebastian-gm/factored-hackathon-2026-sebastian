@@ -9,8 +9,8 @@ charge matcher and guarded language adapters are implemented. The runtime defaul
 to `LLM_PROVIDER=mock`; an unconfigured proposed-system mock falls back to rules.
 The redesigned customer, Agent Desk and Ops frontend is in
 [PR #17](https://github.com/sebastian-gm/bank-agent-lab/pull/17). Customer APIs include
-fresh-OTP card freeze; staff/Ops views still use explicitly enabled fixtures because
-their APIs are pending. A source merge does not establish deployed behavior.
+fresh-OTP card freeze. Typed staff/Ops APIs are shipped and PR #17 integrates them,
+including versioned claims, measured workspace counts and gated reset. A source merge does not establish deployed behavior.
 
 ## Architecture in 60 seconds
 
@@ -49,8 +49,9 @@ Use the fixture details supplied with the personas for these guided scenarios:
 | Cancel a proposed action | Cancellation must not create a dispute or freeze. Required fraud review still continues. |
 | Ask for another customer's transactions | Refusal with no other-customer records. Do not use real names or identifiers. |
 
-The Agent Desk and Ops demonstration must be labeled as fixtures until the lead's
-staff APIs are integrated. The [video draft](docs/submission/video-script.md) includes
+Live Agent Desk and Ops are limited to a trusted identity's current workspace.
+The cloud defaults to customer role with reset disabled; a global staff queue and
+production staff identity are not implemented. The [video draft](docs/submission/video-script.md) includes
 release checks before recording; these instructions do not claim the latest UI has
 been deployed.
 
@@ -81,32 +82,62 @@ For the new UI and its fixture/live browser commands, use
 paid model or Azure. Do not execute the frozen test suite as a development smoke;
 follow the [evaluation protocol](docs/evaluation/eval-protocol.md).
 
-## Headline evaluation — awaiting held-out results
+## Headline evaluation — mock diagnostic, acceptance failed
 
-The [current report](docs/evaluation/results.md) is a development mock run. It does
-not establish real-model quality. Final cells below must be populated from the
-approved held-out run's aggregate `results.json`, with its workload, tag, dataset,
-policy, matcher, model, prompts, price date and repeat counts. Do not use the UI's
-illustrative `results.json` or historical operations as this comparison.
+The controlled held-out diagnostic used implementation `564f008c` on 2026-09-27.
+P's unconfigured mock fell back to B1. It provides **no evidence of real-model
+improvement**, and later staff/API/frontend changes were not evaluated in that run.
+The table is derived from the corrected aggregate `results.json` exports:
+[B1](docs/evaluation/heldout-run01-B1.json) and
+[P/mock](docs/evaluation/heldout-run01-P-mock.json). Their headers record the dataset,
+policy, matcher, prompts, prices and measurement correction. See the
+[report](docs/evaluation/heldout-run01.md) for access and rescore history.
 
-| Metric / JSON source | B1 | P |
+| Metric / JSON field | B1 | P/mock |
 | --- | --- | --- |
-| Cases executed / `header.sample_size` plus missing-case report | TODO(results): B1 held-out sample | TODO(results): P held-out sample |
-| SAR / in-scope, with interval / `sar_in_scope` | TODO(results): B1 SAR/in-scope | TODO(results): P SAR/in-scope |
-| SAR / eligible / `sar_eligible` | TODO(results): B1 SAR/eligible | TODO(results): P SAR/eligible |
-| Automation attempted / `automation_attempt_share` | TODO(results): B1 attempts | TODO(results): P attempts |
-| Containment / `containment` | TODO(results): B1 containment | TODO(results): P containment |
-| Missed / unnecessary transfers and routing / `missed_transfers`, `unnecessary_transfers`, `routing_accuracy` | TODO(results): B1 escalation quality | TODO(results): P escalation quality |
-| Unsafe events: per type, count/denominator/upper bound / `unsafe` | TODO(results): B1 unsafe outcomes | TODO(results): P unsafe outcomes |
-| Turn and case p50/p95 with intervals / `latency` | TODO(results): B1 latency | TODO(results): P latency |
-| Cost per attempt / per SAR / `cost` | TODO(results): B1 cost | TODO(results): P cost |
-| Language/segment outcomes and repeat flip rate | TODO(results): B1 slices | TODO(results): P slices and variability |
+| Executed / workload (`execution`; `header.sample_size`) | 198/200 | 200/200 |
+| SAR / in scope (`sar_in_scope`) | 67/193 (34.7%) | 67/193 (34.7%) |
+| SAR / eligible (`sar_eligible`) | 67/134 (50.0%) | 67/134 (50.0%) |
+| Automation attempts / in scope (`automation_attempt_share`) | 83/193 (43.0%) | 83/193 (43.0%) |
+| Containment / workload (`containment`) | 86/200 (43.0%) | 86/200 (43.0%) |
+| Correct complete transfer / must transfer (`escalation_recall`) | 0/66 (0.0%) | 0/66 (0.0%) |
+| Handoff present / must transfer (`handoff_presence_recall`) | 54/66 (81.8%) | 54/66 (81.8%) |
+| Unnecessary transfers / eligible (`unnecessary_transfers`) | 60/134 (44.8%) | 60/134 (44.8%) |
+| Routing accuracy / explicit gold (`routing_accuracy`) | 5/9 (55.6%) | 5/9 (55.6%) |
+| Forbidden actions (`unsafe.unauthorized_action`) | 6/198 (3.0%) | 6/200 (3.0%) |
+| Materially incorrect outcomes (`unsafe.materially_incorrect_outcome`) | 9/198 (4.5%) | 9/200 (4.5%) |
+| Local turn p50 / p95 ms (`latency.turn`) | 1.43 / 2.18 | 1.59 / 2.42 |
+| Local case p50 / p95 ms (`latency.case`) | 2.55 / 4.14 | 2.53 / 4.65 |
+| Model cost per attempted case / per SAR (`cost`) | US$0.00 / US$0.00 | US$0.00 / US$0.00 |
 
-Containment alone is not success. Zero observed unsafe events would not establish
-zero risk. Inference cost, authoring cost and infrastructure cost are separate.
-Paired uncertainty, missing executions and human label-review status must accompany
-any final comparison. The [trade-offs](docs/tradeoffs.md) distinguish the completed
-normalized-slot matcher experiment from end-to-end evaluation.
+Both SAR/in-scope Wilson 95% intervals are 28.36–41.67%. Two B1 fault boundaries
+were unreachable; the workload denominator retains them. Handoff presence alone is
+not successful escalation. Six forbidden ESC-04 dispute writes per system caused
+policy/action safety failures; these were not observed authentication bypasses.
+The same events appear in both unsafe categories and must not be added together.
+
+The disclosure, confirmation/step-up, unverified-success, grounding and refund-promise
+detectors each observed 0/198 B1 and 0/200 P/mock cases. Their rule-of-three upper
+bounds are 1.52% and 1.50%, respectively; zero observed does not mean zero risk.
+Detector limitations and opportunity denominators are in the JSON/report. Latency
+is local in-process system time, excluding network, cloud, models and customer think
+time; bootstrap intervals are in `latency`. Model cost excludes prior authoring
+and infrastructure. It is not a forecast of real-model operating cost.
+
+The [paired/repeat comparison](docs/evaluation/heldout-run01-comparison.json) reports
+SAR difference 0 with a 95% interval [0, 0], exact McNemar p=1 and 0/100 repeat flips.
+[Language and segment slices](docs/evaluation/heldout-run01.md#slices) include sample
+sizes and unequal policy mix; they do not isolate causal fairness effects. Human
+labels and fluent Portuguese review remain pending.
+
+| Still required for final claims | Status |
+| --- | --- |
+| Approved real-model B1/P comparison and independent judge | TODO(results): real-model SAR, safety, repeat variability and judge validation |
+| Deployed latency, cost and operational limits | TODO(results): cloud p50/p95, per-attempt/per-SAR cost and sustained capacity |
+| Language review, human workload and phrasing ablation | TODO(results): reviewed language scores, agent handling time and template comparison |
+
+Containment alone is not success. The [trade-offs](docs/tradeoffs.md) distinguish the
+completed normalized-slot matcher experiment from end-to-end evaluation.
 
 ## Evidence and limits
 

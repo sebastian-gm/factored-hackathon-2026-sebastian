@@ -34,19 +34,20 @@ privileged host or database owner remains a significant attacker capability.
 | AUTHORITY | [test_agent_integration.py](../../tests/test_agent_integration.py): `test_p_api_extraction_grounding_and_no_model_confirmation_authority`, `test_p_outage_degrades_through_api` |
 | DATA | [test_data_pipeline.py](../../tests/test_data_pipeline.py): `test_incremental_atomic_gate_and_idempotence`, `test_missing_required_schema_is_quarantined` |
 | MODEL | [test_charge_matcher.py](../../tests/test_charge_matcher.py): `test_artifact_roundtrip_and_empty_set`, `test_generated_dataset_leakage_and_noise_holdout` |
-| WEB | [PR #17 browser tests](https://github.com/sebastian-gm/bank-agent-lab/tree/feat/frontend/apps/web/tests): `customer cannot call staff/reset routes; cross-origin writes and forged hashes fail`; `proposal replay is idempotent and another authenticated browser cannot confirm it`; live freeze confirmation/cancellation |
+| STAFF | [test_staff_api.py](../../tests/test_staff_api.py): `test_customer_cannot_infer_roles_or_read_staff_data_and_logout_revokes`, `test_staff_claim_resolve_trace_and_current_workspace_isolation`, `test_ops_reset_requires_fresh_bound_confirmation_and_preserves_auth`; PR #17 live staff browser workflow |
+| WEB | [PR #17 browser tests](https://github.com/sebastian-gm/bank-agent-lab/tree/feat/frontend/apps/web/tests): `server blocks cross-origin writes, forged confirmation, and customer staff access`; `proposal replay is idempotent and another authenticated browser cannot confirm it`; live freeze confirmation/cancellation |
 | REPO | [CI safety checks](../../.github/workflows/safety.yml), [tracked-file scanner](../../scripts/check_staged_files.py), frozen lockfiles and interface checks |
 
 ## STRIDE
 
 | Threat | Control implemented | Test ID | Residual risk / missing control |
 | --- | --- | --- | --- |
-| Spoofing: use an ID, guessed handle or staff alias as identity | Password and simulated OTP establish a short-lived random capability; server-derived scope; HTTP-only cookies in the proposed BFF; role cannot come from username prose. | AUTH, SCOPE, WEB | Simulated SMS is not an independent factor. No real IdP, staff API identity or upstream logout revocation. Browser/session theft remains possible. |
+| Spoofing: use an ID, guessed handle or staff alias as identity | Password and simulated OTP establish a short-lived random capability; server-derived scope; HTTP-only cookies in the proposed BFF; role cannot come from username prose. | AUTH, SCOPE, STAFF, WEB | Simulated SMS is not an independent factor. Trusted demo roles and upstream logout are implemented; no real IdP or independent staff identity federation. Browser/session theft remains possible. |
 | Tampering: change amount, target, confirmation or ledger input | Strict request schemas; bound server proposal, expiry, policy recheck and idempotency; source hashes/contracts and atomic promotion. | CONFIRM, FREEZE, DATA | A privileged importer or host can alter source/config. Independent signed release/artifact attestations remain pending. |
 | Repudiation: deny or rewrite an action | Committed execution records and separate read-back; append-only API audit privileges and hash-chain verification. | AUDIT, RESTART | A database owner can rewrite an unanchored chain. Independent signed export and retention are pending. |
-| Information disclosure: another customer's data, secrets or thinking | Scoped tools/handles, forced RLS, non-owner role, restricted input projections, redaction and DLP; generic browser errors and no thinking storage. | SCOPE, RLS, DLP, PAYLOAD, REPO | Pattern redaction misses novel PII; model/provider behavior is not fully tested. Staff packet privacy needs review when APIs ship. |
+| Information disclosure: another customer's data, secrets or thinking | Scoped tools/handles, forced RLS, non-owner role, restricted input projections, redaction and DLP; generic browser errors and no thinking storage. | SCOPE, RLS, DLP, PAYLOAD, REPO | Pattern redaction misses novel PII; model/provider behavior is not fully tested. Current-workspace staff packets are typed/redacted; broader task-scoped access needs independent review. |
 | Denial of service: large requests, loops, database or provider failure | Input caps, bounded turns, provider timeout/retry/budget checks, deterministic fallback and readiness failure. | LIMIT, BUDGET, AUTHORITY; [degraded-mode tests](../../tests/test_degraded_mode.py) | No measured load envelope or durable cross-replica spend/rate limit. Process restart can reset model accounting. |
-| Elevation of privilege: model/browser grants itself write or ops authority | Policy/actions are code; separate migration credentials; non-owner runtime rejects bypass roles; browser fixture roles are server-enforced. | AUTHORITY, RLS, FREEZE, WEB | Live staff/Ops authorization is unimplemented. Development PostgreSQL's Azure-services network exception is broader than app-only access. |
+| Elevation of privilege: model/browser grants itself write or ops authority | Policy/actions are code; separate migration credentials; non-owner runtime rejects bypass roles; trusted staff roles and current-workspace scope are server-enforced; logout revokes capabilities. | AUTHORITY, RLS, FREEZE, STAFF, WEB | Production staff federation and cross-customer task grants are unimplemented. Development PostgreSQL's Azure-services network exception is broader than app-only access. |
 
 ## OWASP Top 10 for LLM Applications (2025)
 
@@ -73,3 +74,8 @@ development ingress restriction and database TLS are recorded by the lead, not
 re-tested by this docs lane. CSP/HSTS, complete rate limiting, image/dependency
 scanning, purge verification, independent audit anchoring and judge access still
 require concrete implementation/verification; a checkbox here does not supply it.
+
+The [frozen mock diagnostic](../evaluation/heldout-run01.md) observed forbidden
+policy actions and incomplete handoffs despite passing individual security tests.
+Engineering control tests do not supersede failed outcome acceptance gates. Later
+staff API changes have no frozen-workload outcome claim.

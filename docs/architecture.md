@@ -1,6 +1,6 @@
 # Architecture as built
 
-Scope: main at `dd957c7` plus the customer UI integration proposed in
+Scope: shipped backend contracts plus the customer/staff UI integration in
 [PR #17](https://github.com/sebastian-gm/bank-agent-lab/pull/17). Deployment verification
 is separate. Solid paths below exist in code; dashed paths are pending integrations.
 
@@ -8,7 +8,7 @@ is separate. Solid paths below exist in code; dashed paths are pending integrati
 flowchart LR
   U[Customer: ES or PT] --> W[Next.js customer UI and same-origin BFF]
   W --> A[FastAPI: authenticated session and scoped routes]
-  D[Agent Desk and Ops: flagged UI fixtures] -. Staff APIs pending .-> A
+  D[Agent Desk and Ops: trusted role and current workspace] --> W
   A --> O[Orchestration: conversation state and guards]
   O --> N[Structured NLU: validated slots or B1 fallback]
   N -. Approved real provider only .-> L[Provider adapter: budget and timeout]
@@ -112,6 +112,13 @@ claim a new handoff read-back using its invalid token.
 [API contract](../contracts/interfaces/openapi.json), [policy catalog](policy-catalog.md),
 [durable-state ADR](adr/0013-durable-operations.md), [routing](handoff-routing.md),
 [matcher card](ml/model-card-charge-matcher.md), and [AI interface proposal](ai-interface-proposal.md)
-provide the detailed boundaries. OpenTelemetry export, live Ops metrics, comprehensive
-retention and operational SLOs remain production work; their boxes are not presented
-as deployed infrastructure here.
+provide the detailed boundaries. Staff claim/resolve uses version and idempotency
+checks plus a GET read-back. Ops reports measured current-workspace counts; SAR and
+unsafe rates remain null without gold labels. Reset is disabled by default and
+requires trusted flags, ops role, fresh OTP, exact confirmation and a read-back;
+authentication and audit are retained. This is not a multi-customer staff queue.
+
+OpenTelemetry export, comprehensive retention and operational SLOs remain production
+work. The frontend's live integration is locally verified; its Azure web-to-API hop
+still requires the lead's deployment check under the owner-IP restriction. The frozen
+mock diagnostic predates the staff changes and failed its acceptance gates.
