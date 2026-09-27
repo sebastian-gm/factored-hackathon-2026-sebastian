@@ -73,12 +73,18 @@ def render_template(plan: ResponsePlan, *, language: str, country: str | None = 
             raise ValueError("Transaction required")
         amount = _transaction_phrase(plan.transaction, language, country)
         status = plan.transaction.status.lower()
+        if status not in {"pending", "reversed", "declined", "approved"}:
+            return (
+                f"O status da transação de {amount} não está disponível."
+                if pt
+                else f"El estado de la transacción de {amount} no está disponible."
+            )
         status_text = {
             "pending": ("está pendente", "está pendiente"),
             "reversed": ("aparece como estornada", "aparece como reversada"),
             "declined": ("foi recusada", "fue rechazada"),
             "approved": ("aparece aprovada", "aparece aprobada"),
-        }.get(status, ("tem estado indisponível", "tiene estado no disponible"))
+        }[status]
         return (
             f"A transação de {amount} {status_text[0]}."
             if pt
@@ -91,7 +97,7 @@ def render_template(plan: ResponsePlan, *, language: str, country: str | None = 
             "Derivé tu solicitud a una persona del equipo.",
         ),
         "abstain": (
-            "Posso ajudar com cobranças não reconhecidas. Posso encaminhar você a uma pessoa.",
+            "Posso ajudar com cobranças não reconhecidas ou encaminhar você a uma pessoa da equipe.",
             "Puedo ayudar con cargos no reconocidos. Puedo derivarte a una persona.",
         ),
         "choose_transaction": (

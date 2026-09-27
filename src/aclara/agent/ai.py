@@ -106,7 +106,7 @@ class AgentAI:
                     update={
                         "reply": "Consulta el estado verificado del caso."
                         if language == "es"
-                        else "Consulte o status verificado do caso."
+                        else "Consulte o status verificado do seu caso."
                     }
                 )
             return plan.model_dump(mode="json", exclude_none=True)
