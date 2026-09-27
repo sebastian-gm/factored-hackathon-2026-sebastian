@@ -337,7 +337,7 @@ def understand(
         return postprocess(
             _fallback_extract(message), country=country, bank_clock=bank_clock
         ).model_copy(update={"degraded": True})
-    prompt = load_prompt(prompt_path or Path("prompts/nlu/v1.md"))
+    prompt = load_prompt(prompt_path or Path("prompts/nlu/v2.md"))
     try:
         extracted = client.generate(
             "nlu",

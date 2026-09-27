@@ -65,12 +65,17 @@ class OpenAICompat:
             "model": spec.model_id,
             "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}],
             "response_format": response_format,
-            "max_tokens": 1024,
+            "max_tokens": spec.max_output_tokens,
         }
+        if spec.reasoning_effort is not None:
+            payload["reasoning"] = {"effort": spec.reasoning_effort}
         if spec.base_url.rstrip("/") == "https://openrouter.ai/api/v1":
             payload["provider"] = {"data_collection": "deny", "zdr": True}
             if spec.output_mode == "json_schema":
                 payload["provider"]["require_parameters"] = True
+            if spec.provider_only:
+                payload["provider"]["only"] = list(spec.provider_only)
+                payload["provider"]["allow_fallbacks"] = False
         request = Request(  # noqa: S310 - HTTPS base URL is checked above
             f"{spec.base_url.rstrip('/')}/chat/completions",
             data=json.dumps(payload).encode("utf-8"),
@@ -101,6 +106,7 @@ class OpenAICompat:
                 ),
                 stop_reason=choice.get("finish_reason"),
                 billed_cost_usd=billed_cost,
+                generation_id=str(data["id"]) if data.get("id") else None,
             )
         except (KeyError, IndexError, TypeError, ValueError) as exc:
             raise ModelFailure("Malformed provider response") from exc
@@ -118,7 +124,7 @@ class Gemini:
         config: dict[str, Any] = {
             "system_instruction": system,
             "response_mime_type": "application/json",
-            "max_output_tokens": 1024,
+            "max_output_tokens": spec.max_output_tokens,
         }
         if spec.output_mode == "json_schema":
             config["response_schema"] = schema
@@ -159,7 +165,7 @@ class Anthropic:
         try:
             response = client.messages.parse(
                 model=spec.model_id,
-                max_tokens=1024,
+                max_tokens=spec.max_output_tokens,
                 system=system,
                 messages=[{"role": "user", "content": user}],
                 output_format=schema,

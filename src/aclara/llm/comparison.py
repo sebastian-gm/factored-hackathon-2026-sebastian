@@ -25,6 +25,7 @@ class ComparisonCase:
     gold_slots: dict[str, str]
     language: str
     scored_slot_keys: tuple[str, ...] | None = None
+    case_id: str = ""
 
 
 @dataclass(frozen=True, slots=True)
@@ -105,9 +106,8 @@ def evaluate_model(
         if after_case is not None:
             after_case()
     records = client.records[start_record:]
-    parsed = [record for record in records if record.status in {"valid", "invalid_json"}]
     valid_rate = (
-        sum(record.status == "valid" for record in parsed) / len(parsed) if parsed else None
+        sum(record.status == "valid" for record in records) / len(records) if records else None
     )
     costs = [record.cost_usd for record in records]
     quality_scores = quality_scores or {}

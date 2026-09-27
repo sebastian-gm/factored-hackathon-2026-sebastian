@@ -57,10 +57,9 @@ class StructuredClient:
 
     @property
     def valid_json_rate(self) -> float | None:
-        attempts = [r for r in self.records if r.status in {"valid", "invalid_json"}]
-        if not attempts:
+        if not self.records:
             return None
-        return sum(r.status == "valid" for r in attempts) / len(attempts)
+        return sum(r.status == "valid" for r in self.records) / len(self.records)
 
     def generate(
         self,
@@ -91,7 +90,7 @@ class StructuredClient:
             estimated_input = len(system.encode("utf-8")) + len(user.encode("utf-8"))
             estimated_input += len(json.dumps(schema.model_json_schema()).encode("utf-8"))
             reserve = self.prices[spec.price_id].cost(
-                TokenUsage(input_tokens=estimated_input, output_tokens=1024)
+                TokenUsage(input_tokens=estimated_input, output_tokens=spec.max_output_tokens)
             )
             if self.spent_usd + reserve > self.budget_usd or (
                 self._daily_spend_usd + reserve > self.daily_budget_usd
@@ -153,6 +152,7 @@ class StructuredClient:
                     stop_reason=response.stop_reason if response else None,
                     status=status,
                     attempt=attempt,
+                    generation_id=response.generation_id if response else None,
                 )
                 self.records.append(call)
                 if self._record:
@@ -164,8 +164,10 @@ class StructuredClient:
         raise ModelFailure("Model validation failed twice")
 
     def _cost(self, spec: ModelSpec, response: ProviderResponse | None) -> float | None:
-        if response is None or spec.provider in {"mock", "recorded"}:
+        if spec.provider in {"mock", "recorded"}:
             return 0.0
+        if response is None:
+            return None
         if response.billed_cost_usd is not None:
             return response.billed_cost_usd
         price = self.prices.get(spec.price_id or "")

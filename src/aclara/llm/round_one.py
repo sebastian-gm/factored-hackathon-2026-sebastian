@@ -56,16 +56,6 @@ def _get_json(url: str, key: str | None = None) -> dict[str, object]:
     return value
 
 
-def _key_usage(key: str) -> float:
-    data = _get_json("https://openrouter.ai/api/v1/key", key).get("data")
-    if not isinstance(data, dict):
-        raise RuntimeError("OpenRouter key usage is unavailable")
-    value = data.get("usage")
-    if not isinstance(value, (int, float)) or value < 0:
-        raise RuntimeError("OpenRouter key usage is unavailable")
-    return float(value)
-
-
 def _local_key() -> str:
     for line in (ROOT / ".env").read_text(encoding="utf-8").splitlines():
         if line.startswith("OPENROUTER_API_KEY="):
@@ -75,7 +65,9 @@ def _local_key() -> str:
     raise RuntimeError("Local OpenRouter key is unavailable")
 
 
-def _catalog() -> tuple[dict[str, ModelSpec], dict[str, Price]]:
+def _catalog(
+    model_ids: tuple[str, ...] = MODEL_IDS,
+) -> tuple[dict[str, ModelSpec], dict[str, Price]]:
     url = "https://openrouter.ai/api/v1/models?supported_parameters=response_format&zdr=true"
     data = _get_json(url).get("data")
     if not isinstance(data, list):
@@ -83,7 +75,7 @@ def _catalog() -> tuple[dict[str, ModelSpec], dict[str, Price]]:
     found = {item["id"]: item for item in data if isinstance(item, dict) and "id" in item}
     models: dict[str, ModelSpec] = {}
     prices: dict[str, Price] = {}
-    for model_id in MODEL_IDS:
+    for model_id in model_ids:
         item = found.get(model_id)
         if not isinstance(item, dict):
             raise RuntimeError(f"Required ZDR structured-output route is unavailable: {model_id}")
@@ -162,6 +154,7 @@ def _case(scenario: Scenario) -> ComparisonCase:
         gold_slots=_slots(scenario.id),
         language=scenario.language,
         scored_slot_keys=SCORED_SLOTS,
+        case_id=scenario.id,
     )
 
 
@@ -208,14 +201,23 @@ def main() -> int:
         raise RuntimeError("Process-local owner approval gate is required")
     key = _local_key()
     os.environ["OPENROUTER_API_KEY"] = key
-    run_start_usage = _key_usage(key)
-    baseline = run_start_usage
-    pilot_path = OUTPUT.with_name("pilot.json")
-    if not args.pilot and pilot_path.exists():
-        pilot = json.loads(pilot_path.read_text(encoding="utf-8"))
-        if pilot.get("suite_sha256") == suite_hash:
-            baseline = float(pilot["openrouter_key_usage_before_usd"])
-    prior_spend = max(0.0, run_start_usage - baseline)
+    output = OUTPUT.with_name("pilot.json") if args.pilot else OUTPUT
+    if output.exists():
+        raise RuntimeError("Existing run artifact cannot be overwritten; use the follow-up runner")
+    prior_spend = 0.0
+    for name in ("pilot.json", "summary.json", "baseline-diagnostic.json", "revised.json"):
+        path = OUTPUT.with_name(name)
+        if not path.exists():
+            continue
+        previous = json.loads(path.read_text(encoding="utf-8"))
+        if "client_recorded_cost_usd" in previous:
+            prior_spend += float(previous["client_recorded_cost_usd"])
+        else:
+            prior_spend += sum(
+                float(attempt["cost_usd"])
+                for observation in previous["observations"]
+                for attempt in observation["attempts"]
+            )
     if prior_spend >= CAP_USD:
         raise SpendCapReached("Approved $5 run cap was already reached")
     client = StructuredClient(
@@ -223,16 +225,16 @@ def main() -> int:
     )
     prompt = load_prompt(PROMPT)
     rows: list[dict[str, object]] = []
-    latest_usage = baseline
     for model_id in ordered:
         LOGGER.info("Running %s on %d unreviewed dev cases", model_id, len(cases))
         count = 0
 
         def check_spend() -> None:
-            nonlocal count, latest_usage
+            nonlocal count
             count += 1
-            latest_usage = _key_usage(key)
-            spent = max(prior_spend + client.spent_usd, latest_usage - baseline)
+            if any(record.cost_usd is None for record in client.records):
+                raise RuntimeError("Per-call cost missing; stop rather than infer key-level usage")
+            spent = prior_spend + client.spent_usd
             if spent >= CAP_USD:
                 raise SpendCapReached("Approved $5 run cap reached")
             if count % 8 == 0:
@@ -249,7 +251,6 @@ def main() -> int:
             )
         else:
             LOGGER.info("  done: no parseable provider attempts")
-    latest_usage = _key_usage(key)
     summary = {
         "run_at_utc": datetime.now(UTC).isoformat(),
         "suite_path": "evals/dev_scenarios.yaml",
@@ -258,10 +259,8 @@ def main() -> int:
         "evaluated_cases": len(cases),
         "suite_reviewed": False,
         "run_cap_usd": CAP_USD,
-        "openrouter_key_usage_before_usd": baseline,
-        "openrouter_key_usage_at_phase_start_usd": run_start_usage,
-        "openrouter_key_usage_after_usd": latest_usage,
-        "openrouter_billed_delta_usd": latest_usage - baseline,
+        "prior_per_call_cost_usd": prior_spend,
+        "cumulative_per_call_cost_usd": prior_spend + client.spent_usd,
         "client_recorded_cost_usd": client.spent_usd,
         "rows": rows,
         "attempts": len(client.records),
@@ -270,11 +269,10 @@ def main() -> int:
         "refusal_attempts": sum(r.status == "refusal" for r in client.records),
         "model_choice": None,
     }
-    output = OUTPUT.with_name("pilot.json") if args.pilot else OUTPUT
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
     LOGGER.info("Aggregate summary: %s", output.relative_to(ROOT))
-    LOGGER.info("OpenRouter billed delta: $%.4f", latest_usage - baseline)
+    LOGGER.info("Cumulative per-call response cost: $%.4f", prior_spend + client.spent_usd)
     return 0
 
 

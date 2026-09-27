@@ -49,7 +49,7 @@ def test_openrouter_request_uses_strict_schema_and_privacy_flags(
         observed["body"] = json.loads(request.data)  # type: ignore[attr-defined]
         observed["timeout"] = timeout
         return BytesIO(
-            b'{"model":"served-model","choices":[{"message":{"content":"{\\"value\\":null}"},"finish_reason":"stop"}],"usage":{"prompt_tokens":12,"completion_tokens":4,"cost":0.000123}}'
+            b'{"id":"gen-fixture","model":"served-model","choices":[{"message":{"content":"{\\"value\\":null}"},"finish_reason":"stop"}],"usage":{"prompt_tokens":12,"completion_tokens":4,"cost":0.000123}}'
         )
 
     monkeypatch.setattr("aclara.llm.providers.urlopen", fake_urlopen)
@@ -73,6 +73,39 @@ def test_openrouter_request_uses_strict_schema_and_privacy_flags(
     assert response.model_id == "served-model"
     assert response.usage.input_tokens == 12
     assert response.billed_cost_usd == 0.000123
+    assert response.generation_id == "gen-fixture"
+
+
+def test_openrouter_provider_pin_and_output_limit(monkeypatch: pytest.MonkeyPatch) -> None:
+    observed: dict[str, object] = {}
+
+    def fake_urlopen(request: object, timeout: int) -> BytesIO:
+        observed["body"] = json.loads(request.data)  # type: ignore[attr-defined]
+        return BytesIO(
+            b'{"choices":[{"message":{"content":"{\\"value\\":\\"ok\\"}"},"finish_reason":"stop"}],"usage":{"cost":0.001}}'
+        )
+
+    monkeypatch.setattr("aclara.llm.providers.urlopen", fake_urlopen)
+    OpenAICompat().complete(
+        ModelSpec(
+            provider="openai_compat",
+            model_id="deepseek/example",
+            base_url="https://openrouter.ai/api/v1",
+            provider_only=("wafer/fast",),
+            max_output_tokens=2048,
+            reasoning_effort="low",
+        ),
+        "system",
+        "fixture",
+        _Answer,
+        "test-key",
+    )
+    body = observed["body"]
+    assert isinstance(body, dict)
+    assert body["provider"]["only"] == ["wafer/fast"]
+    assert body["provider"]["allow_fallbacks"] is False
+    assert body["max_tokens"] == 2048
+    assert body["reasoning"] == {"effort": "low"}
 
 
 def test_round_one_uses_all_current_synthetic_dev_scenarios() -> None:
@@ -147,6 +180,30 @@ def test_structured_retry_records_invalid_output_without_content() -> None:
     assert [record.status for record in client.records] == ["invalid_json", "valid"]
     assert client.valid_json_rate == 0.5
     assert "fixture" not in repr(client.records)
+
+
+def test_json_validity_counts_truncated_attempts() -> None:
+    class TruncateOnce:
+        calls = 0
+
+        def complete(
+            self,
+            spec: ModelSpec,
+            system: str,
+            user: str,
+            schema: type[BaseModel],
+            key: str,
+        ) -> ProviderResponse:
+            self.calls += 1
+            if self.calls == 1:
+                return ProviderResponse("", spec.model_id, TokenUsage(output_tokens=1024), "length")
+            return ProviderResponse('{"value":"ok"}', spec.model_id, TokenUsage(), "stop")
+
+    client = StructuredClient({"nlu": ModelSpec(provider="mock", model_id="mock")}, {})
+    client._adapters["mock"] = TruncateOnce()
+    assert client.generate("nlu", "system", "fixture", _Answer, prompt_id="nlu@v1").value == "ok"
+    assert [record.status for record in client.records] == ["refusal", "valid"]
+    assert client.valid_json_rate == 0.5
 
 
 def test_real_call_requires_approval_before_adapter_invocation(
