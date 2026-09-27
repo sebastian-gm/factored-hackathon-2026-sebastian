@@ -8,6 +8,9 @@ until the dev gate passes and Sebastian separately authorizes it.
 
 ## Changes under test
 
+Runtime policy version is **1.3.0**, distinguishing these routing/control semantics
+from the official v2 release while retaining the numerical policy thresholds.
+
 - Persist the selected offer handle, recognition count and prior intent. Re-read the
   owned transaction; pass `awaiting_recognition` and masked facts to prompt v5.
   Recognition ends in explanation. Denial reviews policy and proposes; confirmation,
