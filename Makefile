@@ -2,7 +2,7 @@
 
 up:
 	uv run --no-sync python -m scripts.local_ops
-	docker compose up --build -d
+	docker compose up --build -d --wait --wait-timeout 120
 
 down:
 	docker compose down

@@ -42,6 +42,10 @@ def main() -> None:
                 audit_entries += verify(rows, ("demo-customer-01", run_id, sid))
     with httpx.Client(base_url=api, timeout=30) as client:
         previous_instance = client.get("/healthz").json()["instance_id"]
+    sys.stdout.write(
+        f"Azure audit chains verified: {audit_entries} entries; requesting API restart.\n"
+    )
+    sys.stdout.flush()
     app = az(
         "containerapp",
         "show",
@@ -61,8 +65,10 @@ def main() -> None:
         "--name",
         "ca-api-aclara-dev-eastus2",
     )
-    with httpx.Client(base_url=api, timeout=15) as client:
-        for _attempt in range(30):
+    deadline = time.monotonic() + 240
+    observations = {"old_instance": 0, "not_ready": 0, "transport_error": 0, "case_status": 0}
+    with httpx.Client(base_url=api, timeout=10) as client:
+        while time.monotonic() < deadline:
             try:
                 response = client.get("/readyz")
                 health = client.get("/healthz")
@@ -72,13 +78,18 @@ def main() -> None:
                     and health.json()["instance_id"] != previous_instance
                 ):
                     restored = client.get(evidence["case_path"], headers=evidence["case_headers"])
+                    observations["case_status"] = restored.status_code
                     if restored.status_code == 200 and restored.json()["status"] == "received":
                         break
+                elif response.status_code != 200 or health.status_code != 200:
+                    observations["not_ready"] += 1
+                else:
+                    observations["old_instance"] += 1
             except httpx.HTTPError:
-                pass
-            time.sleep(1)
+                observations["transport_error"] += 1
+            time.sleep(2)
         else:
-            raise RuntimeError("Post-restart durable case readback did not recover")
+            raise RuntimeError(f"Post-restart readback did not recover: {observations}")
     sys.stdout.write(
         f"Azure audit chains verified: {audit_entries} entries; existing authenticated case survived revision restart.\n"
     )
@@ -171,6 +182,7 @@ def smoke(api: str, web: str, password: str, username: str = "demo.es.mx") -> di
     sys.stdout.write(
         f"HTTP smoke passed: {len(suite.scenarios)}/{len(suite.scenarios)} ES/PT scenarios; {readbacks} readbacks; login/OTP, scope, auth denial, CORS, web, mock, database readiness.\n"
     )
+    sys.stdout.flush()
 
     return evidence
 
