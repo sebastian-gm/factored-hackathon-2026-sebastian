@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Literal, Protocol
+from typing import Any, Literal, Protocol
 
-ProviderName = Literal["openai_compat", "gemini", "anthropic", "mock", "recorded"]
+ProviderName = Literal["openai_compat", "gemini", "anthropic", "mock", "recorded", "typesafe"]
 OutputMode = Literal["json_schema", "json_mode"]
 
 
@@ -59,9 +59,10 @@ class CallRecord:
     latency_ms: float
     cost_usd: float | None
     stop_reason: str | None
-    status: Literal["valid", "invalid_json", "provider_error", "refusal"]
+    status: Literal["valid", "invalid_json", "provider_error", "refusal", "skipped"]
     attempt: int
     generation_id: str | None = None
+    judgments: dict[str, Any] | None = None
 
 
 class ModelFailure(RuntimeError):
