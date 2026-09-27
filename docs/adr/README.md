@@ -15,5 +15,6 @@
 | [0011](0011-incremental-snapshots.md) | Incremental objects and atomic snapshots | Accepted |
 | 0012 | Fraud score threshold | Deferred |
 | [0013](0013-durable-operations.md) | Durable operations, RLS and audit chains | Accepted |
+| [0014](0014-durable-model-budget.md) | Durable daily and smoke-run model budgets | Accepted for restricted demo |
 
 Copy [the ADR template](template.md) for each new decision.

@@ -26,6 +26,14 @@ resource "azurerm_container_app" "api" {
       identity            = azurerm_user_assigned_identity.api.id
     }
   }
+  dynamic "secret" {
+    for_each = var.enable_real_llm ? toset(["openrouter-api-key", "typesafe-api-key"]) : toset([])
+    content {
+      name                = secret.value
+      key_vault_secret_id = "${azurerm_key_vault.dev.vault_uri}secrets/${secret.value}"
+      identity            = azurerm_user_assigned_identity.api.id
+    }
+  }
   ingress {
     external_enabled           = false
     allow_insecure_connections = false
@@ -46,14 +54,18 @@ resource "azurerm_container_app" "api" {
       memory = "0.5Gi"
       dynamic "env" {
         for_each = {
-          PGHOST         = azurerm_postgresql_flexible_server.dev.fqdn
-          PGPORT         = "5432", PGUSER = "aclara_app", PGDATABASE = "aclara"
-          PGSSLMODE      = "verify-full", PGSSLROOTCERT = "/etc/ssl/certs/ca-certificates.crt"
-          DEMO_USERNAME  = "demo.es.mx", LLM_PROVIDER = "mock"
-          BANK_CLOCK     = "2026-06-18T06:00:00Z", WEB_ORIGIN = local.web_url
-          RELEASE_SHA    = var.image_tag
-          OPS_BACKEND    = "postgres", AGENT_SYSTEM = "P"
-          LEDGER_BACKEND = "serving"
+          PGHOST                  = azurerm_postgresql_flexible_server.dev.fqdn
+          PGPORT                  = "5432", PGUSER = "aclara_app", PGDATABASE = "aclara"
+          PGSSLMODE               = "verify-full", PGSSLROOTCERT = "/etc/ssl/certs/ca-certificates.crt"
+          DEMO_USERNAME           = "demo.es.mx", LLM_PROVIDER = var.enable_real_llm ? "openai_compat" : "mock"
+          BANK_CLOCK              = "2026-06-18T06:00:00Z", WEB_ORIGIN = local.web_url
+          RELEASE_SHA             = var.image_tag
+          OPS_BACKEND             = "postgres", AGENT_SYSTEM = "P"
+          LEDGER_BACKEND          = "serving"
+          LLM_REAL_CALLS_APPROVED = var.enable_real_llm ? "1" : "0"
+          LLM_MODEL_ROUTE         = "default"
+          LLM_DAILY_BUDGET_USD    = "3"
+          LLM_BUDGET_RUN_ID       = var.llm_budget_run_id
         }
         content {
           name  = env.key
@@ -67,6 +79,13 @@ resource "azurerm_container_app" "api" {
       env {
         name        = "DEMO_PASSWORD"
         secret_name = "demo-password"
+      }
+      dynamic "env" {
+        for_each = var.enable_real_llm ? { OPENROUTER_API_KEY = "openrouter-api-key", TYPESAFE_API_KEY = "typesafe-api-key" } : {}
+        content {
+          name        = env.key
+          secret_name = env.value
+        }
       }
       liveness_probe {
         transport        = "HTTP"
@@ -86,7 +105,7 @@ resource "azurerm_container_app" "api" {
     }
   }
   tags       = merge(local.tags, { release = var.image_tag })
-  depends_on = [azurerm_role_assignment.api_pull, azurerm_role_assignment.api_secrets]
+  depends_on = [azurerm_role_assignment.api_pull, azurerm_role_assignment.api_secrets, azurerm_role_assignment.api_openrouter_secret, azurerm_role_assignment.api_typesafe_secret]
 }
 
 resource "azurerm_container_app" "web" {

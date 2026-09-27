@@ -1,5 +1,8 @@
 # Frozen matcher result review
 
+For the authorized v2 development iteration and human before/after results, see
+the [v2 model card](model-card-charge-matcher-v2.md). The v1 results below remain preserved.
+
 The synthetic comparison reuses the one-time v1 predictions, without refitting or additional test inference. The separately reported human spot-check uses new, excluded customers and leaves the frozen benchmark unchanged.
 
 ## Selection and uncertainty
