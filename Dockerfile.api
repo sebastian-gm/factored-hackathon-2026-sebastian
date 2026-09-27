@@ -6,6 +6,7 @@ COPY pyproject.toml uv.lock ./
 RUN uv sync --locked --no-dev --no-install-project
 COPY src ./src
 COPY config ./config
+COPY migrations ./migrations
 COPY prompts ./prompts
 COPY models/charge_matcher/v1 ./models/charge_matcher/v1
 COPY tests/fixtures/ledger ./tests/fixtures/ledger

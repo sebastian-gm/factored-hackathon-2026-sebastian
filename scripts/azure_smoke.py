@@ -21,6 +21,10 @@ def main() -> None:
     password = az("keyvault", "secret", "show", "--vault-name", VAULT, "--name", "demo-password")[
         "value"
     ]
+    smoke(api, web, password)
+
+
+def smoke(api: str, web: str, password: str, username: str = "demo.es.mx") -> None:
     suite = ScenarioSuite.model_validate(
         yaml.safe_load((ROOT / "evals/dev_scenarios.yaml").read_text())
     )
@@ -51,7 +55,7 @@ def main() -> None:
         assert "Aclara" in html.text and api in html.text
         for scenario in suite.scenarios:
             challenge = client.post(
-                "/auth/login", json={"username": "demo.es.mx", "password": password}
+                "/auth/login", json={"username": username, "password": password}
             ).json()
             preauth = {"X-Preauth-Token": challenge["preauth_token"]}
             sms = client.get(
@@ -99,7 +103,7 @@ def main() -> None:
                 assert readback.status_code == 200
                 readbacks += 1
     sys.stdout.write(
-        f"Azure HTTPS smoke passed: {len(suite.scenarios)}/{len(suite.scenarios)} ES/PT scenarios; {readbacks} readbacks; login/OTP, scope, auth denial, CORS, web, mock, database readiness.\n"
+        f"HTTP smoke passed: {len(suite.scenarios)}/{len(suite.scenarios)} ES/PT scenarios; {readbacks} readbacks; login/OTP, scope, auth denial, CORS, web, mock, database readiness.\n"
     )
 
 
