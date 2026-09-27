@@ -83,6 +83,26 @@ The local Compose stack is left running for review.
 ### Next / blocked
 
 - Ask Sebastian before the first paid model run after showing the concrete case suite and estimated cost. Keep `LLM_REAL_CALLS_APPROVED` unchanged until that approval.
+
+## AI lane — 2026-09-26/27 (approved OpenRouter round one)
+
+### Completed (verified)
+
+- Sebastian approved the first paid round-one comparison with a $5 stop limit. Queried OpenRouter's current catalog for structured-output, zero-data-retention routes and selected the five exact IDs recorded in `docs/ml/model-comparison.md`. The local `.env` key was read internally; `LLM_REAL_CALLS_APPROVED=1` was set only for the comparison process. The persistent `.env` gate and `LLM_PROVIDER=mock` were left unchanged.
+- Ran five one-case probes and then the same 32 current team-generated dev scenarios through each model. The runner checked key-level usage after every case. OpenRouter key usage increased by $0.739367 from the pre-probe baseline, below the $5 cap. The aggregate-only summary is under ignored `artifacts/ai-round-one/`; no raw messages or model thinking were logged or committed.
+- Recorded intent accuracy, scored-slot F1, parsed-attempt JSON validity, p50/p95 latency, and response-reported cost per case in `docs/ml/model-comparison.md`. The five-model run had 200 attempts: 130 valid parsed responses, 70 refusal/truncation attempts, no invalid JSON or provider-error attempts, and 30 cases without a valid final model response. No default model was chosen.
+- Added response-billed-cost handling, retry budget checks, and a reproducible round-one runner under the AI lane. Ruff, strict mypy, and the targeted AI tests passed before the paid run.
+- After the run, `make checks` passed: all six pre-commit hooks, the working-tree file policy, compileall, pytest (27 passed), B1 dev harness (32/32; 12 read-backs and safety guards), and frozen interface snapshots.
+
+### Done but not verified
+
+- The 32-scenario suite and its inferred NLU labels have not been human-reviewed. ES/PT quality ratings, the planned 150-case annotated dev set, and an independent final test are pending.
+- Response-reported costs for the full comparison and probes sum to about $0.140265, while OpenRouter key-level usage increased by $0.739367. The $0.599102 gap is not reconciled or assigned to a model. The aggregate artifact lacks per-model completion counts, so parsed-attempt JSON validity is not an end-to-end completion rate.
+
+### Next / blocked
+
+- Review the NLU annotations and ES/PT quality with qualified reviewers, capture per-model completion rates in a future evaluation, reconcile OpenRouter charges, and keep the model default unset pending that evidence and lead review.
+
 ## Access and continuation
 
 - Restricted web: https://ca-web-aclara-dev-eastus2.lemonbeach-1b769de0.eastus2.azurecontainerapps.io/

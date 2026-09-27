@@ -1,18 +1,21 @@
-# AI model comparison protocol
+# Round-one OpenRouter model comparison
 
-No default model has been chosen. Round 1 compares Gemini Flash-Lite/Flash, DeepSeek, Qwen, and Grok on the **same labeled dev cases**, cheapest first. Round 2 reserves Claude Haiku/Sonnet/Opus for the final test. `src/aclara/llm/comparison.py` computes intent accuracy, slot F1, valid JSON rate, p50/p95 call latency, and cost per case from metadata-only call records. ES/PT quality requires separate human ratings on a 1–5 rubric; it is never inferred from the model's own claims. Invalid structured output is counted before the one retry; fallback output is not credited as model accuracy.
+No default model has been chosen. The production route remains `LLM_PROVIDER=mock`, and the local `.env` approval flag remains unchanged. Sebastian approved a $5 cap for this round. The five-model comparison finished on 2026-09-27 UTC without reaching it.
 
-| Model | Intent accuracy | Slot F1 | Valid JSON | ES quality | PT quality | p50 / p95 latency | USD/case |
-|---|---:|---:|---:|---:|---:|---:|---:|
-| Gemini Flash-Lite | Pending | Pending | Pending | Pending | Pending | Pending | Pending |
-| Gemini Flash | Pending | Pending | Pending | Pending | Pending | Pending | Pending |
-| DeepSeek | Pending | Pending | Pending | Pending | Pending | Pending | Pending |
-| Qwen | Pending | Pending | Pending | Pending | Pending | Pending | Pending |
-| Grok | Pending | Pending | Pending | Pending | Pending | Pending | Pending |
-| Claude Haiku | Final test | Final test | Final test | Final test | Final test | Final test | Final test |
-| Claude Sonnet | Final test | Final test | Final test | Final test | Final test | Final test | Final test |
-| Claude Opus | Final test | Final test | Final test | Final test | Final test | Final test | Final test |
+The same **32 team-generated dev scenarios** from `evals/dev_scenarios.yaml` were sent to every model. The suite hash was `1078d9d591a4521281b8813fd303c8e5867030aefc46c8671f5f83eed0175676`. **The suite and the derived NLU labels are unreviewed.** Scenario IDs and expected outcomes supplied intent labels; only amount, currency, and merchant expression were scored as slots. The scenarios do not specify a country, so none was inferred. This is the current Layer 1 dev suite, not the planned 150-case human-reviewed NLU set. ES/PT quality ratings remain unreviewed and are not estimated from model prose.
 
-The [dated price table](../../config/pricing.yaml) is for pre-run cost estimates. OpenRouter routing can change the endpoint and billed price; reconcile recorded usage/cost with its invoice before reporting measured cost. Direct DeepSeek and Qwen entries are intentionally unpriced and cannot pass the real-call gate until their own rates are verified. Gemini free-tier cost is $0 within its quota, but its data terms differ from paid service.
+On 2026-09-26, IDs and rates were checked against [OpenRouter's live model catalog](https://openrouter.ai/docs/api/api-reference/models/get-models), filtered for `response_format` support and zero-data-retention endpoints. Batch routes and task-specific coding models were excluded. The order uses the planned 2,500 input / 300 output token mix; a different mix or provider route can change which ID is cheapest. All five requests required schema-capable, zero-retention routing.
 
-Before the first paid-model run, Sebastian receives the planned case count, token/cost estimate, per-run budget, and this table. The real-call gate requires `LLM_REAL_CALLS_APPROVED=1`, an API key in the local `.env`, and a positive per-run budget. The default `LLM_PROVIDER=mock` remains in place until Sebastian has reviewed the measured table.
+| Family | Exact OpenRouter model ID | Catalog input / output, USD per 1M | Cases | Intent accuracy | Slot F1 | Valid JSON¹ | ES / PT quality | p50 / p95 latency | Response cost / case² |
+|---|---|---:|---:|---:|---:|---:|---|---:|---:|
+| DeepSeek | [deepseek/deepseek-v4-flash-0731](https://openrouter.ai/deepseek/deepseek-v4-flash-0731) | $0.0215 / $0.30 | 32 | 62.5% | 83.9% | 100% | Pending / pending | 15.84 / 71.27 s | $0.000440 |
+| Qwen | [qwen/qwen3.5-9b](https://openrouter.ai/qwen/qwen3.5-9b) | $0.10 / $0.15 | 32 | 25.0% | 48.0% | 100% | Pending / pending | 20.59 / 171.43 s | $0.000453 |
+| Gemini Flash-Lite | [google/gemini-2.5-flash-lite](https://openrouter.ai/google/gemini-2.5-flash-lite) | $0.10 / $0.40 | 32 | 62.5% | 100.0% | 100% | Pending / pending | 1.03 / 1.49 s | $0.000098 |
+| Gemini Flash | [google/gemini-3-flash-preview](https://openrouter.ai/google/gemini-3-flash-preview) | $0.25 / $1.50 | 32 | 65.6% | 100.0% | 100% | Pending / pending | 1.86 / 2.35 s | $0.001048 |
+| Grok | [x-ai/grok-4.3](https://openrouter.ai/x-ai/grok-4.3) | $1.25 / $2.50 | 32 | 68.8% | 100.0% | 100% | Pending / pending | 4.71 / 6.66 s | $0.002203 |
+
+¹ Valid JSON is the rate **among attempts that reached parsing**, not an end-to-end completion rate. Across all five models there were 200 attempts: 130 valid parsed responses, 70 refusal/truncation attempts, no invalid JSON or provider-error attempts, and 30 of 160 cases without a valid final model response. Failed cases count as incorrect intent and missed gold slots. The aggregate artifact does not break completion failures out by model, so the 100% column must not be read as 100% case completion. No deterministic fallback received model accuracy credit.
+
+² The per-case figure sums OpenRouter `usage.cost` reported in the comparison responses, including retries, divided by 32. Those 160 calls reported $0.135728 total; five preliminary one-case probes reported another $0.004537. The OpenRouter **key-level usage** rose from $0 to $0.739367 over the same window, a $0.599102 difference from the summed response costs. The difference is unreconciled and is not assigned to any model; the key-level figure may include activity outside these requests or later billing adjustments. Therefore the table's cost column is a response-reported comparison measure, not a reconciled invoice. Even the full key-level increase remained below the approved $5 stop limit. The aggregate-only local run record is under ignored `artifacts/ai-round-one/summary.json`; no customer messages or model thinking are in the report.
+
+The comparison is directional because labels were inferred from the baseline scenario suite, the sample is small, and no independent human ES/PT ratings or final test were run. Claude Haiku, Sonnet, and Opus remain reserved for the later test. Review the annotation set and reconcile billed cost before selecting a production default.
