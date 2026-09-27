@@ -12,6 +12,8 @@ This summary supersedes earlier task lists; detailed evidence remains in the lin
 - Read aggregate JSON and verified quoted headline, matcher and problem-analysis values. Corrected the brief's broad charge/fee automation claim and highest-handling-time claim against pipeline output. Read named implementation/tests and linked local restore/cold-start evidence; no outcome rerun, policy tuning or frozen-suite edit.
 - A local documentation audit passed 241 link/fence/test-ID checks across the eleven documents; all requirement/criterion mappings, six-slide count and aggregate assertions passed. Narration is 297 words before rehearsal. `git diff --check` and the working-tree data/secret/size policy passed. Provider statements cite official sources; account-specific terms remain unverified. No organizer rows, credentials, Azure actions or model calls were used for this assignment.
 
+- Private [PR #24](https://github.com/sebastian-gm/bank-agent-lab/pull/24) was opened and read back with only the assigned documents plus this log. All four CI jobs passed at `a98203a` (`ci` run `36291808092`, `safety` run `36291808097`); mypy and data/secret/size hooks also passed locally. This log-only follow-up records that evidence.
+
 ### Done but not verified
 
 - Mermaid source is provided; final deck export and deployed video recording/rehearsal are not performed. The requested PT staff scene depends on an authorized deployed staff workspace. Judge access and a separate access-code gate are not established; the owner-IP boundary remains.
@@ -19,7 +21,7 @@ This summary supersedes earlier task lists; detailed evidence remains in the lin
 
 ### Next / blocked
 
-- Open the private documentation PR after hooks, then make it review-ready only after CI passes. Continue prioritizing PR #17 feedback. Lead owns release/network checks; owner approval is required for any future model spending, public submission or wider judge access. No new approval is needed for the completed local documentation work.
+- Lead review of PR #24 and PR #17. Keep the documentation PR review-ready only after the latest CI is green, and continue prioritizing PR #17 feedback. Lead owns release/network checks; owner approval is required for any future model spending, public submission or wider judge access. No new approval is needed for the completed local documentation work.
 
 ## Completed-verified
 
