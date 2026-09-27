@@ -2,9 +2,10 @@
 
 ## ADR-0015 customer decision and reason sets (2026-09-27)
 
-The frontend accepts the lead's regenerated additive contract. These fields are
-present on `feat/lead-after-v2-fixes`; main/deployment integration remains the lead's
-work. No shared schema or backend file is changed here.
+The frontend accepts the lead's regenerated additive contract from PR #51
+(`5aa0f11`, `feat/lead-after-v2-fixes`). This frontend PR targets that branch for
+integration into #51; main/deployment integration remains the lead's work.
+No shared schema or backend file is changed here.
 
 | Field | Frontend handling |
 | --- | --- |
@@ -22,12 +23,22 @@ the affected shortcut and leaves ordinary chat available. A shared persona may
 serve two stories without an unnecessary logout. Each shortcut prepares a draft,
 never sends it or confirms an action. Reset authorization remains unchanged.
 
-Remaining producer dependency: publish `LlmMetadata.route/status/attempt`, the
-allowlisted risk `judgments`, and scoped `PersonaView.demo_stories` on main. Those
-fields are absent from the lead branch's current exported #37 snapshot at this
-check; verify the final published contract before deployment. No additional field
-is requested beyond the accepted proposal below. Browser checks use new authored
-UI responses and existing local fixture/B1 data; no held-out suite or gold is used.
+PR #51 now publishes nullable `LlmMetadata.route/status/attempt`, risk `judgments`
+and scoped `PersonaView.demo_stories`. The BFF and browser consume those live fields
+without a fixture fallback; null or absent metadata remains unavailable. The risk
+projection continues to allowlist known flags/probabilities rather than arbitrary
+judgment text. No additional field is requested beyond the accepted proposal below.
+Browser checks use new authored UI responses and the local #51 B1/mock fixture API,
+including the real explain → offer → denial → proposal → confirmation path after
+password/OTP. No held-out suite or gold is used.
+
+The recognition buttons retain the requested short labels but send an explicit
+sentence: “Sí, la reconozco. Ya me acordé de esta compra.” / “Sim, reconheço.
+Agora lembrei dessa compra.” This remains ordinary user text, not a confirmation
+or trusted intent. The PR #51 B1/mock parser treats the shorter Spanish label by
+itself as out of scope; broader free-text recognition remains an AI/lead parser
+follow-up. Both fuller button messages are covered by authored browser checks;
+the Spanish message also runs through the real local API.
 
 ## Existing integration
 
@@ -60,16 +71,15 @@ only status metadata. Local reachability is tested; Azure reachability from the
 web container under the owner-IP ingress restriction is **not verified**. Keep
 that restriction in place. The lead owns deployment/private connectivity.
 
-Lead-owned CI follow-up: install Playwright Chromium, then run `pnpm test:e2e`.
+The shared CI installs Playwright Chromium and runs all three browser modes.
 `--live` and `--staff` additionally need the repository Python dev environment.
 All browser tests use authored fixtures, ephemeral credentials and mock/B1 models;
 they do not read the worktree `.env` or spend money.
 
-## Handoff 11: recording glass box (additive proposal, merge freeze)
+## Handoff 11: recording glass box (accepted by PR #51)
 
-The existing staff trace drops fields already saved in `llm_call` execution records.
-This frontend PR changes only `apps/web/` and the required progress log. Lead review
-and backend implementation are required after Sebastian lifts the merge freeze.
+PR #51 projects the fields saved in `llm_call` execution records as proposed below.
+This frontend PR changes only `apps/web/`. The lead owns merging and deployment.
 
 Extend `TraceEvent.llm` in the existing scoped `GET /chat/sessions/{id}/trace`:
 
@@ -83,7 +93,9 @@ Extend `TraceEvent.llm` in the existing scoped `GET /chat/sessions/{id}/trace`:
 `gemini_raw_probabilities`, `jev_raw_probabilities`, `jev_threshold_flags`,
 `union_flags`, `threshold`, `degradation`, `primary_failed`. Flags/probabilities are
 keyed by `lost_stolen`, `regulator`, `legal`, `distress`, `injection_suspected`,
-`human_requested`. Preserve null/partial raw Jev values and degradation (incomplete answers must not break the trace); Gemini per-cue
+`human_requested`. Preserve missing/null/partial maps and individual null flags
+across all risk sources, plus degradation (incomplete answers must not break the
+trace). Unknown flags display “not recorded,” never false. Gemini per-cue
 probabilities are null, and intent confidence is not a substitute. The browser
 renders the recorded union; it does not recompute policy or risk authority.
 The allowlisted Zod projection is `src/lib/trace.ts`. Existing trace responses remain
@@ -97,7 +109,7 @@ verify the receipt plus overview, then open the ES persona with a prepared messa
 Story buttons switch ES/PT/fraud personas through regular password+OTP; the fraud
 story opens the existing Agent Desk login. It never auto-sends or auto-confirms.
 
-For live recording, propose optional `demo_stories: ["explain" | "ambiguous" | "fraud"]`
+For live recording, PR #51 supplies optional `demo_stories: ["explain" | "ambiguous" | "fraud"]`
 on each trusted `/personas` entry. This is a routing hint, not a role grant. The
 frontend already accepts it; omitted mappings leave story buttons disabled. Bind
 only owner-reviewed personas with suitable scoped transactions. Messages are generic

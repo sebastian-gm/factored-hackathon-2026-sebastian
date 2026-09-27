@@ -1,6 +1,7 @@
 export const es = {
   recognitionTitle: "¿Reconoces este movimiento?",
   recognizeCharge: "Sí, la reconozco",
+  recognizeChargeMessage: "Sí, la reconozco. Ya me acordé de esta compra.",
   disputeCharge: "No la reconozco, quiero disputarla",
   recognitionHint:
     "También puedes escribir tu respuesta. Si decides disputarla, revisaremos el caso y te pediremos confirmar la acción por separado.",
@@ -273,6 +274,7 @@ export const es = {
 export const pt: typeof es = {
   recognitionTitle: "Você reconhece este movimento?",
   recognizeCharge: "Sim, reconheço",
+  recognizeChargeMessage: "Sim, reconheço. Agora lembrei dessa compra.",
   disputeCharge: "Não reconheço, quero contestar",
   recognitionHint:
     "Você também pode escrever sua resposta. Se decidir contestar, vamos revisar o caso e pedir a confirmação da ação separadamente.",

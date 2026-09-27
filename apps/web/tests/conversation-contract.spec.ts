@@ -37,6 +37,9 @@ async function login(page: Page, persona: string) {
 for (const pt of [false, true]) {
   const locale = pt ? "pt-BR" : "es-MX";
   const recognize = pt ? "Sim, reconheço" : "Sí, la reconozco";
+  const recognizeMessage = pt
+    ? "Sim, reconheço. Agora lembrei dessa compra."
+    : "Sí, la reconozco. Ya me acordé de esta compra.";
   const deny = pt
     ? "Não reconheço, quero contestar"
     : "No la reconozco, quiero disputarla";
@@ -134,7 +137,7 @@ for (const pt of [false, true]) {
       await expect(actions).toHaveCount(0);
       expect(messages).toHaveLength(2);
       expect(messages[1]).toEqual({
-        message: decision === "recognize" ? recognize : deny,
+        message: decision === "recognize" ? recognizeMessage : deny,
       });
       expect(confirms).toEqual([]);
       if (decision === "dispute") {

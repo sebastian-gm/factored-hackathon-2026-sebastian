@@ -610,10 +610,10 @@ test("glass box shows call cost precision, partial totals, fallback and risk uni
             provider: "typesafe",
             model: "jev-1.13.0",
             judgments: {
-              ...risk,
+              gemini_raw_flags: { distress: null },
               jev_raw_probabilities: null,
               jev_threshold_flags: null,
-              union_flags: flags,
+              union_flags: {},
               degradation: "timeout",
             },
           },
@@ -660,10 +660,10 @@ test("glass box shows call cost precision, partial totals, fallback and risk uni
     page.getByRole("status").filter({ hasText: "Segunda opinión degradada" }),
   ).toContainText("timeout");
   await expect(row.getByRole("cell")).toHaveText([
-    "No",
+    "No registrado",
     "—",
     "No registrado",
-    "No",
+    "No registrado",
   ]);
   await expect(cost).toContainText("1 costo desconocido");
 });
@@ -744,11 +744,24 @@ test("trace projection accepts old events and strips non-display payloads", asyn
     count: 0,
   });
   expect(
-    traceSchema.safeParse({
+    traceSchema.parse({
       ...trace,
       events: [
         { ...event, llm: { ...event.llm, judgments: { union_flags: {} } } },
       ],
-    }).success,
+    }).events[0].llm?.judgments,
+  ).toEqual({ union_flags: {} });
+  expect(riskSchema.parse({ degradation: null })).toEqual({
+    degradation: null,
+  });
+  expect(
+    riskSchema.parse({
+      gemini_raw_flags: { distress: null, arbitrary_text: "must-not-cross" },
+      union_flags: null,
+      thinking: "must-not-cross",
+    }),
+  ).toEqual({ gemini_raw_flags: { distress: null }, union_flags: null });
+  expect(
+    riskSchema.safeParse({ union_flags: { distress: "false" } }).success,
   ).toBe(false);
 });

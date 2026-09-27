@@ -326,7 +326,7 @@ export function CustomerChat({ initialDraft = "" }: { initialDraft?: string }) {
             <Button
               variant="secondary"
               disabled={busy}
-              onClick={() => void send(t("recognizeCharge"))}
+              onClick={() => void send(t("recognizeChargeMessage"))}
             >
               {t("recognizeCharge")}
             </Button>
