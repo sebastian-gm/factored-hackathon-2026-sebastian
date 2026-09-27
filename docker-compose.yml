@@ -44,6 +44,9 @@ services:
       PGPASSWORD: ${OPS_APP_PASSWORD:?Run python -m scripts.local_ops first}
       PGDATABASE: ${POSTGRES_DB:?Set POSTGRES_DB in .env}
       DEMO_USERNAME: ${DEMO_USERNAME:?Set DEMO_USERNAME in .env}
+      DEMO_ROLE: ${DEMO_ROLE:-customer}
+      DEMO_LOCALE: ${DEMO_LOCALE:-es-MX}
+      ALLOW_DEMO_RESET: ${ALLOW_DEMO_RESET:-false}
       DEMO_PASSWORD: ${DEMO_PASSWORD:?Set DEMO_PASSWORD in .env}
       OPS_BACKEND: postgres
       AGENT_SYSTEM: P

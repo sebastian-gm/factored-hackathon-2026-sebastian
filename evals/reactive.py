@@ -20,6 +20,7 @@ from evals.metrics import score
 
 class Customer:
     def __init__(self, scenario: dict[str, Any], refs: dict[str, str]) -> None:
+        self.language = scenario["language"]
         self.table = scenario.get("reactive_replies", {})
         self.default = {"message": "não sei" if scenario["language"] == "pt" else "no sé"}
         self.counts: dict[str, int] = {}
@@ -40,7 +41,13 @@ class Customer:
             target = self.refs[reply["choose_ref"]]
             for index, candidate in enumerate(plan.get("candidates") or []):
                 if candidate["handle"] == target:
-                    return {"message": ("primero", "segundo", "tercero")[index]}
+                    return {
+                        "message": (
+                            ("primeiro", "segundo", "terceiro")
+                            if self.language == "pt"
+                            else ("primero", "segundo", "tercero")
+                        )[index]
+                    }
             return self.default
         return reply
 

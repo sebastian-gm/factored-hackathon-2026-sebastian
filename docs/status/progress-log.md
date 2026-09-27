@@ -5,6 +5,30 @@ Current status below supersedes the earlier lane handoffs; their detailed report
 
 ## Completed-verified
 
+### Handoff 06 — additive frontend API support
+
+- Reviewed PR #17's API proposal and code. Added typed trusted `/me`/persona discovery, logout revocation, complete packet metadata, scoped Agent Desk queue/detail/claim/resolve, redacted execution trace, actual Ops counts and confirmed fresh-OTP workspace reset. Preserved existing RLS and v1 endpoints. Cloud remains customer-only; reset is disabled by default.
+- Three new staff API tests passed (denial/isolation, conflicts/idempotency/readback, OTP/reset/logout). Disposable Postgres suite passed 7/7, including staff claim recovery across app instances and reset retaining a verified audit chain.
+- PR #17 cannot merge unchanged: its runtime schemas reject newer refusal/status plans, and its BFF still disables live staff routes. `docs/api/frontend-additions.md` records exact contracts and required frontend changes. Lead did not edit frontend-owned files.
+- These API additions were made after the frozen diagnostic, to satisfy the already-proposed frontend contracts. No held-out system rerun or policy/NLU tuning occurred; the diagnostic remains pinned to its original implementation SHA.
+
+
+### Handoff 06 — held-out diagnostic and faults
+
+- Completed B1 200, P/mock 200 and two P/mock repeats on the frozen 100 subset, at implementation `564f008`; US$0 model cost. No real provider call. B1 has two unreachable model-outage faults (198 executed), P/mock 200 executed; all workload denominators retained.
+- Corrected only a measured reference-mapping bug using independent dev regressions and rescored the same saved outputs at `25c1c4f`, without rerunning systems or changing frozen labels. Original aggregates are preserved. Corrected SAR is 67/193 (34.72%) for both; no P improvement. Six forbidden dispute writes, incomplete packets and missed paths mean acceptance gates failed. See `docs/evaluation/heldout-run01.md` and aggregate JSON for every metric/slice/interval and the access history.
+- Fault/security dev harness: 16 focused tests passed, including injected HTTP timeout/outage with bounded retry, DB/tool faults, expired/stale auth, tamper/replay, cross-customer revocation and direct/indirect injection. Specific authored attacks are covered; arbitrary-language safety is not established.
+- Next: review and ship additive frontend contracts, then local backup/restore and Azure startup diagnosis/redeployment. The deployment has not yet advanced from the previous verified release.
+
+
+### Handoff 06 — adapter preflight (before test access)
+
+- PR #13 merged; main CI and safety both passed at `dd957c7`. Frozen manifest validation passed without changing suite/schema/protocol bytes.
+- Implemented private identity verification, isolated richer overlays, typed references/canaries, card workflow replay, all declared fault aliases, semantic forbidden predicates and aggregate protocol reporting. Independent authored dev fixtures cover the adapter; no B1/P held-out execution has happened yet.
+- `.venv/bin/python -m evals.heldout`: input preflight passed all 200 persona ownership/country/segment/partition checks, source dataset hash, frozen binding hash and zero matcher overlap. The promoted lake is absent, so verification used authorized local raw source hashes and identity projections. No organizer rows printed.
+- Input preflight found 12 inconsistent redundant USD amounts on fictional distractors; unchanged frozen records are flagged as inconsistent facts. See `docs/evaluation/adapter-implementation.md` for handling and limitations.
+- `make checks`: 58 passed, 6 database skips; v1 B1 32/32 with 12 readbacks. Final staged checks follow before implementation freeze and the authorized free diagnostic run.
+
 ### Handoff 06 — frozen-suite review (in progress)
 
 - Routing PR #19 merged after all four CI gates passed at `8812dbc`. Reviewed PR #13's adapter handoff and full frozen protocol before any held-out execution; preserving all pinned suite, schema, template, tool and protocol bytes.
