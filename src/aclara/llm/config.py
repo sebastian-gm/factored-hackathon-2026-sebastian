@@ -32,7 +32,15 @@ class Price:
 
 def load_models(path: Path) -> dict[str, ModelSpec]:
     data = yaml.safe_load(path.read_text(encoding="utf-8"))
-    return {name: ModelSpec(**fields) for name, fields in data["models"].items()}
+    models: dict[str, ModelSpec] = {}
+    for name, fields in data["models"].items():
+        providers = fields.get("provider_only", [])
+        if not isinstance(providers, list) or any(
+            not isinstance(provider, str) or not provider for provider in providers
+        ):
+            raise ValueError("provider_only must be a list of nonempty provider names")
+        models[name] = ModelSpec(**{**fields, "provider_only": tuple(providers)})
+    return models
 
 
 def load_fallback_route(path: Path, models: dict[str, ModelSpec]) -> str | None:

@@ -69,7 +69,7 @@ class AgentAI:
             country=self.runtime.country,
             bank_clock=clock,
             client=None if outage else self.client,
-            prompt_path=ROOT / "prompts/nlu/v3.md",
+            prompt_path=ROOT / "prompts/nlu/v4.md",
         )
         if self.runtime.fault("unsupported_language", "nlu"):
             result = result.model_copy(update={"clarification": "language", "degraded": False})

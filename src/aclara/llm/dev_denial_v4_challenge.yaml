@@ -1,0 +1,20 @@
+version: 1
+description: Synthetic contrastive denial questions and uncertainty-only inquiries; separate from human spot-check and frozen held-out.
+source: team_authored_unreviewed
+cases:
+  - {id: cl.cd01, country: CL, language: es, group: denial, message: '¿Me explican el débito de Emporio Algarrobo? A ese local no he entrado nunca, po.', gold_intent: dispute_charge}
+  - {id: cl.cd02, country: CL, language: es, group: denial, message: 'Veo un pago en Teatro Nieve, pero tengo claro que yo no lo efectué.', gold_intent: dispute_charge}
+  - {id: cl.cd03, country: CL, language: es, group: denial, message: '¿Qué onda con este cobro de Panadería Faro? Yo ni siquiera he estado cerca de ahí.', gold_intent: dispute_charge}
+  - {id: cl.cd04, country: CL, language: es, group: denial, message: '¿Por qué sale un cargo de Tienda Ciruelo si jamás compré en ese negocio?', gold_intent: dispute_charge}
+  - {id: br.cd01, country: BR, language: pt, group: denial, message: 'Pode explicar o débito da Papelaria Sol? Eu nem cheguei perto dessa loja.', gold_intent: dispute_charge}
+  - {id: br.cd02, country: BR, language: pt, group: denial, message: 'Tem lançamento da Loja Caju, só que não fui eu que paguei.', gold_intent: dispute_charge}
+  - {id: br.cd03, country: BR, language: pt, group: denial, message: 'Estou certo de que jamais fiz pagamento ao Cinema Lago.', gold_intent: dispute_charge}
+  - {id: br.cd04, country: BR, language: pt, group: denial, message: 'O valor da Padaria Vento apareceu, mas não passei meu cartão lá.', gold_intent: dispute_charge}
+  - {id: cl.cq01, country: CL, language: es, group: inquiry, message: '¿Me explican el débito de Emporio Algarrobo? No recuerdo haber entrado.', gold_intent: charge_inquiry}
+  - {id: cl.cq02, country: CL, language: es, group: inquiry, message: 'Veo un pago en Teatro Nieve y no sé si lo hice yo.', gold_intent: charge_inquiry}
+  - {id: cl.cq03, country: CL, language: es, group: inquiry, message: 'No cacho si fui a Panadería Faro ese día; revisemos el detalle.', gold_intent: charge_inquiry}
+  - {id: cl.cq04, country: CL, language: es, group: inquiry, message: 'No puedo decir que no lo pagué; el cargo de Tienda Ciruelo me confunde.', gold_intent: charge_inquiry}
+  - {id: br.cq01, country: BR, language: pt, group: inquiry, message: 'Pode explicar o débito da Papelaria Sol? Não lembro de ter passado por lá.', gold_intent: charge_inquiry}
+  - {id: br.cq02, country: BR, language: pt, group: inquiry, message: 'Tem lançamento da Loja Caju e não sei se fui eu.', gold_intent: charge_inquiry}
+  - {id: br.cq03, country: BR, language: pt, group: inquiry, message: 'Não posso afirmar que não fiz o pagamento ao Cinema Lago; quero entender.', gold_intent: charge_inquiry}
+  - {id: br.cq04, country: BR, language: pt, group: inquiry, message: 'O valor da Padaria Vento apareceu; não reconheço a descrição.', gold_intent: charge_inquiry}

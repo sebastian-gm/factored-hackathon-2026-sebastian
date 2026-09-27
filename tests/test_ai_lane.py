@@ -161,6 +161,50 @@ def test_sebastian_recognition_rule_and_independent_hard_dev_suite() -> None:
     }
 
 
+def test_denial_v4_suite_is_synthetic_balanced_and_distinct_from_spotcheck() -> None:
+    from aclara.llm.denial_v4_check import load_cases
+
+    cases, suite_hash = load_cases()
+    messages = {case["message"].casefold() for case in cases}
+    assert len(cases) == len(messages) == 24
+    assert len(suite_hash) == 64
+    assert sum(case["gold_intent"] == "dispute_charge" for case in cases) == 12
+    assert sum(case["gold_intent"] == "charge_inquiry" for case in cases) == 12
+    assert {case["country"] for case in cases} == {"CL", "BR", "AR", "MX"}
+    assert not messages & {
+        "un cobro que yo no hice",
+        "estoy seguro que yo no he realizado",
+        "yo no he ido a ninguna ferretería",
+    }
+    challenge, _ = load_cases(challenge=True)
+    assert len(challenge) == 16
+    assert sum(case["gold_intent"] == "dispute_charge" for case in challenge) == 8
+    assert not messages & {case["message"].casefold() for case in challenge}
+
+
+def test_default_structured_nlu_uses_v4_prompt() -> None:
+    from aclara.agent.nlu.structured import understand
+
+    seen: list[str] = []
+
+    def respond(system: str, _user: str, _schema: type[BaseModel]) -> str:
+        seen.append(system)
+        return '{"language":"es","intent":"dispute_charge","intent_confidence":0.9}'
+
+    client = StructuredClient(
+        {"nlu": ModelSpec(provider="mock", model_id="fixture")}, {}, mock_response=respond
+    )
+    result = understand(
+        "Esa compra no la hice yo.",
+        country="CL",
+        bank_clock=datetime(2026, 9, 27, tzinfo=UTC),
+        client=client,
+    )
+    assert result.extracted.intent == "dispute_charge"
+    assert client.records[0].prompt_id == "nlu@v4"
+    assert len(seen) == 1 and "Chile" in seen[0]
+
+
 def test_round_two_wilson_interval_handles_zero_and_perfect_success() -> None:
     from aclara.llm.round_two_report import wilson
 
@@ -364,6 +408,9 @@ def test_local_models_and_dated_prices_are_loadable() -> None:
     assert models["default"].provider == "openai_compat"
     assert models["default"].model_id == "google/gemini-3-flash-preview"
     assert models["default"].price_id in prices
+    assert models["default"].provider_only == ("google-vertex/global",)
+    assert models["openrouter_sonnet"].provider_only == ("google-vertex/global",)
+    assert prices["gemini-3-flash-preview"].input_per_million == 0.50
     assert load_fallback_route(Path("config/models.yaml"), models) == "fallback_grok_4_20"
     assert models["fallback_grok_4_20"].price_id in prices
     assert models["fallback_deepseek_v4_flash"].price_id in prices
