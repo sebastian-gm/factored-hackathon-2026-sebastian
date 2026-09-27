@@ -172,7 +172,8 @@
           "abstained_out_of_scope",
           "refused_security",
           "safe_failure_handoff",
-          "status_reported"
+          "status_reported",
+          "cancelled"
         ],
         "type": "string"
       },

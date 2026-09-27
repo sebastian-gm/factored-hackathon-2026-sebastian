@@ -1,5 +1,40 @@
 # Progress log
 
+## 2026-09-27 — Lead Step 3 implementation and dev validation in progress
+
+### Completed (verified)
+
+- Reviewed/merged AI #49 at `dc0a9f94edd91b46f9df46fd4b37fc8431f7f192`, exact-head
+  Python/Postgres/web/safety green. Requested and verified the missing
+  `unfamiliar_charge` flag before merging. Lead consumes v5 context and masked facts.
+- Implemented durable offers, context retention, full handoff reasons, cross-customer
+  strikes/revocation, policy review ordering, B1 numeric-merchant handling, readback
+  aliases and strict slice recall. Added dev regressions; never ran held-out v2 or
+  opened suite-v3 rows. PR #50 description only was read for generic dependencies.
+- `.venv/bin/python -m scripts.v2_slice_correction`: saved-v2 aggregate tables written
+  separately; **853 inputs unchanged**. Official v2 result is unchanged.
+- `python -m scripts.dev_gate mock --profile after-v2`: **20/20 no-fault, 12/12 faults**,
+  all 12 triggers reached. B1 runner **32/32**, verified readbacks and safety checks.
+- Local `make checks`: **225 passed / 14 database skips**, hooks, strict mypy,
+  compilation, B1, interface snapshots and policy catalog passed at this stage.
+  Local disposable Postgres tests passed **15/15** before the added offer restart
+  regression; that final restart check and fresh CI are running next.
+- Implemented #37 trace metadata and approved, scoped demo-story hints; seven staff,
+  metadata and policy tests passed. Owner-approved model-run estimate is $0.15–$0.30
+  under shared scope `dev-gate/after-v2` / run `after-v2`, hard $1 cap.
+
+### Done but not verified
+
+- Final candidate merge/CI and paid dev acceptance are pending. No new release,
+  Azure smoke or v3 execution. Frontend offer enum support is requested from its lane.
+
+### Next / blocked
+
+- Finish local/Postgres checks, merge lead fixes with green CI, run the authorized
+  dev gate on the merged SHA and report. Do not merge #50 without the separate go.
+- [Commands, changes and budget](../evaluation/after-v2-dev-gate.md). Stop after the
+  Step 3 report; release/v3 still require Sebastian's later approval.
+
 ## 2026-09-27 — ADR merged; shared after-v2 dev allowance prepared
 
 ### Completed (verified)

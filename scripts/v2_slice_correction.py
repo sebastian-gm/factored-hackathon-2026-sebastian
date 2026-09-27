@@ -36,9 +36,7 @@ def formatted(metric: dict) -> str:
 
 def main() -> None:
     paths = sorted((SOURCE / "checkpoints").glob("*/result.json"))
-    protected = paths + [
-        SOURCE / name for name in ("results.json", "results.md", "COMPLETE.json")
-    ]
+    protected = paths + [SOURCE / name for name in ("results.json", "results.md", "COMPLETE.json")]
     if len(paths) != 850 or not all(p.is_file() for p in protected):
         raise RuntimeError("Expected completed v2 saved inputs are absent")
     with access(
@@ -116,7 +114,7 @@ def main() -> None:
                 )
         lines.append("")
     (ROOT / "docs/evaluation/final-v2-slice-correction.md").write_text("\n".join(lines))
-    print(
+    print(  # noqa: T201 -- aggregate metadata only.
         json.dumps(
             {
                 "unchanged_inputs": len(before),

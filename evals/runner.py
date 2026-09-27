@@ -139,11 +139,11 @@ async def verify_scope_and_confirmation_guards() -> bool:
         proposal_response = await client.post(
             f"/chat/sessions/{conversation_id}/messages",
             headers=headers,
-            json={"message": "No reconozco el cargo de Mercado Verde"},
+            json={"message": "No hice el cargo de Mercado Verde"},
         )
         if proposal_response.status_code != 200:
             return False
-        proposal_hash = proposal_response.json().get("proposal", {}).get("proposal_hash", "")
+        proposal_hash = (proposal_response.json().get("proposal") or {}).get("proposal_hash", "")
         tampered = await client.post(
             f"/chat/sessions/{conversation_id}/confirm",
             headers=headers,

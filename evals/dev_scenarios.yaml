@@ -37,12 +37,14 @@ scenarios:
     language: es
     turns:
       - {message: "No reconozco el cargo de Mercado Verde"}
+      - {message: "No fui yo, quiero disputar ese cargo"}
       - {confirm: true}
     expected: dispute_filed
   - id: pt.normal.dispute
     language: pt
     turns:
       - {message: "Não reconheço a cobrança de Mercado Verde"}
+      - {message: "Não fui eu, quero contestar essa cobrança"}
       - {confirm: true}
     expected: dispute_filed
   - id: es.ambiguous.amount.pesos
