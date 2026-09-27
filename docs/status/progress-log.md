@@ -153,6 +153,7 @@ For the next session: **Continue from docs/status/progress-log.md. Next layer: d
 - Added the evaluation protocol, concrete lead adapter handoff, fixed 40-case human review selection with private blank worksheets, and fixed 100-case repeat selection. Added the requested test-cost versus wrong-proposal explanation to the matcher result review.
 - Current-main local verification passed: Ruff/format, strict mypy on 43 source files, Python compilation, interface snapshots, 38 tests (one optional local-Postgres integration skipped), and both 32-case mock dev harnesses. These dev checks are not held-out results.
 - All six pre-commit hooks and staged data/secret/size checks passed. Negative validator probes rejected non-test identity, inconsistent gold and missing default replies. An explicit scan found none of the 200 selected organizer customer/product IDs or the local OpenRouter key in staged content. Private inputs, bindings and worksheets remain ignored; the remote repository was read back as private.
+- Pushed only `origin/feat/heldout-eval-v1`; remote read-back matched implementation commit `2a26b48`. Opened [PR #13](https://github.com/sebastian-gm/bank-agent-lab/pull/13) into main and verified its 23-file scope. GitHub `checks`, `invariants` and `web` passed on that head; the PR is open and ready for lead review. This documentation-only follow-up records those verified results.
 
 ### Done but not verified
 
@@ -161,6 +162,6 @@ For the next session: **Continue from docs/status/progress-log.md. Next layer: d
 
 ### Next / blocked
 
-- Lead review of the suite/protocol PR and implementation of `docs/evaluation/adapter-handoff.md` using separate dev fixtures.
+- Lead review of PR #13 and implementation of `docs/evaluation/adapter-handoff.md` using separate dev fixtures.
 - Complete independent label review before claiming human-validated gold. Any resulting label change requires a new suite version.
 - Obtain a separately priced approval before paid system evaluation. The completed US$3 approval covered Portuguese authoring only; no further approval is needed for this suite PR.
