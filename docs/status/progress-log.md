@@ -23,6 +23,23 @@ This summary supersedes earlier task lists; detailed evidence remains in the lin
 
 - Lead review of PR #24 and PR #17. Keep the documentation PR review-ready only after the latest CI is green, and continue prioritizing PR #17 feedback. Lead owns release/network checks; owner approval is required for any future model spending, public submission or wider judge access. No new approval is needed for the completed local documentation work.
 
+### Pitch pass on PR #24 — 2026-09-27 UTC
+
+#### Completed (verified)
+
+- Reworked the six slides into takeaway sentences, each with three short bullets and one table or diagram. Moved methods/caveats into collapsed speaker notes and kept one explicit production/limits slide. The final real-model scorecard uses only `TODO(results)` cells, with separate B1/P and planned Gemini 3 Flash/Claude comparisons and conversation-cost definitions.
+- Rewrote the video as 248 spoken words with a customer hook, deployed product on screen at 0:10, separate stage directions and the final fifteen seconds reserved for limits. Added `docs/submission/checklist.md` for access/role/reset details, deadline confirmation, release/recording SHA, full-history Gitleaks/data review, owner-approved publication and email delivery. The sandbox remains private; checklist actions are not executed.
+- Checked the priority PR #17: no new review beyond the previously addressed backend-contract review. Merged current main `6aa0cf7` into the published docs branch without rewriting history. New lead changes preserve endpoint schemas; no frontend implementation edit was needed for this pitch pass.
+- Local structural/source audit passed: six slide headlines, three bullets and one visual each; 248 narration words; 44 links/reference targets; displayed pipeline/matcher values matched aggregate JSON. `git diff --check` passed. Checked official organizer date, Gitleaks syntax and GitHub visibility documentation; deadline time/zone still requires organizer confirmation. No Azure/model calls, credential reads, public release or email send.
+
+#### Done but not verified
+
+- Final held-out real-model B1/P and Gemini/Claude measurements, human review, actual recording duration and deployed rehearsal remain pending. The AI lane's comparison document still has no measured default; Gemini 3 Flash is explicitly a planned choice. Full-history Gitleaks and publication/access steps are checklist tasks, not completed audits.
+
+#### Next / blocked
+
+- Update PR #24 and verify final-head CI before reporting it ready. Lead review/deployed access verification and the AI lane's final model comparison remain release follow-ups. No permission is needed for this documentation edit; future spending, visibility changes and sending the submission need explicit owner authorization.
+
 ## Completed-verified
 
 ### Handoff 06 — policy, freeze and routing
