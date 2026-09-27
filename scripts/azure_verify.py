@@ -48,6 +48,8 @@ def main() -> None:
         if name == "api":
             env = {item["name"]: item for item in container["env"]}
             assert env["LLM_PROVIDER"]["value"] == "mock"
+            assert env["AGENT_SYSTEM"]["value"] == "P"
+            assert env["OPS_BACKEND"]["value"] == "postgres"
             assert env["PGSSLMODE"]["value"] == "verify-full"
             assert env["PGUSER"]["value"] == "aclara_app"
             assert env["PGPASSWORD"]["secretRef"] == "postgres-app"
