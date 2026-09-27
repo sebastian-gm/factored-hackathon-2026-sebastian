@@ -13,7 +13,6 @@ from dataclasses import asdict
 from datetime import UTC, datetime
 from pathlib import Path
 
-import psycopg
 import yaml
 
 from aclara.llm.config import load_models, load_prices
@@ -42,19 +41,9 @@ def digest(path: Path) -> str:
 
 
 def budget_receipt() -> dict:
-    with psycopg.connect(os.environ["FINAL_BUDGET_OWNER_DSN"]) as connection:
-        connection.execute("SET LOCAL ROLE aclara_owner")
-        row = connection.execute(
-            "SELECT count(*),coalesce(sum(actual_usd),0),coalesce(sum(charged_usd),0),count(*) FILTER(WHERE actual_usd IS NULL) FROM llm.reservations WHERE scope=%s AND run_id=%s",
-            (SCOPE, RUN_ID),
-        ).fetchone()
-    return {
-        "cap_usd": 12,
-        "attempts": row[0],
-        "known_cost_usd": float(row[1]),
-        "charged_with_reserves_usd": float(row[2]),
-        "unknown_cost_attempts": row[3],
-    }
+    from scripts.final_budget import verify
+
+    return verify(os.environ["FINAL_BUDGET_OWNER_DSN"])
 
 
 def judge_ids(scenarios: list[dict], repeat_ids: set[str]) -> set[str]:

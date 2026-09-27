@@ -6,6 +6,7 @@ import asyncio
 import csv
 import json
 from copy import deepcopy
+from decimal import Decimal
 from pathlib import Path
 from uuid import uuid4
 
@@ -73,6 +74,21 @@ def test_final_start_gate_precedes_any_frozen_access(monkeypatch, tmp_path):
     monkeypatch.setattr(Path, "iterdir", lambda *_: pytest.fail("Frozen path accessed before gate"))
     with pytest.raises(RuntimeError, match="explicit start"):
         main(tmp_path, "fixture")
+
+
+def test_v2_uses_separate_paths_and_conservative_cumulative_cap():
+    from scripts.final_budget import CAP, check_exposure
+    from scripts.final_program import OUTPUT
+
+    from aclara.llm.final_run import RUN_ID, SCOPE
+
+    assert OUTPUT.name == RUN_ID == "final-program-v2"
+    assert SCOPE == "final-evaluation-v2"
+    check_exposure(Decimal("0.12849828"), CAP)
+    with pytest.raises(RuntimeError, match="ceiling"):
+        check_exposure(Decimal("0.14"), CAP)
+    with pytest.raises(RuntimeError):
+        check_exposure(Decimal("NaN"), CAP)
 
 
 def test_judge_selection_and_20_item_sheet_are_blinded_and_preserved(tmp_path):
