@@ -359,3 +359,44 @@ def test_staff_claim_and_reset_are_durable_with_audit_retained(dsn: str) -> None
             second.close()
 
     asyncio.run(check())
+
+
+def test_clarification_handoff_is_terminal_after_restart(dsn: str):
+    from test_api_security import _settings, _sign_in
+    from test_dev_acceptance import ledger
+    from test_workflow_api import message
+
+    async def check():
+        first_store = Store(dsn)
+        first = create_app(_settings(), ledger(True), store=first_store)
+        async with AsyncClient(
+            transport=ASGITransport(app=first), base_url="http://test"
+        ) as client:
+            token = await _sign_in(client)
+            headers = {"Authorization": f"Bearer {token}"}
+            _, conv = await message(client, headers, "No reconozco una compra")
+            await message(client, headers, "El primero o el segundo", conv)
+            result, _ = await message(client, headers, "No puedo elegir", conv)
+            packet_id = result["handoff"]["handoff_id"]
+        first_store.close()
+        second_store = Store(dsn)
+        try:
+            second = create_app(_settings(), ledger(True), store=second_store)
+            async with AsyncClient(
+                transport=ASGITransport(app=second), base_url="http://test"
+            ) as client:
+                result, _ = await message(
+                    client, headers, "No reconozco el cargo de Taller Prisma", conv
+                )
+                assert result["handoff"]["handoff_id"] == packet_id
+                assert result["verified"]
+                principal = second.state.sessions[token]
+                with second_store.transaction(
+                    Scope(principal.customer_id, principal.run_id, principal.session_id)
+                ):
+                    assert not second.state.cases
+                    assert len(second.state.handoffs) == 1
+        finally:
+            second_store.close()
+
+    asyncio.run(check())
