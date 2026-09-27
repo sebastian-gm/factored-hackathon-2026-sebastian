@@ -6,9 +6,9 @@ Keep access codes, passwords, private reports and recordings in approved private
 storage outside Git. The judge-facing content is in [slides](slides.md) and the
 [video script](video-script.md).
 
-## Merge freeze
+## Current release gate
 
-- [ ] Keep PRs open until Sebastian announces the final run is finished. The lead then merges; this work does not change the pinned evaluation release. Latest recorded runtime: `07bccdc630e2b5eeb2dc746a7c3fe000718fd22c`, followed by documentation-only `3ed98c9`. Verify the actual recording revision separately. [Release evidence](../status/progress-log.md).
+- [ ] Handoff 12 lifted the merge freeze for Option A dev fixes. Complete its dev acceptance gate and wait for Sebastian before re-release. Latest deployed runtime: `07bccdc630e2b5eeb2dc746a7c3fe000718fd22c`, followed by documentation-only `3ed98c9`. Verify the actual recording revision separately. [Release evidence and abandoned-attempt disclosure](../status/progress-log.md).
 
 ## Timing and submission owner
 

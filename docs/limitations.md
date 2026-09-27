@@ -9,9 +9,10 @@ banking operation.
 
 ## Application and evaluation
 
-- The runtime serves an authored ledger, simulated identity and simulated SMS OTP.
-  Organizer gold/serving transactions are available locally but are not bound to
-  chat. A minimal contract-allowed routing projection is separate from the ledger.
+- The deployed runtime serves the promoted organizer ledger through a non-owner
+  Postgres role, customer RLS and a 120-day window, with simulated identity and SMS
+  OTP. Authored ledgers remain local tests and fixtures; routing uses a separate
+  contract-allowed projection.
   No real bank action, refund or customer protection guarantee is provided.
 - Dispute and card-freeze workflows now include scope/policy rechecks, fresh OTP,
   exact confirmation, persistence and read-back. Implementation coverage is not

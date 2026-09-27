@@ -56,5 +56,5 @@ budget reservations. The capped smoke used four conversations and fourteen calls
 $0.00925008 total; this is not a capacity or final-acceptance result. Two demo Ops
 identities and two customer identities retain customer/run/session scope; reset
 remains disabled. Production needs federated individual credentials and reviewed
-cross-customer assignment grants. Merge freeze remains in force until Sebastian
-announces completion of the final run.
+cross-customer assignment grants. Handoff 12 lifted the merge freeze for Option A
+dev fixes. Re-release remains blocked on the dev gate and Sebastian's confirmation.

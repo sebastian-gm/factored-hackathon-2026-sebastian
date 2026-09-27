@@ -1,0 +1,13 @@
+# Portuguese wording review (model-reviewed, development only)
+
+On 2026-09-27, `anthropic/claude-sonnet-5` via OpenRouter reviewed **all 17 active AI-lane pt-BR customer templates and Portuguese prompt/example groups**. The input was an explicit list of synthetic strings and intent examples, not source files, customer records, or hidden prompt bodies. It covered `agent/nlg/builder.py`, the DLP fallback in `agent/ai.py`, the Portuguese examples in NLU v4, and the terms in the Jev typed questions. Phrase and judge prompts are English instructions with no additional Portuguese sentence. This is **model review, not human pt-BR validation**. The one valid review attempt cost **$0.044504** from its per-call cost field and covered 17/17 IDs.
+
+| Location / situation | Before | After | Decision |
+|---|---|---|---|
+| `builder.py`, unknown transaction status | “A transação de {amount_date} tem estado indisponível.” | “O status da transação de {amount_date} não está disponível.” | Accepted the unnatural-phrasing finding, but kept the claim about **status availability** rather than saying the transaction itself is unavailable. |
+| `builder.py`, out-of-scope human offer | “Posso ajudar com cobranças não reconhecidas. Posso encaminhar você a uma pessoa.” | “Posso ajudar com cobranças não reconhecidas ou encaminhar você a uma pessoa da equipe.” | Accepted; removes repetition and identifies the destination. |
+| `agent/ai.py`, verified-case DLP fallback | “Consulte o status verificado do caso.” | “Consulte o status verificado do seu caso.” | Accepted; clearer possession without changing action claims. |
+
+Sonnet found the remaining active AI-lane examples and templates natural enough to leave unchanged. It noted that “foi recusada” sounds more definitive than “aparece como estornada/aprovada”; we retained the difference because the strings describe distinct recorded transaction statuses. The NLU prompt’s denial/uncertainty examples preserve Sebastian's intent-label rule; no taxonomy or gold label changed.
+
+A separate **extra-scope** attempt to review 34 lead-owned pt-BR API/workflow/handoff/staff strings returned two `length`/truncation failures, no usable review, and no source changes. Their per-call costs were not persisted by that failed helper, so we conservatively treat its full **$0.255** local reserve as exposed. Combined with the valid $0.044504 call, that is at most **$0.299504** against the $0.30 review cap. We stopped without further calls. The lead-owned strings remain **unreviewed by a second vendor**; this document makes no quality claim about them. Only aggregate cost and review decisions are committed; detailed synthetic checkpoints stay in ignored `artifacts/`.
