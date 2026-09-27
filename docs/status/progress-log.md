@@ -145,6 +145,25 @@ The local Compose stack is left running for review.
 
 For the next session: **Continue from docs/status/progress-log.md. Next layer: durable operational state and resilience. Same rules.**
 
+## AI lane — 2026-09-26/27 (round-one error analysis and v2 rerun)
+
+### Completed (verified)
+
+- Repeated the 32-case synthetic dev comparison with the unchanged v1 prompt and all five original models, recording only case IDs, predictions, stop reasons, per-call usage/cost, and timing in an ignored artifact. The repeat reproduced the original aggregate: 130/200 valid attempts and 30/160 cases without a valid final response. All 70 unsuccessful repeat attempts ended with `length`; four no-final cases were DeepSeek and 26 were Qwen in the repeat. The original aggregate did not retain a by-model breakdown, so these counts are not claimed as original-run facts.
+- Built the pooled cross-model confusion matrix and identified 11 cases missed by at least three models. Most completed errors were unrecognized-charge statements classified as inquiries. Added `prompts/nlu/v2.md` with explicit intent definitions and made it the production NLU prompt default without changing deterministic policy or frozen interfaces. The inferred gold labels were not edited.
+- Reran the requested four models on the same dev suite, dropping Qwen. All four scored 32/32 inferred intents, 100% scored-slot F1, and 32/32 valid responses from 32 attempts. DeepSeek was pinned to the ZDR, schema-capable `wafer/fast` endpoint with low reasoning effort and a 2,048-token requested output limit. OpenRouter generation metadata readback confirmed Wafer service and matched per-call response cost. No model default was chosen; `LLM_PROVIDER=mock` and the persistent `.env` approval flag remain unchanged.
+- Reworked all-attempt JSON validity and follow-up cost accounting to use per-call response usage/cost, never the shared key-level delta. Original probes/full run, diagnostic repeat, and v2 rerun sum to **$0.402383** under the cumulative $5 cap. The first-run key-level gap is plausibly concurrent data/ML Portuguese generation, not assigned to this lane or a model.
+- Updated `docs/ml/model-comparison.md` with original-result caveats, full repeat and revised tables, the confusion matrix, missed-case fault analysis, a gold-label review list, and the cost ledger.
+- `make checks` passed on the staged change: all six pre-commit hooks, strict mypy, staged-file policy, compilation, 42 Python tests (one optional test skipped), B1 32/32 with 12 read-backs and safety guards, and frozen interface snapshots.
+
+### Done but not verified
+
+- The 32-case suite and its inferred labels remain unreviewed. In particular, Sebastian needs to confirm whether `dispute_charge` includes a first-message denial of a purchase without an explicit filing request. The original run's exact by-model failure counts and provider routes cannot be recovered from its aggregate-only artifact. ES/PT human quality ratings and independent-test accuracy remain unknown.
+
+### Next / blocked
+
+- Obtain Sebastian's label/taxonomy review and an independent annotated NLU suite before any default selection. Keep production in mock mode. Lead review of PR #12 remains pending; no model choice or further paid run is requested here.
+
 ## Lead integration — 2026-09-26/27 (in progress)
 
 ### Completed-verified
