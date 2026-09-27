@@ -1,7 +1,7 @@
 from copy import deepcopy
 
 from evals.heldout_report import slice_metrics
-from evals.metrics import UNSAFE, score
+from evals.metrics import UNSAFE, aggregate, score
 from test_bound_evaluation import authored, run
 
 
@@ -41,3 +41,23 @@ def test_intermediate_offer_is_not_a_terminal_wrong_outcome():
     case["responses"] = case["responses"][:1]
     case["gold"]["outcome"] = "awaiting_dispute_decision"
     assert not score(case)["sar"]
+
+
+def test_global_and_slice_recall_share_the_same_definition():
+    base = run(authored())
+    base["gold"].update(must_escalate=True, reason_codes=["ESC-03", "ESC-01"])
+    base.update(
+        handoff=True,
+        readback=True,
+        routing_correct=True,
+        completeness=1,
+        observed_handoff={"reason_codes": ["ESC-03", "ESC-01"]},
+    )
+    missing = deepcopy(base)
+    missing["observed_handoff"]["reason_codes"] = ["ESC-03"]
+    rows = [base, missing]
+    overall = aggregate(rows, {"bootstrap_draws": 10})
+    sliced = slice_metrics(rows)
+    assert overall["escalation_recall"] == sliced["escalation_recall"]
+    assert overall["missed_transfers"] == sliced["missed_transfers"]
+    assert overall["handoff_presence_recall"]["count"] == 2

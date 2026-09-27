@@ -268,6 +268,19 @@ def score(case: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def correct_handoff(c: dict[str, Any]) -> bool:
+    packet = c.get("observed_handoff") or next(
+        (r["handoff"] for r in reversed(c.get("responses", [])) if r.get("handoff")), {}
+    )
+    return bool(
+        c["handoff"]
+        and c["readback"]
+        and c["routing_correct"] is not False
+        and (c["completeness"] is None or c["completeness"] == 1)
+        and set(c["gold"]["reason_codes"]).issubset(packet.get("reason_codes", []))
+    )
+
+
 def aggregate(cases: list[dict[str, Any]], header: dict[str, Any]) -> dict[str, Any]:
     n = len(cases)
     scope = sum(c["in_scope"] for c in cases)
@@ -309,8 +322,11 @@ def aggregate(cases: list[dict[str, Any]], header: dict[str, Any]) -> dict[str, 
         "flagged_intakes": sum(c["outcome"] == "dispute_filed_flagged" for c in cases),
         "containment": proportion(sum(not c["handoff"] for c in cases), n),
         "containment_note": "Containment alone is not success.",
-        "escalation_recall": proportion(sum(c["handoff"] for c in required), len(required)),
-        "missed_transfers": proportion(sum(not c["handoff"] for c in required), len(required)),
+        "escalation_recall": proportion(sum(correct_handoff(c) for c in required), len(required)),
+        "missed_transfers": proportion(
+            sum(not correct_handoff(c) for c in required), len(required)
+        ),
+        "handoff_presence_recall": proportion(sum(c["handoff"] for c in required), len(required)),
         "unnecessary_transfers": proportion(sum(c["handoff"] for c in optional), len(optional)),
         "routing_accuracy": proportion(sum(c["routing_correct"] for c in routing), len(routing)),
         "routing_by_field": {

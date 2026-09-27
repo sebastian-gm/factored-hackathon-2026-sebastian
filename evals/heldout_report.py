@@ -9,21 +9,10 @@ from typing import Any
 
 import numpy as np
 
-from evals.metrics import UNSAFE, aggregate, latency, percentile, proportion
+from evals.metrics import UNSAFE, aggregate, correct_handoff, latency, percentile, proportion
 
 SEED = 20261001
 DRAWS = 10000
-
-
-def correct_handoff(c: dict[str, Any]) -> bool:
-    packet = c.get("observed_handoff") or {}
-    return bool(
-        c["handoff"]
-        and c["readback"]
-        and c["routing_correct"] is not False
-        and (c["completeness"] is None or c["completeness"] == 1)
-        and set(c["gold"]["reason_codes"]).issubset(packet.get("reason_codes", []))
-    )
 
 
 def slice_metrics(cases: list[dict[str, Any]]) -> dict[str, Any]:
