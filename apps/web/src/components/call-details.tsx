@@ -7,8 +7,8 @@ export function CallDetails({ call }: { call: LlmCall }) {
   const t = useTranslations();
   const { locale } = useApp();
   const risk = call.judgments;
-  const flag = (value: boolean | undefined) =>
-    value === undefined ? t("notRecorded") : t(value ? "flagYes" : "flagNo");
+  const flag = (value: boolean | null | undefined) =>
+    value == null ? t("notRecorded") : t(value ? "flagYes" : "flagNo");
   const probability = (value: number | null | undefined) =>
     value == null ? "—" : `${(100 * value).toFixed(1)}%`;
   return (
@@ -38,6 +38,10 @@ export function CallDetails({ call }: { call: LlmCall }) {
               : usd(call.cost_usd, locale)}{" "}
             / {call.latency_ms.toFixed(1)} ms
           </dd>
+        </div>
+        <div>
+          <dt>{t("callRoute")}</dt>
+          <dd>{call.route ?? t("notRecorded")}</dd>
         </div>
         <div>
           <dt>{t("callAttempt")}</dt>
@@ -82,11 +86,11 @@ export function CallDetails({ call }: { call: LlmCall }) {
                 {riskCues.map((cue) => (
                   <tr key={cue}>
                     <th scope="row">{t(cue)}</th>
-                    <td>{flag(risk.gemini_raw_flags[cue])}</td>
+                    <td>{flag(risk.gemini_raw_flags?.[cue])}</td>
                     <td>{probability(risk.jev_raw_probabilities?.[cue])}</td>
                     <td>{flag(risk.jev_threshold_flags?.[cue])}</td>
                     <td>
-                      <strong>{flag(risk.union_flags[cue])}</strong>
+                      <strong>{flag(risk.union_flags?.[cue])}</strong>
                     </td>
                   </tr>
                 ))}

@@ -1,5 +1,22 @@
 # Aclara frontend
 
+ADR-0015: customer chat renders `offer_dispute / awaiting_dispute_decision` as an
+explained charge plus explicit ES/PT recognition and dispute-request buttons.
+Both buttons use the messages endpoint; a separate server proposal is required
+before exact-hash action confirmation. Free text stays available. Cancellation
+has its own neutral notice. Agent Desk shows the supplied primary reason first,
+then every other reason, with actions and verified evidence kept distinct.
+
+`tests/conversation-contract.spec.ts` supplies new authored UI response fixtures
+for these additive fields. `tests/live.spec.ts` also exercises the local PR #51
+B1/mock API through explanation, offer, denial, a separate proposal/confirmation,
+recognition and cancellation after password/OTP. The authored checks cover ES/PT
+message-only actions, separate confirmation/cancellation, free text, mobile and
+keyboard access, multi-reason ordering, missing primary values, invalid mixed
+offer/write plans and live story-hint selection. It does not use held-out rows,
+gold labels, provider calls or organizer records. See API-PROPOSAL.md for producer
+dependencies; these browser tests do not establish deployed backend readiness.
+
 Three ES/PT surfaces share one accessible workspace: customer chat, Agent Desk and
 Ops. The customer connection uses the frozen OpenAPI through a same-origin Next.js
 backend-for-frontend. The live connection includes trusted roles, Agent Desk and measured workspace Ops.
@@ -47,11 +64,10 @@ The customer run also verifies refusal, session revocation and upstream logout.
 All modes force mock/B1 behavior and use a
 fresh process credential; neither loads the local provider key.
 
-Eight fixture browser tests cover the three stories, cancellation, phone layouts,
+Twenty fixture browser tests cover the three stories, recognition, cancellation, phone layouts,
 ES-MX/CO/AR and PT-BR, keyboard/modal behavior, automated WCAG 2.1 AA checks, cookie
 visibility, role/CSRF rejection, confirmation replay, cross-browser ownership and
-OTP lockout/restart. Browser checks currently run locally; adding them to the shared
-CI workflow is a lead-owned follow-up.
+OTP lockout/restart. The shared CI runs fixture, live customer and live staff checks.
 
 ## Identity and writes
 
@@ -142,6 +158,6 @@ metadata is labeled unavailable. Fixture screenshots remain illustrative.
 
 Live recording retains the existing reset flags, OTP and workspace scope. Current
 cloud reset is disabled, and live story shortcuts need trusted persona bindings.
-See [the additive API proposal](API-PROPOSAL.md#handoff-11-recording-glass-box-additive-proposal-merge-freeze).
+See [the accepted API proposal](API-PROPOSAL.md#handoff-11-recording-glass-box-accepted-by-pr-51).
 No frontend fallback fabricates those fields or widens access. PRs stay open during
 the final-run merge freeze; no real model calls are needed to test these features.

@@ -94,6 +94,9 @@ export function RecordingHelper({
         </>
       ) : (
         <>
+          {demoStories.some((story) => !storyPersona(config, story)) && (
+            <p className="caption">{t("recordingUnavailable")}</p>
+          )}
           <div className="recording-actions">
             {demoStories.map((story) => (
               <Button

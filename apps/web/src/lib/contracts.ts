@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-// Exact typed projection of the frozen OpenAPI. Extensions live separately below.
+// Allowlisted API projection, including ADR-0015's accepted additive offer/primary-reason fields.
 export const transactionSchema = z.object({
   handle: z.string(),
   transaction_date: z.string(),
@@ -29,6 +29,7 @@ export const handoffSchema = z.object({
   handoff_id: z.string(),
   created_at: z.string(),
   reason_codes: z.array(z.string()),
+  primary_reason: z.string().min(1).nullish(),
   priority: z.enum(["normal", "high"]),
   route: z.object({
     queue: z.string(),
@@ -76,6 +77,7 @@ export const planSchema = z
       "explain_status",
       "report_status",
       "refuse",
+      "offer_dispute",
     ]),
     outcome: z.enum([
       "cancelled",
@@ -88,6 +90,7 @@ export const planSchema = z
       "explained",
       "status_reported",
       "refused_security",
+      "awaiting_dispute_decision",
     ]),
     reply: z.string(),
     candidates: z.array(transactionSchema).nullish(),
@@ -119,10 +122,44 @@ export const planSchema = z
     if (plan.response_type === "offer_human") needs(plan.handoff, "handoff");
     if (plan.response_type === "choose_transaction")
       needs(plan.candidates?.length, "candidates");
+    if (
+      plan.response_type === "offer_dispute" ||
+      plan.outcome === "awaiting_dispute_decision"
+    ) {
+      needs(plan.response_type === "offer_dispute", "response_type");
+      needs(plan.outcome === "awaiting_dispute_decision", "outcome");
+      needs(plan.transaction, "transaction");
+      // Recognition is a conversation turn, never an action proposal or receipt.
+      needs(!plan.proposal && !plan.case && !plan.handoff, "nonterminal_offer");
+      needs(
+        !plan.session_ended && !plan.freeze_offer?.length,
+        "nonterminal_offer",
+      );
+    }
+    if (plan.outcome === "cancelled") {
+      needs(plan.response_type === "cancelled", "response_type");
+      needs(!plan.proposal && !plan.case, "cancelled_action");
+    }
+    if (plan.handoff?.primary_reason)
+      needs(
+        plan.handoff.reason_codes.includes(plan.handoff.primary_reason),
+        "primary_reason",
+      );
   });
 export type Transaction = z.infer<typeof transactionSchema>;
 export type Plan = z.infer<typeof planSchema>;
 export type Handoff = z.infer<typeof handoffSchema>;
+export function orderedReasons(
+  packet: Pick<Handoff, "reason_codes" | "primary_reason">,
+): string[] {
+  const reasons = [...new Set(packet.reason_codes)];
+  return packet.primary_reason && reasons.includes(packet.primary_reason)
+    ? [
+        packet.primary_reason,
+        ...reasons.filter((reason) => reason !== packet.primary_reason),
+      ]
+    : reasons;
+}
 export type Role = "customer" | "agent" | "ops";
 export type Locale = "es-MX" | "es-CO" | "es-AR" | "pt-BR";
 export type Surface = "chat" | "desk" | "ops";

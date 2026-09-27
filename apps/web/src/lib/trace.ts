@@ -8,33 +8,41 @@ export const riskCues = [
   "injection_suspected",
   "human_requested",
 ] as const;
-const flags = z.object({
-  lost_stolen: z.boolean(),
-  regulator: z.boolean(),
-  legal: z.boolean(),
-  distress: z.boolean(),
-  injection_suspected: z.boolean(),
-  human_requested: z.boolean(),
-});
+const flag = z.boolean().nullable();
+const flags = z
+  .object({
+    lost_stolen: flag,
+    regulator: flag,
+    legal: flag,
+    distress: flag,
+    injection_suspected: flag,
+    human_requested: flag,
+  })
+  .partial();
 const probability = z.number().min(0).max(1).nullable();
-const probabilities = z.object({
-  lost_stolen: probability,
-  regulator: probability,
-  legal: probability,
-  distress: probability,
-  injection_suspected: probability,
-  human_requested: probability,
-});
-// Additive staff projection proposal: only known metadata, never arbitrary judgments/text.
+const probabilities = z
+  .object({
+    lost_stolen: probability,
+    regulator: probability,
+    legal: probability,
+    distress: probability,
+    injection_suspected: probability,
+    human_requested: probability,
+  })
+  .partial();
+// Match the API's partial allowlisted projection; unknown values are not false.
 export const riskSchema = z.object({
-  gemini_raw_flags: flags,
-  gemini_raw_probabilities: probabilities,
-  jev_raw_probabilities: probabilities.partial().nullable(),
-  jev_threshold_flags: flags.nullable(),
-  union_flags: flags,
-  threshold: z.number().min(0).max(1),
-  degradation: z.string().max(100).nullable(),
-  primary_failed: z.boolean(),
+  gemini_raw_flags: flags.nullish(),
+  gemini_raw_probabilities: probabilities.nullish(),
+  jev_raw_probabilities: probabilities.nullish(),
+  jev_threshold_flags: flags.nullish(),
+  union_flags: flags.nullish(),
+  threshold: z.number().min(0).max(1).optional(),
+  degradation: z
+    .string()
+    .regex(/^[A-Za-z_]{1,80}$/)
+    .nullish(),
+  primary_failed: z.boolean().optional(),
 });
 export const llmSchema = z.object({
   provider: z.string(),
@@ -44,11 +52,11 @@ export const llmSchema = z.object({
   output_tokens: z.number().int().nonnegative(),
   cost_usd: z.number().nonnegative().nullable(),
   latency_ms: z.number().nonnegative(),
-  route: z.string().optional(),
+  route: z.string().nullish(),
   status: z
     .enum(["valid", "invalid_json", "provider_error", "refusal", "skipped"])
-    .optional(),
-  attempt: z.number().int().positive().optional(),
+    .nullish(),
+  attempt: z.number().int().positive().nullish(),
   judgments: riskSchema.nullish(),
 });
 export const traceEventSchema = z.object({

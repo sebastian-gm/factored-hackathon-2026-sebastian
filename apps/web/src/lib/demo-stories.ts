@@ -39,7 +39,7 @@ export function storyPersona(config: Config, story: DemoStory) {
   return config.personas.find((p) =>
     config.fixtures
       ? p.username === story.username && p.role === "customer"
-      : p.demo_stories?.includes(story.id),
+      : p.role === "customer" && p.demo_stories?.includes(story.id),
   );
 }
 export function storyDraft(config: Config, story: DemoStory): string {

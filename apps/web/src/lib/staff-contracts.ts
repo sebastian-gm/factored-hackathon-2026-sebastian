@@ -13,34 +13,44 @@ export const identitySchema = personaSchema.omit({ label: true }).extend({
   language: z.enum(["es", "pt"]),
   bank_clock: z.string(),
 });
-export const deskSchema = handoffSchema.extend({
-  conversation_id: z.string().nullable(),
-  customer_display: z.string(),
-  sla_due_at: z.string(),
-  status: z.enum(["waiting", "claimed", "resolved"]),
-  claimed_by: z.string().nullable(),
-  version: z.number().int().positive(),
-  verified: z.literal(true),
-  scope: z.literal("current_workspace"),
-  evidence: z.array(
-    z.object({
-      id: z.string(),
-      record_ref: z.string(),
-      tool: z.string(),
-      verified_at: z.string(),
-      dataset_version: z.string(),
-    }),
-  ),
-  actions: z.array(
-    z.object({
-      action: z.string(),
-      status: z.enum(["verified", "failed"]),
-      evidence_ref: z.string(),
-    }),
-  ),
-  risk_flags: z.array(z.string()).nullish(),
-  suggested_next_steps: z.array(z.string()).nullish(),
-});
+export const deskSchema = handoffSchema
+  .extend({
+    conversation_id: z.string().nullable(),
+    customer_display: z.string(),
+    sla_due_at: z.string(),
+    status: z.enum(["waiting", "claimed", "resolved"]),
+    claimed_by: z.string().nullable(),
+    version: z.number().int().positive(),
+    verified: z.literal(true),
+    scope: z.literal("current_workspace"),
+    evidence: z.array(
+      z.object({
+        id: z.string(),
+        record_ref: z.string(),
+        tool: z.string(),
+        verified_at: z.string(),
+        dataset_version: z.string(),
+      }),
+    ),
+    actions: z.array(
+      z.object({
+        action: z.string(),
+        status: z.enum(["verified", "failed"]),
+        evidence_ref: z.string(),
+      }),
+    ),
+    risk_flags: z.array(z.string()).nullish(),
+    suggested_next_steps: z.array(z.string()).nullish(),
+  })
+  .refine(
+    (packet) =>
+      !packet.primary_reason ||
+      packet.reason_codes.includes(packet.primary_reason),
+    {
+      message: "Primary reason must belong to the recorded reasons",
+      path: ["primary_reason"],
+    },
+  );
 export const traceSchema = z.object({
   conversation_id: z.string(),
   policy_version: z.string(),
