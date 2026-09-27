@@ -1,0 +1,1059 @@
+{
+  "AuthoringProvenance": {
+    "additionalProperties": false,
+    "properties": {
+      "generation_record_sha256": {
+        "pattern": "^[a-f0-9]{64}$",
+        "type": "string"
+      },
+      "generator_model": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "generator_vendor": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "human_review_status": {
+        "enum": [
+          "pending",
+          "reviewed"
+        ],
+        "type": "string"
+      },
+      "origin": {
+        "enum": [
+          "model_generated",
+          "human_written",
+          "template_authored"
+        ],
+        "type": "string"
+      },
+      "review_record_sha256": {
+        "pattern": "^[a-f0-9]{64}$",
+        "type": "string"
+      },
+      "review_status": {
+        "enum": [
+          "pending",
+          "passed",
+          "corrected_and_passed"
+        ],
+        "type": "string"
+      },
+      "reviewer_model": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "reviewer_vendor": {
+        "minLength": 1,
+        "type": "string"
+      }
+    },
+    "required": [
+      "origin",
+      "human_review_status"
+    ],
+    "type": "object"
+  },
+  "Fault": {
+    "additionalProperties": false,
+    "properties": {
+      "parameters": {
+        "type": "object"
+      },
+      "trigger": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "type": {
+        "enum": [
+          "tool_failure",
+          "database_timeout",
+          "llm_outage",
+          "session_expired",
+          "stale_step_up",
+          "confirmation_tampered",
+          "confirmation_replayed",
+          "missing_fx",
+          "connection_reset",
+          "unsupported_language"
+        ],
+        "type": "string"
+      }
+    },
+    "required": [
+      "type",
+      "trigger"
+    ],
+    "type": "object"
+  },
+  "GoldAction": {
+    "additionalProperties": false,
+    "properties": {
+      "target_ref": {
+        "anyOf": [
+          {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "type": {
+        "enum": [
+          "explain_status",
+          "create_dispute",
+          "set_review_flag",
+          "freeze_card",
+          "create_handoff",
+          "report_case",
+          "refuse_request",
+          "log_security_event",
+          "end_session",
+          "abstain",
+          "verify_readback"
+        ],
+        "type": "string"
+      }
+    },
+    "required": [
+      "type",
+      "target_ref"
+    ],
+    "type": "object"
+  },
+  "GoldLabels": {
+    "additionalProperties": false,
+    "properties": {
+      "expected_transaction_ref": {
+        "anyOf": [
+          {
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "forbidden_actions": {
+        "items": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "type": "array",
+        "uniqueItems": true
+      },
+      "in_scope": {
+        "type": "boolean"
+      },
+      "must_escalate": {
+        "type": "boolean"
+      },
+      "must_not_disclose": {
+        "items": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+          "type": "string"
+        },
+        "type": "array",
+        "uniqueItems": true
+      },
+      "outcome": {
+        "enum": [
+          "resolved_by_explanation",
+          "dispute_filed",
+          "dispute_filed_flagged",
+          "freeze_and_escalate",
+          "escalated",
+          "abstained_out_of_scope",
+          "refused_security",
+          "safe_failure_handoff",
+          "status_reported"
+        ],
+        "type": "string"
+      },
+      "reason_codes": {
+        "items": {
+          "enum": [
+            "AUTH-01",
+            "AUTH-02",
+            "AUTH-03",
+            "SCOPE-01",
+            "DATA-01",
+            "TXN-01",
+            "TXN-02",
+            "TXN-03",
+            "TXN-04",
+            "DSP-01",
+            "DSP-02",
+            "DSP-03",
+            "DSP-04",
+            "DSP-05",
+            "DSP-06",
+            "DSP-07",
+            "BRD-01",
+            "FRD-01",
+            "ESC-01",
+            "ESC-02",
+            "ESC-03",
+            "ESC-04",
+            "ESC-05",
+            "SEC-01",
+            "SEC-02",
+            "COM-01"
+          ],
+          "type": "string"
+        },
+        "type": "array",
+        "uniqueItems": true
+      },
+      "required_actions": {
+        "items": {
+          "$ref": "#/$defs/GoldAction"
+        },
+        "type": "array",
+        "uniqueItems": true
+      },
+      "required_handoff_fields": {
+        "items": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "type": "array",
+        "uniqueItems": true
+      },
+      "route": {
+        "additionalProperties": false,
+        "properties": {
+          "language": {
+            "enum": [
+              "es",
+              "pt"
+            ],
+            "type": "string"
+          },
+          "priority": {
+            "enum": [
+              "normal",
+              "high"
+            ],
+            "type": "string"
+          },
+          "queue": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "queue",
+          "language",
+          "priority"
+        ],
+        "type": "object"
+      },
+      "written_rule_basis": {
+        "minLength": 1,
+        "type": "string"
+      }
+    },
+    "required": [
+      "outcome",
+      "expected_transaction_ref",
+      "required_actions",
+      "forbidden_actions",
+      "must_escalate",
+      "reason_codes",
+      "required_handoff_fields",
+      "must_not_disclose",
+      "in_scope",
+      "written_rule_basis"
+    ],
+    "type": "object"
+  },
+  "Overlay": {
+    "additionalProperties": false,
+    "properties": {
+      "kind": {
+        "enum": [
+          "transaction",
+          "product",
+          "customer",
+          "case",
+          "fx",
+          "agent",
+          "record_patch"
+        ],
+        "type": "string"
+      },
+      "origin": {
+        "const": "project_generated"
+      },
+      "record_ref": {
+        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+        "type": "string"
+      },
+      "values": {
+        "type": "object"
+      }
+    },
+    "required": [
+      "record_ref",
+      "kind",
+      "values",
+      "origin"
+    ],
+    "type": "object"
+  },
+  "Persona": {
+    "additionalProperties": false,
+    "properties": {
+      "customer_ref": {
+        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+        "type": "string"
+      },
+      "selector": {
+        "additionalProperties": false,
+        "properties": {
+          "country": {
+            "enum": [
+              "MX",
+              "CO",
+              "AR"
+            ],
+            "type": "string"
+          },
+          "ordinal": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "segment": {
+            "enum": [
+              "Basic",
+              "Plus",
+              "Premium",
+              "Student"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "country",
+          "segment",
+          "ordinal"
+        ],
+        "type": "object"
+      },
+      "split": {
+        "const": "test"
+      }
+    },
+    "required": [
+      "customer_ref",
+      "split"
+    ],
+    "type": "object"
+  },
+  "ReactiveReplies": {
+    "additionalProperties": false,
+    "properties": {
+      "abstain": {
+        "items": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/MessageTurn"
+            },
+            {
+              "$ref": "#/$defs/ConfirmationTurn"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "choose_ref": {
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "choose_ref"
+              ],
+              "type": "object"
+            }
+          ]
+        },
+        "minItems": 1,
+        "type": "array"
+      },
+      "ask_amount": {
+        "items": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/MessageTurn"
+            },
+            {
+              "$ref": "#/$defs/ConfirmationTurn"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "choose_ref": {
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "choose_ref"
+              ],
+              "type": "object"
+            }
+          ]
+        },
+        "minItems": 1,
+        "type": "array"
+      },
+      "ask_clarification": {
+        "items": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/MessageTurn"
+            },
+            {
+              "$ref": "#/$defs/ConfirmationTurn"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "choose_ref": {
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "choose_ref"
+              ],
+              "type": "object"
+            }
+          ]
+        },
+        "minItems": 1,
+        "type": "array"
+      },
+      "ask_country": {
+        "items": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/MessageTurn"
+            },
+            {
+              "$ref": "#/$defs/ConfirmationTurn"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "choose_ref": {
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "choose_ref"
+              ],
+              "type": "object"
+            }
+          ]
+        },
+        "minItems": 1,
+        "type": "array"
+      },
+      "ask_currency": {
+        "items": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/MessageTurn"
+            },
+            {
+              "$ref": "#/$defs/ConfirmationTurn"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "choose_ref": {
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "choose_ref"
+              ],
+              "type": "object"
+            }
+          ]
+        },
+        "minItems": 1,
+        "type": "array"
+      },
+      "ask_date": {
+        "items": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/MessageTurn"
+            },
+            {
+              "$ref": "#/$defs/ConfirmationTurn"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "choose_ref": {
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "choose_ref"
+              ],
+              "type": "object"
+            }
+          ]
+        },
+        "minItems": 1,
+        "type": "array"
+      },
+      "ask_merchant": {
+        "items": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/MessageTurn"
+            },
+            {
+              "$ref": "#/$defs/ConfirmationTurn"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "choose_ref": {
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "choose_ref"
+              ],
+              "type": "object"
+            }
+          ]
+        },
+        "minItems": 1,
+        "type": "array"
+      },
+      "ask_type": {
+        "items": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/MessageTurn"
+            },
+            {
+              "$ref": "#/$defs/ConfirmationTurn"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "choose_ref": {
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "choose_ref"
+              ],
+              "type": "object"
+            }
+          ]
+        },
+        "minItems": 1,
+        "type": "array"
+      },
+      "cancelled": {
+        "items": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/MessageTurn"
+            },
+            {
+              "$ref": "#/$defs/ConfirmationTurn"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "choose_ref": {
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "choose_ref"
+              ],
+              "type": "object"
+            }
+          ]
+        },
+        "minItems": 1,
+        "type": "array"
+      },
+      "choose_transaction": {
+        "items": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/MessageTurn"
+            },
+            {
+              "$ref": "#/$defs/ConfirmationTurn"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "choose_ref": {
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "choose_ref"
+              ],
+              "type": "object"
+            }
+          ]
+        },
+        "minItems": 1,
+        "type": "array"
+      },
+      "choose_txn": {
+        "items": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/MessageTurn"
+            },
+            {
+              "$ref": "#/$defs/ConfirmationTurn"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "choose_ref": {
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "choose_ref"
+              ],
+              "type": "object"
+            }
+          ]
+        },
+        "minItems": 1,
+        "type": "array"
+      },
+      "clarify": {
+        "items": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/MessageTurn"
+            },
+            {
+              "$ref": "#/$defs/ConfirmationTurn"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "choose_ref": {
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "choose_ref"
+              ],
+              "type": "object"
+            }
+          ]
+        },
+        "minItems": 1,
+        "type": "array"
+      },
+      "confirm_action": {
+        "items": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/MessageTurn"
+            },
+            {
+              "$ref": "#/$defs/ConfirmationTurn"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "choose_ref": {
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "choose_ref"
+              ],
+              "type": "object"
+            }
+          ]
+        },
+        "minItems": 1,
+        "type": "array"
+      },
+      "confirm_txn": {
+        "items": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/MessageTurn"
+            },
+            {
+              "$ref": "#/$defs/ConfirmationTurn"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "choose_ref": {
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "choose_ref"
+              ],
+              "type": "object"
+            }
+          ]
+        },
+        "minItems": 1,
+        "type": "array"
+      },
+      "default": {
+        "items": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/MessageTurn"
+            },
+            {
+              "$ref": "#/$defs/ConfirmationTurn"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "choose_ref": {
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "choose_ref"
+              ],
+              "type": "object"
+            }
+          ]
+        },
+        "minItems": 1,
+        "type": "array"
+      },
+      "explain_status": {
+        "items": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/MessageTurn"
+            },
+            {
+              "$ref": "#/$defs/ConfirmationTurn"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "choose_ref": {
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "choose_ref"
+              ],
+              "type": "object"
+            }
+          ]
+        },
+        "minItems": 1,
+        "type": "array"
+      },
+      "offer_human": {
+        "items": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/MessageTurn"
+            },
+            {
+              "$ref": "#/$defs/ConfirmationTurn"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "choose_ref": {
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "choose_ref"
+              ],
+              "type": "object"
+            }
+          ]
+        },
+        "minItems": 1,
+        "type": "array"
+      },
+      "report_case": {
+        "items": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/MessageTurn"
+            },
+            {
+              "$ref": "#/$defs/ConfirmationTurn"
+            },
+            {
+              "additionalProperties": false,
+              "properties": {
+                "choose_ref": {
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "choose_ref"
+              ],
+              "type": "object"
+            }
+          ]
+        },
+        "minItems": 1,
+        "type": "array"
+      }
+    },
+    "required": [
+      "default"
+    ],
+    "type": "object"
+  },
+  "ScenarioSuiteV2": {
+    "additionalProperties": false,
+    "properties": {
+      "bank_clock": {
+        "format": "date-time",
+        "pattern": "(Z|[+-][0-9]{2}:[0-9]{2})$",
+        "type": "string"
+      },
+      "customer_selection": {
+        "additionalProperties": false,
+        "properties": {
+          "bindings_path": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "exclude_benchmark_customers": {
+            "type": "boolean"
+          },
+          "method": {
+            "const": "sha256_first_byte"
+          },
+          "seed": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "test_bucket_min_hex": {
+            "const": "da"
+          }
+        },
+        "required": [
+          "method",
+          "test_bucket_min_hex",
+          "seed",
+          "bindings_path",
+          "exclude_benchmark_customers"
+        ],
+        "type": "object"
+      },
+      "dataset_version": {
+        "pattern": "^[a-f0-9]{64}$",
+        "type": "string"
+      },
+      "description": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "policy_source": {
+        "additionalProperties": false,
+        "properties": {
+          "reference": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "sha256": {
+            "pattern": "^[a-f0-9]{64}$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "reference",
+          "sha256"
+        ],
+        "type": "object"
+      },
+      "scenarios": {
+        "items": {
+          "$ref": "#/$defs/ScenarioV2"
+        },
+        "minItems": 1,
+        "type": "array"
+      },
+      "suite_id": {
+        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+        "type": "string"
+      },
+      "version": {
+        "const": 2
+      }
+    },
+    "required": [
+      "version",
+      "description",
+      "scenarios"
+    ],
+    "type": "object"
+  },
+  "ScenarioV2": {
+    "additionalProperties": false,
+    "properties": {
+      "bank_clock": {
+        "format": "date-time",
+        "pattern": "(Z|[+-][0-9]{2}:[0-9]{2})$",
+        "type": "string"
+      },
+      "category": {
+        "enum": [
+          "normal",
+          "ambiguous_unsupported",
+          "human_required",
+          "security_robustness"
+        ],
+        "type": "string"
+      },
+      "customer_knowledge": {
+        "type": "object"
+      },
+      "dialect": {
+        "enum": [
+          "es-MX",
+          "es-CO",
+          "es-AR",
+          "pt-BR",
+          "mixed",
+          "other"
+        ],
+        "type": "string"
+      },
+      "expected": {
+        "enum": [
+          "resolved_by_explanation",
+          "dispute_filed",
+          "dispute_filed_flagged",
+          "freeze_and_escalate",
+          "escalated",
+          "abstained_out_of_scope",
+          "refused_security",
+          "safe_failure_handoff",
+          "status_reported"
+        ],
+        "type": "string"
+      },
+      "faults": {
+        "items": {
+          "$ref": "#/$defs/Fault"
+        },
+        "type": "array"
+      },
+      "gold": {
+        "$ref": "#/$defs/GoldLabels"
+      },
+      "id": {
+        "pattern": "^[a-z0-9]+(?:[._-][a-z0-9]+)*$",
+        "title": "Id",
+        "type": "string"
+      },
+      "language": {
+        "enum": [
+          "es",
+          "pt",
+          "mixed",
+          "other"
+        ],
+        "type": "string"
+      },
+      "max_turns": {
+        "maximum": 30,
+        "minimum": 1,
+        "type": "integer"
+      },
+      "overlays": {
+        "items": {
+          "$ref": "#/$defs/Overlay"
+        },
+        "type": "array"
+      },
+      "persona": {
+        "$ref": "#/$defs/Persona"
+      },
+      "reactive_replies": {
+        "$ref": "#/$defs/ReactiveReplies"
+      },
+      "reply_exhaustion": {
+        "const": "repeat_last"
+      },
+      "template_id": {
+        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+        "type": "string"
+      },
+      "turns": {
+        "items": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/MessageTurn"
+            },
+            {
+              "$ref": "#/$defs/ConfirmationTurn"
+            }
+          ]
+        },
+        "minItems": 1,
+        "title": "Turns",
+        "type": "array"
+      },
+      "utterance_provenance": {
+        "$ref": "#/$defs/AuthoringProvenance"
+      }
+    },
+    "required": [
+      "id",
+      "language",
+      "turns",
+      "expected"
+    ],
+    "type": "object"
+  }
+}

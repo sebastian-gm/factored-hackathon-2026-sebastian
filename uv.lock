@@ -32,6 +32,7 @@ data-ml = [
 ]
 dev = [
     { name = "httpx" },
+    { name = "jsonschema" },
     { name = "mypy" },
     { name = "numpy" },
     { name = "pre-commit" },
@@ -53,6 +54,7 @@ requires-dist = [
     { name = "fastapi", specifier = ">=0.115,<1" },
     { name = "google-genai", marker = "extra == 'llm'", specifier = ">=1.0,<2" },
     { name = "httpx", marker = "extra == 'dev'", specifier = ">=0.28,<1" },
+    { name = "jsonschema", marker = "extra == 'dev'", specifier = ">=4.26,<5" },
     { name = "lightgbm", marker = "extra == 'data-ml'", specifier = ">=4.6,<5" },
     { name = "matplotlib", marker = "extra == 'data-ml'", specifier = ">=3.10,<4" },
     { name = "mlflow-skinny", marker = "extra == 'data-ml'", specifier = ">=3.1,<4" },
