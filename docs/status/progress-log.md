@@ -1,5 +1,40 @@
 # Progress log
 
+## 2026-09-28 UTC — V3 stopped on operational error; pinned main preserved
+
+### Completed (verified)
+
+- Evaluation predicate PR #61 merged at `e12efc73be64f8355aa9f177f08a04337593616c`.
+  All four main CI checks passed. The diff from frozen product SHA `9f0bff0`
+  contains only contracts, evaluator code, tests and docs; no product paths.
+- Identical private API/web image digests were retagged and applied in the approved
+  Azure subscription. Azure controls and external access denial passed at the
+  exact SHA; the ignored `artifacts/azure/jev-release.json` records the gates.
+- The zero-cost v3 preflight passed: 100 bound cases, 30 repeat selections and
+  30 judge selections. The first two stopped directories were preserved, each at
+  $0 spend and zero completed checkpoints. Fresh v3 was started on the pinned SHA.
+- Fresh v3 advanced to **212/260 system runs**, then stopped with
+  **`OperationalError`**. Its worker exited; no `COMPLETE.json` exists. Durable
+  budget readback: **291 attempts, $0.26672382 charged with reserves, zero
+  unknown costs / $3**. Prior scopes plus v3 charged **$3.61709939**; including
+  the earlier $0.00802475 release smoke, **$3.62512414 / $12**. Checkpoints and
+  reservations remain intact. The ignored aggregate stop receipt is
+  `artifacts/final-program-v3/stop-report.json`.
+
+### Done but not verified
+
+- V3 is incomplete. No result metrics or human judge sheet are available for
+  reporting; official v2 figures remain unchanged. The cause of the
+  `OperationalError` has not been diagnosed from the saved trace.
+
+### Next / blocked
+
+- Stop on the error gate. Review the failure safely without printing frozen
+  input, case output or credentials. Keep main at the pinned release SHA; after
+  owner review, use `scripts.final_program resume`, never `start`. This log entry
+  is on `docs/v3-operational-stop` only and must stay unmerged while resume needs
+  the exact pinned main SHA.
+
 ## 2026-09-28 UTC — V3 evaluator vocabulary repair
 
 ### Completed (verified)
