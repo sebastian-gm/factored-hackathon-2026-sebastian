@@ -176,6 +176,61 @@ def test_postprocess_corrects_model_unfamiliarity_for_clear_cues(
     assert result.extracted.unfamiliar_charge is expected
 
 
+@pytest.mark.parametrize(
+    ("case_id", "message", "language"),
+    [
+        ("es.pending.v2", "¿Qué es el cargo de Café Central?", "es"),
+        ("es.declined.v2", "¿Por qué aparece el cobro de Livraria Azul?", "es"),
+        ("pt.pending.v2", "O que é a cobrança de Café Central?", "pt"),
+        ("pt.declined.v2", "Por que aparece a cobrança da Livraria Azul?", "pt"),
+        ("es.named-cobro", "¿Qué es el cobro del Mercado Verde?", "es"),
+        ("es.named-consumo", "¿Por qué aparece el consumo de Café Central?", "es"),
+        ("pt.named-debito", "O que é o débito da Loja Azul?", "pt"),
+        ("pt.named-cobranca", "Por que aparece essa cobrança da Loja do Centro?", "pt"),
+    ],
+)
+def test_mock_neutral_named_charge_openings_do_not_trigger_offer(
+    case_id: str, message: str, language: str
+) -> None:
+    # Model output is deliberately overflagged to exercise the postprocess backstop.
+    client = _client(
+        {
+            "language": language,
+            "intent": "charge_inquiry",
+            "intent_confidence": 0.9,
+            "unfamiliar_charge": True,
+        },
+        [],
+    )
+    result = understand(
+        message,
+        country="BR" if language == "pt" else "MX",
+        bank_clock=CLOCK,
+        client=client,
+    )
+    assert result.frame.intent.value == "charge_inquiry", case_id
+    assert result.extracted.unfamiliar_charge is False, case_id
+
+
+def test_mock_neutral_named_question_keeps_a_separate_unfamiliarity_clause() -> None:
+    client = _client(
+        {
+            "language": "es",
+            "intent": "charge_inquiry",
+            "intent_confidence": 0.9,
+            "unfamiliar_charge": True,
+        },
+        [],
+    )
+    result = understand(
+        "¿Qué es este cargo de Café Central? No lo reconozco",
+        country="MX",
+        bank_clock=CLOCK,
+        client=client,
+    )
+    assert result.extracted.unfamiliar_charge is True
+
+
 def test_model_semantic_unfamiliarity_is_preserved() -> None:
     client = _client(
         {

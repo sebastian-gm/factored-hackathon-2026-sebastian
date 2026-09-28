@@ -312,14 +312,24 @@ _FILING_REQUEST_CUE = re.compile(
     r"\b(?:quiero (?:disputar|contestar|reclamar|abrir (?:una )?disputa)|"
     r"quero (?:contestar|reclamar|abrir (?:uma )?contestacao))\b"
 )
+_CHARGE_TERM = r"(?:cargo|cobro|cobranza|cobranca|consumo|compra|lancamento|debito|transacao)"
+_CHARGE_ARTICLE = r"(?:(?:este|esta|ese|esa|el|la|los|las|un|una|o|a|os|as|um|uma|esse|essa) )?"
+_CHARGE_MERCHANT = (
+    r"(?: (?:de la|de los|de las|del|de|do|da|dos|das|na|no|em) "
+    r"[a-z0-9][a-z0-9 .&'/-]*)?"
+)
+_NAMED_CHARGE = _CHARGE_ARTICLE + _CHARGE_TERM + _CHARGE_MERCHANT
 _NEUTRAL_CHARGE_QUESTION = re.compile(
     r"^\s*[¿¡]?\s*(?:"
-    r"que es (?:este|esta|ese|esa) (?:cargo|cobro|cobranza|cobranca|consumo|compra|lancamento)|"
-    r"por que aparece (?:(?:el|la|este|esta|ese|esa|o|a|esse|essa) )?"
-    r"(?:cargo|cobro|cobranza|cobranca|consumo|compra|lancamento)|"
-    r"por que (?:(?:(?:la|el|a|o|essa|esse) )?(?:compra|cobranza|cobranca|cargo|cobro) )?"
+    rf"que es {_NAMED_CHARGE}|"
+    rf"o que e {_NAMED_CHARGE}|"
+    rf"por que aparece {_NAMED_CHARGE}|"
+    rf"por que (?:(?:{_NAMED_CHARGE} )?"
     r"(?:esta|sigue|continua) (?:como )?(?:pendiente|pendente|aprobado|aprovado|"
-    r"rechazado|recusado|revertido|revertida|estornado))\s*[?!.]*\s*$"
+    r"rechazado|recusado|revertido|revertida|estornado)|"
+    rf"{_NAMED_CHARGE} (?:esta|sigue|continua) (?:como )?"
+    r"(?:pendiente|pendente|aprobado|aprovado|rechazado|recusado|revertido|"
+    r"revertida|estornado)))\s*[?!.]*\s*$"
 )
 
 
