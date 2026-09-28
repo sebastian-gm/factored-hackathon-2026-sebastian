@@ -105,24 +105,24 @@ def test_unexpected_cost_disables_scope_and_unknown_scope_fails_closed(budget_st
         PostgresSpendGate(Store())
 
 
-def test_v2_preparation_closes_prior_scopes_and_never_resets_breaker(budget_store, monkeypatch):
+def test_v3_preparation_closes_prior_scopes_and_never_resets_breaker(budget_store, monkeypatch):
     from scripts import final_budget
 
     store, prior, owner = budget_store
-    fresh = "fixture-v2-" + uuid4().hex
+    fresh = "fixture-v3-" + uuid4().hex
     monkeypatch.setattr(final_budget, "PRIOR_SCOPES", (prior,))
     monkeypatch.setattr(final_budget, "SCOPE", fresh)
     prior_gate = PostgresSpendGate(store, scope=prior, run_id="fixture-run")
     prior_gate.reserve(0.10)  # Keep an unsettled exposure across preparation.
     ready = final_budget.prepare(owner)
     assert ready["prior_charged_with_reserves_usd"] == 0.10
-    assert ready["prior_plus_v2_limit_usd"] == 11.97
+    assert ready["prior_plus_v3_and_smoke_limits_usd"] == 3.20
     assert ready["attempts"] == 0
     with pytest.raises(BudgetFailure):
         prior_gate.reserve(0.001)
     current = PostgresSpendGate(store, scope=fresh, run_id=final_budget.RUN_ID)
-    current.reserve(11.86)
-    assert final_budget.prepare(owner)["charged_with_reserves_usd"] == 11.86
+    current.reserve(2.99)
+    assert final_budget.prepare(owner)["charged_with_reserves_usd"] == 2.99
     with pytest.raises(BudgetFailure):
         current.reserve(0.02)
     with psycopg.connect(owner) as connection:

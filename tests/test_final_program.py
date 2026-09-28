@@ -54,7 +54,7 @@ def test_atomic_resume_skips_completed_and_preserves_interrupted_journal(tmp_pat
     first = checkpoints.read("B1:0:authored-0")
     assert first and checkpoints.read("B1:0:authored-1") is None
     results = asyncio.run(execute(*args))
-    assert len(results) == 10 and len({r["run_id"] for r in results}) == 10
+    assert len(results) == 8 and len({r["run_id"] for r in results}) == 8
     assert results[0] == first
     assert calls.count(("authored-0", "B1", 0)) == 1
     assert results[1]["recovered_attempts"] == 1
@@ -76,17 +76,19 @@ def test_final_start_gate_precedes_any_frozen_access(monkeypatch, tmp_path):
         main(tmp_path, "fixture")
 
 
-def test_v2_uses_separate_paths_and_conservative_cumulative_cap():
+def test_v3_uses_separate_paths_and_conservative_cumulative_cap():
     from scripts.final_budget import CAP, check_exposure
     from scripts.final_program import OUTPUT
 
     from aclara.llm.final_run import RUN_ID, SCOPE
 
-    assert OUTPUT.name == RUN_ID == "final-program-v2"
-    assert SCOPE == "final-evaluation-v2"
-    check_exposure(Decimal("0.12849828"), CAP)
+    assert OUTPUT.name == RUN_ID == "final-program-v3"
+    assert SCOPE == "final-evaluation-v3"
+    assert Decimal("3.00") == CAP
+    check_exposure(Decimal("3.35037557"), CAP)
+    check_exposure(Decimal("8.90"), CAP)
     with pytest.raises(RuntimeError, match="ceiling"):
-        check_exposure(Decimal("0.14"), CAP)
+        check_exposure(Decimal("8.90000001"), CAP)
     with pytest.raises(RuntimeError):
         check_exposure(Decimal("NaN"), CAP)
 

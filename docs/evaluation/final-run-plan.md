@@ -1,5 +1,111 @@
 # Priced final evaluation plan — $12 approved, execution on hold
 
+## V3 release preparation — execution requires a separate go
+
+This section supersedes all historical v1/v2 commands below. V1 is abandoned and
+must never be accessed. V2 remains the official result and must not be rerun.
+Report v3 as **after fixes, fresh suite**, disclosing that the fixes were informed
+by the v2 post-hoc analysis. The accepted dev gate is 20/20 no-fault, blind 18/20
+confirmation, 12/12 triggered faults, 0/52 unsafe, and B1 32/32.
+
+Suite PR #50 merged at `a07e7fcf675f9fc2c1d9fc8a7c51abaf3de5caa1`, using its
+description and green CI only. The lead has not opened scenario, selection or
+authoring-tool contents. Manifest SHA-256:
+`ecf3f6313f33359fed892de1b3537edc4ae8e854dd5bfa8da1fc8845daa41177`.
+The authorized private binding copy under ignored mode-0600
+`artifacts/evaluation-v3/customer-bindings.json` matches provenance checksum
+`0c31ea3301961d9ff07f28322c6d92a8eeaf0f30829c850ae474e2a86eba6fa8`.
+Preparation verifies only these metadata/opaque-byte checks, not suite execution.
+
+### Fixed workload and output
+
+| Component | Approved workload |
+| --- | --- |
+| B1 | All 100 frozen cases, once |
+| P-Gemini + Jev risk union | All 100, plus two additional passes on the 30 frozen repeat IDs: 160 case-runs |
+| Sonnet + Jev judges | Both systems' first-pass replies for the independent 30 frozen judge IDs: 60 paired items / 120 model calls |
+| Sonnet frontier | **OFF**, including a route-level refusal for non-judge Sonnet calls |
+| New calibration calls | None; human calibration remains pending |
+
+The runner consumes each preselected JSON file only after the explicit start
+gate, verifies unique IDs/counts/membership, and does not regenerate the samples.
+It reads organizer serving data through forced customer RLS, uses the 120-day
+window and declared controlled overlays, and isolates operational state per case.
+Generic loader/selection/resume/report changes are tested with authored fixtures.
+Frozen inputs and gold are unchanged; they are not used to debug the adapter.
+
+Outputs stay in **`artifacts/final-program-v3/`**: `results.json`, `results.md`,
+all protocol outcome/efficiency metrics and intervals with ES/PT/dialect/segment
+slices, paired B1/P comparisons and repeat flip rates, Sonnet/Jev agreement,
+`human-judge-20.csv`, checkpoint/call journals, progress and stop/completion receipts.
+No empty frontier result or new calibration result is represented as an execution.
+
+### Price estimate and durable ceiling
+
+Current pinned endpoint rates were checked without model calls: Gemini standard
+`google-vertex/global` $0.50/$3.00 per million input/output tokens, Sonnet 5 on
+the same provider $2.00/$10.00, Grok fallback `xai/zdr` $1.25/$2.50, and Jev
+1.13.0 $0.042/M input with free output. Sources:
+[Gemini](https://openrouter.ai/google/gemini-3-flash-preview),
+[Sonnet 5](https://openrouter.ai/anthropic/claude-sonnet-5),
+[Grok](https://openrouter.ai/x-ai/grok-4.20),
+[Jev](https://docs.typesafe.ai/models). The ignored endpoint receipt is
+`artifacts/azure/v3-model-prices.json`.
+
+Planning estimate **$0.80–$1.50**, not a measured v3 cost: roughly 200–250 Gemini
+NLU calls and up to that many phrasing calls, paired risk calls, 60 Sonnet judge
+calls and 60 Jev judge calls, with contingency for retries/fallback. At the prior
+planning token assumptions, 250 NLU + 250 phrasing + risk costs about $0.99 and
+60 paired judges about $0.38 before contingency. The hard **$3** cap controls
+actual exposure regardless of these assumptions. No paid evaluation is authorized
+by this estimate or by preparing the budget.
+
+Postgres scope **`final-evaluation-v3`**, single lifetime run **`final-program-v3`**,
+cap **$3.00** across days, processes, retries, fallbacks, Jev risk calls and judges.
+Every provider attempt reserves first; unknown cost retains its reservation.
+Preparation locks/closes prior evaluation and dev scopes without deleting spend,
+changing existing caps, or re-enabling a disabled breaker. Start/resume verifies
+these policies and rejects regressed history. The separate production release
+smoke uses **`production/after-v2-release-smoke`**, at most five conversations and
+**$0.10 combined API/browser exposure**, also subject to production's $3/day cap.
+Release smoke estimate is $0.01–$0.03.
+
+Last dev readback: prior evaluation/dev exposure **$3.35037557**. Reserving the
+full v3 and new smoke allowances gives
+**$3.35037557 + $3.00 + $0.10 = $6.45037557 ≤ $12**.
+The final prepared-budget receipt must confirm this with live aggregate readback.
+
+### Exact commands
+
+After release gates, preparation only (no worker or model call):
+
+```bash
+.venv/bin/python -m scripts.final_budget --prepare
+.venv/bin/python -m scripts.final_program prepare
+.venv/bin/python -m scripts.final_program status
+```
+
+**Only after the orchestrator's separate v3 GO**, on clean accepted main:
+
+```bash
+LLM_FINAL_RUN_STARTED=1 LLM_REAL_CALLS_APPROVED=1 .venv/bin/python -m scripts.final_program start
+```
+
+The launcher already detaches with a new process session, closed stdin and its
+mode-0600 append-only `worker.log`; `nohup` is not needed. It requires the exact
+prepared release and `jev-release.json` gates. It checkpoints every case/judge
+pair and never repeats a completed unit on resume. After interruption use only:
+
+```bash
+LLM_FINAL_RUN_STARTED=1 LLM_REAL_CALLS_APPROVED=1 .venv/bin/python -m scripts.final_program resume
+```
+
+Status is aggregate-only and free. SIGTERM preserves all checkpoints/reservations.
+The worker stops on budget denial or an execution error, 15 minutes without
+progress, or 3h30 total wall-clock from the original launch (checked every 30s).
+A stopped program requires review before resume; never delete its artifacts or
+start a second run. Preparation this session ends with a report and **STOP**.
+
 ## V2 release preparation — do not start
 
 Sebastian accepted Step 3 and authorized the Option A re-release. The #37 backend
