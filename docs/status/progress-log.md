@@ -13,7 +13,7 @@
 
 ### Next / blocked
 
-- Open a follow-up PR from current `main`; the lead reruns the gate and merges after review. No paid call or held-out suite access.
+- Follow-up PR [#54](https://github.com/sebastian-gm/bank-agent-lab/pull/54) is open for lead review. The broad Python, Postgres and web CI jobs were canceled because they run outside this task's allowed test scope; invariants passed. Only the targeted mock checks above are claimed. The lead reruns the no-fault gate and merges after review. No paid call or held-out suite access.
 
 ## 2026-09-27 — Step 3 merged and measured: dev gate not passed
 
