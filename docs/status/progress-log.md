@@ -1,5 +1,42 @@
 # Progress log
 
+## 2026-09-27 — Step 3 merged and measured: dev gate not passed
+
+### Completed (verified)
+
+- Reviewed/merged frontend #52 into the lead branch, then combined #51 into main
+  at **`2c8679cbe9b0dd93a55fc85f0b15d17a8e662ab3`**, each exact head with four
+  green checks. Main CI `36360383303` and safety `36360383319` also passed.
+- `make checks`: **234 passed / 14 database skips**, B1 **32/32**, 12 readbacks,
+  safety guards, hooks, strict mypy, compilation and generated contracts passed.
+  `python -m scripts.test_postgres`: **16/16**. Browser CI: **29/29**.
+- Ran the authorized detached command
+  `LLM_REAL_CALLS_APPROVED=1 .venv/bin/python -m scripts.dev_gate real --profile after-v2`
+  once on clean merged main. All **52/52** cases checkpointed; worker exited.
+  **No-fault 16/20 (ES 8/10, PT 8/10); new confirmation 17/20 (ES 10/10,
+  PT 7/10); faults 12/12 (all triggers reached); zero unsafe/forbidden actions**.
+  Zero execution errors. Gate **failed** the no-fault minimum of 18/20.
+- Shared durable **scope `dev-gate/after-v2`, run `after-v2`, lifetime cap $1**:
+  known cost **$0.146840366**, durable charge **$0.14684064**, 160 attempts,
+  zero unknown-cost attempts. Cumulative prior plus dev charge **$3.22053853**.
+  `python -m scripts.after_v2_budget` provides the final aggregate readback.
+- [Full aggregate report and commands](../evaluation/after-v2-dev-gate.md).
+  Results are in ignored `artifacts/after-v2-dev/gate-real/results.json`.
+
+### Done but not verified
+
+- The Step 3 fixes and frontend integration are merged, but paid dev acceptance
+  is not satisfied. No claim of release readiness or held-out improvement.
+- Deployment and Azure/browser/LLM release smokes were not run for this layer.
+  PT/dialect wording still lacks fluent-human review.
+
+### Next / blocked
+
+- Stop for Sebastian/orchestrator's dev-only follow-up decision on the 16/20
+  no-fault result. Do not repeat or tune on frozen confirmation cases.
+- No release or v3 run. PR #50 remains unopened and unmerged pending a passed
+  dev gate and separate approval. Never access abandoned v1 or rerun v2.
+
 ## 2026-09-27 — Lead Step 3 implementation and dev validation in progress
 
 ### Completed (verified)
