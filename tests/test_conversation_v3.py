@@ -35,6 +35,60 @@ def test_short_recognition_excludes_denial_assent_and_conflicting_requests():
         assert not recognizes_charge(reply)
 
 
+@pytest.mark.parametrize("language", ["es", "pt"])
+def test_recognition_clarification_preserves_question_and_language(language):
+    async def check():
+        nlu_calls = 0
+        phrase_calls = []
+
+        def response(_system, _user, schema):
+            nonlocal nlu_calls
+            if schema is ExtractedNlu:
+                nlu_calls += 1
+                return json.dumps(
+                    {
+                        "intent": "charge_inquiry",
+                        "intent_confidence": 0.99,
+                        "language": language,
+                        "merchant_expr": "Taller Prisma" if nlu_calls == 1 else None,
+                        "unfamiliar_charge": nlu_calls == 1,
+                        "recognition": None if nlu_calls == 1 else "unsure",
+                    }
+                )
+            phrase_calls.append(True)
+            return json.dumps({"text": "Pode fornecer mais detalhes?", "cited_fact_ids": []})
+
+        llm = StructuredClient(
+            {route: ModelSpec("mock", "recognition-phrasing") for route in ("nlu", "phrase")},
+            {},
+            mock_response=response,
+        )
+        app = create_app(_settings(), ledger(), runtime=Runtime(system="P"), llm_client=llm)
+        opening = (
+            "No reconozco el cargo de Taller Prisma"
+            if language == "es"
+            else "Não reconheço a cobrança de Taller Prisma"
+        )
+        unsure = "no sé" if language == "es" else "não sei"
+        expected = (
+            "¿Ahora reconoces el cargo, o quieres disputarlo? Indica una de esas opciones."
+            if language == "es"
+            else "Agora você reconhece a cobrança ou quer contestá-la? Diga uma dessas opções."
+        )
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+            headers = {"Authorization": f"Bearer {await _sign_in(client)}"}
+            offer, conv = await message(client, headers, opening)
+            assert offer["response_type"] == "offer_dispute"
+            clarification, _ = await message(client, headers, unsure, conv)
+            assert clarification["response_type"] == "clarify"
+            assert clarification["reply"] == expected
+            assert not phrase_calls and not app.state.cases
+            handoff, _ = await message(client, headers, unsure, conv)
+            assert handoff["handoff"]["reason_codes"] == ["ESC-04"]
+
+    asyncio.run(check())
+
+
 @pytest.mark.parametrize("system", ["B1", "P"])
 @pytest.mark.parametrize(
     "language,opening,reply",

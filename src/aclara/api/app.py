@@ -604,7 +604,15 @@ def create_app(
             result = ai.reply(
                 result,
                 conversation.language if conversation else "es",
-                deterministic=bool(conversation and conversation.degraded),
+                # Recognition is a specific decision question. Generic phrasing
+                # must not replace it with a request for transaction details.
+                deterministic=bool(
+                    conversation
+                    and (
+                        conversation.degraded
+                        or (conversation.offer_handle and result["response_type"] == "clarify")
+                    )
+                ),
             )
             execution(result, conversation_id, cursor, body.message)
         # Commit precedes the independent read-back and any success response.

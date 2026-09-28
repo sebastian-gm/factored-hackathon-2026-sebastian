@@ -1,5 +1,31 @@
 # Progress log
 
+## 2026-09-27 — Named neutral-charge guard follow-up
+
+### Completed (verified)
+
+- Kept prompt v5.1 wording as the primary unfamiliarity fix. The postprocess
+  backstop now covers neutral ES/PT what/why questions with charge articles and
+  named-merchant suffixes; a separate non-recognition clause remains eligible
+  to set `unfamiliar_charge=true`.
+- Added mock regressions for the four authorized dev openings
+  (`es.pending.v2`, `es.declined.v2`, `pt.pending.v2`, `pt.declined.v2`), four
+  named-charge paraphrases and a neutral question followed by “no lo reconozco”.
+  No frozen confirmation or suite-v3 rows were opened; no paid calls were made.
+- Targeted NLU mock tests: **46 passed** (frozen-followup test excluded). Ruff
+  and strict mypy pass.
+- Merged current main `ff570f8` into the PR #54 branch. Preserved both the prior
+  AI-lane and lead progress entries.
+
+### Done but not verified
+
+- Full CI has not completed on the updated PR #54 head.
+
+### Next / blocked
+
+- Push the branch and wait for all CI checks to finish green. The lead reviews
+  and merges; no paid gate rerun was made.
+
 ## AI lane — narrow unfamiliar-charge cue for after-v2 gate, 2026-09-27 UTC
 
 ### Completed (verified)
@@ -14,6 +40,38 @@
 ### Next / blocked
 
 - Follow-up PR [#54](https://github.com/sebastian-gm/bank-agent-lab/pull/54) is open for lead review. The initial automation was canceled after a mistaken interpretation of the test-scope instruction; the corrected head requires full Python, Postgres, web and invariant CI before merge. The lead reruns the no-fault gate and merges after review. No paid call or dev-gate call occurred.
+
+## 2026-09-27 — Authorized dev-only follow-up in progress
+
+### Completed (verified)
+
+- Inspected saved evidence only for the four failed no-fault cases: ES/PT pending
+  and declined. Each has an incorrect `unfamiliar_charge=true` NLU observation,
+  followed by an unwanted offer and two uncertain replies ending in `ESC-04`.
+  MATCH, recorded-status policy and final-outcome scoring behave as designed.
+  No confirmation failures or suite-v3 inputs inspected; diagnosis cost **$0**.
+- [Per-case diagnosis and ownership](../evaluation/after-v2-dev-gate.md): AI lane
+  owns the NLU/prompt distinction; lead owns preserving the recognition-specific
+  clarification through NLG. Relayed the AI causes to the orchestrator.
+- Authored ES/PT regressions reproduced NLG dropping the recognition question.
+  Lead fix keeps the code-authored localized question while an offer is active.
+  Targeted conversation/attempt checks passed; no fixture or threshold changes.
+- Added guarded `--attempt 2`: preserve the original run, require unchanged inputs
+  and a completed failed first gate, refuse another attempt or overwrite, and
+  retain **scope `dev-gate/after-v2`, run `after-v2`, lifetime cap $1**.
+
+### Done but not verified
+
+- Lead changes still need final CI/merge and integration with the AI fix PR.
+- The single authorized full-gate follow-up has **not** run. Estimate $0.15–$0.30
+  within the already approved shared cap; prior dev charge remains $0.14684064.
+
+### Next / blocked
+
+- Review/merge the AI fix and lead changes with green CI, then run all 52 cases
+  once with `scripts.dev_gate real --profile after-v2 --attempt 2` on merged main.
+- Keep confirmation blind. Report and stop after that gate, including if it misses.
+  No release, suite-v3 access/merge or v3 run. Abandoned v1 remains untouched.
 
 ## 2026-09-27 — Step 3 merged and measured: dev gate not passed
 
