@@ -75,6 +75,13 @@ full v3 and new smoke allowances gives
 **$3.35037557 + $3.00 + $0.10 = $6.45037557 ≤ $12**.
 The final prepared-budget receipt must confirm this with live aggregate readback.
 
+Release smoke completed at runtime SHA
+`81ce84ec6c6e1c93063bbaf84eb67dd3d98e604e`: **$0.00802475**, nine settled
+attempts, zero unknown costs. Evaluation/dev plus this release smoke exposure is
+**$3.35840032** before v3. The prepared worst-case ceiling above reserves the full
+$0.10 smoke allowance. See [release notes](v3-release-notes.md) for the approved
+post-gate blank-merchant baseline fix and the deterministic-fraud smoke correction.
+
 ### Exact commands
 
 After release gates, preparation only (no worker or model call):
