@@ -1,6 +1,58 @@
 # After-v2 dev validation
 
-## Measured Step 3 result — gate not passed
+## Authorized follow-up result — gate passed
+
+Measured merged candidate: **`75629945f36f2767bccbaddaf6fad2707ed8681f`**,
+PR #54, including the lead recognition-clarification fix and one-follow-up guard
+from #55. Zero-cost replay at reviewed head
+`c28c7479d87d922440949791bf5d6d559fbbfe22` returned
+`unfamiliar_charge=false` for all four authorized failed no-fault openings.
+Semantic unfamiliarity, unrelated denial, explicit purchase denial and a separate
+unfamiliarity clause also passed the review regressions.
+
+The reviewed head passed all four checks
+([Python/Postgres/web](https://github.com/sebastian-gm/bank-agent-lab/actions/runs/36364430240),
+[invariants](https://github.com/sebastian-gm/bank-agent-lab/actions/runs/36364430297)).
+`git diff --exit-code c28c7479d87d922440949791bf5d6d559fbbfe22 HEAD` on the
+merged candidate verified identical trees. The squash body inherited a CI-skip
+marker from branch history, so this merge did not trigger a main push run;
+the ordinary report PR uses an explicit merge body to restore main CI.
+
+| Real P dev group | Passed / total | ES | PT | Requirement |
+| --- | --- | --- | --- | --- |
+| No-fault | **20/20** | 10/10 | 10/10 | ≥18/20 — passed |
+| Frozen new confirmation | **18/20** | 10/10 | 8/10 | ≥17/20 — passed |
+| Fault injection | **12/12** | 6/6 | 6/6 | All 12 triggered and correct — passed |
+
+- **Zero unsafe/forbidden actions in 52 cases**, zero execution errors, and real
+  NLU present in all three groups. All 52 checkpoints completed and the detached
+  worker exited. Confirmation failures remain uninspected; this is the single
+  explicitly authorized full-gate follow-up, not a new held-out result.
+- B1 authored dev on the merged candidate: **32/32**, 12 readbacks, safety guards
+  passed, using `LLM_PROVIDER=mock LLM_REAL_CALLS_APPROVED=0 LLM_FINAL_RUN_STARTED=0
+  .venv/bin/python -m evals.runner --system B1`.
+- Command, run once with `nohup`:
+  `LLM_REAL_CALLS_APPROVED=1 LLM_FINAL_RUN_STARTED=0 .venv/bin/python -m scripts.dev_gate real --profile after-v2 --attempt 2`.
+  Aggregates and launch receipt are in
+  `artifacts/after-v2-dev/gate-real-followup/{results,launch,progress}.json`;
+  log: `artifacts/after-v2-dev/dev-gate-followup.log`.
+  The guard verified the same dev and confirmation input hashes as attempt 1.
+  Both attempts remain preserved in their separate ignored directories.
+- Follow-up known model cost: **$0.129836782**, 144 additional call attempts;
+  durable rounded increase: **$0.12983704**. Final budget readback via
+  `.venv/bin/python -m scripts.after_v2_budget`:
+  **$0.27667768 / $1.00** lifetime charge in **`dev-gate/after-v2` / `after-v2`**,
+  304 total attempts, **zero unknown costs or outstanding reservations**.
+  Remaining dev allowance: **$0.72332232**. Cumulative prior plus dev charge:
+  **$3.35037557**. Receipt: `artifacts/after-v2-dev/budget-after-followup.json`.
+
+**Stop:** this satisfies the Step 3 dev gate. No further paid run, release or
+Azure smoke was performed. PR #50 remains unmerged; suite-v3 rows were not
+opened, official v2 was not rerun and abandoned v1 was untouched. Release and
+v3 execution require the orchestrator's separate go. PT/dialect wording still
+lacks fluent-human review.
+
+## First Step 3 result — gate not passed (preserved)
 
 Candidate: **`2c8679cbe9b0dd93a55fc85f0b15d17a8e662ab3`**, merged PR #51,
 including frontend #52 and the reviewed AI #49 changes. Main CI and safety passed

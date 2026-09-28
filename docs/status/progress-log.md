@@ -1,5 +1,47 @@
 # Progress log
 
+## 2026-09-27 — Single authorized after-v2 follow-up: dev gate passed
+
+### Completed (verified)
+
+- Reviewed PR #54 at `c28c7479d87d922440949791bf5d6d559fbbfe22`: all four CI
+  checks passed. Zero-cost replay returned `unfamiliar_charge=false` for all four
+  authorized no-fault openings; the four preservation regressions also passed.
+  Merged at **`75629945f36f2767bccbaddaf6fad2707ed8681f`**, including lead #55.
+  Verified the merged tree is identical to the green reviewed head. The inherited
+  squash-body CI-skip marker suppressed its main push workflows; this report PR
+  uses an explicit merge body, with main CI required before the session closes.
+- Ran the authorized full gate **once**, detached on that clean merged candidate:
+  `LLM_REAL_CALLS_APPROVED=1 LLM_FINAL_RUN_STARTED=0 .venv/bin/python -m scripts.dev_gate real --profile after-v2 --attempt 2`.
+  **No-fault 20/20 (ES 10/10, PT 10/10); confirmation 18/20 (ES 10/10,
+  PT 8/10); faults 12/12, all triggers reached; unsafe/forbidden 0/52**.
+  Zero execution errors, 52 completed checkpoints; worker exited. Confirmation
+  failures remain blind. The first run and unchanged input hashes are preserved.
+- `LLM_PROVIDER=mock LLM_REAL_CALLS_APPROVED=0 LLM_FINAL_RUN_STARTED=0
+  .venv/bin/python -m evals.runner --system B1`: **32/32**, 12 readbacks,
+  safety guards passed on the merged candidate.
+- `.venv/bin/python -m scripts.after_v2_budget` final readback: this run's known
+  model cost **$0.129836782**; durable increase **$0.12983704**. Shared scope
+  **`dev-gate/after-v2`**, run **`after-v2`**, lifetime charge **$0.27667768 / $1**,
+  304 total attempts, zero unknown costs/outstanding reservations. Cumulative
+  prior plus dev charge **$3.35037557**. No budget reset or new allowance.
+- [Aggregate report and verification evidence](../evaluation/after-v2-dev-gate.md).
+  Ignored output: `artifacts/after-v2-dev/gate-real-followup/results.json`;
+  budget receipt: `artifacts/after-v2-dev/budget-after-followup.json`.
+
+### Done but not verified
+
+- Step 3 dev acceptance is met; the candidate has not been deployed or tested
+  through Azure/browser/LLM release smokes. No held-out improvement is claimed.
+- Confirmation retains two failed PT cases, uninspected. PT/dialect wording
+  still lacks fluent-human review.
+
+### Next / blocked
+
+- Stop for the separate release/v3 decision. No further dev repeat is authorized.
+  PR #50 remains unmerged and suite-v3 rows unopened. Never access abandoned v1
+  or rerun held-out v2; official v2 remains unchanged.
+
 ## 2026-09-27 — Named neutral-charge guard follow-up
 
 ### Completed (verified)
