@@ -13,7 +13,7 @@
 
 ### Next / blocked
 
-- Follow-up PR [#54](https://github.com/sebastian-gm/bank-agent-lab/pull/54) is open for lead review; all required CI checks must run on the corrected head before merge. The lead reruns the no-fault gate and merges after review. No paid call or held-out suite access.
+- Follow-up PR [#54](https://github.com/sebastian-gm/bank-agent-lab/pull/54) is open for lead review. The initial automation was canceled after a mistaken interpretation of the test-scope instruction; the corrected head requires full Python, Postgres, web and invariant CI before merge. The lead reruns the no-fault gate and merges after review. No paid call or dev-gate call occurred.
 
 ## 2026-09-27 — Step 3 merged and measured: dev gate not passed
 
