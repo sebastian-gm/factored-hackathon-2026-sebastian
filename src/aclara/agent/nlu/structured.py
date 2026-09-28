@@ -299,37 +299,63 @@ _UNFAMILIAR_CUE = re.compile(
     r"nao (?:reconheco|reconheci|lembro|sei que|sei de onde|faco ideia|conheco)|"
     r"nem lembro|nao me recordo)\b"
 )
-_STRONG_UNFAMILIAR_CUE = re.compile(r"\b(?:no (?:reconozco|me suena)|nao (?:reconheco|conheco))\b")
-_WHAT_CHARGE = re.compile(
-    r"\b(?:que (?:es|sera) (?:este|ese|aquel)|"
-    r"que (?:cobranca|lancamento|debito|compra) (?:e )?ess[ae])\b"
+_STRONG_UNFAMILIAR_CUE = re.compile(
+    r"\b(?:no (?:reconozco|me suena|ubico|recuerdo|cacho)|"
+    r"nao (?:reconheco|conheco|lembro|faco ideia))\b"
 )
-_EXPLICIT_DISPUTE_CUE = re.compile(
-    r"\b(?:no (?:fui yo|la hice|lo hice|hice esa|compre|pague|autorice)|"
-    r"nao (?:fui eu|fiz essa|comprei|paguei|autorizei)|"
-    r"quiero (?:disputar|contestar|reclamar|abrir (?:una )?disputa)|"
+_EXPLICIT_DENIAL_CUE = re.compile(
+    r"\b(?:no fui yo|no fui[, ]+po|no (?:la hice|lo hice|hice|compre|pague|autorice|pase)|"
+    r"ni (?:pise|pase)|no he (?:comprado|estado|pasado)|"
+    r"nao fui eu|nao (?:fiz|comprei|paguei|autorizei|passei))\b"
+)
+_FILING_REQUEST_CUE = re.compile(
+    r"\b(?:quiero (?:disputar|contestar|reclamar|abrir (?:una )?disputa)|"
     r"quero (?:contestar|reclamar|abrir (?:uma )?contestacao))\b"
+)
+_CHARGE_TERM = r"(?:cargo|cobro|cobranza|cobranca|consumo|compra|lancamento|debito|transacao)"
+_CHARGE_ARTICLE = r"(?:(?:este|esta|ese|esa|el|la|los|las|un|una|o|a|os|as|um|uma|esse|essa) )?"
+_CHARGE_MERCHANT = (
+    r"(?: (?:de la|de los|de las|del|de|do|da|dos|das|na|no|em) "
+    r"[a-z0-9][a-z0-9 .&'/-]*)?"
+)
+_NAMED_CHARGE = _CHARGE_ARTICLE + _CHARGE_TERM + _CHARGE_MERCHANT
+_NEUTRAL_CHARGE_QUESTION = re.compile(
+    r"^\s*[¿¡]?\s*(?:"
+    rf"que es {_NAMED_CHARGE}|"
+    rf"o que e {_NAMED_CHARGE}|"
+    rf"por que aparece {_NAMED_CHARGE}|"
+    rf"por que (?:(?:{_NAMED_CHARGE} )?"
+    r"(?:esta|sigue|continua) (?:como )?(?:pendiente|pendente|aprobado|aprovado|"
+    r"rechazado|recusado|revertido|revertida|estornado)|"
+    rf"{_NAMED_CHARGE} (?:esta|sigue|continua) (?:como )?"
+    r"(?:pendiente|pendente|aprobado|aprovado|rechazado|recusado|revertido|"
+    r"revertida|estornado)))\s*[?!.]*\s*$"
 )
 
 
 def _bare_unfamiliarity(message: str) -> bool:
-    """Recognize unfamiliarity without turning a status question into an offer."""
+    """Recognize explicit non-recognition while ignoring ordinary charge questions."""
     plain = normalize_text(message)
-    if _EXPLICIT_DISPUTE_CUE.search(plain):
-        return False
     if _STRONG_UNFAMILIAR_CUE.search(plain):
         return True
     has_charge = bool(_CHARGE_REFERENT.search(plain))
-    if _UNFAMILIAR_CUE.search(plain) and (
-        has_charge
-        or re.search(r"\b(?:esta|este|ese|essa|isso|de donde salio|de onde veio)\b", plain)
-    ):
-        return True
-    return has_charge and bool(_WHAT_CHARGE.search(plain))
+    return bool(
+        _UNFAMILIAR_CUE.search(plain)
+        and (
+            has_charge
+            or re.search(r"\b(?:esta|este|ese|essa|isso|de donde salio|de onde veio)\b", plain)
+        )
+    )
 
 
 def _fallback_extract(message: str, *, awaiting_recognition: bool = False) -> ExtractedNlu:
     frame = classify_nlu(message)
+    if frame.intent not in {Intent.HUMAN_REQUEST, Intent.FRAUD, Intent.FEE_DISPUTE}:
+        plain = normalize_text(message)
+        if _EXPLICIT_DENIAL_CUE.search(plain):
+            frame = frame.model_copy(update={"intent": Intent.DISPUTE_CHARGE, "confidence": 0.93})
+        elif frame.intent == Intent.OUT_OF_SCOPE and _bare_unfamiliarity(message):
+            frame = frame.model_copy(update={"intent": Intent.CHARGE_INQUIRY, "confidence": 0.82})
     amount = re.search(
         r"\b\d+(?:[.,]\d+)?\s*(?:pesos?|dolares?|reais|lucas?|palos?|contos?|varos?|pila)?",
         normalize_text(message),
@@ -411,26 +437,23 @@ def postprocess(
             intent, confidence = Intent.OUT_OF_SCOPE, min(confidence, 0.5)
     unfamiliar_charge = extracted.unfamiliar_charge
     if message is not None:
-        plain = normalize_text(message)
         bare_cue = _bare_unfamiliarity(message)
-        status_only = (
-            bool(
-                re.search(
-                    r"\b(?:pendiente|pendente|revertido|revertida|estornado|aprobado|aprovado|rechazado|recusado)\b",
-                    plain,
-                )
-            )
-            and not bare_cue
-        )
-        unfamiliar_charge = (
-            (bare_cue or unfamiliar_charge)
-            and not status_only
-            and not _EXPLICIT_DISPUTE_CUE.search(plain)
-        )
+        if intent not in {Intent.HUMAN_REQUEST, Intent.FRAUD, Intent.FEE_DISPUTE}:
+            if _EXPLICIT_DENIAL_CUE.search(normalize_text(message)):
+                intent = Intent.DISPUTE_CHARGE
+            elif intent == Intent.OUT_OF_SCOPE and bare_cue:
+                intent = Intent.CHARGE_INQUIRY
+        # Preserve a valid model flag for paraphrases. Only neutral questions and
+        # explicit denials are deterministic overrides of that judgment.
+        if _NEUTRAL_CHARGE_QUESTION.search(normalize_text(message)) or _EXPLICIT_DENIAL_CUE.search(
+            normalize_text(message)
+        ):
+            unfamiliar_charge = False
     if (
         awaiting_recognition
         or intent != Intent.CHARGE_INQUIRY
         or extracted.intent in {"refund_or_reversal_status", "dispute_status"}
+        or (message is not None and _FILING_REQUEST_CUE.search(normalize_text(message)))
     ):
         unfamiliar_charge = False
     if extracted.unfamiliar_charge != unfamiliar_charge:

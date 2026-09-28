@@ -450,7 +450,7 @@ def test_real_route_injection_preserves_fresh_cases_and_readbacks_without_networ
         result = asyncio.run(execute_bound(scenario, fixture, "P", repeat, llm_client=client))
         assert result["passed"] and result["readback"]
         assert any(e["event"] == "match" and e["matcher_version"] == "v2" for e in result["events"])
-        assert any(r.prompt_id == "nlu@v5" for r in client.records)
+        assert any(r.prompt_id == "nlu@v5.1" for r in client.records)
         results.append(result)
         clients.append(client)
     assert results[0]["run_id"] != results[1]["run_id"]

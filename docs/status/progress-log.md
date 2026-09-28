@@ -1,5 +1,50 @@
 # Progress log
 
+## 2026-09-27 — Named neutral-charge guard follow-up
+
+### Completed (verified)
+
+- Kept prompt v5.1 wording as the primary unfamiliarity fix. The postprocess
+  backstop now covers neutral ES/PT what/why questions with charge articles and
+  named-merchant suffixes; a separate non-recognition clause remains eligible
+  to set `unfamiliar_charge=true`.
+- Added mock regressions for the four authorized dev openings
+  (`es.pending.v2`, `es.declined.v2`, `pt.pending.v2`, `pt.declined.v2`), four
+  named-charge paraphrases and a neutral question followed by “no lo reconozco”.
+  No frozen confirmation or suite-v3 rows were opened; no paid calls were made.
+- Targeted NLU mock tests: **46 passed** (frozen-followup test excluded); after
+  correcting two stale prompt-ID assertions, the affected mock selection passed
+  **48 tests**. Ruff and strict mypy pass.
+- Merged current main `ff570f8` into the PR #54 branch. Preserved both the prior
+  AI-lane and lead progress entries.
+
+### Done but not verified
+
+- The first full CI run found two stale assertions for `nlu@v5`; both now expect
+  the active `nlu@v5.1` ID. The corrected code head `2e346c6` passed all four
+  checks: Python, invariants, Postgres and web/browser. This final log-only
+  commit will also receive a full CI run before reporting its head.
+
+### Next / blocked
+
+- The lead reviews and merges; the lead reruns the dev gate after merge. No paid
+  gate rerun was made.
+
+## AI lane — narrow unfamiliar-charge cue for after-v2 gate, 2026-09-27 UTC
+
+### Completed (verified)
+
+- Bumped [NLU prompt](../../prompts/nlu/v5.md) to v5.1, SHA-256 `e40182de2f232932a12d61d722be5e6356d787217048378fbc2a84f330d241cc`. `unfamiliar_charge` stays tied to bare unfamiliarity in a charge inquiry. Postprocessing preserves semantic model flags except for neutral what/why/status questions and explicit denials; denial wording such as “no fui informado” no longer trips the denial fallback. Added focused ES/pt-BR regressions for the three lead findings.
+- Targeted mock Ruff and pytest checks passed (35 selected cases). Tests used the four reported no-fault utterances and new unit examples; no paid call or dev gate run occurred. This branch does not alter fixtures or frozen data.
+
+### Done but not verified
+
+- The lead has not rerun the no-fault dev gate on this prompt revision.
+
+### Next / blocked
+
+- Follow-up PR [#54](https://github.com/sebastian-gm/bank-agent-lab/pull/54) is open for lead review. The initial automation was canceled after a mistaken interpretation of the test-scope instruction; the corrected head requires full Python, Postgres, web and invariant CI before merge. The lead reruns the no-fault gate and merges after review. No paid call or dev-gate call occurred.
+
 ## 2026-09-27 — Authorized dev-only follow-up in progress
 
 ### Completed (verified)
