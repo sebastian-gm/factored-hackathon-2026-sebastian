@@ -114,22 +114,23 @@ def test_frozen_followups_have_safe_deterministic_degradation() -> None:
     [
         ("No reconozco esta compra", "MX", True),
         ("No reconozco", "MX", True),
-        ("No sé qué es este cargo, yo no hice", "MX", True),
+        ("No sé qué es este cargo, yo no hice", "MX", False),
         ("No cacho de dónde salió este cobro, po", "CL", True),
         ("No cacho", "CL", True),
-        ("No fui yo, po", "CL", True),
+        ("No fui yo, po", "CL", False),
         ("Não sei que cobrança é essa", "BR", True),
         ("Não reconheço", "BR", True),
         ("Não reconheço esse lançamento", "BR", True),
         ("Não lembro dessa compra", "BR", True),
         ("Não faço ideia", "BR", True),
-        ("Não fui eu", "BR", True),
+        ("Não fui eu", "BR", False),
         ("¿Por qué está pendiente?", "MX", False),
         ("¿Qué es este cargo?", "MX", False),
         ("¿Por qué aparece este cargo?", "MX", False),
         ("Por que a compra está pendente?", "BR", False),
         ("Por que aparece essa cobrança?", "BR", False),
         ("Quero contestar essa cobrança", "BR", False),
+        ("No fui informado del cambio de domicilio", "MX", False),
     ],
 )
 def test_degraded_unfamiliarity_stays_separate_from_status_and_denial(
@@ -144,15 +145,16 @@ def test_degraded_unfamiliarity_stays_separate_from_status_and_denial(
     ("message", "language", "model_intent", "expected"),
     [
         ("No me suena esa compra", "es", "charge_inquiry", True),
-        ("No sé qué es esto, yo no hice", "es", "dispute_charge", True),
+        ("No sé qué es esto, yo no hice", "es", "dispute_charge", False),
         ("Não sei que cobrança é essa", "pt", "charge_inquiry", True),
-        ("Não fui eu", "pt", "dispute_charge", True),
+        ("Não fui eu", "pt", "dispute_charge", False),
         ("¿Qué es este cargo?", "es", "charge_inquiry", False),
         ("¿Por qué aparece este cargo?", "es", "charge_inquiry", False),
         ("Por que aparece essa cobrança?", "pt", "charge_inquiry", False),
         ("¿Por qué está pendiente?", "es", "charge_inquiry", False),
         ("Por que a compra está pendente?", "pt", "charge_inquiry", False),
         ("Quero contestar essa cobrança", "pt", "dispute_charge", False),
+        ("No fui informado del cambio de domicilio", "es", "out_of_scope", False),
     ],
 )
 def test_postprocess_corrects_model_unfamiliarity_for_clear_cues(
@@ -164,7 +166,7 @@ def test_postprocess_corrects_model_unfamiliarity_for_clear_cues(
             "language": language,
             "intent": model_intent,
             "intent_confidence": 0.9,
-            "unfamiliar_charge": not expected,
+            "unfamiliar_charge": True,
         },
         [],
     )
@@ -172,3 +174,38 @@ def test_postprocess_corrects_model_unfamiliarity_for_clear_cues(
         message, country="BR" if language == "pt" else "MX", bank_clock=CLOCK, client=client
     )
     assert result.extracted.unfamiliar_charge is expected
+
+
+def test_model_semantic_unfamiliarity_is_preserved() -> None:
+    client = _client(
+        {
+            "language": "es",
+            "intent": "charge_inquiry",
+            "intent_confidence": 0.9,
+            "unfamiliar_charge": True,
+        },
+        [],
+    )
+    result = understand(
+        "Este consumo me resulta completamente ajeno",
+        country="MX",
+        bank_clock=CLOCK,
+        client=client,
+    )
+    assert result.extracted.unfamiliar_charge is True
+
+
+def test_informed_of_change_is_not_misread_as_a_denial() -> None:
+    result = understand("No fui informado del cambio de domicilio", country="MX", bank_clock=CLOCK)
+    assert result.frame.intent.value == "out_of_scope"
+    assert result.extracted.unfamiliar_charge is False
+
+
+@pytest.mark.parametrize(
+    ("message", "country"),
+    [("No hice esa compra", "MX"), ("No fui, po", "CL"), ("Não fui eu", "BR")],
+)
+def test_explicit_denial_is_dispute_without_unfamiliar_flag(message: str, country: str) -> None:
+    result = understand(message, country=country, bank_clock=CLOCK)
+    assert result.frame.intent.value == "dispute_charge"
+    assert result.extracted.unfamiliar_charge is False

@@ -4,8 +4,8 @@
 
 ### Completed (verified)
 
-- Bumped [NLU prompt](../../prompts/nlu/v5.md) to v5.1, SHA-256 `2ff85826c9c2ac22e014f1c6ba4765880cde04c329b9ff5d9b503d35c53fbbb4`. `unfamiliar_charge` now requires explicit non-recognition or denial text; plain what/why/status questions and filing requests alone keep it false. Updated deterministic fallback and text-based postprocessing, plus ES and pt-BR positive/negative unit cases.
-- Targeted mock-only Ruff and pytest checks passed (28 selected parameter cases). Tests used only the four reported no-fault utterances and new unit examples; the frozen confirmation-set test was excluded. No paid call, full gate run, frozen confirmation access or suite-v3 access occurred.
+- Bumped [NLU prompt](../../prompts/nlu/v5.md) to v5.1, SHA-256 `e40182de2f232932a12d61d722be5e6356d787217048378fbc2a84f330d241cc`. `unfamiliar_charge` stays tied to bare unfamiliarity in a charge inquiry. Postprocessing preserves semantic model flags except for neutral what/why/status questions and explicit denials; denial wording such as “no fui informado” no longer trips the denial fallback. Added focused ES/pt-BR regressions for the three lead findings.
+- Targeted mock Ruff and pytest checks passed (35 selected cases). Tests used the four reported no-fault utterances and new unit examples; no paid call or dev gate run occurred. This branch does not alter fixtures or frozen data.
 
 ### Done but not verified
 
@@ -13,7 +13,7 @@
 
 ### Next / blocked
 
-- Follow-up PR [#54](https://github.com/sebastian-gm/bank-agent-lab/pull/54) is open for lead review. The broad Python, Postgres and web CI jobs were canceled because they run outside this task's allowed test scope; invariants passed. Only the targeted mock checks above are claimed. The lead reruns the no-fault gate and merges after review. No paid call or held-out suite access.
+- Follow-up PR [#54](https://github.com/sebastian-gm/bank-agent-lab/pull/54) is open for lead review; all required CI checks must run on the corrected head before merge. The lead reruns the no-fault gate and merges after review. No paid call or held-out suite access.
 
 ## 2026-09-27 — Step 3 merged and measured: dev gate not passed
 

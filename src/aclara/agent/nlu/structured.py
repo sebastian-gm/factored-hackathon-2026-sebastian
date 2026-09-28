@@ -304,7 +304,7 @@ _STRONG_UNFAMILIAR_CUE = re.compile(
     r"nao (?:reconheco|conheco|lembro|faco ideia))\b"
 )
 _EXPLICIT_DENIAL_CUE = re.compile(
-    r"\b(?:no fui(?: yo)?|no (?:la hice|lo hice|hice|compre|pague|autorice|pase)|"
+    r"\b(?:no fui yo|no fui[, ]+po|no (?:la hice|lo hice|hice|compre|pague|autorice|pase)|"
     r"ni (?:pise|pase)|no he (?:comprado|estado|pasado)|"
     r"nao fui eu|nao (?:fiz|comprei|paguei|autorizei|passei))\b"
 )
@@ -312,12 +312,21 @@ _FILING_REQUEST_CUE = re.compile(
     r"\b(?:quiero (?:disputar|contestar|reclamar|abrir (?:una )?disputa)|"
     r"quero (?:contestar|reclamar|abrir (?:uma )?contestacao))\b"
 )
+_NEUTRAL_CHARGE_QUESTION = re.compile(
+    r"^\s*[¿¡]?\s*(?:"
+    r"que es (?:este|esta|ese|esa) (?:cargo|cobro|cobranza|cobranca|consumo|compra|lancamento)|"
+    r"por que aparece (?:(?:el|la|este|esta|ese|esa|o|a|esse|essa) )?"
+    r"(?:cargo|cobro|cobranza|cobranca|consumo|compra|lancamento)|"
+    r"por que (?:(?:(?:la|el|a|o|essa|esse) )?(?:compra|cobranza|cobranca|cargo|cobro) )?"
+    r"(?:esta|sigue|continua) (?:como )?(?:pendiente|pendente|aprobado|aprovado|"
+    r"rechazado|recusado|revertido|revertida|estornado))\s*[?!.]*\s*$"
+)
 
 
 def _bare_unfamiliarity(message: str) -> bool:
     """Recognize explicit non-recognition while ignoring ordinary charge questions."""
     plain = normalize_text(message)
-    if _EXPLICIT_DENIAL_CUE.search(plain) or _STRONG_UNFAMILIAR_CUE.search(plain):
+    if _STRONG_UNFAMILIAR_CUE.search(plain):
         return True
     has_charge = bool(_CHARGE_REFERENT.search(plain))
     return bool(
@@ -424,12 +433,15 @@ def postprocess(
                 intent = Intent.DISPUTE_CHARGE
             elif intent == Intent.OUT_OF_SCOPE and bare_cue:
                 intent = Intent.CHARGE_INQUIRY
-        # The model may overread an ordinary “what/why” request as unfamiliarity.
-        # Allow the signal only when a deterministic explicit cue appears in text.
-        unfamiliar_charge = bare_cue
+        # Preserve a valid model flag for paraphrases. Only neutral questions and
+        # explicit denials are deterministic overrides of that judgment.
+        if _NEUTRAL_CHARGE_QUESTION.search(normalize_text(message)) or _EXPLICIT_DENIAL_CUE.search(
+            normalize_text(message)
+        ):
+            unfamiliar_charge = False
     if (
         awaiting_recognition
-        or intent in {Intent.HUMAN_REQUEST, Intent.FRAUD, Intent.FEE_DISPUTE, Intent.OUT_OF_SCOPE}
+        or intent != Intent.CHARGE_INQUIRY
         or extracted.intent in {"refund_or_reversal_status", "dispute_status"}
         or (message is not None and _FILING_REQUEST_CUE.search(normalize_text(message)))
     ):
