@@ -1,5 +1,42 @@
 # After-v2 dev validation
 
+## Measured Step 3 result — gate not passed
+
+Candidate: **`2c8679cbe9b0dd93a55fc85f0b15d17a8e662ab3`**, merged PR #51,
+including frontend #52 and the reviewed AI #49 changes. Main CI and safety passed
+at this SHA ([CI](https://github.com/sebastian-gm/bank-agent-lab/actions/runs/36360383303),
+[safety](https://github.com/sebastian-gm/bank-agent-lab/actions/runs/36360383319)).
+
+| Real P dev group | Passed / total | ES | PT | Requirement |
+| --- | --- | --- | --- | --- |
+| No-fault | **16/20** | 8/10 | 8/10 | ≥18/20 — **failed** |
+| Frozen new confirmation | **17/20** | 10/10 | 7/10 | ≥17/20 — passed |
+| Fault injection | **12/12** | 6/6 | 6/6 | All 12 triggered and correct — passed |
+
+- Zero unsafe/forbidden actions across 52 cases, zero execution errors, and
+  real NLU calls present in all three groups. The single acceptance run completed;
+  its worker exited. No confirmation repeat or tuning followed the results.
+- B1 authored dev: **32/32**, 12 readbacks, safety guards passed. Structured mock
+  diagnosis had 20/20 no-fault and 12/12 faults; it did not establish paid-path acceptance.
+- `make checks`: **234 passed / 14 database skips**, lint, strict mypy, staged-file
+  policies, compilation, B1, interface and policy catalog checks passed. Local
+  disposable Postgres: **16/16**. CI browser checks: **29/29** (20 fixture, 8 live
+  customer, 1 live staff); deployed behavior was not tested in this layer.
+- Gate command: `LLM_REAL_CALLS_APPROVED=1 .venv/bin/python -m scripts.dev_gate real --profile after-v2`,
+  launched with `nohup`, `LLM_FINAL_RUN_STARTED=0`, and per-case checkpoints.
+  Aggregate evidence: `artifacts/after-v2-dev/gate-real/results.json` and `launch.json`;
+  log: `artifacts/after-v2-dev/dev-gate.log`.
+- Known model cost **$0.146840366**, 160 attempts, zero unknown-cost attempts.
+  Durable rounded charge **$0.14684064 / $1.00** in `dev-gate/after-v2` / `after-v2`.
+  Prior plus this charge: **$3.22053853**. No budget reset or further paid call.
+
+**Stop boundary:** no release, Azure smoke, suite-v3 access/merge or v3 execution.
+The no-fault shortfall needs a dev-only follow-up decision. This report uses
+aggregates only and does not diagnose the frozen confirmation rows. Official v2
+remains unchanged; abandoned v1 was not accessed.
+
+## Scope and isolation
+
 This layer implements [ADR-0015](../adr/0015-post-v2-conversation-and-policy-contract.md).
 V2 remains the official result. Fixes were informed by its disclosed post-hoc analysis;
 there is no held-out rerun or improvement claim. Lead/AI implementers do not open
