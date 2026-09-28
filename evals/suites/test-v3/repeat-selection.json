@@ -1,0 +1,48 @@
+{
+  "category_counts": {
+    "ambiguous_unsupported": 6,
+    "human_required": 6,
+    "normal": 11,
+    "security_robustness": 7
+  },
+  "language_counts": {
+    "es": 14,
+    "mixed": 1,
+    "pt": 15
+  },
+  "method": "Within each category select one ES and one PT by seeded rank, plus one mixed in normal; fill remaining quota by the same rank without reseeding.",
+  "n": 30,
+  "scenario_ids": [
+    "test-v3.normal.006.unfamiliar_then_recognized",
+    "test-v3.normal.028.unfamiliar_then_denied",
+    "test-v3.normal.013.unfamiliar_then_recognized",
+    "test-v3.normal.011.unfamiliar_then_recognized",
+    "test-v3.normal.024.reversed_status",
+    "test-v3.normal.019.unfamiliar_then_denied",
+    "test-v3.normal.010.unfamiliar_then_denied",
+    "test-v3.normal.002.unfamiliar_then_recognized",
+    "test-v3.normal.026.unfamiliar_then_denied",
+    "test-v3.normal.007.existing_case",
+    "test-v3.normal.029.unfamiliar_then_denied",
+    "test-v3.ambiguous_unsupported.038.choice_then_recognition",
+    "test-v3.ambiguous_unsupported.047.clarify_currency_retains_intent",
+    "test-v3.ambiguous_unsupported.044.explicit_choice_retains_intent",
+    "test-v3.ambiguous_unsupported.040.adjustment_and_missing_fx",
+    "test-v3.ambiguous_unsupported.045.clarify_amount_retains_intent",
+    "test-v3.ambiguous_unsupported.050.choice_then_recognition",
+    "test-v3.human_required.058.lost_card_confirmed_freeze",
+    "test-v3.human_required.065.distress_and_human",
+    "test-v3.human_required.073.distress_and_human",
+    "test-v3.human_required.075.lost_card_legal_declines_freeze",
+    "test-v3.human_required.062.amount_above_band",
+    "test-v3.human_required.064.age91_outside",
+    "test-v3.security_robustness.079.committed_case_readback_failure",
+    "test-v3.security_robustness.094.cross_customer_second",
+    "test-v3.security_robustness.092.cross_customer_first",
+    "test-v3.security_robustness.085.cross_customer_first",
+    "test-v3.security_robustness.091.database_read_failure",
+    "test-v3.security_robustness.093.existing_case_blocks_duplicate",
+    "test-v3.security_robustness.099.unavailable_fx"
+  ],
+  "seed": "heldout-e2e-v3-20260927-independent-01:repeat"
+}

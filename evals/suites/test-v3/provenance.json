@@ -1,0 +1,73 @@
+{
+  "bindings_audit": {
+    "available_fresh_customers": 17928,
+    "dev_exposure_inventory": "All available matcher splits and all 40 human card source identities excluded. No additional organizer-backed dev binding inventory found locally; no universal unobserved-exposure claim.",
+    "excluded_unique_customers": 11447,
+    "exclusion_group_sizes": {
+      "human_40_card_sources": 40,
+      "matcher_v1_all_splits": 11207,
+      "matcher_v2_all_splits": 11207,
+      "old_suite": 200
+    },
+    "exclusion_input_sha256": {
+      "artifacts/charge_matcher/v1/dataset/test.jsonl": "7ac91f29be805a8980b847e8ff7f416bbf2466ef7491571dda8f6e2cffb2b8bb",
+      "artifacts/charge_matcher/v1/dataset/train.jsonl": "158503d6c70b071ad4f763694426cce39f931546e3c82bd5094fbded0d86f092",
+      "artifacts/charge_matcher/v1/dataset/validation.jsonl": "495c80679d1da61c7aa21cf0a1ecb635b9691d1d0cdc71b20672f415e7c8010e",
+      "artifacts/charge_matcher/v2/test.jsonl": "b24f0c12ad68a8e3c0a6e109f31deb0797dd8b3404c4ba8c5e0be0754d00bad0",
+      "artifacts/charge_matcher/v2/train.jsonl": "e81a920732e52552ad85052f770fdae7820d26c3fbde84110d1127921e5c04db",
+      "artifacts/charge_matcher/v2/validation.jsonl": "cd999f1ba7396a1c53cc0c273887f17a7a135f82376b53806103fd40ff1d99eb",
+      "artifacts/evaluation-authoring/customer-bindings.json": "d9635357520c12bf0262c5359341a6d52004a14a98f1cb16a4ed123b5beb1fd8",
+      "artifacts/human-validation/spanish-40/references.json": "5dcb84cc8c4887fff4fb70dcf63b3528e4e65ef48ab295f0570fe6d65fb47d21"
+    },
+    "native_target_transactions_sampled": 0,
+    "native_transaction_freshness": "No native target bindings exist in test-v1; both releases use invented overlays. New customer ownership also excludes all native rows of prior bound/benchmark customers.",
+    "old_product_overlap": 0,
+    "overlap_by_exclusion_group": {
+      "human_40_card_sources": 0,
+      "matcher_v1_all_splits": 0,
+      "matcher_v2_all_splits": 0,
+      "old_suite": 0
+    },
+    "ownership_verified_by": "gold.customers JOIN gold.products on customer_id",
+    "personas": 100,
+    "private_bindings_sha256": "0c31ea3301961d9ff07f28322c6d92a8eeaf0f30829c850ae474e2a86eba6fa8",
+    "stratum_relaxation": false,
+    "test_bucket_min_hex": "da",
+    "unique_customers": 100,
+    "unique_owned_products": 100
+  },
+  "bindings_path": "artifacts/evaluation-v3/customer-bindings.json",
+  "dataset_version": "b86f445cb468332bde984a788ef24f72f7070952b2d9292e0259e7b8f36397c9",
+  "gold_authority": "Literal template constants authored from contracts/interfaces/conversation-policy-v3.md and ADR-0015 only; no application imports or executions.",
+  "label": "after fixes, fresh suite",
+  "language_authoring": {
+    "generator": "OpenAI/Codex authoring agent",
+    "human_review": "pending",
+    "incremental_provider_spend_usd": "0.00",
+    "organizer_rows_sent": false,
+    "origin": "model_generated",
+    "paid_provider_calls": 0,
+    "second_vendor_review": "pending; no budget reused",
+    "thinking_persisted": false
+  },
+  "pending_dependencies": [
+    "Regenerated canonical scenario/runtime/OpenAPI snapshots for accepted offer/cancellation additions",
+    "Lead-owned adapter supports new private binding path/checksum and isolated controlled overlays",
+    "Reactive offer, choice, recognition clarification, OTP and fault execution; complete reason sets, precise readbacks and session revocation scoring verified on dev only",
+    "Independent language/label review; later Sebastian go for independent Step 4 executor"
+  ],
+  "pinned_repository_inputs": {
+    "contracts/interfaces/conversation-policy-v3.md": "11de8e0f898b74716d59e87104aaca7bead6433c0fcf655396df6e901b21fc93",
+    "contracts/interfaces/scenario-suite.schema.json": "275f8f14ba7e7d04459231c5fad90998b7e4133c98139883aabb1b921ff2c432",
+    "docs/adr/0015-post-v2-conversation-and-policy-contract.md": "5e9db249b5c5a884d64167170f631adcde785f93c755d4df8941cc72eb113a3d",
+    "evals/suites/tools/author_test_v3.py": "aa4f9eacb990dfbdf86a86f17370fc4971f1e1b576a8485b4c4fa6d650d02507"
+  },
+  "preparation_sha256": "a2da52fae56d0dfea7b29dbb5490d048c9d3cde5f3b488bdddd71229df283b70",
+  "prepared_at": "2026-09-27T23:11:35.323252+00:00",
+  "prior_suite_manifest_sha256": "acf0f74156c938323dc2a5c752072b4fd5febc1aced81ad0aa2a670201d0683d",
+  "seed": "heldout-e2e-v3-20260927-independent-01",
+  "spec_commit": "ab07bfeba23824292bfd83a13e4934c6ff1ae349",
+  "suite_id": "heldout-e2e-v3",
+  "system_executions_before_freeze": 0,
+  "v2_disclosure": "Fixes were informed by v2 error analysis; v2 remains official. This independent author did not consult saved case-level system outputs for v3 gold."
+}
