@@ -1,5 +1,41 @@
 # Progress log
 
+## 2026-09-28 UTC — Single authorized v3 resume stopped during judging
+
+### Completed (verified)
+
+- Process metadata showed 213 completed case result files versus 212 published
+  progress checkpoints after the first stop. The budget readback occurs between
+  those writes, localizing the earlier `OperationalError` to the budget database
+  connection path without opening a case result.
+- Local Postgres container and TCP port were healthy. Azure admin and app roles
+  both passed `verify-full` TLS connections. Current public IPv4 matched the
+  configured Postgres allowlist; its Azure-services sentinel remained present.
+- Main was clean and matched origin at the pinned release SHA `e12efc73`.
+  Preserved the prior stop receipt, then ran one detached `resume` with the same
+  15-minute stall and original three-hour wall-clock watchdog rules.
+- Resume completed all **260/260 system runs**, then stopped at **28/60 judge
+  items** with `RuntimeError`. The evaluator's sanitized wrapper message is
+  “Judge execution failed; stop without advancing checkpoint.” No worker remains.
+  Durable v3 spend: **484 attempts, $0.47321405 charged with reserves, zero
+  unknown costs / $3**. Prior plus v3 is **$3.82358962**; including release smoke,
+  **$3.83161437 / $12**. The ignored aggregate receipt is
+  `artifacts/final-program-v3/stop-report-resume.json`.
+
+### Done but not verified
+
+- The judge phase and final report are incomplete. No v3 headline metrics have
+  been reported. The underlying judge exception is not identified from the
+  sanitized wrapper; case inputs and outputs were not opened.
+
+### Next / blocked
+
+- Stop after the single authorized resume. Preserve checkpoints, call journals,
+  budget reservations and pinned main. Diagnose the judge failure without
+  disclosing frozen inputs or result rows; await the owner's next instruction
+  before another resume. Keep this documentation branch unmerged while the run
+  requires the exact pinned main SHA.
+
 ## 2026-09-28 UTC — V3 stopped on operational error; pinned main preserved
 
 ### Completed (verified)
