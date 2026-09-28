@@ -1,5 +1,36 @@
 # Progress log
 
+## 2026-09-28 UTC — V3 evaluator vocabulary repair
+
+### Completed (verified)
+
+- The first v3 attempt stopped at `ValidationError` (`ScenarioV2.expected`); the
+  second fresh attempt stopped at `ValueError` during forbidden-predicate
+  validation. Both had zero completed cases, zero provider calls and **$0 v3
+  spend**. Their ignored directories are preserved separately.
+- The suite author compared aggregate vocabulary without disclosing rows. The
+  remaining gap is `offer_dispute` as a forbidden observation predicate. The
+  evaluator now detects it from a customer response type or a trace event,
+  without treating it as a write, proposal or confirmation. Authored predicate
+  and bound-evaluation tests pass.
+- A second broad search during startup diagnosis exposed three generic
+  forbidden-action handling lines in the v3 authoring tool, after product freeze.
+  No case templates, suite rows, selection, binding or result contents were
+  opened. See the release notes; all subsequent source searches use explicit
+  allowed paths.
+
+### Done but not verified
+
+- Full CI, zero-cost v3 preflight, exact-SHA release verification and fresh v3
+  execution remain pending. V2 remains the official result.
+
+### Next / blocked
+
+- Merge the evaluation-only fix with green CI. Verify no product paths changed
+  since `9f0bff0`, retag identical images, verify Azure controls/access and
+  issue a new release receipt. Complete the zero-cost preflight, then launch v3
+  fresh under the unchanged $3 durable scope and $12 cumulative ceiling.
+
 ## 2026-09-27 local / 2026-09-28 UTC — V3 startup contract repair in progress
 
 ### Completed (verified)

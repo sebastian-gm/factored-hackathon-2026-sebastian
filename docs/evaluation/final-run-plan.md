@@ -87,6 +87,15 @@ and a fresh release SHA must pass CI and Azure readback before a **new** v3 star
 The same durable $3 lifetime run remains in place without resetting spend. The
 [release notes](v3-release-notes.md) disclose the authoring-tool search exposure.
 
+A second fresh launch on the schema-repair SHA stopped in preflight at unknown
+forbidden-predicate validation, again with zero completed cases and $0 spent.
+The suite author supplied aggregate vocabulary only; the evaluator adds the
+ADR-0015 `offer_dispute` predicate from observed response type or trace event.
+The stopped directory is preserved as `artifacts/final-program-v3-attempt2/`.
+After green CI, identical-image release verification and a complete zero-cost
+preflight, the next launch uses a new `artifacts/final-program-v3/` directory
+under the unchanged durable $3 scope. Neither earlier attempt is resumed.
+
 Release smoke completed at runtime SHA
 `81ce84ec6c6e1c93063bbaf84eb67dd3d98e604e`: **$0.00802475**, nine settled
 attempts, zero unknown costs. Evaluation/dev plus this release smoke exposure is

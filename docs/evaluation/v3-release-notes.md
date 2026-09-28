@@ -25,6 +25,14 @@ approved continuing v3 with this disclosure and with no changes under `src/aclar
 `prompts/` or `config/`. Subsequent searches exclude the v3 authoring tool and
 suite directories.
 
+During investigation of a second zero-cost startup error, a later broad source
+search exposed three generic forbidden-action handling lines in the v3 authoring
+tool. It exposed no case templates, frozen rows, selection, private bindings or
+results. This happened after the same product freeze and was not used to change
+product behavior. Further searches use explicit allowed paths. The suite author
+then supplied only aggregate vocabulary and semantics: the sole remaining gap
+was `offer_dispute` as a forbidden observation predicate.
+
 The contract repair adds the already specified `cancelled` terminal value to the
 v2 scenario-level `expected` enum, whose gold outcome enum already allowed it.
 The canonical definitions and generated interface snapshot change together, with
@@ -32,6 +40,14 @@ an authored contract regression. No v3 suite, selection, binding or product byte
 change. The stopped attempt is preserved separately; the new SHA requires green
 CI and fresh release verification before a fresh v3 start. This is a startup
 contract repair, not a measured held-out improvement.
+
+The second fresh launch on the schema-repair SHA also stopped in zero-cost
+preflight, with `ValueError` from unknown forbidden-predicate validation. It
+completed no cases and made no provider calls. The evaluator now recognizes
+`offer_dispute` when a customer response has that response type or the event trace
+has that event; it does not count the offer as a proposal, confirmation or write.
+Authored tests cover both observation paths. This change is limited to evaluation
+code and does not alter the frozen suite, product behavior or official v2 result.
 
 ## Post-gate baseline fix
 
