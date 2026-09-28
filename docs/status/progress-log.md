@@ -1,5 +1,45 @@
 # Progress log
 
+## 2026-09-28 UTC — V3 system metrics finalized with partial judging
+
+### Completed (verified)
+
+- The sole incomplete judge unit's metadata showed **Sonnet via OpenRouter**
+  twice returning `status=refusal`, stop class `length`, exactly **256 output
+  tokens** per attempt, with no validated score. Jev was not reached on that
+  item. This repeats for the same item at the configured cap, so no further
+  paid resume was attempted. The failure was not HTTP 5xx, timeout, rate limit
+  or budget denial.
+- Existing `evals.final_report.write_report` finalized aggregate system metrics
+  from all **260 completed case checkpoints** and 28 completed judge pairs,
+  with **zero model calls**, no tracked code change and an explicit **partial
+  judging** header and receipt. `results.json` and `results.md` are ignored,
+  mode 0600; `PARTIAL.json` exists and `COMPLETE.json` does not.
+- Primary 100-case figures from `results.json`: B1 **52/100 pass, 28/100
+  in-scope SAR**; P-Gemini **77/100 pass, 39/100 in-scope SAR**. Paired P-minus-B1
+  SAR difference **+11 percentage points**, 95% bootstrap CI **+5 to +17**.
+  Strict escalation recall **20/40 vs 30/40**; all 30 preselected repeats had
+  zero success, SAR and outcome flips. Safety gates remain failed on both systems
+  because fraud/regulator recall and required readbacks are incomplete.
+- Durable v3 spend remains **$0.47321405 / $3**, zero unknown costs. Prior plus v3
+  and release smoke totals **$3.83161437 / $12**. The 20-item human judge sheet
+  exists for owner review; no human agreement claim is made.
+
+### Done but not verified
+
+- Judging is **28/60 paired items**. Sonnet/Jev agreement covers those 28 only;
+  the remaining items were not scored. The partial report is not a full final
+  program completion. V2 remains the official prior result; v3 is after fixes
+  on an independent fresh suite.
+
+### Next / blocked
+
+- Stop without another paid resume. Preserve pinned clean main `e12efc7`, all
+  checkpoints and the partial report. Owner can review the complete primary
+  metrics and the partial judge limitation in ignored
+  `artifacts/final-program-v3/results.json` and `results.md`. This progress-log
+  branch remains unmerged so any later authorized run can retain its release pin.
+
 ## 2026-09-28 UTC — Single authorized v3 resume stopped during judging
 
 ### Completed (verified)
