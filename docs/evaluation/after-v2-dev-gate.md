@@ -31,9 +31,75 @@ at this SHA ([CI](https://github.com/sebastian-gm/bank-agent-lab/actions/runs/36
   Prior plus this charge: **$3.22053853**. No budget reset or further paid call.
 
 **Stop boundary:** no release, Azure smoke, suite-v3 access/merge or v3 execution.
-The no-fault shortfall needs a dev-only follow-up decision. This report uses
-aggregates only and does not diagnose the frozen confirmation rows. Official v2
-remains unchanged; abandoned v1 was not accessed.
+The owner subsequently authorized the restricted dev follow-up below and one
+full-gate rerun after fixes merge. Official v2 remains unchanged; abandoned v1
+was not accessed.
+
+## Authorized four-case diagnosis — saved evidence only
+
+Inspected only failed no-fault checkpoints `case-000`, `case-002`, `case-016`,
+`case-018` from `gate-real` and their authored dev definitions. No provider calls,
+confirmation-case inspection, suite-v3 access or threshold changes. Case IDs and
+typed observations below are sufficient to locate the ignored evidence; no ledger
+rows or transcript text are copied here.
+
+All four openings are neutral questions about what a named charge is or why it
+appears, without a claim of unfamiliarity, denial or filing request. Under
+ADR-0015's ordinary-inquiry rule, `charge_inquiry` and the recorded language are
+correct; `unfamiliar_charge` should be **false**, with `recognition=null`.
+Prompt v5 instead explicitly includes asking what a charge is as an unfamiliarity
+cue. Its status-only postprocessing also depends on an explicit status word, so
+it does not repair these neutral inquiries. The raw slot expressions are not in
+the per-case NLU event; no claim about unrecorded slots is made.
+
+| Case | First divergence and observed NLU | State / offer handling | Policy | Final check | Owner |
+| --- | --- | --- | --- | --- | --- |
+| `es.pending.v2` | Turn 1: `charge_inquiry`, ES, `recognition=null`, but `unfamiliar_charge=true` instead of false | Correct target proposed; unwanted offer on turn 1; uncertainty on turns 2/3 ends in handoff | Correct `TXN-01` pending explanation | Explanation action/target present, no forbidden action; terminal `escalated` differs from `resolved_by_explanation` | AI: NLU/prompt; lead: secondary recognition-clarification preservation |
+| `es.declined.v2` | Turn 1: same erroneous flag, otherwise correct inquiry/ES frame | Legitimate choice on turn 1; simulator selects target on turn 2; retained flag creates unwanted offer; turns 3/4 end in handoff | Correct `TXN-04` declined explanation | Same terminal-outcome mismatch; required explanation present | AI: NLU/prompt; lead: secondary recognition-clarification preservation |
+| `pt.pending.v2` | Turn 1: `charge_inquiry`, PT, `recognition=null`, but `unfamiliar_charge=true` instead of false | Correct target proposed; unwanted offer on turn 1; uncertainty on turns 2/3 ends in handoff | Correct `TXN-01` pending explanation | Same terminal-outcome mismatch; required explanation present | AI: NLU/prompt; lead: secondary recognition-clarification preservation |
+| `pt.declined.v2` | Turn 1: same erroneous flag, otherwise correct inquiry/PT frame | Legitimate choice on turn 1; simulator selects target on turn 2; retained flag creates unwanted offer; turns 3/4 end in handoff | Correct `TXN-04` declined explanation | Same terminal-outcome mismatch; required explanation present | AI: NLU/prompt; lead: secondary recognition-clarification preservation |
+
+### Ownership and corrective scope
+
+- **AI lane — primary cause in 4/4:** distinguish neutral what/why-charge inquiries
+  from expressed unfamiliarity in NLU/prompt handling. Expected ordinary status
+  explanation gold is consistent with ADR-0015; preserve it. Explicit unfamiliarity
+  still needs the offer, and explicit denial still needs normal policy review.
+- **Lead orchestration — secondary issue in 4/4:** the first uncertainty turn
+  correctly creates a recognition-specific clarification, but generic NLG replaces
+  its required question with a general request for details. In both ES cases it
+  also changes the language to PT. Preserve the code-authored recognition question
+  while the offer remains active. This does not itself cure the initial false offer.
+- **Lead harness/fixture — no defect established:** the generic chooser picks the
+  correct declined target. Default uncertainty is faithful to these ordinary-inquiry
+  fixtures, whose intended terminal path never requires an offer reply. Adding a
+  recognition/denial response would hide the NLU error. No fixture edits are justified.
+- **Policy/scorer — no defect established:** the trusted status rules are correct,
+  two uncertain replies correctly reach `ESC-04`, and the final-outcome check
+  correctly rejects an unnecessary handoff despite an earlier explanation event.
+
+The one authorized rerun must preserve this first run, use the same lifetime
+budget scope/run, and execute all three groups once after the fixes merge. Frozen
+confirmation remains a blind check; its failures are not used for diagnosis/tuning.
+
+Lead implementation preserves the recognition question by disabling generic
+phrasing only for `clarify` while an offer is active. New authored ES/PT regressions
+first reproduced the lost question, then verified the localized question, no
+phrasing call and the existing two-uncertainty handoff. No fixture or threshold edit.
+
+The follow-up estimate remains **$0.15–$0.30**, within the approved shared $1 cap
+(about $0.85 remained after attempt 1). Exact command after both lanes' fixes merge:
+
+```bash
+LLM_REAL_CALLS_APPROVED=1 LLM_FINAL_RUN_STARTED=0 .venv/bin/python -m scripts.dev_gate real --profile after-v2 --attempt 2
+```
+
+`--attempt 2` writes to `artifacts/after-v2-dev/gate-real-followup/`, requires a
+complete unsuccessful 52-case predecessor, and verifies unchanged dev/confirmation
+input hashes. It refuses an existing destination, another profile, or an attempt
+beyond 2. It neither creates a new allowance nor resets the existing scope/run.
+The first run remains in `gate-real/`. If the second full gate misses, report and
+stop without another repeat. No release or v3 execution is authorized here.
 
 ## Scope and isolation
 

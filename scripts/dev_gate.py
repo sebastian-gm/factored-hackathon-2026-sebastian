@@ -221,7 +221,42 @@ def summarize(items: list[dict], complete: bool) -> dict:
     }
 
 
-async def run(mode: str, *, profile: str = "option-a") -> dict:
+def attempt_output(
+    output_root: Path, *, mode: str, profile: str, attempt: int, input_hashes: dict[str, str]
+) -> Path:
+    """Preserve the first run and allow one explicitly requested after-v2 follow-up."""
+    if attempt not in {1, 2}:
+        raise ValueError("Only the original run and one follow-up are supported")
+    name = "gate-real" if mode == "real" else "gate-structured-mock"
+    if attempt == 2:
+        if profile != "after-v2" or mode != "real":
+            raise ValueError("The follow-up is only authorized for the real after-v2 gate")
+        first = output_root / "gate-real"
+        launch = json.loads((first / "launch.json").read_text())
+        result = json.loads((first / "results.json").read_text())
+        if (
+            launch.get("profile") != "after-v2"
+            or launch.get("mode") != "real"
+            or launch.get("scope") != "dev-gate/after-v2"
+            or launch.get("run_id") != "after-v2"
+            or launch.get("planned") != 52
+            or result.get("complete") is not True
+            or result.get("gate_passed") is not False
+            or result.get("sha") != launch.get("sha")
+            or {key: group.get("n") for key, group in result.get("groups", {}).items()}
+            != {"dev": 20, "confirmation": 20, "faults": 12}
+        ):
+            raise ValueError("Follow-up requires the completed unsuccessful first gate")
+        if input_hashes != launch.get("input_hashes"):
+            raise ValueError("Follow-up must preserve both dev and confirmation inputs")
+        name = "gate-real-followup"
+    output = output_root / name
+    if output.exists():
+        raise FileExistsError("This gate attempt already exists; do not repeat it")
+    return output
+
+
+async def run(mode: str, *, profile: str = "option-a", attempt: int = 1) -> dict:
     if profile not in {"option-a", "after-v2"}:
         raise ValueError("Unknown dev gate profile")
     from scripts.after_v2_budget import RUN_ID as AFTER_RUN
@@ -240,8 +275,6 @@ async def run(mode: str, *, profile: str = "option-a") -> dict:
         ).strip()
     ):
         raise RuntimeError("Real acceptance requires a clean committed candidate")
-    output = output_root / ("gate-real" if real else "gate-structured-mock")
-    output.mkdir(parents=True, exist_ok=False)
     dev = yaml.safe_load(DEV.read_text())["scenarios"]
     cases = [("dev" if not s.get("faults") else "faults", s) for s in dev]
     hashes = {"dev": hashlib.sha256(DEV.read_bytes()).hexdigest()}
@@ -266,12 +299,17 @@ async def run(mode: str, *, profile: str = "option-a") -> dict:
         if hashes["confirmation"] != expected_hash:
             raise ValueError("Confirmation bytes changed since the pre-fix freeze")
         cases += [("confirmation", s) for s in confirmation]
+    output = attempt_output(
+        output_root, mode=mode, profile=profile, attempt=attempt, input_hashes=hashes
+    )
+    output.mkdir(parents=True, exist_ok=False)
     save(
         output / "launch.json",
         {
             "sha": sha,
             "mode": mode,
             "profile": profile,
+            "attempt": attempt,
             "scope": scope,
             "run_id": run_id,
             "input_hashes": hashes,
@@ -336,7 +374,7 @@ async def run(mode: str, *, profile: str = "option-a") -> dict:
     finally:
         if store:
             store.close()
-        report = {"sha": sha, "mode": mode, **summarize(items, completed)}
+        report = {"sha": sha, "mode": mode, "attempt": attempt, **summarize(items, completed)}
         if owner_dsn:
             report["shared_budget"] = budget_status(owner_dsn, scope=scope, run_id=run_id)
         save(output / "results.json", report)
@@ -347,9 +385,10 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("mode", choices=("mock", "real"))
     parser.add_argument("--profile", choices=("option-a", "after-v2"), default="option-a")
+    parser.add_argument("--attempt", type=int, choices=(1, 2), default=1)
     args = parser.parse_args()
     try:
-        result = asyncio.run(run(args.mode, profile=args.profile))
+        result = asyncio.run(run(args.mode, profile=args.profile, attempt=args.attempt))
         print(json.dumps(result))
         if args.mode == "real" and not result["gate_passed"]:
             raise SystemExit(1)
