@@ -26,13 +26,14 @@ from aclara.llm.final_run import (
     open_budget_store,
     require_start,
 )
-from aclara.llm.judge_validation import DIMENSIONS, sample_rows
+from aclara.llm.judge_validation import DIMENSIONS
 from aclara.llm.prompts import load_prompt
 from evals.access import access
 from evals.bindings import ROOT, bind
 from evals.bound_execution import execute_bound
 from evals.checkpoints import Checkpoints, atomic_write, save
 from evals.heldout import failed, load
+from evals.program_spec import BINDINGS, RELEASE, WORKLOAD, selections, verify_envelope
 from evals.serving import open_serving
 
 
@@ -111,16 +112,10 @@ def human_sheet(output: Path, rows: list[dict]) -> None:
 
 async def execute(suite, identities, directory, serving, store, checkpoints, repeat_ids):
     cases = []
-    workload = [
-        ("B1", 0, None),
-        ("P", 0, "default"),
-        ("P", 1, "default"),
-        ("P", 2, "default"),
-        ("P-Sonnet", 0, "openrouter_sonnet"),
-    ]
-    for system, repeat, route in workload:
+    planned = 2 * len(suite["scenarios"]) + 2 * len(repeat_ids)
+    for system, repeat, route in WORKLOAD:
         for scenario in suite["scenarios"]:
-            if (repeat or system == "P-Sonnet") and scenario["id"] not in repeat_ids:
+            if repeat and scenario["id"] not in repeat_ids:
                 continue
             key = f"{system}:{repeat}:{scenario['id']}"
             cached = checkpoints.read(key)
@@ -140,7 +135,9 @@ async def execute(suite, identities, directory, serving, store, checkpoints, rep
             except FinalBudgetStop:
                 raise
             except Exception as error:
-                result = failed(scenario, system, repeat, error)
+                raise RuntimeError(
+                    "Case execution failed; stop without advancing checkpoint"
+                ) from error
             calls = [r["call"] for r in checkpoints.calls(key)]
             result.update(
                 cost_usd=sum(c["cost_usd"] or 0 for c in calls),
@@ -153,7 +150,7 @@ async def execute(suite, identities, directory, serving, store, checkpoints, rep
                 {
                     "phase": "systems",
                     "completed": len(cases),
-                    "planned": 700,
+                    "planned": planned,
                     "at": datetime.now(UTC).isoformat(),
                     "budget": budget_receipt(),
                 },
@@ -162,10 +159,7 @@ async def execute(suite, identities, directory, serving, store, checkpoints, rep
 
 
 def judges(cases, selected, checkpoints, store):
-    calibration = (
-        sample_rows()
-    )  # Exactly the existing 50 authored wording items; no objective gold.
-    rows = [{**row, "cohort": "calibration"} for row in calibration]
+    rows = []  # No new calibration or frontier calls in the approved v3 workload.
     for case in cases:
         if case["system"] not in {"B1", "P"} or case["repeat"] or case["id"] not in selected:
             continue
@@ -199,7 +193,9 @@ def judges(cases, selected, checkpoints, store):
         except FinalBudgetStop:
             raise
         except Exception as error:
-            result = {"status": "failed", "error_type": type(error).__name__}
+            raise RuntimeError(
+                "Judge execution failed; stop without advancing checkpoint"
+            ) from error
         result.update(
             sample_id=row["sample_id"], cohort=row["cohort"], target_locale=row["target_locale"]
         )
@@ -209,7 +205,7 @@ def judges(cases, selected, checkpoints, store):
             {
                 "phase": "judges",
                 "completed": len(ratings),
-                "planned": 150,
+                "planned": len(rows),
                 "at": datetime.now(UTC).isoformat(),
                 "budget": budget_receipt(),
             },
@@ -219,9 +215,9 @@ def judges(cases, selected, checkpoints, store):
 
 def saved_cases(suite: dict, repeat_ids: set[str], checkpoints: Checkpoints) -> list[dict]:
     results = []
-    for system, repeat in [("B1", 0), ("P", 0), ("P", 1), ("P", 2), ("P-Sonnet", 0)]:
+    for system, repeat, _ in WORKLOAD:
         for scenario in suite["scenarios"]:
-            if (repeat or system == "P-Sonnet") and scenario["id"] not in repeat_ids:
+            if repeat and scenario["id"] not in repeat_ids:
                 continue
             key = f"{system}:{repeat}:{scenario['id']}"
             result = checkpoints.read(key)
@@ -237,8 +233,8 @@ def saved_cases(suite: dict, repeat_ids: set[str], checkpoints: Checkpoints) -> 
 def main(output: Path, sha: str) -> None:
     require_start()
     # All frozen reads, including pin verification on resume, are inside the access ledger.
-    paths = sorted(p for p in (ROOT / "evals/suites/test").iterdir() if p.is_file())
-    paths += [ROOT / "artifacts/evaluation-authoring/customer-bindings.json"]
+    paths = sorted(p for p in RELEASE.iterdir() if p.is_file())
+    paths += [BINDINGS]
     paths += [
         ROOT / f"artifacts/charge_matcher/v1/dataset/{split}.jsonl"
         for split in ("train", "validation", "test")
@@ -248,13 +244,9 @@ def main(output: Path, sha: str) -> None:
     ):
         serving, store = open_serving(), open_budget_store()
         try:
-            suite, identities, directory = load(serving)
-            repeat_ids = set(
-                json.loads((ROOT / "evals/suites/test/repeat-selection.json").read_text())[
-                    "scenario_ids"
-                ]
-            )
-            selected = judge_ids(suite["scenarios"], repeat_ids)
+            verify_envelope()
+            suite, identities, directory = load(serving, release=RELEASE, binding_path=BINDINGS)
+            repeat_ids, selected = selections(suite, RELEASE)
             pins = {
                 "implementation_sha": sha,
                 "inputs": {str(p.relative_to(ROOT)): digest(p) for p in paths},
@@ -265,7 +257,11 @@ def main(output: Path, sha: str) -> None:
             checkpoints = Checkpoints(output, pins)
             header = {
                 **pins,
-                "workload": "200 frozen organizer-ledger scenarios with declared overlays; B1 200/P 400/Sonnet 100",
+                "workload": "After fixes, fresh suite test-v3: 100 organizer-ledger scenarios with declared overlays; B1 100/P-Gemini 160, two extra passes on 30 preselected cases; Sonnet frontier OFF",
+                "suite": "test-v3",
+                "frontier_enabled": False,
+                "judge_planned": {"calibration": 0, "frozen": 60},
+                "disclosure": "Fixes informed by post-hoc v2 error analysis; v2 remains official; v3 is an independent fresh suite",
                 "model": "google/gemini-3-flash-preview + jev-1.13.0 risk union",
                 "resolved_models": {
                     k: asdict(v) for k, v in load_models(ROOT / "config/models.yaml").items()
@@ -273,7 +269,7 @@ def main(output: Path, sha: str) -> None:
                 "prompt_versions": {
                     name: digest(ROOT / path)
                     for name, path in {
-                        "nlu-v4": "prompts/nlu/v4.md",
+                        "nlu-v5.1": "prompts/nlu/v5.md",
                         "phrase-v1": "prompts/phrase/v1.md",
                         "judge-v1": "prompts/judge/v1.md",
                         "jev": "src/aclara/llm/typesafe_questions.py",
@@ -290,7 +286,7 @@ def main(output: Path, sha: str) -> None:
                 "matcher_checksums": json.loads(
                     (ROOT / "models/charge_matcher/v2/checksums.json").read_text()
                 ),
-                "cost_assumptions": "USD; provider usage plus retained conservative reserves; cumulative $12 across all attempts/restarts/vendors",
+                "cost_assumptions": "USD; v3 lifetime cap $3 including retries, judges and retained unknown reserves; cumulative prior/dev/v3 plus $0.10 release-smoke allowance <= $12",
                 "monthly_infrastructure_estimate_usd": 34.63,
                 "source_rls": "forced customer RLS, organizer serving, 120-day window",
                 "operational_storage": "isolated fresh in-memory state per case; durable production separately tested",

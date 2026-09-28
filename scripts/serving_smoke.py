@@ -114,7 +114,7 @@ def smoke(web: str, password: str, ledger: ServingRepository) -> dict[str, Any]:
             )
             assert normal["outcome"] == "explained"
             path = conversation()
-            proposal = check(
+            offered = check(
                 client.post(
                     path + "/messages",
                     json={
@@ -125,7 +125,21 @@ def smoke(web: str, password: str, ledger: ServingRepository) -> dict[str, Any]:
                     },
                 )
             )
+            assert offered["outcome"] == "awaiting_dispute_decision"
+            assert offered["response_type"] == "offer_dispute"
+            assert offered["transaction"]["handle"]
+            proposal = check(
+                client.post(
+                    path + "/messages",
+                    json={
+                        "message": "Não fui eu, quero contestar"
+                        if pt
+                        else "Yo no fui, quiero disputarlo"
+                    },
+                )
+            )
             assert proposal["outcome"] == "dispute_proposed"
+            assert proposal["transaction"]["handle"] == offered["transaction"]["handle"]
             filed = check(
                 client.post(
                     path + "/confirm",

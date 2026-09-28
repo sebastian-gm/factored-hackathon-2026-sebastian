@@ -1,7 +1,7 @@
-"""Prepare v2's cumulative budget without starting evaluation; verify on start/resume.
+"""Prepare v3's cumulative budget without starting evaluation; verify on start/resume.
 
 Only aggregate spend is read. No frozen inputs or abandoned v1 files are opened.
-Preparation closes prior v1/dev scopes to new calls and preserves every reserve.
+Preparation closes prior evaluation/dev scopes and preserves every reserve.
 """
 
 from __future__ import annotations
@@ -15,14 +15,22 @@ import psycopg
 
 from aclara.llm.final_run import RUN_ID, SCOPE, require_start
 
-CAP = Decimal("11.87")
+CAP = Decimal("3.00")
 CUMULATIVE_CAP = Decimal("12.00")
-PRIOR_SCOPES = ("final-evaluation", "dev-gate/option-a")
+RELEASE_SMOKE_ALLOWANCE = Decimal("0.10")
+PRIOR_SCOPES = ("final-evaluation", "dev-gate/option-a", "final-evaluation-v2", "dev-gate/after-v2")
 
 
 def check_exposure(prior: Decimal, cap: Decimal) -> None:
-    if not prior.is_finite() or prior < 0 or cap != CAP or prior + cap > CUMULATIVE_CAP:
-        raise RuntimeError("Prior exposure plus v2 limit exceeds the approved cumulative ceiling")
+    if (
+        not prior.is_finite()
+        or prior < 0
+        or cap != CAP
+        or prior + cap + RELEASE_SMOKE_ALLOWANCE > CUMULATIVE_CAP
+    ):
+        raise RuntimeError(
+            "Prior exposure plus v3 and release smoke limits exceeds the approved cumulative ceiling"
+        )
 
 
 def receipt(connection: psycopg.Connection) -> dict:
@@ -41,26 +49,29 @@ def receipt(connection: psycopg.Connection) -> dict:
     limit = connection.execute(
         "SELECT daily_usd,disabled FROM llm.limits WHERE scope=%s", (SCOPE,)
     ).fetchone()
-    run = connection.execute(
-        "SELECT limit_usd,enabled FROM llm.runs WHERE scope=%s AND run_id=%s", (SCOPE, RUN_ID)
-    ).fetchone()
-    if limit != (CAP, False) or run != (CAP, True):
-        raise RuntimeError("Prepared v2 policy is absent, changed, or disabled")
-    check_exposure(prior, run[0])
+    runs = connection.execute(
+        "SELECT run_id,limit_usd,enabled FROM llm.runs WHERE scope=%s", (SCOPE,)
+    ).fetchall()
+    if limit != (CAP, False) or runs != [(RUN_ID, CAP, True)]:
+        raise RuntimeError(
+            "Prepared v3 policy is absent, changed, disabled, or not a single lifetime run"
+        )
+    check_exposure(prior, CAP)
     row = connection.execute(
         "SELECT count(*),coalesce(sum(actual_usd),0),coalesce(sum(charged_usd),0),count(*) FILTER(WHERE actual_usd IS NULL) FROM llm.reservations WHERE scope=%s AND run_id=%s",
         (SCOPE, RUN_ID),
     ).fetchone()
     assert row is not None
     if row[2] > CAP:
-        raise RuntimeError("V2 exposure exceeds its cap")
+        raise RuntimeError("V3 exposure exceeds its cap")
     return {
         "scope": SCOPE,
         "run_id": RUN_ID,
         "cap_usd": float(CAP),
         "cumulative_cap_usd": float(CUMULATIVE_CAP),
         "prior_charged_with_reserves_usd": float(prior),
-        "prior_plus_v2_limit_usd": float(prior + CAP),
+        "release_smoke_allowance_usd": float(RELEASE_SMOKE_ALLOWANCE),
+        "prior_plus_v3_and_smoke_limits_usd": float(prior + CAP + RELEASE_SMOKE_ALLOWANCE),
         "attempts": row[0],
         "known_cost_usd": float(row[1]),
         "charged_with_reserves_usd": float(row[2]),
@@ -117,7 +128,7 @@ if __name__ == "__main__":
             from scripts.azure_migrate_ops import connection_string
 
             result = prepare(connection_string("aclara_admin"))
-            save(ROOT / "artifacts/final-program-v2/prepared-budget.json", result)
+            save(ROOT / "artifacts" / RUN_ID / "prepared-budget.json", result)
             print(json.dumps(result))  # noqa: T201 -- no provider call or frozen access.
         else:
             main()

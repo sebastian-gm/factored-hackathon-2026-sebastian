@@ -66,7 +66,8 @@ def enrich(metrics: dict, cases: list[dict]) -> dict:
     return metrics
 
 
-def judge_report(ratings: list[dict]) -> dict:
+def judge_report(ratings: list[dict], planned: dict | None = None) -> dict:
+    planned = planned if planned is not None else {"calibration": 50, "frozen": 100}
     out = {}
     for cohort in ("calibration", "frozen"):
         rows = [r for r in ratings if r["cohort"] == cohort]
@@ -104,7 +105,7 @@ def judge_report(ratings: list[dict]) -> dict:
                 np.quantile(kappas, [0.025, 0.975]).tolist() if kappas else None
             )
         out[cohort] = {
-            "planned": 50 if cohort == "calibration" else 100,
+            "planned": planned[cohort],
             "attempted": len(rows),
             "paired": len(pairs),
             "unpaired": len(rows) - len(pairs),
@@ -145,6 +146,8 @@ def write_report(
         ("P-Gemini", p),
         ("P-Sonnet", [c for c in cases if c["system"] == "P-Sonnet"]),
     ]:
+        if name == "P-Sonnet" and not rows:
+            continue
         metrics = enrich(report(rows, {**header, "system": name}), rows)
         for field in ("language", "dialect", "country", "segment"):
             for label, subset in metrics["slices"][field].items():
@@ -164,7 +167,7 @@ def write_report(
         "header": {**header, "sample_size": len(b1), "case_runs": len(cases)},
         "systems": systems,
         "paired_comparison": paired,
-        "judges": judge_report(ratings),
+        "judges": judge_report(ratings, header.get("judge_planned")),
         "durable_budget": budget,
         "limitations": [
             "No fluent-human Portuguese review; model-generated dialect wording.",

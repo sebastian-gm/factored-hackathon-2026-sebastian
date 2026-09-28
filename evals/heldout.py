@@ -44,18 +44,22 @@ def private_write(path: Path, data: str) -> None:
         stream.write(data)
 
 
-def load(serving: ServingRepository) -> tuple[dict, dict, AgentDirectory]:
-    release = ROOT / "evals/suites/test"
-    summary = check_payloads(release)
-    verify_manifest(release)
-    print(json.dumps(summary, sort_keys=True))
-    parts = [
-        yaml.safe_load(p.read_text())
-        for p in sorted((ROOT / "evals/suites/test").glob("scenarios-*.yaml"))
-    ]
-    suite = {**parts[0], "scenarios": [c for part in parts for c in part["scenarios"]]}
-    provenance = json.loads((ROOT / "evals/suites/test/provenance.json").read_text())
-    identities = private_bindings(suite, provenance, serving)
+def load(
+    serving: ServingRepository, *, release: Path | None = None, binding_path: Path | None = None
+) -> tuple[dict, dict, AgentDirectory]:
+    if release is None:
+        release = ROOT / "evals/suites/test"
+        summary = check_payloads(release)
+        verify_manifest(release)
+        print(json.dumps(summary, sort_keys=True))
+        parts = [yaml.safe_load(p.read_text()) for p in sorted(release.glob("scenarios-*.yaml"))]
+        suite = {**parts[0], "scenarios": [c for part in parts for c in part["scenarios"]]}
+    else:
+        from evals.program_spec import load_payloads
+
+        suite = load_payloads(release)
+    provenance = json.loads((release / "provenance.json").read_text())
+    identities = private_bindings(suite, provenance, serving, path=binding_path)
     directory = serving.directory()
     warnings: Counter[str] = Counter()
     for s in suite["scenarios"]:

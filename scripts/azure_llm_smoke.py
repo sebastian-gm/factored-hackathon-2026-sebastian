@@ -25,7 +25,7 @@ from aclara.policy.engine import evaluate
 from aclara.settings import Settings
 
 WEB = "https://ca-web-aclara-dev-eastus2.lemonbeach-1b769de0.eastus2.azurecontainerapps.io"
-SMOKE_RUN = "option-a-release-smoke"
+SMOKE_RUN = "after-v2-release-smoke"
 CHECKPOINT = ROOT / f"artifacts/azure/{SMOKE_RUN}-conversations.json"
 
 
@@ -156,11 +156,11 @@ def exercise(name: str, password: str, ledger: ServingRepository) -> dict[str, A
             explained = identify(message("¿Por qué aparece un cargo de " + description + "?"))
             assert explained["outcome"] == "explained"
             assert explained["transaction"]["handle"] == handle
-            proposal = identify(
-                message(
-                    "Yo no autoricé esta compra de " + description + ". Quiero abrir una disputa."
-                )
-            )
+            offered = identify(message("No reconozco el cargo de " + description))
+            assert offered["response_type"] == "offer_dispute"
+            assert offered["outcome"] == "awaiting_dispute_decision"
+            assert offered["transaction"]["handle"] == handle
+            proposal = identify(message("No fui yo. Quiero abrir una disputa."))
             assert proposal["outcome"] == "dispute_proposed"
             assert proposal["transaction"]["handle"] == handle
             result = check(
@@ -245,7 +245,7 @@ def exercise(name: str, password: str, ledger: ServingRepository) -> dict[str, A
         nlu = [e for e in events if e["event"] == "nlu"]
         calls = [e for e in events if e["event"] == "llm_call"]
         assert nlu and all(not e["degraded"] for e in nlu)
-        assert any(e["status"] == "valid" and e["prompt_id"] == "nlu@v4" for e in calls)
+        assert any(e["status"] == "valid" and e["prompt_id"] == "nlu@v5.1" for e in calls)
         assert all(e["provider"] in {"openai_compat", "typesafe"} for e in calls)
         jev = [e for e in calls if e["provider"] == "typesafe"]
         assert jev and all(e["status"] == "valid" for e in jev)
@@ -279,9 +279,21 @@ def exercise(name: str, password: str, ledger: ServingRepository) -> dict[str, A
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
+        "--prepare", action="store_true", help="Prepare the approved $0.10 run without model calls"
+    )
+    parser.add_argument(
         "--case", choices=("all", "es_normal", "pt_ambiguous", "fraud"), default="all"
     )
     args = parser.parse_args()
+    if args.prepare:
+        with psycopg.connect(connection_string("aclara_admin")) as connection:
+            connection.execute("SET LOCAL ROLE aclara_owner")
+            connection.execute(
+                "INSERT INTO llm.runs VALUES('production',%s,0.10,true) ON CONFLICT DO NOTHING",
+                (SMOKE_RUN,),
+            )
+        print(json.dumps({"prepared": SMOKE_RUN, **budget_receipt()}))
+        return
     variables = read_variables()
     assert variables.get("enable_real_llm") and variables.get("llm_budget_run_id") == SMOKE_RUN
     before = budget_receipt()

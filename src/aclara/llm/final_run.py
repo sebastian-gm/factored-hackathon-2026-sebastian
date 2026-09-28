@@ -16,8 +16,8 @@ from aclara.ops.budget import PostgresSpendGate
 from aclara.ops.store import Store
 
 ROOT = Path(__file__).resolve().parents[3]
-SCOPE = "final-evaluation-v2"
-RUN_ID = "final-program-v2"
+SCOPE = "final-evaluation-v3"
+RUN_ID = "final-program-v3"
 
 
 class FinalBudgetStop(RuntimeError):
@@ -73,7 +73,7 @@ def client_for(
     judge: bool = False,
 ) -> StructuredClient:
     require_start()
-    if route not in {"default", "openrouter_sonnet"} or (judge and route != "openrouter_sonnet"):
+    if (judge and route != "openrouter_sonnet") or (not judge and route != "default"):
         raise ValueError("Route is outside the approved final program")
     models = load_models(ROOT / "config/models.yaml")
     spec = models[route]

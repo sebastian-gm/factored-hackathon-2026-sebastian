@@ -20,9 +20,13 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def private_bindings(
-    suite: dict[str, Any], provenance: dict[str, Any], serving: ServingRepository
+    suite: dict[str, Any],
+    provenance: dict[str, Any],
+    serving: ServingRepository,
+    *,
+    path: Path | None = None,
 ) -> dict[str, Any]:
-    path = ROOT / "artifacts/evaluation-authoring/customer-bindings.json"
+    path = path or ROOT / "artifacts/evaluation-authoring/customer-bindings.json"
     raw = path.read_bytes()
     if hashlib.sha256(raw).hexdigest() != provenance["bindings_audit"]["private_bindings_sha256"]:
         raise ValueError("Private binding checksum differs from frozen release")

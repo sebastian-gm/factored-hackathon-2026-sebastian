@@ -9,9 +9,12 @@ import os
 import signal
 import subprocess
 import sys
+import time
+from datetime import UTC, datetime
 from pathlib import Path
 
 from evals.checkpoints import atomic_write, exclusive, save
+from evals.program_spec import verify_envelope
 
 from aclara.llm.final_run import RUN_ID, require_start
 
@@ -64,6 +67,21 @@ def worker() -> None:
             raise RuntimeError("Restore the pinned release before resuming")
         atomic_write(OUTPUT / "worker.pid", str(os.getpid()) + "\n")
         signal.signal(signal.SIGHUP, signal.SIG_IGN)
+        worker_started = time.time()
+
+        def terminate(_signum, _frame):
+            raise InterruptedError("Worker stopped; preserve checkpoints and reservations")
+
+        def watchdog(_signum, _frame):
+            progress = OUTPUT / "progress.json"
+            last = max(worker_started, progress.stat().st_mtime if progress.exists() else 0)
+            started = datetime.fromisoformat(launch["started_at"]).timestamp()
+            if time.time() - last >= 900 or time.time() - started >= 12600:
+                raise TimeoutError("Progress or total wall-clock limit reached")
+
+        signal.signal(signal.SIGTERM, terminate)
+        signal.signal(signal.SIGALRM, watchdog)
+        signal.setitimer(signal.ITIMER_REAL, 30, 30)
         try:
             environment()
             from evals.final_program import main as evaluate
@@ -95,30 +113,69 @@ def worker() -> None:
             print(json.dumps({"state": "stopped", "error_type": type(error).__name__}), flush=True)
             raise SystemExit(1) from None
         finally:
+            signal.setitimer(signal.ITIMER_REAL, 0)
             (OUTPUT / "worker.pid").unlink(missing_ok=True)
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("action", choices=["start", "resume", "status", "_worker"])
+    parser.add_argument("action", choices=["prepare", "start", "resume", "status", "_worker"])
     args = parser.parse_args()
     if args.action == "status":
-        for name in ("progress.json", "STOPPED.json", "COMPLETE.json"):
+        for name in ("prepared.json", "progress.json", "STOPPED.json", "COMPLETE.json"):
             path = OUTPUT / name
             if path.exists():
                 print(path.read_text())
+        return
+    if args.action == "prepare":
+        from scripts.azure_migrate_ops import connection_string
+        from scripts.final_budget import verify
+
+        sha = release()
+        if (OUTPUT / "launch.json").exists():
+            raise RuntimeError("Preparation cannot modify a launched program")
+        receipt = {
+            "state": "prepared_not_started",
+            "implementation_sha": sha,
+            "suite": "test-v3",
+            **verify_envelope(),
+            "workload": {
+                "B1": 100,
+                "P-Gemini": 160,
+                "repeat_scenarios": 30,
+                "judge_scenarios": 30,
+                "dual_judge_items": 60,
+                "frontier": False,
+                "calibration_items": 0,
+            },
+            "budget": verify(connection_string("aclara_admin")),
+        }
+        save(OUTPUT / "prepared.json", receipt)
+        print(json.dumps(receipt))
         return
     require_start()
     if args.action == "_worker":
         worker()
         return
     sha = release()
+    prepared = json.loads((OUTPUT / "prepared.json").read_text())
+    if prepared["implementation_sha"] != sha or any(
+        prepared[k] != v for k, v in verify_envelope().items()
+    ):
+        raise RuntimeError("Restore the prepared release and frozen input pins")
     with exclusive(OUTPUT / "launcher.lock"), exclusive(OUTPUT / "worker.lock"):
         launch = OUTPUT / "launch.json"
         if args.action == "start":
             if launch.exists():
                 raise RuntimeError("Existing program: use resume, never reset artifacts/budget")
-            save(launch, {"implementation_sha": sha, "budget_run": RUN_ID})
+            save(
+                launch,
+                {
+                    "implementation_sha": sha,
+                    "budget_run": RUN_ID,
+                    "started_at": datetime.now(UTC).isoformat(),
+                },
+            )
         elif not launch.exists() or json.loads(launch.read_text())["implementation_sha"] != sha:
             raise RuntimeError("Resume requires the existing pinned release")
         if (OUTPUT / "COMPLETE.json").exists():
