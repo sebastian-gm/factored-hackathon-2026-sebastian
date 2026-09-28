@@ -56,6 +56,14 @@ def test_versioned_scenario_schema_accepts_v1_and_reactive_v2() -> None:
         "scenarios": [scenario],
     }
     validator.validate(payload)  # All v2 metadata is additive and optional.
+    # ADR-0015 uses the same terminal cancelled outcome in gold and the
+    # scenario-level expectation; keep both declarations in sync.
+    assert set(snapshot["$defs"]["GoldLabels"]["properties"]["outcome"]["enum"]) <= set(
+        snapshot["$defs"]["ScenarioV2"]["properties"]["expected"]["enum"]
+    )
+    scenario["expected"] = "cancelled"
+    validator.validate(payload)
+    scenario["expected"] = "dispute_filed"
     scenario.update(
         persona={"customer_ref": "test-persona-001", "split": "test"},
         bank_clock="2026-06-18T06:00:00Z",

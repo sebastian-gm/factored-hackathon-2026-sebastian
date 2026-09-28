@@ -75,6 +75,18 @@ full v3 and new smoke allowances gives
 **$3.35037557 + $3.00 + $0.10 = $6.45037557 ≤ $12**.
 The final prepared-budget receipt must confirm this with live aggregate readback.
 
+### Startup contract repair before the first evaluated case
+
+The first v3 launch on `9f0bff04f28aae4fef6e646575d825fc175b369e` stopped
+with `ValidationError` at `ScenarioV2.expected` before any case checkpoint or
+provider reservation: **0 attempts, $0.00 spent**. That attempt is preserved at
+`artifacts/final-program-v3-attempt1/`. ADR-0015 already defines `cancelled` as a
+terminal gold outcome; the canonical v2 scenario expected enum omitted it. The
+additive contract and interface snapshot correction changes no product behavior,
+and a fresh release SHA must pass CI and Azure readback before a **new** v3 start.
+The same durable $3 lifetime run remains in place without resetting spend. The
+[release notes](v3-release-notes.md) disclose the authoring-tool search exposure.
+
 Release smoke completed at runtime SHA
 `81ce84ec6c6e1c93063bbaf84eb67dd3d98e604e`: **$0.00802475**, nine settled
 attempts, zero unknown costs. Evaluation/dev plus this release smoke exposure is
@@ -108,8 +120,10 @@ LLM_FINAL_RUN_STARTED=1 LLM_REAL_CALLS_APPROVED=1 .venv/bin/python -m scripts.fi
 ```
 
 Status is aggregate-only and free. SIGTERM preserves all checkpoints/reservations.
-The worker stops on budget denial or an execution error, 15 minutes without
-progress, or 3h30 total wall-clock from the original launch (checked every 30s).
+The worker stops on budget denial or an execution error, or 15 minutes without
+progress. Its built-in 3h30 wall-clock stop is a backup; the ignored, detached
+`artifacts/final-program-v3/watchdog-3h.py` enforces the owner-requested **3h**
+total wall-clock limit from the new launch journal (checking every 15 seconds).
 A stopped program requires review before resume; never delete its artifacts or
 start a second run. Preparation this session ends with a report and **STOP**.
 
