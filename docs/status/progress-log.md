@@ -1,5 +1,20 @@
 # Progress log
 
+## AI lane — narrow unfamiliar-charge cue for after-v2 gate, 2026-09-27 UTC
+
+### Completed (verified)
+
+- Bumped [NLU prompt](../../prompts/nlu/v5.md) to v5.1, SHA-256 `2ff85826c9c2ac22e014f1c6ba4765880cde04c329b9ff5d9b503d35c53fbbb4`. `unfamiliar_charge` now requires explicit non-recognition or denial text; plain what/why/status questions and filing requests alone keep it false. Updated deterministic fallback and text-based postprocessing, plus ES and pt-BR positive/negative unit cases.
+- Targeted mock-only Ruff and pytest checks passed (28 selected parameter cases). Tests used only the four reported no-fault utterances and new unit examples; the frozen confirmation-set test was excluded. No paid call, full gate run, frozen confirmation access or suite-v3 access occurred.
+
+### Done but not verified
+
+- The lead has not rerun the no-fault dev gate on this prompt revision.
+
+### Next / blocked
+
+- Open a follow-up PR from current `main`; the lead reruns the gate and merges after review. No paid call or held-out suite access.
+
 ## 2026-09-27 — Step 3 merged and measured: dev gate not passed
 
 ### Completed (verified)

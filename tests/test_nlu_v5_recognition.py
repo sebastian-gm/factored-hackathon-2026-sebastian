@@ -114,16 +114,22 @@ def test_frozen_followups_have_safe_deterministic_degradation() -> None:
     [
         ("No reconozco esta compra", "MX", True),
         ("No reconozco", "MX", True),
-        ("No sé qué es este cargo", "MX", True),
+        ("No sé qué es este cargo, yo no hice", "MX", True),
         ("No cacho de dónde salió este cobro, po", "CL", True),
+        ("No cacho", "CL", True),
+        ("No fui yo, po", "CL", True),
         ("Não sei que cobrança é essa", "BR", True),
         ("Não reconheço", "BR", True),
         ("Não reconheço esse lançamento", "BR", True),
         ("Não lembro dessa compra", "BR", True),
+        ("Não faço ideia", "BR", True),
+        ("Não fui eu", "BR", True),
         ("¿Por qué está pendiente?", "MX", False),
+        ("¿Qué es este cargo?", "MX", False),
+        ("¿Por qué aparece este cargo?", "MX", False),
         ("Por que a compra está pendente?", "BR", False),
-        ("Yo no hice esa compra", "MX", False),
-        ("Não fui eu que fiz essa compra", "BR", False),
+        ("Por que aparece essa cobrança?", "BR", False),
+        ("Quero contestar essa cobrança", "BR", False),
     ],
 )
 def test_degraded_unfamiliarity_stays_separate_from_status_and_denial(
@@ -135,24 +141,28 @@ def test_degraded_unfamiliarity_stays_separate_from_status_and_denial(
 
 
 @pytest.mark.parametrize(
-    ("message", "language", "expected"),
+    ("message", "language", "model_intent", "expected"),
     [
-        ("No me suena esa compra", "es", True),
-        ("Não sei que cobrança é essa", "pt", True),
-        ("¿Por qué está pendiente?", "es", False),
-        ("Por que a compra está pendente?", "pt", False),
-        ("Yo no hice esa compra", "es", False),
-        ("Não fui eu que fiz essa compra", "pt", False),
+        ("No me suena esa compra", "es", "charge_inquiry", True),
+        ("No sé qué es esto, yo no hice", "es", "dispute_charge", True),
+        ("Não sei que cobrança é essa", "pt", "charge_inquiry", True),
+        ("Não fui eu", "pt", "dispute_charge", True),
+        ("¿Qué es este cargo?", "es", "charge_inquiry", False),
+        ("¿Por qué aparece este cargo?", "es", "charge_inquiry", False),
+        ("Por que aparece essa cobrança?", "pt", "charge_inquiry", False),
+        ("¿Por qué está pendiente?", "es", "charge_inquiry", False),
+        ("Por que a compra está pendente?", "pt", "charge_inquiry", False),
+        ("Quero contestar essa cobrança", "pt", "dispute_charge", False),
     ],
 )
 def test_postprocess_corrects_model_unfamiliarity_for_clear_cues(
-    message: str, language: str, expected: bool
+    message: str, language: str, model_intent: str, expected: bool
 ) -> None:
     # Simulate a model missing unfamiliarity, or overflagging a status question.
     client = _client(
         {
             "language": language,
-            "intent": "charge_inquiry",
+            "intent": model_intent,
             "intent_confidence": 0.9,
             "unfamiliar_charge": not expected,
         },
