@@ -20,14 +20,15 @@
 
 ### Done but not verified
 
-- First full CI completed with invariant, Postgres and web green; Python found
-  two tests still asserting `nlu@v5`. Both now expect the active `nlu@v5.1` ID.
-  The full rerun on the corrected head is pending.
+- The first full CI run found two stale assertions for `nlu@v5`; both now expect
+  the active `nlu@v5.1` ID. The corrected code head `2e346c6` passed all four
+  checks: Python, invariants, Postgres and web/browser. This final log-only
+  commit will also receive a full CI run before reporting its head.
 
 ### Next / blocked
 
-- Push the branch and wait for all CI checks to finish green. The lead reviews
-  and merges; no paid gate rerun was made.
+- The lead reviews and merges; the lead reruns the dev gate after merge. No paid
+  gate rerun was made.
 
 ## AI lane — narrow unfamiliar-charge cue for after-v2 gate, 2026-09-27 UTC
 
