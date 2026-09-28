@@ -12,14 +12,17 @@
   (`es.pending.v2`, `es.declined.v2`, `pt.pending.v2`, `pt.declined.v2`), four
   named-charge paraphrases and a neutral question followed by “no lo reconozco”.
   No frozen confirmation or suite-v3 rows were opened; no paid calls were made.
-- Targeted NLU mock tests: **46 passed** (frozen-followup test excluded). Ruff
-  and strict mypy pass.
+- Targeted NLU mock tests: **46 passed** (frozen-followup test excluded); after
+  correcting two stale prompt-ID assertions, the affected mock selection passed
+  **48 tests**. Ruff and strict mypy pass.
 - Merged current main `ff570f8` into the PR #54 branch. Preserved both the prior
   AI-lane and lead progress entries.
 
 ### Done but not verified
 
-- Full CI has not completed on the updated PR #54 head.
+- First full CI completed with invariant, Postgres and web green; Python found
+  two tests still asserting `nlu@v5`. Both now expect the active `nlu@v5.1` ID.
+  The full rerun on the corrected head is pending.
 
 ### Next / blocked
 
