@@ -1,5 +1,42 @@
 # Progress log
 
+## 2026-09-27 — Step 4 v3 release preparation in progress
+
+### Completed (verified)
+
+- Accepted dev gate remains 20/20, blind 18/20, 12/12, 0/52 unsafe, B1 32/32.
+  Merged suite #50 at **`a07e7fcf675f9fc2c1d9fc8a7c51abaf3de5caa1`** after
+  four green checks, using description/metadata only. Manifest matches approved
+  `ecf3f6313f33359fed892de1b3537edc4ae8e854dd5bfa8da1fc8845daa41177`.
+- Copied only the authorized private binding into ignored
+  `artifacts/evaluation-v3/customer-bindings.json`, mode 0600; checksum matches
+  frozen provenance `0c31ea3301961d9ff07f28322c6d92a8eeaf0f30829c850ae474e2a86eba6fa8`.
+  No binding contents printed; no scenario/selection/authoring-tool contents opened.
+- Generic runtime now targets test-v3 and its separate binding/artifact paths,
+  100 B1 + 160 Gemini case-runs, preselected repeats/judges, no frontier/calibration
+  calls, and a separate $3 lifetime scope. Preparation reads metadata only; start
+  remains gated. Checkpoint/resume and budget-denial behavior remain enforced.
+- `make checks`: **274 passed / 14 database skips**, B1 **32/32**, hooks, strict
+  typing, compilation and interface/policy checks passed. Disposable local
+  `python -m scripts.test_postgres`: **16/16**, including persistent reservations,
+  prior-scope closure and refusal to reset the v3 breaker. Terraform format passed.
+- Rechecked pinned provider prices without model calls. Updated release smoke
+  for prompt v5.1 and explain→offer→deny; new combined API/browser smoke cap $0.10.
+  [V3 plan, workload, budget arithmetic and exact commands](../evaluation/final-run-plan.md).
+
+### Done but not verified
+
+- Runtime support needs PR/main CI, image build/push, deployment, full Azure
+  smokes/access readback and fresh `jev-release.json`.
+- V3 durable scope/preparation receipts have not yet been created. Suite execution
+  and adapter behavior on frozen v3 remain unverified and are not attempted here.
+
+### Next / blocked
+
+- Complete the authorized release in Seb Azure Sandbox only; prepare v3 and
+  report exact SHA/evidence, then STOP for the separate v3 go. No v1 access or
+  held-out v2 rerun. PT/dialect human review remains a limitation.
+
 ## 2026-09-27 — Single authorized after-v2 follow-up: dev gate passed
 
 ### Completed (verified)
