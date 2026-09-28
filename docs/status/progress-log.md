@@ -1,5 +1,55 @@
 # Progress log
 
+## 2026-09-27 — V3 release gates and preparation; execution on hold
+
+### Completed (verified)
+
+- Approved post-gate blank-merchant fix merged as #58 at runtime SHA
+  **`81ce84ec6c6e1c93063bbaf84eb67dd3d98e604e`**. B1 **32/32**, mock P
+  **20/20 + 12/12**, all faults triggered, zero unsafe/errors, **$0**; three
+  authored regressions passed. Original paid gate and blind confirmation preserved.
+- Main CI **36369151946** and safety **36369151820** passed. Built/pushed API/web
+  images to private ACR. `scripts.azure_dev plan` / `apply` updated only the apps
+  and restored the approved model-secret reader roles for the real-smoke stage.
+  Live East US 2 infrastructure estimate remains **$34.63/month**, below $40.
+- `python -m scripts.azure_smoke`: four organizer-serving personas, 15 scoped
+  transactions, two cases, four handoffs, staff claim/resolve, logout and original
+  session/case readback after API replica replacement passed in mock mode.
+- `python -m scripts.azure_verify`: owner-IP web restriction, internal API, HTTPS,
+  managed identities, Key Vault references, Postgres TLS/firewall and converted
+  **$30/$50** email alerts passed. `azure-access` **36369616217** passed at runtime
+  SHA: external runner denied with web 403 / API 404.
+- `python -m scripts.azure_llm_smoke`: ES explain→offer→deny→file/readback and PT
+  ambiguity passed with valid Gemini/Jev observations. Explicit fraud correctly
+  bypasses models under ADR-0015; corrected the smoke-only stale NLU assertion,
+  then `--case fraud` verified zero calls, both required reasons, readback/logout.
+- `python -m scripts.serving_browser --target azure`: all three surfaces passed.
+  Combined API/browser cost **$0.00802475 / $0.10**, nine settled provider attempts,
+  zero unknown costs, five conversation allowances used. No further smoke calls.
+- `python -m scripts.final_budget --prepare`: scope **final-evaluation-v3**, run
+  **final-program-v3**, **$3 lifetime cap**, zero attempts; prior scopes closed with
+  reserves preserved. Prior evaluation/dev **$3.35037557** + full v3/smoke caps =
+  **$6.45037557 ≤ $12**. With actual new smoke, pre-v3 exposure is **$3.35840032**.
+- Suite manifest and opaque private-binding checksums remain the approved pins;
+  binding mode 0600. No v3 scenario/selection/authoring contents opened. Fixed
+  workload: 100 B1, 160 P-Gemini including repeats, 60 dual-judge pairs; frontier OFF.
+
+### Done but not verified
+
+- V3 suite execution, metrics and human review remain unperformed. V2 remains the
+  official result; no v1 access or v2 rerun occurred. PT/dialect human review remains
+  a limitation. Final image identity and fresh post-merge CI/access/control evidence
+  are read back into ignored `artifacts/azure/jev-release.json` before handoff;
+  any retag must preserve both tested image digests.
+
+### Next / blocked
+
+- Finish the release-evidence merge with green CI, retag identical tested images,
+  verify the exact final SHA, and run only `scripts.final_program prepare` / `status`.
+  Then **STOP for the orchestrator's separate v3 GO**. Never start/resume here.
+  [Exact future start/resume commands and ceiling](../evaluation/final-run-plan.md).
+  The final response and ignored release/prepared receipts identify the closing SHA.
+
 ## 2026-09-27 — Approved post-gate blank-merchant fallback fix
 
 ### Completed (verified)

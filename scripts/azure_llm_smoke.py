@@ -244,6 +244,23 @@ def exercise(name: str, password: str, ledger: ServingRepository) -> dict[str, A
             ]
         nlu = [e for e in events if e["event"] == "nlu"]
         calls = [e for e in events if e["event"] == "llm_call"]
+        if name == "fraud":
+            # ADR-0015 routes explicit stolen-card cues before model execution.
+            # Verify that guard instead of requiring an unnecessary provider call.
+            assert not nlu and not calls
+            assert {"FRD-01", "AUTH-02"} <= set(result["handoff"]["reason_codes"])
+            assert any(e["event"] == "verify_readback" for e in events)
+            check(client.post("auth/logout", json={}))
+            assert client.get("me").status_code == 401
+            return {
+                "scenario": name,
+                "status": "passed",
+                "execution_path": "deterministic_fraud_guard",
+                "model_attempts": 0,
+                "jev_valid_attempts": 0,
+                "valid_attempts": 0,
+                "fallback_attempts": 0,
+            }
         assert nlu and all(not e["degraded"] for e in nlu)
         assert any(e["status"] == "valid" and e["prompt_id"] == "nlu@v5.1" for e in calls)
         assert all(e["provider"] in {"openai_compat", "typesafe"} for e in calls)
