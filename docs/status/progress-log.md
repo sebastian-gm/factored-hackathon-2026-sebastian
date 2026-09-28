@@ -1,5 +1,40 @@
 # Progress log
 
+## 2026-09-27 local / 2026-09-28 UTC — V3 startup contract repair in progress
+
+### Completed (verified)
+
+- Orchestrator authorized v3 GO on clean release
+  `9f0bff04f28aae4fef6e646575d825fc175b369e`. Its first pinned launch
+  stopped at startup with **`ValidationError`**, before any case checkpoint or
+  provider reservation. `scripts.final_budget.verify` read back **0 attempts,
+  $0.00 charged, 0 unknown costs / $3**. No results were opened.
+- Access-logged, value-free error inspection found two failures of the v2
+  `ScenarioV2.expected` enum in the first suite part. The v1-branch errors are
+  irrelevant to a v2 suite. The ADR-0015 `cancelled` outcome already exists in
+  `GoldLabels` and the reply contract, but is missing from that v2 expected enum.
+- Disclosed a broad search that accidentally surfaced two authoring-tool
+  case-template snippets after the product freeze; no frozen scenario rows,
+  selection contents, binding values or results were printed. Sebastian approved
+  continuation with disclosure and strict product-path freeze. See
+  [v3 release notes](../evaluation/v3-release-notes.md).
+- Added `cancelled` only to the canonical v2 expected enum and regenerated its
+  interface snapshot. The authored contract test passes; no product paths change.
+
+### Done but not verified
+
+- Schema repair awaits full CI, exact-SHA release re-verification and a fresh v3
+  launch. The first attempt remains preserved with zero measured spend. No v3
+  metrics exist yet.
+
+### Next / blocked
+
+- Merge the schema-only correction after green CI; verify identical deployed
+  image digests at the new SHA and record a new release receipt. Preserve the
+  first attempt as `final-program-v3-attempt1`; start a fresh pinned v3 directory
+  only after reporting class, fix and spend. Enforce the same $3 lifetime scope
+  and $12 cumulative ceiling. Keep main frozen while the worker runs.
+
 ## 2026-09-27 — V3 release gates and preparation; execution on hold
 
 ### Completed (verified)

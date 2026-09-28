@@ -4,6 +4,35 @@ V2 remains the official result. Any later v3 report must say **after fixes, fres
 suite** and disclose that the earlier implementation fixes used v2 post-hoc
 analysis. This release preparation does not start v3.
 
+## V3 startup and blind-access disclosure
+
+The first v3 launch at frozen, deployed product SHA
+`9f0bff04f28aae4fef6e646575d825fc175b369e` began at
+2026-09-28 02:51:36 UTC. It stopped during suite schema validation before its
+first case checkpoint or provider reservation: **`ValidationError`**, zero calls,
+**$0.00** v3 spend. The v2 schema branch rejected `ScenarioV2.expected` on two
+entries of the first suite part. Only the error class, schema model, field path,
+validator and aggregate count were inspected; no input value or scenario text was
+printed. V1-branch errors were irrelevant to this v2 suite.
+
+During that diagnosis, after the product SHA had already been frozen and deployed,
+a broad repository search accidentally matched **two case-template snippets** in
+the v3 **authoring tool** and several nearby code references. The search did not
+open frozen scenario rows, selection contents, private binding values or results.
+The snippets were not used to tune product behavior. This was a breach of the
+lead's no-authoring-tool-access rule and is disclosed here. Sebastian explicitly
+approved continuing v3 with this disclosure and with no changes under `src/aclara/`,
+`prompts/` or `config/`. Subsequent searches exclude the v3 authoring tool and
+suite directories.
+
+The contract repair adds the already specified `cancelled` terminal value to the
+v2 scenario-level `expected` enum, whose gold outcome enum already allowed it.
+The canonical definitions and generated interface snapshot change together, with
+an authored contract regression. No v3 suite, selection, binding or product bytes
+change. The stopped attempt is preserved separately; the new SHA requires green
+CI and fresh release verification before a fresh v3 start. This is a startup
+contract repair, not a measured held-out improvement.
+
 ## Post-gate baseline fix
 
 After the accepted real dev gate (20/20, blind 18/20, 12/12, 0/52 unsafe), the mock
