@@ -1,5 +1,36 @@
 # After-v2 dev validation
 
+## Approved post-gate baseline fix — zero-cost validation
+
+The release's mock Azure smoke exposed an additional deterministic fallback bug:
+empty merchant names matched every query; replacing that empty match inserted
+spaces between amount digits, so identification returned no candidate. The
+failure occurred before policy or any write. Aggregate-only live diagnosis and
+an independent authored fixture reproduced it; no frozen inputs informed the fix.
+
+Sebastian/orchestrator explicitly approved one guard: blank merchant names cannot
+supply merchant evidence. This affects B1 and P's deterministic fallback, without
+changing learned MATCH thresholds, NLU/prompt logic, policy or frozen gold. It is
+a **post-gate baseline fix**, not a rerun of the paid acceptance result below.
+
+Code commit: `4fee1ee3db7428a5564ecbc634bb62e0ae7049d5`.
+Three authored regressions passed (empty/whitespace merchants, numeric merchant
+and date tokens, and no positive identification from a sole blank-merchant row).
+`LLM_PROVIDER=mock LLM_REAL_CALLS_APPROVED=0 LLM_FINAL_RUN_STARTED=0
+.venv/bin/python -m evals.runner --system B1` stayed **32/32**, 12 readbacks,
+safety guards passed. The existing `scripts.dev_gate.run("mock", profile="after-v2")`
+ran with only its output destination redirected to the new ignored directory
+`artifacts/after-v2-dev/post-gate-baseline-fix/gate-structured-mock/`, preserving
+both earlier gates. Result: **20/20 no-fault (ES 10/10, PT 10/10), 12/12 faults
+(ES 6/6, PT 6/6), all 12 triggers, 0/32 unsafe/forbidden, zero execution errors,
+$0 cost**. The mock report's `gate_passed=false` reflects the missing real-NLU
+and confirmation requirements; this was the separately requested mock regression
+check, not another paid gate. Confirmation was not loaded or repeated.
+
+[Release disclosure](v3-release-notes.md). CI and deployment evidence will be
+recorded with the resulting release. Official v2 remains unchanged, and v3
+execution still requires the separate go.
+
 ## Authorized follow-up result — gate passed
 
 Measured merged candidate: **`75629945f36f2767bccbaddaf6fad2707ed8681f`**,

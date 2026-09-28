@@ -40,7 +40,9 @@ def candidates(
     merchants = [
         (h, r)
         for h, r in rows
-        if r.merchant_name != "—" and normalize_text(r.merchant_name) in value
+        if r.merchant_name.strip()
+        and r.merchant_name != "—"
+        and normalize_text(r.merchant_name) in value
     ]
     # Known merchant tokens and dates are identity evidence, not amounts.
     # Remove the longest names first so a numeric suffix cannot filter the ledger.
