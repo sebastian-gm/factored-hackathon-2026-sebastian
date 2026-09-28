@@ -1,5 +1,36 @@
 # Progress log
 
+## 2026-09-27 — Approved post-gate blank-merchant fallback fix
+
+### Completed (verified)
+
+- The first mock Azure smoke at `6aeed0e` stopped before policy/write: deterministic
+  fallback matched blank merchant names, then corrupted amount digits during
+  merchant removal. Reproduced with aggregate-only smoke observations and an
+  authored fixture; no frozen inputs read. Azure controls separately passed.
+- Orchestrator approved the minimal product guard with explicit B1/mock-P/CI and
+  disclosure conditions. Code commit **`4fee1ee3db7428a5564ecbc634bb62e0ae7049d5`**
+  excludes blank merchant evidence; three authored regressions passed.
+- `evals.runner --system B1`: **32/32**, 12 readbacks, safety guards passed.
+  Existing mock P dev harness in a new preserved output directory: **20/20
+  no-fault + 12/12 faults**, all triggers, **0/32 unsafe/forbidden**, no errors,
+  **$0**. Confirmation was not loaded/repeated; prior paid results remain intact.
+- [Post-gate disclosure and commands](../evaluation/after-v2-dev-gate.md) and
+  [release notes](../evaluation/v3-release-notes.md). No learned threshold,
+  prompt, policy or frozen-gold change.
+
+### Done but not verified
+
+- Fix still needs green PR/main CI and a rebuilt API release. Azure remains in
+  mock mode at the earlier candidate; the full release smoke is not yet passed.
+- V3 budget is prepared with **$0 / $3**, cumulative worst-case including new
+  smoke **$6.45037557 / $12**. No final-program worker or v3 outcome exists.
+
+### Next / blocked
+
+- Merge with green CI, continue the approved release, then prepare/verify v3
+  receipts and STOP for the separate go. Never access v1 or rerun held-out v2.
+
 ## 2026-09-27 — Step 4 v3 release preparation in progress
 
 ### Completed (verified)
