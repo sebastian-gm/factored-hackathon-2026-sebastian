@@ -1,5 +1,36 @@
 # Progress log
 
+## 2026-09-29 UTC — Owner-approved preview deploy of `fix/post-v3-analysis`
+
+### Completed (verified)
+
+- Sebastian approved deploying the branch tonight for his own review. Images for
+  `37627d4001bc02bd3ae0c25c618acd16f5b4a47e` were built from the committed tree,
+  pushed with a temporary private Docker config (token removed), and applied as
+  the only change (`image_tag`; Terraform 0 added, 2 changed, 0 destroyed).
+- `scripts.azure_verify` passed: restricted HTTPS boundaries, single revisions,
+  SHA images, managed identity, TLS, firewall, Key Vault RBAC and budget alerts.
+  Web returns 200 from the owner IP, the BFF returns 401 without a session, and
+  the API revision is healthy on the new image.
+- GitHub Actions did not start PR #62 jobs: "an Actions budget is preventing
+  further use" (account billing, not code). The same CI steps ran locally and
+  passed: pre-commit, Ruff, strict mypy, compileall, pytest, interfaces, policy
+  catalog, B1 dev and B1 v2 (32/32 each), staged-file policy, Postgres
+  integration (17/17), web typecheck/lint/build, browser 29/29.
+
+### Done but not verified
+
+- This is a **preview of a branch, not a release of `main`**. The capped
+  real-model and browser smokes were not rerun: their approved five-conversation
+  allowance was already used by the v3 release smoke. The `azure-access` workflow
+  cannot run until the Actions budget is restored. The deployed app keeps the
+  existing production cap (run `after-v2-release-smoke`, about $0.09 left, $3 daily).
+
+### Next / blocked
+
+- Restore the GitHub Actions budget (owner billing decision) so CI and the
+  external access check can run; then merge PR #62 and release `main` for v4.
+
 ## 2026-09-28 UTC — Post-v3 fixes (orchestrator session, branch `fix/post-v3-analysis`)
 
 ### Completed (verified)
