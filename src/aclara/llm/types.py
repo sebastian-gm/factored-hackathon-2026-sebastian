@@ -24,6 +24,9 @@ class ModelSpec:
         None
     )
     timeout_seconds: int = 20
+    # Hedge provider latency outliers: a slow first attempt is abandoned early and
+    # the bounded second attempt uses the full timeout (post-v3 latency analysis).
+    first_attempt_timeout_seconds: int | None = None
 
 
 @dataclass(frozen=True, slots=True)

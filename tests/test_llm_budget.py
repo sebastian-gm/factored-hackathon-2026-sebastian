@@ -231,3 +231,37 @@ def test_unknown_usage_keeps_reserve_and_deadline_stops_retry(monkeypatch):
     with pytest.raises(ModelFailure, match="deadline"):
         client.generate("nlu", "system", "fixture", Answer, prompt_id="fixture")
     assert charges == [None, None] and len(calls) == 2
+
+
+def test_slow_first_attempt_is_abandoned_early_and_retried_with_full_timeout(monkeypatch):
+    from pathlib import Path
+
+    timeouts = []
+
+    class Adapter:
+        def complete(self, spec, *args):
+            timeouts.append(spec.timeout_seconds)
+            if len(timeouts) == 1:
+                raise ModelFailure("first attempt timed out")
+            return ProviderResponse('{"value":"ok"}', "fixture", TokenUsage(10, 2))
+
+    monkeypatch.setenv("LLM_REAL_CALLS_APPROVED", "1")
+    monkeypatch.setenv("FIXTURE_MODEL_KEY", "fixture-only")
+    client = StructuredClient(
+        {
+            "nlu": ModelSpec(
+                "openai_compat",
+                "fixture",
+                key_env="FIXTURE_MODEL_KEY",
+                price_id="gemini-2.5-flash",
+                timeout_seconds=20,
+                first_attempt_timeout_seconds=6,
+            )
+        },
+        load_prices(Path("config/pricing.yaml")),
+        budget_usd=1,
+    )
+    client._adapters["openai_compat"] = Adapter()
+    assert client.generate("nlu", "system", "fixture", Answer, prompt_id="fixture").value == "ok"
+    assert timeouts == [6, 20]
+    assert [record.attempt for record in client.records] == [1, 2]
