@@ -7,6 +7,9 @@ No source file or fixture fallback exists here. Only the authenticated customer'
 from __future__ import annotations
 
 import hashlib
+from collections.abc import Iterator
+from contextlib import contextmanager
+from contextvars import ContextVar
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from math import isfinite
@@ -18,6 +21,22 @@ from aclara.ops.store import Scope, Store
 
 if TYPE_CHECKING:
     from aclara.policy.engine import PolicyContext
+
+# One API request reads a customer's 120-day projection several times (identify,
+# policy, readback). Memoize it for that request only, so each request costs one
+# set of scoped queries; nothing is shared across requests or customers.
+_REQUEST_SNAPSHOTS: ContextVar[dict[tuple[int, str, str], TransactionRepository] | None] = (
+    ContextVar("serving_request_snapshots", default=None)
+)
+
+
+@contextmanager
+def request_snapshot_cache() -> Iterator[None]:
+    token = _REQUEST_SNAPSHOTS.set({})
+    try:
+        yield
+    finally:
+        _REQUEST_SNAPSHOTS.reset(token)
 
 
 @dataclass(frozen=True)
@@ -89,6 +108,10 @@ class ServingRepository(TransactionRepository):
         current = self.store.current.get()
         if current and current.scope.customer_id != customer_id:
             raise PermissionError("Ledger customer differs from operational scope")
+        cache = _REQUEST_SNAPSHOTS.get()
+        key = (id(self), customer_id, as_of.isoformat())
+        if cache is not None and key in cache:
+            return cache[key]
         scope = current.scope if current else Scope(customer_id, "ledger", "ledger")
         with self.store.transaction(scope):
             pg = self.store._unit().connection
@@ -130,7 +153,7 @@ class ServingRepository(TransactionRepository):
                 "fx_nearest_prior": r[12],
                 "missing_fields": ("merchant_name",) if not r[8] else (),
             }
-        return TransactionRepository(
+        snapshot = TransactionRepository(
             tuple(rows),
             customers=tuple(Customer(*c) for c in customers),
             products=tuple(
@@ -138,6 +161,9 @@ class ServingRepository(TransactionRepository):
             ),
             policy_fields=fields,
         )
+        if cache is not None:
+            cache[key] = snapshot
+        return snapshot
 
     def for_customer(self, customer_id: str, as_of: datetime) -> list[tuple[str, Transaction]]:
         return self.snapshot(customer_id, as_of).for_customer(customer_id, as_of)

@@ -56,7 +56,12 @@ from aclara.api.workflows import (
     security_event,
 )
 from aclara.bank.repository import Transaction, TransactionRepository
-from aclara.bank.serving import Persona, ServingRepository, demo_story_mappings
+from aclara.bank.serving import (
+    Persona,
+    ServingRepository,
+    demo_story_mappings,
+    request_snapshot_cache,
+)
 from aclara.handoff.packet import create_packet
 from aclara.handoff.routing import AgentDirectory
 from aclara.llm.client import StructuredClient
@@ -101,6 +106,20 @@ class ActionProposal:
     policy: PolicyDecision
     expires_at: datetime
     language: str
+
+
+class SnapshotCacheMiddleware:
+    """Scope serving snapshot memoization to exactly one HTTP request."""
+
+    def __init__(self, app: Any) -> None:
+        self.app = app
+
+    async def __call__(self, scope: Any, receive: Any, send: Any) -> None:
+        if scope["type"] != "http":
+            await self.app(scope, receive, send)
+            return
+        with request_snapshot_cache():
+            await self.app(scope, receive, send)
 
 
 @dataclass(slots=True)
@@ -308,6 +327,7 @@ def create_app(
         else TransactionRepository()
     )
     app = FastAPI(title="Aclara demo API", version="0.1.0")
+    app.add_middleware(SnapshotCacheMiddleware)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=[os.getenv("WEB_ORIGIN", "http://localhost:3000")],
