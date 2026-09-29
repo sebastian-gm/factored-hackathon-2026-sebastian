@@ -108,15 +108,30 @@ async function upstream(
   } catch {
     throw new HttpError(503, "service_unavailable");
   }
-  if (!result.ok)
+  if (!result.ok) {
+    // A stale step-up is not a dead session: the customer renews the OTP and
+    // confirms the same proposal again. Only the detail string is inspected.
+    let detail = "";
+    if (result.status === 401) {
+      try {
+        const data: unknown = await result.json();
+        if (data && typeof data === "object" && "detail" in data)
+          detail = String((data as { detail: unknown }).detail);
+      } catch {
+        detail = "";
+      }
+    }
     throw new HttpError(
       result.status,
       result.status === 401
-        ? "session_or_credentials_invalid"
+        ? detail === "Step-up verification required"
+          ? "step_up_required"
+          : "session_or_credentials_invalid"
         : result.status === 409
           ? "proposal_invalid"
           : "request_failed",
     );
+  }
   try {
     return await result.json();
   } catch {
@@ -472,6 +487,7 @@ async function handle(
     if (
       known &&
       error.status === 401 &&
+      error.code !== "step_up_required" &&
       !request.nextUrl.pathname.includes("/auth/")
     )
       cookie(reply, ACCESS, "", 0);

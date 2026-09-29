@@ -39,6 +39,12 @@ export function CustomerChat({ initialDraft = "" }: { initialDraft?: string }) {
   const [confirmOpen, setConfirmOpen] = useState(false),
     [expired, setExpired] = useState(false),
     [renew, setRenew] = useState(false);
+  // A stale OTP keeps the exact pending proposal: renew step-up, then confirm again.
+  const [stepUp, setStepUp] = useState<{
+      challenge: string;
+      sms: string;
+    } | null>(null),
+    [otp, setOtp] = useState("");
   const lock = useRef(false),
     log = useRef<HTMLDivElement>(null);
   const proposal = latest?.proposal;
@@ -107,6 +113,7 @@ export function CustomerChat({ initialDraft = "" }: { initialDraft?: string }) {
     lock.current = true;
     setBusy(true);
     setError("");
+    let keepOpen = false;
     try {
       receive(
         planSchema.parse(
@@ -117,13 +124,58 @@ export function CustomerChat({ initialDraft = "" }: { initialDraft?: string }) {
         ),
       );
     } catch (caught) {
-      setLatest(null);
-      failed(caught, true);
+      if (
+        confirmed &&
+        caught instanceof ApiError &&
+        caught.status === 401 &&
+        caught.code === "step_up_required"
+      ) {
+        try {
+          const auth = await api<{ challenge_id: string }>("auth/step-up", {});
+          const sms = await api<{ code: string }>(
+            `auth/challenges/${auth.challenge_id}/sms`,
+          );
+          setStepUp({ challenge: auth.challenge_id, sms: sms.code });
+          setError(t("stepUpRequired"));
+          keepOpen = true;
+        } catch (renewal) {
+          setLatest(null);
+          failed(renewal, true);
+        }
+      } else {
+        setLatest(null);
+        failed(caught, true);
+      }
     } finally {
-      setConfirmOpen(false);
+      if (!keepOpen) setConfirmOpen(false);
       lock.current = false;
       setBusy(false);
     }
+  }
+  async function renewAndConfirm() {
+    if (lock.current || !stepUp) return;
+    lock.current = true;
+    setBusy(true);
+    try {
+      await api("auth/step-up/verify", {
+        challenge_id: stepUp.challenge,
+        code: otp,
+      });
+    } catch (caught) {
+      lock.current = false;
+      setBusy(false);
+      setStepUp(null);
+      setOtp("");
+      setLatest(null);
+      setConfirmOpen(false);
+      failed(caught, true);
+      return;
+    }
+    setStepUp(null);
+    setOtp("");
+    lock.current = false;
+    setBusy(false);
+    await confirm(true);
   }
   function submit(event: FormEvent) {
     event.preventDefault();
@@ -412,18 +464,60 @@ export function CustomerChat({ initialDraft = "" }: { initialDraft?: string }) {
               : `${t("expires")}: ${date(proposal.expires_at, locale, true)} UTC`}
           </p>
         )}
-        <div className="dialog-actions">
-          <Button
-            variant="secondary"
-            onClick={() => void confirm(false)}
-            disabled={busy}
+        {stepUp ? (
+          <form
+            className="form-stack"
+            onSubmit={(event) => {
+              event.preventDefault();
+              void renewAndConfirm();
+            }}
           >
-            {t("cancel")}
-          </Button>
-          <Button onClick={() => void confirm(true)} disabled={busy || expired}>
-            {busy ? t("loading") : t("confirm")}
-          </Button>
-        </div>
+            <p className="error" role="alert">
+              {t("stepUpRequired")}
+            </p>
+            <div className="sms-panel">
+              <div>
+                <strong>{t("sms")}</strong>
+                <p className="sms-code" data-testid="confirm-step-up-code">
+                  {stepUp.sms || "••••••"}
+                </p>
+              </div>
+            </div>
+            <label>
+              {t("otp")}
+              <input
+                autoFocus
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                pattern="[0-9]{6}"
+                maxLength={6}
+                value={otp}
+                onChange={(event) => setOtp(event.target.value)}
+                required
+                disabled={busy}
+              />
+            </label>
+            <Button type="submit" disabled={busy || expired}>
+              {busy ? t("loading") : t("verifyAndConfirm")}
+            </Button>
+          </form>
+        ) : (
+          <div className="dialog-actions">
+            <Button
+              variant="secondary"
+              onClick={() => void confirm(false)}
+              disabled={busy}
+            >
+              {t("cancel")}
+            </Button>
+            <Button
+              onClick={() => void confirm(true)}
+              disabled={busy || expired}
+            >
+              {busy ? t("loading") : t("confirm")}
+            </Button>
+          </div>
+        )}
       </Modal>
       <Modal
         open={!!why}

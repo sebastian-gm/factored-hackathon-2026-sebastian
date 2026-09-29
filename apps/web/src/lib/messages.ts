@@ -201,6 +201,9 @@ export const es = {
   freezeVerified: "Bloqueo de tarjeta verificado en los registros.",
   assignmentPending: "Asignación a un agente pendiente.",
   renew: "La sesión o verificación venció. Vuelve a acceder para continuar.",
+  stepUpRequired:
+    "Por seguridad, confirma con un código nuevo. Tu solicitud sigue pendiente.",
+  verifyAndConfirm: "Verificar y confirmar",
   mutationUnknown:
     "No pudimos verificar el resultado. No repetiremos la acción automáticamente. Consulta el estado antes de volver a intentarlo.",
   deskTitle: "Atención con contexto.",
@@ -471,6 +474,9 @@ export const pt: typeof es = {
   freezeVerified: "Bloqueio do cartão verificado nos registros.",
   assignmentPending: "Atribuição a um agente pendente.",
   renew: "A sessão ou verificação expirou. Entre novamente para continuar.",
+  stepUpRequired:
+    "Por segurança, confirme com um novo código. Sua solicitação continua pendente.",
+  verifyAndConfirm: "Verificar e confirmar",
   mutationUnknown:
     "Não foi possível verificar o resultado. Não repetiremos a ação automaticamente. Consulte o status antes de tentar de novo.",
   deskTitle: "Atendimento com contexto.",
