@@ -1,5 +1,116 @@
 # Progress log
 
+## 2026-09-28 UTC — V3 system metrics finalized with partial judging
+
+### Completed (verified)
+
+- The sole incomplete judge unit's metadata showed **Sonnet via OpenRouter**
+  twice returning `status=refusal`, stop class `length`, exactly **256 output
+  tokens** per attempt, with no validated score. Jev was not reached on that
+  item. This repeats for the same item at the configured cap, so no further
+  paid resume was attempted. The failure was not HTTP 5xx, timeout, rate limit
+  or budget denial.
+- Existing `evals.final_report.write_report` finalized aggregate system metrics
+  from all **260 completed case checkpoints** and 28 completed judge pairs,
+  with **zero model calls**, no tracked code change and an explicit **partial
+  judging** header and receipt. `results.json` and `results.md` are ignored,
+  mode 0600; `PARTIAL.json` exists and `COMPLETE.json` does not.
+- Primary 100-case figures from `results.json`: B1 **52/100 pass, 28/100
+  in-scope SAR**; P-Gemini **77/100 pass, 39/100 in-scope SAR**. Paired P-minus-B1
+  SAR difference **+11 percentage points**, 95% bootstrap CI **+5 to +17**.
+  Strict escalation recall **20/40 vs 30/40**; all 30 preselected repeats had
+  zero success, SAR and outcome flips. Safety gates remain failed on both systems
+  because fraud/regulator recall and required readbacks are incomplete.
+- Durable v3 spend remains **$0.47321405 / $3**, zero unknown costs. Prior plus v3
+  and release smoke totals **$3.83161437 / $12**. The 20-item human judge sheet
+  exists for owner review; no human agreement claim is made.
+
+### Done but not verified
+
+- Judging is **28/60 paired items**. Sonnet/Jev agreement covers those 28 only;
+  the remaining items were not scored. The partial report is not a full final
+  program completion. V2 remains the official prior result; v3 is after fixes
+  on an independent fresh suite.
+
+### Next / blocked
+
+- Stop without another paid resume. Preserve pinned clean main `e12efc7`, all
+  checkpoints and the partial report. Owner can review the complete primary
+  metrics and the partial judge limitation in ignored
+  `artifacts/final-program-v3/results.json` and `results.md`. This progress-log
+  branch remains unmerged so any later authorized run can retain its release pin.
+
+## 2026-09-28 UTC — Single authorized v3 resume stopped during judging
+
+### Completed (verified)
+
+- Process metadata showed 213 completed case result files versus 212 published
+  progress checkpoints after the first stop. The budget readback occurs between
+  those writes, localizing the earlier `OperationalError` to the budget database
+  connection path without opening a case result.
+- Local Postgres container and TCP port were healthy. Azure admin and app roles
+  both passed `verify-full` TLS connections. Current public IPv4 matched the
+  configured Postgres allowlist; its Azure-services sentinel remained present.
+- Main was clean and matched origin at the pinned release SHA `e12efc73`.
+  Preserved the prior stop receipt, then ran one detached `resume` with the same
+  15-minute stall and original three-hour wall-clock watchdog rules.
+- Resume completed all **260/260 system runs**, then stopped at **28/60 judge
+  items** with `RuntimeError`. The evaluator's sanitized wrapper message is
+  “Judge execution failed; stop without advancing checkpoint.” No worker remains.
+  Durable v3 spend: **484 attempts, $0.47321405 charged with reserves, zero
+  unknown costs / $3**. Prior plus v3 is **$3.82358962**; including release smoke,
+  **$3.83161437 / $12**. The ignored aggregate receipt is
+  `artifacts/final-program-v3/stop-report-resume.json`.
+
+### Done but not verified
+
+- The judge phase and final report are incomplete. No v3 headline metrics have
+  been reported. The underlying judge exception is not identified from the
+  sanitized wrapper; case inputs and outputs were not opened.
+
+### Next / blocked
+
+- Stop after the single authorized resume. Preserve checkpoints, call journals,
+  budget reservations and pinned main. Diagnose the judge failure without
+  disclosing frozen inputs or result rows; await the owner's next instruction
+  before another resume. Keep this documentation branch unmerged while the run
+  requires the exact pinned main SHA.
+
+## 2026-09-28 UTC — V3 stopped on operational error; pinned main preserved
+
+### Completed (verified)
+
+- Evaluation predicate PR #61 merged at `e12efc73be64f8355aa9f177f08a04337593616c`.
+  All four main CI checks passed. The diff from frozen product SHA `9f0bff0`
+  contains only contracts, evaluator code, tests and docs; no product paths.
+- Identical private API/web image digests were retagged and applied in the approved
+  Azure subscription. Azure controls and external access denial passed at the
+  exact SHA; the ignored `artifacts/azure/jev-release.json` records the gates.
+- The zero-cost v3 preflight passed: 100 bound cases, 30 repeat selections and
+  30 judge selections. The first two stopped directories were preserved, each at
+  $0 spend and zero completed checkpoints. Fresh v3 was started on the pinned SHA.
+- Fresh v3 advanced to **212/260 system runs**, then stopped with
+  **`OperationalError`**. Its worker exited; no `COMPLETE.json` exists. Durable
+  budget readback: **291 attempts, $0.26672382 charged with reserves, zero
+  unknown costs / $3**. Prior scopes plus v3 charged **$3.61709939**; including
+  the earlier $0.00802475 release smoke, **$3.62512414 / $12**. Checkpoints and
+  reservations remain intact. The ignored aggregate stop receipt is
+  `artifacts/final-program-v3/stop-report.json`.
+
+### Done but not verified
+
+- V3 is incomplete. No result metrics or human judge sheet are available for
+  reporting; official v2 figures remain unchanged. The cause of the
+  `OperationalError` has not been diagnosed from the saved trace.
+
+### Next / blocked
+
+- Stop on the error gate. Review the failure safely without printing frozen
+  input, case output or credentials. Keep main at the pinned release SHA; after
+  owner review, use `scripts.final_program resume`, never `start`. This log entry
+  is on `docs/v3-operational-stop` only and must stay unmerged while resume needs
+  the exact pinned main SHA.
+
 ## 2026-09-28 UTC — V3 evaluator vocabulary repair
 
 ### Completed (verified)
