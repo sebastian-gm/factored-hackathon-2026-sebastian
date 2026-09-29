@@ -7,12 +7,27 @@ import re
 from aclara.agent.nlu import extract_amount, normalize_text, selected_candidate
 from aclara.bank.repository import Transaction
 
+# Not knowing what an identified charge *is* expresses unfamiliarity with that
+# charge, not uncertainty about which charge is meant. Treating it as uncertainty
+# discarded confident matches in the post-v3 analysis (ADR-0015 §1).
+UNFAMILIAR_ABOUT_CHARGE = (
+    r"\bno (?:recuerdo|me acuerdo|se|tengo (?:ni )?idea(?: de)?|identifico|ubico) "
+    r"(?:que|de que|a que|con que|por que) (?:es|era|sea|se trata|corresponde|fue)\b"
+    r"|\bnao (?:lembro|me lembro|sei|faco (?:a menor )?ideia|identifico) "
+    r"(?:o que|do que|de que|a que|com que) (?:e|era|seja|se trata|corresponde|foi)\b"
+)
+
+
+def unfamiliar_about_charge(text: str) -> bool:
+    return bool(re.search(UNFAMILIAR_ABOUT_CHARGE, normalize_text(text)))
+
 
 def uncertain(text: str) -> bool:
+    value = re.sub(UNFAMILIAR_ABOUT_CHARGE, " ", normalize_text(text))
     return bool(
         re.search(
             r"\b(no se|nao sei|no recuerdo|nao lembro|tal vez|talvez|no estoy segur\w*|nao tenho certeza|no puedo elegir|nao consigo escolher|ninguno|nenhum)\b",
-            normalize_text(text),
+            value,
         )
     )
 

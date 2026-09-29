@@ -270,7 +270,7 @@ def main(output: Path, sha: str) -> None:
                     name: digest(ROOT / path)
                     for name, path in {
                         "nlu-v5.1": "prompts/nlu/v5.md",
-                        "phrase-v1": "prompts/phrase/v1.md",
+                        "phrase-v2": "prompts/phrase/v2.md",
                         "judge-v1": "prompts/judge/v1.md",
                         "jev": "src/aclara/llm/typesafe_questions.py",
                     }.items()

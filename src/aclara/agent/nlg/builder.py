@@ -12,6 +12,7 @@ from pydantic import BaseModel, ConfigDict
 
 from aclara.agent.contracts import ResponsePlan, TransactionView
 from aclara.agent.nlg.grounding import AllowedFact, redact_for_model, scan_dlp, verify_draft
+from aclara.agent.nlu.rules import detect_language
 from aclara.llm.client import StructuredClient
 from aclara.llm.prompts import data_block, load_prompt
 from aclara.llm.types import ModelFailure
@@ -189,13 +190,14 @@ def build_reply(
         or plan.response_type not in {"clarify", "explain_status"}
     ):
         return BuiltReply(plan.model_copy(update={"reply": fallback}), True, ())
-    prompt = load_prompt(prompt_path or Path("prompts/phrase/v1.md"))
+    prompt = load_prompt(prompt_path or Path("prompts/phrase/v2.md"))
     context = data_block(
         "response_plan",
         json.dumps(
             {
                 "type": plan.response_type,
                 "language": language,
+                "approved_text": redact_for_model(fallback),
                 "facts": [{"id": fact.id, "value": redact_for_model(fact.value)} for fact in facts],
             },
             ensure_ascii=False,
@@ -221,10 +223,14 @@ def build_reply(
             known_merchants=known_merchants,
             other_customer_names=other_customer_names,
         )
-        if verdict.safe:
+        current = list(verdict.violations)
+        # A draft in the other language is never shown (post-v3 analysis).
+        if verdict.safe and detect_language(draft.text) != language:
+            current.append("language_mismatch")
+        if not current:
             return BuiltReply(
                 plan.model_copy(update={"reply": draft.text}), False, tuple(violations)
             )
-        violations.extend(verdict.violations)
-        context += "\nSafety violations to correct: " + ", ".join(verdict.violations)
+        violations.extend(current)
+        context += "\nSafety violations to correct: " + ", ".join(current)
     return BuiltReply(plan.model_copy(update={"reply": fallback}), True, tuple(violations))

@@ -26,7 +26,45 @@ def detect_language(text: str) -> Literal["es", "pt"]:
         "pessoa",
         "preciso",
     )
-    return "pt" if any(marker in normalized for marker in portuguese_markers) else "es"
+    if any(marker in normalized for marker in portuguese_markers):
+        return "pt"
+    # Distinctive pt-BR function words with no identical Spanish form.
+    words = set(re.findall(r"[a-z]+", normalized))
+    portuguese_words = {
+        "quero",
+        "minha",
+        "meu",
+        "uma",
+        "essa",
+        "esse",
+        "isso",
+        "estou",
+        "tenho",
+        "sessao",
+        "extrato",
+        "obrigado",
+        "obrigada",
+        "tambem",
+        "irmao",
+        "dele",
+        "dela",
+        "com",
+        "pode",
+        "poderia",
+        "mais",
+        "muito",
+        "sinto",
+        "ajudar",
+        "agora",
+        "seu",
+        "sua",
+        "tudo",
+        "bem",
+        "fornecer",
+        "detalhes",
+        "sim",
+    }
+    return "pt" if words & portuguese_words else "es"
 
 
 def classify(text: str) -> NluFrame:
@@ -34,7 +72,23 @@ def classify(text: str) -> NluFrame:
     language = detect_language(text)
     if any(
         term in normalized
-        for term in ("perdi meu cartao", "roubaram", "robaron", "cartao roubado", "fraude")
+        for term in (
+            "perdi meu cartao",
+            "perdi o meu cartao",
+            "perdi o cartao",
+            "roubaram",
+            "robaron",
+            "cartao roubado",
+            "cartao perdido",
+            "perdi mi tarjeta",
+            "perdi la tarjeta",
+            "se me perdio la tarjeta",
+            "extravie mi tarjeta",
+            "tarjeta robada",
+            "tarjeta perdida",
+            "me robaron la tarjeta",
+            "fraude",
+        )
     ):
         return NluFrame(language=language, intent=Intent.FRAUD, confidence=0.99)
     if any(

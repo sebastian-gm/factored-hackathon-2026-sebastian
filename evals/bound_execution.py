@@ -59,6 +59,7 @@ async def execute_bound(
     last: dict[str, Any] = {}
     last_message = ""
     denial, freeze_handle = False, None
+    renewed_step_up = False
     not_executed = None
     error = None
     terminal = {
@@ -153,6 +154,19 @@ async def execute_bound(
                 )
                 payload = {"proposal_hash": digest, "confirmed": turn["confirm"]}
                 response = await client.post(endpoint, headers=headers, json=payload)
+                if (
+                    response.status_code == 401
+                    and not renewed_step_up
+                    and scenario["customer_knowledge"].get("provides_new_step_up") is True
+                ):
+                    # A stale OTP asks for fresh step-up. A customer who provides it
+                    # confirms the same still-valid proposal again; the API rechecks
+                    # proposal binding and policy (ADR-0015 §1). Declining customers
+                    # (flag absent/false) keep the refusal path.
+                    renewed_step_up = True
+                    runtime.record("step_up_renewed")
+                    if await step_up():
+                        response = await client.post(endpoint, headers=headers, json=payload)
                 if (
                     response.status_code == 200
                     and response.json().get("case")

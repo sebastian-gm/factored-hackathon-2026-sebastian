@@ -103,6 +103,21 @@ def make_handoff(
     return response
 
 
+def fraud_reasons(app: FastAPI, principal: Any) -> tuple[str, ...]:
+    """Reasons of this session's latest fraud packet, so a freeze result keeps
+    concurrent legal/distress/human-request reasons (ADR-0015 §3)."""
+    packets = [
+        packet
+        for packet in app.state.handoffs.values()
+        if packet.get("session_id") == principal.session_id
+        and "FRD-01" in packet.get("reason_codes", ())
+    ]
+    if not packets:
+        return ("FRD-01",)
+    latest = max(packets, key=lambda packet: str(packet.get("created_at", "")))
+    return tuple(latest["reason_codes"])
+
+
 def fraud_handoff(
     app: FastAPI,
     principal: Any,
@@ -276,11 +291,19 @@ def install_workflows(app: FastAPI, principal_dependency: Any) -> None:
         with store.transaction(scope(principal)):
             if product.product_type not in {"Credit Card", "Debit Card"}:
                 return make_handoff(
-                    app, principal, body.language, "FRD-01", freeze_outcome="not_applicable"
+                    app,
+                    principal,
+                    body.language,
+                    fraud_reasons(app, principal),
+                    freeze_outcome="not_applicable",
                 )
             if product.status in {"Closed", "Blocked"}:
                 return make_handoff(
-                    app, principal, body.language, "FRD-01", freeze_outcome="unavailable"
+                    app,
+                    principal,
+                    body.language,
+                    fraud_reasons(app, principal),
+                    freeze_outcome="unavailable",
                 )
             if principal.step_up_at is None or now - principal.step_up_at > timedelta(
                 minutes=int(rule("AUTH-02").parameters["otp_minutes"])
@@ -361,7 +384,11 @@ def install_workflows(app: FastAPI, principal_dependency: Any) -> None:
                         outcome = "unverified"
                         app.state.runtime.record("safe_failure")
                 result = make_handoff(
-                    app, principal, proposal["language"], "FRD-01", freeze_outcome=outcome
+                    app,
+                    principal,
+                    proposal["language"],
+                    fraud_reasons(app, principal),
+                    freeze_outcome=outcome,
                 )
                 if outcome == "verified":
                     result["card"] = {"handle": handle, "status": "Frozen", "verified": True}

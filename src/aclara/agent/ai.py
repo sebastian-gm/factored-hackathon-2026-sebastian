@@ -133,7 +133,7 @@ class AgentAI:
                 country=self.runtime.country,
                 facts=tuple(facts),
                 client=None if deterministic else self.client,
-                prompt_path=ROOT / "prompts/phrase/v1.md",
+                prompt_path=ROOT / "prompts/phrase/v2.md",
             )
             # The offer template is mandatory and grounded. Other deterministic
             # policy explanations retain their existing lead-owned wording.

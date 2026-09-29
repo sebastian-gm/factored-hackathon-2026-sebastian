@@ -17,7 +17,13 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from aclara.agent.nlg.grounding import redact_for_model
 from aclara.llm.client import StructuredClient
-from aclara.llm.final_run import client_for, journal, open_budget_store, require_start
+from aclara.llm.final_run import (
+    JUDGE_MAX_OUTPUT_TOKENS,
+    client_for,
+    journal,
+    open_budget_store,
+    require_start,
+)
 from aclara.llm.judge_validation import ARTIFACTS, DIMENSIONS, SHEET
 from aclara.llm.prompts import Prompt, data_block, load_prompt
 from aclara.llm.round_one import ROOT, _catalog, _local_key
@@ -190,7 +196,7 @@ def run(
         spec = replace(
             models[MODEL_ID],
             provider_only=PROVIDER_ONLY,
-            max_output_tokens=256,
+            max_output_tokens=JUDGE_MAX_OUTPUT_TOKENS,
             timeout_seconds=60,
         )
         os.environ["OPENROUTER_API_KEY"] = _local_key()

@@ -119,6 +119,9 @@ class Conversation:
     offer_handle: str | None = None
     unfamiliar_charge: bool = False
     recognition_rounds: int = 0
+    # Legal/distress cues seen during cross-customer attempts; the security
+    # handoff must retain them (ADR-0015 §3-4).
+    security_cues: list[str] = field(default_factory=list)
 
 
 class StrictModel(BaseModel):
@@ -665,9 +668,11 @@ def create_app(
         }
 
     def refuse_cross_customer(
-        principal: Principal, conversation: Conversation, language: str
+        principal: Principal, conversation: Conversation, language: str, message: str
     ) -> dict[str, Any]:
         security_event(app, "cross_customer_attempt")
+        cues = {reason for reason in escalations(message) if reason in {"ESC-02", "ESC-03"}}
+        conversation.security_cues = sorted(set(conversation.security_cues) | cues)
         state = app.state.executions.get("security_state", {"attempts": 0})
         state["attempts"] += 1
         app.state.executions["security_state"] = state
@@ -697,7 +702,9 @@ def create_app(
         }
         app.state.runtime.record("refuse_request")
         if ended:
-            result["handoff"] = make_handoff(app, principal, language, "SEC-01")["handoff"]
+            result["handoff"] = make_handoff(
+                app, principal, language, ("SEC-01", *conversation.security_cues)
+            )["handoff"]
             operational.delete("sessions", principal.capability_digest)
             app.state.runtime.record("end_session")
         return result
@@ -711,7 +718,17 @@ def create_app(
         if conversation is None or conversation.session_id != principal.session_id:
             raise HTTPException(status_code=404, detail="Conversation not found")
         if cross_customer(body.message):
-            return refuse_cross_customer(principal, conversation, conversation.language)
+            if not (
+                conversation.candidates
+                or conversation.offer_handle
+                or conversation.proposal
+                or conversation.intent
+            ):
+                # No established conversation language yet: route in the language used.
+                conversation.language = classify(body.message).language
+            return refuse_cross_customer(
+                principal, conversation, conversation.language, body.message
+            )
         if conversation.terminal_handoff_id:
             packet = app.state.handoffs[conversation.terminal_handoff_id]
             return {
@@ -848,7 +865,7 @@ def create_app(
                 else None,
             )
             if nlu.extracted.other_customer_reference:
-                return refuse_cross_customer(principal, conversation, language)
+                return refuse_cross_customer(principal, conversation, language, body.message)
             extracted_reasons = risk_reasons(nlu.extracted)
             if extracted_reasons:
                 if "FRD-01" in extracted_reasons:
@@ -1037,6 +1054,11 @@ def create_app(
                     nlu and getattr(nlu.extracted, "unfamiliar_charge", False)
                 )
         if frame.intent == Intent.OUT_OF_SCOPE and not conversation.candidates:
+            if conversation.model_failed:
+                # The deterministic fallback could not classify the request while the
+                # model route was down: a safe failure, not an out-of-scope claim
+                # (ADR-0015 §3, model outage with unsuccessful fallback).
+                return safe_failure(principal, language, "llm_outage")
             handoff = make_handoff(app, principal, language, "SCOPE-01")
             app.state.runtime.record("abstain")
             return {

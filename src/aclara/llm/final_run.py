@@ -65,6 +65,10 @@ def journal(path: Path) -> Callable[[CallRecord, dict[str, Any] | None], None]:
     return write
 
 
+# Judge rationales can exceed 256 tokens; truncation stopped the v3 judge phase.
+JUDGE_MAX_OUTPUT_TOKENS = 1024
+
+
 def client_for(
     route: str,
     store: Store,
@@ -81,7 +85,7 @@ def client_for(
         load_fallback_route(ROOT / "config/models.yaml", models) if route == "default" else None
     )
     if judge:
-        models = {spec.model_id: replace(spec, max_output_tokens=256)}
+        models = {spec.model_id: replace(spec, max_output_tokens=JUDGE_MAX_OUTPUT_TOKENS)}
     else:
         models["nlu"] = models["phrase"] = spec
     return StructuredClient(
