@@ -1,5 +1,30 @@
 # Progress log
 
+## 2026-09-28 UTC — Post-v3 fixes (orchestrator session, branch `fix/post-v3-analysis`)
+
+### Completed (verified)
+
+- Post-hoc analysis of the reported v3 run found six causes for the 23 P-Gemini
+  failures, plus wrong-language phrasing, judge truncation and a web logout on
+  stale OTP. All fixed generically with authored regressions; details in
+  [post-v3 fixes](../evaluation/post-v3-fixes.md). V3 is retired to dev data.
+- Checks: pytest, Ruff, strict mypy, interfaces, policy catalog, B1 dev 32/32,
+  browser 29/29 (fixtures, live, staff).
+- Real P-Gemini on all 100 (seen) v3 cases: 100/100, 23/23 prior failures fixed,
+  0/77 regressions. Real P dev gate (`--profile post-v3`) passed: 20/20, 18/20,
+  12/12, 0 unsafe. Spend $0.40 of the new `dev-gate/post-v3` $1 allowance;
+  all prior scopes closed; cumulative ≈ $4.23 of $12.
+
+### Done but not verified
+
+- Branch not pushed; GitHub CI not yet run. No release or Azure change.
+
+### Next / blocked
+
+- Lead: review, push, CI, merge; v3 results page. Data/frontend lane: author an
+  independent v4 suite with new templates (handoff 14). Then release and a
+  single v4 run after the orchestrator's go.
+
 ## 2026-09-28 UTC — V3 system metrics finalized with partial judging
 
 ### Completed (verified)
