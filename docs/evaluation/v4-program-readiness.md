@@ -51,6 +51,13 @@ so a new local database cannot reset cumulative history.
 
 ## $3 lifetime and $12 cumulative ceiling
 
+**2026-09-30 update:** [pre-v4 release and latency plan](pre-v4-release-and-latency.md)
+adds shared pre-v4 development ($1) and a distinct latency smoke ($0.10), counting
+historical production charges too: live prior **$4.57863620 + $1 + $3 + $0.10 +
+$0.10 = $8.77863620 ≤ $12**. V4 preparation closes/counts `dev-gate/pre-v4` in
+addition to prior scopes. The earlier snapshot below is preserved as chronology;
+it is superseded for the future allowance calculation.
+
 Read-only ledger aggregate at **2026-09-30 04:08 UTC** (retained reserves included):
 
 | Prior scope | Charged USD |

@@ -1,5 +1,59 @@
 # Progress log
 
+## 2026-09-30 PDT — #76 integration, pre-v4 accounting and release preparation
+
+### Completed (verified)
+
+- Reviewed #76 (`4436729`), retargeted it to `fix/post-v3-analysis` and merged
+  locally without conflicts. Changes are presentation/authored fixtures; BFF
+  and Desk write handlers remain intact, including the earlier persona/card
+  decision locks. No organizer/v4 row was opened. Recording opt-in grants no
+  action authority; canonical reasons/evidence remain available.
+- Added duration-only BFF `Server-Timing`, a ten-conversation ES/PT latency
+  probe with duplicate-launch protection and release gates, and SHA-bound
+  release/latency $0.10 lifetime purses. Authored full mock probe reaches 20
+  turns without persisting facts/credentials; no real probe ran yet.
+- Added `scripts.pre_v4_budget`: shared **dev-gate/pre-v4 / pre-v4**, $1 lifetime,
+  prior-scope closure (post-v3 included), retained unknowns, conflict/breaker
+  refusal and rollback. Final v4 preparation counts/closes this new scope and
+  conservatively counts historical production charges plus both smoke caps.
+- Read-only verified-TLS ledger at 18:01 UTC: prior **$4.57863620**, including
+  $0.03580104 historical production; + dev $1 + v4 $3 + release $0.10 +
+  latency $0.10 = **$8.77863620 ≤ $12**. Four prior unknown reserves retained.
+- Combined `LLM_PROVIDER=mock make checks`: **449 passed / 20 DB skips**,
+  six hooks, B1 **32/32**, compile/interfaces/catalog. Ruff and strict mypy
+  (85 files) passed; disposable Postgres **23/23**; web typecheck/lint/build;
+  browsers **80 fixture + 12 live API + 1 staff = 93/93**. Both bootstrap
+  regressions additionally pass **6/6** in CI's development-server mode.
+- Corrected a second authored bootstrap race: assert all three shortcuts render
+  before removing mocked config. Expectations unchanged; original failure logs
+  retained. Restored generated Next declarations. No paid model call occurred.
+- Sebastian's standing OK now authorizes green #62 merge/main release and
+  spending within the cumulative ceiling. Temporary smoke-run binding separately
+  approved; resource shape, min=0 and owner ingress remain unchanged.
+
+### Done but not verified
+
+- Remote corrected-head CI/safety, merged main, pushed/deployed images, full
+  Azure release gates, live pre-v4 scope and paid latency remain pending here.
+  Exact milestone evidence is recorded in ignored `artifacts/integration/` and
+  `artifacts/azure/jev-release.json`; read their SHA/results before claiming release.
+- Live v4 scope/inputs/serving/start remain unverified and unstarted. No public
+  judge/warm mode or public repository visibility is enabled.
+
+### Next / blocked
+
+- Publish the full corrected integration once, require remote CI/safety green,
+  merge #62 and release with image tags plus the approved smoke binding only.
+  Run controls/real/browser/outside-access gates and report exact SHA, then create
+  and read back **dev-gate/pre-v4 / pre-v4** for the AI lane, then measure latency.
+- Feature freeze **Oct 2 12:00 COT / 17:00 UTC**; independent v4 run follows
+  freeze/release and a separate GO. Keep v4 blind and v1 untouched.
+- After release, prepare the approved scrubbed snapshot in a new private
+  `factored-hackathon-2026-sebastian`; retain honest chronology and scan it.
+  Public visibility and Oct 4 warm/access activation need explicit approval.
+- [Release/budget/probe commands and measurement scope](../evaluation/pre-v4-release-and-latency.md).
+
 ## 2026-09-29 PDT — Single remote #62 gate and test-only hydration correction
 
 ### Completed (verified)

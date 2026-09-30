@@ -1,5 +1,33 @@
 # Final feature integration review: #71–#75
 
+## September 30 follow-up: #76 and standing release approval
+
+#76 (`4436729`) reviewed commit-by-commit and merged locally without conflict.
+Its own diff changes no BFF/action handlers: localized reason/evidence labels,
+recording opt-in, skip-link/rail geometry and authored country-currency fixtures.
+The current-account selection and pending-card locks survive the merge. The
+fixture currency change does not transform live serving currencies.
+
+Lead's additive BFF instrumentation reports elapsed handling only, with existing
+response/auth/action data unchanged. Authored refusal tests preserve 403/no-store;
+the paid probe requires exact released main and a new $0.10 durable purse.
+Pre-v4 budget code closes prior dev scopes, preserves reserves, and cannot reset
+or re-enable an exhausted/disabled cap. Disposable DB regressions cover rollback,
+restart and both dev/smoke lifetime limits.
+
+Final combined local verification: **449 Python passed / 20 DB skips**, B1
+**32/32**, disposable Postgres **23/23**, strict mypy **85 files**, Ruff,
+web typecheck/lint/build, **80 fixture + 12 live + 1 staff = 93 browsers**.
+A second fixture race was fixed by waiting for three shortcuts before unroute
+(avoiding a vacuous empty `.all()` check); both bootstrap tests passed **6/6**
+in CI's dev-server mode. Logs: ignored `artifacts/integration/pr76-*`.
+
+Owner's September 30 standing approval supersedes the earlier main/release hold
+below. Publish one full corrected head, require remote green, then merge/release.
+Temporary smoke-run binding separately approved. Resources/minimum replicas/access
+remain unchanged. V4 remains blind/unstarted. See
+[live budget math and release plan](../evaluation/pre-v4-release-and-latency.md).
+
 ## Dispositions
 
 - **#71**, audit document only: retains the exact historical scan boundary,
