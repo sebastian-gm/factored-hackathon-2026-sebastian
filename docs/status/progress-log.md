@@ -4,6 +4,11 @@
 
 ### Completed (verified)
 
+- Integrated #77, final #79 and #80 via **#84**, remote head CI **36784056725** and safety **36784056767** passed on the first run. Main/release **c32fd6429281a764ee33dd96622f237c7c0289c3** is clean and matched origin; main CI **36784943361**, safety **36784943206**, outside-access **36786164303** passed. Original PRs closed after ancestor verification; no redundant merge/rerun. Updated frontend rehearsal readiness reported to the owner.
+- Fresh images built/pushed and registry digests verified: API `sha256:d2ea6f3feaa460628a56db283b985386ae2c90f29fac034f972d15272695b8a1`; web `sha256:e26e76a9ab33580bea87541beadc6eff0e9458ed33ee5510cc097d2ed56abeca`. Fresh East US 2 price estimate **$34.63/month**. Reviewed apply **0 added / 2 changed / 0 destroyed**, images/release identity and approved temporary smoke binding only; min=0 and access unchanged. `python -m scripts.azure_verify` passed. Real ES filing/readback, PT ambiguity/handoff and deterministic fraud smoke passed: **9 valid calls, $0.00801825 known/charged, no unknowns/fallbacks**. `python -m scripts.serving_browser --target azure`: three surfaces, one handoff/one resolved. No extra browser allowance needed. Receipt `artifacts/azure/jev-release.json` has all three flags true at c32fd64. Mock-only `azure_smoke` was not used on the real-provider deployment; real/browser gates are the evidence.
+- At release, cumulative charged exposure **$5.49997829**; conservative helper maximum including full future purses **$11.19997829 ≤ $12**. Scope caps and all prior unknown reserves remain intact; no paid call in reproduction. Azure `/insights` returns 200 and its v4 projection remains explicitly pending.
+- Completed README-only private snapshot reproduction. Initial no-data `make up` failed with missing serving tables (`UndefinedTable`), as expected for its serving default. Added explicit fixture/mock quickstart, ops fixture persona, dependency/browser steps, repository-local hook cache and aggregate fixture smoke. Second fresh clone **bcdebe0** passed unchanged README setup, Compose readiness, authenticated committed readbacks and `make checks`: **454 passed / 20 skipped**, B1 **32/32**. First clone additionally passed local DB **23/23**, web typecheck/lint/build and **93** browser checks (**80 fixture + 12 live + 1 staff**). Corrected basic commands total **251.63 s (~4m12s)**; warm Docker/Chromium caveat and every setup/development failure recorded in `docs/submission/clean-clone-reproduction.md`. No organizer data, bindings or provider keys copied. Both disposable local stacks stopped after verification; private evidence retained.
+
 - Final Insights head **312b46a29e92fcefd30704621d3a12b633cafcfb** is integrated; FCR is complaint-scoped and Azure latency explicitly partial (5/10). Final source check verifies 12 aggregate pins. Backend `make checks`: **488 passed / 21 database skips**, B1 **32/32**, interfaces/catalog/hooks green; disposable `.venv/bin/python -m scripts.test_postgres`: **24 passed**, including model-compare restart/cap/other-scope persistence. An initial DB run exposed an outdated arithmetic expectation (4.3→5.8); fixed and rerun successfully. Final web typecheck/lint/build and **106/106** browser checks passed (**93 fixture + 12 live customer + 1 staff**). Source-pin check passes. Initial exporter invocation was denied by the execution sandbox; the authorized read-only invocation passed.
 
 - Reviewed and integrated #77 (offline human-review tooling plus corrupt-prose/internal-handle guard) and #80 (frozen authored 60-case dev release) on `feat/lead-insights-release`. The single progress-log conflict preserves both lane entries. No new dev rows, builder or v4 inputs opened; #80 receives structural checks only.
@@ -14,15 +19,15 @@
 
 ### Done but not verified
 
-- Remote CI and new Azure acceptance are pending. Existing acceptance remains d23fa5a; this feature branch is not yet deployed.
-
-- README-only clean-clone reproduction of the private snapshot is queued **after** the release, under the owner's new request; not yet performed.
+- Full organizer-backed setup and official frozen-suite reproduction are not verified in the clean clone. Dataset-dependent and omitted private-release tests skipped; they are not passes. The private export still derives from d23fa5a and has not been deployed; refresh after feature freeze.
+- Five-conversation latency study remains partial, with one unknown reserve and no forced cold-start bound. No paid replay, model comparison by the lead or v4 run occurred.
+- This documentation follow-up changes no product/image inputs. Azure acceptance remains c32fd64; do not claim a later docs-only SHA was deployed.
 
 ### Next / blocked
 
-- Take #79's final copy/data head, complete review and local suites, publish one main-target integration PR and run remote CI once; merge/release after green under standing approval. No replica/access/resource changes.
-- Report release readiness for frontend rehearsal. Then fresh clone snapshot, follow only README, record time and undocumented failures, fix portable fixture/mock setup and rescan/push while private.
-- No model comparison started by the lead, no v4 access/start, no replay of the closed latency purse. Warm/judge/publication remain separate submission-day approvals.
+- Frontend can rehearse Insights on Azure now. AI lane may use **dev-gate/model-compare / model-compare**, $1.50 lifetime, and **dev-gate/pre-v4 / pre-v4**, $1, reserve-before-call.
+- Feature freeze **Oct 2 12:00 COT / 17:00 UTC**, then separately approved final release/one v4 run. Never open v4 rows from this lane or start it early.
+- Snapshot refresh/re-audit after feature freeze. PUBLIC visibility and warm/judge access still require explicit Sebastian submission-day approval; no access/resource/replica changes occurred.
 
 ## 2026-09-30 PDT — Release accepted; shared pre-v4 scope and private snapshot
 

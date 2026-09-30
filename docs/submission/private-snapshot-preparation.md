@@ -53,8 +53,15 @@ exceptions and their documentation. Configured Gitleaks 8.30.1 directory and
 full-history scans exit 0 with zero findings. Authored negative controls detect
 two different credentials in the same paths, plus the same allowed value in a
 different path. The default-only results above remain the original measurements;
-no broad exclusion, data or secret was added. A fresh clean-clone README-only
-reproduction is queued after the Insights release and is not yet verified.
+no broad exclusion, data or secret was added. Follow-up **bcdebe0** corrects the
+README's no-data path and adds a fixture-only local smoke/cache default; no product
+paths change. Two fresh clones were verified at zero model cost: mock checks
+**454 passed / 20 skips**, B1 **32/32**, disposable database **23/23** and browsers
+**80 fixture + 12 live + 1 staff**. The corrected clone's exact README setup,
+Compose readiness and authenticated fixture smoke passed. See
+[clean-clone reproduction](clean-clone-reproduction.md) for timings and limitations.
+Configured post-push tree/history scans remain zero findings; snapshot stays PRIVATE.
+This remains an export of d23fa5a, not the newly deployed Insights product.
 
 Full frozen-suite reproduction and export-SHA deployment are unverified, because
 private evaluation releases are deliberately withheld. No public endpoint or
