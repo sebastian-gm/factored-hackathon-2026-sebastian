@@ -1,5 +1,43 @@
 # Progress log
 
+## 2026-09-29 PDT — V4 runner readiness, no execution
+
+### Completed (verified)
+
+- Generalized suite/binding/manifest configuration, budget scope/run, output and
+  detached start/resume pins for test-v4 (`309c3aa2…`) without opening any v4
+  row, selection, authoring tool or binding. Local non-owner serving DSN is
+  required and preserved; durable Azure budget accounting remains separate.
+  Frozen selections are consumed only inside an authorized start. Judge cap
+  remains 1024; B1 100 / P 160 / dual judge 60 / frontier OFF.
+- Read-only aggregate ledger: prior charged/reserved $4.54283516 + v4 $3.00 +
+  release-smoke allowance $0.10 = **$7.64283516 ≤ $12**. Four prior unknowns
+  remain charged. Future preparation closes prior scopes and rechecks exposure;
+  no Azure budget scope was created or enabled in this session.
+- Authored pins/local-serving/launcher/resume/judge tests passed. Mock
+  `make checks`: **430 passed / 17 DB skips**, hooks, B1 **32/32**, compile,
+  interfaces/catalog; Ruff and strict mypy (84 files). Disposable local
+  `python -m scripts.test_postgres`: **20/20**, including $3 v4 cap across
+  restart, prior v3/dev closure and retained reserves. An initial new test used
+  an unsupported Store context manager; explicit cleanup fixed it before rerun.
+- [Readiness, cost math and limitations](../evaluation/v4-program-readiness.md);
+  [future commands](../evaluation/final-run-plan.md). No model calls or Azure
+  resource changes; main stays unchanged and v1 untouched.
+
+### Done but not verified
+
+- V4 release inputs/bindings, local organizer serving readiness and a new
+  deployed acceptance SHA are not checked here. No v4 preflight, preparation,
+  start or outcome is claimed. Latency will include provider/budget calls.
+
+### Next / blocked
+
+- Open the readiness PR against `fix/post-v3-analysis`; prepare separate OFF
+  submission switches next. Wait for UX before the single combined main-target
+  CI run. Main merge, Azure enablement and v4 execution need their release gates
+  and owner authorization. Stacked PRs use documented local checks.
+
+
 ## 2026-09-29 PDT — AI review, feature integration and startup profiling
 
 ### Completed (verified)

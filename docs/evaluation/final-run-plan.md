@@ -1,5 +1,44 @@
 # Priced final evaluation plan — $12 approved, execution on hold
 
+## V4 readiness — future commands, not authorization
+
+See [v4 readiness, budget math and latency limits](v4-program-readiness.md).
+All older commands below describe historical releases; use the explicit v4
+configuration for a future owner-approved release. No v4 input has been read
+by this preparation. Bindings must be copied/checked privately under approval.
+
+Before prepare, export `EVAL_SERVING_DSN` from local ignored configuration using
+the loopback organizer serving DB and `aclara_app`; never echo it. The same
+private environment is required on start/resume. Only after release approval:
+
+```sh
+FINAL_BUDGET_PREPARATION_APPROVED=1 \
+  .venv/bin/python -m scripts.final_budget --prepare --suite test-v4 \
+  --bindings artifacts/evaluation-v4/customer-bindings.json \
+  --manifest-pin 309c3aa22c2eab51b3289075b733c52bb7934a879299762c3fb9ba16a3d9bec8
+.venv/bin/python -m scripts.final_program prepare --suite test-v4 \
+  --bindings artifacts/evaluation-v4/customer-bindings.json \
+  --manifest-pin 309c3aa22c2eab51b3289075b733c52bb7934a879299762c3fb9ba16a3d9bec8
+.venv/bin/python -m scripts.final_program status --suite test-v4
+```
+
+**Separate final-run GO is still required.** After the release and cost approval:
+
+```sh
+LLM_FINAL_RUN_STARTED=1 LLM_REAL_CALLS_APPROVED=1 \
+  .venv/bin/python -m scripts.final_program start --suite test-v4 \
+  --bindings artifacts/evaluation-v4/customer-bindings.json \
+  --manifest-pin 309c3aa22c2eab51b3289075b733c52bb7934a879299762c3fb9ba16a3d9bec8
+```
+
+The launcher detaches the child and writes `artifacts/final-program-v4/worker.log`
+(0600). Status is read-only. If stopped, investigate sanitized metadata and obtain
+the applicable resume approval; use the identical command with **resume**, never
+start. Keep main frozen. The v4 watchdog is 15-minute stall / three-hour total;
+budget/error stops preserve checkpoints. Judge cap 1024, frontier OFF, frozen
+30-repeat/30-judge selections; local RLS serving and remote durable budgets.
+
+
 ## V3 release preparation — execution requires a separate go
 
 This section supersedes all historical v1/v2 commands below. V1 is abandoned and

@@ -111,25 +111,30 @@ def test_v3_preparation_closes_prior_scopes_and_never_resets_breaker(budget_stor
     store, prior, owner = budget_store
     fresh = "fixture-v3-" + uuid4().hex
     monkeypatch.setattr(final_budget, "PRIOR_SCOPES", (prior,))
-    monkeypatch.setattr(final_budget, "SCOPE", fresh)
+    from pathlib import Path
+
+    from evals.program_spec import ProgramSpec
+
+    spec = ProgramSpec("test-" + fresh, Path("authored"), "0" * 64)
+    fresh = spec.scope
     prior_gate = PostgresSpendGate(store, scope=prior, run_id="fixture-run")
     prior_gate.reserve(0.10)  # Keep an unsettled exposure across preparation.
-    ready = final_budget.prepare(owner)
+    ready = final_budget.prepare(owner, spec)
     assert ready["prior_charged_with_reserves_usd"] == 0.10
-    assert ready["prior_plus_v3_and_smoke_limits_usd"] == 3.20
+    assert ready["prior_plus_program_and_smoke_limits_usd"] == 3.20
     assert ready["attempts"] == 0
     with pytest.raises(BudgetFailure):
         prior_gate.reserve(0.001)
-    current = PostgresSpendGate(store, scope=fresh, run_id=final_budget.RUN_ID)
+    current = PostgresSpendGate(store, scope=fresh, run_id=spec.run_id)
     current.reserve(2.99)
-    assert final_budget.prepare(owner)["charged_with_reserves_usd"] == 2.99
+    assert final_budget.prepare(owner, spec)["charged_with_reserves_usd"] == 2.99
     with pytest.raises(BudgetFailure):
         current.reserve(0.02)
     with psycopg.connect(owner) as connection:
         connection.execute("SET LOCAL ROLE aclara_owner")
         connection.execute("UPDATE llm.limits SET disabled=true WHERE scope=%s", (fresh,))
     with pytest.raises(RuntimeError, match="disabled"):
-        final_budget.prepare(owner)
+        final_budget.prepare(owner, spec)
     with pytest.raises(BudgetFailure):
         current.reserve(0.001)
 
@@ -265,3 +270,38 @@ def test_slow_first_attempt_is_abandoned_early_and_retried_with_full_timeout(mon
     assert client.generate("nlu", "system", "fixture", Answer, prompt_id="fixture").value == "ok"
     assert timeouts == [6, 20]
     assert [record.attempt for record in client.records] == [1, 2]
+
+
+def test_v4_budget_closes_v3_and_dev_preserves_reserves_and_spans_restart(
+    budget_store, monkeypatch
+):
+    from evals.program_spec import specification
+    from scripts import final_budget
+
+    store, prior_v3, owner = budget_store
+    dev = "fixture-dev-" + uuid4().hex
+    with psycopg.connect(owner) as connection:
+        connection.execute("SET LOCAL ROLE aclara_owner")
+        connection.execute("INSERT INTO llm.limits VALUES(%s,1,false)", (dev,))
+        connection.execute("INSERT INTO llm.runs VALUES(%s,'dev',1,true)", (dev,))
+    monkeypatch.setattr(final_budget, "prior_scopes", lambda _: (prior_v3, dev))
+    old = PostgresSpendGate(store, scope=prior_v3, run_id="fixture-run")
+    old.reserve(0.1)
+    PostgresSpendGate(store, scope=dev, run_id="dev").reserve(0.5)
+    spec = specification("test-v4")
+    ready = final_budget.prepare(owner, spec)
+    assert ready["scope"] == "final-evaluation-v4"
+    assert ready["prior_charged_with_reserves_usd"] == 0.6
+    assert ready["prior_plus_program_and_smoke_limits_usd"] == 3.7
+    with pytest.raises(BudgetFailure):
+        old.reserve(0.001)
+    current = PostgresSpendGate(store, scope=spec.scope, run_id=spec.run_id)
+    current.reserve(2.99)
+    assert final_budget.prepare(owner, spec)["charged_with_reserves_usd"] == 2.99
+    replacement = Store(os.environ["TEST_OPS_DSN"])
+    try:
+        restarted = PostgresSpendGate(replacement, scope=spec.scope, run_id=spec.run_id)
+        with pytest.raises(BudgetFailure):
+            restarted.reserve(0.02)
+    finally:
+        replacement.close()

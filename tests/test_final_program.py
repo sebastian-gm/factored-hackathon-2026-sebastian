@@ -17,8 +17,14 @@ from evals.final_report import write_report
 from test_bound_evaluation import authored, run
 
 
-def test_atomic_resume_skips_completed_and_preserves_interrupted_journal(tmp_path, monkeypatch):
+@pytest.mark.parametrize("suite_name", ["test-v3", "test-v4"])
+def test_atomic_resume_skips_completed_and_preserves_interrupted_journal(
+    tmp_path, monkeypatch, suite_name
+):
     import evals.final_program as program
+    from evals.program_spec import specification
+
+    spec = specification(suite_name)
 
     scenarios = [
         dict(authored(), id=f"authored-{i}", persona={"customer_ref": "fixture"}) for i in range(2)
@@ -38,7 +44,7 @@ def test_atomic_resume_skips_completed_and_preserves_interrupted_journal(tmp_pat
 
     monkeypatch.setattr(program, "bind", lambda *_: None)
     monkeypatch.setattr(program, "client_for", lambda *_, **kwargs: None)
-    monkeypatch.setattr(program, "budget_receipt", lambda: {"fixture": True})
+    monkeypatch.setattr(program, "budget_receipt", lambda *_: {"fixture": True})
     monkeypatch.setattr(program, "execute_bound", interrupted)
     args = (
         {"scenarios": scenarios},
@@ -48,6 +54,7 @@ def test_atomic_resume_skips_completed_and_preserves_interrupted_journal(tmp_pat
         None,
         checkpoints,
         {"authored-0", "authored-1"},
+        spec,
     )
     with pytest.raises(KeyboardInterrupt):
         asyncio.run(execute(*args))
@@ -77,12 +84,12 @@ def test_final_start_gate_precedes_any_frozen_access(monkeypatch, tmp_path):
 
 
 def test_v3_uses_separate_paths_and_conservative_cumulative_cap():
+    from evals.program_spec import specification
     from scripts.final_budget import CAP, check_exposure
-    from scripts.final_program import OUTPUT
 
     from aclara.llm.final_run import RUN_ID, SCOPE
 
-    assert OUTPUT.name == RUN_ID == "final-program-v3"
+    assert specification("test-v3").output.name == RUN_ID == "final-program-v3"
     assert SCOPE == "final-evaluation-v3"
     assert Decimal("3.00") == CAP
     check_exposure(Decimal("3.35037557"), CAP)
