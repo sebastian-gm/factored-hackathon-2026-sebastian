@@ -2149,3 +2149,67 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
   preserved in ignored `artifacts/dev-pre-v4/`; no 60-case freeze or run is claimed.
   Paid `dev-gate/pre-v4` exact scope/run confirmation is still pending: no spend,
   no v5.2 adoption, and no v4 access. The lead owns creation/readback of the scope.
+## 2026-09-30 PDT — AI round-two development freeze, paid gate pending
+
+### Completed (verified)
+
+- Priority work is in private, unmerged PR #77, pushed head
+  `1fc7f5a14643db7cb6432f1f4078b13d8ed871b8`; PR state/target/head read back.
+  Its offline HTML remains at the exact AI-worktree path already sent to the
+  orchestrator. Original human CSV/outputs remain private and unchanged; export
+  path confirmation and human agreement are pending. No paid calls/remote CI.
+- Authored and froze `src/aclara/llm/dev_robustness_round2_60.yaml` with its new
+  builder and immutable hash manifest before any round-two P/B1 execution or
+  robustness repair. Sixty project-generated conversations: 30 ES (ten each
+  CO/AR/CL) / 30 PT, ten story families x six correlated variants. Forty-two
+  three-message and eighteen four-message prefixes, plus independent confirmation
+  when filing within a five-turn limit. Gold: 36 filings, 18 explanations, six
+  cancellations. No v4 or organizer row input and no output-derived labels.
+- Coverage includes corrections, unrelated charges, existing-case plus new-charge
+  requests, vague-to-specific, frustration without distress cues, code-switching,
+  slang, amounts in words, relative dates, currency twins, polite refusal,
+  recognition changes, typos and copied injection. Explicit authored FX/merchants;
+  es-CL remains utterance metadata under MX bank rules. Existing 40/confirmation
+  fixtures and interfaces are unchanged. Structural schema, synthetic binding,
+  gold-reference, FX-consistency and manifest checks pass; nine relevant unit
+  checks, Ruff and strict mypy pass. No product execution before freeze.
+- Preregistered `docs/ml/nlu-robustness-round2.md`: all-attempt accounting, owner
+  diagnosis, 240-case five-set v5.1/v5.2 comparison, unchanged-or-better per-set
+  outcomes and lower p50/p95 adoption gate. Prior dev per-call cost implies the
+  198 new scripted messages alone may cost about $0.38 NLU before other calls;
+  complete fresh comparisons may exceed the allowance. No adoption on partial
+  evidence; keep the shared cap and report incomplete coverage honestly.
+
+
+- Freeze commit `eaef1166ae4f90934332201b437bd14f3f22a79a` read back clean before
+  any product run; manifest/case/builder/materialized hashes still match afterward.
+- Ran all 60 once through the real in-memory P state machine with mock NLU and
+  network/v4 barriers: 19 passed (ES 9/30, PT 10/30), zero unsafe findings,
+  zero execution errors, 13 filed / six explained / 41 escalated, $0 and no
+  provider calls. This is mock fallback evidence, not Gemini accuracy. Private
+  per-case records remain ignored. Corrected an initial harness map-truthiness
+  aggregation error from those saved records without rerunning or altering cases;
+  a regression protects actual unsafe-flag counting. Frozen gold remains unchanged.
+- Added a mock-only CLI that rejects real-provider configuration/approval before
+  reading cases and refuses to overwrite evidence. Twelve relevant unit checks,
+  strict mypy (87 files), Ruff and freeze validation pass. Real measurement,
+  NLU/NLG repairs and v5.2 remain pending the paid-scope confirmation/baseline.
+
+### Done but not verified
+
+- Real before/after numbers remain pending; the 19/60 mock pass is not a Gemini
+  measurement and does not authorize changes to frozen gold.
+- v5.2 is neither authored nor adopted. PR #77 is not assumed merged or deployed;
+  record the actual baseline integration SHA before a later paid run.
+
+### Next / blocked
+
+- Private [PR #80](https://github.com/sebastian-gm/bank-agent-lab/pull/80) is OPEN
+  and mergeable into `fix/post-v3-analysis`, code head `36ba3e7` read back; no
+  remote CI run under the main-only trigger. Lead reviews/merges. Freeze and mock
+  readbacks are complete; no merge performed.
+- Wait for the orchestrator's exact read-back `dev-gate/pre-v4` scope/run before
+  every paid call. Shared lifetime cap $1, stop exposure at $0.90. No final scope,
+  paid call, default change or v4 access is authorized by these preparatory checks.
+- Import the confirmed human CSV via the #77 branch and update its agreement doc
+  without new judges. Current provisional Downloads path has not been confirmed.
