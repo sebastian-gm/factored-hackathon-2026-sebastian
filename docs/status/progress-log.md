@@ -1858,7 +1858,9 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
 
 ### Next / blocked
 
-- Open the private PR into `fix/post-v3-analysis`; lead reviews and merges.
+- Private [PR #77](https://github.com/sebastian-gm/bank-agent-lab/pull/77) is OPEN
+  and mergeable into `fix/post-v3-analysis`, head `a1077f2` read back. Main-only CI
+  triggered no remote run; lead reviews and merges. No merge performed.
 - Import the confirmed human export and update the agreement report without new
   judge calls. Keep wording/notes/ratings under ignored artifacts.
 - Resume round-two authoring/freeze after this priority fix. Its builder draft is
