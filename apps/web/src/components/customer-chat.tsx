@@ -392,10 +392,14 @@ export function CustomerChat({ initialDraft = "" }: { initialDraft?: string }) {
           <p className="caption">{t("recognitionHint")}</p>
         </section>
       )}
-      {!config.fixtures && latest?.freeze_offer?.length && !renew ? (
+      {!config.fixtures &&
+      latest?.freeze_offer?.length &&
+      latest.handoff &&
+      !renew ? (
         <FreezeCard
           key={latest.handoff?.handoff_id}
           products={latest.freeze_offer}
+          handoffId={latest.handoff.handoff_id}
           onResult={receive}
         />
       ) : null}

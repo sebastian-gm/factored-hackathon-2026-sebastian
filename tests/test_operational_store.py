@@ -242,7 +242,7 @@ def test_api_session_proposal_case_handoff_and_execution_survive_restart(dsn: st
 
 def test_freeze_api_and_step_up_survive_app_restart(dsn: str) -> None:
     from test_api_security import _settings, _sign_in
-    from test_workflow_api import step_up
+    from test_workflow_api import message, step_up
 
     async def check() -> None:
         first = Store(dsn)
@@ -250,14 +250,19 @@ def test_freeze_api_and_step_up_survive_app_restart(dsn: str) -> None:
         async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
             token = await _sign_in(client)
             headers = {"Authorization": f"Bearer {token}"}
+            offer, conversation = await message(
+                client, headers, "Me robaron la tarjeta. Voy a reclamar al regulador."
+            )
+            origin = {"handoff_id": offer["handoff"]["handoff_id"]}
             await step_up(client, headers)
             proposal = (
-                await client.post("/cards/prod_1/freeze/proposal", headers=headers, json={})
+                await client.post("/cards/prod_1/freeze/proposal", headers=headers, json=origin)
             ).json()
         first.close()
         second = Store(dsn)
         app = create_app(_settings(), store=second)
         async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+            await message(client, headers, "Me robaron la tarjeta")
             response = await client.post(
                 "/cards/prod_1/freeze",
                 headers=headers,
@@ -278,6 +283,8 @@ def test_freeze_api_and_step_up_survive_app_restart(dsn: str) -> None:
                 packet = (await client.get(f"/handoffs/{handoff}", headers=headers)).json()
                 assert packet["freeze_outcome"] == "verified"
                 assert packet["route"]["queue"] == "Fraudes"
+                assert packet["conversation_id"] == conversation
+                assert packet["reason_codes"] == offer["handoff"]["reason_codes"]
         finally:
             third.close()
 
@@ -494,5 +501,78 @@ def test_offer_and_cross_customer_strikes_survive_postgres_restart(dsn: str):
                 assert (await client.get("/me", headers=headers)).status_code == 401
         finally:
             second_store.close()
+
+    asyncio.run(check())
+
+
+def test_wrong_step_up_code_preserves_dispute_and_retry_after_restart(dsn: str) -> None:
+    from dataclasses import replace
+    from datetime import UTC, datetime, timedelta
+
+    from test_api_security import _settings, _sign_in
+    from test_workflow_api import message
+
+    from aclara.agent.contracts import DisputeCaseView
+
+    async def check() -> None:
+        first = Store(dsn)
+        app = create_app(_settings(), store=first)
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+            token = await _sign_in(client)
+            headers = {"Authorization": f"Bearer {token}"}
+            plan, conversation = await message(client, headers, "No hice el cargo de Mercado Verde")
+            proposal_hash = plan["proposal"]["proposal_hash"]
+            app.state.sessions[token] = replace(
+                app.state.sessions[token], otp_at=datetime.now(UTC) - timedelta(minutes=11)
+            )
+            confirm = {"proposal_hash": proposal_hash, "confirmed": True}
+            assert (
+                await client.post(
+                    f"/chat/sessions/{conversation}/confirm", headers=headers, json=confirm
+                )
+            ).status_code == 401
+            auth = (await client.post("/auth/step-up", headers=headers)).json()
+            pre = {"X-Preauth-Token": auth["preauth_token"]}
+            sms = (
+                await client.get(f"/auth/challenges/{auth['challenge_id']}/sms", headers=pre)
+            ).json()
+            code = sms["code"]
+            wrong = "000000" if code != "000000" else "000001"
+            response = await client.post(
+                "/auth/step-up/verify",
+                headers={**headers, **pre},
+                json={"challenge_id": auth["challenge_id"], "code": wrong},
+            )
+            assert response.status_code == 401 and response.json()["detail"] == "Invalid code"
+        first.close()
+        second = Store(dsn)
+        try:
+            app = create_app(_settings(), store=second)
+            async with AsyncClient(
+                transport=ASGITransport(app=app), base_url="http://test"
+            ) as client:
+                assert (await client.get("/me", headers=headers)).status_code == 200
+                assert (
+                    await client.post(
+                        f"/chat/sessions/{conversation}/confirm", headers=headers, json=confirm
+                    )
+                ).status_code == 401
+                verified = await client.post(
+                    "/auth/step-up/verify",
+                    headers={**headers, **pre},
+                    json={"challenge_id": auth["challenge_id"], "code": code},
+                )
+                assert verified.status_code == 200
+                filed = await client.post(
+                    f"/chat/sessions/{conversation}/confirm", headers=headers, json=confirm
+                )
+                assert filed.status_code == 200 and filed.json()["verified"]
+                case = filed.json()["case"]
+                actual = (await client.get(f"/disputes/{case['case_id']}", headers=headers)).json()
+                assert DisputeCaseView.model_validate(actual) == DisputeCaseView.model_validate(
+                    case
+                )
+        finally:
+            second.close()
 
     asyncio.run(check())

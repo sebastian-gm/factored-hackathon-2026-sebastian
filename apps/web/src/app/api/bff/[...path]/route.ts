@@ -367,7 +367,10 @@ async function handle(
         .parse(body);
     if (path.endsWith("/freeze/proposal"))
       body = z
-        .object({ language: z.enum(["es", "pt"]) })
+        .object({
+          language: z.enum(["es", "pt"]),
+          handoff_id: z.string().regex(/^[\w-]{1,80}$/),
+        })
         .strict()
         .parse(body);
     const call = (p: string, method = "GET", b?: Record<string, unknown>) =>
@@ -386,7 +389,10 @@ async function handle(
       }
       const proposal = freezeProposalSchema.safeParse(data);
       if (path.endsWith("/proposal") && proposal.success) {
-        if (proposal.data.handle !== handle)
+        if (
+          proposal.data.handle !== handle ||
+          proposal.data.handoff_id !== body.handoff_id
+        )
           throw new HttpError(502, "invalid_response");
         return response(proposal.data);
       }

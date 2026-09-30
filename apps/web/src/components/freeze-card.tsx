@@ -17,9 +17,11 @@ import { Modal } from "./ui/dialog";
 // Every action originates in the bank's offer and proposal. No local policy decision.
 export function FreezeCard({
   products,
+  handoffId,
   onResult,
 }: {
   products: Product[];
+  handoffId: string;
   onResult: (plan: Plan) => void;
 }) {
   const t = useTranslations();
@@ -92,6 +94,7 @@ export function FreezeCard({
       setChallenge("");
       const data = await api(`cards/${product.handle}/freeze/proposal`, {
         language: locale === "pt-BR" ? "pt" : "es",
+        handoff_id: handoffId,
       });
       const proposed = freezeProposalSchema.safeParse(data);
       if (proposed.success) setProposal(proposed.data);
