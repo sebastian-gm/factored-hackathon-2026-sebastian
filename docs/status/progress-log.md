@@ -9,6 +9,7 @@
 - Completed Sonnet cross-vendor review of **134/134** active source strings/variants, **67 ES + 67 pt-BR**, including all templates, offer/recognition questions, approved API replies and all eight added web translations since `e12efc7`. Ten valid calls, no retries/truncation/new unknown costs. [Before/after and decisions](../ml/pt-review.md).
 - Per-call usage and readback of the ten durable reservations agree at **$0.085928**, below the approved $0.10. Existing shared `dev-gate/post-v3` / `post-v3` scope reads **$0.71924554 exposure** (known $0.68326354; three pre-existing unknowns), below the requested $0.90 stop and unchanged $1 cap. Concurrency one; every call reserved before sending under the scope lock. No key-level delta or final scope was used.
 - `LLM_PROVIDER=mock make checks` passes: six hooks, Ruff, strict mypy, compilation, file policy, **308 passed / 14 database-dependent skips**, B1 **32/32**, interfaces and policy catalog. No product code changed in this PR.
+- Reconciled the updated lead target `6800ffd` into this feature branch after PRs #65/#66 merged, preserving every progress entry. The conflict was documentation only; no product or fixture changes were authored. Local 381-test checks on that combined target passed in this session.
 - Pushed only private origin and opened [PR #69](https://github.com/sebastian-gm/bank-agent-lab/pull/69) against `fix/post-v3-analysis`; read back the exact description, branch SHA, mergeable and open/unmerged state. All four remote CI jobs completed with failure: annotations say the jobs were not started because an Actions budget prevents use. No CI was cancelled.
 - Prepared a [lead-owned strings-only patch](../ml/copy-review-post-v3-proposed.patch): five PT occurrences use `contestação` consistently, and one ES freeze offer explains OTP as a new verification code plus confirmation. No lead/front-end product folder was edited. All AI templates and changed web messages were kept. Patch applicability, Python compilation, six string-only AST changes, preserved placeholders/numbers and documentation links were verified.
 
@@ -18,7 +19,42 @@
 
 ### Next / blocked
 
-- PR #69 stays unmerged for the lead. Review/apply its six lead-owned copy changes and merge the prerequisite fixes before release/final v4. The owner must resolve the Actions budget block and rerun CI before merge. Preserve v4 blindness and make no further paid call.
+- PR #69 stays unmerged for the lead. Review/apply its six lead-owned copy changes and merge the prerequisite fixes before release/final v4. The authorized latest-head reruns still failed before steps; GitHub cited failed recent account payments or a spending limit needing an increase. A meaningful conflict-resolution push gets its normal CI; no further manual rerun is planned until account billing allows jobs to start. Green remote CI remains required before merge. Preserve v4 blindness and make no further paid call.
+
+## AI lane — 2026-09-29 (queued PR #62 review findings 1 and 3)
+
+### Completed (verified)
+
+- Read the lead's review on `fix/preview-startup-review` after opening robustness [PR #65](https://github.com/sebastian-gm/bank-agent-lab/pull/65). Added authored mock regressions before changing behavior; eleven reproduced the assigned defects. No v4 input was opened and no paid call was made.
+- Preserve code-supplied clarification replies exactly, including bilingual language help; retain the existing recognition guard. Rephrased explanations now receive the actual approved `plan.reply` as `approved_text` and fallback, with DLP/grounding checks retained.
+- Added explicit ES/PT/uncertain language evidence, excluding domains and trusted merchant names. Shared `com`/`sim` tokens cannot decide language; NLG rejects only confident opposite-language evidence. The frozen two-language interface retains its default. [Implementation and evidence](../ml/pr-62-ai-review-fixes.md).
+- `make checks` passes: six hooks, Ruff, strict mypy, compilation, file policy, **329 passed / 14 database-dependent skips**, B1 **32/32**, interfaces and policy catalog. Targeted new and existing API/recognition/grounding regressions: **90 passed**. Merged the lead target advancement `dac3801` into this feature branch, preserving both progress-log entries and leaving PR merges to the lead.
+
+### Done but not verified
+
+- Real-model performance, calibrated language probabilities and human PT fluency are not measured in this follow-up. No further paid measurement is planned. Remote CI remains subject to the owner Actions budget block.
+
+### Next / blocked
+
+- [PR #66](https://github.com/sebastian-gm/bank-agent-lab/pull/66) is open, unmerged, targeting `fix/post-v3-analysis`. Lead reviews and merges; preserve both additive progress entries when reconciling PRs #65/#66. GitHub Actions requires the owner budget block to be resolved; read back current-head CI before merge. PR #65 retains the paid robustness study and lead-owned guard follow-up. Keep v4 blind and do not deploy.
+
+## AI lane — 2026-09-29 (post-v3 authored robustness study)
+
+### Completed (verified)
+
+- Read handoff 14; authored and froze 40 synthetic ES/PT conversations at `31826c6` before any P run or language fix. All three fixture hashes read back unchanged after measurement. No v4 data was opened.
+- Real P before/after: **39/40 → 39/40**, ES **19/20 → 19/20**, pt-BR **20/20 → 20/20**, zero unsafe/forbidden outcomes, all four embedded injections logged. Fixed complete ES/PT spoken-amount parsing and Portuguese previous-weekday dates in AI-owned NLU, with 45 authored parser regressions. Opening slot failures **9 → 0**, clarification responses **15 → 6**, case p50 **7.877 → 5.423 s**, p95 **12.195 → 12.273 s**. [Full report](../ml/nlu-robustness-post-v3.md).
+- All **89/89 → 75/75** OpenRouter attempts and **59/59 → 50/50** Jev attempts valid. Known new per-call cost **$0.230932684**, no new unknown usage. Durable `dev-gate/post-v3` / `post-v3` readback: **$0.63331754** including retained reserves, below the $0.90 stop and $1 shared lifetime cap. No final scope was used; no further paid run planned.
+- `make checks` passes: six hooks, Ruff, strict mypy, compilation, staged-file policy, **360 passed / 14 database-dependent skips**, B1 **32/32**, interfaces and policy catalog. Additional strict-mypy and B1 reactive dev **32/32** pass. No prompts, model roles, contracts or policy authority changed.
+
+### Done but not verified
+
+- One offer-path failure remains lead-owned: valid model/postprocess unfamiliarity is overridden by `selection.uncertain()` on a charge-origin memory statement; MATCH was confident. Zero-cost reproduction is saved privately and the report describes the lead's narrow regression/fix. No human language validation or independent accuracy claim is made; latency is one before/after observation.
+- [PR #65](https://github.com/sebastian-gm/bank-agent-lab/pull/65) is open against `fix/post-v3-analysis`, unmerged. All four remote checks completed without starting jobs: their annotations report an owner Actions budget block. Local checks are green; remote CI is not green.
+
+### Next / blocked
+
+- Lead reviews/merges PR #65 into `fix/post-v3-analysis` and fixes the remaining deterministic uncertainty guard before release. The lead base advancement `dac3801` is merged into this feature branch with both progress entries preserved. Queued review findings 1 and 3 are complete in independent [PR #66](https://github.com/sebastian-gm/bank-agent-lab/pull/66), with mocks and zero additional spend. Keep v4 blind; this lane does not merge/deploy.
 
 ## 2026-09-29 PDT — Preview diagnosis, code-only startup fix and PR #62 review
 
