@@ -20,6 +20,41 @@
 ### Next / blocked
 
 - PR #69 stays unmerged for the lead. Review/apply its six lead-owned copy changes and merge the prerequisite fixes before release/final v4. The authorized latest-head reruns still failed before steps; GitHub cited failed recent account payments or a spending limit needing an increase. A meaningful conflict-resolution push gets its normal CI; no further manual rerun is planned until account billing allows jobs to start. Green remote CI remains required before merge. Preserve v4 blindness and make no further paid call.
+## AI lane — 2026-09-29 (Actions policy and documentation handoff)
+
+### Completed (verified)
+
+- Read back [PR #70](https://github.com/sebastian-gm/bank-agent-lab/pull/70) and [PR #69](https://github.com/sebastian-gm/bank-agent-lab/pull/69): both are open, unmerged and mergeable against `fix/post-v3-analysis`. Their descriptions now reflect Sebastian's latest Actions instruction: the $5 budget is unblocked; rigorous local checks are the gate for stacked PRs; green remote CI is required for PRs into `main`.
+- Reconciled PR #69 with lead target `6800ffd`, preserving both progress histories; its proposed lead-owned copy patch still applies. Documentation PR #70 retains the verified **381 passed / 14 database-dependent skips**, B1 **32/32**, strict mypy and Ruff checks. No additional manual CI rerun, model spend, deployment or v4 access followed the new instruction.
+
+### Done but not verified
+
+- The later owner confirmation supersedes the earlier billing-block and all-merge CI notes below. This lane has not independently audited the owner billing change or future main-target CI; no green remote CI is claimed for these stacked PRs.
+
+### Next / blocked
+
+- Lead reviews and merges PRs #69/#70 into `fix/post-v3-analysis`; this lane leaves both unmerged. Require green remote CI before merging a PR into `main`, and avoid needless reruns. Business projection remains assumption-labeled; v4 results remain pending and blind to this lane.
+
+## AI lane — 2026-09-29 (business projection and judge README refresh)
+
+### Completed (verified)
+
+- Read `docs/evaluation/business-projection.md` and root `README.md` before editing, then used only committed dataset aggregates, official v2/v3 reports, architecture/serving source and the historical Azure dev price plan. No v4 row, authoring tool or artifact was opened; no model call or cloud resource change was made.
+- Refreshed [the business projection](../evaluation/business-projection.md) with official v3 P **77/100** versus B1 **52/100**, SAR **39% / 28%**, strict escalation **30/40 / 20/40**, unnecessary transfers **11/60 / 23/60**, precise **$0.00237687544** serving cost and case/turn latency. Kept safety-gate failures and partial judging visible; later seen-v3 checks do not replace the official result.
+- Read back dataset **43.6% Queja contact FCR proxy**, **12,297/67,095 = 18.33% identified charge-dispute complaints**, and **434.606 s / 220.803 s** complaint/transactional handle-time means. The 10,000/month volume and use of category handle times for dispute intake are explicitly assumptions, not monthly/source facts.
+- Authored a reproducible low/base/high projection against B1 with review/remediation and all nonautomated issues receiving human follow-up. Base: **3,900 automated intake outcomes**, **1,200 avoided unnecessary transfers**, **11,621 net agent minutes**, **$23.77 model + $35 assumed infra = $58.77/month**. Low adds **3,028 minutes** of work. Arithmetic uses exact source values, and avoided transfers are not counted twice as time savings. A transactional-time proxy sensitivity reduces base savings to 4,440 minutes. Only v4 retains result placeholders.
+- Replaced the stale mock-diagnostic README with a short judge draft: three guided stories, one Mermaid architecture diagram, separate official v2 and after-fixes v3 evidence, v4 pending, honest language/safety/identity/production limits, and source-checked mock-only local bootstrap. Root README is the explicitly requested shared-file edit; no product code or fixtures changed.
+- Decimal arithmetic, output rounding, evidence links, one-diagram constraint and v4-only `TODO(results)` entries verified. Mock `make checks` passes: six hooks, Ruff, strict mypy, compilation, file policy, **381 passed / 14 database-dependent skips**, B1 **32/32**, interface snapshots and policy catalog.
+- Following Sebastian's Actions-budget instruction, reran only PR #69's latest two blocked workflows: `ci` **36662765802** and `safety` **36662765906**, both attempt 2 on `3c86e27`. All four jobs completed without steps. Their new annotations say recent account payments failed or the spending limit needs increasing; this does not establish which billing condition applies. No older head, merged PR or other lane was rerun; no repeated attempt was requested.
+
+### Done but not verified
+
+- Projection is conditional capacity arithmetic, not realized production savings, a labor-cost estimate or a current cloud price/capacity quote. Dispute-specific agent times, traffic weighting and operational remediation remain unmeasured. Local bootstrap commands were reviewed against code, not executed against organizer data or a new deployment in this session.
+- Remote green CI is required before any merge. The authorized PR #69 reruns are still blocked before startup by GitHub account billing/spending status; the $5 budget announcement did not make those attempts runnable.
+
+### Next / blocked
+
+- The documentation candidate targets `fix/post-v3-analysis` and remains for lead review/merge only after green remote CI. Preserve v4 blindness and zero model spend. Once the owner confirms the GitHub billing block is resolved, rerun blocked current-head workflows once; do not rerun needlessly or merge without green CI.
 
 ## AI lane — 2026-09-29 (queued PR #62 review findings 1 and 3)
 
