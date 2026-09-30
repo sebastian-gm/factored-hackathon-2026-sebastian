@@ -14,7 +14,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import type { Config, Locale, Session, Surface } from "@/lib/contracts";
-import { api } from "@/lib/client";
+import { api, ApiError } from "@/lib/client";
 import { date } from "@/lib/format";
 import { es, pt } from "@/lib/messages";
 import { Button } from "./ui/button";
@@ -67,7 +67,10 @@ export default function Workspace() {
     const ctrl = new AbortController();
     Promise.all([
       api<Config>("config", undefined, ctrl.signal),
-      api<Session>("me", undefined, ctrl.signal).catch(() => null),
+      api<Session>("me", undefined, ctrl.signal).catch((error: unknown) => {
+        if (error instanceof ApiError && error.status === 401) return null;
+        throw error;
+      }),
     ])
       .then(([configuration, current]) => {
         setConfig({
@@ -239,9 +242,11 @@ function Shell({ ready, failed }: { ready: boolean; failed: boolean }) {
               {config.fixtures ? t("fixture") : t("live")}
             </span>
             <span className="clock">
-              {config.bankClock
-                ? `${t("simulated")} · ${date(config.bankClock, locale)}`
-                : t("noClock")}
+              {!ready || failed
+                ? t("starting")
+                : config.bankClock
+                  ? `${t("simulated")} · ${date(config.bankClock, locale)}`
+                  : t("noClock")}
             </span>
           </div>
           {config.fixtures && (
@@ -290,12 +295,12 @@ function Shell({ ready, failed }: { ready: boolean; failed: boolean }) {
           )}
           {!ready ? (
             <div className="panel loading" role="status">
-              {t("loading")}
+              {t("starting")}
             </div>
           ) : failed ? (
             <div className="panel empty">
               <CircleHelp />
-              <h2>{t("error")}</h2>
+              <h2>{t("startupUnavailable")}</h2>
               <Button onClick={() => location.reload()}>{t("retry")}</Button>
             </div>
           ) : !allowed ? (
