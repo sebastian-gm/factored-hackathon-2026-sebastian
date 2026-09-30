@@ -156,6 +156,7 @@ export function Insights({ onTry }: { onTry: () => void }) {
   const problem = snapshot.problem;
   const evaluation = snapshot.evaluations[version];
   const v3 = snapshot.evaluations.v3;
+  const azure = snapshot.azure_latency;
   const matcher = snapshot.matcher;
   const workload = matcher.workloads[workloadIndex];
   return (
@@ -460,14 +461,38 @@ export function Insights({ onTry }: { onTry: () => void }) {
               note={c.costNote}
             />
           </div>
-          <div className="insights-card">
+          <div className="insights-card" data-testid="insights-latency">
+            <h3>{c.turn}</h3>
+            <p className="insights-caution insights-latency-sample">
+              {c.azurePartial}: {ratio(azure.conversations)} {c.conversations} ·{" "}
+              {number(azure.turns)} {c.turns} <Source id={azure.source} />
+            </p>
             <Metric
-              title={`${c.turn} · P · ${version}`}
-              value={`${number(evaluation.systems.P.turn_seconds[0], 2)} ${c.seconds}`}
-              source={evaluation.source}
-              note={`${c.median} · ${c.p95}: ${number(evaluation.systems.P.turn_seconds[1], 2)} ${c.seconds}`}
+              title={c.azureTurn}
+              value={`${number(azure.bff_turn_seconds[0], 2)} ${c.seconds}`}
+              source={azure.source}
+              note={`${c.median} · ${c.p95}: ${number(azure.bff_turn_seconds[1], 2)} ${c.seconds}`}
             />
-            <p className="insights-note">{c.latencyNote}</p>
+            <p className="insights-note">
+              {c.startupExcluded} ({c.median} / {c.p95}):{" "}
+              <strong>
+                {number(azure.startup_excluded_bff_turn_seconds[0], 2)} /{" "}
+                {number(azure.startup_excluded_bff_turn_seconds[1], 2)}{" "}
+                {c.seconds}
+              </strong>{" "}
+              · {number(azure.startup_excluded_turns)} {c.turns}{" "}
+              <Source id={azure.source} />
+            </p>
+            <p className="insights-note">{c.azureLatencyNote}</p>
+            <div className="insights-offline-latency">
+              <Metric
+                title={`${c.offlineTurn} · P · ${version}`}
+                value={`${number(evaluation.systems.P.turn_seconds[0], 2)} ${c.seconds}`}
+                source={evaluation.source}
+                note={`${c.median} · ${c.p95}: ${number(evaluation.systems.P.turn_seconds[1], 2)} ${c.seconds}`}
+              />
+              <p className="insights-note">{c.latencyNote}</p>
+            </div>
           </div>
         </div>
         <section

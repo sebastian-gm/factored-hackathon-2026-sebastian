@@ -443,6 +443,20 @@
   margin-top: 18px;
   border-style: dashed;
 }
+.insights-card > .insights-latency-sample {
+  margin-bottom: 16px;
+}
+.insights-results-grid:has([data-testid="insights-latency"]) {
+  align-items: start;
+}
+.insights-offline-latency {
+  border-top: 1px solid #d8e1d8;
+  padding-top: 16px;
+  margin-top: 16px;
+}
+.insights-offline-latency .insights-note {
+  margin-top: 12px;
+}
 .insights-publication p,
 .insights-publication a,
 .insights-publication details {

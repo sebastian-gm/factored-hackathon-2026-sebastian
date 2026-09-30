@@ -75,8 +75,15 @@
       "id": "disclosure",
       "path": "docs/status/progress-log.md",
       "section": "First final attempt abandoned; results never viewed",
-      "sha256": "74b4cb8f5b2a5fbed9623853aab4242bf251339c05636ffaee07f3d90d677aed",
-      "commit": "00246eb083121d8234c7ef45a076c7fb78801145"
+      "sha256": "fc680d8fa6c2ccfc05456e9778eabe0c2c64851261fcdef83f3dc31b01df7174",
+      "commit": "d2a9d1c8db6d0f50428d003b22f9b936bdf5db93"
+    },
+    {
+      "id": "azureLatency",
+      "path": "docs/status/progress-log.md",
+      "section": "2026-09-30 release: partial in-Azure BFF latency probe (5/10 conversations)",
+      "sha256": "af11566abfd0238e75820aff19cad9e1a5df508c0e71534c88403204b7b85718",
+      "commit": "4484293d5f52792fcc94fb16a9f8eb938eb8f289"
     }
   ],
   "problem": {
@@ -219,6 +226,24 @@
         "planned": 60
       }
     }
+  },
+  "azure_latency": {
+    "source": "azureLatency",
+    "status": "partial",
+    "conversations": {
+      "count": 5,
+      "denominator": 10
+    },
+    "turns": 10,
+    "bff_turn_seconds": [
+      1.3,
+      8.191
+    ],
+    "startup_excluded_bff_turn_seconds": [
+      1.3,
+      7.441
+    ],
+    "startup_excluded_turns": 8
   },
   "matcher": {
     "source": "matcher",
