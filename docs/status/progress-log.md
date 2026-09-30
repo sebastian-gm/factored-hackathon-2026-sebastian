@@ -1,5 +1,23 @@
 # Progress log
 
+## AI lane — 2026-09-29 (judge-facing Production Thinking and Responsible AI)
+
+### Completed (verified)
+
+- Read `docs/production-readiness.md` fully before refreshing it. Used the recorded restricted Azure preview, deployment/budget ADR, existing startup/warm-price evidence, current route/grounding code and published official v2/v3 aggregates only. No v4 row, authoring file or result was opened; no model/cloud call or resource change was made.
+- Refreshed Production Thinking (**502 words**) with Container Apps, Postgres/non-owner forced RLS, Key Vault/managed identity, reserve-before-call daily/run caps, Grok failure fallback, committed read-back and unanchored hash-chain limits. Added clearly labeled pilot effort/monthly-cost assumptions for network, identity/MFA, telemetry/SLOs, scaling/recovery, cold starts, scheduling, human queue and bank/retention/audit work; dated baseline/warm prices are distinguished from fresh quotes and incremental allowances.
+- Added Responsible AI (**509 words**) with actual masked fact/text boundaries, redaction limitations, requested OpenRouter ZDR and unverified Jev ZDR, private content-bearing persistence and unverified purge; bounded injection/DLP/grounding controls and authority in code. Published v2/v3 ES/PT SAR/strict-escalation counts, corrected regional v2 recall, failed safety gates, es-CL n=9/no fluent PT reviewer and a private issue-report proposal. Only v4 retains `TODO(results)`.
+- Checked all quoted figures against existing evidence, all local links/anchors, sensitive-value exclusions and reading length: **2.79 / 2.83 minutes at 180 words/minute**. No product/interface/fixture change and no new runtime tests are needed. Working-tree data/secret/size policy and commit hooks pass, including strict mypy.
+- Corrected PR #71's CI-trigger handoff and read it back: the old parser had mistaken the separate main-push filter for a PR branch filter. Target workflows still trigger all PRs. Owner policy remains local checks for stacked PRs, green remote CI before main promotion. This docs commit uses GitHub's documented `[skip ci]` marker to avoid Actions spend until the lead changes triggers; do not carry a skipped required gate into a main merge. No existing workflow was rerun or cancelled. Prior audit-only session note remains privately preserved in ignored artifacts and is excluded from this PR.
+
+### Done but not verified
+
+- Pilot estimates are assumptions, not implementation promises, observed bills, bank-contract quotes or a summed production forecast. No live deployment recheck, new acceptance run, human PT validation, provider deletion or operational SLO is claimed.
+
+### Next / blocked
+
+- Open one documentation PR against `fix/post-v3-analysis` and leave merging to the lead. Lead reviews the effort/cost assumptions and publication wording; green main-target CI remains mandatory. V4 remains pending and blind. No spend or cloud action is authorized by these pages.
+
 ## AI lane — 2026-09-29 (queued PR #62 review findings 1 and 3)
 
 ### Completed (verified)
