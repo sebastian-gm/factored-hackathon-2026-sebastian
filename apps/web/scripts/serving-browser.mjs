@@ -5,13 +5,20 @@ let input = "";
 for await (const chunk of process.stdin) input += chunk;
 const { url, password } = JSON.parse(input);
 const browser = await chromium.launch();
-let stage = "login";
+let stage = "login_navigation";
 try {
   const page = await browser.newPage();
+  // Scale-to-zero can cold-start web and then the internal API. Match the
+  // owner smoke client's 190s allowance; never retry an action or POST.
+  page.setDefaultNavigationTimeout(190_000);
+  page.setDefaultTimeout(190_000);
   await page.goto(url);
+  stage = "login_form";
   await page.locator("form select").selectOption("demo.es.mx");
   await page.locator("input[type=password]").fill(password);
+  stage = "login_submit";
   await page.getByRole("button", { name: "Continuar", exact: true }).click();
+  stage = "login_sms";
   await page.waitForFunction(() =>
     /^\d{6}$/.test(
       document.querySelector('[data-testid="sms-code"]')?.textContent ?? "",
@@ -20,6 +27,7 @@ try {
   await page
     .getByRole("textbox", { name: "Código de 6 dígitos" })
     .fill(await page.getByTestId("sms-code").textContent());
+  stage = "login_verify";
   await page.getByRole("button", { name: "Verificar y entrar" }).click();
   stage = "customer_handoff";
   await page
@@ -66,8 +74,14 @@ try {
       resolved: 1,
     }),
   );
-} catch {
-  console.log(JSON.stringify({ browser_serving: "failed", stage }));
+} catch (error) {
+  console.log(
+    JSON.stringify({
+      browser_serving: "failed",
+      stage,
+      error_class: error?.name ?? "Error",
+    }),
+  );
   process.exitCode = 1;
 } finally {
   await browser.close();

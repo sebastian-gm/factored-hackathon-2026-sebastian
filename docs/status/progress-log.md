@@ -21,6 +21,19 @@
   read-back proves this failed browser attempt made no model calls.
 - One-label correction passes `node --check scripts/serving-browser.mjs` and
   existing authored `pnpm test:e2e --staff` (**1/1**, live fixture API, no models).
+- Corrected browser attempt stopped at login, exhausting the conservative five
+  slots; do not reset them. Owner decision requested for exactly one additional
+  browser attempt in the same purse. HTTP-only authentication subsequently
+  passed: config/login/SMS/OTP/me/transactions/logout, no chat/model calls. First
+  config took **38.4s**, above the harness's 30s default; warm config **0.33s**.
+  Owner IP still matches. API console logs were unavailable with no active
+  replica. Startup timeout is the supported explanation, not proof from a
+  detailed browser exception (the old harness emitted only “login”).
+- External harness now has the existing smoke client's **190s** navigation and
+  element allowance plus stage/error-class-only failures. No POST/action retry.
+  Node syntax and Prettier checks pass. The first custom read-only diagnostic
+  mistakenly requested nonexistent `/clock`; corrected check verifies the clock
+  from `/me`, as the actual UI contract requires.
 
 ### Done but not verified
 
