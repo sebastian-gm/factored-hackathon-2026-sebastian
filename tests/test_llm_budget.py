@@ -321,7 +321,7 @@ def test_pre_v4_preparation_retires_prior_and_keeps_lifetime_cap_after_restart(
     old.reserve(0.1)  # Unknown usage stays charged when the scope closes.
     ready = pre_v4_budget.verify(owner, prepare=True)
     assert ready["prior_charged_with_reserves_usd"] == 0.1
-    assert ready["maximum_cumulative_usd"] == 4.3
+    assert ready["maximum_cumulative_usd"] == 5.8
     assert ready["attempts"] == 0
     with pytest.raises(BudgetFailure):
         old.reserve(0.001)
@@ -384,3 +384,38 @@ def test_pre_v4_denied_exposure_rolls_back_closure_and_new_scope(budget_store, m
             connection.execute("SELECT scope FROM llm.limits WHERE scope=%s", (fresh,)).fetchone()
             is None
         )
+
+
+def test_comparison_keeps_pre_v4_open_and_never_resets_either_purse(budget_store, monkeypatch):
+    from scripts import model_compare_budget, pre_v4_budget
+
+    store, prior, owner = budget_store
+    dev = "fixture-pre-v4-" + uuid4().hex
+    compare = "fixture-model-compare-" + uuid4().hex
+    monkeypatch.setattr(pre_v4_budget, "PRIOR_SCOPES", (prior,))
+    monkeypatch.setattr(pre_v4_budget, "SCOPE", dev)
+    monkeypatch.setattr(pre_v4_budget, "MODEL_COMPARE_SCOPE", compare)
+    monkeypatch.setattr(model_compare_budget, "SCOPE", compare)
+    pre_v4_budget.verify(owner, prepare=True)
+    dev_gate = PostgresSpendGate(store, scope=dev, run_id=pre_v4_budget.RUN_ID)
+    dev_gate.reserve(0.10)
+    assert model_compare_budget.verify(owner, prepare=True)["attempts"] == 0
+    dev_gate.reserve(0.10)  # Creating comparison must not close the other dev scope.
+    compare_gate = PostgresSpendGate(store, scope=compare, run_id=model_compare_budget.RUN_ID)
+    compare_gate.reserve(1.49)
+    readback = model_compare_budget.verify(owner, prepare=True)
+    assert readback["charged_with_reserves_usd"] == 1.49
+    assert readback["pre_v4_charged_usd"] == 0.20
+    replacement = Store(os.environ["TEST_OPS_DSN"])
+    try:
+        with pytest.raises(BudgetFailure):
+            PostgresSpendGate(
+                replacement, scope=compare, run_id=model_compare_budget.RUN_ID
+            ).reserve(0.02)
+    finally:
+        replacement.close()
+    with psycopg.connect(owner) as connection:
+        connection.execute("SET LOCAL ROLE aclara_owner")
+        connection.execute("UPDATE llm.limits SET disabled=true WHERE scope=%s", (compare,))
+    with pytest.raises(RuntimeError, match="disabled"):
+        model_compare_budget.verify(owner, prepare=True)
