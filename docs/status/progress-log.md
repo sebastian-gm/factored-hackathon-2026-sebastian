@@ -2069,3 +2069,37 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
   owner's main-only remote CI policy. Lead reviews/merges; no merge performed.
 - Human CSV path remains unconfirmed. Continue zero-spend disparity analysis and
   model/API availability checks; no v4 input, final run or default change.
+
+
+## 2026-09-30 PDT — queued comparison read-only preflight
+
+### Completed (verified)
+
+- Free OpenRouter catalog, ZDR endpoint and authenticated user-model GETs confirm
+  `openai/gpt-6.1-sol`, ZDR `azure` at $2/$10 per million input/output tokens;
+  `openai/flex` is absent from the ZDR list. Gemini's existing Vertex pin remains.
+  Receipt timestamps/hashes and primary citations are in the preflight document.
+- Authenticated Decisions modality list has nine models, none `openai/*`; no
+  direct OpenAI credential or SDK in this worktree. Official searches did not
+  establish preview entitlement. Do not substitute OpenRouter's third-party
+  Decisions API for an OpenAI model. Zero inference, spend or config changes.
+- Repricing saved round-two valid-call tokens uncached gives $1.361114 for just
+  that 60-case Gemini/Sol pair, excluding Jev/retries/new reasoning. Full five-set
+  coverage is unlikely inside $1.50; disclose partial coverage if the cap stops it.
+- Private disparity PR #86 targets main, head `6ff70e1`, OPEN and mergeable at
+  readback. Safety/checks/Postgres have passed; web CI is still running. An extra
+  cross-check found raw fault-prefix unsafe flags needed the official executed-
+  case filter; correcting that documentation before lead review, without reruns
+  or changed official cases/results.
+
+### Done but not verified
+
+- No Sol accuracy/latency, language comparison or Decisions risk results exist.
+  Production Gemini/v5.1 stays unchanged. Human export still awaits its path.
+
+### Next / blocked
+
+- Wait for exact `dev-gate/model-compare` run/scope readback and restored account
+  credits before every paid comparison. Never reuse the stopped pre-v4 scope.
+- Lead reviews #85 and the corrected #86, with required green main-target CI.
+  No merge, publication, held-out v4 access or final run by this lane.
