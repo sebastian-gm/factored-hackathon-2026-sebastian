@@ -1,4 +1,9 @@
 export const es = {
+  insights: "Insights",
+  insightsEyebrow: "DATOS, DECISIONES Y EVIDENCIA",
+  insightsTitle: "Una duda cotidiana. Un sistema comprobable.",
+  insightsIntro: "Explora el problema, los límites de autonomía y lo que realmente medimos.",
+  quickstartInsights: "Conoce los datos detrás de Aclara",
   quickstartTitle: "Prueba Aclara",
   quickstartPurpose:
     "Entiende un cargo, decide el siguiente paso y comprueba el resultado.",
@@ -400,6 +405,11 @@ export const es = {
     "Esta vista estará disponible cuando el servicio publique su contrato de agente y operaciones. La conversación de cliente ya está conectada.",
 };
 export const pt: typeof es = {
+  insights: "Insights",
+  insightsEyebrow: "DADOS, DECISÕES E EVIDÊNCIAS",
+  insightsTitle: "Uma dúvida cotidiana. Um sistema verificável.",
+  insightsIntro: "Explore o problema, os limites de autonomia e o que realmente medimos.",
+  quickstartInsights: "Conheça os dados por trás do Aclara",
   quickstartTitle: "Experimente o Aclara",
   quickstartPurpose:
     "Entenda uma cobrança, escolha o próximo passo e confira o resultado.",
