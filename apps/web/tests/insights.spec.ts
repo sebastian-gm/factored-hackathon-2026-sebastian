@@ -64,7 +64,11 @@ async function capture(page: Page, name: string) {
   ).toEqual([]);
 }
 async function open(page: Page, pt = false) {
+  // The selector is present in server HTML before React attaches its handler.
+  // The bootstrap fetch starts in an effect, proving hydration before input.
+  const boot = page.waitForRequest("**/api/bff/config");
   await page.goto("/insights");
+  await boot;
   await page
     .locator(".locale-select select")
     .selectOption(pt ? "pt-BR" : "es-MX");
