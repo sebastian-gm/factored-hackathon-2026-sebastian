@@ -26,6 +26,11 @@ _PHONE = re.compile(r"(?<!\w)(?:\+\d{1,3}[ .-]?)?(?:\d[ .-]?){9,14}(?!\w)")
 _CARD = re.compile(r"(?<!\d)(?:\d[ -]?){13,19}(?!\d)")
 _DOCUMENT = re.compile(r"(?<!\w)\d{8,12}(?!\w)")
 _HANDLE = re.compile(r"\b(?:txn|card|prod|cust)_\d+\b", re.I)
+# UTF-8 decoded as Latin-1/Windows-1252, replacement characters, and a narrow
+# word-internal ASCII corruption signature. Ordinary ES/PT accents remain valid.
+_CORRUPTION = re.compile(
+    r"\ufffd|(?:Ã|Â)[\u0080-\u00bf]|â(?:€|[\u0080-\u009f])|(?<=\w)['’]#(?=[A-Za-z])"
+)
 _CASE = re.compile(r"\b(?:DSP|HO)-[A-Z0-9-]+\b", re.I)
 _NUMBER = re.compile(r"(?<!\w)\d+(?:[.,]\d+)*(?!\w)")
 _ISO_DATE = re.compile(r"\b20\d{2}-\d{2}-\d{2}(?=T|\b)")
@@ -87,12 +92,19 @@ def scan_dlp(text: str, *, other_customer_names: tuple[str, ...] = ()) -> tuple[
         ("phone", _PHONE),
         ("card_number", _CARD),
         ("document_number", _DOCUMENT),
+        # A citation establishes provenance, not permission to show internal
+        # selection handles in customer prose. Verified DSP/HO IDs stay separate.
+        ("internal_handle", _HANDLE),
         ("instruction_echo", _INJECTION),
         ("prohibited_promise", _PROMISE),
         ("negated_status", _NEGATED_STATUS),
     ):
         if pattern.search(text):
             violations.append(label)
+    if _CORRUPTION.search(text) or any(
+        unicodedata.category(char) == "Cc" and char not in "\t\n\r" for char in text
+    ):
+        violations.append("text_corruption")
     folded = _fold(text)
     if any(_fold(name) in folded for name in other_customer_names if name.strip()):
         violations.append("other_customer_name")
