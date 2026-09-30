@@ -108,7 +108,7 @@ for (const pt of [false, true])
         .fill((await page.getByTestId("sms-code").textContent())!);
       await page.locator(".login-panel button[type=submit]").click();
       await expect(page.locator(".composer textarea")).toHaveValue(
-        "Não reconheço uma compra de uns 90 reais",
+        "Não reconheço uma compra de uns 90 dólares",
       );
       await inViewport(page.locator(".composer button[type=submit]"), page);
       expect(messages).toBe(0); // Shortcuts select and draft; no send or confirmation.

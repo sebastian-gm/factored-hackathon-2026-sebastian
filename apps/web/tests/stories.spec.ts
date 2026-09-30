@@ -79,7 +79,7 @@ test("ES normal: password + OTP, grounded explanation and safe why drawer", asyn
     "Verificar",
   );
   await expect(page.getByText("185,00")).not.toBeVisible(); // MX formatting is not forced to PT.
-  await expect(page.getByText(/MXN\s*185\.00/)).toBeVisible();
+  await expect(page.getByText(/USD\s*185\.00/)).toBeVisible();
   await page.getByRole("button", { name: "¿Por qué?", exact: true }).click();
   await expect(page.getByRole("dialog")).toContainText("Estado del movimiento");
   await expect(page.getByRole("dialog")).toContainText(
@@ -116,7 +116,7 @@ test("PT ambiguous: top three, exact confirmation, verified case receipt", async
   await login(page, "demo.pt.br");
   await page
     .getByRole("button", {
-      name: "Não reconheço uma compra de uns 90 reais",
+      name: "Não reconheço uma compra de uns 90 dólares",
       exact: true,
     })
     .click();
@@ -132,7 +132,7 @@ test("PT ambiguous: top three, exact confirmation, verified case receipt", async
     "Agir",
   );
   await expect(dialog).toContainText("Mercado do Bairro");
-  await expect(dialog).toContainText(/BRL\s*92,50/);
+  await expect(dialog).toContainText(/USD\s*92,50/);
   await expect(dialog).toContainText("Registrar contestação");
   await page.keyboard.press("Tab");
   await expect(page.locator(":focus")).toHaveJSProperty("tagName", "BUTTON");
@@ -190,7 +190,7 @@ test("fraud: customer handoff, agent evidence, claim and resolve, ops trace and 
   await expect(
     page.getByRole("heading", { name: "Hechos verificados" }),
   ).toBeVisible();
-  await page.getByRole("button", { name: /Evidencia del registro ·/ }).click();
+  await page.getByRole("button", { name: /Evidencia del registro/ }).click();
   await expect(page.getByRole("dialog")).toContainText("get_transaction");
   await page.keyboard.press("Escape");
   await page
@@ -240,7 +240,7 @@ test("cancel consumes the proposal without creating a case", async ({
   await login(page, "demo.pt.br");
   await page
     .getByRole("button", {
-      name: "Não reconheço uma compra de uns 90 reais",
+      name: "Não reconheço uma compra de uns 90 dólares",
       exact: true,
     })
     .click();
@@ -336,7 +336,7 @@ test("proposal replay is idempotent and another authenticated browser cannot con
   await login(page, "demo.pt.br");
   await page
     .getByRole("button", {
-      name: "Não reconheço uma compra de uns 90 reais",
+      name: "Não reconheço uma compra de uns 90 dólares",
       exact: true,
     })
     .click();
@@ -435,7 +435,7 @@ test("OTP is required; failed challenge locks after five attempts and can restar
 test("recording helper resets with read-back, selects all personas and reaches the desk", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/?grabar=1");
   await page.getByText("Preparar grabación", { exact: true }).click();
   await page
     .getByRole("button", { name: "Entrar en operaciones para restablecer" })
@@ -519,7 +519,7 @@ test("recording helper resets with read-back, selects all personas and reaches t
 test("recording helper never opens a story when reset read-back fails", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/?grabar=1");
   await page.getByText("Preparar grabación", { exact: true }).click();
   await page
     .getByRole("button", { name: "Entrar en operaciones para restablecer" })

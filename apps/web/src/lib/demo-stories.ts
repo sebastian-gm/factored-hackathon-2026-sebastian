@@ -15,7 +15,7 @@ export const demoStories = [
     username: "demo.pt.br",
     locale: "pt-BR",
     surface: "chat",
-    draft: "Não reconheço uma compra de uns 90 reais",
+    draft: "Não reconheço uma compra de uns 90 dólares",
   },
   {
     id: "fraud",

@@ -13,6 +13,7 @@ export default defineConfig({
           "**/conversation-contract.spec.ts",
           "**/startup.spec.ts",
           "**/judge-ux.spec.ts",
+          "**/ux-review.spec.ts",
         ],
   fullyParallel: false,
   workers: 1,

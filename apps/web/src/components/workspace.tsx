@@ -1,6 +1,12 @@
 "use client";
 import Link from "next/link";
-import { createContext, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import { NextIntlClientProvider, useTranslations } from "next-intl";
 import {
   ArrowUpRight,
@@ -101,6 +107,13 @@ export default function Workspace() {
     </NextIntlClientProvider>
   );
 }
+function subscribeRecordingFlag(changed: () => void) {
+  window.addEventListener("popstate", changed);
+  return () => window.removeEventListener("popstate", changed);
+}
+function recordingFlagEnabled() {
+  return new URLSearchParams(window.location.search).get("grabar") === "1";
+}
 function Shell({ ready, failed }: { ready: boolean; failed: boolean }) {
   const t = useTranslations();
   const { locale, setLocale, config, session, signOut } = useApp();
@@ -108,6 +121,12 @@ function Shell({ ready, failed }: { ready: boolean; failed: boolean }) {
   const [story, setStory] = useState<DemoStory | null>(null);
   const [workspaceRevision, setWorkspaceRevision] = useState(0);
   const [chatLocked, setChatLocked] = useState(false);
+  // Hidden in server HTML. Opt-in visibility grants no action authority.
+  const recordingEnabled = useSyncExternalStore(
+    subscribeRecordingFlag,
+    recordingFlagEnabled,
+    () => false,
+  );
   async function openStory(next: DemoStory) {
     if (chatLocked) throw new Error("Pending customer decision");
     const persona = storyPersona(config, next, session?.username);
@@ -218,7 +237,7 @@ function Shell({ ready, failed }: { ready: boolean; failed: boolean }) {
                 <option value="es-MX">ES · México</option>
                 <option value="es-CO">ES · Colombia</option>
                 <option value="es-AR">ES · Argentina</option>
-                <option value="pt-BR">PT · Brasil</option>
+                <option value="pt-BR">PT · Português brasileiro</option>
               </select>
             </label>
             {session && (
@@ -236,7 +255,7 @@ function Shell({ ready, failed }: { ready: boolean; failed: boolean }) {
             </span>
           </div>
         </header>
-        <main id="main-content" className="main-content">
+        <main id="main-content" className="main-content" tabIndex={-1}>
           <div className="environment-row">
             <span
               className={`status-pill ${!ready || failed ? "neutral" : config.fixtures ? "amber" : ""}`}
@@ -350,7 +369,7 @@ function Shell({ ready, failed }: { ready: boolean; failed: boolean }) {
           ) : (
             <Ops key={workspaceRevision} />
           )}
-          {ready && !failed && (
+          {recordingEnabled && ready && !failed && (
             <RecordingHelper
               onStory={openStory}
               onStaff={openStaff}

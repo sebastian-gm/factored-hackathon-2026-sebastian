@@ -7,7 +7,7 @@ export function offerFixture(pt: boolean) {
     handle: "txn_ui_papeleria",
     merchant: pt ? "Papelaria Prisma" : "Papelería Prisma",
     amount: 64.25,
-    currency: pt ? "BRL" : "MXN",
+    currency: "USD",
     transaction_date: "2026-06-12T16:30:00Z",
     transaction_type: "Purchase",
     status: "Approved",
