@@ -164,6 +164,17 @@ export function CustomerChat({ initialDraft = "" }: { initialDraft?: string }) {
     } catch (caught) {
       lock.current = false;
       setBusy(false);
+      if (
+        caught instanceof ApiError &&
+        caught.status === 401 &&
+        caught.code === "invalid_otp_code"
+      ) {
+        // The server retained this challenge and pending proposal. A wrong
+        // code is retryable by the customer, within its five-attempt limit.
+        setOtp("");
+        setError(t("otpRetry"));
+        return;
+      }
       setStepUp(null);
       setOtp("");
       setLatest(null);
@@ -477,7 +488,7 @@ export function CustomerChat({ initialDraft = "" }: { initialDraft?: string }) {
             }}
           >
             <p className="error" role="alert">
-              {t("stepUpRequired")}
+              {error || t("stepUpRequired")}
             </p>
             <div className="sms-panel">
               <div>
