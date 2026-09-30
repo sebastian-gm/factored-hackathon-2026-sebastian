@@ -1934,16 +1934,32 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
   complete fresh comparisons may exceed the allowance. No adoption on partial
   evidence; keep the shared cap and report incomplete coverage honestly.
 
+
+- Freeze commit `eaef1166ae4f90934332201b437bd14f3f22a79a` read back clean before
+  any product run; manifest/case/builder/materialized hashes still match afterward.
+- Ran all 60 once through the real in-memory P state machine with mock NLU and
+  network/v4 barriers: 19 passed (ES 9/30, PT 10/30), zero unsafe findings,
+  zero execution errors, 13 filed / six explained / 41 escalated, $0 and no
+  provider calls. This is mock fallback evidence, not Gemini accuracy. Private
+  per-case records remain ignored. Corrected an initial harness map-truthiness
+  aggregation error from those saved records without rerunning or altering cases;
+  a regression protects actual unsafe-flag counting. Frozen gold remains unchanged.
+- Added a mock-only CLI that rejects real-provider configuration/approval before
+  reading cases and refuses to overwrite evidence. Twelve relevant unit checks,
+  strict mypy (87 files), Ruff and freeze validation pass. Real measurement,
+  NLU/NLG repairs and v5.2 remain pending the paid-scope confirmation/baseline.
+
 ### Done but not verified
 
-- Mock execution after this freeze and all real before/after numbers are pending.
+- Real before/after numbers remain pending; the 19/60 mock pass is not a Gemini
+  measurement and does not authorize changes to frozen gold.
 - v5.2 is neither authored nor adopted. PR #77 is not assumed merged or deployed;
   record the actual baseline integration SHA before a later paid run.
 
 ### Next / blocked
 
-- Commit/read back the freeze, then execute zero-cost mock checks and open the
-  fixture/protocol PR into `fix/post-v3-analysis`; lead reviews/merges.
+- Open the private fixture/protocol/mock-check PR into `fix/post-v3-analysis`;
+  lead reviews/merges. Freeze and mock readbacks are complete.
 - Wait for the orchestrator's exact read-back `dev-gate/pre-v4` scope/run before
   every paid call. Shared lifetime cap $1, stop exposure at $0.90. No final scope,
   paid call, default change or v4 access is authorized by these preparatory checks.

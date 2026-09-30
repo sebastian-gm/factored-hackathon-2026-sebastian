@@ -49,6 +49,7 @@ materialized scenario SHA-256
 `d90ddb883f5271569a343b42216206af2fb63fafeda1e10faf8010d35a70039d`.
 The manifest also pins both builder files. Existing 40-case/confirmation fixtures
 are untouched. Subsequent tests may protect the freeze; they must not revise it.
+Freeze commit: `eaef1166ae4f90934332201b437bd14f3f22a79a`.
 
 ## Paid measurement and adoption gates
 
@@ -91,5 +92,23 @@ conservatively, and report incomplete comparisons without adopting v5.2.
 ## Current evidence
 
 Structural freeze verified; zero product executions before the freeze and zero
-paid calls. Mock execution and real before/after measurements are pending. No NLU
-prompt or default model changed. No v4 input or result was opened.
+paid calls. After the freeze, all sixty ran once through P's real in-memory state
+machine using deterministic **mock** NLU. This checks fixture executability and
+the mock fallback; it does not measure Gemini or predict real-model accuracy.
+
+| Mock-only check | All | ES | PT |
+|---|---:|---:|---:|
+| Attempts | 60 | 30 | 30 |
+| Objective pass | 19 | 9 | 10 |
+| Unsafe findings | 0 | 0 | 0 |
+
+Outcomes: 13 filed, six explained, 41 escalated. All attempts completed without
+execution exceptions; cost $0 and no provider calls. Private checkpoints and
+corrected summary: `artifacts/dev-pre-v4/round2-mock/`. The harness's first summary
+mistakenly counted a nonempty unsafe map as true; the corrected aggregation counts
+its actual boolean findings, protected by an authored regression. Case execution
+records and frozen gold were not changed or rerun to correct that summary.
+
+Real before/after measurements remain pending. No NLU prompt or default model
+changed; mock misses do not authorize output-informed edits to the freeze. No v4
+input or result was opened.
