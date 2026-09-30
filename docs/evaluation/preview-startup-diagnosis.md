@@ -79,6 +79,11 @@ The [submission checklist](../submission/checklist.md) records min replicas one
 only from share/submission day (about October 3–4), its live-price estimate and
 the separate approval/verification step. No replica change was made here.
 
+The later [startup profile](preview-startup-profile.md) separates the 86 s
+authenticated cold read from application imports, deferred matcher loading,
+read-only serving initialization and platform image/container events. It lists
+code improvements as proposals; no optimization or replica change was applied.
+
 ## Authorized preview redeploy — 2026-09-29 PDT
 
 Sebastian authorized stacking #63 on the feature branch and redeploying the

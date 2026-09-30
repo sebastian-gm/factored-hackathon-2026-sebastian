@@ -1,5 +1,84 @@
 # Progress log
 
+## 2026-09-29 PDT — AI review, feature integration and startup profiling
+
+### Completed (verified)
+
+- Critically reviewed PRs #65/#66 commit by commit. #63 was already merged;
+  #65 merged at `b9dabfb`, #66 at `6800ffd` under the preceding feature-merge
+  authorization while billing was blocked. One progress-log conflict was
+  resolved by keeping both entries in a history-preserving update; no force push.
+- Reproduced #65's lead-owned offer failure at zero cost in ES/PT. Commit
+  `02d6bcc` narrowly exempts charge-origin memory statements from selection
+  uncertainty, retaining separate inability-to-choose clauses and all matcher
+  thresholds. Authored regressions: 10 failures/10 passes before, **20/20 after**.
+  The reported dev case passes a bound replay using authored mock extraction,
+  with its required offer, cancellation and no forbidden/unsafe action. No new
+  real-model result is claimed.
+- Integrated #67 then dependent #68 locally into `fix/post-v3-analysis`, followed
+  by the guard correction. Full combined checks: `make checks` **417 passed /
+  16 DB skips**, six hooks, file policy, compile, B1 **32/32**, **12 readbacks**,
+  snapshots/catalog; Ruff and strict mypy (84 files); reactive B1 **32/32**;
+  `python -m scripts.test_postgres` **19/19**; web typecheck/lint/build; browser
+  **46 story + 12 live + 1 staff = 59/59**. No product merge conflict or local
+  regression. Generated Next/B1 aggregate files were restored after checks.
+- Reviewed and locally integrated #69/#70. Applied #69's six copy changes in
+  `ea34060`, mechanically updating one stale hunk beside #68 provenance code.
+  AST checks confirm six string-only changes/four replacements and identical
+  non-string structure/placeholders/numbers. Corrected the review's coverage
+  cutoff: later OTP retry/UX strings are outside its 134-item model inventory.
+  All four model-card source pins match; no review call was rerun.
+- #70's README/projection numbers match official v2/v3 reports and saved v3
+  aggregate objects. Decimal recomputation confirms every low/base/high output
+  and 4,440-minute sensitivity. Historical FCR, counts, handling and wait times
+  match committed pipeline aggregates; workload/efficiency/infra are labeled
+  assumptions, with safety failures/partial judging retained. Bootstrap order
+  was checked against source, not rerun on organizer data. A second
+  progress-log-only conflict preserved every entry. An early local check on
+  the unresolved index failed in the staged-file scanner; after resolution the
+  stable `95332e0` candidate passed `make checks` **417/417**, B1 **32/32**,
+  hooks/compile/snapshots/catalog. No extra paid calls.
+- Added main-only PR filters and workflow/ref cancellation to CI/safety in
+  `2b41886`. YAML assertions verify PR base main, main pushes and cancellation.
+  The owner initially announced billing recovery; the single authorized reruns
+  on #67/#62 still started zero steps. Further reruns stopped when requested.
+  The later owner confirmation supersedes that block: **$5 hard Actions cap**,
+  rigorous local gates for stacked PRs, remote green required before main merge.
+- Read-only startup profiling of the existing `dac3801` preview: 86.059 s is
+  the prior web→API cold-read chain, with a 43.581 s web-ready/API-ready gap.
+  Cached API/web images are 226.88/72.26 MiB; a separate API activation pulled
+  its image in 7.54 s. Network-disabled local API initialization at 0.25 CPU /
+  512 MiB took 6.399 s; TypeSafe import 0.516 s; LightGBM not loaded at readiness;
+  matcher construction afterward 2.479 s. Non-owner TLS serving/identity/hint
+  timings completed without printing rows. An initial workstation pool timeout
+  was followed by successful TLS/read checks; firewall IP still matched.
+  No Azure change, model call or banking write. [Profile and proposals](../evaluation/preview-startup-profile.md).
+- [Review, commit dispositions, gate commands and limits](../reviews/pr-65-66-integration-review.md).
+  Main/origin/main remain `e12efc73be64f8355aa9f177f08a04337593616c`.
+  V4 files/rows/tools/bindings were neither opened nor executed; v1 untouched.
+
+### Done but not verified
+
+- #67–#70 and the lead guard/copy/CI changes are locally integrated, not yet
+  published on the combined #62 head. GitHub stacked PRs still show open until
+  publication. The frontend UX PR is being prepared on `feat/judge-ux-polish`.
+- Full remote CI on the final combined head and Azure release are pending.
+  Browser/Postgres checks predate only the six verified copy changes; final UX
+  integration still requires its combined local browser gate.
+- Startup timings are individual observations, not a complete Azure cold-start
+  decomposition. No proposed dependency/import/cache/readiness optimization was
+  implemented. No human PT fluency or independent v4 result is claimed.
+
+### Next / blocked
+
+- Wait for the orchestrator's UX PR number, review and integrate it locally.
+  Re-run necessary combined local gates, then publish **one complete #62 head**
+  and inspect its automatically triggered CI/safety; avoid manual reruns.
+  Keep the $5 owner billing cap and main-only trigger/cancellation policy.
+- Do not merge main or start v4. Report the combined SHA and remote gates after
+  the single full-head run. Any release remains a separate authorized step.
+
+
 ## AI lane — 2026-09-29 (language model card and cross-vendor copy review)
 
 ### Completed (verified)
