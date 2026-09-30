@@ -257,20 +257,24 @@ def attempt_output(
 
 
 async def run(mode: str, *, profile: str = "option-a", attempt: int = 1) -> dict:
-    if profile not in {"option-a", "after-v2", "post-v3"}:
+    if profile not in {"option-a", "after-v2", "post-v3", "pre-v4"}:
         raise ValueError("Unknown dev gate profile")
     from scripts.after_v2_budget import RUN_ID as AFTER_RUN
     from scripts.after_v2_budget import SCOPE as AFTER_SCOPE
     from scripts.post_v3_budget import RUN_ID as POST_V3_RUN
     from scripts.post_v3_budget import SCOPE as POST_V3_SCOPE
+    from scripts.pre_v4_budget import RUN_ID as PRE_V4_RUN
+    from scripts.pre_v4_budget import SCOPE as PRE_V4_SCOPE
 
     scope, run_id = {
         "after-v2": (AFTER_SCOPE, AFTER_RUN),
         "post-v3": (POST_V3_SCOPE, POST_V3_RUN),
+        "pre-v4": (PRE_V4_SCOPE, PRE_V4_RUN),
     }.get(profile, (SCOPE, RUN_ID))
     output_root = {
         "after-v2": ROOT / "artifacts/after-v2-dev",
         "post-v3": ROOT / "artifacts/post-v3-dev",
+        "pre-v4": ROOT / "artifacts/pre-v4-dev",
     }.get(profile, OUTPUT)
     real = mode == "real"
     if real and os.getenv("LLM_REAL_CALLS_APPROVED") != "1":
@@ -287,7 +291,7 @@ async def run(mode: str, *, profile: str = "option-a", attempt: int = 1) -> dict
     cases = [("dev" if not s.get("faults") else "faults", s) for s in dev]
     hashes = {"dev": hashlib.sha256(DEV.read_bytes()).hexdigest()}
     if real:
-        if profile in {"after-v2", "post-v3"}:
+        if profile in {"after-v2", "post-v3", "pre-v4"}:
             from aclara.llm.dev_offer_scenarios import CASES, load_offer_scenarios
 
             confirmation = load_offer_scenarios()
@@ -393,7 +397,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("mode", choices=("mock", "real"))
     parser.add_argument(
-        "--profile", choices=("option-a", "after-v2", "post-v3"), default="option-a"
+        "--profile", choices=("option-a", "after-v2", "post-v3", "pre-v4"), default="option-a"
     )
     parser.add_argument("--attempt", type=int, choices=(1, 2), default=1)
     args = parser.parse_args()

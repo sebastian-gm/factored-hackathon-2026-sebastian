@@ -292,7 +292,8 @@ def test_v4_budget_closes_v3_and_dev_preserves_reserves_and_spans_restart(
     ready = final_budget.prepare(owner, spec)
     assert ready["scope"] == "final-evaluation-v4"
     assert ready["prior_charged_with_reserves_usd"] == 0.6
-    assert ready["prior_plus_program_and_smoke_limits_usd"] == 3.7
+    assert ready["prior_plus_program_and_smoke_limits_usd"] == 3.8
+    assert ready["in_region_latency_smoke_allowance_usd"] == 0.1
     with pytest.raises(BudgetFailure):
         old.reserve(0.001)
     current = PostgresSpendGate(store, scope=spec.scope, run_id=spec.run_id)
@@ -305,3 +306,81 @@ def test_v4_budget_closes_v3_and_dev_preserves_reserves_and_spans_restart(
             restarted.reserve(0.02)
     finally:
         replacement.close()
+
+
+def test_pre_v4_preparation_retires_prior_and_keeps_lifetime_cap_after_restart(
+    budget_store, monkeypatch
+):
+    from scripts import pre_v4_budget
+
+    store, prior, owner = budget_store
+    fresh = "fixture-pre-v4-" + uuid4().hex
+    monkeypatch.setattr(pre_v4_budget, "PRIOR_SCOPES", (prior,))
+    monkeypatch.setattr(pre_v4_budget, "SCOPE", fresh)
+    old = PostgresSpendGate(store, scope=prior, run_id="fixture-run")
+    old.reserve(0.1)  # Unknown usage stays charged when the scope closes.
+    ready = pre_v4_budget.verify(owner, prepare=True)
+    assert ready["prior_charged_with_reserves_usd"] == 0.1
+    assert ready["maximum_cumulative_usd"] == 4.3
+    assert ready["attempts"] == 0
+    with pytest.raises(BudgetFailure):
+        old.reserve(0.001)
+    current = PostgresSpendGate(store, scope=fresh, run_id=pre_v4_budget.RUN_ID)
+    current.reserve(0.99)
+    assert pre_v4_budget.verify(owner, prepare=True)["charged_with_reserves_usd"] == 0.99
+    replacement = Store(os.environ["TEST_OPS_DSN"])
+    try:
+        restarted = PostgresSpendGate(replacement, scope=fresh, run_id=pre_v4_budget.RUN_ID)
+        with pytest.raises(BudgetFailure):
+            restarted.reserve(0.02)
+    finally:
+        replacement.close()
+    with psycopg.connect(owner) as connection:
+        connection.execute("SET LOCAL ROLE aclara_owner")
+        connection.execute("UPDATE llm.limits SET disabled=true WHERE scope=%s", (fresh,))
+    with pytest.raises(RuntimeError, match="disabled"):
+        pre_v4_budget.verify(owner, prepare=True)
+    with pytest.raises(BudgetFailure):
+        current.reserve(0.001)
+
+
+def test_sha_bound_smoke_cap_survives_reprepare_and_cannot_reenable_breaker(budget_store):
+    from scripts.release_smoke_budget import run_id, verify
+
+    store, _, owner = budget_store
+    sha = uuid4().hex + "0" * 8
+    name = run_id("latency", sha)
+    assert verify(owner, "latency", sha, prepare=True)["attempts"] == 0
+    gate = PostgresSpendGate(store, scope="production", run_id=name)
+    gate.reserve(0.0999)
+    assert verify(owner, "latency", sha, prepare=True)["charged_with_reserves_usd"] == 0.0999
+    with pytest.raises(BudgetFailure):
+        gate.reserve(0.001)
+    with psycopg.connect(owner) as connection:
+        connection.execute("SET LOCAL ROLE aclara_owner")
+        connection.execute(
+            "UPDATE llm.runs SET enabled=false WHERE scope='production' AND run_id=%s", (name,)
+        )
+    with pytest.raises(RuntimeError, match="disabled"):
+        verify(owner, "latency", sha, prepare=True)
+
+
+def test_pre_v4_denied_exposure_rolls_back_closure_and_new_scope(budget_store, monkeypatch):
+    from scripts import pre_v4_budget
+
+    _, prior, owner = budget_store
+    fresh = "fixture-pre-v4-denied-" + uuid4().hex
+    monkeypatch.setattr(pre_v4_budget, "PRIOR_SCOPES", (prior,))
+    monkeypatch.setattr(pre_v4_budget, "SCOPE", fresh)
+    monkeypatch.setattr(pre_v4_budget, "CUMULATIVE_CAP", Decimal("4.19"))
+    with pytest.raises(RuntimeError, match="exceeds"):
+        pre_v4_budget.verify(owner, prepare=True)
+    with psycopg.connect(owner) as connection:
+        connection.execute("SET LOCAL ROLE aclara_owner")
+        assert connection.execute(
+            "SELECT disabled FROM llm.limits WHERE scope=%s", (prior,)
+        ).fetchone() == (False,)
+        assert (
+            connection.execute("SELECT scope FROM llm.limits WHERE scope=%s", (fresh,)).fetchone()
+            is None
+        )

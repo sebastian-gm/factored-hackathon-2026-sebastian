@@ -21,15 +21,19 @@ V3 = specification("test-v3")
 CAP = Decimal("3.00")
 CUMULATIVE_CAP = Decimal("12.00")
 RELEASE_SMOKE_ALLOWANCE = Decimal("0.10")
+LATENCY_SMOKE_ALLOWANCE = Decimal("0.10")
 PRIOR_SCOPES = ("final-evaluation", "dev-gate/option-a", "final-evaluation-v2", "dev-gate/after-v2")
 
 
-def check_exposure(prior: Decimal, cap: Decimal) -> None:
+def check_exposure(
+    prior: Decimal, cap: Decimal, *, smoke_allowance: Decimal = RELEASE_SMOKE_ALLOWANCE
+) -> None:
     if (
         not prior.is_finite()
         or prior < 0
         or cap != CAP
-        or prior + cap + RELEASE_SMOKE_ALLOWANCE > CUMULATIVE_CAP
+        or smoke_allowance not in {RELEASE_SMOKE_ALLOWANCE, Decimal("0.20")}
+        or prior + cap + smoke_allowance > CUMULATIVE_CAP
     ):
         raise RuntimeError(
             "Prior exposure plus program and release smoke limits exceeds the approved cumulative ceiling"
@@ -38,7 +42,9 @@ def check_exposure(prior: Decimal, cap: Decimal) -> None:
 
 def prior_scopes(spec: ProgramSpec) -> tuple[str, ...]:
     return PRIOR_SCOPES + (
-        ("final-evaluation-v3", "dev-gate/post-v3") if spec.suite == "test-v4" else ()
+        ("final-evaluation-v3", "dev-gate/post-v3", "dev-gate/pre-v4")
+        if spec.suite == "test-v4"
+        else ()
     )
 
 
@@ -55,6 +61,14 @@ def receipt(connection: psycopg.Connection, spec: ProgramSpec = V3) -> dict:
         ).fetchone()
         assert row is not None
         prior += row[0]
+    production = Decimal("0")
+    if spec.suite == "test-v4":
+        row = connection.execute(
+            "SELECT coalesce(sum(charged_usd),0) FROM llm.reservations WHERE scope='production'"
+        ).fetchone()
+        assert row is not None
+        production = row[0]
+        prior += production
     limit = connection.execute(
         "SELECT daily_usd,disabled FROM llm.limits WHERE scope=%s", (spec.scope,)
     ).fetchone()
@@ -65,7 +79,9 @@ def receipt(connection: psycopg.Connection, spec: ProgramSpec = V3) -> dict:
         raise RuntimeError(
             "Prepared program policy is absent, changed, disabled, or not a single lifetime run"
         )
-    check_exposure(prior, CAP)
+    latency_allowance = LATENCY_SMOKE_ALLOWANCE if spec.suite == "test-v4" else Decimal("0")
+    smoke_allowance = RELEASE_SMOKE_ALLOWANCE + latency_allowance
+    check_exposure(prior, CAP, smoke_allowance=smoke_allowance)
     row = connection.execute(
         "SELECT count(*),coalesce(sum(actual_usd),0),coalesce(sum(charged_usd),0),count(*) FILTER(WHERE actual_usd IS NULL) FROM llm.reservations WHERE scope=%s AND run_id=%s",
         (spec.scope, spec.run_id),
@@ -79,8 +95,10 @@ def receipt(connection: psycopg.Connection, spec: ProgramSpec = V3) -> dict:
         "cap_usd": float(CAP),
         "cumulative_cap_usd": float(CUMULATIVE_CAP),
         "prior_charged_with_reserves_usd": float(prior),
+        "historical_production_charged_with_reserves_usd": float(production),
         "release_smoke_allowance_usd": float(RELEASE_SMOKE_ALLOWANCE),
-        "prior_plus_program_and_smoke_limits_usd": float(prior + CAP + RELEASE_SMOKE_ALLOWANCE),
+        "in_region_latency_smoke_allowance_usd": float(latency_allowance),
+        "prior_plus_program_and_smoke_limits_usd": float(prior + CAP + smoke_allowance),
         "attempts": row[0],
         "known_cost_usd": float(row[1]),
         "charged_with_reserves_usd": float(row[2]),
