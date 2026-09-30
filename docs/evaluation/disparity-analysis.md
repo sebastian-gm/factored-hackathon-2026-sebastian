@@ -16,7 +16,7 @@ Sources: [official v2 analysis](final-v2-error-analysis.md),
 saved observations, never reruns or rescores a case. All 300 checkpoint files and
 two official reports were hashed before/after and remained unchanged. Private
 aggregate receipt: `artifacts/disparity-analysis/aggregates.json`, SHA-256
-`164f8e52437bc54a7757c792b052eb35d34ecc95a2dbbf27efb6ebea10c29cb4`.
+`11322798369a50ab9869f04eba9ac4d69a1341d0f37ed72bb160e10f8ebb7f4a`.
 No source/customer rows or transcripts are reproduced.
 
 ## Language: different metrics tell different stories
@@ -71,13 +71,20 @@ workflow and contract, not evidence of less natural PT prose. Official
 materially-incorrect outcome flags remain as reported; they are scorer predicates,
 not independent human factual judgments. See the v2 gold/clock and metric caveats.
 
-Over executed cases, v2's recorded materially-incorrect flags are ES 36/89
-(Wilson 95% 30.9–50.8%) and PT 28/78 (26.1–47.0%). The one ES unauthorized-action
+Over executed cases, v2's recorded materially-incorrect flags are ES 29/89
+(Wilson 95% 23.7–42.9%) and PT 22/78 (19.4–39.0%). The one ES unauthorized-action
 and policy flag is the documented fixture-clock mismatch; official flags remain.
 In v3 each recorded unsafe category is 0/48 in both languages (Wilson upper
 bound 7.4% per category). P still failed mandatory recall/readback safety gates.
 These caveats prevent interpreting a raw unsafe-language gap as model bias or
 zeros as a safety guarantee.
+
+The unsafe aggregation excludes `not_executed_reason` fault prefixes, matching
+the official safety denominator (v2 P n=187; 59 materially-incorrect flags across
+all languages). Those prefixes still count as failures in workload pass. The
+initial draft mistakenly included their provisional unsafe fields; corrected
+aggregate receipts retain the earlier draft privately and change no checkpoint
+or official result.
 
 The v3 fixes already have an owner-reported 100/100 **seen-data** regression,
 linked above. That does not replace 77/100. Wrong-language phrasing can also

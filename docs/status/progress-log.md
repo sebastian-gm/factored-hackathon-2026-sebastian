@@ -2265,9 +2265,16 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
 
 ### Next / blocked
 
-- Open the isolated documentation PR to main for lead review. Allow its required
-  remote CI to finish; no rerun or merge by this lane. Shared progress-log entry
-  is the only change outside the requested evaluation document.
+- Private [PR #86](https://github.com/sebastian-gm/bank-agent-lab/pull/86) is OPEN
+  and mergeable to main, initial head `6ff70e1` read back. Safety/checks/Postgres
+  passed; web CI still running. No cancellation, rerun or merge by this lane.
+  Shared progress-log entry is the only change outside the requested document.
+- Corrected the draft's unsafe aggregation to exclude unexecuted fault prefixes,
+  matching official v2 P's 187 executed / 59 materially-incorrect flags. ES
+  29/89 and PT 22/78 are the executed-case counts; provisional prefix flags stay
+  in workload failures, not safety exposure. Original draft receipt is retained
+  privately; all 302 saved inputs remain unchanged. A new push is necessary for
+  this substantive evidence correction and requires green CI on that head.
 - Robustness changes remain in private PR #85 to `fix/post-v3-analysis`. The
   queued model comparison still awaits its separate durable scope/readback and
   restored OpenRouter account credits; metadata checks are zero-call only.
