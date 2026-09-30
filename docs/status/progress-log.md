@@ -1,19 +1,22 @@
 # Progress log
 
-## AI lane — 2026-09-29 (post-v3 robustness freeze)
+## AI lane — 2026-09-29 (post-v3 authored robustness study)
 
 ### Completed (verified)
 
-- Read handoff 14 and authored 40 synthetic conversations covering all ten requested robustness features, balanced ES/PT. Structural validation, reference binding, gold validation, Ruff and strict mypy pass. [Protocol and hashes](../ml/nlu-robustness-post-v3.md). No P run or existing NLU/NLG fix preceded the freeze; no v4 data was opened.
-- Read back the existing shared `dev-gate/post-v3` / `post-v3` scope: $0.40238433 charged including reserves. The study will atomically stop before any new reservation would exceed $0.90. No scope or limit was changed.
+- Read handoff 14; authored and froze 40 synthetic ES/PT conversations at `31826c6` before any P run or language fix. All three fixture hashes read back unchanged after measurement. No v4 data was opened.
+- Real P before/after: **39/40 → 39/40**, ES **19/20 → 19/20**, pt-BR **20/20 → 20/20**, zero unsafe/forbidden outcomes, all four embedded injections logged. Fixed complete ES/PT spoken-amount parsing and Portuguese previous-weekday dates in AI-owned NLU, with 45 authored parser regressions. Opening slot failures **9 → 0**, clarification responses **15 → 6**, case p50 **7.877 → 5.423 s**, p95 **12.195 → 12.273 s**. [Full report](../ml/nlu-robustness-post-v3.md).
+- All **89/89 → 75/75** OpenRouter attempts and **59/59 → 50/50** Jev attempts valid. Known new per-call cost **$0.230932684**, no new unknown usage. Durable `dev-gate/post-v3` / `post-v3` readback: **$0.63331754** including retained reserves, below the $0.90 stop and $1 shared lifetime cap. No final scope was used; no further paid run planned.
+- `make checks` passes: six hooks, Ruff, strict mypy, compilation, staged-file policy, **360 passed / 14 database-dependent skips**, B1 **32/32**, interfaces and policy catalog. Additional strict-mypy and B1 reactive dev **32/32** pass. No prompts, model roles, contracts or policy authority changed.
 
 ### Done but not verified
 
-- Real P robustness results and before/after effects are not yet measured.
+- One offer-path failure remains lead-owned: valid model/postprocess unfamiliarity is overridden by `selection.uncertain()` on a charge-origin memory statement; MATCH was confident. Zero-cost reproduction is saved privately and the report describes the lead's narrow regression/fix. No human language validation or independent accuracy claim is made; latency is one before/after observation.
+- Remote CI status follows in the PR; base PR #62 has an Actions billing block. Local checks are green, not a substitute for remote CI.
 
 ### Next / blocked
 
-- Commit the freeze, measure the current P path, diagnose failures, fix only AI-owned behavior with regressions, rerun unchanged inputs within the shared cap, and open a PR for the lead. Keep v4 blind; the lead merges.
+- Open the AI PR stacked on PR #62; lead reviews and merges, and fixes the remaining deterministic uncertainty guard in the lead lane. Keep v4 blind. This lane does not merge or deploy.
 
 ## 2026-09-29 UTC — Owner-approved preview deploy of `fix/post-v3-analysis`
 
