@@ -91,3 +91,50 @@ run "judge_rejects_smoke_lifetime" {
   }
   expect_failures = [var.enable_judge_access]
 }
+
+run "sha_bound_release_smoke" {
+  command = plan
+  variables {
+    llm_budget_run_id = "pre-v4-release-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  }
+  assert {
+    condition     = one([for e in azurerm_container_app.api[0].template[0].container[0].env : e.value if e.name == "LLM_BUDGET_RUN_ID"]) == var.llm_budget_run_id && azurerm_container_app.api[0].template[0].min_replicas == 0 && length(azurerm_container_app.web[0].ingress[0].ip_security_restriction) == 1
+    error_message = "SHA-bound release accounting must preserve scale-to-zero and owner ingress."
+  }
+}
+
+run "sha_bound_latency_smoke" {
+  command = plan
+  variables {
+    llm_budget_run_id = "pre-v4-latency-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  }
+  assert {
+    condition     = one([for e in azurerm_container_app.api[0].template[0].container[0].env : e.value if e.name == "LLM_BUDGET_RUN_ID"]) == var.llm_budget_run_id && !azurerm_container_app.api[0].ingress[0].external_enabled
+    error_message = "Latency accounting must bind the exact run and keep the API internal."
+  }
+}
+
+run "smoke_rejects_short_sha" {
+  command = plan
+  variables {
+    llm_budget_run_id = "pre-v4-release-aaaaaaa"
+  }
+  expect_failures = [var.llm_budget_run_id]
+}
+
+run "smoke_rejects_unapproved_kind" {
+  command = plan
+  variables {
+    llm_budget_run_id = "pre-v4-uncapped-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  }
+  expect_failures = [var.llm_budget_run_id]
+}
+
+run "judge_rejects_sha_bound_smoke" {
+  command = plan
+  variables {
+    enable_judge_access = true
+    llm_budget_run_id   = "pre-v4-latency-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  }
+  expect_failures = [var.enable_judge_access]
+}
