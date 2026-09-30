@@ -1,5 +1,20 @@
 # Progress log
 
+## AI lane — 2026-09-29 (Actions policy and documentation handoff)
+
+### Completed (verified)
+
+- Read back [PR #70](https://github.com/sebastian-gm/bank-agent-lab/pull/70) and [PR #69](https://github.com/sebastian-gm/bank-agent-lab/pull/69): both are open, unmerged and mergeable against `fix/post-v3-analysis`. Their descriptions now reflect Sebastian's latest Actions instruction: the $5 budget is unblocked; rigorous local checks are the gate for stacked PRs; green remote CI is required for PRs into `main`.
+- Reconciled PR #69 with lead target `6800ffd`, preserving both progress histories; its proposed lead-owned copy patch still applies. Documentation PR #70 retains the verified **381 passed / 14 database-dependent skips**, B1 **32/32**, strict mypy and Ruff checks. No additional manual CI rerun, model spend, deployment or v4 access followed the new instruction.
+
+### Done but not verified
+
+- The later owner confirmation supersedes the earlier billing-block and all-merge CI notes below. This lane has not independently audited the owner billing change or future main-target CI; no green remote CI is claimed for these stacked PRs.
+
+### Next / blocked
+
+- Lead reviews and merges PRs #69/#70 into `fix/post-v3-analysis`; this lane leaves both unmerged. Require green remote CI before merging a PR into `main`, and avoid needless reruns. Business projection remains assumption-labeled; v4 results remain pending and blind to this lane.
+
 ## AI lane — 2026-09-29 (business projection and judge README refresh)
 
 ### Completed (verified)
