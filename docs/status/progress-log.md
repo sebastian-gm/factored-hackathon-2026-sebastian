@@ -12,11 +12,11 @@
 ### Done but not verified
 
 - One offer-path failure remains lead-owned: valid model/postprocess unfamiliarity is overridden by `selection.uncertain()` on a charge-origin memory statement; MATCH was confident. Zero-cost reproduction is saved privately and the report describes the lead's narrow regression/fix. No human language validation or independent accuracy claim is made; latency is one before/after observation.
-- Remote CI status follows in the PR; base PR #62 has an Actions billing block. Local checks are green, not a substitute for remote CI.
+- [PR #65](https://github.com/sebastian-gm/bank-agent-lab/pull/65) is open against `fix/post-v3-analysis`, unmerged. All four remote checks completed without starting jobs: their annotations report an owner Actions budget block. Local checks are green; remote CI is not green.
 
 ### Next / blocked
 
-- Open the AI PR stacked on PR #62; lead reviews and merges, and fixes the remaining deterministic uncertainty guard in the lead lane. Keep v4 blind. This lane does not merge or deploy.
+- Lead reviews/merges PR #65 after #62 and fixes the remaining deterministic uncertainty guard. Keep v4 blind; this lane does not merge/deploy. Next queued AI work: PR #62 review findings 1 and 3 (approved clarification text and language detection), with authored mock regressions and no new paid measurement.
 
 ## 2026-09-29 UTC — Owner-approved preview deploy of `fix/post-v3-analysis`
 

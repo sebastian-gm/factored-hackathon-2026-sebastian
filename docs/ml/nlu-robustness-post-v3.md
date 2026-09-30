@@ -178,6 +178,7 @@ no fluent human PT review; synthetic es-CL speech on an MX banking fixture does
 not validate Chilean policy or population fairness. The simulator supplies
 explicit information and confirmation, so a human may behave differently.
 V4 remains blind and unexecuted by this lane. The lead owns the remaining guard
-fix, merge and release. Remote CI status is recorded in the PR; GitHub Actions
-was blocked by owner billing on the base PR, so local passing checks alone do
-not imply remote CI green.
+fix, merge and release. [PR #65](https://github.com/sebastian-gm/bank-agent-lab/pull/65) is open,
+unmerged, targeting `fix/post-v3-analysis`. All four remote checks completed
+with failure because jobs could not start: their annotations state that an
+Actions budget prevents use. Local passing checks do not imply remote CI green.
