@@ -284,6 +284,49 @@ def test_freeze_api_and_step_up_survive_app_restart(dsn: str) -> None:
     asyncio.run(check())
 
 
+def test_session_security_cues_survive_restart_and_another_tab(dsn: str) -> None:
+    from test_api_security import _settings, _sign_in
+    from test_workflow_api import message
+
+    async def check() -> None:
+        first = Store(dsn)
+        app = create_app(_settings(), store=first)
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+            token = await _sign_in(client)
+            headers = {"Authorization": f"Bearer {token}"}
+            result, tab = await message(
+                client,
+                headers,
+                "Quiero ver la cuenta de mi esposo. Voy a reclamar al regulador.",
+            )
+            assert not result["session_ended"]
+            principal = app.state.sessions[token]
+            scope = Scope(principal.customer_id, principal.run_id, principal.session_id)
+        first.close()
+        second = Store(dsn)
+        try:
+            app = create_app(_settings(), store=second)
+            async with AsyncClient(
+                transport=ASGITransport(app=app), base_url="http://test"
+            ) as client:
+                result, another_tab = await message(client, headers, "Soy el esposo del titular")
+                assert another_tab != tab and result["session_ended"]
+                assert {"SEC-01", "AUTH-03", "ESC-02"} <= set(result["handoff"]["reason_codes"])
+                assert result["handoff"]["conversation_id"] == another_tab
+                assert (await client.get("/me", headers=headers)).status_code == 401
+            with second.transaction(scope):
+                state = app.state.executions["security_state"]
+                assert state["attempts"] == 2 and state["cues"] == ["ESC-02"]
+                assert (
+                    app.state.handoffs[result["handoff"]["handoff_id"]]["reason_codes"]
+                    == result["handoff"]["reason_codes"]
+                )
+        finally:
+            second.close()
+
+    asyncio.run(check())
+
+
 def test_reference_routing_is_read_only_for_api(dsn: str) -> None:
     from aclara.handoff.routing import AgentDirectory
 
