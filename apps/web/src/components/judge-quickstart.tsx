@@ -50,7 +50,9 @@ export function JudgeQuickstart({
             variant="secondary"
             data-testid={`quickstart-${story.id}`}
             aria-pressed={selected?.id === story.id}
-            disabled={busy || locked || !storyPersona(config, story)}
+            disabled={
+              busy || locked || !storyPersona(config, story, session?.username)
+            }
             onClick={() => void prepare(story)}
           >
             {t(`story_${story.id}`)}
@@ -60,9 +62,9 @@ export function JudgeQuickstart({
           </Button>
         ))}
       </div>
-      {demoStories.some((story) => !storyPersona(config, story)) && (
-        <p className="caption">{t("recordingUnavailable")}</p>
-      )}
+      {demoStories.some(
+        (story) => !storyPersona(config, story, session?.username),
+      ) && <p className="caption">{t("recordingUnavailable")}</p>}
       {failed && (
         <p className="error" role="alert">
           {t("storyFailed")}

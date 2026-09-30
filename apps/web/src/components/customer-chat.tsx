@@ -60,11 +60,14 @@ export function CustomerChat({
   const composer = useRef<HTMLTextAreaElement>(null);
   const [uncertain, setUncertain] = useState(false),
     [notice, setNotice] = useState("");
+  const [freezePending, setFreezePending] = useState(false);
   const proposal = latest?.proposal;
   useEffect(() => {
-    onPendingChange?.(!!proposal || busy || renew || uncertain);
+    onPendingChange?.(
+      !!proposal || busy || renew || uncertain || freezePending,
+    );
     return () => onPendingChange?.(false);
-  }, [proposal, busy, renew, uncertain, onPendingChange]);
+  }, [proposal, busy, renew, uncertain, freezePending, onPendingChange]);
   useEffect(() => {
     if (!latest || busy || confirmOpen) return;
     const frame = requestAnimationFrame(() =>
@@ -491,6 +494,7 @@ export function CustomerChat({
           products={latest.freeze_offer}
           handoffId={latest.handoff.handoff_id}
           onResult={receive}
+          onPendingChange={setFreezePending}
         />
       ) : null}
       {notice && (

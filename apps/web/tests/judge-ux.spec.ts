@@ -527,6 +527,8 @@ test("card retry keeps the challenge; expiry starts a fresh review without confi
     .click();
   const dialog = page.getByRole("dialog");
   await expect(dialog).not.toContainText(/card_ui_preview|Credit/);
+  for (const story of ["explain", "ambiguous", "fraud"])
+    await expect(page.getByTestId(`quickstart-${story}`)).toBeDisabled();
   await dialog.locator("input").fill("000000");
   await dialog.locator("button[type=submit]").click();
   await expect(dialog.getByRole("alert")).toContainText("SMS");
@@ -545,6 +547,8 @@ test("card retry keeps the challenge; expiry starts a fresh review without confi
   expect(challenges).toBe(2);
   expect(proposals).toBe(1);
   expect(writes).toBe(0);
+  for (const story of ["explain", "ambiguous", "fraud"])
+    await expect(page.getByTestId(`quickstart-${story}`)).toBeDisabled();
 });
 
 test("unbound live stories stay disabled and failed preparation does not claim a new session", async ({
@@ -618,4 +622,51 @@ test("phone choices show all three review actions; choosing a card still require
   await expect(page.getByRole("dialog")).toBeVisible();
   expect(confirms).toBe(0);
   await audit(page);
+});
+
+test("a signed-in judge alias keeps its eligible story account and only prepares a draft", async ({
+  page,
+}) => {
+  let posts = 0;
+  page.on("request", (request) => {
+    if (request.method() === "POST") posts++;
+  });
+  await page.route("**/api/bff/config", async (route) => {
+    const config = await (await route.fetch()).json();
+    const source = {
+      username: "demo.es.mx",
+      label: "Authored source",
+      locale: "es-MX",
+      role: "customer",
+      demo_stories: ["explain"],
+    };
+    await route.fulfill({
+      json: {
+        ...config,
+        fixtures: false,
+        personas: [
+          source,
+          { ...source, username: "judge.authored", label: "Authored alias" },
+        ],
+      },
+    });
+  });
+  await page.route("**/api/bff/me", (route) =>
+    route.fulfill({
+      json: {
+        username: "judge.authored",
+        role: "customer",
+        locale: "es-MX",
+        bank_clock: "2026-06-18T06:00:00Z",
+      },
+    }),
+  );
+  await page.goto("/");
+  await expect(page.locator(".composer")).toBeVisible();
+  await page.getByTestId("quickstart-explain").click();
+  await expect(page.locator(".composer textarea")).toHaveValue(
+    "Quiero entender un cargo pendiente.",
+  );
+  await expect(page.locator("input[type=password]")).toHaveCount(0);
+  expect(posts).toBe(0); // No logout, message, proposal, OTP renewal or action call.
 });

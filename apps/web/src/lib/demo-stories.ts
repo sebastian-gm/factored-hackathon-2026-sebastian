@@ -35,12 +35,17 @@ export const demoStories = [
 }[];
 export type DemoStory = (typeof demoStories)[number];
 
-export function storyPersona(config: Config, story: DemoStory) {
-  return config.personas.find((p) =>
+export function storyPersona(
+  config: Config,
+  story: DemoStory,
+  preferredUsername?: string,
+) {
+  const eligible = config.personas.filter((p) =>
     config.fixtures
       ? p.username === story.username && p.role === "customer"
       : p.role === "customer" && p.demo_stories?.includes(story.id),
   );
+  return eligible.find((p) => p.username === preferredUsername) ?? eligible[0];
 }
 export function storyDraft(config: Config, story: DemoStory): string {
   if (config.fixtures) return story.draft;

@@ -20,10 +20,12 @@ export function FreezeCard({
   products,
   handoffId,
   onResult,
+  onPendingChange,
 }: {
   products: Product[];
   handoffId: string;
   onResult: (plan: Plan) => void;
+  onPendingChange?: (pending: boolean) => void;
 }) {
   const t = useTranslations();
   const { locale } = useApp();
@@ -37,6 +39,10 @@ export function FreezeCard({
   const [uncertain, setUncertain] = useState(false);
   const [expired, setExpired] = useState(false);
   const lock = useRef(false);
+  useEffect(() => {
+    onPendingChange?.(!!product || busy || uncertain);
+    return () => onPendingChange?.(false);
+  }, [product, busy, uncertain, onPendingChange]);
   useEffect(() => {
     if (!proposal) return;
     const check = () =>

@@ -109,7 +109,8 @@ function Shell({ ready, failed }: { ready: boolean; failed: boolean }) {
   const [workspaceRevision, setWorkspaceRevision] = useState(0);
   const [chatLocked, setChatLocked] = useState(false);
   async function openStory(next: DemoStory) {
-    const persona = storyPersona(config, next);
+    if (chatLocked) throw new Error("Pending customer decision");
+    const persona = storyPersona(config, next, session?.username);
     if (!persona) throw new Error("Persona unavailable");
     if (session && session.username !== persona.username) await signOut();
     setPreferredPersona(persona.username);
@@ -337,7 +338,8 @@ function Shell({ ready, failed }: { ready: boolean; failed: boolean }) {
                 onPendingChange={setChatLocked}
                 initialDraft={
                   story &&
-                  session.username === storyPersona(config, story)?.username
+                  session.username ===
+                    storyPersona(config, story, session?.username)?.username
                     ? storyDraft(config, story)
                     : ""
                 }

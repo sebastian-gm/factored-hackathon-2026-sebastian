@@ -232,7 +232,7 @@ test("live refusal, revoked session and upstream logout", async ({
     await page.evaluate(async () => (await fetch("/api/bff/me")).status),
   ).toBe(401);
   await page
-    .getByRole("button", { name: "Usar otra cuenta", exact: true })
+    .getByRole("button", { name: "Volver a acceder", exact: true })
     .click();
   await login(page);
   const capability = (await context.cookies()).find(
