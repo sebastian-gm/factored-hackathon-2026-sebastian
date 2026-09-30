@@ -13,6 +13,7 @@ from aclara.llm.dev_robustness import (
     canonical_freeze,
     check_reserve,
     money,
+    summarize,
 )
 from aclara.llm.dev_robustness_cases import validate
 
@@ -101,3 +102,32 @@ def test_json_saved_freeze_histogram_remains_equal_without_editing_fixture_bytes
     saved = {"cases_sha256": "unchanged", "scripted_messages": {"3": 42, "4": 18}}
     assert canonical_freeze(report) == saved
     assert canonical_freeze(saved) == saved
+
+
+def test_nlu_latency_includes_failed_fallback_and_resamples_whole_cases() -> None:
+    calls = [
+        {
+            "id": case_id,
+            "provider": "openai_compat",
+            "status": status,
+            "cost_usd": None if status == "provider_error" else 0.01,
+            "route": route,
+            "prompt_id": prompt,
+            "latency_ms": latency,
+            "input_tokens": 10,
+            "model_id": model,
+        }
+        for case_id, route, prompt, status, latency, model in (
+            ("first", "nlu", "nlu@v5.1", "valid", 100, "gemini"),
+            ("second", "fallback", "nlu@v5.1", "provider_error", 1000, "grok"),
+            ("second", "phrase", "phrase@v2", "valid", 9000, "gemini"),
+        )
+    ]
+    result = summarize([], calls, planned=2)
+    latency = result["nlu_latency"]
+    assert latency["p50_ms"] == 550
+    assert latency["p95_ms"] == 955
+    assert latency["case_bootstrap_95"]["p50"] == [100, 1000]
+    assert result["nlu_input_tokens"] == 20
+    assert result["schema_valid_all_attempts"]["denominator"] == 3
+    assert result["unknown_cost_attempts"] == 1

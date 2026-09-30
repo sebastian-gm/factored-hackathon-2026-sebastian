@@ -2015,3 +2015,55 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
   Complete comparable five-set evidence is required for adoption; the shared
   $0.90 stop has priority over completing that potentially larger study. Default
   Gemini and production v5.1 remain unchanged. No v4 access or final run.
+
+## 2026-09-30 PDT — round-two budget stop and lean-study preparation
+
+### Completed (verified)
+
+- Real v5.1 baseline: 15/60 pass (ES 9/30, PT 6/30), one materially incorrect
+  polite-refusal outcome, zero forbidden actions. Repaired follow-up at `331fb57`
+  completed 47: 9/47 pass (ES 6/24, PT 3/23), zero unsafe findings on those 47.
+  On the common 47 both versions pass 9/47, with one flip each direction under
+  degraded NLU. The baseline unsafe case lies outside the partial follow-up;
+  this is neither a demonstrated improvement nor proof its real outcome is fixed.
+- Durable `dev-gate/pre-v4` / `pre-v4` readback: $0.87148777 charged/reserved,
+  $0.49124327 known, 564 reservations, 27 unknown costs retained. Next reservation
+  was denied before request at the $0.90 stop. Interrupted case 48's costs remain
+  in the ledger/journal. Known costs use per-call fields, never key deltas.
+- All-attempt OR schema validity: before 169/171, after 123/148; Jev 140/140 and
+  105/105. Zero-cost GET health checks verified available key limit but exhausted
+  account credits. Twenty-two short follow-up failures suggest billing rejection;
+  old records lack HTTP codes, so no retrospective individual attribution.
+  Future records now keep sanitized status codes only, not error text/URLs/body.
+- Seventeen authored NLU regressions protect refusal vs actual recognition,
+  complete word dates vs invalid/missing dates, and explicit amount units. The
+  frozen sixty definitions/builders remain unchanged. Lead-owned state/matching
+  and compound-request causes, plus two gold/spec adjudications, are grouped in
+  `docs/ml/nlu-robustness-round2.md`. No orchestration or interface changes.
+- Separate v5.2 development candidate is 31.1% shorter in body characters. A
+  development-only driver inventories 240 allowlisted cases, with synthetic
+  identities and complete authored overlays for retired v3. All 240 execute with
+  mock/$0 and no exceptions; mock unsafe findings are retained, not mislabeled
+  as real accuracy. Case-cluster latency bootstrap now includes failed Grok NLU
+  attempts; corrected aggregate receipts preserve the original paid journals.
+- Local verification: 297 relevant mock/unit checks pass, eight DB-dependent
+  skips, Ruff and strict mypy (88 source files). Final two invalid-date guards,
+  error metadata and candidate driver have mock validation only after the stop.
+
+### Done but not verified
+
+- v5.2 has zero paid measurements; its token savings, p50/p95 and accuracy are
+  unverified. No complete five-set comparison or adoption gate is claimed.
+- The polite-refusal real follow-up case remains unmeasured; most failing
+  multi-turn state behavior needs lead work. Default Gemini and v5.1 stay active.
+
+### Next / blocked
+
+- No further paid call under this scope: exposure denial and account credits
+  block completion. Any resumed latency study needs explicit new authorization;
+  the queued `dev-gate/model-compare` scope cannot be repurposed for it.
+- Open the review PR into `fix/post-v3-analysis`; lead merges, with #77 output
+  guards and #80 freeze dependencies. Integration PRs use rigorous local checks
+  under the owner's main-only remote CI policy. No merge performed.
+- Human CSV path remains unconfirmed. Continue zero-spend disparity analysis and
+  model/API availability checks; no v4 input, final run or default change.

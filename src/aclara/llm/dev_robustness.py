@@ -8,7 +8,7 @@ import asyncio
 import json
 import os
 import subprocess
-from collections import Counter
+from collections import Counter, defaultdict
 from dataclasses import asdict
 from decimal import ROUND_CEILING, Decimal
 from hashlib import sha256
@@ -134,6 +134,10 @@ def summarize(
         rows = [i for i in items if tag in i["tags"]]
         slices[tag] = metrics.proportion(sum(bool(i["passed"]) for i in rows), len(rows))
     known_cost = sum(c["cost_usd"] or 0 for c in calls)
+    nlu_groups: dict[str, list[float]] = defaultdict(list)
+    for call in calls:
+        if call["route"] == "nlu" or call["prompt_id"].startswith("nlu@"):
+            nlu_groups[call.get("id", "unassigned")].append(call["latency_ms"])
     return {
         "complete": len(items) == planned,
         "completed": len(items),
@@ -156,8 +160,12 @@ def summarize(
         "known_cost_per_completed_case_usd": known_cost / len(items) if items else None,
         "case_latency": metrics.latency([[i["case_ms"]] for i in items]),
         "turn_latency": metrics.latency([i["turn_ms"] for i in items]),
-        "nlu_latency": metrics.latency([[c["latency_ms"] for c in calls if c["route"] == "nlu"]]),
-        "nlu_input_tokens": sum(c["input_tokens"] for c in calls if c["route"] == "nlu"),
+        "nlu_latency": metrics.latency(list(nlu_groups.values())),
+        "nlu_input_tokens": sum(
+            c["input_tokens"]
+            for c in calls
+            if c["route"] == "nlu" or c["prompt_id"].startswith("nlu@")
+        ),
         "models": dict(Counter(c["model_id"] for c in calls)),
         "failures": [
             {k: i[k] for k in ("id", "outcome", "missing_actions", "forbidden_observed", "unsafe")}
@@ -224,6 +232,7 @@ async def run(stage: str, *, round_two: bool = False) -> dict[str, Any]:
 
     def journal(record: CallRecord, parsed: dict[str, Any] | None) -> None:
         call = asdict(record)
+        call["id"] = current_id
         calls.append(call)
         with os.fdopen(
             os.open(output / "calls.jsonl", os.O_CREAT | os.O_WRONLY | os.O_APPEND, 0o600), "w"
