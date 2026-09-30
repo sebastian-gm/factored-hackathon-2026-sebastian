@@ -32,3 +32,107 @@ Lead verification: `make checks` with `LLM_PROVIDER=mock`, real calls disabled,
 and the final-run start flag disabled passed **174 tests / 13 skips**, B1
 **32/32**, all pre-commit checks, compilation, interfaces and policy catalog.
 Fresh PR CI gates the merge; no new paid review or Azure deployment was made.
+
+## 2026-09-29 — post-v3 ES and pt-BR cross-vendor copy review
+
+Status: **model-reviewed**, not fluent-human validated. Review model:
+`anthropic/claude-sonnet-5`, OpenRouter `google-vertex/global`, strict JSON,
+ZDR requested and data collection denied. The system remains Gemini 3 Flash;
+this review changes neither the serving model nor the judges. V4 was not opened.
+
+Compared active product source to `e12efc7`, including the PR #66 candidate
+`b059920e78c6a299451b38b0860c78acdd704f48`. All eight added web translations
+are included. To cover the requested templates, offer and recognition questions,
+the audit also includes existing approved copy whose delivery changes under
+phrase v2, plus the surrounding API/workflow copy for consistency. Status
+variants and repeated source occurrences are counted separately. No customer
+rows, human test messages, credentials or model thinking entered the review.
+
+| Inventory IDs | Source | ES / pt-BR count | Coverage |
+|---|---|---:|---|
+| C001–C084 | `src/aclara/api/app.py` | 42 / 42 | Approved explanations, policy-reason wording/labels, handoff/refusal, language help, recognition question, search/choice prompts, proposals and verified/cancelled results |
+| C085–C092 | `src/aclara/api/workflows.py` | 4 / 4 | Human handoff, freeze offer, confirmation and verified result |
+| C093–C094 | `src/aclara/agent/ai.py` | 1 / 1 | Verified-case DLP fallback |
+| C095–C126 | `src/aclara/agent/nlg/builder.py` | 16 / 16 | All templates; offer and explanation variants for all four supported statuses |
+| C127–C134 | `apps/web/src/lib/messages.ts` | 4 / 4 | `starting`, `startupUnavailable`, `stepUpRequired`, `verifyAndConfirm` |
+| **Total** | Five product source files | **67 / 67** | **134/134 reviewed** |
+
+The source diff also covered the changed chat/workspace/BFF and language guard
+paths: they introduce no additional ES/PT literals outside this inventory.
+Private inventory SHA-256:
+`ad8768b88d9d7f8617d0eba08232284781ed31ad0f24a60329a1e680caafd4ef`.
+Inventory, validated final judgments and per-call metadata remain mode-0600 in
+ignored `artifacts/copy-review-post-v3/`. No raw provider envelope or reasoning
+is saved. Review checks naturalness, terminology and **tú/você**, preserving
+placeholders, amounts, deadlines, confirmation conditions and action states.
+
+### Accepted before/after proposals
+
+The following is a **lead-owned strings-only proposal**. The ready-to-apply
+[patch](copy-review-post-v3-proposed.patch) changes six source occurrences in
+`api/app.py` and `api/workflows.py`; this AI PR does not edit those folders.
+All AI templates, offer/recognition questions and the eight new web messages
+were reviewed and retained. The patch needs lead review/application before
+release; merging this documentation alone does not activate these changes.
+
+| ID / status | Before | Proposed after | Decision |
+|---|---|---|---|
+| C062 / C068 / C074 — model-reviewed | `Disputa cancelada.` (PT) | `Contestação cancelada.` | Accept Sonnet's terminology correction in all three PT branches; Spanish remains `Disputa cancelada.`. |
+| C087 — model-reviewed | `Puedes bloquear tu tarjeta con un nuevo OTP y confirmación.` | `Puedes bloquear tu tarjeta después de indicar un nuevo código de verificación y confirmar la acción.` | Accept plain-language expansion of OTP, matching the existing PT wording. Preserve the leading separator space, new-code requirement and separate confirmation. |
+| C042 — model-reviewed; maintainer terminology follow-through | `Você confirma o registro de uma disputa de {amount} em {merchant}? Isso abrirá um caso; não garante reembolso.` | `Você confirma o registro de uma contestação de {amount} em {merchant}? Isso abrirá um caso; não garante reembolso.` | Sonnet kept this full sentence. Apply its accepted PT terminology correction consistently to the same workflow's proposal; this exact replacement is a maintainer decision. |
+| C046 — model-reviewed; maintainer terminology follow-through | `Sua disputa {case_id} foi registrada e verificada. A próxima etapa é a análise; resposta em até 15 dias (SLA simulado).` | `Sua contestação {case_id} foi registrada e verificada. A próxima etapa é a análise; resposta em até 15 dias (SLA simulado).` | Sonnet kept this full sentence. Apply the same terminology correction to the verified result; keep readback and simulated SLA claims unchanged. |
+
+Sonnet suggested seven changed occurrences. Four are accepted above; the other
+three remain **model-reviewed, kept as written**:
+
+| ID | Before = final after | Declined suggestion / reason |
+|---|---|---|
+| C022 | `Vou encaminhar sua solicitação para uma pessoa. O pacote de atendimento está preparado.` | Replacing `uma pessoa` with `um agente` is cosmetic; current wording makes the human destination clear and preserves the previously reviewed packet state. |
+| C027 | `El cargo de {amount} en {merchant} figura como rechazado; no hubo movimiento de dinero.` | `figura` → `aparece` adds no clarity; both are natural. |
+| C041 | `¿Confirmas que registre una disputa por {amount} en {merchant}? Esta acción abrirá un caso; no garantiza un reembolso.` | The first-person subjunctive is grammatical and expresses the assistant's proposed action. Keep it instead of a noun-phrase rewrite. |
+
+Sonnet kept the other **127 occurrences**. Two of those receive the explicitly
+marked maintainer terminology follow-through above. Final proposal totals:
+**six changed source occurrences, 128 unchanged**, four distinct replacement
+strings. No register change, policy condition, deadline, placeholder or flow
+change is proposed. In particular, `stepUpRequired`, startup/retry text, both
+recognition questions and all eight grounded offer status variants remain
+**model-reviewed, before = after**.
+
+### Accounting and validation
+
+Owner authorization: **≤$0.10**, existing durable scope `dev-gate/post-v3`, run
+`post-v3`, and **stop at $0.90 shared exposure including reserves**. Concurrency
+was one, using this worktree's own OpenRouter key. Every attempt committed its
+reservation before the provider call under the scope lock; the same lock checked
+the unchanged $1 lifetime allowance and the $0.90 stop. No scope was created,
+reset or increased; no final-evaluation scope was used.
+
+Eight batches of ten used a 2048-token output ceiling. After 80 reviews, the
+conservative reservation check stopped before another request. The remaining
+54 used two compact batches of 27 with a 768-token output cap and optional
+reasoning disabled, confirming every reviewed ID and returning only literal
+edit spans. This changed only the private review process. Sonnet's public
+catalog reported $2/M input, $10/M output and non-mandatory reasoning; the
+[OpenRouter reasoning controls](https://openrouter.ai/docs/guides/best-practices/reasoning-tokens)
+document disabling optional reasoning. No hidden reasoning was read or saved
+in either phase.
+
+All **10/10 provider attempts** produced valid final JSON: **134/134 IDs**
+accounted for, no truncation, retries, refusals or unknown costs. Usage totals:
+**13,264 input / 5,940 output tokens** (billed output may include internal
+reasoning in the first phase). Per-call cost fields sum to **$0.085928**;
+readback of those ten durable reservations confirms **$0.085928 known and
+charged**, zero unknown attempts. A reservation rejection incurred no paid call.
+No key-level balance delta was used.
+
+Shared scope readback: **689 reservations**, **$0.68326354 known**,
+**$0.71924554 charged including reserves**, three unknown-cost reservations
+that predate this review. Initial exposure was $0.63331754. Prior scopes plus
+this scope read **$4.54283516**; this is budget metadata, not review cost.
+Both the $0.10 review cap and $0.90 shared stop were respected.
+
+The proposal applies cleanly to the target source (`git apply --check`), and
+both shadow Python modules compile. AST comparison verifies string constants
+are the only changes; original placeholders and numeric literals are preserved.
+No runtime behavior or product-language accuracy claim follows from this review.

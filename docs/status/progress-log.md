@@ -1,5 +1,24 @@
 # Progress log
 
+## AI lane — 2026-09-29 (language model card and cross-vendor copy review)
+
+### Completed (verified)
+
+- Updated [the language model card](../ml/model-card.md) for NLU v5.1, phrase v2's actual approved text and deterministic clarification/recognition guard, contextual ES/PT/uncertain language evidence, the 6 s first-attempt timeout and 1024-token Sonnet judge cap. Source hashes read back exactly; only independent v4 slices retain `TODO(results)`.
+- Recorded PR #65's frozen 40-conversation dev results (39/40 before/after, normalization failures 9→0, clarifications 15→6, cost/latency and limits) separately from official v3 P 77/100 versus B1 52/100, SAR +11 pp (95% CI +5 to +17). V3 is now seen dev data; its post-hoc 100/100 does not replace the official result. V4 remained unopened and unrun.
+- Completed Sonnet cross-vendor review of **134/134** active source strings/variants, **67 ES + 67 pt-BR**, including all templates, offer/recognition questions, approved API replies and all eight added web translations since `e12efc7`. Ten valid calls, no retries/truncation/new unknown costs. [Before/after and decisions](../ml/pt-review.md).
+- Per-call usage and readback of the ten durable reservations agree at **$0.085928**, below the approved $0.10. Existing shared `dev-gate/post-v3` / `post-v3` scope reads **$0.71924554 exposure** (known $0.68326354; three pre-existing unknowns), below the requested $0.90 stop and unchanged $1 cap. Concurrency one; every call reserved before sending under the scope lock. No key-level delta or final scope was used.
+- `LLM_PROVIDER=mock make checks` passes: six hooks, Ruff, strict mypy, compilation, file policy, **308 passed / 14 database-dependent skips**, B1 **32/32**, interfaces and policy catalog. No product code changed in this PR.
+- Prepared a [lead-owned strings-only patch](../ml/copy-review-post-v3-proposed.patch): five PT occurrences use `contestação` consistently, and one ES freeze offer explains OTP as a new verification code plus confirmation. No lead/front-end product folder was edited. All AI templates and changed web messages were kept. Patch applicability, Python compilation, six string-only AST changes, preserved placeholders/numbers and documentation links were verified.
+
+### Done but not verified
+
+- Copy is model-reviewed, not fluent-human PT validation; no additional production accuracy, fairness or latency measurement was made. The lead-owned proposed strings are not active until the lead applies the patch. PRs #65/#66 describe candidate behavior; this card is not a deployment attestation.
+
+### Next / blocked
+
+- Open this small documentation/patch PR against `fix/post-v3-analysis`; leave all merges and patch application to the lead. Read back local checks, PR head and current-head remote CI. Preserve v4 blindness and make no further paid call.
+
 ## 2026-09-29 PDT — Preview diagnosis, code-only startup fix and PR #62 review
 
 ### Completed (verified)
