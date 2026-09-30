@@ -269,6 +269,8 @@ def parse_relative_date(expression: str | None, bank_clock: datetime) -> tuple[d
         plain.strip(" .,!¿?¡"),
     )
     if stated and stated[2] in months:
+        if _SPOKEN_UNIT.search(stated[1]):
+            return None  # Amount units cannot turn an ill-formed phrase into a date.
         day_value = int(stated[1]) if stated[1].isdigit() else parse_word_amount(stated[1])
         if day_value is None or not 1 <= day_value <= 31:
             return None

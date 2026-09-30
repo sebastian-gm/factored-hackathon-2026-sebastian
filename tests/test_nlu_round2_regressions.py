@@ -91,7 +91,15 @@ def test_explicit_day_in_words_is_an_exact_day_month_expression(expression: str)
 
 @pytest.mark.parametrize(
     "expression",
-    ["treinta y dos de mayo", "trinta e dois de maio", "trece", "treze", "trece de agosto"],
+    [
+        "treinta y dos de mayo",
+        "trinta e dois de maio",
+        "trece",
+        "treze",
+        "trece de agosto",
+        "trece dólares de mayo",
+        "treze reais de maio",
+    ],
 )
 def test_impossible_or_missing_month_or_future_without_year_remains_unresolved(
     expression: str,
