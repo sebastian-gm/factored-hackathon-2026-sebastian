@@ -9,6 +9,7 @@
 - Completed Sonnet cross-vendor review of **134/134** active source strings/variants, **67 ES + 67 pt-BR**, including all templates, offer/recognition questions, approved API replies and all eight added web translations since `e12efc7`. Ten valid calls, no retries/truncation/new unknown costs. [Before/after and decisions](../ml/pt-review.md).
 - Per-call usage and readback of the ten durable reservations agree at **$0.085928**, below the approved $0.10. Existing shared `dev-gate/post-v3` / `post-v3` scope reads **$0.71924554 exposure** (known $0.68326354; three pre-existing unknowns), below the requested $0.90 stop and unchanged $1 cap. Concurrency one; every call reserved before sending under the scope lock. No key-level delta or final scope was used.
 - `LLM_PROVIDER=mock make checks` passes: six hooks, Ruff, strict mypy, compilation, file policy, **308 passed / 14 database-dependent skips**, B1 **32/32**, interfaces and policy catalog. No product code changed in this PR.
+- Pushed only private origin and opened [PR #69](https://github.com/sebastian-gm/bank-agent-lab/pull/69) against `fix/post-v3-analysis`; read back the exact description, branch SHA, mergeable and open/unmerged state. All four remote CI jobs completed with failure: annotations say the jobs were not started because an Actions budget prevents use. No CI was cancelled.
 - Prepared a [lead-owned strings-only patch](../ml/copy-review-post-v3-proposed.patch): five PT occurrences use `contestação` consistently, and one ES freeze offer explains OTP as a new verification code plus confirmation. No lead/front-end product folder was edited. All AI templates and changed web messages were kept. Patch applicability, Python compilation, six string-only AST changes, preserved placeholders/numbers and documentation links were verified.
 
 ### Done but not verified
@@ -17,7 +18,7 @@
 
 ### Next / blocked
 
-- Open this small documentation/patch PR against `fix/post-v3-analysis`; leave all merges and patch application to the lead. Read back local checks, PR head and current-head remote CI. Preserve v4 blindness and make no further paid call.
+- PR #69 stays unmerged for the lead. Review/apply its six lead-owned copy changes and merge the prerequisite fixes before release/final v4. The owner must resolve the Actions budget block and rerun CI before merge. Preserve v4 blindness and make no further paid call.
 
 ## 2026-09-29 PDT — Preview diagnosis, code-only startup fix and PR #62 review
 
