@@ -12,6 +12,7 @@ export default defineConfig({
           "**/stories.spec.ts",
           "**/conversation-contract.spec.ts",
           "**/startup.spec.ts",
+          "**/judge-ux.spec.ts",
         ],
   fullyParallel: false,
   workers: 1,
@@ -43,7 +44,10 @@ export default defineConfig({
         ]
       : []),
     {
-      command: "pnpm dev --webpack --hostname 127.0.0.1 --port 3212",
+      command:
+        process.env.FRONTEND_E2E_PRODUCTION === "1"
+          ? "pnpm exec next start --hostname 127.0.0.1 --port 3212"
+          : "pnpm dev --webpack --hostname 127.0.0.1 --port 3212",
       url: "http://127.0.0.1:3212",
       reuseExistingServer: false,
       timeout: 120000,
