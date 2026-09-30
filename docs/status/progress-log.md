@@ -1,5 +1,20 @@
 # Progress log
 
+## AI lane — 2026-09-29 (post-v3 robustness freeze)
+
+### Completed (verified)
+
+- Read handoff 14 and authored 40 synthetic conversations covering all ten requested robustness features, balanced ES/PT. Structural validation, reference binding, gold validation, Ruff and strict mypy pass. [Protocol and hashes](../ml/nlu-robustness-post-v3.md). No P run or existing NLU/NLG fix preceded the freeze; no v4 data was opened.
+- Read back the existing shared `dev-gate/post-v3` / `post-v3` scope: $0.40238433 charged including reserves. The study will atomically stop before any new reservation would exceed $0.90. No scope or limit was changed.
+
+### Done but not verified
+
+- Real P robustness results and before/after effects are not yet measured.
+
+### Next / blocked
+
+- Commit the freeze, measure the current P path, diagnose failures, fix only AI-owned behavior with regressions, rerun unchanged inputs within the shared cap, and open a PR for the lead. Keep v4 blind; the lead merges.
+
 ## 2026-09-29 UTC — Owner-approved preview deploy of `fix/post-v3-analysis`
 
 ### Completed (verified)
