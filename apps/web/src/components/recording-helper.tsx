@@ -79,7 +79,8 @@ export function RecordingHelper({
                 disabled={busy}
                 onClick={() => void run(() => onStory(story))}
               >
-                {story.label}
+                {t(`story_${story.id}`)} ·{" "}
+                {story.locale === "pt-BR" ? "PT" : "ES"}
               </Button>
             ))}
             <Button
@@ -105,7 +106,8 @@ export function RecordingHelper({
                 disabled={busy || !storyPersona(config, story)}
                 onClick={() => void run(() => onStory(story))}
               >
-                {story.label}
+                {t(`story_${story.id}`)} ·{" "}
+                {story.locale === "pt-BR" ? "PT" : "ES"}
               </Button>
             ))}
             {(session?.role === "ops" || session?.role === "agent") && (

@@ -1,4 +1,86 @@
 export const es = {
+  quickstartTitle: "Prueba Aclara",
+  quickstartPurpose:
+    "Entiende un cargo, decide el siguiente paso y comprueba el resultado.",
+  quickstartSignedIn:
+    "Elige una historia o escribe tu consulta. Tú decides cuándo enviar.",
+  quickstartStories: "Historias para probar",
+  story_explain: "Entender un cargo",
+  story_ambiguous: "Elegir una compra",
+  story_fraud: "Pedir ayuda",
+  storyFailed:
+    "No pudimos preparar la historia. Vuelve a elegir cuando el servicio responda.",
+  finishPending: "Termina la revisión pendiente antes de cambiar de historia.",
+  demoNotice: "Datos de prueba · Banco simulado · No es un servicio real",
+  connecting: "Conectando",
+  unavailable: "Servicio no disponible",
+  accessNotice: "Contraseña + código de verificación",
+  chatEyebrow: "TU BANCO, MÁS CERCA",
+  deskEyebrow: "ATENCIÓN HUMANA",
+  opsEyebrow: "OPERACIONES Y EVIDENCIA",
+  otpTitle: "Verifica tu acceso",
+  otpIntro: "Introduce el código del SMS simulado.",
+  authorizedAccount: "Cuenta autorizada",
+  personaMX: "México · cargo pendiente",
+  personaCO: "Colombia · consulta",
+  personaAR: "Argentina · consulta",
+  personaBR: "Brasil · compras parecidas",
+  personaFraud: "Ayuda con una tarjeta",
+  personaAgent: "Cuenta de Agent Desk",
+  personaOps: "Cuenta de operaciones",
+  stageGuide: "Guía de la conversación",
+  stageGuideBody:
+    "El modelo interpreta; las reglas autorizan; los registros comprueban.",
+  stage_understand: "Entender",
+  stage_decide: "Decidir",
+  stage_act: "Actuar",
+  stage_verify: "Verificar",
+  stage_escalate: "Derivar",
+  turnStage: "Paso de esta respuesta",
+  ruleIdentity: "Identidad y permisos",
+  ruleTransaction: "Estado del movimiento",
+  ruleDispute: "Requisitos de la disputa",
+  ruleRisk: "Revisión especializada de riesgo",
+  ruleSecurity: "Protección de tu información",
+  ruleHuman: "Atención humana",
+  ruleReadback: "Comprobación del resultado",
+  ruleService: "Reglas del servicio",
+  humanTeam: "Atención humana",
+  teamFraud: "Equipo de fraudes",
+  teamComplaints: "Quejas y reclamos",
+  teamGeneral: "Atención general",
+  caseReference: "Referencia del caso",
+  caseStatusOther: "Consulta el estado actualizado del caso.",
+  statusUnknown: "Estado no informado",
+  newReview: "Iniciar nueva revisión",
+  newReviewReady:
+    "Nueva conversación preparada. Describe la compra para revisarla de nuevo. La propuesta anterior no fue confirmada desde esta pantalla.",
+  expiryHint:
+    "La propuesta usa la hora actual; los movimientos usan el reloj simulado.",
+  dialogDismissed:
+    "La propuesta sigue pendiente. Ábrela para confirmar o cancelar.",
+  signInAgain: "Volver a acceder",
+  prepareStatus: "Preparar consulta de estado",
+  statusPrompt:
+    "Quiero consultar si se registró una disputa por la compra que acabamos de revisar.",
+  askHuman: "Preparar consulta al equipo",
+  humanPrompt:
+    "Necesito ayuda humana para comprobar el resultado de la solicitud anterior.",
+  queueLoadFailed:
+    "No pudimos cargar la cola. No sabemos si hay solicitudes pendientes.",
+  opsLoadFailed:
+    "No pudimos cargar la evidencia. Vuelve a consultar cuando el servicio responda.",
+  failedAction: "Acción fallida · sin verificar",
+  providerModel: "Proveedor / modelo",
+  promptVersion: "Versión de instrucciones",
+  riskScrollHint:
+    "Desliza para ver la segunda opinión. La señal conjunta aparece junto a cada riesgo.",
+  lineageZoom: "Abrir diagrama ampliado",
+  cardNumber: "Tarjeta {number}",
+  cardType: "Tarjeta",
+  cardCredit: "Crédito",
+  cardDebit: "Débito",
+
   recognitionTitle: "¿Reconoces este movimiento?",
   recognizeCharge: "Sí, la reconozco",
   recognizeChargeMessage: "Sí, la reconozco. Ya me acordé de esta compra.",
@@ -20,8 +102,8 @@ export const es = {
   callAttempt: "Intento / estado",
   callRoute: "Ruta registrada",
   costUnknown: "Costo desconocido",
-  grokFallback: "Fallback Grok registrado",
-  grokObserved: "Llamada Grok registrada · ruta de fallback no disponible",
+  grokFallback: "Ruta alternativa Grok registrada",
+  grokObserved: "Llamada Grok registrada · ruta alternativa no disponible",
   riskUnion: "Unión de señales de riesgo",
   riskThreshold:
     "Umbral Jev registrado: {threshold}. La unión es la decisión registrada del servidor.",
@@ -55,18 +137,18 @@ export const es = {
   recordingUnavailable:
     "Algunas historias no están disponibles para las personas de esta sesión. Puedes continuar con la conversación habitual.",
   resetAndStart: "Restablecer demo y abrir ES",
-  recordingOpsLogin: "Entrar como Ops para restablecer",
+  recordingOpsLogin: "Entrar en operaciones para restablecer",
   recordingDesk: "Abrir Agent Desk",
   recordingAuth:
-    "Cada cambio de persona conserva el acceso con contraseña y OTP. El mensaje queda preparado: tú decides cuándo enviarlo.",
+    "Cada cambio de persona conserva el acceso con contraseña y código de verificación. El mensaje queda preparado: tú decides cuándo enviarlo.",
   recordingRequiresOps:
-    "Solo una identidad Ops autorizada puede iniciar el restablecimiento.",
+    "Solo una cuenta de operaciones autorizada puede iniciar el restablecimiento.",
   recordingFailed:
     "No se completó la preparación. Verifica el estado antes de continuar.",
 
   chat: "Mi conversación",
   desk: "Agent Desk",
-  ops: "Ops · glass box",
+  ops: "Evidencia y operaciones",
   workspace: "ESPACIO DE DEMOSTRACIÓN",
   subtitle: "Claridad en cada movimiento.",
   language: "Idioma y región",
@@ -93,7 +175,7 @@ export const es = {
   resetDisabled:
     "El restablecimiento está deshabilitado en la configuración de este servicio.",
   liveResetBody:
-    "Borrar las operaciones de esta sesión de demostración. Se conservan la autenticación y la auditoría. Requiere un nuevo OTP y confirmación.",
+    "Borrar las operaciones de esta sesión de demostración. Se conservan la autenticación y la auditoría. Requiere un nuevo código de verificación y confirmación.",
   scoped_owned_fixture_rows: "Registros de ejemplo con propiedad comprobada",
   fixture: "Modo demostración · datos de ejemplo",
   organizerSource: "Registro del organizador · últimos 120 días",
@@ -112,9 +194,8 @@ export const es = {
   unverified: "Sin verificar",
   pending: "Pendiente",
   error: "No pudimos completar la solicitud. Inténtalo de nuevo.",
-  loginTitle: "Un espacio seguro para aclarar tus dudas.",
-  loginBody:
-    "Accede con tu cuenta de demostración. Confirmaremos tu identidad antes de consultar movimientos.",
+  loginTitle: "Accede a Aclara",
+  loginBody: "Usa tu contraseña y después el código de verificación.",
   persona: "Persona de demostración",
   username: "Usuario",
   password: "Contraseña",
@@ -129,7 +210,7 @@ export const es = {
     "No se pudo verificar el acceso. Revisa tus datos o inicia un nuevo intento.",
   roleTitle: "Este espacio requiere otra cuenta",
   roleBody:
-    "Usa una cuenta de agente u operaciones con su propia contraseña y código OTP.",
+    "Usa una cuenta de agente u operaciones con su propia contraseña y código de verificación.",
   greeting: "Vamos a aclararlo.",
   chatIntro:
     "Cuéntame qué movimiento no reconoces. Revisaremos los registros y te mostraré el siguiente paso.",
@@ -199,7 +280,7 @@ export const es = {
   freezeOffer: "Puedes solicitar el bloqueo de tu tarjeta.",
   freezeAction: "Bloquear tarjeta",
   freezeBody:
-    "Verifica un nuevo código OTP y revisa la tarjeta antes de confirmar. La revisión humana continúa aunque canceles.",
+    "Verifica un nuevo código de verificación y revisa la tarjeta antes de confirmar. La revisión humana continúa aunque canceles.",
   verifyAction: "Verificar y revisar acción",
   freezeVerified: "Bloqueo de tarjeta verificado en los registros.",
   assignmentPending: "Asignación a un agente pendiente.",
@@ -243,7 +324,7 @@ export const es = {
   opsIntro: "Fuentes, reglas y resultados verificados en un solo lugar.",
   trace: "Registro de ejecución",
   traceEmpty: "Inicia una conversación para ver su recorrido.",
-  allStages: "Understand → Decide → Act → Verify → Escalate",
+  allStages: "Entender → Decidir → Actuar → Verificar → Derivar",
   state: "Estado",
   tool: "Herramienta",
   llm: "Metadatos de llamada",
@@ -279,6 +360,88 @@ export const es = {
     "Esta vista estará disponible cuando el servicio publique su contrato de agente y operaciones. La conversación de cliente ya está conectada.",
 };
 export const pt: typeof es = {
+  quickstartTitle: "Experimente o Aclara",
+  quickstartPurpose:
+    "Entenda uma cobrança, escolha o próximo passo e confira o resultado.",
+  quickstartSignedIn:
+    "Escolha uma história ou escreva sua dúvida. Você decide quando enviar.",
+  quickstartStories: "Histórias para experimentar",
+  story_explain: "Entender cobrança",
+  story_ambiguous: "Escolher compra",
+  story_fraud: "Pedir ajuda",
+  storyFailed:
+    "Não foi possível preparar a história. Escolha novamente quando o serviço responder.",
+  finishPending: "Conclua a revisão pendente antes de trocar de história.",
+  demoNotice: "Dados de teste · Banco simulado · Não é um serviço real",
+  connecting: "Conectando",
+  unavailable: "Serviço indisponível",
+  accessNotice: "Senha + código de verificação",
+  chatEyebrow: "SEU BANCO, MAIS PERTO",
+  deskEyebrow: "ATENDIMENTO HUMANO",
+  opsEyebrow: "OPERAÇÕES E EVIDÊNCIAS",
+  otpTitle: "Verifique seu acesso",
+  otpIntro: "Digite o código do SMS simulado.",
+  authorizedAccount: "Conta autorizada",
+  personaMX: "México · cobrança pendente",
+  personaCO: "Colômbia · consulta",
+  personaAR: "Argentina · consulta",
+  personaBR: "Brasil · compras parecidas",
+  personaFraud: "Ajuda com um cartão",
+  personaAgent: "Conta de Agent Desk",
+  personaOps: "Conta de operações",
+  stageGuide: "Guia da conversa",
+  stageGuideBody:
+    "O modelo interpreta; as regras autorizam; os registros confirmam.",
+  stage_understand: "Entender",
+  stage_decide: "Decidir",
+  stage_act: "Agir",
+  stage_verify: "Verificar",
+  stage_escalate: "Encaminhar",
+  turnStage: "Etapa desta resposta",
+  ruleIdentity: "Identidade e permissões",
+  ruleTransaction: "Estado do movimento",
+  ruleDispute: "Requisitos da contestação",
+  ruleRisk: "Análise especializada de risco",
+  ruleSecurity: "Proteção das suas informações",
+  ruleHuman: "Atendimento humano",
+  ruleReadback: "Conferência do resultado",
+  ruleService: "Regras do serviço",
+  humanTeam: "Atendimento humano",
+  teamFraud: "Equipe de fraudes",
+  teamComplaints: "Reclamações",
+  teamGeneral: "Atendimento geral",
+  caseReference: "Referência do caso",
+  caseStatusOther: "Consulte o estado atualizado do caso.",
+  statusUnknown: "Estado não informado",
+  newReview: "Iniciar nova revisão",
+  newReviewReady:
+    "Nova conversa preparada. Descreva a compra para revisá-la novamente. A proposta anterior não foi confirmada nesta tela.",
+  expiryHint:
+    "A proposta usa a hora atual; os movimentos usam o relógio simulado.",
+  dialogDismissed:
+    "A proposta continua pendente. Abra-a para confirmar ou cancelar.",
+  signInAgain: "Entrar novamente",
+  prepareStatus: "Preparar consulta de status",
+  statusPrompt:
+    "Quero consultar se foi registrada uma contestação da compra que acabamos de revisar.",
+  askHuman: "Preparar pedido à equipe",
+  humanPrompt:
+    "Preciso de ajuda humana para conferir o resultado do pedido anterior.",
+  queueLoadFailed:
+    "Não foi possível carregar a fila. Não sabemos se há solicitações pendentes.",
+  opsLoadFailed:
+    "Não foi possível carregar as evidências. Consulte novamente quando o serviço responder.",
+  failedAction: "Ação falhou · não verificada",
+  providerModel: "Fornecedor / modelo",
+  promptVersion: "Versão das instruções",
+  riskScrollHint:
+    "Deslize para ver a segunda opinião. O sinal combinado aparece ao lado de cada risco.",
+  lineageZoom: "Abrir diagrama ampliado",
+  cardNumber: "Cartão {number}",
+  cardType: "Cartão",
+  cardCredit: "Crédito",
+  cardDebit: "Débito",
+
   recognitionTitle: "Você reconhece este movimento?",
   recognizeCharge: "Sim, reconheço",
   recognizeChargeMessage: "Sim, reconheço. Agora lembrei dessa compra.",
@@ -300,8 +463,8 @@ export const pt: typeof es = {
   callAttempt: "Tentativa / estado",
   callRoute: "Rota registrada",
   costUnknown: "Custo desconhecido",
-  grokFallback: "Fallback Grok registrado",
-  grokObserved: "Chamada Grok registrada · rota de fallback indisponível",
+  grokFallback: "Rota alternativa Grok registrada",
+  grokObserved: "Chamada Grok registrada · rota alternativa indisponível",
   riskUnion: "União dos sinais de risco",
   riskThreshold:
     "Limiar Jev registrado: {threshold}. A união mostra a decisão registrada pelo servidor.",
@@ -334,18 +497,18 @@ export const pt: typeof es = {
   recordingUnavailable:
     "Algumas histórias não estão disponíveis para as pessoas desta sessão. Você pode continuar pela conversa habitual.",
   resetAndStart: "Redefinir demo e abrir ES",
-  recordingOpsLogin: "Entrar como Ops para redefinir",
+  recordingOpsLogin: "Entrar em operações para redefinir",
   recordingDesk: "Abrir Agent Desk",
   recordingAuth:
-    "Cada troca de pessoa mantém senha e OTP. A mensagem fica pronta: você decide quando enviar.",
+    "Cada troca de pessoa mantém senha e código de verificação. A mensagem fica pronta: você decide quando enviar.",
   recordingRequiresOps:
-    "Somente uma identidade Ops autorizada pode iniciar a redefinição.",
+    "Somente uma conta de operações autorizada pode iniciar a redefinição.",
   recordingFailed:
     "A preparação não foi concluída. Confira o estado antes de continuar.",
 
   chat: "Minha conversa",
   desk: "Agent Desk",
-  ops: "Ops · glass box",
+  ops: "Evidências e operações",
   workspace: "ESPAÇO DE DEMONSTRAÇÃO",
   subtitle: "Clareza em cada movimento.",
   language: "Idioma e região",
@@ -371,7 +534,7 @@ export const pt: typeof es = {
     "O serviço informa o custo acumulado do espaço; não publica um detalhamento diário.",
   resetDisabled: "A redefinição está desativada na configuração deste serviço.",
   liveResetBody:
-    "Apagar as operações desta sessão de demonstração. A autenticação e a auditoria são preservadas. Exige um novo OTP e confirmação.",
+    "Apagar as operações desta sessão de demonstração. A autenticação e a auditoria são preservadas. Exige um novo código de verificação e confirmação.",
   scoped_owned_fixture_rows: "Registros de exemplo com titularidade conferida",
   fixture: "Modo demonstração · dados de exemplo",
   organizerSource: "Registro do organizador · últimos 120 dias",
@@ -389,9 +552,8 @@ export const pt: typeof es = {
   unverified: "Não verificado",
   pending: "Pendente",
   error: "Não foi possível concluir a solicitação. Tente novamente.",
-  loginTitle: "Um espaço seguro para esclarecer suas dúvidas.",
-  loginBody:
-    "Entre com sua conta de demonstração. Vamos confirmar sua identidade antes de consultar os movimentos.",
+  loginTitle: "Entre no Aclara",
+  loginBody: "Use sua senha e depois o código de verificação.",
   persona: "Persona de demonstração",
   username: "Usuário",
   password: "Senha",
@@ -406,7 +568,7 @@ export const pt: typeof es = {
     "Não foi possível verificar o acesso. Confira seus dados ou comece uma nova tentativa.",
   roleTitle: "Este espaço exige outra conta",
   roleBody:
-    "Use uma conta de agente ou operações com sua própria senha e código OTP.",
+    "Use uma conta de agente ou operações com sua própria senha e código de verificação.",
   greeting: "Vamos esclarecer.",
   chatIntro:
     "Conte qual movimento você não reconhece. Vamos consultar os registros e mostrar o próximo passo.",
@@ -475,7 +637,7 @@ export const pt: typeof es = {
   freezeOffer: "Você pode solicitar o bloqueio do cartão.",
   freezeAction: "Bloquear cartão",
   freezeBody:
-    "Verifique um novo código OTP e confira o cartão antes de confirmar. A análise humana continua mesmo se você cancelar.",
+    "Verifique um novo código de verificação e confira o cartão antes de confirmar. A análise humana continua mesmo se você cancelar.",
   verifyAction: "Verificar e revisar ação",
   freezeVerified: "Bloqueio do cartão verificado nos registros.",
   assignmentPending: "Atribuição a um agente pendente.",
@@ -518,7 +680,7 @@ export const pt: typeof es = {
   opsIntro: "Fontes, regras e resultados verificados em um só lugar.",
   trace: "Registro de execução",
   traceEmpty: "Inicie uma conversa para ver seu percurso.",
-  allStages: "Understand → Decide → Act → Verify → Escalate",
+  allStages: "Entender → Decidir → Agir → Verificar → Encaminhar",
   state: "Estado",
   tool: "Ferramenta",
   llm: "Metadados da chamada",

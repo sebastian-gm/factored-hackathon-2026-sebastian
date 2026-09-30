@@ -15,13 +15,13 @@ export function CallDetails({ call }: { call: LlmCall }) {
     <div className="call-details">
       <dl className="llm-metadata" aria-label={t("llm")}>
         <div>
-          <dt>Provider / model</dt>
+          <dt>{t("providerModel")}</dt>
           <dd>
             {call.provider} / {call.model}
           </dd>
         </div>
         <div>
-          <dt>Prompt</dt>
+          <dt>{t("promptVersion")}</dt>
           <dd>{call.prompt_version}</dd>
         </div>
         <div>
@@ -66,32 +66,33 @@ export function CallDetails({ call }: { call: LlmCall }) {
           <p className="caption">
             {t("riskThreshold", { threshold: probability(risk.threshold) })}
           </p>
+          <p className="caption risk-scroll-hint">{t("riskScrollHint")}</p>
           <div
             className="table-scroll"
             tabIndex={0}
             role="region"
             aria-label={t("riskUnion")}
           >
-            <table>
+            <table className="risk-table">
               <thead>
                 <tr>
                   <th>{t("riskCue")}</th>
+                  <th>{t("union")}</th>
                   <th>Gemini</th>
                   <th>Jev · p</th>
                   <th>Jev · {t("riskFlag")}</th>
-                  <th>{t("union")}</th>
                 </tr>
               </thead>
               <tbody>
                 {riskCues.map((cue) => (
                   <tr key={cue}>
                     <th scope="row">{t(cue)}</th>
-                    <td>{flag(risk.gemini_raw_flags?.[cue])}</td>
-                    <td>{probability(risk.jev_raw_probabilities?.[cue])}</td>
-                    <td>{flag(risk.jev_threshold_flags?.[cue])}</td>
                     <td>
                       <strong>{flag(risk.union_flags?.[cue])}</strong>
                     </td>
+                    <td>{flag(risk.gemini_raw_flags?.[cue])}</td>
+                    <td>{probability(risk.jev_raw_probabilities?.[cue])}</td>
+                    <td>{flag(risk.jev_threshold_flags?.[cue])}</td>
                   </tr>
                 ))}
               </tbody>

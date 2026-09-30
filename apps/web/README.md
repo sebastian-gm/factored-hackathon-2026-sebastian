@@ -1,5 +1,12 @@
 # Aclara frontend
 
+The judge quickstart provides three trusted story shortcuts in ES/PT. Shortcuts
+select the persona and prepare a draft; authentication, sending, recognition,
+confirmation and code verification remain explicit. The five-stage chat guide
+explains the response phase and never supplies authority or fabricated verification.
+See [UX-IMPLEMENTATION.md](UX-IMPLEMENTATION.md) for the audit fixes, checks,
+local screenshot evidence and remaining release checks.
+
 ADR-0015: customer chat renders `offer_dispute / awaiting_dispute_decision` as an
 explained charge plus explicit ES/PT recognition and dispute-request buttons.
 Both buttons use the messages endpoint; a separate server proposal is required
@@ -42,10 +49,14 @@ No browser environment variable or credential is needed. Never put credentials i
 To exercise isolated UI fixtures locally, set `FRONTEND_DEMO_MODE=fixtures` and
 supply a nonempty `FRONTEND_FIXTURE_PASSWORD` through the process environment or an
 ignored local environment file. No default password is committed. All fixture
-personas still require password and a six-digit OTP. Their aliases appear in the
+personas still require password and a six-digit OTP. Localized story names appear in the
 picker. Agent and Ops logins authorize their own surfaces on the server. Use the
 same browser when changing accounts to follow a customer's handoff into Agent Desk.
 This mock is a UI contract demonstrator, not an implementation of bank policy.
+
+After `pnpm build`, `FRONTEND_E2E_PRODUCTION=1 pnpm test:e2e` runs the same
+fixtures against a production build, avoiding cold development compilation in
+layout measurements.
 
 `pnpm test:e2e` generates an ephemeral credential and starts its own fixture server
 on port 3212. It never reads the worktree `.env`. Install Chromium first with
@@ -64,7 +75,7 @@ The customer run also verifies refusal, session revocation and upstream logout.
 All modes force mock/B1 behavior and use a
 fresh process credential; neither loads the local provider key.
 
-Twenty fixture browser tests cover the three stories, recognition, cancellation, phone layouts,
+Fixture browser tests cover the three stories, recognition, cancellation, phone layouts,
 ES-MX/CO/AR and PT-BR, keyboard/modal behavior, automated WCAG 2.1 AA checks, cookie
 visibility, role/CSRF rejection, confirmation replay, cross-browser ownership and
 OTP lockout/restart. The shared CI runs fixture, live customer and live staff checks.
@@ -100,7 +111,7 @@ production persistence solution. There is no fallback from a live error to fixtu
 ## Scope and evidence
 
 The API gap proposal is in [API-PROPOSAL.md](API-PROPOSAL.md). The customer-safe
-“why” drawer displays response records, fired rule IDs and read-back status, never
+“why” drawer displays response facts, localized rule families and read-back status, never
 model thinking. Staff-only traces contain execution records and call metadata.
 Live Ops shows current-workspace counts and observed model cost. SAR and unsafe
 rates remain unmeasured because operational records have no gold labels. Missing
@@ -143,8 +154,8 @@ process; this change does not authorize broader ingress.
 
 ### Recording and call evidence
 
-Open **Preparar grabación / Preparar gravação** above the conversation. In fixture
-mode, sign in as the supplied Ops persona and choose **Restablecer demo y abrir ES**.
+Open **Preparar grabación / Preparar gravação** below the workspace. In fixture
+mode, sign in as the supplied operations persona and choose **Restablecer demo y abrir ES**.
 The existing reset clears this browser workspace and is read back before opening
 the ES login. Use the ES, PT and fraud buttons in sequence; they preselect the
 persona and prepare the opening message. Password/OTP, sending, transaction choice

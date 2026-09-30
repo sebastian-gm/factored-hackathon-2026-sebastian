@@ -33,7 +33,7 @@ test("live ADR-0015: password, OTP, explanation, offer, denial and separate conf
   await expect(page.getByText(/Es una autorización;/)).toBeVisible();
   await expect(page.getByText("Producto no informado")).toBeVisible();
   await page.getByRole("button", { name: "¿Por qué?", exact: true }).click();
-  await expect(page.getByRole("dialog")).toContainText("TXN-01");
+  await expect(page.getByRole("dialog")).toContainText("Estado del movimiento");
   await page.keyboard.press("Escape");
   await page
     .getByRole("textbox", { name: "Tu mensaje" })
@@ -254,16 +254,16 @@ test("recording helper leaves live story/reset gates closed without bank binding
   await login(page);
   await page.getByText("Preparar grabación", { exact: true }).click();
   for (const name of [
-    "ES · cargo pendiente",
-    "PT · escolha e confirmação",
-    "ES · fraude → Agent Desk",
+    "Entender un cargo · ES",
+    "Elegir una compra · PT",
+    "Pedir ayuda · ES",
   ])
     await expect(
       page.getByRole("button", { name, exact: true }),
     ).toBeDisabled();
   await expect(
     page.getByText(
-      "Solo una identidad Ops autorizada puede iniciar el restablecimiento.",
+      "Solo una cuenta de operaciones autorizada puede iniciar el restablecimiento.",
     ),
   ).toBeVisible();
   const result = await page.evaluate(
@@ -297,12 +297,15 @@ test("recording helper uses optional bank persona binding and never auto-sends",
   await page.getByText("Preparar grabación", { exact: true }).click();
   await expect(
     page.getByRole("button", {
-      name: "PT · escolha e confirmação",
+      name: /Elegir una compra · PT|Escolher compra · PT/,
       exact: true,
     }),
   ).toBeDisabled();
   await page
-    .getByRole("button", { name: "ES · cargo pendiente", exact: true })
+    .getByRole("button", {
+      name: /Entender un cargo · ES|Entender cobrança · ES/,
+      exact: true,
+    })
     .click();
   await expect(page.getByRole("textbox", { name: "Usuario" })).toHaveValue(
     "demo.es.mx",
@@ -325,7 +328,10 @@ test("recording helper uses optional bank persona binding and never auto-sends",
     page.getByRole("heading", { name: "Tu caso está registrado" }),
   ).toHaveCount(0);
   await page
-    .getByRole("button", { name: "ES · fraude → Agent Desk", exact: true })
+    .getByRole("button", {
+      name: /Pedir ayuda · ES|Pedir ajuda · ES/,
+      exact: true,
+    })
     .click();
   await expect(page.getByRole("textbox", { name: "Tu mensaje" })).toHaveValue(
     "Perdí mi tarjeta y necesito ayuda con una compra que no reconozco.",
