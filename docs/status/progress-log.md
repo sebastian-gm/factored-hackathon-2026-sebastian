@@ -1150,7 +1150,7 @@ The following sections retain the AI lane’s historical reports; later dated de
 - Read handoff 14 in full. Authored a new 100-case v4 release from ADR-0015 and the written conversation contract, with 35/20/20/25 category counts, 48 ES / 48 PT / 4 mixed, and new interaction wording. Kept v3 as retired development data; no old template list, system output or post-v3 failure analysis defined v4 gold.
 - Verified 100 unique test-split customers and owned products with zero overlap against v1, v2, v3, both matcher inventories and all 40 human cards. Reconstructed the archived v1 identity mapping and matched its original private checksum. All charge/case/FX facts are fictional; native organizer identities exist only in ignored mode-0600 bindings.
 - Structural preflight passed schema, vocabulary, references, explicit reactive replies, counts, exclusions and exact wording/template overlap checks. Froze and read back all release hashes. MANIFEST file SHA-256: `309c3aa22c2eab51b3289075b733c52bb7934a879299762c3fb9ba16a3d9bec8`. No B1/P executions, paid provider calls, cloud changes or spend occurred.
-- Added an aggregate-only v4 evaluation protocol and pre-registered the repeat/dual-judge subsets. Lead, AI and fix authors must not open v4 scenario rows, selection IDs or its authoring tool. This branch will be submitted as an unmerged PR.
+- Added an aggregate-only v4 evaluation protocol and pre-registered the repeat/dual-judge subsets. Lead, AI and fix authors must not open v4 scenario rows, selection IDs or its authoring tool. [PR #64](https://github.com/sebastian-gm/bank-agent-lab/pull/64) was read back as open and unmerged; origin remains private. Ruff, compilation, strict mypy (81 source files), all six commit hooks and the post-commit freeze verification passed.
 
 ### Done but not verified
 
@@ -1158,7 +1158,7 @@ The following sections retain the AI lane’s historical reports; later dated de
 
 ### Next / blocked
 
-- Open and leave the v4 PR unmerged until the owner releases it. The later final run requires Sebastian's explicit go and the release owner's gates. Handoff 14 reports an owner GitHub Actions budget block; remote CI for this branch has not yet been read back. Do not tune product behavior on v4 or publish row-level content.
+- Leave PR #64 unmerged until the owner releases it. The later final run requires Sebastian's explicit go and the release owner's gates. Remote CI failed before jobs started; the [check annotation](https://github.com/sebastian-gm/bank-agent-lab/actions/runs/36657943458/job/109706208743) says an Actions budget prevents further use. This is not a green CI claim. Do not tune product behavior on v4 or publish row-level content.
 
 ## Access and continuation
 
