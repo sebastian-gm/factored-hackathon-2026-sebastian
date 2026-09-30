@@ -157,6 +157,8 @@ test("PT ambiguous: top three, exact confirmation, verified case receipt", async
   const receiptTitle = await page
     .getByRole("heading", { name: "Seu caso está registrado" })
     .boundingBox();
+  const receiptLog = await page.locator(".conversation-log").boundingBox();
+  expect(receiptTitle!.y).toBeGreaterThanOrEqual(receiptLog!.y);
   expect(receiptTitle!.y).toBeGreaterThanOrEqual(0);
   expect(receiptTitle!.y + receiptTitle!.height).toBeLessThan(844);
   await screenshot(page, "pt-receipt");

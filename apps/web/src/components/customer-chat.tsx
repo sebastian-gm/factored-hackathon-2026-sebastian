@@ -273,15 +273,15 @@ export function CustomerChat({
             {t(renew ? "signInAgain" : "active")}
           </span>
         </div>
-        <span className="secure-pill">
-          <ShieldCheck size={14} />
+        <span className={`secure-pill ${renew ? "pending" : ""}`}>
+          {renew ? <CircleHelp size={14} /> : <ShieldCheck size={14} />}
           {t(renew ? "signInAgain" : "secure")}
         </span>
       </header>
       <ChatStages plan={latest} />
       <div
         ref={log}
-        className="conversation-log"
+        className={`conversation-log ${latest?.verified && (latest.case || latest.handoff) ? "with-receipt" : ""}`}
         role="log"
         aria-label={t("conversation")}
         aria-live="polite"

@@ -2509,3 +2509,12 @@ h1 {
 .dot.paused {
   background: #74818c;
 }
+
+.secure-pill.pending {
+  color: #56645c;
+}
+@media (max-width: 680px) {
+  .conversation-log.with-receipt {
+    max-height: min(52vh, 440px);
+  }
+}
