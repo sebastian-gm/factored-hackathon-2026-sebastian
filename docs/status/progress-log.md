@@ -1812,3 +1812,56 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
   or Sebastian's explicit exception. Any later release follows its own gate.
 - No paid calls, min replicas change, or new approval needed for the completed
   preview. No v4 start. Continue from this log under the same rules.
+
+## 2026-09-30 PDT — AI offline human review and customer-text integrity
+
+### Completed (verified)
+
+- Built ignored, mode-0600 `artifacts/human-judge/v3-score.html` from the lead's
+  unchanged 20-item v3 CSV. Spanish instructions and rubric anchors, locale/text/
+  summary, independent radios, six handoff N/A items, notes, progress, localStorage
+  autosave and exact-column UTF-8 CSV export. Offline Chromium verified 20/20
+  progress and 74/74 applicable test ratings, reload persistence, unchanged source
+  wording and quoted multiline notes; zero network requests/browser errors. Test
+  ratings are private fixtures, not Sebastian's ratings. HTML contains blank source
+  ratings and no judge scores; generated data remains ignored under a private dir.
+- Added `aclara.llm.human_review`: reproducible offline generator and strict import
+  of all applicable human ratings. Checks twenty IDs, exact columns, unchanged
+  source wording/locale and saved judge inputs; intersects successful saved scores
+  with the human sheet. Exact/within-one/quadratic-kappa metrics by dimension and
+  ES/PT slice; absent scores/N/A excluded and undefined kappa explicit. Saved v3
+  judging covers 28/60, but only 10/20 sheet items (eight summary pairs); no human
+  agreement claim. Pending report: `docs/evaluation/judge-human-validation.md`.
+- Confirmed item 1's text equals the saved v3 reply; that release used phrase v1,
+  not v2. Current contextual evidence identifies its PT language. Authored tests
+  reproduced 14 integrity failures before the fix. Grounding/DLP now forbids
+  numeric txn/prod/card/cust handles even when cited, plus replacement characters,
+  common mojibake, narrow apostrophe/hash corruption and control characters;
+  valid ES/PT accents and verified case references remain allowed. Zero-cost
+  saved-output replay rejects both defects and returns a clean Spanish template;
+  independent opposite-language tests pass in both directions. No row text copied
+  into Git and no original evaluation output changed.
+- Local suite: 459 passed, 17 database-dependent skips. Excluded the v4-specific
+  test module and enforced actual-v4 file and external-network barriers. Restricted
+  TestClient execution stalled; stopped that local process and completed the same
+  checks with sandbox escalation. Focused AI/judge/API tests 92/92, B1 dev 32/32,
+  strict mypy (86 files), Ruff and frozen interface/catalog checks passed. Remote
+  workflow now targets main only; no hosted CI run requested for this stacked PR.
+
+### Done but not verified
+
+- Sebastian's scored CSV is pending; provisional Downloads path is not confirmed.
+  Human–Sonnet/Jev results remain unmeasured. The ten existing model pairs are
+  descriptive only and cannot satisfy the rubric's 50-item calibration requirement.
+- Integrity fixes are local/mock verified; no deployment or paid verification.
+  Conservative language/corruption detection cannot guarantee all text quality.
+
+### Next / blocked
+
+- Open the private PR into `fix/post-v3-analysis`; lead reviews and merges.
+- Import the confirmed human export and update the agreement report without new
+  judge calls. Keep wording/notes/ratings under ignored artifacts.
+- Resume round-two authoring/freeze after this priority fix. Its builder draft is
+  preserved in ignored `artifacts/dev-pre-v4/`; no 60-case freeze or run is claimed.
+  Paid `dev-gate/pre-v4` exact scope/run confirmation is still pending: no spend,
+  no v5.2 adoption, and no v4 access. The lead owns creation/readback of the scope.
