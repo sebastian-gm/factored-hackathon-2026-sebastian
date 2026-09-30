@@ -1,5 +1,26 @@
 # Progress log
 
+## 2026-09-30 PDT — Insights integration, scoped scans and new comparison purse
+
+### Completed (verified)
+
+- Reviewed and integrated #77 (offline human-review tooling plus corrupt-prose/internal-handle guard) and #80 (frozen authored 60-case dev release) on `feat/lead-insights-release`. The single progress-log conflict preserves both lane entries. No new dev rows, builder or v4 inputs opened; #80 receives structural checks only.
+- Saved latency metadata joins ten primary executions to the five completed conversations: slowest BFF turn 8.395 s, Gemini provider-error first attempt 6.045 s then successful retry 2.100 s, Jev 0.232 s, no phrasing calls. Five terminal follow-ups make pooled p50 optimistic. First-turn extra ~2.967 s remains unattributed; no cold-start claim or paid replay. See `docs/evaluation/pre-v4-latency-components.md`.
+- Prepared `dev-gate/model-compare` / run **`model-compare`**, $1.50 lifetime, then independently verified it; `dev-gate/pre-v4` / **`pre-v4`**, $1, remains open. Reserve-before-call semantics and historical unknown charges retained. Both setup commands made zero provider calls. Historical $4.62047227 + full dev $1 + comparison $1.50 + v4 $3 + both smokes $0.20 = **$10.32047227 ≤ $12**. Pre-v4 calls made by the AI lane are covered by its full allowance. Release helpers and final preparation count the comparison scope; final preparation closes both dev scopes.
+- Private snapshot **5cc68a85db0763aede6c20cfc62bfc5740e539ea** matches its remote; fresh exact-tree and full-history configured Gitleaks 8.30.1 scans exit **0 / zero findings**. Four exceptions require path AND exact value within the relevant rule. Negative controls still detect different fake credentials in those paths and the allowed value elsewhere. Default-only historical findings remain disclosed. Snapshot is PRIVATE; no public access or Actions enabled.
+- Prepared `docs/evaluation/v4-launch-checklist.md`. Feature freeze Oct 2 12:00 COT / 17:00 UTC plus separate final GO required; v4 remains unstarted.
+
+### Done but not verified
+
+- Combined Insights candidate local/remote gates and its new Azure release are pending. Existing Azure acceptance remains d23fa5a; no claim that this feature branch is deployed.
+- README-only clean-clone reproduction of the private snapshot is queued **after** the release, under the owner's new request; not yet performed.
+
+### Next / blocked
+
+- Take #79's final copy/data head, complete review and local suites, publish one main-target integration PR and run remote CI once; merge/release after green under standing approval. No replica/access/resource changes.
+- Report release readiness for frontend rehearsal. Then fresh clone snapshot, follow only README, record time and undocumented failures, fix portable fixture/mock setup and rescan/push while private.
+- No model comparison started by the lead, no v4 access/start, no replay of the closed latency purse. Warm/judge/publication remain separate submission-day approvals.
+
 ## 2026-09-30 PDT — Release accepted; shared pre-v4 scope and private snapshot
 
 ### Completed (verified)
