@@ -232,10 +232,15 @@ test("startup and unavailable states never advertise green readiness", async ({
     await r.fulfill({ status: 503, json: { error: "service_unavailable" } });
   });
   try {
+    // The connecting label is server-rendered. A bootstrap request proves
+    // hydration before the test changes the language, including in dev CI.
+    const boot = page.waitForRequest("**/api/bff/config");
     await page.goto("/", { waitUntil: "domcontentloaded" });
+    await boot;
     await expect(page.locator(".status-pill")).toHaveText("Conectando");
     await expect(page.locator(".status-pill")).toHaveClass(/neutral/);
     await locale(page, true);
+    await expect(page.locator(".locale-select select")).toHaveValue("pt-BR");
     release();
     await expect(page.locator(".status-pill")).toHaveText(
       "Serviço indisponível",

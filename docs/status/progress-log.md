@@ -1,5 +1,41 @@
 # Progress log
 
+## 2026-09-29 PDT — Single remote #62 gate and test-only hydration correction
+
+### Completed (verified)
+
+- Published combined head **00246eb083121d8234c7ef45a076c7fb78801145** once;
+  GitHub read-back records #63/#65–#75 merged into the feature branch. #62 and
+  blind #64 remain open. Main remains **e12efc73be64f8355aa9f177f08a04337593616c**.
+- Automatic CI **36672780834**, attempt 1: Python checks and Postgres passed;
+  fixture browsers **63/64**, with one startup locale test failure. Safety
+  **36672780958**, attempt 1: passed. No rerun. Aggregate receipt is ignored
+  `artifacts/integration/pr62-remote-gates.json`.
+- Diagnosed an authored-test hydration race: its first connecting label exists
+  in server-rendered HTML, before the locale change handler is attached. The
+  correction waits for client bootstrap, matching the existing startup test;
+  adds a locale assertion. No product, confirmation, OTP, action, timeout or
+  expected-label change. CI dev-server mode passes targeted **3/3**, full
+  fixture **64/64**. Restored generated `next-env.d.ts`. Commands/receipt in
+  [integration review](../reviews/pr-71-75-integration-review.md).
+- Earlier combined local gates remain verified: Python **442**, Postgres **20**,
+  B1 **32/32**, browser **64 fixture + 12 live + 1 staff**, Terraform **5** plans.
+  No paid model calls or Azure changes; v4 unopened/unstarted, submission OFF.
+
+### Done but not verified
+
+- Remote live/staff browser runs were not reached after the fixture failure.
+  The corrected local candidate has not been published or remotely checked.
+  Main promotion is blocked on green remote CI; this record does not claim it.
+
+### Next / blocked
+
+- Obtain approval for a second automatic remote CI cycle (about **$0.06**,
+  owner estimate, within the $5 hard cap), publish the test-only correction and
+  inspect it without manual reruns. Then report the new exact SHA and gates.
+- Main merge/release still needs Sebastian's separate confirmation. No release,
+  submission activation or v4 final run is authorized by this correction.
+
 ## 2026-09-29 PDT — Complete #62 integration and local release gates
 
 ### Completed (verified)

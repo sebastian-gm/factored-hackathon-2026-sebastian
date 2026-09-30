@@ -67,11 +67,29 @@ Generated B1 aggregate Markdown was restored after testing.
 
 ## Remote gate and limits
 
-Publish the complete normal-message #62 head once, then inspect its automatic
-CI/safety without a manual rerun. The post-publication receipt belongs in ignored
-`artifacts/integration/pr62-remote-gates.json`; keeping it outside the committed
-head avoids a new workflow solely to record workflow results. Read that receipt
-and GitHub for the exact SHA; local evidence alone does not satisfy main promotion.
+Published the complete #62 head `00246eb083121d8234c7ef45a076c7fb78801145`
+once. Its automatic [CI run 36672780834](https://github.com/sebastian-gm/bank-agent-lab/actions/runs/36672780834)
+passed `checks` and `postgres`, but failed one of 64 fixture browser checks;
+the chained live/staff runs were not reached. [Safety run 36672780958](https://github.com/sebastian-gm/bank-agent-lab/actions/runs/36672780958)
+passed. All runs are attempt 1; no manual rerun.
+
+The failing authored startup test changed the locale on server-rendered HTML
+before hydration installed React's change handler: Portuguese was expected,
+Spanish remained displayed. The existing startup regression already synchronizes
+on the client bootstrap request. Applied the same synchronization to this test,
+with a locale-selection assertion. **Test only: no product/BFF/OTP/action change,
+no longer timeout or weakened expectation.** CI's development-server mode now
+passes the targeted check three consecutive times and all 64 fixture checks:
+`FRONTEND_E2E_PRODUCTION=0 pnpm test:e2e --grep 'startup and unavailable states' --repeat-each=3`
+and `FRONTEND_E2E_PRODUCTION=0 pnpm test:e2e`.
+
+Aggregate receipt: ignored `artifacts/integration/pr62-remote-gates.json`;
+logs: `pr62-web-remote-failure.log`, `pr62-hydration-targeted.log`,
+`pr62-hydration-fixtures.log` in the same directory. The test correction is
+prepared locally. A second paid automatic CI cycle (~$0.06, owner estimate)
+requires owner approval after the authorized single cycle; it has not run.
+Read the receipt and GitHub for the actual tested SHA. Remote green remains
+required before main promotion.
 
 Main/origin/main remain `e12efc73be64f8355aa9f177f08a04337593616c`.
 No v4 scenario/selection/authoring/binding was opened, no v4 program prepared or
