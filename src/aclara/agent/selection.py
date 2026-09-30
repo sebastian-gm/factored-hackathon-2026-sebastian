@@ -15,6 +15,14 @@ UNFAMILIAR_ABOUT_CHARGE = (
     r"(?:que|de que|a que|con que|por que) (?:es|era|sea|se trata|corresponde|fue)\b"
     r"|\bnao (?:lembro|me lembro|sei|faco (?:a menor )?ideia|identifico) "
     r"(?:o que|do que|de que|a que|com que) (?:e|era|seja|se trata|corresponde|foi)\b"
+    # Charge-origin memory differs from uncertainty about which transaction.
+    # Require both an origin verb and a charge noun; do not swallow any later
+    # clause saying the customer cannot select a charge or recall its amount.
+    r"|\bno (?:recuerdo|me acuerdo|se) (?:de )?donde "
+    r"(?:vino|viene|salio|sale|proviene|procede) (?:ese|este|el) (?:cargo|cobro|consumo)\b"
+    r"|\bnao (?:lembro|me lembro|sei) (?:de )?onde "
+    r"(?:veio|vem|surgiu|saiu|provem) (?:essa|esta|aquela|a|esse|este|aquele|o) "
+    r"(?:cobranca|compra|lancamento)\b"
 )
 
 
