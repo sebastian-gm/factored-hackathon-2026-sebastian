@@ -111,7 +111,9 @@ def test_phrasing_in_the_wrong_language_falls_back_to_the_template():
         {
             "response_type": "clarify",
             "outcome": "clarification",
-            "reply": "No encontré un cargo con esos datos. ¿Recuerdas el comercio o el monto?",
+            # An empty plan asks the builder for its generic template. Explicit
+            # state-specific clarification text now stays deterministic.
+            "reply": "",
         }
     )
     built = build_reply(plan, language="es", client=client)
