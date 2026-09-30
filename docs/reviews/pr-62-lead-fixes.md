@@ -2,7 +2,8 @@
 
 2026-09-29 PDT. Based on feature preview `dac3801`, with session-security PR
 [#67](https://github.com/sebastian-gm/bank-agent-lab/pull/67) included in the
-combined candidate. Both follow-up PRs target `fix/post-v3-analysis`.
+combined candidate. Freeze/renewal PR [#68](https://github.com/sebastian-gm/bank-agent-lab/pull/68)
+includes #67; merge #67 first. Both follow-up PRs target `fix/post-v3-analysis`.
 Main remains `e12efc73be64f8355aa9f177f08a04337593616c`; these fixes are not deployed.
 Findings #1 and #3 remain with the AI lane. No paid calls or v4 access occurred.
 

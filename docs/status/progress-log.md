@@ -1479,7 +1479,10 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
 
 ### Next / blocked
 
-- Publish the tested second private feature PR for review.
+- Second private feature PR is [#68](https://github.com/sebastian-gm/bank-agent-lab/pull/68),
+  targeting `fix/post-v3-analysis`, with code commits `aa37227` / `f891584`.
+  All 59 browser checks passed (46 fixture/startup + 12 live customer + 1 staff).
+  Review/merge #67 first, then #68; neither is merged here.
 - AI lane owns #1/#3. Review both lead PRs; main merge waits for billing recovery
   or Sebastian's explicit exception. Any later release follows its own gate.
 - No paid calls, min replicas change, or new approval needed for the completed
