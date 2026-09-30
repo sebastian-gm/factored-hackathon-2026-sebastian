@@ -1,7 +1,7 @@
 import { test, expect, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
-async function login(page: Page) {
-  await page.goto("/");
+async function login(page: Page, path = "/") {
+  await page.goto(path);
   await expect(
     page.getByText("Modo demostración · datos de ejemplo"),
   ).toHaveCount(0);
@@ -251,7 +251,7 @@ test("live refusal, revoked session and upstream logout", async ({
 test("recording helper leaves live story/reset gates closed without bank bindings", async ({
   page,
 }) => {
-  await login(page);
+  await login(page, "/?grabar=1");
   await page.getByText("Preparar grabación", { exact: true }).click();
   for (const name of [
     "Entender un cargo · ES",
@@ -293,7 +293,7 @@ test("recording helper uses optional bank persona binding and never auto-sends",
     config.personas[0].demo_stories = ["explain", "fraud"];
     await route.fulfill({ json: config });
   });
-  await page.goto("/");
+  await page.goto("/?grabar=1");
   await page.getByText("Preparar grabación", { exact: true }).click();
   await expect(
     page.getByRole("button", {

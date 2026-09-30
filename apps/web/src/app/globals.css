@@ -107,23 +107,32 @@ svg {
   border: 0;
 }
 .skip-link {
-  position: fixed;
+  position: absolute;
   left: 15px;
-  top: -100px;
+  top: 10px;
+  clip-path: inset(50%);
   background: #fff;
   z-index: 100;
   padding: 12px;
   border: 2px solid var(--green);
 }
 .skip-link:focus {
-  top: 10px;
+  clip-path: none;
 }
 .app-shell {
+  --sidebar-width: 225px;
+  position: relative;
   display: flex;
   min-height: 100vh;
+  /* Continue the rail through long pages, including full-page captures. */
+  background: linear-gradient(
+    to right,
+    #143e32 0 var(--sidebar-width),
+    transparent var(--sidebar-width) 100%
+  );
 }
 .sidebar {
-  width: 225px;
+  width: var(--sidebar-width);
   flex-shrink: 0;
   position: fixed;
   inset: 0 auto 0 0;
@@ -907,8 +916,40 @@ h1 {
 }
 .handoff-reasons li {
   display: flex;
-  align-items: center;
-  gap: 0.4rem;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3rem;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  max-width: 100%;
+}
+.handoff-reasons li.primary {
+  background: #f2f7ec;
+  border-color: #9eaf96;
+}
+.reason-kind {
+  font-size: 12px;
+  font-weight: 600;
+}
+.queue-reasons {
+  font-size: 12px;
+  line-height: 1.5;
+}
+.technical-reference {
+  display: block;
+  color: #52695f;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.action-references {
+  margin-top: 6px;
+}
+.action-references summary {
+  cursor: pointer;
+  color: #52695f;
+  font-size: 12px;
+  padding: 4px 0;
 }
 .chooser {
   padding: 20px;
@@ -1489,8 +1530,10 @@ h1 {
   }
 }
 @media (max-width: 1200px) {
+  .app-shell {
+    --sidebar-width: 196px;
+  }
   .sidebar {
-    width: 196px;
     padding-left: 17px;
     padding-right: 17px;
   }
@@ -1558,8 +1601,8 @@ h1 {
   }
 }
 @media (max-width: 960px) {
-  .sidebar {
-    width: 180px;
+  .app-shell {
+    --sidebar-width: 180px;
   }
   .workspace {
     margin-left: 180px;
@@ -1618,6 +1661,7 @@ h1 {
 @media (max-width: 680px) {
   .app-shell {
     display: block;
+    background: none;
   }
   .sidebar {
     position: static;

@@ -6,6 +6,8 @@ confirmation and code verification remain explicit. The five-stage chat guide
 explains the response phase and never supplies authority or fabricated verification.
 See [UX-IMPLEMENTATION.md](UX-IMPLEMENTATION.md) for the audit fixes, checks,
 local screenshot evidence and remaining release checks.
+See [UX-REVIEW-FOLLOWUPS.md](UX-REVIEW-FOLLOWUPS.md) for the review of PR #72,
+the country-currency fixture correction and its final screenshot matrix.
 
 ADR-0015: customer chat renders `offer_dispute / awaiting_dispute_decision` as an
 explained charge plus explicit ES/PT recognition and dispute-request buttons.
@@ -53,6 +55,9 @@ personas still require password and a six-digit OTP. Localized story names appea
 picker. Agent and Ops logins authorize their own surfaces on the server. Use the
 same browser when changing accounts to follow a customer's handoff into Agent Desk.
 This mock is a UI contract demonstrator, not an implementation of bank policy.
+Authored personas use USD for Mexico, COP for Colombia and ARS for Argentina.
+The legacy `demo.pt.br` fixture alias represents a Portuguese speaker in Mexico;
+`pt-BR` is a conversation locale and does not change a transaction's currency.
 
 After `pnpm build`, `FRONTEND_E2E_PRODUCTION=1 pnpm test:e2e` runs the same
 fixtures against a production build, avoiding cold development compilation in
@@ -154,7 +159,9 @@ process; this change does not authorize broader ingress.
 
 ### Recording and call evidence
 
-Open **Preparar grabación / Preparar gravação** below the workspace. In fixture
+Add `?grabar=1` to the workspace URL to show
+**Preparar grabación / Preparar gravação** below the workspace. It is hidden by
+default; this visibility flag does not grant permissions. In fixture
 mode, sign in as the supplied operations persona and choose **Restablecer demo y abrir ES**.
 The existing reset clears this browser workspace and is read back before opening
 the ES login. Use the ES, PT and fraud buttons in sequence; they preselect the

@@ -13,6 +13,7 @@ import {
 import { orderedReasons, type DeskPacket } from "@/lib/contracts";
 import { api } from "@/lib/client";
 import { date, remaining } from "@/lib/format";
+import { deskActionLabelKey, handoffReasonLabelKey } from "@/lib/ui-copy";
 import { useApp } from "./workspace";
 import { Button } from "./ui/button";
 import { Modal } from "./ui/dialog";
@@ -168,8 +169,10 @@ export function AgentDesk() {
                   </span>
                   <span className="caption">{p.customer_display}</span>
                   <span className="row-between">
-                    <span className="rule">
-                      {orderedReasons(p).join(" · ")}
+                    <span className="queue-reasons">
+                      {orderedReasons(p)
+                        .map((reason) => t(handoffReasonLabelKey(reason)))
+                        .join(" · ")}
                     </span>
                     <span className="caption">
                       <Clock3 size={12} /> {t("sla")}:{" "}
@@ -210,11 +213,19 @@ export function AgentDesk() {
                 <h3 id="handoff-reasons-title">{t("handoffReasons")}</h3>
                 <ul className="handoff-reasons">
                   {orderedReasons(current).map((reason) => (
-                    <li key={reason}>
-                      <code className="rule">{reason}</code>
+                    <li
+                      key={reason}
+                      className={
+                        reason === current.primary_reason ? "primary" : ""
+                      }
+                    >
                       {reason === current.primary_reason && (
-                        <span className="badge">{t("primaryReason")}</span>
+                        <span className="reason-kind">
+                          {t("primaryReason")}
+                        </span>
                       )}
+                      <strong>{t(handoffReasonLabelKey(reason))}</strong>
+                      <code className="technical-reference">{reason}</code>
                     </li>
                   ))}
                 </ul>
@@ -235,7 +246,10 @@ export function AgentDesk() {
                         onClick={() => setEvidence(current.evidence[i])}
                       >
                         <FileSearch size={15} />
-                        {t("evidenceTitle")} · {current.evidence[i].id}
+                        {t("evidenceTitle")}
+                        <code className="technical-reference">
+                          {current.evidence[i].id}
+                        </code>
                         <ArrowUpRight size={14} />
                       </Button>
                     )}
@@ -258,19 +272,34 @@ export function AgentDesk() {
                         )}
                       </span>
                       <div>
-                        <strong>{action.action}</strong>
+                        <strong>
+                          {t(
+                            deskActionLabelKey(
+                              action.action,
+                              action.status === "verified",
+                            ),
+                          )}
+                        </strong>
                         <p>
                           <span
                             className={`badge ${action.status === "verified" ? "" : "red"}`}
                           >
                             {t(
                               action.status === "verified"
-                                ? "verified"
+                                ? "verifiedInRecords"
                                 : "failedAction",
                             )}
-                          </span>{" "}
-                          <code>{action.evidence_ref}</code>
+                          </span>
                         </p>
+                        <details className="action-references">
+                          <summary>{t("technicalReferences")}</summary>
+                          <code className="technical-reference">
+                            {action.action}
+                          </code>
+                          <code className="technical-reference">
+                            {action.evidence_ref}
+                          </code>
+                        </details>
                       </div>
                     </li>
                   ))}

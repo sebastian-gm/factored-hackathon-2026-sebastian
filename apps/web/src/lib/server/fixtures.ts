@@ -14,7 +14,12 @@ import type {
   Transaction,
 } from "../contracts";
 import results from "../../../fixtures/results.json";
-import { BANK_CLOCK, DATASET, personas, transactions } from "./fixture-data";
+import {
+  BANK_CLOCK,
+  DATASET,
+  personas,
+  transactionsForPersona,
+} from "./fixture-data";
 
 export class HttpError extends Error {
   constructor(
@@ -185,6 +190,7 @@ export function fixtureRequest(
   body: Record<string, unknown>,
 ): unknown {
   const user = principal(token);
+  const transactions = transactionsForPersona(user.username);
   const space = store.workspaces.get(user.workspace);
   if (!space) throw new HttpError(401, "session_expired");
   if (path === "me")
