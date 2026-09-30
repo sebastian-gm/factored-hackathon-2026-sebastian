@@ -2237,3 +2237,37 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
   paid call, default change or v4 access is authorized by these preparatory checks.
 - Import the confirmed human CSV via the #77 branch and update its agreement doc
   without new judges. Current provisional Downloads path has not been confirmed.
+
+
+## 2026-09-30 PDT — AI zero-spend saved-result disparity investigation
+
+### Completed (verified)
+
+- Reaggregated saved primary P-Gemini repeat-0 results only: v2 200 and v3 100.
+  Official pass remains 63/200 and 77/100. All 300 checkpoints and two official
+  reports were hashed before/after, unchanged; no execution, rescoring, paid call
+  or v4 input. Private aggregate/composition receipts stay ignored.
+- `docs/evaluation/disparity-analysis.md` reports ES/PT, Basic/Plus/Premium/Student
+  and AR/CO/MX pass with Wilson intervals, eligible/in-scope SAR and strict
+  transfers, unsafe caveats, and the failure causes behind the observed gaps.
+  V3's ES 38/48 vs PT 35/48 gap is two extra PT security-packet failures and one
+  extra selection failure. V3 country/segment counts are language-balanced;
+  coarse category adjustment changes +6.25 pp to +6.37 pp, not a causal effect.
+- Existing shared routing/selection defects, policy/case mix, synthetic correlated
+  cells, no fluent PT human review and es-CL n=9 limit interpretation. Proposed
+  semantic PT regressions and fluent review are follow-ups, not new results or
+  prompt changes. Only v4 results remain TODO. Relative evidence links verified.
+
+### Done but not verified
+
+- No population disparity or language equivalence claim; dialect naturalness is
+  not established by objective pass. Human judge CSV path remains unconfirmed.
+
+### Next / blocked
+
+- Open the isolated documentation PR to main for lead review. Allow its required
+  remote CI to finish; no rerun or merge by this lane. Shared progress-log entry
+  is the only change outside the requested evaluation document.
+- Robustness changes remain in private PR #85 to `fix/post-v3-analysis`. The
+  queued model comparison still awaits its separate durable scope/readback and
+  restored OpenRouter account credits; metadata checks are zero-call only.
