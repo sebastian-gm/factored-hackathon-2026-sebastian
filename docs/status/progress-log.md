@@ -1,5 +1,37 @@
 # Progress log
 
+## 2026-09-30 PDT — Exact-main recording fixture race
+
+### Completed (verified)
+
+- #78 passed PR CI **36760917373** and safety **36760917289**, merged at
+  **d882deb4ea2a9015db460d7d30aedc912f6a8aea**. Main safety **36761758449**
+  passed. Automatic main CI **36761758157** passed Python/Postgres but failed
+  fixture browsers **79/80**; live/staff were not reached. No CI rerun.
+- Failure: PT recording opt-in changes locale immediately after navigation,
+  before client bootstrap. Wait for restored chat before that interaction and
+  assert selected locale. Product paths/expected labels remain unchanged.
+  `pnpm test:e2e --grep 'recording tools are hidden' --repeat-each=3` in CI's
+  dev-server mode passed **6/6**; ignored log in `artifacts/integration/`.
+- Both d882deb image tags were pushed and registry digests equal the earlier
+  21dac9e builds. Live plan is exactly two existing app updates, only images,
+  release identity and approved smoke binding; min=0, owner ingress, identities,
+  secrets and resource shape unchanged. No apply or paid calls yet.
+- Unused 21dac9e smoke purse disabled with history retained; d882deb purse
+  registered at $0.10, zero attempts/spend. Cumulative maximum **$8.77863620**.
+
+### Done but not verified
+
+- Test-only correction needs fresh remote CI. Azure still runs prior preview;
+  full release, shared pre-v4 purse, latency and private snapshot remain pending.
+
+### Next / blocked
+
+- Green correction PR and exact-main CI; reuse identical image digests under
+  resulting main, retire unused smoke purse, replan and finish approved gates.
+- Preserve all failed gate logs. Do not claim the failed main run passed or
+  bypass the gate. No v4 input/run, warm replicas or public visibility change.
+
 ## 2026-09-30 PDT — Main integration verified; smoke binding validation
 
 ### Completed (verified)
