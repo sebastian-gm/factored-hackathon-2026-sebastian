@@ -25,9 +25,12 @@ recorded evidence; no new cloud check or approval.
   budget **alerts, rather than caps**, spending. [Routes](../config/models.yaml),
   [budget ADR](adr/0014-durable-model-budget.md).
 
-The preview verified warm reads, not paid-chat acceptance. Cold config failed after
-**50.560 s**. The locally tested startup fix is not recorded as deployed: bounded
-GET retries, no POST replay. [Diagnosis](evaluation/preview-startup-diagnosis.md).
+The current owner-approved `dac3801` preview includes bounded GET startup retries,
+with no POST replay. Authenticated read-only cold startup completed in **86.059 s**;
+warm reads completed afterward. The earlier `37627d4` preview's config failed at
+**50.560 s**, before that fix. These are read checks, not paid-chat acceptance.
+[Diagnosis](evaluation/preview-startup-diagnosis.md),
+[startup profile and limits](evaluation/preview-startup-profile.md).
 
 ## Work before real use
 

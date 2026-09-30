@@ -1,5 +1,55 @@
 # Progress log
 
+## 2026-09-29 PDT — Complete #62 integration and local release gates
+
+### Completed (verified)
+
+- Opened private preparation PRs **#73** (`c328553`) and **#75** (`aaa2a97`),
+  read back their feature targets and integrated them locally. Reviewed/merged
+  audit **#71**, UX **#72** and AI evidence **#74** into the feature target,
+  following the earlier #63/#65–#70 integrations. Two progress conflicts kept
+  every entry; no product conflict or force push.
+- Critical #72 review: BFF and Desk write handlers match the reviewed #68 base;
+  recognition, confirmation hashes, OTP renewal, explicit expired review and
+  uncertain-write drafts retain authority in code. Fixed two integration gaps
+  in **8513b9d**: current eligible judge alias is retained on story selection,
+  and pending card decisions lock story changes. Authored browser assertions
+  observe zero message/action POSTs for draft preparation and zero freeze writes
+  through the card retry/review. Corrected one stale live revocation label.
+- Combined local `make checks`: **442 passed / 17 DB skips**, all six hooks,
+  compile/file policy, interfaces/catalog, B1 **32/32**, reactive B1 **32/32**;
+  Ruff and strict mypy **85 files**; disposable local Postgres **20/20**;
+  Terraform fmt/validate and **5/5 mocked plans**. Web typecheck/lint/build;
+  browser **64 fixture + 12 live API + 1 staff = 77/77**. No model spending.
+- Corrected #74's stale preview claim to verified `dac3801` read-only startup;
+  audit #71 explicitly covers its historical snapshot, not these later changes.
+  Official figures/limits and assumption-labeled estimates are unchanged.
+  [Review and commands](../reviews/pr-71-75-integration-review.md).
+- V4 scope is prepared in code, not created/enabled in Azure. Cumulative snapshot
+  $4.54283516 + $3 + $0.10 = **$7.64283516 ≤ $12**. V4 rows/selections/tools/
+  bindings unopened; no preflight/start. V1 untouched. No Azure change; submission
+  toggles OFF. Main/origin/main stay `e12efc73be64f8355aa9f177f08a04337593616c`.
+
+### Done but not verified
+
+- The committed record covers local gates. Remote CI/safety evidence is produced
+  after the single complete-head publication and saved in ignored
+  `artifacts/integration/pr62-remote-gates.json` with its exact SHA/run IDs.
+  Read that receipt and current GitHub #62 checks before promotion; no extra
+  documentation push is needed solely to record a CI result.
+- This combined candidate is not deployed. Public judge login/warm replicas,
+  new real-chat acceptance and independent v4 outcomes remain unverified.
+
+### Next / blocked
+
+- Inspect the one automatic #62 CI/safety run after publication. Main requires
+  remote green plus Sebastian's explicit merge/release confirmation. Avoid
+  needless reruns under the hard $5 Actions cap. Report SHA and gate receipt.
+- A later approved release prepares the real v4 budget/bindings/local-serving
+  pins; separate GO starts the final program. Submission-day activation needs
+  source persona/role, dates, exact plan and infra/model cost approval.
+
+
 ## AI lane — 2026-09-29 (judge-facing Production Thinking and Responsible AI)
 
 ### Completed (verified)

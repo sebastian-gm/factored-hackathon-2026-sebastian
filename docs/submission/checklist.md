@@ -10,9 +10,9 @@ storage outside Git. The judge-facing content is in [slides](slides.md) and the
 
 - [ ] Review and resolve PR #62 before release. Main's evaluated v3 SHA is
   `e12efc73be64f8355aa9f177f08a04337593616c`; Azure currently runs an owner-approved
-  **branch preview** of `37627d4`, not a new main release. GitHub Actions cannot
-  start because of the owner's pending billing decision. Record local CI as
-  local evidence, then restore remote checks or obtain an explicit merge exception.
+  **branch preview** of `dac3801`, including the authorized startup fix, not a new
+  main release. Actions is unblocked under Sebastian's hard $5 cap. Require green
+  remote CI on the complete #62 head; stacked PRs use rigorous local checks.
   V4 remains unstarted. [Review](../reviews/pr-62-review.md),
   [startup diagnosis](../evaluation/preview-startup-diagnosis.md),
   [v3 results and disclosures](../evaluation/final-v3-results.md).

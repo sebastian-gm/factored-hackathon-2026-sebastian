@@ -9,6 +9,11 @@ retained in documentation. This audit authorizes no public release.
 
 ## Scope and evidence
 
+The measured snapshot below predates the later integrated UX/v4-runner/submission
+preparation changes. Those changes are not covered by its counts or secret-scan
+claim; repeat the audit on the exact future sanitized export. The new Terraform
+plan tests use explicitly fictional subscription/resource identifiers only.
+
 Audit performed **2026-09-30 UTC / 2026-09-29 PDT**, with zero model/cloud spend.
 Scanning and triage were local. No endpoint was probed, credential validated,
 cloud resource changed, repository created, public remote configured or history
