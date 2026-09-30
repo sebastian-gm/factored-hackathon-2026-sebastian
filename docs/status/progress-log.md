@@ -1,5 +1,61 @@
 # Progress log
 
+## 2026-09-30 PDT — Deployed main; stale Ops smoke selector
+
+### Completed (verified)
+
+- #81 and exact main **6e636d3113e4a1cbaf8a3988cdcf0ba9b75e8d7a** passed CI
+  and safety. Main runs **36764627466 / 36764627289** succeeded. Registry
+  digests remain identical to the 21dac9e application builds.
+- Reviewed app-only Terraform plan/apply: **0 added, 2 changed, 0 destroyed**;
+  only image/release identity and approved capped smoke binding. `azure_verify`
+  passed; outside-network workflow **36765795810** passed at this SHA.
+- Real `azure_llm_smoke`: all three ES/PT/fraud paths passed, including filing
+  and read-back, handoff and Gemini/Jev checks. Known spend **$0.00831825**;
+  charged **$0.02025875**, including one unknown NLU provider-error reserve.
+  Preserve it; no replay of that call. Cumulative charged **$4.59889495**;
+  future full allowances give **$8.79889495 ≤ $12**.
+- Live browser completed customer handoff and Desk, then failed at Ops:
+  smoke selects the retired “Ops · glass box” navigation label. Reviewed UI
+  and existing passing local staff test use “Evidencia y operaciones.” Budget
+  read-back proves this failed browser attempt made no model calls.
+- One-label correction passes `node --check scripts/serving-browser.mjs` and
+  existing authored `pnpm test:e2e --staff` (**1/1**, live fixture API, no models).
+- Corrected browser attempt stopped at login, exhausting the conservative five
+  slots; do not reset them. Owner decision requested for exactly one additional
+  browser attempt in the same purse. HTTP-only authentication subsequently
+  passed: config/login/SMS/OTP/me/transactions/logout, no chat/model calls. First
+  config took **38.4s**, above the harness's 30s default; warm config **0.33s**.
+  Owner IP still matches. API console logs were unavailable with no active
+  replica. Startup timeout is the supported explanation, not proof from a
+  detailed browser exception (the old harness emitted only “login”).
+- External harness now has the existing smoke client's **190s** navigation and
+  element allowance plus stage/error-class-only failures. No POST/action retry.
+  Node syntax and Prettier checks pass. The first custom read-only diagnostic
+  mistakenly requested nonexistent `/clock`; corrected check verifies the clock
+  from `/me`, as the actual UI contract requires.
+- GET-only deployed browser reaches the login form in **79.94s** (navigation
+  200, config 200, anonymous me 401), with **zero auth/chat POSTs**. This confirms
+  startup exceeds the old harness allowance; no product or replica change.
+- Prepared one-use extra browser guard, **OFF until explicit approval** via
+  `AZURE_EXTRA_BROWSER_ATTEMPT_APPROVED=1`. Default five slots remain; only one
+  browser label/count can use a sixth; its counter/history are never reset,
+  including on failure. Authored `tests/test_azure_browser_allowance.py` passes
+  **5/5** at zero cost. The same $0.10 purse/breaker remains mandatory.
+
+### Done but not verified
+
+- Correcting only the external browser harness selector. Full browser gate and
+  new acceptance receipt remain pending. Shared pre-v4 scope, latency and private
+  snapshot are not yet created/run. No v4 input/run or public/warm activation.
+
+### Next / blocked
+
+- Green harness-only correction; preserve application digests and prior real
+  smoke evidence, reverify release identity/controls, finish the remaining capped
+  browser allowance. Disclose reuse of identical runtime evidence explicitly.
+- Only after full acceptance: **dev-gate/pre-v4 / pre-v4**, latency, private export.
+
 ## 2026-09-30 PDT — Exact-main recording fixture race
 
 ### Completed (verified)
