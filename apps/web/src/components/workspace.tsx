@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   createContext,
   useContext,
@@ -11,6 +12,7 @@ import { NextIntlClientProvider, useTranslations } from "next-intl";
 import {
   ArrowUpRight,
   CircleHelp,
+  ChartNoAxesCombined,
   Headphones,
   LayoutDashboard,
   LogOut,
@@ -29,6 +31,7 @@ import { RecordingHelper } from "./recording-helper";
 import { storyPersona, storyDraft, type DemoStory } from "@/lib/demo-stories";
 import { Ops } from "./ops";
 import { JudgeQuickstart } from "./judge-quickstart";
+import { Insights } from "./insights";
 
 type AppContext = {
   locale: Locale;
@@ -44,7 +47,11 @@ export function useApp() {
   if (!value) throw new Error("Workspace required");
   return value;
 }
-export default function Workspace() {
+export default function Workspace({
+  initialSurface = "chat",
+}: {
+  initialSurface?: Surface;
+}) {
   const [locale, setLocale] = useState<Locale>("es-MX");
   const [config, setConfig] = useState<Config>({
     fixtures: false,
@@ -102,7 +109,7 @@ export default function Workspace() {
       <Context.Provider
         value={{ locale, setLocale, config, session, signedIn, signOut }}
       >
-        <Shell ready={ready} failed={failed} />
+        <Shell ready={ready} failed={failed} initialSurface={initialSurface} />
       </Context.Provider>
     </NextIntlClientProvider>
   );
@@ -114,13 +121,41 @@ function subscribeRecordingFlag(changed: () => void) {
 function recordingFlagEnabled() {
   return new URLSearchParams(window.location.search).get("grabar") === "1";
 }
-function Shell({ ready, failed }: { ready: boolean; failed: boolean }) {
+function Shell({
+  ready,
+  failed,
+  initialSurface,
+}: {
+  ready: boolean;
+  failed: boolean;
+  initialSurface: Surface;
+}) {
   const t = useTranslations();
+  const pathname = usePathname();
   const { locale, setLocale, config, session, signOut } = useApp();
   const [preferredPersona, setPreferredPersona] = useState("");
   const [story, setStory] = useState<DemoStory | null>(null);
   const [workspaceRevision, setWorkspaceRevision] = useState(0);
   const [chatLocked, setChatLocked] = useState(false);
+  const [workspaceSurface, setWorkspaceSurface] = useState<
+    Exclude<Surface, "insights">
+  >(initialSurface === "insights" ? "chat" : initialSurface);
+  const [workspaceVisited, setWorkspaceVisited] = useState(
+    initialSurface !== "insights",
+  );
+  const surface = pathname === "/insights" ? "insights" : workspaceSurface;
+  function setSurface(next: Surface) {
+    const path = next === "insights" ? "/insights" : "/";
+    // Native history is integrated with Next's router. Retain a mounted chat
+    // and its pending proposal while browsing the read-only aggregate page.
+    if (window.location.pathname !== path)
+      window.history.pushState(null, "", path + window.location.search);
+    if (next !== "insights") {
+      setWorkspaceSurface(next);
+      setWorkspaceVisited(true);
+    }
+    window.scrollTo(0, 0);
+  }
   // Hidden in server HTML. Opt-in visibility grants no action authority.
   const recordingEnabled = useSyncExternalStore(
     subscribeRecordingFlag,
@@ -153,19 +188,24 @@ function Shell({ ready, failed }: { ready: boolean; failed: boolean }) {
     setLocale("es-MX");
     setSurface(next);
   }
-  const [surface, setSurface] = useState<Surface>("chat"),
-    [authError, setAuthError] = useState(false);
+  const [authError, setAuthError] = useState(false);
   const role =
-    surface === "chat" ? "customer" : surface === "desk" ? "agent" : "ops";
+    workspaceSurface === "chat"
+      ? "customer"
+      : workspaceSurface === "desk"
+        ? "agent"
+        : "ops";
   const allowed =
     session?.role === role ||
     (!config.fixtures &&
       !!session &&
-      (surface === "chat" || (surface === "desk" && session.role === "ops")));
+      (workspaceSurface === "chat" ||
+        (workspaceSurface === "desk" && session.role === "ops")));
   const nav = [
     { id: "chat" as const, icon: MessageCircle },
     { id: "desk" as const, icon: Headphones },
     { id: "ops" as const, icon: LayoutDashboard },
+    { id: "insights" as const, icon: ChartNoAxesCombined },
   ];
   async function exit() {
     try {
@@ -251,59 +291,73 @@ function Shell({ ready, failed }: { ready: boolean; failed: boolean }) {
               </Button>
             )}
             <span className="avatar" aria-hidden="true">
-              {surface === "chat" ? "C" : surface === "desk" ? "A" : "O"}
+              {surface === "chat"
+                ? "C"
+                : surface === "desk"
+                  ? "A"
+                  : surface === "ops"
+                    ? "O"
+                    : "I"}
             </span>
           </div>
         </header>
         <main id="main-content" className="main-content" tabIndex={-1}>
-          <div className="environment-row">
-            <span
-              className={`status-pill ${!ready || failed ? "neutral" : config.fixtures ? "amber" : ""}`}
-            >
-              <span className="dot" />
-              {!ready
-                ? t("connecting")
-                : failed
-                  ? t("unavailable")
-                  : config.fixtures
-                    ? t("fixture")
-                    : t("live")}
-            </span>
-            <span className="clock">
-              {!ready || failed
-                ? t(failed ? "unavailable" : "starting")
-                : config.bankClock
-                  ? `${t("simulated")} · ${date(config.bankClock, locale)}`
-                  : t("noClock")}
-            </span>
-          </div>
-          {config.fixtures && (
+          {surface !== "insights" && (
+            <div className="environment-row">
+              <span
+                className={`status-pill ${!ready || failed ? "neutral" : config.fixtures ? "amber" : ""}`}
+              >
+                <span className="dot" />
+                {!ready
+                  ? t("connecting")
+                  : failed
+                    ? t("unavailable")
+                    : config.fixtures
+                      ? t("fixture")
+                      : t("live")}
+              </span>
+              <span className="clock">
+                {!ready || failed
+                  ? t(failed ? "unavailable" : "starting")
+                  : config.bankClock
+                    ? `${t("simulated")} · ${date(config.bankClock, locale)}`
+                    : t("noClock")}
+              </span>
+            </div>
+          )}
+          {config.fixtures && surface !== "insights" && (
             <p className="fixture-note">{t("fixtureNote")}</p>
           )}
           <div className="page-heading">
             <p className="eyebrow">
-              {surface === "chat"
-                ? t("chatEyebrow")
-                : surface === "desk"
-                  ? t("deskEyebrow")
-                  : t("opsEyebrow")}
+              {surface === "insights"
+                ? t("insightsEyebrow")
+                : surface === "chat"
+                  ? t("chatEyebrow")
+                  : surface === "desk"
+                    ? t("deskEyebrow")
+                    : t("opsEyebrow")}
             </p>
             <h1>
               {t(
-                surface === "chat"
-                  ? "greeting"
-                  : surface === "desk"
-                    ? "deskTitle"
-                    : "opsTitle",
+                surface === "insights"
+                  ? "insightsTitle"
+                  : surface === "chat"
+                    ? "greeting"
+                    : surface === "desk"
+                      ? "deskTitle"
+                      : "opsTitle",
               )}
             </h1>
             <p>
               {t(
-                surface === "chat"
-                  ? "chatIntro"
-                  : surface === "desk"
-                    ? "deskIntro"
-                    : "opsIntro",
+                surface === "insights"
+                  ? "insightsIntro"
+                  : surface === "chat"
+                    ? "chatIntro"
+                    : surface === "desk"
+                      ? "deskIntro"
+                      : "opsIntro",
               )}
             </p>
           </div>
@@ -312,64 +366,76 @@ function Shell({ ready, failed }: { ready: boolean; failed: boolean }) {
               {t("error")}
             </p>
           )}
-          {ready && !failed && surface === "chat" && (
-            <JudgeQuickstart
-              onStory={openStory}
-              selected={story}
-              locked={chatLocked}
-            />
+          {surface === "insights" && (
+            <Insights onTry={() => setSurface("chat")} />
           )}
-          {!ready ? (
-            <div className="panel loading" role="status">
-              {t("starting")}
-            </div>
-          ) : failed ? (
-            <div className="panel empty" role="alert">
-              <CircleHelp />
-              <h2>{t("startupUnavailable")}</h2>
-              <Button onClick={() => location.reload()}>{t("retry")}</Button>
-            </div>
-          ) : !allowed ? (
-            <div className="customer-grid">
-              <section className="panel login-panel">
-                {session ? (
-                  <>
-                    <div className="hero-icon">
-                      <ShieldCheck />
-                    </div>
-                    <h2>{t("roleTitle")}</h2>
-                    <p className="muted">{t("roleBody")}</p>
-                    <Button onClick={() => void exit()}>{t("restart")}</Button>
-                  </>
-                ) : (
-                  <Login
-                    key={`${role}:${preferredPersona}`}
-                    role={role}
-                    preferredUsername={preferredPersona}
+          {workspaceVisited && (
+            <div className="workspace-pane" hidden={surface === "insights"}>
+              {ready && !failed && workspaceSurface === "chat" && (
+                <JudgeQuickstart
+                  onStory={openStory}
+                  onInsights={() => setSurface("insights")}
+                  selected={story}
+                  locked={chatLocked}
+                />
+              )}
+              {!ready ? (
+                <div className="panel loading" role="status">
+                  {t("starting")}
+                </div>
+              ) : failed ? (
+                <div className="panel empty" role="alert">
+                  <CircleHelp />
+                  <h2>{t("startupUnavailable")}</h2>
+                  <Button onClick={() => location.reload()}>
+                    {t("retry")}
+                  </Button>
+                </div>
+              ) : !allowed ? (
+                <div className="customer-grid">
+                  <section className="panel login-panel">
+                    {session ? (
+                      <>
+                        <div className="hero-icon">
+                          <ShieldCheck />
+                        </div>
+                        <h2>{t("roleTitle")}</h2>
+                        <p className="muted">{t("roleBody")}</p>
+                        <Button onClick={() => void exit()}>
+                          {t("restart")}
+                        </Button>
+                      </>
+                    ) : (
+                      <Login
+                        key={`${role}:${preferredPersona}`}
+                        role={role}
+                        preferredUsername={preferredPersona}
+                      />
+                    )}
+                  </section>
+                </div>
+              ) : workspaceSurface === "chat" ? (
+                <div className="customer-grid">
+                  <CustomerChat
+                    key={`${session.username}:${workspaceRevision}`}
+                    onPendingChange={setChatLocked}
+                    initialDraft={
+                      story &&
+                      session.username ===
+                        storyPersona(config, story, session?.username)?.username
+                        ? storyDraft(config, story)
+                        : ""
+                    }
                   />
-                )}
-              </section>
+                </div>
+              ) : workspaceSurface === "desk" ? (
+                <AgentDesk key={workspaceRevision} />
+              ) : (
+                <Ops key={workspaceRevision} />
+              )}
             </div>
-          ) : surface === "chat" ? (
-            <div className="customer-grid">
-              <CustomerChat
-                key={`${session.username}:${workspaceRevision}`}
-                onPendingChange={setChatLocked}
-                initialDraft={
-                  story &&
-                  session.username ===
-                    storyPersona(config, story, session?.username)?.username
-                    ? storyDraft(config, story)
-                    : ""
-                }
-              />
-            </div>
-          ) : surface === "desk" ? (
-            <AgentDesk key={workspaceRevision} />
-          ) : (
-            <Ops key={workspaceRevision} />
           )}
-          {recordingEnabled && ready && !failed && (
+          {surface !== "insights" && recordingEnabled && ready && !failed && (
             <RecordingHelper
               onStory={openStory}
               onStaff={openStaff}

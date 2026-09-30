@@ -164,7 +164,7 @@ export function orderedReasons(
 }
 export type Role = "customer" | "agent" | "ops";
 export type Locale = "es-MX" | "es-CO" | "es-AR" | "pt-BR";
-export type Surface = "chat" | "desk" | "ops";
+export type Surface = "chat" | "desk" | "ops" | "insights";
 export type Session = {
   username: string;
   role: Role;

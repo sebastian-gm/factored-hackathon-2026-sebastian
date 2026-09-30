@@ -51,6 +51,16 @@ so a new local database cannot reset cumulative history.
 
 ## $3 lifetime and $12 cumulative ceiling
 
+**Later 2026-09-30 update:** the owner approved a separate
+`dev-gate/model-compare` / `model-compare` $1.50 lifetime purse while keeping
+`dev-gate/pre-v4` / `pre-v4` ($1) open. Live historical exposure with reserves
+was $4.62047227. Conservative full allowances:
+**$4.62047227 + $1 + $1.50 + $3 + $0.10 + $0.10 = $10.32047227 ≤ $12**.
+Dev spend is bounded by the full dev allowances in that calculation. Release
+helpers count new charges and retain full future caps conservatively; v4 preparation
+closes/counts both dev scopes. See [v4-launch-checklist.md](v4-launch-checklist.md).
+The scope is prepared and separately verified; v4 itself remains unstarted.
+
 **2026-09-30 update:** [pre-v4 release and latency plan](pre-v4-release-and-latency.md)
 adds shared pre-v4 development ($1) and a distinct latency smoke ($0.10), counting
 historical production charges too: live prior **$4.57863620 + $1 + $3 + $0.10 +

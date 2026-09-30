@@ -1,5 +1,29 @@
 # Progress log
 
+## 2026-09-30 PDT — Insights integration, scoped scans and new comparison purse
+
+### Completed (verified)
+
+- Final Insights head **312b46a29e92fcefd30704621d3a12b633cafcfb** is integrated; FCR is complaint-scoped and Azure latency explicitly partial (5/10). Final source check verifies 12 aggregate pins. Backend `make checks`: **488 passed / 21 database skips**, B1 **32/32**, interfaces/catalog/hooks green; disposable `.venv/bin/python -m scripts.test_postgres`: **24 passed**, including model-compare restart/cap/other-scope persistence. An initial DB run exposed an outdated arithmetic expectation (4.3→5.8); fixed and rerun successfully. Final web typecheck/lint/build and **106/106** browser checks passed (**93 fixture + 12 live customer + 1 staff**). Source-pin check passes. Initial exporter invocation was denied by the execution sandbox; the authorized read-only invocation passed.
+
+- Reviewed and integrated #77 (offline human-review tooling plus corrupt-prose/internal-handle guard) and #80 (frozen authored 60-case dev release) on `feat/lead-insights-release`. The single progress-log conflict preserves both lane entries. No new dev rows, builder or v4 inputs opened; #80 receives structural checks only.
+- Saved latency metadata joins ten primary executions to the five completed conversations: slowest BFF turn 8.395 s, Gemini provider-error first attempt 6.045 s then successful retry 2.100 s, Jev 0.232 s, no phrasing calls. Five terminal follow-ups make pooled p50 optimistic. First-turn extra ~2.967 s remains unattributed; no cold-start claim or paid replay. See `docs/evaluation/pre-v4-latency-components.md`.
+- Prepared `dev-gate/model-compare` / run **`model-compare`**, $1.50 lifetime, then independently verified it; `dev-gate/pre-v4` / **`pre-v4`**, $1, remains open. Reserve-before-call semantics and historical unknown charges retained. Both setup commands made zero provider calls. Historical $4.62047227 + full dev $1 + comparison $1.50 + v4 $3 + both smokes $0.20 = **$10.32047227 ≤ $12**. Pre-v4 calls made by the AI lane are covered by its full allowance. Release helpers and final preparation count the comparison scope; final preparation closes both dev scopes.
+- Private snapshot **5cc68a85db0763aede6c20cfc62bfc5740e539ea** matches its remote; fresh exact-tree and full-history configured Gitleaks 8.30.1 scans exit **0 / zero findings**. Four exceptions require path AND exact value within the relevant rule. Negative controls still detect different fake credentials in those paths and the allowed value elsewhere. Default-only historical findings remain disclosed. Snapshot is PRIVATE; no public access or Actions enabled.
+- Prepared `docs/evaluation/v4-launch-checklist.md`. Feature freeze Oct 2 12:00 COT / 17:00 UTC plus separate final GO required; v4 remains unstarted.
+
+### Done but not verified
+
+- Remote CI and new Azure acceptance are pending. Existing acceptance remains d23fa5a; this feature branch is not yet deployed.
+
+- README-only clean-clone reproduction of the private snapshot is queued **after** the release, under the owner's new request; not yet performed.
+
+### Next / blocked
+
+- Take #79's final copy/data head, complete review and local suites, publish one main-target integration PR and run remote CI once; merge/release after green under standing approval. No replica/access/resource changes.
+- Report release readiness for frontend rehearsal. Then fresh clone snapshot, follow only README, record time and undocumented failures, fix portable fixture/mock setup and rescan/push while private.
+- No model comparison started by the lead, no v4 access/start, no replay of the closed latency purse. Warm/judge/publication remain separate submission-day approvals.
+
 ## 2026-09-30 PDT — Release accepted; shared pre-v4 scope and private snapshot
 
 ### Completed (verified)
@@ -2094,3 +2118,122 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
   or Sebastian's explicit exception. Any later release follows its own gate.
 - No paid calls, min replicas change, or new approval needed for the completed
   preview. No v4 start. Continue from this log under the same rules.
+
+## 2026-09-30 PDT — AI offline human review and customer-text integrity
+
+### Completed (verified)
+
+- Built ignored, mode-0600 `artifacts/human-judge/v3-score.html` from the lead's
+  unchanged 20-item v3 CSV. Spanish instructions and rubric anchors, locale/text/
+  summary, independent radios, six handoff N/A items, notes, progress, localStorage
+  autosave and exact-column UTF-8 CSV export. Offline Chromium verified 20/20
+  progress and 74/74 applicable test ratings, reload persistence, unchanged source
+  wording and quoted multiline notes; zero network requests/browser errors. Test
+  ratings are private fixtures, not Sebastian's ratings. HTML contains blank source
+  ratings and no judge scores; generated data remains ignored under a private dir.
+- Added `aclara.llm.human_review`: reproducible offline generator and strict import
+  of all applicable human ratings. Checks twenty IDs, exact columns, unchanged
+  source wording/locale and saved judge inputs; intersects successful saved scores
+  with the human sheet. Exact/within-one/quadratic-kappa metrics by dimension and
+  ES/PT slice; absent scores/N/A excluded and undefined kappa explicit. Saved v3
+  judging covers 28/60, but only 10/20 sheet items (eight summary pairs); no human
+  agreement claim. Pending report: `docs/evaluation/judge-human-validation.md`.
+- Confirmed item 1's text equals the saved v3 reply; that release used phrase v1,
+  not v2. Current contextual evidence identifies its PT language. Authored tests
+  reproduced 14 integrity failures before the fix. Grounding/DLP now forbids
+  numeric txn/prod/card/cust handles even when cited, plus replacement characters,
+  common mojibake, narrow apostrophe/hash corruption and control characters;
+  valid ES/PT accents and verified case references remain allowed. Zero-cost
+  saved-output replay rejects both defects and returns a clean Spanish template;
+  independent opposite-language tests pass in both directions. No row text copied
+  into Git and no original evaluation output changed.
+- Local suite: 459 passed, 17 database-dependent skips. Excluded the v4-specific
+  test module and enforced actual-v4 file and external-network barriers. Restricted
+  TestClient execution stalled; stopped that local process and completed the same
+  checks with sandbox escalation. Focused AI/judge/API tests 92/92, B1 dev 32/32,
+  strict mypy (86 files), Ruff and frozen interface/catalog checks passed. Remote
+  workflow now targets main only; no hosted CI run requested for this stacked PR.
+
+### Done but not verified
+
+- Sebastian's scored CSV is pending; provisional Downloads path is not confirmed.
+  Human–Sonnet/Jev results remain unmeasured. The ten existing model pairs are
+  descriptive only and cannot satisfy the rubric's 50-item calibration requirement.
+- Integrity fixes are local/mock verified; no deployment or paid verification.
+  Conservative language/corruption detection cannot guarantee all text quality.
+
+### Next / blocked
+
+- Private [PR #77](https://github.com/sebastian-gm/bank-agent-lab/pull/77) is OPEN
+  and mergeable into `fix/post-v3-analysis`, head `a1077f2` read back. Main-only CI
+  triggered no remote run; lead reviews and merges. No merge performed.
+- Import the confirmed human export and update the agreement report without new
+  judge calls. Keep wording/notes/ratings under ignored artifacts.
+- Resume round-two authoring/freeze after this priority fix. Its builder draft is
+  preserved in ignored `artifacts/dev-pre-v4/`; no 60-case freeze or run is claimed.
+  Paid `dev-gate/pre-v4` exact scope/run confirmation is still pending: no spend,
+  no v5.2 adoption, and no v4 access. The lead owns creation/readback of the scope.
+## 2026-09-30 PDT — AI round-two development freeze, paid gate pending
+
+### Completed (verified)
+
+- Priority work is in private, unmerged PR #77, pushed head
+  `1fc7f5a14643db7cb6432f1f4078b13d8ed871b8`; PR state/target/head read back.
+  Its offline HTML remains at the exact AI-worktree path already sent to the
+  orchestrator. Original human CSV/outputs remain private and unchanged; export
+  path confirmation and human agreement are pending. No paid calls/remote CI.
+- Authored and froze `src/aclara/llm/dev_robustness_round2_60.yaml` with its new
+  builder and immutable hash manifest before any round-two P/B1 execution or
+  robustness repair. Sixty project-generated conversations: 30 ES (ten each
+  CO/AR/CL) / 30 PT, ten story families x six correlated variants. Forty-two
+  three-message and eighteen four-message prefixes, plus independent confirmation
+  when filing within a five-turn limit. Gold: 36 filings, 18 explanations, six
+  cancellations. No v4 or organizer row input and no output-derived labels.
+- Coverage includes corrections, unrelated charges, existing-case plus new-charge
+  requests, vague-to-specific, frustration without distress cues, code-switching,
+  slang, amounts in words, relative dates, currency twins, polite refusal,
+  recognition changes, typos and copied injection. Explicit authored FX/merchants;
+  es-CL remains utterance metadata under MX bank rules. Existing 40/confirmation
+  fixtures and interfaces are unchanged. Structural schema, synthetic binding,
+  gold-reference, FX-consistency and manifest checks pass; nine relevant unit
+  checks, Ruff and strict mypy pass. No product execution before freeze.
+- Preregistered `docs/ml/nlu-robustness-round2.md`: all-attempt accounting, owner
+  diagnosis, 240-case five-set v5.1/v5.2 comparison, unchanged-or-better per-set
+  outcomes and lower p50/p95 adoption gate. Prior dev per-call cost implies the
+  198 new scripted messages alone may cost about $0.38 NLU before other calls;
+  complete fresh comparisons may exceed the allowance. No adoption on partial
+  evidence; keep the shared cap and report incomplete coverage honestly.
+
+
+- Freeze commit `eaef1166ae4f90934332201b437bd14f3f22a79a` read back clean before
+  any product run; manifest/case/builder/materialized hashes still match afterward.
+- Ran all 60 once through the real in-memory P state machine with mock NLU and
+  network/v4 barriers: 19 passed (ES 9/30, PT 10/30), zero unsafe findings,
+  zero execution errors, 13 filed / six explained / 41 escalated, $0 and no
+  provider calls. This is mock fallback evidence, not Gemini accuracy. Private
+  per-case records remain ignored. Corrected an initial harness map-truthiness
+  aggregation error from those saved records without rerunning or altering cases;
+  a regression protects actual unsafe-flag counting. Frozen gold remains unchanged.
+- Added a mock-only CLI that rejects real-provider configuration/approval before
+  reading cases and refuses to overwrite evidence. Twelve relevant unit checks,
+  strict mypy (87 files), Ruff and freeze validation pass. Real measurement,
+  NLU/NLG repairs and v5.2 remain pending the paid-scope confirmation/baseline.
+
+### Done but not verified
+
+- Real before/after numbers remain pending; the 19/60 mock pass is not a Gemini
+  measurement and does not authorize changes to frozen gold.
+- v5.2 is neither authored nor adopted. PR #77 is not assumed merged or deployed;
+  record the actual baseline integration SHA before a later paid run.
+
+### Next / blocked
+
+- Private [PR #80](https://github.com/sebastian-gm/bank-agent-lab/pull/80) is OPEN
+  and mergeable into `fix/post-v3-analysis`, code head `36ba3e7` read back; no
+  remote CI run under the main-only trigger. Lead reviews/merges. Freeze and mock
+  readbacks are complete; no merge performed.
+- Wait for the orchestrator's exact read-back `dev-gate/pre-v4` scope/run before
+  every paid call. Shared lifetime cap $1, stop exposure at $0.90. No final scope,
+  paid call, default change or v4 access is authorized by these preparatory checks.
+- Import the confirmed human CSV via the #77 branch and update its agreement doc
+  without new judges. Current provisional Downloads path has not been confirmed.

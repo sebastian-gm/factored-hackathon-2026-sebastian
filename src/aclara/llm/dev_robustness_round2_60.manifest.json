@@ -1,0 +1,60 @@
+{
+  "cases_sha256": "8542b862d8af2439bfcf76968bbc52f7bce706aaf3977f5d0aff8cf336cd0904",
+  "builder_sha256": "d3eff962de5f557bc9fef001e000f030c7feb67b56911811b56e7e72b089a9da",
+  "base_builder_sha256": "77a85a90d50e923bcb62d944c057c105a6457e470ac0ef3475f8e909833052ad",
+  "materialized_sha256": "d90ddb883f5271569a343b42216206af2fb63fafeda1e10faf8010d35a70039d",
+  "n": 60,
+  "locales": {
+    "es-CO": 10,
+    "es-AR": 10,
+    "es-CL": 10,
+    "pt-BR": 30
+  },
+  "families": {
+    "detail-correction": 6,
+    "two-charges": 6,
+    "case-and-charge": 6,
+    "vague-specific": 6,
+    "emotion": 6,
+    "code-switch": 6,
+    "slang-words": 6,
+    "currency-change": 6,
+    "polite-refusal": 6,
+    "recognition": 6
+  },
+  "features": {
+    "multi_turn": 60,
+    "detail_correction": 12,
+    "merchant_twins": 12,
+    "amount_words": 18,
+    "relative_dates": 12,
+    "two_unrelated_charges": 6,
+    "charge_plus_case_status": 6,
+    "vague_then_specific": 12,
+    "typos": 6,
+    "emotion_without_distress": 6,
+    "embedded_injection": 6,
+    "code_switching": 6,
+    "recognition_after_offer": 12,
+    "regional_slang": 6,
+    "currency_confusion": 6,
+    "polite_offer_refusal": 6
+  },
+  "outcomes": {
+    "dispute_filed": 36,
+    "resolved_by_explanation": 18,
+    "cancelled": 6
+  },
+  "scripted_messages": {
+    "4": 18,
+    "3": 42
+  },
+  "suite_id": "nlu-robustness-round2-60",
+  "frozen_at_utc": "2026-09-30T18:34:09.805947+00:00",
+  "baseline_git_sha": "d2a9d1c8db6d0f50428d003b22f9b936bdf5db93",
+  "status": "frozen_before_any_round2_product_execution_or_fix",
+  "authorship": "Project-generated fixtures only; independent ADR-0015/contract gold, no source records or v4 access",
+  "correlation": "10 story families x 6 linguistic variants; do not claim 60 independent observations",
+  "paid_scope_pending": "dev-gate/pre-v4; exact scope/run confirmation required; stop shared charged exposure at USD 0.90",
+  "product_executions_before_freeze": 0
+}

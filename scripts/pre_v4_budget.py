@@ -16,6 +16,9 @@ CUMULATIVE_CAP = Decimal("12.00")
 FUTURE_V4_MAX = Decimal("3.00")
 RELEASE_SMOKE_MAX = Decimal("0.10")
 LATENCY_SMOKE_MAX = Decimal("0.10")
+MODEL_COMPARE_SCOPE = "dev-gate/model-compare"
+MODEL_COMPARE_RUN_ID = "model-compare"
+MODEL_COMPARE_CAP = Decimal("1.50")
 PRIOR_SCOPES = (
     "final-evaluation",
     "dev-gate/option-a",
@@ -30,9 +33,10 @@ def check_exposure(prior: Decimal) -> None:
     if (
         not prior.is_finite()
         or prior < 0
-        or prior + CAP + FUTURE_V4_MAX + RELEASE_SMOKE_MAX + LATENCY_SMOKE_MAX > CUMULATIVE_CAP
+        or prior + CAP + MODEL_COMPARE_CAP + FUTURE_V4_MAX + RELEASE_SMOKE_MAX + LATENCY_SMOKE_MAX
+        > CUMULATIVE_CAP
     ):
-        raise RuntimeError("Prior exposure plus dev, v4 and both smoke caps exceeds approval")
+        raise RuntimeError("Prior exposure plus both dev caps, v4 and smoke caps exceeds approval")
 
 
 def receipt(connection: psycopg.Connection) -> dict:
@@ -52,6 +56,12 @@ def receipt(connection: psycopg.Connection) -> dict:
     ).fetchone()
     assert production is not None
     prior += production[0]  # Conservative: retain historical smokes/service charges too.
+    comparison = connection.execute(
+        "SELECT coalesce(sum(charged_usd),0) FROM llm.reservations WHERE scope=%s",
+        (MODEL_COMPARE_SCOPE,),
+    ).fetchone()
+    assert comparison is not None
+    prior += comparison[0]
     check_exposure(prior)
     if connection.execute(
         "SELECT daily_usd,disabled FROM llm.limits WHERE scope=%s", (SCOPE,)
@@ -79,12 +89,14 @@ def receipt(connection: psycopg.Connection) -> dict:
         "unknown_cost_attempts": row[3],
         "prior_charged_with_reserves_usd": float(prior),
         "historical_production_charged_with_reserves_usd": float(production[0]),
+        "model_compare_charged_with_reserves_usd": float(comparison[0]),
+        "model_compare_allowance_usd": float(MODEL_COMPARE_CAP),
         "cumulative_charged_with_reserves_usd": float(prior + row[2]),
         "future_v4_limit_usd": float(FUTURE_V4_MAX),
         "release_smoke_allowance_usd": float(RELEASE_SMOKE_MAX),
         "in_region_latency_smoke_allowance_usd": float(LATENCY_SMOKE_MAX),
         "maximum_cumulative_usd": float(
-            prior + CAP + FUTURE_V4_MAX + RELEASE_SMOKE_MAX + LATENCY_SMOKE_MAX
+            prior + CAP + MODEL_COMPARE_CAP + FUTURE_V4_MAX + RELEASE_SMOKE_MAX + LATENCY_SMOKE_MAX
         ),
         "future_v4_run_authorized": False,
     }
