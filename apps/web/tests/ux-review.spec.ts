@@ -219,9 +219,15 @@ for (const pt of [false, true]) {
     await expect(page.locator(".chat-panel")).toBeVisible();
     await expect(page.locator(".recording-helper")).toHaveCount(0);
     await page.goto("/?grabar=1");
+    // The locale select exists in server HTML. Restored chat proves the
+    // bootstrap completed and its change handler is attached after navigation.
+    await expect(page.locator(".chat-panel")).toBeVisible();
     await page
       .locator(".locale-select select")
       .selectOption(pt ? "pt-BR" : "es-MX");
+    await expect(page.locator(".locale-select select")).toHaveValue(
+      pt ? "pt-BR" : "es-MX",
+    );
     await expect(page.locator(".recording-helper")).toBeVisible();
     await page.locator(".recording-helper summary").click();
     // Opt-in does not grant the customer operations authority.
