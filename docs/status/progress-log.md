@@ -12,7 +12,7 @@
 
 ### Done but not verified
 
-- Combined Insights candidate local/remote gates and its new Azure release are pending. Existing Azure acceptance remains d23fa5a; no claim that this feature branch is deployed.
+- Final Insights head **312b46a29e92fcefd30704621d3a12b633cafcfb** is integrated; FCR is complaint-scoped and Azure latency explicitly partial (5/10). Final source check verifies 12 aggregate pins. Backend `make checks`: **488 passed / 21 database skips**, B1 **32/32**, interfaces/catalog/hooks green; disposable `.venv/bin/python -m scripts.test_postgres`: **24 passed**, including model-compare restart/cap/other-scope persistence. An initial DB run exposed an outdated arithmetic expectation (4.3→5.8); fixed and rerun successfully. Final web typecheck/lint/build passed; browser and remote gates/new Azure release remain pending. Existing acceptance remains d23fa5a, not this branch.
 - README-only clean-clone reproduction of the private snapshot is queued **after** the release, under the owner's new request; not yet performed.
 
 ### Next / blocked
