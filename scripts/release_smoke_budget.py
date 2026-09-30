@@ -9,7 +9,7 @@ import re
 from decimal import Decimal
 
 import psycopg
-from scripts.pre_v4_budget import PRIOR_SCOPES
+from scripts.pre_v4_budget import MODEL_COMPARE_CAP, MODEL_COMPARE_SCOPE, PRIOR_SCOPES
 from scripts.pre_v4_budget import SCOPE as DEV_SCOPE
 
 CAP = Decimal("0.10")
@@ -30,7 +30,7 @@ def verify(dsn: str, kind: str, sha: str, *, prepare: bool = False) -> dict:
             "SELECT daily_usd,disabled FROM llm.limits WHERE scope='production' FOR UPDATE"
         ).fetchone() != (Decimal("3"), False):
             raise RuntimeError("Ordinary production daily breaker changed or disabled")
-        scopes = (*PRIOR_SCOPES, DEV_SCOPE, "production")
+        scopes = (*PRIOR_SCOPES, DEV_SCOPE, MODEL_COMPARE_SCOPE, "production")
         row = connection.execute(
             "SELECT coalesce(sum(charged_usd),0) FROM llm.reservations WHERE scope=ANY(%s)",
             (list(scopes),),
@@ -38,7 +38,7 @@ def verify(dsn: str, kind: str, sha: str, *, prepare: bool = False) -> dict:
         assert row is not None
         # Full future allowances retained even when a smoke/dev purse has some
         # spend: conservative headroom, never a reset or a discount for unknowns.
-        maximum = row[0] + Decimal("1") + Decimal("3") + CAP * 2
+        maximum = row[0] + Decimal("1") + MODEL_COMPARE_CAP + Decimal("3") + CAP * 2
         if maximum > CEILING:
             raise RuntimeError(
                 "Cumulative exposure plus dev, v4 and both smoke caps exceeds approval"

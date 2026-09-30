@@ -42,7 +42,7 @@ def check_exposure(
 
 def prior_scopes(spec: ProgramSpec) -> tuple[str, ...]:
     return PRIOR_SCOPES + (
-        ("final-evaluation-v3", "dev-gate/post-v3", "dev-gate/pre-v4")
+        ("final-evaluation-v3", "dev-gate/post-v3", "dev-gate/pre-v4", "dev-gate/model-compare")
         if spec.suite == "test-v4"
         else ()
     )

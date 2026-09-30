@@ -48,6 +48,14 @@ is not claimed as the evaluated or deployed revision. Its own
 
 ## Remaining
 
+Follow-up snapshot commit **5cc68a8** adds the four individually scoped scanner
+exceptions and their documentation. Configured Gitleaks 8.30.1 directory and
+full-history scans exit 0 with zero findings. Authored negative controls detect
+two different credentials in the same paths, plus the same allowed value in a
+different path. The default-only results above remain the original measurements;
+no broad exclusion, data or secret was added. A fresh clean-clone README-only
+reproduction is queued after the Insights release and is not yet verified.
+
 Full frozen-suite reproduction and export-SHA deployment are unverified, because
 private evaluation releases are deliberately withheld. No public endpoint or
 visibility was enabled. Refresh and re-audit the snapshot after final feature
