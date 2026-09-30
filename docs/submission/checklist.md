@@ -53,6 +53,14 @@ storage outside Git. The judge-facing content is in [slides](slides.md) and the
 
 ## Prepare judge access and rehearse the deployed product
 
+- [ ] Review [prepared OFF switches and plan/cost](infrastructure-switches.md).
+  `enable_submission_warm=false`, `min_replicas=0`,
+  `enable_judge_access=false` remain the defaults. Public web login uses separate
+  Key Vault judge credentials; API stays internal. Sebastian approves source
+  persona/role, dates, live plan, monthly cost and the **$3/day** model exposure
+  before any enablement. A 14-day window can reach $47.43 infra before grants/tax
+  and $42 models; do not treat a daily cap as a lifetime cap.
+
 - [ ] Keep web/API **min replicas = 0 while testing**, per Sebastian. Schedule
   **min replicas = 1 only from share/submission day**, about October 3–4, and
   record the approved enable/disable dates (tool availability is required through

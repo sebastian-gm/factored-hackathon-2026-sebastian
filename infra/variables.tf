@@ -60,6 +60,32 @@ variable "enable_real_llm" {
   description = "Owner-approved production OpenRouter route; local default remains mock."
 }
 
+variable "enable_submission_warm" {
+  type        = bool
+  default     = false
+  description = "OFF while testing. Enable only with Sebastian's submission-day cost/plan approval."
+}
+
+variable "min_replicas" {
+  type        = number
+  default     = 0
+  description = "Both existing apps: 0 while testing, 1 only for the approved sharing window."
+  validation {
+    condition     = contains([0, 1], var.min_replicas) && (var.min_replicas == 0 || var.enable_submission_warm)
+    error_message = "Only 0/1 replicas; 1 requires the separately approved submission warm switch."
+  }
+}
+
+variable "enable_judge_access" {
+  type        = bool
+  default     = false
+  description = "OFF by default. Public HTTPS web with login and a separate KV judge account; API stays internal. Requires Sebastian approval."
+  validation {
+    condition     = !var.enable_judge_access || (var.deploy_apps && var.llm_budget_run_id == "")
+    error_message = "Judge mode requires deployed apps and normal durable USD 3/day accounting, never a smoke run."
+  }
+}
+
 variable "llm_budget_run_id" {
   type        = string
   default     = ""
