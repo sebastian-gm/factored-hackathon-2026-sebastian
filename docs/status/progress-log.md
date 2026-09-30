@@ -19,7 +19,7 @@
 
 ### Next / blocked
 
-- Open one documentation PR against `fix/post-v3-analysis`, leave it unmerged for the lead, and read back its current-head CI. Preserve v4 blindness and zero model spend. Once the owner confirms the GitHub billing block is resolved, rerun blocked current-head workflows once; do not rerun needlessly or merge without green CI.
+- The documentation candidate targets `fix/post-v3-analysis` and remains for lead review/merge only after green remote CI. Preserve v4 blindness and zero model spend. Once the owner confirms the GitHub billing block is resolved, rerun blocked current-head workflows once; do not rerun needlessly or merge without green CI.
 
 ## AI lane — 2026-09-29 (queued PR #62 review findings 1 and 3)
 
