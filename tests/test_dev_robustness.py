@@ -7,7 +7,13 @@ from uuid import uuid4
 
 import pytest
 
-from aclara.llm.dev_robustness import DevBudgetStop, ThresholdGate, check_reserve, money
+from aclara.llm.dev_robustness import (
+    DevBudgetStop,
+    ThresholdGate,
+    canonical_freeze,
+    check_reserve,
+    money,
+)
 from aclara.llm.dev_robustness_cases import validate
 
 
@@ -88,3 +94,10 @@ def test_pre_v4_reservations_use_only_approved_scope_and_run() -> None:
     assert connection.params[4] == ("dev-gate/pre-v4", "pre-v4", Decimal("0.01"))
     gate.settle(reservation, None)
     assert connection.params[-1][1] is None  # unknown usage keeps the durable reserve
+
+
+def test_json_saved_freeze_histogram_remains_equal_without_editing_fixture_bytes() -> None:
+    report = {"cases_sha256": "unchanged", "scripted_messages": {3: 42, 4: 18}}
+    saved = {"cases_sha256": "unchanged", "scripted_messages": {"3": 42, "4": 18}}
+    assert canonical_freeze(report) == saved
+    assert canonical_freeze(saved) == saved

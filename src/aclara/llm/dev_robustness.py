@@ -114,6 +114,12 @@ def save(path: Path, value: Any) -> None:
     pending.replace(path)
 
 
+def canonical_freeze(report: dict[str, Any]) -> dict[str, Any]:
+    """Compare saved JSON fairly: message-count histogram keys become strings."""
+    result: dict[str, Any] = json.loads(json.dumps(report, sort_keys=True))
+    return result
+
+
 def summarize(
     items: list[dict[str, Any]], calls: list[dict[str, Any]], *, planned: int = 40
 ) -> dict[str, Any]:
@@ -164,7 +170,7 @@ def summarize(
 async def run(stage: str, *, round_two: bool = False) -> dict[str, Any]:
     factory = import_module("aclara.llm.dev_robustness_round2_cases") if round_two else None
     validator = factory.validate if factory else validate
-    frozen = validator()
+    frozen = canonical_freeze(validator())
     scope, run_id = ("dev-gate/pre-v4", "pre-v4") if round_two else (SCOPE, RUN_ID)
     output_root = ROOT / "artifacts/dev-pre-v4/round2-real" if round_two else OUTPUT
     sha = subprocess.check_output(["git", "-C", str(ROOT), "rev-parse", "HEAD"], text=True).strip()
@@ -282,7 +288,7 @@ async def run(stage: str, *, round_two: bool = False) -> dict[str, Any]:
         "budget_readback": verify(dsn),
     }
     save(output / "summary.json", result)
-    if validator() != frozen:
+    if canonical_freeze(validator()) != frozen:
         raise RuntimeError("Frozen fixtures changed during execution")
     return result
 
