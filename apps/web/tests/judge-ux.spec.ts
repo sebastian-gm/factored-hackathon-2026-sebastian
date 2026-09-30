@@ -573,6 +573,9 @@ test("unbound live stories stay disabled and failed preparation does not claim a
     });
   });
   await page.goto("/");
+  // Wait for the mocked config to render all shortcuts before removing its
+  // route. Locator.all() can return an empty array while bootstrap is pending.
+  await expect(page.locator(".story-picker button")).toHaveCount(3);
   for (const button of await page.locator(".story-picker button").all())
     await expect(button).toBeDisabled();
   await page.unroute("**/api/bff/config");

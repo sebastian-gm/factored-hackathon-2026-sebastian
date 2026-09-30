@@ -501,8 +501,18 @@ async function handle(
     return reply;
   }
 }
-export const GET = (
+export const GET = async (
   request: NextRequest,
   context: { params: Promise<{ path: string[] }> },
-) => handle(request, context.params);
+) => {
+  // Measure processing inside the Azure BFF, including upstream/read-back time.
+  // No credentials, facts or identifiers enter this duration-only header.
+  const started = performance.now();
+  const reply = await handle(request, context.params);
+  reply.headers.set(
+    "Server-Timing",
+    `aclara_bff;dur=${(performance.now() - started).toFixed(2)}`,
+  );
+  return reply;
+};
 export const POST = GET;

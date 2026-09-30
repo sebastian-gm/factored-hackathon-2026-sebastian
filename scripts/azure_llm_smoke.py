@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import fcntl
 import json
+import os
 import secrets
 from contextlib import contextmanager
 from datetime import UTC, datetime
@@ -25,7 +26,7 @@ from aclara.policy.engine import evaluate
 from aclara.settings import Settings
 
 WEB = "https://ca-web-aclara-dev-eastus2.lemonbeach-1b769de0.eastus2.azurecontainerapps.io"
-SMOKE_RUN = "after-v2-release-smoke"
+SMOKE_RUN = os.getenv("AZURE_RELEASE_SMOKE_RUN_ID", "after-v2-release-smoke")
 CHECKPOINT = ROOT / f"artifacts/azure/{SMOKE_RUN}-conversations.json"
 
 

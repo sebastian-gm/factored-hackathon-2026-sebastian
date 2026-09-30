@@ -1,6 +1,22 @@
 import { test, expect } from "@playwright/test";
 import { upstreamFetch } from "../src/lib/server/upstream-fetch";
 
+test("BFF timing reports duration on reads and refusals without altering authority", async ({
+  request,
+}) => {
+  const config = await request.get("/api/bff/config");
+  expect(config.status()).toBe(200);
+  expect(config.headers()["server-timing"]).toMatch(/^aclara_bff;dur=\d+\.\d{2}$/);
+  expect(config.headers()["cache-control"]).toBe("no-store, private");
+  const refused = await request.post("/api/bff/chat/sessions", {
+    headers: { Origin: "https://authored-other.invalid" },
+    data: {},
+  });
+  expect(refused.status()).toBe(403);
+  expect(await refused.json()).toEqual({ error: "origin_rejected" });
+  expect(refused.headers()["server-timing"]).toMatch(/^aclara_bff;dur=\d+\.\d{2}$/);
+});
+
 for (const path of ["me", "clock", "transactions", "config", "personas"]) {
   test(`startup GET ${path} has a cold-start timeout and one retry`, async () => {
     const originalFetch = globalThis.fetch;
