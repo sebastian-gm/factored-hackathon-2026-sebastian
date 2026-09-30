@@ -46,7 +46,7 @@ export function TransactionCard({
         >
           {statuses[transaction.status]
             ? t(statuses[transaction.status])
-            : transaction.status}
+            : t("statusUnknown")}
         </span>
       </div>
       {onChoose && (

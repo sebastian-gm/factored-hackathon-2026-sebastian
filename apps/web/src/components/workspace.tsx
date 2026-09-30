@@ -4,14 +4,12 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { NextIntlClientProvider, useTranslations } from "next-intl";
 import {
   ArrowUpRight,
-  CheckCheck,
   CircleHelp,
   Headphones,
   LayoutDashboard,
   LogOut,
   MessageCircle,
   ShieldCheck,
-  Sparkles,
 } from "lucide-react";
 import type { Config, Locale, Session, Surface } from "@/lib/contracts";
 import { api, ApiError } from "@/lib/client";
@@ -24,6 +22,7 @@ import { AgentDesk } from "./agent-desk";
 import { RecordingHelper } from "./recording-helper";
 import { storyPersona, storyDraft, type DemoStory } from "@/lib/demo-stories";
 import { Ops } from "./ops";
+import { JudgeQuickstart } from "./judge-quickstart";
 
 type AppContext = {
   locale: Locale;
@@ -108,6 +107,7 @@ function Shell({ ready, failed }: { ready: boolean; failed: boolean }) {
   const [preferredPersona, setPreferredPersona] = useState("");
   const [story, setStory] = useState<DemoStory | null>(null);
   const [workspaceRevision, setWorkspaceRevision] = useState(0);
+  const [chatLocked, setChatLocked] = useState(false);
   async function openStory(next: DemoStory) {
     const persona = storyPersona(config, next);
     if (!persona) throw new Error("Persona unavailable");
@@ -156,7 +156,7 @@ function Shell({ ready, failed }: { ready: boolean; failed: boolean }) {
     }
   }
   return (
-    <div className="app-shell">
+    <div className={`app-shell surface-${surface}`}>
       <a href="#main-content" className="skip-link">
         {locale === "pt-BR" ? "Ir ao conteúdo" : "Ir al contenido"}
       </a>
@@ -199,7 +199,7 @@ function Shell({ ready, failed }: { ready: boolean; failed: boolean }) {
       <div className="workspace">
         <div className="synthetic-banner">
           <ShieldCheck size={13} />
-          <span>Synthetic data · Simulated bank · Not a real service</span>
+          <span>{t("demoNotice")}</span>
         </div>
         <header className="topbar">
           <div className="breadcrumb">
@@ -237,13 +237,21 @@ function Shell({ ready, failed }: { ready: boolean; failed: boolean }) {
         </header>
         <main id="main-content" className="main-content">
           <div className="environment-row">
-            <span className={`status-pill ${config.fixtures ? "amber" : ""}`}>
+            <span
+              className={`status-pill ${!ready || failed ? "neutral" : config.fixtures ? "amber" : ""}`}
+            >
               <span className="dot" />
-              {config.fixtures ? t("fixture") : t("live")}
+              {!ready
+                ? t("connecting")
+                : failed
+                  ? t("unavailable")
+                  : config.fixtures
+                    ? t("fixture")
+                    : t("live")}
             </span>
             <span className="clock">
               {!ready || failed
-                ? t("starting")
+                ? t(failed ? "unavailable" : "starting")
                 : config.bankClock
                   ? `${t("simulated")} · ${date(config.bankClock, locale)}`
                   : t("noClock")}
@@ -252,22 +260,13 @@ function Shell({ ready, failed }: { ready: boolean; failed: boolean }) {
           {config.fixtures && (
             <p className="fixture-note">{t("fixtureNote")}</p>
           )}
-          {ready && !failed && (
-            <RecordingHelper
-              onStory={openStory}
-              onStaff={openStaff}
-              onLiveReset={async () => {
-                setWorkspaceRevision((n) => n + 1);
-              }}
-            />
-          )}
           <div className="page-heading">
             <p className="eyebrow">
               {surface === "chat"
-                ? "TU BANCO, MÁS CERCA / SEU BANCO, MAIS PERTO"
+                ? t("chatEyebrow")
                 : surface === "desk"
-                  ? "HUMAN IN THE LOOP"
-                  : "OPERATIONS & EVIDENCE"}
+                  ? t("deskEyebrow")
+                  : t("opsEyebrow")}
             </p>
             <h1>
               {t(
@@ -293,12 +292,19 @@ function Shell({ ready, failed }: { ready: boolean; failed: boolean }) {
               {t("error")}
             </p>
           )}
+          {ready && !failed && surface === "chat" && (
+            <JudgeQuickstart
+              onStory={openStory}
+              selected={story}
+              locked={chatLocked}
+            />
+          )}
           {!ready ? (
             <div className="panel loading" role="status">
               {t("starting")}
             </div>
           ) : failed ? (
-            <div className="panel empty">
+            <div className="panel empty" role="alert">
               <CircleHelp />
               <h2>{t("startupUnavailable")}</h2>
               <Button onClick={() => location.reload()}>{t("retry")}</Button>
@@ -323,12 +329,12 @@ function Shell({ ready, failed }: { ready: boolean; failed: boolean }) {
                   />
                 )}
               </section>
-              <Journey />
             </div>
           ) : surface === "chat" ? (
             <div className="customer-grid">
               <CustomerChat
                 key={`${session.username}:${workspaceRevision}`}
+                onPendingChange={setChatLocked}
                 initialDraft={
                   story &&
                   session.username === storyPersona(config, story)?.username
@@ -336,54 +342,29 @@ function Shell({ ready, failed }: { ready: boolean; failed: boolean }) {
                     : ""
                 }
               />
-              <Journey />
             </div>
           ) : surface === "desk" ? (
             <AgentDesk key={workspaceRevision} />
           ) : (
             <Ops key={workspaceRevision} />
           )}
+          {ready && !failed && (
+            <RecordingHelper
+              onStory={openStory}
+              onStaff={openStaff}
+              onLiveReset={async () => {
+                setWorkspaceRevision((n) => n + 1);
+              }}
+            />
+          )}
           <footer className="page-footer">
             <span>
-              <ShieldCheck size={14} />{" "}
-              {session ? t("secure") : "Password + OTP"}
+              <ShieldCheck size={14} /> {t("accessNotice")}
             </span>
-            <span>Understand → Decide → Act → Verify → Escalate</span>
+            <span>{t("allStages")}</span>
           </footer>
         </main>
       </div>
     </div>
-  );
-}
-export function Journey() {
-  const t = useTranslations();
-  return (
-    <aside className="journey">
-      <div className="journey-card">
-        <span className="eyebrow">ACLARA, CONTIGO / COM VOCÊ</span>
-        <h2>{t("journeyTitle")}</h2>
-        <p>{t("journeyBody")}</p>
-        <ol>
-          {["step1", "step2", "step3", "step4"].map((step, i) => (
-            <li key={step}>
-              <span>{i === 3 ? <CheckCheck size={17} /> : `0${i + 1}`}</span>
-              {t(step)}
-            </li>
-          ))}
-        </ol>
-        <div className="orbit-art" aria-hidden="true">
-          <div />
-          <div />
-          <span>
-            <Sparkles size={25} />
-          </span>
-        </div>
-      </div>
-      <div className="human-note">
-        <Headphones size={23} />
-        <h3>{t("helpTitle")}</h3>
-        <p>{t("helpBody")}</p>
-      </div>
-    </aside>
   );
 }

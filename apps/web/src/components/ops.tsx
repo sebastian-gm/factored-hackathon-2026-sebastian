@@ -8,6 +8,7 @@ import {
   Database,
   RefreshCcw,
   ShieldCheck,
+  CircleAlert,
 } from "lucide-react";
 import { CallDetails } from "./call-details";
 import { callTotals, usd } from "@/lib/trace";
@@ -29,6 +30,7 @@ export function Ops() {
   const [reset, setReset] = useState(false),
     [busy, setBusy] = useState(false),
     [done, setDone] = useState(false);
+  const [loadFailed, setLoadFailed] = useState(false);
   const load = useCallback(
     async (signal?: AbortSignal): Promise<OpsSnapshot> => {
       if (config.fixtures)
@@ -65,10 +67,22 @@ export function Ops() {
     load(ctrl.signal)
       .then(setData)
       .catch(() => {
-        if (!ctrl.signal.aborted) setFailed(true);
+        if (!ctrl.signal.aborted) setLoadFailed(true);
       });
     return () => ctrl.abort();
   }, [load]);
+  async function retryLoad() {
+    if (busy) return;
+    setBusy(true);
+    setLoadFailed(false);
+    try {
+      setData(await load());
+    } catch {
+      setLoadFailed(true);
+    } finally {
+      setBusy(false);
+    }
+  }
   async function resetSpace() {
     if (busy) return;
     setBusy(true);
@@ -109,7 +123,19 @@ export function Ops() {
           </Button>
         </p>
       )}
-      {!data ? (
+      {loadFailed ? (
+        <div className="panel empty load-failed" role="alert">
+          <CircleAlert size={30} />
+          <p>{t("opsLoadFailed")}</p>
+          <Button
+            variant="secondary"
+            disabled={busy}
+            onClick={() => void retryLoad()}
+          >
+            {t("retry")}
+          </Button>
+        </div>
+      ) : !data ? (
         <div className="panel empty" role="status">
           {t("loading")}
         </div>
@@ -187,7 +213,7 @@ export function Ops() {
                   }
                 >
                   <span>0{i + 1}</span>
-                  {stage}
+                  {t(`stage_${stage.toLowerCase()}`)}
                 </li>
               ))}
             </ol>
@@ -273,7 +299,11 @@ export function Ops() {
               {data.quality.map((q) => (
                 <div className="quality-row" key={q.name}>
                   <span>
-                    <CheckCheck size={16} />
+                    {q.passed ? (
+                      <CheckCheck size={16} />
+                    ) : (
+                      <CircleAlert size={16} className="failed-icon" />
+                    )}
                     {t.has(q.name) ? t(q.name) : q.name} ·{" "}
                     {q.passed ? t("verified") : t("unverified")}
                   </span>
@@ -301,6 +331,14 @@ export function Ops() {
                   alt={t("lineageAlt")}
                   className="lineage-image"
                 />
+              </a>
+              <a
+                className="lineage-zoom"
+                href="/dbt-lineage.svg"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {t("lineageZoom")}
               </a>
               <p className="caption">{t("lineageAlt")}</p>
             </section>

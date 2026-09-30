@@ -2008,3 +2008,504 @@ h1 {
 .table-scroll td {
   white-space: nowrap;
 }
+
+/* Judge flow: readable actions, compact onboarding, and truthful state cues. */
+.main-content {
+  padding: 18px 28px;
+}
+.page-heading {
+  margin-bottom: 16px;
+}
+.page-heading h1 {
+  font-size: clamp(27px, 3vw, 35px);
+}
+.surface-chat .page-heading > p,
+.surface-chat .fixture-note {
+  display: none;
+}
+.eyebrow,
+.clock,
+.synthetic-banner,
+.badge {
+  font-size: 12px;
+}
+.status-pill.neutral {
+  background: #eef0f2;
+  color: #46515e;
+}
+.status-pill.neutral .dot {
+  background: #74818c;
+}
+.customer-grid {
+  grid-template-columns: minmax(0, 1fr);
+  max-width: 1040px;
+  margin-inline: auto;
+}
+.login-panel {
+  max-width: 540px;
+  width: 100%;
+  margin-inline: auto;
+  padding: 24px;
+  min-height: 0;
+}
+.login-panel .hero-icon {
+  display: none;
+}
+.login-panel h2 {
+  font-size: 24px;
+  margin-top: 0;
+}
+.login-panel p {
+  font-size: 14px;
+}
+.login-panel form {
+  gap: 12px;
+}
+.login-panel label {
+  font-size: 14px;
+}
+.button {
+  min-height: 44px;
+  font-size: 14px;
+}
+.button.small,
+.icon-button {
+  min-height: 44px;
+}
+.judge-quickstart {
+  max-width: 1040px;
+  margin: 0 auto 16px;
+  padding: 14px 16px;
+  border: 1px solid #c7ddd2;
+  border-radius: 14px;
+  background: #f3f9f6;
+}
+.judge-quickstart h2 {
+  font-size: 18px;
+  margin: 0 0 6px;
+}
+.judge-quickstart p {
+  font-size: 14px;
+  margin: 0 0 10px;
+  line-height: 1.5;
+}
+.story-picker {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.story-picker .button {
+  min-width: 0;
+  white-space: normal;
+  padding: 8px;
+  font-size: 14px;
+}
+.story-picker .button[aria-pressed="true"] {
+  border-color: #16764d;
+  background: #e2f1e9;
+}
+.story-language {
+  font-size: 11px;
+}
+.chat-header {
+  padding: 14px 18px;
+}
+.secure-pill,
+.speaker {
+  font-size: 12px;
+}
+.chat-stages {
+  padding: 10px 18px;
+  background: #f5f7f6;
+  border-bottom: 1px solid #dde5e1;
+}
+.chat-stages ol {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 5px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.chat-stages li {
+  font-size: 13px;
+  text-align: center;
+  padding: 5px 2px;
+  border-bottom: 2px solid transparent;
+}
+.chat-stages li[aria-current="step"] {
+  border-color: #16764d;
+  color: #12633f;
+  font-weight: 650;
+}
+.chat-stages p {
+  margin: 6px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #4b5c56;
+}
+.conversation-log {
+  min-height: 0;
+  max-height: min(38vh, 400px);
+  padding: 16px 18px;
+}
+.welcome-glyph,
+.chat-welcome h3 {
+  display: none;
+}
+.chat-welcome p {
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+.suggestions button {
+  min-height: 44px;
+  font-size: 14px;
+}
+.turn-stage {
+  font-size: 12px;
+  color: #52645b;
+  margin-bottom: 4px;
+}
+.composer {
+  padding: 12px 18px;
+}
+.composer textarea {
+  font-size: 16px;
+  min-height: 48px;
+}
+.privacy-hint,
+.transaction-bottom {
+  font-size: 12px;
+}
+.recognition-actions,
+.chooser {
+  padding: 14px 18px;
+  scroll-margin-top: 12px;
+}
+.recognition-actions h3,
+.chooser h3 {
+  font-size: 16px;
+}
+.recognition-actions p,
+.chooser > p {
+  font-size: 13px;
+  line-height: 1.5;
+}
+.recognition-actions .button {
+  min-height: 44px;
+}
+.proposal-bar {
+  flex-wrap: wrap;
+}
+.review-notice {
+  font-size: 14px;
+  padding: 12px 18px;
+  background: #eef7f1;
+  color: #24523c;
+}
+.recovery-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+.recovery-actions .button {
+  margin: 0;
+}
+.case-reference summary {
+  min-height: 32px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.case-reference strong {
+  overflow-wrap: anywhere;
+}
+.recording-helper {
+  margin-top: 20px;
+  padding: 12px 16px;
+}
+.recording-helper > summary {
+  min-height: 44px;
+  line-height: 44px;
+  font-size: 14px;
+}
+.recording-helper p {
+  font-size: 14px;
+}
+.load-failed {
+  background: #fff3ed;
+  padding: 16px;
+  color: #853e27;
+}
+.timeline-check.failed {
+  background: #fbe9e8;
+  color: #9c3431;
+}
+.failed-icon {
+  color: #9c3431;
+}
+.lineage-zoom {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: 14px;
+  text-decoration: underline;
+}
+.risk-scroll-hint {
+  display: none;
+}
+.risk-table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+.risk-table th:first-child,
+.risk-table td:first-child {
+  position: sticky;
+  left: 0;
+  min-width: 120px;
+  background: #fff;
+  z-index: 1;
+}
+.risk-table th:nth-child(2),
+.risk-table td:nth-child(2) {
+  position: sticky;
+  left: 120px;
+  min-width: 100px;
+  background: #fff;
+  z-index: 1;
+}
+@media (max-width: 680px) {
+  .main-content {
+    padding: 12px 14px;
+  }
+  .sidebar {
+    padding: 10px 14px;
+  }
+  .sidebar nav {
+    margin-top: 10px;
+  }
+  .sidebar nav button {
+    font-size: 12px;
+    padding: 10px 6px;
+    min-height: 44px;
+  }
+  .synthetic-banner {
+    font-size: 11px;
+  }
+  .topbar {
+    min-height: 52px;
+  }
+  .locale-select {
+    font-size: 13px;
+  }
+  .environment-row {
+    flex-wrap: wrap;
+  }
+  .clock,
+  .status-pill {
+    font-size: 11px;
+  }
+  .page-heading {
+    margin-bottom: 10px;
+  }
+  .page-heading h1 {
+    font-size: 27px;
+  }
+  .page-heading .eyebrow {
+    display: none;
+  }
+  .judge-quickstart {
+    padding: 10px 12px;
+    margin-bottom: 12px;
+  }
+  .judge-quickstart h2 {
+    font-size: 16px;
+  }
+  .judge-quickstart p {
+    font-size: 13px;
+  }
+  .story-picker {
+    gap: 5px;
+  }
+  .story-picker .button {
+    font-size: 13px;
+    flex-direction: column;
+    min-height: 54px;
+    gap: 4px;
+  }
+  .login-panel {
+    padding: 18px;
+  }
+  .login-panel h2 {
+    font-size: 22px;
+  }
+  .sms-panel {
+    padding: 12px;
+  }
+  .sms-code {
+    font-size: 24px;
+  }
+  .chat-header {
+    padding: 10px 14px;
+  }
+  .chat-header .status-line {
+    display: none;
+  }
+  .chat-stages {
+    padding: 8px 10px;
+  }
+  .chat-stages li {
+    font-size: 12px;
+  }
+  .conversation-log {
+    max-height: 260px;
+    padding: 12px 14px;
+  }
+  .bubble {
+    font-size: 14px;
+  }
+  .suggestions button {
+    font-size: 13px;
+  }
+  .composer {
+    padding: 10px 14px;
+  }
+  .composer textarea {
+    min-height: 44px;
+  }
+  .chooser .transaction-card {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 4px 8px;
+  }
+  .chooser .transaction-top,
+  .chooser .transaction-bottom,
+  .chooser .transaction-card > .button {
+    grid-column: 1 / -1;
+  }
+  .chooser .transaction-money {
+    font-size: 20px;
+    margin: 2px 0;
+  }
+  .chooser .transaction-card > .button {
+    width: 100%;
+  }
+  .recognition-buttons {
+    flex-direction: column;
+  }
+  .recognition-actions .button {
+    width: 100%;
+  }
+  .packet-panel {
+    scroll-margin-top: 12px;
+  }
+  .packet-section,
+  .packet-heading {
+    padding: 18px;
+  }
+  .queue-item,
+  .packet-meta,
+  .timeline-event {
+    font-size: 14px;
+  }
+  .stage-strip {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .stage-strip li {
+    font-size: 13px;
+    padding: 10px;
+  }
+  .stage-strip li span {
+    font-size: 12px;
+  }
+  .risk-scroll-hint {
+    display: block;
+    font-size: 12px;
+    line-height: 1.5;
+    margin: 8px 0;
+  }
+  .risk-table {
+    font-size: 13px;
+  }
+  .page-footer {
+    font-size: 12px;
+  }
+}
+
+/* Keep small facts legible at phone size, including read-back details. */
+.chat-header > div > span,
+.secure-pill,
+.speaker,
+.composer small,
+.transaction-top p,
+.transaction-bottom,
+.transaction-top h3,
+.llm-metadata,
+.llm-metadata dt,
+.quality-row,
+.result-numbers span,
+.metric > span,
+.metric small,
+.metric .mono,
+.execution-list,
+.receipt small,
+.sidebar-version,
+.page-footer {
+  font-size: 12px;
+}
+.chat-welcome {
+  padding: 8px 0;
+}
+@media (max-width: 680px) {
+  .topbar {
+    height: 52px;
+  }
+  .synthetic-banner {
+    min-height: 28px;
+  }
+  .chat-header > div > span {
+    display: none;
+  }
+  .transaction-chooser .transaction-card > .button {
+    margin-top: 4px;
+  }
+  .chooser .transaction-bottom {
+    grid-column: 1 / -1;
+  }
+  .chooser .transaction-card > .button {
+    margin-top: 4px;
+  }
+}
+
+@media (max-width: 680px) {
+  .sidebar nav button {
+    flex: 1 1 0;
+    min-width: 0;
+    white-space: normal;
+    line-height: 1.3;
+  }
+  .sidebar nav button svg {
+    display: none;
+  }
+  .page-heading {
+    margin: 10px 0;
+  }
+  .login-panel > p {
+    margin-bottom: 12px;
+    line-height: 1.5;
+  }
+  .sms-panel {
+    margin-bottom: 0;
+    padding: 10px;
+  }
+  .login-panel .caption {
+    margin-bottom: 0;
+  }
+  .environment-row {
+    margin-bottom: 8px;
+  }
+}
+
+.dot.paused {
+  background: #74818c;
+}
