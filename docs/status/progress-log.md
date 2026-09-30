@@ -1902,3 +1902,50 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
   or Sebastian's explicit exception. Any later release follows its own gate.
 - No paid calls, min replicas change, or new approval needed for the completed
   preview. No v4 start. Continue from this log under the same rules.
+
+## 2026-09-30 PDT — AI round-two development freeze, paid gate pending
+
+### Completed (verified)
+
+- Priority work is in private, unmerged PR #77, pushed head
+  `1fc7f5a14643db7cb6432f1f4078b13d8ed871b8`; PR state/target/head read back.
+  Its offline HTML remains at the exact AI-worktree path already sent to the
+  orchestrator. Original human CSV/outputs remain private and unchanged; export
+  path confirmation and human agreement are pending. No paid calls/remote CI.
+- Authored and froze `src/aclara/llm/dev_robustness_round2_60.yaml` with its new
+  builder and immutable hash manifest before any round-two P/B1 execution or
+  robustness repair. Sixty project-generated conversations: 30 ES (ten each
+  CO/AR/CL) / 30 PT, ten story families x six correlated variants. Forty-two
+  three-message and eighteen four-message prefixes, plus independent confirmation
+  when filing within a five-turn limit. Gold: 36 filings, 18 explanations, six
+  cancellations. No v4 or organizer row input and no output-derived labels.
+- Coverage includes corrections, unrelated charges, existing-case plus new-charge
+  requests, vague-to-specific, frustration without distress cues, code-switching,
+  slang, amounts in words, relative dates, currency twins, polite refusal,
+  recognition changes, typos and copied injection. Explicit authored FX/merchants;
+  es-CL remains utterance metadata under MX bank rules. Existing 40/confirmation
+  fixtures and interfaces are unchanged. Structural schema, synthetic binding,
+  gold-reference, FX-consistency and manifest checks pass; nine relevant unit
+  checks, Ruff and strict mypy pass. No product execution before freeze.
+- Preregistered `docs/ml/nlu-robustness-round2.md`: all-attempt accounting, owner
+  diagnosis, 240-case five-set v5.1/v5.2 comparison, unchanged-or-better per-set
+  outcomes and lower p50/p95 adoption gate. Prior dev per-call cost implies the
+  198 new scripted messages alone may cost about $0.38 NLU before other calls;
+  complete fresh comparisons may exceed the allowance. No adoption on partial
+  evidence; keep the shared cap and report incomplete coverage honestly.
+
+### Done but not verified
+
+- Mock execution after this freeze and all real before/after numbers are pending.
+- v5.2 is neither authored nor adopted. PR #77 is not assumed merged or deployed;
+  record the actual baseline integration SHA before a later paid run.
+
+### Next / blocked
+
+- Commit/read back the freeze, then execute zero-cost mock checks and open the
+  fixture/protocol PR into `fix/post-v3-analysis`; lead reviews/merges.
+- Wait for the orchestrator's exact read-back `dev-gate/pre-v4` scope/run before
+  every paid call. Shared lifetime cap $1, stop exposure at $0.90. No final scope,
+  paid call, default change or v4 access is authorized by these preparatory checks.
+- Import the confirmed human CSV via the #77 branch and update its agreement doc
+  without new judges. Current provisional Downloads path has not been confirmed.
