@@ -1,60 +1,55 @@
-# Production readiness
+# Production Thinking
 
-**This is a private synthetic-data development service, not a real bank deployment.**
-The [frozen mock diagnostic](evaluation/heldout-run01.md) failed acceptance gates.
-A successful build, local restore or smoke test does not override those failures.
-The lead's verified release history is in the [progress log](status/progress-log.md);
-this document does not claim a new deployment or approve wider access.
+**A restricted synthetic-bank demo runs; a production bank service does not.**
+Official [v2](evaluation/final-v2-error-analysis.md) and
+[v3](evaluation/final-v3-results.md) failed full safety gates. This summarizes
+recorded evidence; no new cloud check or approval.
 
-## Release gates and accountable work
+## What runs today
 
-| Area | Implemented / verified evidence | Required before real use | Owner |
-| --- | --- | --- | --- |
-| Outcome safety | Deterministic rules, scoped proposals, explicit confirmation and committed read-back; [workflow tests](../tests/test_workflow_api.py). | Fix policy/NLU/handoff failures on independent development cases; freeze a new version and follow the evaluation protocol. Passing the original diagnostic is not claimed. | Lead + AI, independent evaluator |
-| Identity and staff | Password/simulated OTP, opaque expiring capabilities, revocation and fresh step-up; typed staff roles limited to the current workspace. | Real customer/staff IdP and independent MFA; task-scoped cross-customer grants, assignment authorization and access review. Simulated SMS is not a second factor. | Lead + identity/security owner |
-| Network | Owner-IP HTTPS ingress, app login, non-owner database role, required verified TLS and Key Vault secrets. | Private app ingress, VNet/Postgres private access, private Key Vault/registry/state endpoints, controlled egress and tested DNS/route changes. | Lead + platform owner |
-| Banking integration | Checksummed organizer serving ledger plus durable cases/cards/handoffs; eligible writes are synthetic. | Authorized core-bank adapters, reconciliation, failure semantics and independent policy/regulatory review per country. No refund/credit authority can be inferred from a demo case. | Bank owner + lead |
-| Data platform | Local contracts, incremental silver, tested complete gold promotion, checksummed serving load. | Approved cloud lake, scheduled ingestion, freshness SLOs, source-change alerts and ongoing serving authorization review. | Data/ML + platform |
-| Recovery | [Local logical restore](ops-recovery.md), session/case/trace read-back, forced RLS and audit checks. | Azure PITR, regional DR, realistic-volume RTO/RPO, key/identity recovery and monitored backup rehearsals. Local fixture timing is not a production recovery guarantee. | Platform + on-call |
-| Model governance | Gemini/Grok routing, Jev union, durable Postgres spend limits and private real-call settlement are verified. | Same-suite approved model comparison, account/route terms (including unverified Jev standard-account ZDR), independent language/judge review, incident rollback and provider-change monitoring. | AI + model-risk owner |
-| Language and fairness | Model-authored ES/PT workload, second-vendor PT cross-check, nine human es-CL OOD cases and aggregate language/segment slices. | Human dual labels, fluent PT/Spanish review, matched workload analysis and actionable disparity review. Country cannot stand in for language. | Evaluation + language reviewers |
-| Operations | Readiness, durable state, bounded pooling and local browser/DB checks; [cold-start diagnosis](azure-startup-diagnosis.md). | Sustained-load limits, deployment-specific latency and safe startup handling, alert thresholds, incident playbooks and staffed on-call. Retry idempotent health reads only; do not retry uncertain writes. | Lead + platform |
-| Audit and retention | Restricted append-only hash chain; private turns/execution content. | Independent signed audit anchors, explicit retention ownership, verified purge/legal holds and backup deletion policy. A privileged owner can rewrite an unanchored chain. | Security + data owner |
-| Frontend release | Merged PR #17 and the real-model release verify customer/staff APIs, read-backs and measured Ops. | Latest release verified the web-to-API hop and deployed browser flows; reverify the recording revision. Native copy review and additional browser engines remain pending. | Frontend + lead |
+- Azure Container Apps hosts web/BFF and internal API: restricted HTTPS ingress,
+  **min 0 / max 1** replicas. Managed identities pull private images; Key Vault
+  supplies secret-scoped API credentials.
+  [Deployment boundary](azure-private-dev-plan.md), [last preview verification](status/progress-log.md).
+- PostgreSQL uses a non-owner role, verified TLS and forced customer/run/session
+  RLS. Sessions, proposals, cases, cards and handoffs persist.
+  Code controls eligibility, confirmation, fresh step-up and idempotency;
+  **success requires committed read-back**. Audit privileges are append-only with
+  a hash chain, which has no independent external anchor.
+  [Architecture](architecture.md), [local recovery evidence](ops-recovery.md).
+- Gemini 3 Flash performs NLU/phrasing; Jev adds risk-cue union; Grok 4.20 is
+  failure-only fallback. Gemini's first attempt is limited to 6 seconds.
+  Durable reservations cover paid calls, retries, Jev and
+  fallback: **$3 per UTC day**, plus configured lifetime run caps. Unknown costs
+  retain reserves; budget/DB failure stops calls. Azure's approximately $50 monthly
+  budget **alerts, rather than caps**, spending. [Routes](../config/models.yaml),
+  [budget ADR](adr/0014-durable-model-budget.md).
 
-## Known development network limitation
+The preview verified warm reads, not paid-chat acceptance. Cold config failed after
+**50.560 s**. The locally tested startup fix is not recorded as deployed: bounded
+GET retries, no POST replay. [Diagnosis](evaluation/preview-startup-diagnosis.md).
 
-The approved PostgreSQL firewall enables **Allow public access from Azure services**
-plus the owner's IP. It permits network sources across Azure subscriptions; it is
-not app-only isolation. Strong separate app/admin credentials in Key Vault, a
-non-owner role, forced RLS and `verify-full` TLS reduce risk but do not remove that
-network limitation. Replace it with VNet integration and PostgreSQL private access
-before production. Do not broaden ingress to make a frontend smoke pass.
+## Work before real use
 
-The private release smoke verified the web-to-API hop and workspace-scoped Ops
-roles. Reset remains disabled. Local recording tests cannot enable cloud reset.
-Infrastructure budget alerts notify; model spend is separately capped through
-durable Postgres reservations, including retries, fallback and Jev calls. See the
-[budget ADR](adr/0014-durable-model-budget.md). Judge access still requires the
-owner's approved route and read-back; the repository remains private.
+**Planning assumptions, not quotes:** pilot engineer-days and incremental monthly
+USD allowances, excluding labor, tax, staffing and contracts. Overlapping tasks
+are not additive. The dated dev plan modeled **$34.63/month before models**;
+networking/HA/traffic need fresh pricing and approval.
+[Price assumptions](azure-private-dev-plan.md#live-east-us-2-price-check).
 
-## Other applications
+| Gap | Required work | Rough effort / cost assumption |
+| --- | --- | --- |
+| Private network | VNet/private DB, Key Vault/registry endpoints, DNS/egress. Today's Azure-services DB firewall admits other subscriptions; not app-only isolation. | 4–8 days; +$40–150/month |
+| Identity/MFA | Real customer/staff IdP, independent MFA, reviewed assignment grants and revocation. Simulated OTP is not a second factor. | 3–7 days; +$0–100/month, license-dependent |
+| Observability/SLOs | Redacted telemetry, failure/budget/queue alerts, on-call; establish availability, latency and freshness SLOs from measured load. | 2–5 days; +$10–50/month |
+| Scaling/recovery | Load-test beyond max 1, pool/backpressure limits, Azure PITR and RTO/RPO rehearsals; price HA/DR separately. | 3–7 days; +$20–100/month |
+| Cold starts | Verify fix; choose scale-to-zero versus approved warm replicas. Two-app compute: $11.83–39.42/month before grants/other charges; replaces existing compute. | 0.5–1 day; [dated estimate](submission/checklist.md#prepare-judge-access-and-rehearse-the-deployed-product) |
+| Data scheduling | Approved cloud lake, scheduled contracts/DQ/promotion, freshness/source-change alerts and serving authorization. | 2–4 days; +$5–25/month |
+| Human queue operations | Assignment grants, aging/routing alerts, staffed escalation/feedback; workspace roles are not staffing. | 3–5 days; +$0–30/month; staffing unpriced |
+| Bank/privacy/audit | Authorized bank adapters and country policy review; scoped purge/backups/legal holds, signed audit anchors and retention ownership. | 2–6 weeks; +$5–30/month audit storage; integration/security contracts unpriced |
 
-The same pattern can support fee disputes, card replacement and payment-status
-inquiries after separate scope and safety review. Each needs its own data contract,
-policy rules, exact action proposal, verification source and human escalation path.
-Fees remain human-only in this release. Card replacement would require address and
-fulfillment authorization absent here; payment status would require reconciled core
-ledger/rail evidence. Reuse the control pattern, not the current synthetic eligibility
-rules or outcome rates.
-
-## Latest release boundary
-
-The [release progress log](status/progress-log.md) records runtime `07bccdc630e2b5eeb2dc746a7c3fe000718fd22c`:
-Gemini default, Grok fallback, Jev risk support, matcher v2 and durable per-attempt
-budget reservations. The capped smoke used four conversations and fourteen calls,
-$0.00925008 total; this is not a capacity or final-acceptance result. Two demo Ops
-identities and two customer identities retain customer/run/session scope; reset
-remains disabled. Production needs federated individual credentials and reviewed
-cross-customer assignment grants. Handoff 12 lifted the merge freeze for Option A
-dev fixes. Re-release remains blocked on the dev gate and Sebastian's confirmation.
+Release requires independent safety acceptance, verified provider/account terms,
+real identity and recovery evidence, approved costs and green CI for promotion to
+`main`. **V4: TODO(results)**; no v4 case was opened here.
+[Privacy/fairness](responsible-ai.md), [retention gaps](security/privacy-and-retention.md),
+[release/access gates](submission/checklist.md).
