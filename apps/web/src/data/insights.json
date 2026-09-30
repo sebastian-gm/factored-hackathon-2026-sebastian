@@ -1,0 +1,273 @@
+{
+  "schema_version": 1,
+  "sources": [
+    {
+      "id": "demand",
+      "path": "docs/data/problem-analysis-aggregates.json",
+      "section": "contact_reasons[Queja]; complaint_mix[Cargo no reconocido]",
+      "sha256": "0e47a1658d378ac5e5b77e5a1b3841291f40b4d9f36101acb1b85cab6efc36ef",
+      "commit": "2ecb3dd8eb7442a76b03b898d73211def3ede8eb"
+    },
+    {
+      "id": "problem",
+      "path": "docs/problem-analysis.md",
+      "section": "Demand and outcomes; Interpretation of the measured results",
+      "sha256": "ef4a51f2128d31ae88474794d99b1fc601ec6af4fd500128eb9b1919e9ec0389",
+      "commit": "d52ba0e60d878002da4956a951be0ec62413d52f"
+    },
+    {
+      "id": "policy",
+      "path": "contracts/interfaces/conversation-policy-v3.md",
+      "section": "Conversation contract; Outcomes, actions and SAR; Handoff reasons",
+      "sha256": "11de8e0f898b74716d59e87104aaca7bead6433c0fcf655396df6e901b21fc93",
+      "commit": "ab07bfeba23824292bfd83a13e4934c6ff1ae349"
+    },
+    {
+      "id": "v2",
+      "path": "docs/evaluation/final-v2-error-analysis.md",
+      "section": "Official headline report; Full-suite paired SAR difference",
+      "sha256": "e6e62d76437d48da49e07353c5b255a3765cacc83110480979433013a1a4dfbd",
+      "commit": "791402214a2d8d5829c6c6e9e1208e80a2679945"
+    },
+    {
+      "id": "v3",
+      "path": "docs/evaluation/final-v3-results.md",
+      "section": "Primary results; Safety and readbacks; Repeats and judges; Latency and cost",
+      "sha256": "834c2634d8803cda3fd216d22cbba196474bc30acbb769fe25b6708edb5a40bf",
+      "commit": "2b9c355d061f17ed2c25fcffe06a9f816256a4fa"
+    },
+    {
+      "id": "matcher",
+      "path": "docs/ml/model-card-charge-matcher-v2.md",
+      "section": "Training and freeze; Reused synthetic test diagnostics; Human spot-check; Limits",
+      "sha256": "be8f2d36fb47a6083f78f8c94b6cd7b2047751e4fedbfe41b5be7af0c6726ed0",
+      "commit": "3c274cd0b74ab0028ad98b3384bbb933638773dc"
+    },
+    {
+      "id": "matcherMetrics",
+      "path": "models/charge_matcher/v2/metrics.json",
+      "section": "original_3000.v2.overall; human_like_6000.v2.overall",
+      "sha256": "1f6fb1f0039ae96563d2358849c200daa5e43ed17c892cf5a81e5ae2b4ae392d",
+      "commit": "3c274cd0b74ab0028ad98b3384bbb933638773dc"
+    },
+    {
+      "id": "tracking",
+      "path": "docs/ml/model-card-charge-matcher.md",
+      "section": "Reproduction and tracking (original v1 experiment)",
+      "sha256": "b97e1b23da6dcf980087e001b32481af987bc4143b0ecc408aa645e2c64d3dee",
+      "commit": "cfc02ffee4137c0b1a85e2562f8b37c01df8921d"
+    },
+    {
+      "id": "pipeline",
+      "path": "docs/data/pipeline-runbook.md",
+      "section": "Atomic consumer interface; Gold projections; Contracts and local tracking",
+      "sha256": "c71dc168f60bede7031aa5fbc3b1fd355a37668adc790b7047047d07f14e8a33",
+      "commit": "d52ba0e60d878002da4956a951be0ec62413d52f"
+    },
+    {
+      "id": "lineage",
+      "path": "docs/data/dbt-lineage.svg",
+      "section": "Committed dbt manifest lineage snapshot",
+      "sha256": "4ceeb12d69a10c8eeb8c25eab8234a7fcaf48a82ed4d6f274f7e494ba34f48d5",
+      "commit": "2ecb3dd8eb7442a76b03b898d73211def3ede8eb"
+    },
+    {
+      "id": "disclosure",
+      "path": "docs/status/progress-log.md",
+      "section": "First final attempt abandoned; results never viewed",
+      "sha256": "74b4cb8f5b2a5fbed9623853aab4242bf251339c05636ffaee07f3d90d677aed",
+      "commit": "00246eb083121d8234c7ef45a076c7fb78801145"
+    }
+  ],
+  "problem": {
+    "source": "demand",
+    "contact_volume": 117021,
+    "fcr_denominator": 117021,
+    "volume_share": 0.1705109748563302,
+    "handle_time_share": 0.23079389360433955,
+    "fcr": 0.43599866690593997,
+    "charge_complaints": 12297,
+    "sla_breach_share": 0.20387086281206798,
+    "mean_resolution_calendar_days": 15.357442348008385,
+    "resolution_days_n": 2862
+  },
+  "evaluations": {
+    "v1": {
+      "status": "abandoned",
+      "source": "disclosure"
+    },
+    "v2": {
+      "source": "v2",
+      "systems": {
+        "B1": {
+          "pass": {
+            "count": 65,
+            "denominator": 200
+          },
+          "sar": {
+            "count": 41,
+            "denominator": 193
+          },
+          "turn_seconds": [
+            0.988,
+            1.985
+          ],
+          "conversation_seconds": [
+            1.959,
+            3.935
+          ],
+          "model_cost_per_conversation_usd": 0
+        },
+        "P": {
+          "pass": {
+            "count": 63,
+            "denominator": 200
+          },
+          "sar": {
+            "count": 39,
+            "denominator": 193
+          },
+          "turn_seconds": [
+            3.351,
+            7.381
+          ],
+          "conversation_seconds": [
+            6.043,
+            11.009
+          ],
+          "model_cost_per_conversation_usd": 0.001958
+        }
+      },
+      "sar_difference_pp": {
+        "estimate": -1.04,
+        "ci95": [
+          -8.81,
+          6.74
+        ]
+      }
+    },
+    "v3": {
+      "source": "v3",
+      "systems": {
+        "B1": {
+          "pass": {
+            "count": 52,
+            "denominator": 100
+          },
+          "sar": {
+            "count": 28,
+            "denominator": 100
+          },
+          "turn_seconds": [
+            1.999,
+            4.038
+          ],
+          "conversation_seconds": [
+            3.023,
+            5.921
+          ],
+          "model_cost_per_conversation_usd": 0
+        },
+        "P": {
+          "pass": {
+            "count": 77,
+            "denominator": 100
+          },
+          "sar": {
+            "count": 39,
+            "denominator": 100
+          },
+          "turn_seconds": [
+            4.118,
+            7.878
+          ],
+          "conversation_seconds": [
+            7.432,
+            13.704
+          ],
+          "model_cost_per_conversation_usd": 0.00237687544
+        }
+      },
+      "sar_difference_pp": {
+        "estimate": 11,
+        "ci95": [
+          5,
+          17
+        ]
+      },
+      "unauthorized_actions": {
+        "B1": {
+          "count": 0,
+          "denominator": 96
+        },
+        "P": {
+          "count": 0,
+          "denominator": 100
+        },
+        "p_wilson_upper95_percent": 3.7
+      },
+      "repeats": {
+        "count": 0,
+        "denominator": 30,
+        "ci95_percent": [
+          0,
+          11.35
+        ]
+      },
+      "judging": {
+        "completed": 28,
+        "planned": 60
+      }
+    }
+  },
+  "matcher": {
+    "source": "matcher",
+    "metrics_source": "matcherMetrics",
+    "training_queries": 18000,
+    "validation_queries": 9000,
+    "workloads": [
+      {
+        "name": "original_3000",
+        "v1": {
+          "queries": 3000,
+          "targets": 2550,
+          "top1": 0.9474509803921569,
+          "recall3": 0.9984313725490196,
+          "wrong_proposals": 30,
+          "proposals": 1863,
+          "cost_per_query_units": 1.295
+        },
+        "v2": {
+          "queries": 3000,
+          "targets": 2550,
+          "top1": 0.9643137254901961,
+          "recall3": 0.9996078431372549,
+          "wrong_proposals": 13,
+          "proposals": 1819,
+          "cost_per_query_units": 0.8133333333333334
+        }
+      },
+      {
+        "name": "human_like_6000",
+        "v1": {
+          "queries": 6000,
+          "targets": 5100,
+          "top1": 0.6029411764705882,
+          "recall3": 0.76,
+          "wrong_proposals": 0,
+          "proposals": 0,
+          "cost_per_query_units": 4.924166666666666
+        },
+        "v2": {
+          "queries": 6000,
+          "targets": 5100,
+          "top1": 0.9766666666666667,
+          "recall3": 0.9998039215686274,
+          "wrong_proposals": 81,
+          "proposals": 4385,
+          "cost_per_query_units": 0.2941666666666667
+        }
+      }
+    ]
+  }
+}

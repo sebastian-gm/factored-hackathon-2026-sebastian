@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "./insights.css";
 
 export const metadata: Metadata = {
   title: "Aclara · Banco LATAM (demo)",

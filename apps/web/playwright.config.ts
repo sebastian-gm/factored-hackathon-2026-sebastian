@@ -14,6 +14,7 @@ export default defineConfig({
           "**/startup.spec.ts",
           "**/judge-ux.spec.ts",
           "**/ux-review.spec.ts",
+          "**/insights.spec.ts",
         ],
   fullyParallel: false,
   workers: 1,

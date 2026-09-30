@@ -578,6 +578,9 @@ test("unbound live stories stay disabled and failed preparation does not claim a
   await expect(page.locator(".story-picker button")).toHaveCount(3);
   for (const button of await page.locator(".story-picker button").all())
     await expect(button).toBeDisabled();
+  await expect(
+    page.getByRole("button", { name: /Conoce los datos/ }),
+  ).toBeEnabled();
   await page.unroute("**/api/bff/config");
   await login(page);
   await page.route("**/auth/logout", (r) =>
