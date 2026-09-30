@@ -75,8 +75,15 @@ def client_for(
     *,
     response_record: Callable[[CallRecord, dict[str, Any] | None], None] | None = None,
     judge: bool = False,
+    budget_scope: str = SCOPE,
+    budget_run_id: str = RUN_ID,
 ) -> StructuredClient:
     require_start()
+    if (budget_scope, budget_run_id) not in {
+        ("final-evaluation-v3", "final-program-v3"),
+        ("final-evaluation-v4", "final-program-v4"),
+    }:
+        raise ValueError("Final scope and lifetime run must match the approved program")
     if (judge and route != "openrouter_sonnet") or (not judge and route != "default"):
         raise ValueError("Route is outside the approved final program")
     models = load_models(ROOT / "config/models.yaml")
@@ -93,7 +100,9 @@ def client_for(
         load_prices(ROOT / "config/pricing.yaml"),
         budget_usd=None,
         daily_budget_usd=12,
-        spend_gate=FinalSpendGate(PostgresSpendGate(store, scope=SCOPE, run_id=RUN_ID)),
+        spend_gate=FinalSpendGate(
+            PostgresSpendGate(store, scope=budget_scope, run_id=budget_run_id)
+        ),
         fallback_routes={"nlu": fallback, "phrase": fallback} if fallback else None,
         call_timeout_seconds=45,
         response_record=response_record,

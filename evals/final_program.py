@@ -18,8 +18,6 @@ import yaml
 from aclara.llm.config import load_models, load_prices
 from aclara.llm.dual_judge import jev_judge_adapter, score_pair
 from aclara.llm.final_run import (
-    RUN_ID,
-    SCOPE,
     FinalBudgetStop,
     client_for,
     journal,
@@ -33,18 +31,27 @@ from evals.bindings import ROOT, bind
 from evals.bound_execution import execute_bound
 from evals.checkpoints import Checkpoints, atomic_write, save
 from evals.heldout import failed, load
-from evals.program_spec import BINDINGS, RELEASE, WORKLOAD, selections, verify_envelope
+from evals.program_spec import (
+    WORKLOAD,
+    ProgramSpec,
+    selections,
+    serving_pin,
+    specification,
+    verify_envelope,
+)
 from evals.serving import open_serving
+
+V3 = specification("test-v3")
 
 
 def digest(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def budget_receipt() -> dict:
+def budget_receipt(spec: ProgramSpec = V3) -> dict:
     from scripts.final_budget import verify
 
-    return verify(os.environ["FINAL_BUDGET_OWNER_DSN"])
+    return verify(os.environ["FINAL_BUDGET_OWNER_DSN"], spec)
 
 
 def judge_ids(scenarios: list[dict], repeat_ids: set[str]) -> set[str]:
@@ -110,7 +117,7 @@ def human_sheet(output: Path, rows: list[dict]) -> None:
     atomic_write(path, stream.getvalue())
 
 
-async def execute(suite, identities, directory, serving, store, checkpoints, repeat_ids):
+async def execute(suite, identities, directory, serving, store, checkpoints, repeat_ids, spec=V3):
     cases = []
     planned = 2 * len(suite["scenarios"]) + 2 * len(repeat_ids)
     for system, repeat, route in WORKLOAD:
@@ -123,7 +130,17 @@ async def execute(suite, identities, directory, serving, store, checkpoints, rep
                 cases.append(cached)
                 continue
             path = checkpoints.begin(key)
-            client = client_for(route, store, response_record=journal(path)) if route else None
+            client = (
+                client_for(
+                    route,
+                    store,
+                    response_record=journal(path),
+                    budget_scope=spec.scope,
+                    budget_run_id=spec.run_id,
+                )
+                if route
+                else None
+            )
             try:
                 fixture = bind(
                     scenario, identities[scenario["persona"]["customer_ref"]], directory, serving
@@ -152,13 +169,13 @@ async def execute(suite, identities, directory, serving, store, checkpoints, rep
                     "completed": len(cases),
                     "planned": planned,
                     "at": datetime.now(UTC).isoformat(),
-                    "budget": budget_receipt(),
+                    "budget": budget_receipt(spec),
                 },
             )
     return cases
 
 
-def judges(cases, selected, checkpoints, store):
+def judges(cases, selected, checkpoints, store, spec=V3):
     rows = []  # No new calibration or frontier calls in the approved v3 workload.
     for case in cases:
         if case["system"] not in {"B1", "P"} or case["repeat"] or case["id"] not in selected:
@@ -177,7 +194,14 @@ def judges(cases, selected, checkpoints, store):
             ratings.append(cached)
             continue
         path = checkpoints.begin(key)
-        client = client_for("openrouter_sonnet", store, judge=True, response_record=journal(path))
+        client = client_for(
+            "openrouter_sonnet",
+            store,
+            judge=True,
+            response_record=journal(path),
+            budget_scope=spec.scope,
+            budget_run_id=spec.run_id,
+        )
         try:
             if not row["customer_reply"]:
                 result = {"status": "not_scored", "reason": "no_delivered_reply"}
@@ -207,7 +231,7 @@ def judges(cases, selected, checkpoints, store):
                 "completed": len(ratings),
                 "planned": len(rows),
                 "at": datetime.now(UTC).isoformat(),
-                "budget": budget_receipt(),
+                "budget": budget_receipt(spec),
             },
         )
     return ratings
@@ -230,11 +254,12 @@ def saved_cases(suite: dict, repeat_ids: set[str], checkpoints: Checkpoints) -> 
     return results
 
 
-def main(output: Path, sha: str) -> None:
+def main(output: Path, sha: str, spec: ProgramSpec = V3) -> None:
     require_start()
+    serving_connection = serving_pin(spec)
     # All frozen reads, including pin verification on resume, are inside the access ledger.
-    paths = sorted(p for p in RELEASE.iterdir() if p.is_file())
-    paths += [BINDINGS]
+    paths = sorted(p for p in spec.release.iterdir() if p.is_file())
+    paths += [spec.bindings]
     paths += [
         ROOT / f"artifacts/charge_matcher/v1/dataset/{split}.jsonl"
         for split in ("train", "validation", "test")
@@ -244,24 +269,28 @@ def main(output: Path, sha: str) -> None:
     ):
         serving, store = open_serving(), open_budget_store()
         try:
-            verify_envelope()
-            suite, identities, directory = load(serving, release=RELEASE, binding_path=BINDINGS)
-            repeat_ids, selected = selections(suite, RELEASE)
+            verify_envelope(spec)
+            suite, identities, directory = load(
+                serving, release=spec.release, binding_path=spec.bindings
+            )
+            repeat_ids, selected = selections(suite, spec.release)
             pins = {
                 "implementation_sha": sha,
                 "inputs": {str(p.relative_to(ROOT)): digest(p) for p in paths},
                 "dataset_version": serving.dataset_version,
-                "budget_scope": SCOPE,
-                "budget_run_id": RUN_ID,
+                "budget_scope": spec.scope,
+                "budget_run_id": spec.run_id,
+                "program": spec.identity(),
+                "serving": serving_connection,
             }
             checkpoints = Checkpoints(output, pins)
             header = {
                 **pins,
-                "workload": "After fixes, fresh suite test-v3: 100 organizer-ledger scenarios with declared overlays; B1 100/P-Gemini 160, two extra passes on 30 preselected cases; Sonnet frontier OFF",
-                "suite": "test-v3",
+                "workload": f"After fixes, fresh suite {spec.suite}: 100 organizer-ledger scenarios with declared overlays; B1 100/P-Gemini 160, two extra passes on 30 preselected cases; Sonnet frontier OFF",
+                "suite": spec.suite,
                 "frontier_enabled": False,
                 "judge_planned": {"calibration": 0, "frozen": 60},
-                "disclosure": "Fixes informed by post-hoc v2 error analysis; v2 remains official; v3 is an independent fresh suite",
+                "disclosure": "Candidate fixes use seen prior evaluations and dev evidence; prior official results remain unchanged; this suite is independent",
                 "model": "google/gemini-3-flash-preview + jev-1.13.0 risk union",
                 "resolved_models": {
                     k: asdict(v) for k, v in load_models(ROOT / "config/models.yaml").items()
@@ -286,9 +315,13 @@ def main(output: Path, sha: str) -> None:
                 "matcher_checksums": json.loads(
                     (ROOT / "models/charge_matcher/v2/checksums.json").read_text()
                 ),
-                "cost_assumptions": "USD; v3 lifetime cap $3 including retries, judges and retained unknown reserves; cumulative prior/dev/v3 plus $0.10 release-smoke allowance <= $12",
+                "cost_assumptions": "USD; suite lifetime cap $3 including retries, judges and retained unknown reserves; cumulative prior/dev/program plus $0.10 release-smoke allowance <= $12",
                 "monthly_infrastructure_estimate_usd": 34.63,
                 "source_rls": "forced customer RLS, organizer serving, 120-day window",
+                "serving_location": "local" if spec.suite == "test-v4" else "legacy",
+                "latency_scope": "local serving SQL plus remote model/provider and durable budget calls; excludes workstation-to-Azure serving hops"
+                if spec.suite == "test-v4"
+                else "legacy Azure serving",
                 "operational_storage": "isolated fresh in-memory state per case; durable production separately tested",
                 "human_label_review": "pending; model-generated PT/MX/AR wording is a limitation",
             }
@@ -296,11 +329,13 @@ def main(output: Path, sha: str) -> None:
 
             try:
                 cases = asyncio.run(
-                    execute(suite, identities, directory, serving, store, checkpoints, repeat_ids)
+                    execute(
+                        suite, identities, directory, serving, store, checkpoints, repeat_ids, spec
+                    )
                 )
                 if len({case["run_id"] for case in cases}) != len(cases):
                     raise RuntimeError("Case isolation failed")
-                ratings = judges(cases, selected, checkpoints, store)
+                ratings = judges(cases, selected, checkpoints, store, spec)
             except FinalBudgetStop:
                 cases = saved_cases(suite, repeat_ids, checkpoints)
                 ratings = [
@@ -314,7 +349,7 @@ def main(output: Path, sha: str) -> None:
                     ratings,
                     repeat_ids,
                     {**header, "completion": "partial: durable budget stop"},
-                    budget_receipt(),
+                    budget_receipt(spec),
                 )
                 raise
             write_report(
@@ -323,7 +358,7 @@ def main(output: Path, sha: str) -> None:
                 ratings,
                 repeat_ids,
                 {**header, "completion": "complete"},
-                budget_receipt(),
+                budget_receipt(spec),
             )
             save(
                 output / "COMPLETE.json",
@@ -331,7 +366,7 @@ def main(output: Path, sha: str) -> None:
                     "completed_cases": len(cases),
                     "judge_items": len(ratings),
                     "implementation_sha": sha,
-                    "budget": budget_receipt(),
+                    "budget": budget_receipt(spec),
                     "at": datetime.now(UTC).isoformat(),
                 },
             )

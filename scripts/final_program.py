@@ -14,12 +14,17 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from evals.checkpoints import atomic_write, exclusive, save
-from evals.program_spec import verify_envelope
+from evals.program_spec import (
+    ProgramSpec,
+    add_arguments,
+    serving_pin,
+    specification,
+    verify_envelope,
+)
 
-from aclara.llm.final_run import RUN_ID, require_start
+from aclara.llm.final_run import require_start
 
 ROOT = Path(__file__).resolve().parents[1]
-OUTPUT = ROOT / "artifacts" / RUN_ID
 
 
 def git(*args: str) -> str:
@@ -40,7 +45,8 @@ def release() -> str:
     return sha
 
 
-def environment() -> None:
+def environment(spec: ProgramSpec) -> None:
+    serving_pin(spec)
     # Credentials are fetched in memory in the child, never placed in argv/log/files.
     from scripts.azure_dev import VAULT, az
     from scripts.azure_migrate_ops import connection_string
@@ -54,18 +60,24 @@ def environment() -> None:
         )["value"]
     os.environ["FINAL_BUDGET_OWNER_DSN"] = connection_string("aclara_admin")
     os.environ["EVAL_BUDGET_DSN"] = connection_string("aclara_app")
-    os.environ["EVAL_SERVING_DSN"] = os.environ["EVAL_BUDGET_DSN"]
+    if spec.suite != "test-v4":
+        os.environ["EVAL_SERVING_DSN"] = os.environ["EVAL_BUDGET_DSN"]
     os.environ["FINAL_RUN_START_APPROVED"] = "1"
 
 
-def worker() -> None:
+def worker(spec: ProgramSpec) -> None:
+    output = spec.output
     require_start()
-    with exclusive(OUTPUT / "worker.lock"):
+    with exclusive(output / "worker.lock"):
         sha = release()
-        launch = json.loads((OUTPUT / "launch.json").read_text())
-        if launch["implementation_sha"] != sha:
+        launch = json.loads((output / "launch.json").read_text())
+        if (
+            launch["implementation_sha"] != sha
+            or launch.get("program") != spec.identity()
+            or launch.get("serving") != serving_pin(spec)
+        ):
             raise RuntimeError("Restore the pinned release before resuming")
-        atomic_write(OUTPUT / "worker.pid", str(os.getpid()) + "\n")
+        atomic_write(output / "worker.pid", str(os.getpid()) + "\n")
         signal.signal(signal.SIGHUP, signal.SIG_IGN)
         worker_started = time.time()
 
@@ -73,27 +85,29 @@ def worker() -> None:
             raise InterruptedError("Worker stopped; preserve checkpoints and reservations")
 
         def watchdog(_signum, _frame):
-            progress = OUTPUT / "progress.json"
+            progress = output / "progress.json"
             last = max(worker_started, progress.stat().st_mtime if progress.exists() else 0)
             started = datetime.fromisoformat(launch["started_at"]).timestamp()
-            if time.time() - last >= 900 or time.time() - started >= 12600:
+            if time.time() - last >= 900 or time.time() - started >= (
+                10800 if spec.suite == "test-v4" else 12600
+            ):
                 raise TimeoutError("Progress or total wall-clock limit reached")
 
         signal.signal(signal.SIGTERM, terminate)
         signal.signal(signal.SIGALRM, watchdog)
         signal.setitimer(signal.ITIMER_REAL, 30, 30)
         try:
-            environment()
+            environment(spec)
             from evals.final_program import main as evaluate
             from scripts.final_budget import main as initialize_budget
 
-            initialize_budget()  # Validate the prepared cap; never reset or re-enable it.
+            initialize_budget(spec)  # Validate the prepared cap; never reset or re-enable it.
             from evals.final_program import budget_receipt
 
-            previous = OUTPUT / "progress.json"
+            previous = output / "progress.json"
             if previous.exists():
                 prior = json.loads(previous.read_text())["budget"]
-                current = budget_receipt()
+                current = budget_receipt(spec)
                 if (
                     current["attempts"] < prior["attempts"]
                     or current["charged_with_reserves_usd"] < prior["charged_with_reserves_usd"]
@@ -101,29 +115,32 @@ def worker() -> None:
                     raise RuntimeError(
                         "Durable spend history regressed; do not resume against a reset database"
                     )
-            evaluate(OUTPUT, sha)
+            evaluate(output, sha, spec)
         except BaseException as error:
             save(
-                OUTPUT / "STOPPED.json",
+                output / "STOPPED.json",
                 {
                     "error_type": type(error).__name__,
-                    "resume": "python -m scripts.final_program resume",
+                    "resume": "python -m scripts.final_program resume --suite " + spec.suite,
                 },
             )
             print(json.dumps({"state": "stopped", "error_type": type(error).__name__}), flush=True)
             raise SystemExit(1) from None
         finally:
             signal.setitimer(signal.ITIMER_REAL, 0)
-            (OUTPUT / "worker.pid").unlink(missing_ok=True)
+            (output / "worker.pid").unlink(missing_ok=True)
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("action", choices=["prepare", "start", "resume", "status", "_worker"])
+    add_arguments(parser)
     args = parser.parse_args()
+    spec = specification(args.suite, args.bindings, args.manifest_pin)
+    output = spec.output
     if args.action == "status":
         for name in ("prepared.json", "progress.json", "STOPPED.json", "COMPLETE.json"):
-            path = OUTPUT / name
+            path = output / name
             if path.exists():
                 print(path.read_text())
         return
@@ -132,13 +149,15 @@ def main() -> None:
         from scripts.final_budget import verify
 
         sha = release()
-        if (OUTPUT / "launch.json").exists():
+        if (output / "launch.json").exists():
             raise RuntimeError("Preparation cannot modify a launched program")
         receipt = {
             "state": "prepared_not_started",
             "implementation_sha": sha,
-            "suite": "test-v3",
-            **verify_envelope(),
+            "suite": spec.suite,
+            "program": spec.identity(),
+            "serving": serving_pin(spec),
+            **verify_envelope(spec),
             "workload": {
                 "B1": 100,
                 "P-Gemini": 160,
@@ -148,23 +167,25 @@ def main() -> None:
                 "frontier": False,
                 "calibration_items": 0,
             },
-            "budget": verify(connection_string("aclara_admin")),
+            "budget": verify(connection_string("aclara_admin"), spec),
         }
-        save(OUTPUT / "prepared.json", receipt)
+        save(output / "prepared.json", receipt)
         print(json.dumps(receipt))
         return
     require_start()
     if args.action == "_worker":
-        worker()
+        worker(spec)
         return
     sha = release()
-    prepared = json.loads((OUTPUT / "prepared.json").read_text())
+    prepared = json.loads((output / "prepared.json").read_text())
+    if prepared.get("program") != spec.identity() or prepared.get("serving") != serving_pin(spec):
+        raise RuntimeError("Restore the prepared program and serving connection")
     if prepared["implementation_sha"] != sha or any(
-        prepared[k] != v for k, v in verify_envelope().items()
+        prepared[k] != v for k, v in verify_envelope(spec).items()
     ):
         raise RuntimeError("Restore the prepared release and frozen input pins")
-    with exclusive(OUTPUT / "launcher.lock"), exclusive(OUTPUT / "worker.lock"):
-        launch = OUTPUT / "launch.json"
+    with exclusive(output / "launcher.lock"), exclusive(output / "worker.lock"):
+        launch = output / "launch.json"
         if args.action == "start":
             if launch.exists():
                 raise RuntimeError("Existing program: use resume, never reset artifacts/budget")
@@ -172,20 +193,33 @@ def main() -> None:
                 launch,
                 {
                     "implementation_sha": sha,
-                    "budget_run": RUN_ID,
+                    "budget_run": spec.run_id,
+                    "program": spec.identity(),
+                    "serving": serving_pin(spec),
                     "started_at": datetime.now(UTC).isoformat(),
                 },
             )
         elif not launch.exists() or json.loads(launch.read_text())["implementation_sha"] != sha:
             raise RuntimeError("Resume requires the existing pinned release")
-        if (OUTPUT / "COMPLETE.json").exists():
+        if (output / "COMPLETE.json").exists():
             print("Program already complete; no requests sent.")
             return
-        fd = os.open(OUTPUT / "worker.log", os.O_WRONLY | os.O_APPEND | os.O_CREAT, 0o600)
+        fd = os.open(output / "worker.log", os.O_WRONLY | os.O_APPEND | os.O_CREAT, 0o600)
         # Child waits briefly for launcher to release its worker lock.
     with os.fdopen(fd, "a") as log:
         child = subprocess.Popen(
-            [sys.executable, "-m", "scripts.final_program", "_worker"],
+            [
+                sys.executable,
+                "-m",
+                "scripts.final_program",
+                "_worker",
+                "--suite",
+                spec.suite,
+                "--bindings",
+                spec.identity()["bindings"],
+                "--manifest-pin",
+                spec.manifest_pin,
+            ],
             cwd=ROOT,
             stdin=subprocess.DEVNULL,
             stdout=log,
@@ -197,7 +231,7 @@ def main() -> None:
         json.dumps(
             {
                 "pid": child.pid,
-                "artifacts": str(OUTPUT.relative_to(ROOT)),
+                "artifacts": str(output.relative_to(ROOT)),
                 "implementation_sha": sha,
             }
         )
