@@ -1993,3 +1993,25 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
   the lean prompt as budget permits. No adoption without the full five-set gate.
 - Human export remains pending. The next model/Decisions comparison is queued;
   wait for its separate scope before any paid comparison.
+
+### 2026-09-30 PDT — round-two real baseline and AI regressions
+
+- Completed (verified): frozen 60-case real P baseline at `0161c3a`: pass 15/60
+  (ES 9/30, PT 6/30), injection logging 6/6, no forbidden actions, one materially
+  incorrect final outcome (polite refusal treated as recognition). Scope readback
+  $0.30949149 charged/reserved, $0.28551849 known, two unknown-cost reservations
+  retained. Per-call known sum differs only by eight-decimal durable rounding.
+  All attempts included: Gemini 169/171 schema-valid, Jev 140 valid judgments.
+- Completed (verified): authored 15 new regression cases before NLU repairs;
+  eight failed initially. Repairs reject offer refusal as purchase recognition
+  while preserving actual recollection, parse explicit day/month dates in words
+  without guessing missing month/year, and reuse units already present in the
+  extracted amount when the currency field is absent. Interfaces unchanged.
+- Done but not verified: repaired real-P follow-up pending. Most strict failures
+  concern lead-owned candidate/correction/compound-request state; gold remains
+  untouched. Two mixed-language openings may exhaust the contract's two-round
+  clarification rule; request adjudication rather than changing labels to pass.
+- Next / blocked: v5.2 is a separate development candidate, not the active prompt.
+  Complete comparable five-set evidence is required for adoption; the shared
+  $0.90 stop has priority over completing that potentially larger study. Default
+  Gemini and production v5.1 remain unchanged. No v4 access or final run.
