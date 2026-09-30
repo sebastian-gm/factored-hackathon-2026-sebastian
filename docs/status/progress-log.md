@@ -1,5 +1,40 @@
 # Progress log
 
+## 2026-09-30 PDT — Deployed main; stale Ops smoke selector
+
+### Completed (verified)
+
+- #81 and exact main **6e636d3113e4a1cbaf8a3988cdcf0ba9b75e8d7a** passed CI
+  and safety. Main runs **36764627466 / 36764627289** succeeded. Registry
+  digests remain identical to the 21dac9e application builds.
+- Reviewed app-only Terraform plan/apply: **0 added, 2 changed, 0 destroyed**;
+  only image/release identity and approved capped smoke binding. `azure_verify`
+  passed; outside-network workflow **36765795810** passed at this SHA.
+- Real `azure_llm_smoke`: all three ES/PT/fraud paths passed, including filing
+  and read-back, handoff and Gemini/Jev checks. Known spend **$0.00831825**;
+  charged **$0.02025875**, including one unknown NLU provider-error reserve.
+  Preserve it; no replay of that call. Cumulative charged **$4.59889495**;
+  future full allowances give **$8.79889495 ≤ $12**.
+- Live browser completed customer handoff and Desk, then failed at Ops:
+  smoke selects the retired “Ops · glass box” navigation label. Reviewed UI
+  and existing passing local staff test use “Evidencia y operaciones.” Budget
+  read-back proves this failed browser attempt made no model calls.
+- One-label correction passes `node --check scripts/serving-browser.mjs` and
+  existing authored `pnpm test:e2e --staff` (**1/1**, live fixture API, no models).
+
+### Done but not verified
+
+- Correcting only the external browser harness selector. Full browser gate and
+  new acceptance receipt remain pending. Shared pre-v4 scope, latency and private
+  snapshot are not yet created/run. No v4 input/run or public/warm activation.
+
+### Next / blocked
+
+- Green harness-only correction; preserve application digests and prior real
+  smoke evidence, reverify release identity/controls, finish the remaining capped
+  browser allowance. Disclose reuse of identical runtime evidence explicitly.
+- Only after full acceptance: **dev-gate/pre-v4 / pre-v4**, latency, private export.
+
 ## 2026-09-30 PDT — Exact-main recording fixture race
 
 ### Completed (verified)

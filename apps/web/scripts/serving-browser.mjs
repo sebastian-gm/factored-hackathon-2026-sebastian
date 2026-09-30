@@ -40,7 +40,7 @@ try {
   await page.getByText("Resuelto · Verificado").waitFor();
   stage = "ops";
   await page
-    .getByRole("button", { name: "Ops · glass box", exact: true })
+    .getByRole("button", { name: "Evidencia y operaciones", exact: true })
     .click();
   await page
     .getByRole("heading", { name: "Actividad de este espacio" })
