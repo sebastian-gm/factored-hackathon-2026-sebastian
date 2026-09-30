@@ -1958,8 +1958,10 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
 
 ### Next / blocked
 
-- Open the private fixture/protocol/mock-check PR into `fix/post-v3-analysis`;
-  lead reviews/merges. Freeze and mock readbacks are complete.
+- Private [PR #80](https://github.com/sebastian-gm/bank-agent-lab/pull/80) is OPEN
+  and mergeable into `fix/post-v3-analysis`, code head `36ba3e7` read back; no
+  remote CI run under the main-only trigger. Lead reviews/merges. Freeze and mock
+  readbacks are complete; no merge performed.
 - Wait for the orchestrator's exact read-back `dev-gate/pre-v4` scope/run before
   every paid call. Shared lifetime cap $1, stop exposure at $0.90. No final scope,
   paid call, default change or v4 access is authorized by these preparatory checks.
