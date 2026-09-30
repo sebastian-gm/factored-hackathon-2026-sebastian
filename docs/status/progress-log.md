@@ -1,5 +1,37 @@
 # Progress log
 
+## 2026-09-30 PDT — Main integration verified; smoke binding validation
+
+### Completed (verified)
+
+- #62 merged at **21dac9e791a92fc9979cac8dfc1805a3f76b2563** after candidate
+  CI **36757162866** and safety **36757162820** passed. Automatic main CI
+  **36757992427** and safety **36757992412** also passed. Main equals origin/main.
+- Built and pushed both exact-main images; digest receipt is ignored
+  `artifacts/azure/release-21dac9e/image-digests.json`. Fresh East US 2 retail
+  prices passed the $40 gate: modeled no-grant margin **$34.63/month**.
+- The reviewed release plan stopped on the legacy smoke-ID validation; no
+  Terraform apply or real model call occurred. Registered release purse has
+  zero attempts/spend. Prepared only the approved private image/run inputs.
+- Added full-SHA release/latency ID validation. `terraform -chdir=infra fmt
+  -recursive`, `validate` and `test -filter=tests/submission.tftest.hcl -no-color`
+  passed: **10 mocked plans**, no cloud mutation. Invalid IDs and judge/smoke
+  combinations remain rejected. Application image inputs are unchanged.
+
+### Done but not verified
+
+- Narrow validation correction awaits remote CI/main merge. Azure still runs
+  the prior preview; new live smokes, acceptance receipt, pre-v4 shared scope,
+  latency probe and private submission export remain pending.
+
+### Next / blocked
+
+- Require remote CI/safety, promote the correction, reuse identical application
+  digests under the resulting main SHA, then finish the approved release.
+- After release: create **dev-gate/pre-v4 / pre-v4** ($1 lifetime), measure the
+  capped Azure BFF latency, then export and scan the private submission snapshot.
+  No v4 input/run, warm replica or public visibility change is authorized here.
+
 ## 2026-09-30 PDT — #76 integration, pre-v4 accounting and release preparation
 
 ### Completed (verified)

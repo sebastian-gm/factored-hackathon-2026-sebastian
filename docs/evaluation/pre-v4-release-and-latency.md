@@ -60,7 +60,7 @@ identity changes and the approved binding; no resource creation, replica or
 access change. Use the explicit sandbox subscription for every Azure operation.
 
 Full gate: exact main CI/safety, pushed images, reviewed plan/apply,
-`azure_smoke`, `azure_verify`, real `azure_llm_smoke`,
+`azure_verify`, real `azure_llm_smoke`,
 `serving_browser --target azure`, outside-network `azure-access`, and a new
 `artifacts/azure/jev-release.json` at the implementation SHA with all three
 acceptance flags true. Real smoke/browser share:
@@ -72,6 +72,9 @@ AZURE_RELEASE_SMOKE_RUN_ID="pre-v4-release-$RELEASE_SHA" .venv/bin/python -m scr
 
 The existing five-conversation counter remains in force; no exhausted run or
 checkpoint is reset. A successful release is reported before dev scope creation.
+The generic `azure_smoke` refuses a real-model deployment; the capped real smoke
+and live browser smoke verify its conversation paths here. Do not bypass that
+guard or report the generic mock smoke as passed on this release.
 
 ## In-region latency probe
 
