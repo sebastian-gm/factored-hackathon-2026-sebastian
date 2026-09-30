@@ -1,0 +1,60 @@
+diff --git a/src/aclara/api/app.py b/src/aclara/api/app.py
+--- a/src/aclara/api/app.py
++++ b/src/aclara/api/app.py
+@@ -771,7 +771,7 @@
+                     "response_type": "cancelled",
+                     "outcome": "cancelled",
+                     "reply": _localized(
+-                        conversation.language, "Disputa cancelada.", "Disputa cancelada."
++                        conversation.language, "Disputa cancelada.", "Contestação cancelada."
+                     ),
+                 }
+         nonlocal learned_matcher
+@@ -962,7 +962,7 @@
+                 return {
+                     "response_type": "cancelled",
+                     "outcome": "cancelled",
+-                    "reply": _localized(language, "Disputa cancelada.", "Disputa cancelada."),
++                    "reply": _localized(language, "Disputa cancelada.", "Contestação cancelada."),
+                 }
+             changed = changes_target(body.message, offered_row, nlu.slots)
+             recognition = nlu.extracted.recognition
+@@ -1308,7 +1308,7 @@
+             return {
+                 "response_type": "cancelled",
+                 "outcome": "cancelled",
+-                "reply": _localized(proposal.language, "Disputa cancelada.", "Disputa cancelada."),
++                "reply": _localized(proposal.language, "Disputa cancelada.", "Contestação cancelada."),
+             }
+         expected_hash = _digest_proposal(
+             principal.session_id,
+@@ -1409,7 +1409,7 @@
+             "reply": _localized(
+                 proposal.language,
+                 f"Tu disputa {case_id} fue registrada y verificada. El siguiente paso es la revisión; respuesta en hasta 15 días (SLA simulado).",
+-                f"Sua disputa {case_id} foi registrada e verificada. A próxima etapa é a análise; resposta em até 15 dias (SLA simulado).",
++                f"Sua contestação {case_id} foi registrada e verificada. A próxima etapa é a análise; resposta em até 15 dias (SLA simulado).",
+             ),
+             "case": public_case(read_back),
+             "verified": True,
+@@ -1530,7 +1530,7 @@
+         reply = _localized(
+             language,
+             f"¿Confirmas que registre una disputa por {amount} en {row.merchant_name}? Esta acción abrirá un caso; no garantiza un reembolso.",
+-            f"Você confirma o registro de uma disputa de {amount} em {row.merchant_name}? Isso abrirá um caso; não garante reembolso.",
++            f"Você confirma o registro de uma contestação de {amount} em {row.merchant_name}? Isso abrirá um caso; não garante reembolso.",
+         )
+         return {
+             "response_type": "confirm_action",
+diff --git a/src/aclara/api/workflows.py b/src/aclara/api/workflows.py
+--- a/src/aclara/api/workflows.py
++++ b/src/aclara/api/workflows.py
+@@ -140,7 +140,7 @@
+     if offers:
+         response["freeze_offer"] = offers
+         response["reply"] += (
+-            " Puedes bloquear tu tarjeta con un nuevo OTP y confirmación."
++            " Puedes bloquear tu tarjeta después de indicar un nuevo código de verificación y confirmar la acción."
+             if language == "es"
+             else " Você pode bloquear seu cartão após informar um novo código de verificação e confirmar a ação."
+         )

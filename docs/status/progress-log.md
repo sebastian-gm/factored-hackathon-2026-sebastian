@@ -1,5 +1,26 @@
 # Progress log
 
+## AI lane — 2026-09-29 (language model card and cross-vendor copy review)
+
+### Completed (verified)
+
+- Updated [the language model card](../ml/model-card.md) for NLU v5.1, phrase v2's actual approved text and deterministic clarification/recognition guard, contextual ES/PT/uncertain language evidence, the 6 s first-attempt timeout and 1024-token Sonnet judge cap. Source hashes read back exactly; only independent v4 slices retain `TODO(results)`.
+- Recorded PR #65's frozen 40-conversation dev results (39/40 before/after, normalization failures 9→0, clarifications 15→6, cost/latency and limits) separately from official v3 P 77/100 versus B1 52/100, SAR +11 pp (95% CI +5 to +17). V3 is now seen dev data; its post-hoc 100/100 does not replace the official result. V4 remained unopened and unrun.
+- Completed Sonnet cross-vendor review of **134/134** active source strings/variants, **67 ES + 67 pt-BR**, including all templates, offer/recognition questions, approved API replies and all eight added web translations since `e12efc7`. Ten valid calls, no retries/truncation/new unknown costs. [Before/after and decisions](../ml/pt-review.md).
+- Per-call usage and readback of the ten durable reservations agree at **$0.085928**, below the approved $0.10. Existing shared `dev-gate/post-v3` / `post-v3` scope reads **$0.71924554 exposure** (known $0.68326354; three pre-existing unknowns), below the requested $0.90 stop and unchanged $1 cap. Concurrency one; every call reserved before sending under the scope lock. No key-level delta or final scope was used.
+- `LLM_PROVIDER=mock make checks` passes: six hooks, Ruff, strict mypy, compilation, file policy, **308 passed / 14 database-dependent skips**, B1 **32/32**, interfaces and policy catalog. No product code changed in this PR.
+- Reconciled the updated lead target `6800ffd` into this feature branch after PRs #65/#66 merged, preserving every progress entry. The conflict was documentation only; no product or fixture changes were authored. Local 381-test checks on that combined target passed in this session.
+- Pushed only private origin and opened [PR #69](https://github.com/sebastian-gm/bank-agent-lab/pull/69) against `fix/post-v3-analysis`; read back the exact description, branch SHA, mergeable and open/unmerged state. All four remote CI jobs completed with failure: annotations say the jobs were not started because an Actions budget prevents use. No CI was cancelled.
+- Prepared a [lead-owned strings-only patch](../ml/copy-review-post-v3-proposed.patch): five PT occurrences use `contestação` consistently, and one ES freeze offer explains OTP as a new verification code plus confirmation. No lead/front-end product folder was edited. All AI templates and changed web messages were kept. Patch applicability, Python compilation, six string-only AST changes, preserved placeholders/numbers and documentation links were verified.
+
+### Done but not verified
+
+- Copy is model-reviewed, not fluent-human PT validation; no additional production accuracy, fairness or latency measurement was made. The lead-owned proposed strings are not active until the lead applies the patch. PRs #65/#66 describe candidate behavior; this card is not a deployment attestation.
+
+### Next / blocked
+
+- PR #69 stays unmerged for the lead. Review/apply its six lead-owned copy changes and merge the prerequisite fixes before release/final v4. The authorized latest-head reruns still failed before steps; GitHub cited failed recent account payments or a spending limit needing an increase. A meaningful conflict-resolution push gets its normal CI; no further manual rerun is planned until account billing allows jobs to start. Green remote CI remains required before merge. Preserve v4 blindness and make no further paid call.
+
 ## AI lane — 2026-09-29 (queued PR #62 review findings 1 and 3)
 
 ### Completed (verified)
