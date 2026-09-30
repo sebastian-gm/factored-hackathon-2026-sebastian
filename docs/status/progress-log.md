@@ -2062,8 +2062,10 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
 - No further paid call under this scope: exposure denial and account credits
   block completion. Any resumed latency study needs explicit new authorization;
   the queued `dev-gate/model-compare` scope cannot be repurposed for it.
-- Open the review PR into `fix/post-v3-analysis`; lead merges, with #77 output
-  guards and #80 freeze dependencies. Integration PRs use rigorous local checks
-  under the owner's main-only remote CI policy. No merge performed.
+- Private [PR #85](https://github.com/sebastian-gm/bank-agent-lab/pull/85) is OPEN
+  and mergeable into `fix/post-v3-analysis`, code head `226bf3e` read back. It
+  carries #80's freeze and #77's output guards because both earlier PRs now show
+  closed without merges. Integration PRs use rigorous local checks under the
+  owner's main-only remote CI policy. Lead reviews/merges; no merge performed.
 - Human CSV path remains unconfirmed. Continue zero-spend disparity analysis and
   model/API availability checks; no v4 input, final run or default change.
