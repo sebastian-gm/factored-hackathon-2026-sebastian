@@ -34,6 +34,14 @@
   Node syntax and Prettier checks pass. The first custom read-only diagnostic
   mistakenly requested nonexistent `/clock`; corrected check verifies the clock
   from `/me`, as the actual UI contract requires.
+- GET-only deployed browser reaches the login form in **79.94s** (navigation
+  200, config 200, anonymous me 401), with **zero auth/chat POSTs**. This confirms
+  startup exceeds the old harness allowance; no product or replica change.
+- Prepared one-use extra browser guard, **OFF until explicit approval** via
+  `AZURE_EXTRA_BROWSER_ATTEMPT_APPROVED=1`. Default five slots remain; only one
+  browser label/count can use a sixth; its counter/history are never reset,
+  including on failure. Authored `tests/test_azure_browser_allowance.py` passes
+  **5/5** at zero cost. The same $0.10 purse/breaker remains mandatory.
 
 ### Done but not verified
 

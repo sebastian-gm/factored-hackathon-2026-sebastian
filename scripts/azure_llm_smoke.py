@@ -41,9 +41,19 @@ def conversation_allowance(count: int, label: str):
             if CHECKPOINT.exists()
             else {"attempted": 0, "runs": []}
         )
-        if not 1 <= count <= 5 or state["attempted"] + count > 5:
+        extra_browser = (
+            count == 1
+            and label == "browser-three-surfaces"
+            and state["attempted"] == 5
+            and not state.get("extra_browser_attempt_used", False)
+            and os.getenv("AZURE_EXTRA_BROWSER_ATTEMPT_APPROVED") == "1"
+        )
+        limit = 6 if extra_browser else 5
+        if not 1 <= count <= 5 or state["attempted"] + count > limit:
             raise RuntimeError("The owner-approved five-conversation smoke allowance is exhausted")
         state["attempted"] += count
+        if extra_browser:
+            state["extra_browser_attempt_used"] = True
         state["runs"].append(
             {"label": label, "count": count, "started_at": datetime.now(UTC).isoformat()}
         )
