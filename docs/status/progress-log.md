@@ -20,6 +20,10 @@
   `32587c9`, gives startup GETs 75 s and at most one transient GET retry, preserves
   single-attempt POSTs, and shows ES/PT startup/retry states. No Azure setting,
   image or access boundary was changed.
+- Pushed the separate candidate to the existing private origin and opened
+  [draft PR #63](https://github.com/sebastian-gm/bank-agent-lab/pull/63), targeting
+  `fix/post-v3-analysis` so its startup/doc changes can be reviewed independently
+  of #62. No PR or branch was merged.
 - Reviewed every PR #62 commit. Authored, zero-cost mock/ASGI reproductions
   confirmed five findings: approved language clarification lost before phrasing; legal cues
   lost across session tabs; `.com`/SIM language false positives; renewal reuses an
