@@ -4,6 +4,8 @@
 
 ### Completed (verified)
 
+- Final Insights head **312b46a29e92fcefd30704621d3a12b633cafcfb** is integrated; FCR is complaint-scoped and Azure latency explicitly partial (5/10). Final source check verifies 12 aggregate pins. Backend `make checks`: **488 passed / 21 database skips**, B1 **32/32**, interfaces/catalog/hooks green; disposable `.venv/bin/python -m scripts.test_postgres`: **24 passed**, including model-compare restart/cap/other-scope persistence. An initial DB run exposed an outdated arithmetic expectation (4.3→5.8); fixed and rerun successfully. Final web typecheck/lint/build and **106/106** browser checks passed (**93 fixture + 12 live customer + 1 staff**). Source-pin check passes. Initial exporter invocation was denied by the execution sandbox; the authorized read-only invocation passed.
+
 - Reviewed and integrated #77 (offline human-review tooling plus corrupt-prose/internal-handle guard) and #80 (frozen authored 60-case dev release) on `feat/lead-insights-release`. The single progress-log conflict preserves both lane entries. No new dev rows, builder or v4 inputs opened; #80 receives structural checks only.
 - Saved latency metadata joins ten primary executions to the five completed conversations: slowest BFF turn 8.395 s, Gemini provider-error first attempt 6.045 s then successful retry 2.100 s, Jev 0.232 s, no phrasing calls. Five terminal follow-ups make pooled p50 optimistic. First-turn extra ~2.967 s remains unattributed; no cold-start claim or paid replay. See `docs/evaluation/pre-v4-latency-components.md`.
 - Prepared `dev-gate/model-compare` / run **`model-compare`**, $1.50 lifetime, then independently verified it; `dev-gate/pre-v4` / **`pre-v4`**, $1, remains open. Reserve-before-call semantics and historical unknown charges retained. Both setup commands made zero provider calls. Historical $4.62047227 + full dev $1 + comparison $1.50 + v4 $3 + both smokes $0.20 = **$10.32047227 ≤ $12**. Pre-v4 calls made by the AI lane are covered by its full allowance. Release helpers and final preparation count the comparison scope; final preparation closes both dev scopes.
@@ -12,7 +14,8 @@
 
 ### Done but not verified
 
-- Final Insights head **312b46a29e92fcefd30704621d3a12b633cafcfb** is integrated; FCR is complaint-scoped and Azure latency explicitly partial (5/10). Final source check verifies 12 aggregate pins. Backend `make checks`: **488 passed / 21 database skips**, B1 **32/32**, interfaces/catalog/hooks green; disposable `.venv/bin/python -m scripts.test_postgres`: **24 passed**, including model-compare restart/cap/other-scope persistence. An initial DB run exposed an outdated arithmetic expectation (4.3→5.8); fixed and rerun successfully. Final web typecheck/lint/build passed; browser and remote gates/new Azure release remain pending. Existing acceptance remains d23fa5a, not this branch.
+- Remote CI and new Azure acceptance are pending. Existing acceptance remains d23fa5a; this feature branch is not yet deployed.
+
 - README-only clean-clone reproduction of the private snapshot is queued **after** the release, under the owner's new request; not yet performed.
 
 ### Next / blocked
