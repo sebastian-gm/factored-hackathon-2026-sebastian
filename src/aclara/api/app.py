@@ -779,7 +779,7 @@ def create_app(
                     "response_type": "cancelled",
                     "outcome": "cancelled",
                     "reply": _localized(
-                        conversation.language, "Disputa cancelada.", "Disputa cancelada."
+                        conversation.language, "Disputa cancelada.", "Contestação cancelada."
                     ),
                 }
         nonlocal learned_matcher
@@ -970,7 +970,7 @@ def create_app(
                 return {
                     "response_type": "cancelled",
                     "outcome": "cancelled",
-                    "reply": _localized(language, "Disputa cancelada.", "Disputa cancelada."),
+                    "reply": _localized(language, "Disputa cancelada.", "Contestação cancelada."),
                 }
             changed = changes_target(body.message, offered_row, nlu.slots)
             recognition = nlu.extracted.recognition
@@ -1316,7 +1316,9 @@ def create_app(
             return {
                 "response_type": "cancelled",
                 "outcome": "cancelled",
-                "reply": _localized(proposal.language, "Disputa cancelada.", "Disputa cancelada."),
+                "reply": _localized(
+                    proposal.language, "Disputa cancelada.", "Contestação cancelada."
+                ),
             }
         expected_hash = _digest_proposal(
             principal.session_id,
@@ -1417,7 +1419,7 @@ def create_app(
             "reply": _localized(
                 proposal.language,
                 f"Tu disputa {case_id} fue registrada y verificada. El siguiente paso es la revisión; respuesta en hasta 15 días (SLA simulado).",
-                f"Sua disputa {case_id} foi registrada e verificada. A próxima etapa é a análise; resposta em até 15 dias (SLA simulado).",
+                f"Sua contestação {case_id} foi registrada e verificada. A próxima etapa é a análise; resposta em até 15 dias (SLA simulado).",
             ),
             "case": public_case(read_back),
             "verified": True,
@@ -1538,7 +1540,7 @@ def _decide_for_transaction(
         reply = _localized(
             language,
             f"¿Confirmas que registre una disputa por {amount} en {row.merchant_name}? Esta acción abrirá un caso; no garantiza un reembolso.",
-            f"Você confirma o registro de uma disputa de {amount} em {row.merchant_name}? Isso abrirá um caso; não garante reembolso.",
+            f"Você confirma o registro de uma contestação de {amount} em {row.merchant_name}? Isso abrirá um caso; não garante reembolso.",
         )
         return {
             "response_type": "confirm_action",

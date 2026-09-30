@@ -131,7 +131,7 @@ def fraud_handoff(
             "handles": [offer["handle"] for offer in offers]
         }
         response["reply"] += (
-            " Puedes bloquear tu tarjeta con un nuevo OTP y confirmación."
+            " Puedes bloquear tu tarjeta después de indicar un nuevo código de verificación y confirmar la acción."
             if language == "es"
             else " Você pode bloquear seu cartão após informar um novo código de verificação e confirmar a ação."
         )

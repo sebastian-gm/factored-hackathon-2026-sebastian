@@ -42,7 +42,8 @@ this review changes neither the serving model nor the judges. V4 was not opened.
 
 Compared active product source to `e12efc7`, including the PR #66 candidate
 `b059920e78c6a299451b38b0860c78acdd704f48`. All eight added web translations
-are included. To cover the requested templates, offer and recognition questions,
+in that reviewed source snapshot are included. Later `otpRetry` translations
+from PR #68 are outside this 134-item model review. To cover the requested templates, offer and recognition questions,
 the audit also includes existing approved copy whose delivery changes under
 phrase v2, plus the surrounding API/workflow copy for consistency. Status
 variants and repeated source occurrences are counted separately. No customer
@@ -58,7 +59,8 @@ rows, human test messages, credentials or model thinking entered the review.
 | **Total** | Five product source files | **67 / 67** | **134/134 reviewed** |
 
 The source diff also covered the changed chat/workspace/BFF and language guard
-paths: they introduce no additional ES/PT literals outside this inventory.
+paths in that reviewed snapshot: they introduce no additional ES/PT literals
+outside this inventory. This is not an inventory of later integration/UX copy.
 Private inventory SHA-256:
 `ad8768b88d9d7f8617d0eba08232284781ed31ad0f24a60329a1e680caafd4ef`.
 Inventory, validated final judgments and per-call metadata remain mode-0600 in
@@ -136,3 +138,14 @@ The proposal applies cleanly to the target source (`git apply --check`), and
 both shadow Python modules compile. AST comparison verifies string constants
 are the only changes; original placeholders and numeric literals are preserved.
 No runtime behavior or product-language accuracy claim follows from this review.
+
+### Lead application and review boundary
+
+The lead accepted all six proposed occurrences during integration. Five PT
+changes consistently use `contestação`; the ES freeze sentence explains a new
+verification code and separate confirmation. PR #68 had inserted provenance
+code beside the freeze offer, so that hunk required a mechanical context update.
+AST comparison confirmed exactly six string-constant changes, four distinct
+replacements, and identical non-string code/placeholders/numbers. This does not
+extend the paid review to later OTP retry or UX strings; those remain subject
+to maintainer checks and the existing no-fluent-human-PT limitation.
