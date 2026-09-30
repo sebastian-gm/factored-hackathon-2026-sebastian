@@ -91,7 +91,16 @@ test("snapshot regenerates from committed aggregate sources without reading rows
     ["scripts/build-insights-snapshot.mjs", "--check"],
     { stdio: "pipe" },
   );
-  expect(snapshot.sources).toHaveLength(11);
+  expect(snapshot.sources).toHaveLength(12);
+  expect(snapshot.azure_latency).toEqual({
+    source: "azureLatency",
+    status: "partial",
+    conversations: { count: 5, denominator: 10 },
+    turns: 10,
+    bff_turn_seconds: [1.3, 8.191],
+    startup_excluded_bff_turn_seconds: [1.3, 7.441],
+    startup_excluded_turns: 8,
+  });
 });
 test("future results require aggregate denominators and provenance; row fields, invalid intervals and fake pending metrics fail closed", () => {
   expect(insightsResultsSchema.safeParse(publicationFixture).success).toBe(
@@ -138,6 +147,34 @@ for (const pt of [false, true])
       await expect(page.locator(".insights-hero-stat strong")).toHaveText(
         pt ? "43,6%" : "43.6%",
       );
+      await expect(page.locator(".insights-hero-stat")).toContainText(
+        pt
+          ? "das reclamações são resolvidas no primeiro contato"
+          : "de las quejas se resuelven en el primer contacto",
+      );
+      const latency = page.getByTestId("insights-latency");
+      await expect(latency).toContainText(
+        pt
+          ? "PARCIAL · amostra pequena: 5 / 10 conversas"
+          : "PARCIAL · muestra pequeña: 5 / 10 conversaciones",
+      );
+      await expect(latency).toContainText(pt ? "1,30 s" : "1.30 s");
+      await expect(latency).toContainText(pt ? "8,19 s" : "8.19 s");
+      await expect(latency).toContainText(
+        pt ? "1,30 / 7,44 s" : "1.30 / 7.44 s",
+      );
+      await expect(latency).toContainText(
+        pt ? "sem a primeira conversa" : "sin la primera conversación",
+      );
+      await expect(latency).toContainText(pt ? "4,12 s" : "4.12 s");
+      await expect(latency).toContainText(
+        pt
+          ? "Não houve reinício a frio forçado"
+          : "No se forzó un arranque en frío",
+      );
+      await expect(
+        latency.locator('a[href="#insights-source-azureLatency"]').first(),
+      ).toBeVisible();
       await expect(page.locator(".insights-problem-grid")).toContainText(
         pt ? "17,1%" : "17.1%",
       );
@@ -174,6 +211,8 @@ for (const pt of [false, true])
       }
       await expect(page.locator(".recording-helper")).toHaveCount(0);
       await capture(page, `${name}-overview`);
+      await latency.scrollIntoViewIfNeeded();
+      await capture(page, `${name}-latency-review`);
       await page.getByRole("button", { name: /v2 ·/ }).click();
       await expect(comparison).toContainText(pt ? "32,5%" : "32.5%");
       await expect(comparison).toContainText(pt ? "31,5%" : "31.5%");

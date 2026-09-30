@@ -81,7 +81,7 @@ not a production guarantee.
 | `docs/data/problem-analysis-aggregates.json`     | Queja contact volume/time shares and FCR; unrecognized-charge complaint count, SLA breach share and recorded calendar resolution time |
 | `docs/problem-analysis.md`                       | Interpretation and missing-value limits of the synthetic workload                                                                     |
 | `contracts/interfaces/conversation-policy-v3.md` | Decision loop, autonomy and confirmation/readback/handoff boundaries                                                                  |
-| `docs/status/progress-log.md`                    | Abandoned first final attempt disclosure; no abandoned scores are exported                                                            |
+| `docs/status/progress-log.md`                    | Abandoned first attempt plus a separately pinned release log for the partial in-Azure latency probe; no abandoned scores are exported |
 | `docs/evaluation/final-v2-error-analysis.md`     | Official B1/P pass, SAR, paired interval, cost and latency headlines only                                                             |
 | `docs/evaluation/final-v3-results.md`            | Original independent run, pass/SAR, interval, unauthorized-action denominator/bound, repeats, partial judges, cost and latency        |
 | `docs/ml/model-card-charge-matcher-v2.md`        | Training/validation sizes, frozen fitting procedure, diagnostic limitations                                                           |
@@ -95,6 +95,47 @@ only**; infrastructure, repeats and judges are excluded. Evaluation latency
 includes the workstation-to-Azure-Postgres network path and predates subsequent
 optimizations. It is not a deployed chat latency measurement. The FCR is the
 source workload's rate, not an improvement produced by Aclara.
+
+## 2026-09-30 review follow-ups and rehearsal gate
+
+### Completed (verified)
+
+- The FCR hero explicitly says **complaints** in ES/PT.
+- The latency card now separates the offline measurement from the in-Azure
+  BFF probe: p50/p95 1.300/8.191 s, startup-excluded 1.300/7.441 s. Coverage is
+  explicitly **PARTIAL: 5/10 conversations**, ten turns, eight turns after
+  excluding the whole first conversation. Handler timing excludes ingress and
+  module startup; no cold restart was forced. The page does not present this
+  small sample as an SLA or cold-start bound.
+- The twelfth source pins the lead's committed progress log at
+  `4484293d5f52792fcc94fb16a9f8eb938eb8f289`. It is already on main, independently
+  of this PR's target branch. The exporter reads that exact committed file;
+  shallow main CI can verify its numeric claims from the current committed log.
+- The full local fixture suite passed **93/93**, with TypeScript, ESLint,
+  production build and source checks passing. ES/PT desktop/phone captures
+  include a dedicated view of the two latency measurements; the review set is
+  **32 views / 64 PNGs** in the ignored gallery, with all capture checks passing.
+
+### Done but not verified
+
+- Live Azure rehearsal is not run. The owner will announce the release that
+  includes Insights; until that ping, no production-purse spend is made.
+
+### Next / blocked
+
+- After the release ping, verify the expected deployment, enable `?grabar=1`,
+  and rehearse the three live scoped hints: ES explain, PT choose, ES help/fraud
+  followed by the authorized Agent Desk. Use trusted live persona hints, never
+  frozen suite rows or bindings.
+- Capture each meaningful UI step under ignored private artifacts, masking
+  passwords and OTPs. Time each turn from explicit send to the rendered result,
+  distinguishing browser wall time from any BFF timing header. Retain only
+  aggregate timings and UI observations in committed notes.
+- Read back any created case or handoff before describing it as successful;
+  make every confirmation explicit and preserve failed states honestly. Prepare
+  `docs/submission/video-shot-list.md` with rehearsed clicks, generic authored
+  messages (no organizer card values), observed video issues and a ≤3-minute
+  edit plan. Credentials and raw screenshots stay out of Git.
 
 Deliberate product/tool vocabulary retained in ES/PT: **Insights, Agent Desk,
 Aclara, Charge matcher, LightGBM, Gemini 3 Flash, MLflow, dbt, Bronze, Silver,

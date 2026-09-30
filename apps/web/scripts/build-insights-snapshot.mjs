@@ -65,6 +65,12 @@ const sources = [
     "docs/status/progress-log.md",
     "First final attempt abandoned; results never viewed",
   ],
+  [
+    "azureLatency",
+    "docs/status/progress-log.md",
+    "2026-09-30 release: partial in-Azure BFF latency probe (5/10 conversations)",
+    "4484293d5f52792fcc94fb16a9f8eb938eb8f289",
+  ],
 ];
 function gitRead(args, options = {}) {
   try {
@@ -80,10 +86,18 @@ function gitRead(args, options = {}) {
 }
 const contents = {};
 const provenance = [];
-for (const [id, file, section] of sources) {
-  const committed = gitRead(["show", `HEAD:${file}`]);
+for (const [id, file, section, revision = "HEAD"] of sources) {
+  let committed;
+  try {
+    committed = gitRead(["show", `${revision}:${file}`]);
+  } catch (error) {
+    // A main-only shallow CI checkout may omit the pinned historical object.
+    // Check its published numeric fields against the current committed log.
+    if (revision === "HEAD" || !process.argv.includes("--check")) throw error;
+    committed = gitRead(["show", `HEAD:${file}`]);
+  }
   const working = await readFile(path.join(repo, file));
-  if (!working.equals(committed))
+  if (revision === "HEAD" && !working.equals(committed))
     throw new Error(`Commit source changes before exporting: ${file}`);
   contents[id] = committed.toString("utf8");
   provenance.push({
@@ -91,9 +105,12 @@ for (const [id, file, section] of sources) {
     path: file,
     section,
     sha256: createHash("sha256").update(committed).digest("hex"),
-    commit: gitRead(["log", "-1", "--format=%H", "--", file], {
-      encoding: "utf8",
-    }).trim(),
+    commit:
+      revision !== "HEAD"
+        ? revision
+        : gitRead(["log", "-1", "--format=%H", "--", file], {
+            encoding: "utf8",
+          }).trim(),
   });
 }
 function row(source, label) {
@@ -206,6 +223,27 @@ v3.repeats = {
 v3.judging = { completed: 28, planned: 60 };
 if (!contents.v3.includes("28/60 paired"))
   throw new Error("Judge coverage source changed");
+const azureBff = contents.azureLatency.match(
+  /In-Azure BFF p50\/p95 \*\*([\d.]+)s \/ ([\d.]+)s\*\*/,
+);
+const azureExcluded = contents.azureLatency.match(
+  /excluding the entire first conversation,\s*\*\*([\d.]+)s \/ ([\d.]+)s\*\* \((\d+) turns\)/,
+);
+const azureCoverage = contents.azureLatency.match(
+  /Latency probe is \*\*partial \((\d+)\/(\d+)\)\*\*/,
+);
+const azureTurns = contents.azureLatency.match(
+  /stopped correctly after \*\*(\d+) conversations \/\s*(\d+) turns\*\*/,
+);
+if (
+  !azureBff ||
+  !azureExcluded ||
+  !azureCoverage ||
+  !azureTurns ||
+  azureCoverage[1] !== azureTurns[1] ||
+  !contents.azureLatency.includes("No forced cold restart; handler")
+)
+  throw new Error("Azure latency source wording changed; review the export.");
 const snapshot = {
   schema_version: 1,
   sources: provenance,
@@ -222,6 +260,21 @@ const snapshot = {
     resolution_days_n: charge.resolution_days_n,
   },
   evaluations: { v1: { status: "abandoned", source: "disclosure" }, v2, v3 },
+  azure_latency: {
+    source: "azureLatency",
+    status: "partial",
+    conversations: {
+      count: Number(azureCoverage[1]),
+      denominator: Number(azureCoverage[2]),
+    },
+    turns: Number(azureTurns[2]),
+    bff_turn_seconds: [Number(azureBff[1]), Number(azureBff[2])],
+    startup_excluded_bff_turn_seconds: [
+      Number(azureExcluded[1]),
+      Number(azureExcluded[2]),
+    ],
+    startup_excluded_turns: Number(azureExcluded[3]),
+  },
   matcher: {
     source: "matcher",
     metrics_source: "matcherMetrics",
@@ -264,6 +317,7 @@ if (process.argv.includes("--check")) {
       pin.id !== expected.id ||
       pin.path !== expected.path ||
       pin.section !== expected.section ||
+      (sources[index][3] && pin.commit !== sources[index][3]) ||
       !/^[a-f0-9]{40}$/.test(pin.commit) ||
       !/^[a-f0-9]{64}$/.test(pin.sha256)
     )
