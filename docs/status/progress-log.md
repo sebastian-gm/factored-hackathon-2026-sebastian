@@ -1143,6 +1143,23 @@ The following sections retain the AI lane’s historical reports; later dated de
 
 - Open and keep this AI-lane PR unmerged until Sebastian announces the final run is finished. The lead can then merge it after review. No further paid development run is planned under these caps; a complete second-vendor review of lead-owned strings would need a separate cost authorization and coordinated lead-lane edits.
 
+## Data/frontend lane — 2026-09-29 (independent v4 freeze)
+
+### Completed (verified)
+
+- Read handoff 14 in full. Authored a new 100-case v4 release from ADR-0015 and the written conversation contract, with 35/20/20/25 category counts, 48 ES / 48 PT / 4 mixed, and new interaction wording. Kept v3 as retired development data; no old template list, system output or post-v3 failure analysis defined v4 gold.
+- Verified 100 unique test-split customers and owned products with zero overlap against v1, v2, v3, both matcher inventories and all 40 human cards. Reconstructed the archived v1 identity mapping and matched its original private checksum. All charge/case/FX facts are fictional; native organizer identities exist only in ignored mode-0600 bindings.
+- Structural preflight passed schema, vocabulary, references, explicit reactive replies, counts, exclusions and exact wording/template overlap checks. Froze and read back all release hashes. MANIFEST file SHA-256: `309c3aa22c2eab51b3289075b733c52bb7934a879299762c3fb9ba16a3d9bec8`. No B1/P executions, paid provider calls, cloud changes or spend occurred.
+- Added an aggregate-only v4 evaluation protocol and pre-registered the repeat/dual-judge subsets. Lead, AI and fix authors must not open v4 scenario rows, selection IDs or its authoring tool. This branch will be submitted as an unmerged PR.
+
+### Done but not verified
+
+- Behavioral correctness, serving ownership validation, fault activation and durable runtime readbacks are deliberately untested on v4. The post-v3 stale-OTP harness support remains a release dependency. Human and second-vendor language review are pending; ES/PT pairs share interaction designs.
+
+### Next / blocked
+
+- Open and leave the v4 PR unmerged until the owner releases it. The later final run requires Sebastian's explicit go and the release owner's gates. Handoff 14 reports an owner GitHub Actions budget block; remote CI for this branch has not yet been read back. Do not tune product behavior on v4 or publish row-level content.
+
 ## Access and continuation
 
 Restricted web: https://ca-web-aclara-dev-eastus2.lemonbeach-1b769de0.eastus2.azurecontainerapps.io/
