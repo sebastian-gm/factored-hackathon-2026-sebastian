@@ -463,6 +463,10 @@
             "title": "Action",
             "type": "string"
           },
+          "conversation_id": {
+            "title": "Conversation Id",
+            "type": "string"
+          },
           "expires_at": {
             "format": "date-time",
             "title": "Expires At",
@@ -470,6 +474,10 @@
           },
           "handle": {
             "title": "Handle",
+            "type": "string"
+          },
+          "handoff_id": {
+            "title": "Handoff Id",
             "type": "string"
           },
           "proposal_hash": {
@@ -490,6 +498,8 @@
         },
         "required": [
           "handle",
+          "handoff_id",
+          "conversation_id",
           "proposal_hash",
           "expires_at",
           "reply"
@@ -500,6 +510,11 @@
       "FreezeRequest": {
         "additionalProperties": false,
         "properties": {
+          "handoff_id": {
+            "pattern": "^[\\w-]{1,80}$",
+            "title": "Handoff Id",
+            "type": "string"
+          },
           "language": {
             "default": "es",
             "pattern": "^(es|pt)$",
@@ -507,6 +522,9 @@
             "type": "string"
           }
         },
+        "required": [
+          "handoff_id"
+        ],
         "title": "FreezeRequest",
         "type": "object"
       },

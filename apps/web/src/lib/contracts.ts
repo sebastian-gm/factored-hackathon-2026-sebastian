@@ -58,6 +58,8 @@ export const freezeProposalSchema = z.object({
   response_type: z.literal("confirm_action"),
   action: z.literal("freeze_card"),
   handle: z.string(),
+  handoff_id: z.string(),
+  conversation_id: z.string(),
   proposal_hash: z.string().regex(/^[a-f0-9]{64}$/),
   expires_at: z.string(),
   reply: z.string(),

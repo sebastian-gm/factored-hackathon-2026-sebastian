@@ -71,6 +71,7 @@ def make_handoff(
     *,
     freeze_outcome: str | None = None,
     facts: list[dict[str, Any]] | None = None,
+    conversation_id: str | None = None,
 ) -> dict[str, Any]:
     packet = create_packet(language, reason, app.state.agent_directory)
     packet["verified_facts"] = facts or []
@@ -99,23 +100,8 @@ def make_handoff(
         "handoff": {k: v for k, v in packet.items() if k != "request_summary"},
         "policy_rules": packet["reason_codes"],
     }
-    complete_packet(app, response, principal)
+    complete_packet(app, response, principal, conversation_id)
     return response
-
-
-def fraud_reasons(app: FastAPI, principal: Any) -> tuple[str, ...]:
-    """Reasons of this session's latest fraud packet, so a freeze result keeps
-    concurrent legal/distress/human-request reasons (ADR-0015 §3)."""
-    packets = [
-        packet
-        for packet in app.state.handoffs.values()
-        if packet.get("session_id") == principal.session_id
-        and "FRD-01" in packet.get("reason_codes", ())
-    ]
-    if not packets:
-        return ("FRD-01",)
-    latest = max(packets, key=lambda packet: str(packet.get("created_at", "")))
-    return tuple(latest["reason_codes"])
 
 
 def fraud_handoff(
@@ -139,6 +125,11 @@ def fraud_handoff(
     )
     if offers:
         response["freeze_offer"] = offers
+        # Internal, scoped durable provenance; never infer an offer from the
+        # latest packet in the session or from an arbitrary owned card.
+        app.state.idempotency["freeze-offer:" + response["handoff"]["handoff_id"]] = {
+            "handles": [offer["handle"] for offer in offers]
+        }
         response["reply"] += (
             " Puedes bloquear tu tarjeta con un nuevo OTP y confirmación."
             if language == "es"
@@ -162,6 +153,7 @@ class FreezeBody(BaseModel):
 class FreezeRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     language: str = Field(pattern=r"^(es|pt)$", default="es")
+    handoff_id: str = Field(pattern=r"^[\w-]{1,80}$")
 
 
 class CardStateView(InterfaceModel):
@@ -174,6 +166,8 @@ class FreezeProposalView(InterfaceModel):
     response_type: Literal["confirm_action"] = "confirm_action"
     action: Literal["freeze_card"] = "freeze_card"
     handle: str
+    handoff_id: str
+    conversation_id: str
     proposal_hash: str = Field(pattern=r"^[a-f0-9]{64}$")
     expires_at: datetime
     reply: str
@@ -207,6 +201,23 @@ def install_workflows(app: FastAPI, principal_dependency: Any) -> None:
         if product is None:
             raise HTTPException(404, "Product not found")
         return product
+
+    def freeze_origin(handoff_id: str, handle: str, principal: Any) -> dict[str, Any]:
+        packet = app.state.handoffs.get(handoff_id)
+        offered = app.state.idempotency.get("freeze-offer:" + handoff_id)
+        if (
+            not packet
+            or packet.get("customer_id") != principal.customer_id
+            or packet.get("session_id") != principal.session_id
+            or "FRD-01" not in packet.get("reason_codes", ())
+            or not offered
+            or handle not in offered["handles"]
+        ):
+            raise HTTPException(404, "Freeze offer not found")
+        conversation = app.state.conversations.get(packet.get("conversation_id"))
+        if not conversation or conversation.session_id != principal.session_id:
+            raise HTTPException(404, "Freeze offer not found")
+        return cast(dict[str, Any], packet)
 
     @app.get("/accounts", response_model=list[ProductView])
     async def accounts(principal: Any = principal_default) -> list[dict[str, Any]]:
@@ -289,21 +300,24 @@ def install_workflows(app: FastAPI, principal_dependency: Any) -> None:
         product = product_for(handle, principal)
         now = datetime.now(UTC)
         with store.transaction(scope(principal)):
+            origin = freeze_origin(body.handoff_id, handle, principal)
             if product.product_type not in {"Credit Card", "Debit Card"}:
                 return make_handoff(
                     app,
                     principal,
                     body.language,
-                    fraud_reasons(app, principal),
+                    origin["reason_codes"],
                     freeze_outcome="not_applicable",
+                    conversation_id=origin["conversation_id"],
                 )
             if product.status in {"Closed", "Blocked"}:
                 return make_handoff(
                     app,
                     principal,
                     body.language,
-                    fraud_reasons(app, principal),
+                    origin["reason_codes"],
                     freeze_outcome="unavailable",
+                    conversation_id=origin["conversation_id"],
                 )
             if principal.step_up_at is None or now - principal.step_up_at > timedelta(
                 minutes=int(rule("AUTH-02").parameters["otp_minutes"])
@@ -319,6 +333,9 @@ def install_workflows(app: FastAPI, principal_dependency: Any) -> None:
                 "nonce": secrets.token_urlsafe(24),
                 "language": body.language,
                 "step_up_at": principal.step_up_at.isoformat(),
+                "handoff_id": body.handoff_id,
+                "conversation_id": origin["conversation_id"],
+                "reason_codes": list(origin["reason_codes"]),
             }
             value["proposal_hash"] = freeze_hash(value)
             app.state.idempotency["freeze-proposal:" + value["proposal_hash"]] = value
@@ -326,6 +343,8 @@ def install_workflows(app: FastAPI, principal_dependency: Any) -> None:
                 "response_type": "confirm_action",
                 "action": "freeze_card",
                 "handle": handle,
+                "handoff_id": body.handoff_id,
+                "conversation_id": origin["conversation_id"],
                 "proposal_hash": value["proposal_hash"],
                 "expires_at": value["expires_at"],
                 "reply": "¿Confirmas el bloqueo de esta tarjeta?"
@@ -350,8 +369,15 @@ def install_workflows(app: FastAPI, principal_dependency: Any) -> None:
                 or proposal["product_id"] != product.product_id
                 or proposal["sid"] != principal.session_id
                 or proposal["run_id"] != principal.run_id
+                or not proposal.get("handoff_id")
                 or datetime.fromisoformat(proposal["expires_at"]) <= datetime.now(UTC)
                 or not hmac.compare_digest(freeze_hash(proposal), body.proposal_hash)
+            ):
+                raise HTTPException(409, "Action proposal expired or changed")
+            origin = freeze_origin(proposal["handoff_id"], handle, principal)
+            if (
+                proposal["conversation_id"] != origin["conversation_id"]
+                or proposal["reason_codes"] != origin["reason_codes"]
             ):
                 raise HTTPException(409, "Action proposal expired or changed")
             if (
@@ -387,8 +413,10 @@ def install_workflows(app: FastAPI, principal_dependency: Any) -> None:
                     app,
                     principal,
                     proposal["language"],
-                    fraud_reasons(app, principal),
+                    proposal["reason_codes"],
                     freeze_outcome=outcome,
+                    conversation_id=proposal["conversation_id"],
+                    facts=origin.get("verified_facts"),
                 )
                 if outcome == "verified":
                     result["card"] = {"handle": handle, "status": "Frozen", "verified": True}

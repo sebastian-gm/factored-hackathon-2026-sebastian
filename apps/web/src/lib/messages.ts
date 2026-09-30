@@ -207,6 +207,7 @@ export const es = {
   stepUpRequired:
     "Por seguridad, confirma con un código nuevo. Tu solicitud sigue pendiente.",
   verifyAndConfirm: "Verificar y confirmar",
+  otpRetry: "El código no es correcto. Revisa el SMS e inténtalo de nuevo.",
   mutationUnknown:
     "No pudimos verificar el resultado. No repetiremos la acción automáticamente. Consulta el estado antes de volver a intentarlo.",
   deskTitle: "Atención con contexto.",
@@ -482,6 +483,7 @@ export const pt: typeof es = {
   stepUpRequired:
     "Por segurança, confirme com um novo código. Sua solicitação continua pendente.",
   verifyAndConfirm: "Verificar e confirmar",
+  otpRetry: "O código está incorreto. Confira o SMS e tente novamente.",
   mutationUnknown:
     "Não foi possível verificar o resultado. Não repetiremos a ação automaticamente. Consulte o status antes de tentar de novo.",
   deskTitle: "Atendimento com contexto.",
