@@ -1,0 +1,36 @@
+{
+  "cases_sha256": "b1883fca035ef6ee5432b65c4e320155e5000c86d657ae8fcc4d593ef35e4460",
+  "builder_sha256": "77a85a90d50e923bcb62d944c057c105a6457e470ac0ef3475f8e909833052ad",
+  "materialized_sha256": "b81ee6a041e66a9097d9217b6cfe9d4ece54550f5d197f36933a8185088e388d",
+  "n": 40,
+  "locales": {
+    "es-MX": 5,
+    "es-CO": 5,
+    "es-AR": 5,
+    "es-CL": 5,
+    "pt-BR": 20
+  },
+  "features": {
+    "typos": 11,
+    "amount_words": 8,
+    "es_cl_slang": 5,
+    "relative_date": 8,
+    "merchant_twins": 8,
+    "mind_change": 4,
+    "case_status": 4,
+    "human_plus_charge": 4,
+    "embedded_injection": 4,
+    "mixed": 4
+  },
+  "outcomes": {
+    "dispute_filed": 16,
+    "resolved_by_explanation": 14,
+    "cancelled": 2,
+    "status_reported": 4,
+    "escalated": 4
+  },
+  "frozen_at": "2026-09-30T01:41:31.319880+00:00",
+  "baseline": "32587c9",
+  "provenance": "Entirely team-authored synthetic dev conversations; ADR-0015 gold; no held-out data",
+  "protocol": "before/after same 40 inputs; no output-informed label edits; scope dev-gate/post-v3; stop before reservation exceeding 0.90 USD"
+}
