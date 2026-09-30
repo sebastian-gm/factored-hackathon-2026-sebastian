@@ -109,6 +109,17 @@ mistakenly counted a nonempty unsafe map as true; the corrected aggregation coun
 its actual boolean findings, protected by an authored regression. Case execution
 records and frozen gold were not changed or rerun to correct that summary.
 
+The orchestrator confirmed the durable scope `dev-gate/pre-v4`, run `pre-v4`,
+with a $1 shared lifetime cap and a $0.90 exposure stop. Initial readback showed
+zero reservations and zero charged exposure. The real-P driver reserves and
+settles each Gemini/Grok/Jev attempt through that exact scope; unknown usage
+retains its reservation. It pins a clean implementation commit, frozen inputs,
+model/price configuration and prompts before starting, and stores call-level
+usage and validated outputs only in private ignored artifacts. Per-conversation
+cost sums that conversation's calls, never a key-balance delta or the reused
+client's lifetime total. The baseline includes the separately reviewed PR #77
+output-integrity guard; that PR is not assumed merged or deployed.
+
 Real before/after measurements remain pending. No NLU prompt or default model
 changed; mock misses do not authorize output-informed edits to the freeze. No v4
 input or result was opened.

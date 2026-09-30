@@ -32,6 +32,7 @@ class FakeConnection:
     def __init__(self, charged: Decimal):
         self.charged = charged
         self.queries: list[str] = []
+        self.params: list[Any] = []
         self.committed = False
 
     @contextmanager
@@ -41,6 +42,7 @@ class FakeConnection:
 
     def execute(self, query: str, params: Any = None):
         self.queries.append(query)
+        self.params.append(params)
         result = (True,)
         if "daily_usd" in query:
             result = (Decimal("1"), False)
@@ -74,3 +76,15 @@ def test_shared_threshold_denial_never_calls_reserve() -> None:
     with pytest.raises(DevBudgetStop):
         ThresholdGate(connection).reserve(0.01)
     assert not any("llm.reserve" in q for q in connection.queries)
+
+
+def test_pre_v4_reservations_use_only_approved_scope_and_run() -> None:
+    connection: Any = FakeConnection(Decimal("0"))
+    gate = ThresholdGate(connection, scope="dev-gate/pre-v4", run_id="pre-v4")
+    reservation = gate.reserve(0.01)
+    assert connection.params[1] == ("dev-gate/pre-v4",)
+    assert connection.params[2] == ("dev-gate/pre-v4", "pre-v4")
+    assert connection.params[3] == ("dev-gate/pre-v4",)
+    assert connection.params[4] == ("dev-gate/pre-v4", "pre-v4", Decimal("0.01"))
+    gate.settle(reservation, None)
+    assert connection.params[-1][1] is None  # unknown usage keeps the durable reserve

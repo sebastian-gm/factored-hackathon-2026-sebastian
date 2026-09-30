@@ -1967,3 +1967,29 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
   paid call, default change or v4 access is authorized by these preparatory checks.
 - Import the confirmed human CSV via the #77 branch and update its agreement doc
   without new judges. Current provisional Downloads path has not been confirmed.
+
+## 2026-09-30 PDT — AI approved pre-v4 development baseline
+
+### Completed (verified)
+
+- Orchestrator confirmed `dev-gate/pre-v4` / `pre-v4`; durable readback: $1
+  lifetime, zero reservations/exposure, prior scopes closed. All paid dev calls
+  reserve before request through this scope, including Jev, and stop at $0.90
+  shared exposure. No final-evaluation scope or v4 rows accessed.
+- Frozen 60-case hashes still match. Added a sequential real-P entry point with
+  clean-commit/config/prompt pins, private per-call checkpoints and cost from
+  per-case usage fields. Scope/run routing and unknown-cost retention are tested.
+- Baseline carries the previously reviewed PR #77 grounding fix (internal handles
+  and corrupt text); its 34 focused mock/freeze/budget checks pass with no spend.
+
+### Done but not verified
+
+- The first real baseline and lean-prompt comparison have not started. v5.1 and
+  production model selection are unchanged; PR #77 remains a separate lead merge.
+
+### Next / blocked
+
+- Run frozen round-two real P, diagnose by owner, then repair AI causes and compare
+  the lean prompt as budget permits. No adoption without the full five-set gate.
+- Human export remains pending. The next model/Decisions comparison is queued;
+  wait for its separate scope before any paid comparison.

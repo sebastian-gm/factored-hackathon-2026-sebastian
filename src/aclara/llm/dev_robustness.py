@@ -11,6 +11,7 @@ import subprocess
 from collections import Counter
 from dataclasses import asdict
 from decimal import ROUND_CEILING, Decimal
+from hashlib import sha256
 from importlib import import_module
 from pathlib import Path
 from threading import RLock
@@ -49,9 +50,16 @@ def check_reserve(charged: Decimal, amount: Decimal) -> None:
 class ThresholdGate:
     """Uses the same durable scope lock as the lead's llm.reserve/settle calls."""
 
-    def __init__(self, connection: psycopg.Connection[Any]):
+    def __init__(
+        self,
+        connection: psycopg.Connection[Any],
+        *,
+        scope: str = SCOPE,
+        run_id: str = RUN_ID,
+    ):
         self.connection = connection
         self.lock = RLock()
+        self.scope, self.run_id = scope, run_id
 
     def reserve(self, amount_usd: float) -> str:
         amount = money(amount_usd)
@@ -60,22 +68,22 @@ class ThresholdGate:
                 self.connection.execute("SET LOCAL ROLE aclara_owner")
                 limit = self.connection.execute(
                     "SELECT daily_usd,disabled FROM llm.limits WHERE scope=%s FOR UPDATE",
-                    (SCOPE,),
+                    (self.scope,),
                 ).fetchone()
                 run = self.connection.execute(
                     "SELECT limit_usd,enabled FROM llm.runs WHERE scope=%s AND run_id=%s",
-                    (SCOPE, RUN_ID),
+                    (self.scope, self.run_id),
                 ).fetchone()
                 if limit != (Decimal("1"), False) or run != (Decimal("1"), True):
                     raise DevBudgetStop("Expected shared dev scope changed or closed")
                 used = self.connection.execute(
                     "SELECT coalesce(sum(charged_usd),0) FROM llm.reservations WHERE scope=%s",
-                    (SCOPE,),
+                    (self.scope,),
                 ).fetchone()
                 assert used is not None
                 check_reserve(used[0], amount)
                 row = self.connection.execute(
-                    "SELECT llm.reserve(%s,%s,%s)", (SCOPE, RUN_ID, amount)
+                    "SELECT llm.reserve(%s,%s,%s)", (self.scope, self.run_id, amount)
                 ).fetchone()
                 if not row or row[0] is None:
                     raise DevBudgetStop("Durable reservation denied")
@@ -106,7 +114,9 @@ def save(path: Path, value: Any) -> None:
     pending.replace(path)
 
 
-def summarize(items: list[dict[str, Any]], calls: list[dict[str, Any]]) -> dict[str, Any]:
+def summarize(
+    items: list[dict[str, Any]], calls: list[dict[str, Any]], *, planned: int = 40
+) -> dict[str, Any]:
     metrics = import_module("evals.metrics")
     proportions = {}
     for group in ("all", "es", "pt"):
@@ -119,7 +129,9 @@ def summarize(items: list[dict[str, Any]], calls: list[dict[str, Any]]) -> dict[
         slices[tag] = metrics.proportion(sum(bool(i["passed"]) for i in rows), len(rows))
     known_cost = sum(c["cost_usd"] or 0 for c in calls)
     return {
-        "complete": len(items) == 40,
+        "complete": len(items) == planned,
+        "completed": len(items),
+        "planned": planned,
         "success": proportions,
         "features": slices,
         "unsafe": dict(Counter(k for i in items for k, v in i["unsafe"].items() if v)),
@@ -138,6 +150,8 @@ def summarize(items: list[dict[str, Any]], calls: list[dict[str, Any]]) -> dict[
         "known_cost_per_completed_case_usd": known_cost / len(items) if items else None,
         "case_latency": metrics.latency([[i["case_ms"]] for i in items]),
         "turn_latency": metrics.latency([i["turn_ms"] for i in items]),
+        "nlu_latency": metrics.latency([[c["latency_ms"] for c in calls if c["route"] == "nlu"]]),
+        "nlu_input_tokens": sum(c["input_tokens"] for c in calls if c["route"] == "nlu"),
         "models": dict(Counter(c["model_id"] for c in calls)),
         "failures": [
             {k: i[k] for k in ("id", "outcome", "missing_actions", "forbidden_observed", "unsafe")}
@@ -147,18 +161,22 @@ def summarize(items: list[dict[str, Any]], calls: list[dict[str, Any]]) -> dict[
     }
 
 
-async def run(stage: str) -> dict[str, Any]:
-    frozen = validate()
+async def run(stage: str, *, round_two: bool = False) -> dict[str, Any]:
+    factory = import_module("aclara.llm.dev_robustness_round2_cases") if round_two else None
+    validator = factory.validate if factory else validate
+    frozen = validator()
+    scope, run_id = ("dev-gate/pre-v4", "pre-v4") if round_two else (SCOPE, RUN_ID)
+    output_root = ROOT / "artifacts/dev-pre-v4/round2-real" if round_two else OUTPUT
     sha = subprocess.check_output(["git", "-C", str(ROOT), "rev-parse", "HEAD"], text=True).strip()
     if subprocess.check_output(
         ["git", "-C", str(ROOT), "status", "--porcelain"], text=True
     ).strip():
         raise RuntimeError("Real study requires a clean committed tree")
-    output = OUTPUT / stage
+    output = output_root / stage
     if output.exists():
         raise FileExistsError("Stage already exists; do not overwrite or repeat paid calls")
     if stage == "after":
-        before = json.loads((OUTPUT / "before/launch.json").read_text())
+        before = json.loads((output_root / "before/launch.json").read_text())
         if before["freeze"] != frozen:
             raise RuntimeError("Before/after freeze differs")
     load_dotenv(ROOT / ".env", override=False)
@@ -167,7 +185,9 @@ async def run(stage: str) -> dict[str, Any]:
     if os.getenv("LLM_REAL_CALLS_APPROVED") != "1":
         raise RuntimeError("Owner-approved scoped process must enable real calls")
     dsn = import_module("scripts.azure_migrate_ops").connection_string("aclara_admin")
-    verify = import_module("scripts.post_v3_budget").verify
+    verify = import_module(
+        "scripts.pre_v4_budget" if round_two else "scripts.post_v3_budget"
+    ).verify
     initial = verify(dsn)
     if initial["charged_with_reserves_usd"] >= float(STOP):
         raise DevBudgetStop("Shared scope already reached requested stop")
@@ -177,10 +197,20 @@ async def run(stage: str) -> dict[str, Any]:
         {
             "sha": sha,
             "freeze": frozen,
-            "scope": SCOPE,
-            "run_id": RUN_ID,
+            "scope": scope,
+            "run_id": run_id,
             "stop_usd": float(STOP),
             "initial_budget": initial,
+            "file_hashes": {
+                name: sha256((ROOT / name).read_bytes()).hexdigest()
+                for name in (
+                    "config/models.yaml",
+                    "config/pricing.yaml",
+                    "prompts/nlu/v5.md",
+                    "prompts/phrase/v2.md",
+                    "src/aclara/agent/nlg/grounding.py",
+                )
+            },
         },
     )
     calls: list[dict[str, Any]] = []
@@ -207,19 +237,26 @@ async def run(stage: str) -> dict[str, Any]:
             load_prices(ROOT / "config/pricing.yaml"),
             budget_usd=None,
             daily_budget_usd=1,
-            spend_gate=ThresholdGate(connection),
+            spend_gate=ThresholdGate(connection, scope=scope, run_id=run_id),
             response_record=journal,
             fallback_routes={"nlu": fallback, "phrase": fallback} if fallback else None,
             call_timeout_seconds=45,
         )
-        cases, scenarios = materialize()
+        cases, scenarios = factory.materialize() if factory else materialize()
+        case_identity = factory.identity if factory else identity
         bind = import_module("evals.bindings").bind
         execute = import_module("evals.bound_execution").execute_bound
         try:
             for spec, scenario in zip(cases, scenarios, strict=True):
                 current_id = spec["id"]
+                call_start = len(calls)
                 result = await execute(
-                    scenario, bind(scenario, identity(spec)), "P", llm_client=client
+                    scenario, bind(scenario, case_identity(spec)), "P", llm_client=client
+                )
+                # A reused client's lifetime spend is not this conversation's cost.
+                result["cost_usd"] = sum(c["cost_usd"] or 0 for c in calls[call_start:])
+                result["unknown_cost_attempts"] = sum(
+                    c["cost_usd"] is None for c in calls[call_start:]
                 )
                 result.update(tags=spec["tags"], locale=spec["locale"])
                 save(output / (current_id + ".json"), result)
@@ -229,7 +266,7 @@ async def run(stage: str) -> dict[str, Any]:
                         {
                             "stage": stage,
                             "completed": len(items),
-                            "planned": 40,
+                            "planned": len(cases),
                             "passed": sum(bool(i["passed"]) for i in items),
                         }
                     ),
@@ -240,20 +277,23 @@ async def run(stage: str) -> dict[str, Any]:
     result = {
         "stage": stage,
         "sha": sha,
-        **summarize(items, calls),
+        **summarize(items, calls, planned=len(cases)),
         "error_type": error_type,
         "budget_readback": verify(dsn),
     }
     save(output / "summary.json", result)
+    if validator() != frozen:
+        raise RuntimeError("Frozen fixtures changed during execution")
     return result
 
 
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("stage", choices=("before", "after"))
+    parser.add_argument("--round-two", action="store_true")
     args = parser.parse_args()
     try:
-        result = asyncio.run(run(args.stage))
+        result = asyncio.run(run(args.stage, round_two=args.round_two))
     except Exception as error:
         raise SystemExit("Dev robustness failed: " + type(error).__name__) from None
     # Failures are case-level private evidence; print aggregates only.
