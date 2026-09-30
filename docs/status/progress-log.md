@@ -1432,3 +1432,43 @@ Restricted web: https://ca-web-aclara-dev-eastus2.lemonbeach-1b769de0.eastus2.az
 Use `demo.es.mx` or `demo.pt.br` for the three-surface workspace; `demo.es.co` and `demo.es.ar` are customer-only. Retrieve `demo-password` from the authenticated Key Vault portal; never paste it into chat, Git or logs. OTP is simulated. Re-login after the identity-source migration; prior fixture sessions do not grant organizer access.
 
 For later sessions, paste: **Continue from docs/status/progress-log.md. Next layer: final evaluation after Sebastian's explicit go. Same rules.**
+
+## 2026-09-29 PDT — authorized startup preview and session-security review fix
+
+### Completed (verified)
+
+- Merged #63 into `fix/post-v3-analysis` at `dac38017d4ea9910afc3aa4851f661dd6608b7ce`
+  and redeployed the explicitly approved PREVIEW. Only ignored `image_tag` changed;
+  reviewed Terraform plan/apply: 0 added, 2 changed, 0 destroyed. Both image tags
+  match. `python -m scripts.azure_verify` passed: owner-IP/login restriction,
+  internal API, TLS/identity/firewall/budget controls and replicas 0..1 unchanged.
+- `.venv/bin/python artifacts/preview-release/read_only.py`: new web/API revisions
+  both reached zero naturally; authenticated cold me 200/86.059 s with clock,
+  transactions 200/0.132 s (four projections), logout revocation readback passed.
+  Sampled console logs contain no application exceptions. No model/banking calls.
+  Detailed aggregate evidence is ignored under `artifacts/preview-release/`.
+- Exact deployed-SHA `UV_CACHE_DIR=artifacts/uv-cache make checks`: 308 Python
+  tests passed, 14 database-dependent skips; B1 32/32; interfaces/catalog,
+  pre-commit and staged-file policy passed. Startup web checks from #63 remain
+  the previously executed 55 browser checks and typecheck/lint/build.
+- Finding #2: authored two-tab regression first reproduced missing ESC-02.
+  Security cues now share the durable, session-scoped strike record; older
+  conversation-only cues are preserved on upgrade. Another login stays isolated.
+  `.venv/bin/pytest tests/test_workflow_api.py tests/test_post_v3_fixes.py`: 32 passed.
+  `.venv/bin/python -m scripts.test_postgres`: 18 passed, including another-tab
+  security termination after app/store restart. Strict mypy and Ruff passed.
+  Fix-candidate `make checks`: 309 passed, 15 skips; B1 32/32; safety/hooks/schema green.
+
+### Done but not verified
+
+- GitHub Actions cannot start because the account Actions budget blocks jobs.
+  Local checks do not claim a successful remote CI run.
+- Paid preview chat has not been tested. The Azure checks exercise auth and reads.
+
+### Next / blocked
+
+- Open the security fix PR against `fix/post-v3-analysis`; retain main at `e12efc7`.
+- Fix freeze-origin binding, exact-error harness renewal/new freeze confirmation,
+  and wrong-code OTP retry with authored regressions, then open a second feature PR.
+- AI lane owns review findings #1/#3. Main merge still needs billing recovery or
+  Sebastian's explicit exception. No min replicas change, paid calls or v4 access.

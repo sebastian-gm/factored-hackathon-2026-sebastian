@@ -78,3 +78,29 @@ decides billing or explicitly overrides the merge gate.
 The [submission checklist](../submission/checklist.md) records min replicas one
 only from share/submission day (about October 3–4), its live-price estimate and
 the separate approval/verification step. No replica change was made here.
+
+## Authorized preview redeploy — 2026-09-29 PDT
+
+Sebastian authorized stacking #63 on the feature branch and redeploying the
+preview, without a main merge. #63 merged at
+`dac38017d4ea9910afc3aa4851f661dd6608b7ce`; both private images use that tag.
+Only the ignored `image_tag` input changed. The reviewed plan and apply reported
+**0 added, 2 changed, 0 destroyed**: images, `RELEASE_SHA`, and release tags only.
+`python -m scripts.azure_verify` passed; IP/login controls and **min replicas 0**
+are unchanged. This is a feature preview, not a release gate for v4.
+
+The authenticated read-only smoke waited for **the new active revisions** to
+reach zero naturally. A cold `me` GET then returned **200 in 86.059 s**, including
+the bank clock; transactions returned **200 in 0.132 s**, with four scoped
+projections. Logout was independently checked as revoked. API/web console
+samples contained no exceptions and recorded startup of the new revisions.
+The initial post-deployment config read also returned 200 after 75.968 s.
+An early ready-revision metadata lag was detected; that idle monitor was stopped
+and restarted against the deployed revisions before claiming a cold read.
+
+Evidence: ignored `artifacts/preview-release/plan-review.json`, `read-only.json`,
+private push/console logs, and `artifacts/azure/verified.json`. Auth uses only
+in-memory Key Vault credentials, simulated OTP and cookies; output contains
+statuses, counts and timings only. **No model calls or banking writes** occurred.
+Cold startup can still take about 90 seconds; the code waits and shows its
+localized starting state. Main remains unchanged and remote CI is billing-blocked.

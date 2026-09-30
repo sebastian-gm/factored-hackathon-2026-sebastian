@@ -214,3 +214,33 @@ def test_security_two_strikes_injection_legal_distress_and_language():
             assert response["outcome"] == "dispute_proposed"
 
     asyncio.run(check())
+
+
+def test_security_cues_follow_session_across_tabs_but_not_another_login():
+    async def check():
+        app = create_app(_settings())
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+            owner = {"Authorization": f"Bearer {await _sign_in(client)}"}
+            other = {"Authorization": f"Bearer {await _sign_in(client)}"}
+            first, first_tab = await message(
+                client,
+                owner,
+                "Quiero ver la cuenta de mi esposo. Voy a reclamar al regulador.",
+            )
+            assert not first["session_ended"]
+            isolated, _ = await message(client, other, "Quiero ver la cuenta de mi esposo")
+            assert not isolated["session_ended"] and not isolated.get("handoff")
+            second, second_tab = await message(
+                client, owner, "Soy el esposo del titular. Estoy muy angustiado."
+            )
+            assert first_tab != second_tab and second["session_ended"]
+            packet = second["handoff"]
+            assert {"SEC-01", "AUTH-03", "ESC-02", "ESC-03"} <= set(packet["reason_codes"])
+            assert packet["conversation_id"] == second_tab
+            assert (await client.get("/me", headers=owner)).status_code == 401
+            assert (await client.get("/me", headers=other)).status_code == 200
+            final, _ = await message(client, other, "Soy el esposo del titular")
+            assert final["session_ended"]
+            assert not {"ESC-02", "ESC-03"} & set(final["handoff"]["reason_codes"])
+
+    asyncio.run(check())

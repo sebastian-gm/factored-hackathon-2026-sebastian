@@ -694,6 +694,14 @@ def create_app(
         cues = {reason for reason in escalations(message) if reason in {"ESC-02", "ESC-03"}}
         conversation.security_cues = sorted(set(conversation.security_cues) | cues)
         state = app.state.executions.get("security_state", {"attempts": 0})
+        # The strikes and their cues share the durable authenticated-session scope.
+        # Older records may have kept cues only in conversation objects; preserve
+        # those too when the next strike arrives after an upgrade or restart.
+        state["cues"] = sorted(
+            set(state.get("cues", []))
+            | cues
+            | {cue for tab in app.state.conversations.values() for cue in tab.security_cues}
+        )
         state["attempts"] += 1
         app.state.executions["security_state"] = state
         ended = state["attempts"] >= int(rule("SEC-01").parameters["end_session_attempts"])
@@ -722,9 +730,9 @@ def create_app(
         }
         app.state.runtime.record("refuse_request")
         if ended:
-            result["handoff"] = make_handoff(
-                app, principal, language, ("SEC-01", *conversation.security_cues)
-            )["handoff"]
+            result["handoff"] = make_handoff(app, principal, language, ("SEC-01", *state["cues"]))[
+                "handoff"
+            ]
             operational.delete("sessions", principal.capability_digest)
             app.state.runtime.record("end_session")
         return result
