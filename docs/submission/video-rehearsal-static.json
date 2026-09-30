@@ -1,0 +1,101 @@
+{
+  "recorded_at_utc": "2026-09-30T23:54:36.486641+00:00",
+  "release_sha": "c32fd6429281a764ee33dd96622f237c7c0289c3",
+  "status": "partial_read_only_model_stories_paused_by_owner",
+  "browser": {
+    "engine": "Chromium",
+    "width_px": 1440,
+    "height_px": 1000
+  },
+  "credentials": "Key Vault to process memory and stdin pipe; never persisted; screenshot fields masked",
+  "timing_method": "Browser wall time from navigation/click to rendered ready selector; initial readiness includes startup screenshots; no forced restart; one sample per operation",
+  "initial_readiness_seconds": 99.284778819,
+  "surface_timings_seconds": {
+    "warm_login_ready": 1.26157,
+    "es_login_to_otp": 0.298678,
+    "es_otp_to_chat": 0.326948,
+    "es_insights_open": 0.145057,
+    "es_desk_open": 0.179134,
+    "es_ops_open": 0.235258,
+    "pt_desk_open": 0.158817,
+    "pt_insights_open": 0.040264
+  },
+  "bff_read_timings_seconds": [
+    {
+      "kind": "me",
+      "status": 401,
+      "bff_s": 0.00047999999999999996
+    },
+    {
+      "kind": "config",
+      "status": 200,
+      "bff_s": 0.24251
+    },
+    {
+      "kind": "auth/sms",
+      "status": 200,
+      "bff_s": 0.01476
+    },
+    {
+      "kind": "me",
+      "status": 200,
+      "bff_s": 0.016800000000000002
+    },
+    {
+      "kind": "agent/handoffs",
+      "status": 200,
+      "bff_s": 0.02539
+    },
+    {
+      "kind": "ops/snapshot",
+      "status": 200,
+      "bff_s": 0.0469
+    },
+    {
+      "kind": "agent/handoffs",
+      "status": 200,
+      "bff_s": 0.02087
+    }
+  ],
+  "model": {
+    "messages_sent": 0,
+    "provider_requests": 0,
+    "spend_usd": 0,
+    "conversation_turn_timings": [],
+    "turn_timings_status": "pending_owner_top_up_ping"
+  },
+  "story_availability": {
+    "explain": {
+      "hinted_personas": 1,
+      "hinted_roles": ["ops"],
+      "frontend_eligible_customer_personas": 0
+    },
+    "ambiguous": {
+      "hinted_personas": 0,
+      "frontend_eligible_customer_personas": 0
+    },
+    "fraud": {
+      "hinted_personas": 1,
+      "hinted_roles": ["ops"],
+      "frontend_eligible_customer_personas": 0
+    },
+    "all_quickstart_buttons_disabled": true
+  },
+  "workspace": {
+    "desk_queue_count": 0,
+    "desk_load_error": false,
+    "banking_writes": 0,
+    "resets": 0
+  },
+  "captures": {
+    "directory": "artifacts/ux-audit/azure-rehearsal-c32fd64",
+    "read_only_views": 18,
+    "read_only_pngs": 36,
+    "total_pngs": 40,
+    "viewports_and_full_page": true,
+    "page_errors": 0,
+    "horizontal_overflow": 0,
+    "sidebar_y_zero": true,
+    "private_file_mode": "0600"
+  }
+}

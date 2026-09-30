@@ -1,5 +1,23 @@
 # Progress log
 
+## 2026-09-30 PDT — Frontend lane: partial Azure video rehearsal
+
+### Completed (verified)
+
+- Read back both deployed container image tags at **c32fd6429281a764ee33dd96622f237c7c0289c3**. Demo credential retrieved from Key Vault into memory and a pipe only; no credential or OTP persisted. Authenticated ES workspace; inspected ES/PT navigation, Insights, empty Agent Desk and Ops with Playwright. Non-authentication POSTs blocked during the static pass. **Zero chat messages, zero model spend, zero banking writes/reset**.
+- Captured **18 read-only views / 36 PNGs**, plus first startup/login (**40 PNGs total**), ignored and mode 0600; username/password/OTP fields masked. Zero page errors/overflow, sidebar starts at y=0 throughout. Initial readiness **99.28 s** includes startup captures; warm **1.26 s**. Individual navigation/authentication timings are in the [aggregate receipt](../submission/video-rehearsal-static.json), not a cold-start distribution or model timing study.
+- Recorded two story-availability blockers: ES explain/fraud hints are attached to an Ops persona excluded by the frontend customer-role predicate; PT ambiguous has no live hint. All three quickstart/helper buttons disabled. Desk is genuinely empty (HTTP 200); Ops has no conversation execution in this workspace. Prepared the [2:55 shot-list draft](../submission/video-shot-list.md), with exact shipped generic messages, observed static shots, pending conversation shots and video issues. No product/backend/NLU/policy change, organizer row in Git, frozen-suite access or system evaluation.
+
+### Done but not verified
+
+- Owner paused model-dependent rehearsal after reporting exhausted OpenRouter balance, before any chat was sent. No real-model story, choice, proposal, receipt or handoff packet is claimed. PT static screenshots use the language selector on the same authorized ES workspace; they do not verify PT NLU/persona behavior.
+- Final recorded clip, narration synchronization and exported duration remain pending. The shot list is an execution draft for conversation steps, not successful-demo evidence.
+
+### Next / blocked
+
+- Wait for owner's credit-top-up ping before sending any model-dependent story. Resolve live story eligibility/availability with the lead; no authority/scoping bypass. Rehearse each story once, time every turn, read back actual actions, retain failures and update the shot list from observation. Use only the existing approved app purse; no direct provider key/call or reset.
+- Publish this aggregate/documentation PR and leave it unmerged; green main-target remote CI remains required. Keep private captures local. No cloud access/replica changes, publication or v4 run.
+
 ## 2026-09-30 PDT — Insights integration, scoped scans and new comparison purse
 
 ### Completed (verified)
