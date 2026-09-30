@@ -15,7 +15,7 @@
 
 ### Next / blocked
 
-- Complete local checks and open a separate PR targeting `fix/post-v3-analysis`, for lead merge. PR #65 remains open with its before/after study and lead-owned uncertainty-guard follow-up. Keep v4 blind and do not deploy.
+- [PR #66](https://github.com/sebastian-gm/bank-agent-lab/pull/66) is open, unmerged, targeting `fix/post-v3-analysis`. Lead reviews and merges; preserve both additive progress entries when reconciling PRs #65/#66. GitHub Actions requires the owner budget block to be resolved; read back current-head CI before merge. PR #65 retains the paid robustness study and lead-owned guard follow-up. Keep v4 blind and do not deploy.
 
 
 ## 2026-09-29 UTC — Owner-approved preview deploy of `fix/post-v3-analysis`
