@@ -1437,3 +1437,50 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
   and wrong-code OTP retry with authored regressions, then open a second feature PR.
 - AI lane owns review findings #1/#3. Main merge still needs billing recovery or
   Sebastian's explicit exception. No min replicas change, paid calls or v4 access.
+
+## 2026-09-29 PDT — lead freeze provenance and OTP follow-up candidate
+
+### Completed (verified)
+
+- Security fix PR is [#67](https://github.com/sebastian-gm/bank-agent-lab/pull/67),
+  head `5720cbe`, targeting `fix/post-v3-analysis`. The second fix branch includes
+  it; merge #67 first to reduce the second PR's diff. No main merge or second
+  Azure deploy was performed.
+- Authorized PREVIEW remains `dac38017d4ea9910afc3aa4851f661dd6608b7ce`.
+  Authenticated browser navigation also passed: login/OTP, visible bank clock,
+  chat composer and sign-out; no message sent. Evidence is ignored
+  `artifacts/preview-release/browser-final.jsonl`. Initial browser helper failures
+  were its own persona/OTP-placeholder race and timeout setup; the helper now
+  waits for the six-digit SMS before submission. They are not app failures.
+- Findings #4/#5: explicit owned fraud-handoff origin, offered-card restriction,
+  hash-bound conversation/reasons, refreshed freeze proposal returned to the
+  simulated customer after exact-error OTP renewal; other 401s never renew.
+  Updated API/BFF/UI/adapter callers and regenerated OpenAPI. Authored tests cover
+  multiple conversations, tampered/wrong-session/unoffered-card origin and a
+  customer declining the refreshed proposal. Wrong-code renewal preserves the
+  pending dispute/challenge and permits retry; five-attempt limit remains enforced.
+- `UV_CACHE_DIR=artifacts/uv-cache make checks`: 324 passed, 16 database-dependent
+  skips; B1 32/32, hooks/staged-file policy/compile/interfaces/catalog passed.
+  `.venv/bin/python -m scripts.test_postgres`: 19 passed, including originating
+  fraud packet after a new conversation and app restart, and wrong OTP followed
+  by correct OTP/dispute readback after app/store restart. No cloud database writes.
+- `.venv/bin/python -m evals.runner --system B1 --scenarios evals/dev_scenarios_v2.yaml`:
+  32/32. Ruff and strict mypy passed. Web typecheck/lint/build passed;
+  `pnpm test:e2e`: 46/46; `pnpm test:e2e --staff`: 1/1. Live customer checks
+  passed 12/12 including the final multi-conversation browser regression.
+  A typecheck started alongside dev-server generation hit missing generated Next
+  type files; sequential typecheck after browser teardown passed.
+
+### Done but not verified
+
+- Follow-up fixes are local/mock validated, not deployed or measured with real NLU.
+- GitHub Actions is still blocked by the account Actions budget; no remote green
+  claim. Main is unchanged; no v4 inputs, authoring tools or bindings opened.
+
+### Next / blocked
+
+- Publish the tested second private feature PR for review.
+- AI lane owns #1/#3. Review both lead PRs; main merge waits for billing recovery
+  or Sebastian's explicit exception. Any later release follows its own gate.
+- No paid calls, min replicas change, or new approval needed for the completed
+  preview. No v4 start. Continue from this log under the same rules.
