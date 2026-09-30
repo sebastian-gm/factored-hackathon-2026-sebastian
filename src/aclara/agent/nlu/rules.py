@@ -14,19 +14,129 @@ def normalize_text(text: str) -> str:
     return "".join(char for char in decomposed if not unicodedata.combining(char))
 
 
-def detect_language(text: str) -> Literal["es", "pt"]:
+def detect_language_evidence(
+    text: str, *, ignored_terms: tuple[str, ...] = ()
+) -> Literal["es", "pt", "uncertain"]:
+    """Conservative ES/PT evidence; names and domains carry no language vote."""
     normalized = normalize_text(text)
-    portuguese_markers = (
-        "nao ",
+    normalized = re.sub(r"\b(?:https?://|www\.)?[^\s/]+\.[a-z]{2,}(?:/[^\s]*)?", " ", normalized)
+    for name in sorted(ignored_terms, key=len, reverse=True):
+        if name.strip():
+            normalized = re.sub(rf"(?<!\w){re.escape(normalize_text(name))}(?!\w)", " ", normalized)
+    words = set(re.findall(r"[a-z]+", normalized))
+    # Shared/ambiguous tokens (including com and sim) cannot decide language.
+    # Distinctive lexical evidence counts twice; weak function words require
+    # context. Conflicting or insufficient evidence stays explicitly uncertain.
+    pt_strong = {
+        "nao",
         "cobranca",
+        "cobrancas",
         "cartao",
         "fatura",
         "atendente",
         "voce",
         "pessoa",
         "preciso",
-    )
-    return "pt" if any(marker in normalized for marker in portuguese_markers) else "es"
+        "quero",
+        "estou",
+        "tenho",
+        "sessao",
+        "extrato",
+        "obrigado",
+        "obrigada",
+        "tambem",
+        "irmao",
+        "pode",
+        "poderia",
+        "sinto",
+        "ajudar",
+        "agora",
+        "fornecer",
+        "detalhes",
+        "moeda",
+        "transacao",
+        "transacoes",
+        "pendente",
+        "recusada",
+        "recusado",
+        "estornada",
+        "estornado",
+        "aprovada",
+        "aprovado",
+        "esclarecer",
+        "lancamento",
+        "estabelecimento",
+        "contestacao",
+        "falar",
+        "foi",
+    }
+    es_strong = {
+        "quiero",
+        "necesito",
+        "hablar",
+        "persona",
+        "tarjeta",
+        "cobro",
+        "monto",
+        "moneda",
+        "transaccion",
+        "transacciones",
+        "pendiente",
+        "rechazada",
+        "rechazado",
+        "reversada",
+        "reversado",
+        "aprobada",
+        "aprobado",
+        "puedes",
+        "puedo",
+        "podrias",
+        "datos",
+        "aclarar",
+        "operacion",
+        "movimientos",
+        "muestrame",
+        "recuerdas",
+        "reconozco",
+        "deseas",
+        "yo",
+        "ayudar",
+    }
+    pt_weak = {
+        "o",
+        "a",
+        "os",
+        "as",
+        "uma",
+        "meu",
+        "minha",
+        "esse",
+        "essa",
+        "seu",
+        "sua",
+        "isso",
+        "muito",
+        "mais",
+        "dele",
+        "dela",
+        "e",
+    }
+    es_weak = {"el", "la", "los", "las", "mi", "mis", "una", "un", "con", "no", "es", "y"}
+    pt = 2 * len(words & pt_strong) + len(words & pt_weak)
+    es = 2 * len(words & es_strong) + len(words & es_weak)
+    if "¿" in normalized or "¡" in normalized:
+        es += 2
+    if es >= 2 and pt < 2:
+        return "es"
+    if pt >= 2 and es < 2:
+        return "pt"
+    return "uncertain"
+
+
+def detect_language(text: str) -> Literal["es", "pt"]:
+    """Preserve the frozen two-language interface; uncertainty uses its ES default."""
+    evidence = detect_language_evidence(text)
+    return "pt" if evidence == "pt" else "es"
 
 
 def classify(text: str) -> NluFrame:
@@ -34,7 +144,23 @@ def classify(text: str) -> NluFrame:
     language = detect_language(text)
     if any(
         term in normalized
-        for term in ("perdi meu cartao", "roubaram", "robaron", "cartao roubado", "fraude")
+        for term in (
+            "perdi meu cartao",
+            "perdi o meu cartao",
+            "perdi o cartao",
+            "roubaram",
+            "robaron",
+            "cartao roubado",
+            "cartao perdido",
+            "perdi mi tarjeta",
+            "perdi la tarjeta",
+            "se me perdio la tarjeta",
+            "extravie mi tarjeta",
+            "tarjeta robada",
+            "tarjeta perdida",
+            "me robaron la tarjeta",
+            "fraude",
+        )
     ):
         return NluFrame(language=language, intent=Intent.FRAUD, confidence=0.99)
     if any(

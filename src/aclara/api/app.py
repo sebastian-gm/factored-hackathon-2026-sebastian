@@ -44,6 +44,7 @@ from aclara.agent.nlu.structured import understand as deterministic_understand
 from aclara.agent.runtime import InjectedFailure, Runtime
 from aclara.agent.selection import candidates as identified_candidates
 from aclara.agent.selection import explicit_choice, scoped_inquiry_language, uncertain
+from aclara.api.judge_access import judge_alias
 from aclara.api.staff import complete_packet, install_staff
 from aclara.api.staff_contracts import IdentityView
 from aclara.api.workflows import (
@@ -56,7 +57,12 @@ from aclara.api.workflows import (
     security_event,
 )
 from aclara.bank.repository import Transaction, TransactionRepository
-from aclara.bank.serving import Persona, ServingRepository, demo_story_mappings
+from aclara.bank.serving import (
+    Persona,
+    ServingRepository,
+    demo_story_mappings,
+    request_snapshot_cache,
+)
 from aclara.handoff.packet import create_packet
 from aclara.handoff.routing import AgentDirectory
 from aclara.llm.client import StructuredClient
@@ -103,6 +109,20 @@ class ActionProposal:
     language: str
 
 
+class SnapshotCacheMiddleware:
+    """Scope serving snapshot memoization to exactly one HTTP request."""
+
+    def __init__(self, app: Any) -> None:
+        self.app = app
+
+    async def __call__(self, scope: Any, receive: Any, send: Any) -> None:
+        if scope["type"] != "http":
+            await self.app(scope, receive, send)
+            return
+        with request_snapshot_cache():
+            await self.app(scope, receive, send)
+
+
 @dataclass(slots=True)
 class Conversation:
     session_id: str
@@ -119,6 +139,9 @@ class Conversation:
     offer_handle: str | None = None
     unfamiliar_charge: bool = False
     recognition_rounds: int = 0
+    # Legal/distress cues seen during cross-customer attempts; the security
+    # handoff must retain them (ADR-0015 §3-4).
+    security_cues: list[str] = field(default_factory=list)
 
 
 class StrictModel(BaseModel):
@@ -305,6 +328,7 @@ def create_app(
         else TransactionRepository()
     )
     app = FastAPI(title="Aclara demo API", version="0.1.0")
+    app.add_middleware(SnapshotCacheMiddleware)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=[os.getenv("WEB_ORIGIN", "http://localhost:3000")],
@@ -340,9 +364,17 @@ def create_app(
         )
         if p.username
     }
+    judge = judge_alias(active_settings, app.state.personas)
+    if judge is not None:
+        app.state.personas[judge.username] = judge
     app.state.demo_stories = demo_story_mappings(
         ledger, app.state.personas, active_settings.bank_clock
     )
+    if judge is not None:
+        source_username = json.loads(active_settings.judge_persona)["source_username"]
+        app.state.demo_stories[judge.username] = list(
+            app.state.demo_stories.get(source_username, [])
+        )
     realms = {
         hashlib.sha256(p.username.encode()).hexdigest()[:12]: p.customer_id
         for p in app.state.personas.values()
@@ -457,10 +489,12 @@ def create_app(
         if not app.state.personas or not active_settings.demo_password:
             raise HTTPException(status_code=503, detail="Demo identity is not configured")
         persona = app.state.personas.get(body.username)
-        valid = (
-            hmac.compare_digest(body.password, active_settings.demo_password)
-            and persona is not None
+        expected_password = (
+            active_settings.judge_password
+            if judge is not None and body.username == judge.username
+            else active_settings.demo_password
         )
+        valid = hmac.compare_digest(body.password, expected_password) and persona is not None
         if not valid:
             raise HTTPException(status_code=401, detail="Invalid login")
         session_id = secrets.token_urlsafe(18)
@@ -665,10 +699,20 @@ def create_app(
         }
 
     def refuse_cross_customer(
-        principal: Principal, conversation: Conversation, language: str
+        principal: Principal, conversation: Conversation, language: str, message: str
     ) -> dict[str, Any]:
         security_event(app, "cross_customer_attempt")
+        cues = {reason for reason in escalations(message) if reason in {"ESC-02", "ESC-03"}}
+        conversation.security_cues = sorted(set(conversation.security_cues) | cues)
         state = app.state.executions.get("security_state", {"attempts": 0})
+        # The strikes and their cues share the durable authenticated-session scope.
+        # Older records may have kept cues only in conversation objects; preserve
+        # those too when the next strike arrives after an upgrade or restart.
+        state["cues"] = sorted(
+            set(state.get("cues", []))
+            | cues
+            | {cue for tab in app.state.conversations.values() for cue in tab.security_cues}
+        )
         state["attempts"] += 1
         app.state.executions["security_state"] = state
         ended = state["attempts"] >= int(rule("SEC-01").parameters["end_session_attempts"])
@@ -697,7 +741,9 @@ def create_app(
         }
         app.state.runtime.record("refuse_request")
         if ended:
-            result["handoff"] = make_handoff(app, principal, language, "SEC-01")["handoff"]
+            result["handoff"] = make_handoff(app, principal, language, ("SEC-01", *state["cues"]))[
+                "handoff"
+            ]
             operational.delete("sessions", principal.capability_digest)
             app.state.runtime.record("end_session")
         return result
@@ -711,7 +757,17 @@ def create_app(
         if conversation is None or conversation.session_id != principal.session_id:
             raise HTTPException(status_code=404, detail="Conversation not found")
         if cross_customer(body.message):
-            return refuse_cross_customer(principal, conversation, conversation.language)
+            if not (
+                conversation.candidates
+                or conversation.offer_handle
+                or conversation.proposal
+                or conversation.intent
+            ):
+                # No established conversation language yet: route in the language used.
+                conversation.language = classify(body.message).language
+            return refuse_cross_customer(
+                principal, conversation, conversation.language, body.message
+            )
         if conversation.terminal_handoff_id:
             packet = app.state.handoffs[conversation.terminal_handoff_id]
             return {
@@ -734,7 +790,7 @@ def create_app(
                     "response_type": "cancelled",
                     "outcome": "cancelled",
                     "reply": _localized(
-                        conversation.language, "Disputa cancelada.", "Disputa cancelada."
+                        conversation.language, "Disputa cancelada.", "Contestação cancelada."
                     ),
                 }
         nonlocal learned_matcher
@@ -848,7 +904,7 @@ def create_app(
                 else None,
             )
             if nlu.extracted.other_customer_reference:
-                return refuse_cross_customer(principal, conversation, language)
+                return refuse_cross_customer(principal, conversation, language, body.message)
             extracted_reasons = risk_reasons(nlu.extracted)
             if extracted_reasons:
                 if "FRD-01" in extracted_reasons:
@@ -925,7 +981,7 @@ def create_app(
                 return {
                     "response_type": "cancelled",
                     "outcome": "cancelled",
-                    "reply": _localized(language, "Disputa cancelada.", "Disputa cancelada."),
+                    "reply": _localized(language, "Disputa cancelada.", "Contestação cancelada."),
                 }
             changed = changes_target(body.message, offered_row, nlu.slots)
             recognition = nlu.extracted.recognition
@@ -1037,6 +1093,11 @@ def create_app(
                     nlu and getattr(nlu.extracted, "unfamiliar_charge", False)
                 )
         if frame.intent == Intent.OUT_OF_SCOPE and not conversation.candidates:
+            if conversation.model_failed:
+                # The deterministic fallback could not classify the request while the
+                # model route was down: a safe failure, not an out-of-scope claim
+                # (ADR-0015 §3, model outage with unsuccessful fallback).
+                return safe_failure(principal, language, "llm_outage")
             handoff = make_handoff(app, principal, language, "SCOPE-01")
             app.state.runtime.record("abstain")
             return {
@@ -1266,7 +1327,9 @@ def create_app(
             return {
                 "response_type": "cancelled",
                 "outcome": "cancelled",
-                "reply": _localized(proposal.language, "Disputa cancelada.", "Disputa cancelada."),
+                "reply": _localized(
+                    proposal.language, "Disputa cancelada.", "Contestação cancelada."
+                ),
             }
         expected_hash = _digest_proposal(
             principal.session_id,
@@ -1367,7 +1430,7 @@ def create_app(
             "reply": _localized(
                 proposal.language,
                 f"Tu disputa {case_id} fue registrada y verificada. El siguiente paso es la revisión; respuesta en hasta 15 días (SLA simulado).",
-                f"Sua disputa {case_id} foi registrada e verificada. A próxima etapa é a análise; resposta em até 15 dias (SLA simulado).",
+                f"Sua contestação {case_id} foi registrada e verificada. A próxima etapa é a análise; resposta em até 15 dias (SLA simulado).",
             ),
             "case": public_case(read_back),
             "verified": True,
@@ -1488,7 +1551,7 @@ def _decide_for_transaction(
         reply = _localized(
             language,
             f"¿Confirmas que registre una disputa por {amount} en {row.merchant_name}? Esta acción abrirá un caso; no garantiza un reembolso.",
-            f"Você confirma o registro de uma disputa de {amount} em {row.merchant_name}? Isso abrirá um caso; não garante reembolso.",
+            f"Você confirma o registro de uma contestação de {amount} em {row.merchant_name}? Isso abrirá um caso; não garante reembolso.",
         )
         return {
             "response_type": "confirm_action",

@@ -7,6 +7,7 @@ import re
 from aclara.agent.contracts import Intent, NluFrame
 from aclara.agent.nlu.rules import classify_nlu, normalize_text
 from aclara.agent.nlu.structured import ExtractedNlu, NormalizedSlots
+from aclara.agent.selection import unfamiliar_about_charge
 from aclara.bank.repository import Transaction
 
 
@@ -21,7 +22,7 @@ def recognizes_charge(message: str) -> bool:
 
 
 def unfamiliar_charge(message: str) -> bool:
-    return bool(
+    return unfamiliar_about_charge(message) or bool(
         re.search(
             r"\b(no reconozco|no me suena|no ubico|no cacho de donde|nao reconheco|nao sei de onde|sigo sin reconocer|ainda nao reconheco)\b",
             normalize_text(message),

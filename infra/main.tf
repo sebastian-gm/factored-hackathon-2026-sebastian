@@ -91,6 +91,15 @@ resource "azurerm_role_assignment" "api_typesafe_secret" {
   principal_id         = azurerm_user_assigned_identity.api.principal_id
 }
 
+# These secrets are created separately after approval. Terraform never reads
+# their values into variables, data sources, plans or state.
+resource "azurerm_role_assignment" "api_judge_secrets" {
+  for_each             = var.enable_judge_access ? toset(["judge-persona", "judge-password"]) : toset([])
+  scope                = "${azurerm_key_vault.dev.id}/secrets/${each.key}"
+  role_definition_name = "Key Vault Secrets User"
+  principal_id         = azurerm_user_assigned_identity.api.principal_id
+}
+
 resource "azurerm_postgresql_flexible_server" "dev" {
   name                          = "psql-${local.suffix}"
   resource_group_name           = data.azurerm_resource_group.dev.name

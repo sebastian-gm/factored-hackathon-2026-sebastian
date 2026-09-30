@@ -1,4 +1,4 @@
-"""Prepare v3's cumulative budget without starting evaluation; verify on start/resume.
+"""Prepare a suite-specific cumulative budget without starting evaluation; verify on start/resume.
 
 Only aggregate spend is read. No frozen inputs or abandoned v1 files are opened.
 Preparation closes prior evaluation/dev scopes and preserves every reserve.
@@ -12,30 +12,45 @@ import os
 from decimal import Decimal
 
 import psycopg
+from evals.program_spec import ProgramSpec, add_arguments, specification
 
-from aclara.llm.final_run import RUN_ID, SCOPE, require_start
+from aclara.llm.final_run import require_start
+
+V3 = specification("test-v3")
 
 CAP = Decimal("3.00")
 CUMULATIVE_CAP = Decimal("12.00")
 RELEASE_SMOKE_ALLOWANCE = Decimal("0.10")
+LATENCY_SMOKE_ALLOWANCE = Decimal("0.10")
 PRIOR_SCOPES = ("final-evaluation", "dev-gate/option-a", "final-evaluation-v2", "dev-gate/after-v2")
 
 
-def check_exposure(prior: Decimal, cap: Decimal) -> None:
+def check_exposure(
+    prior: Decimal, cap: Decimal, *, smoke_allowance: Decimal = RELEASE_SMOKE_ALLOWANCE
+) -> None:
     if (
         not prior.is_finite()
         or prior < 0
         or cap != CAP
-        or prior + cap + RELEASE_SMOKE_ALLOWANCE > CUMULATIVE_CAP
+        or smoke_allowance not in {RELEASE_SMOKE_ALLOWANCE, Decimal("0.20")}
+        or prior + cap + smoke_allowance > CUMULATIVE_CAP
     ):
         raise RuntimeError(
-            "Prior exposure plus v3 and release smoke limits exceeds the approved cumulative ceiling"
+            "Prior exposure plus program and release smoke limits exceeds the approved cumulative ceiling"
         )
 
 
-def receipt(connection: psycopg.Connection) -> dict:
+def prior_scopes(spec: ProgramSpec) -> tuple[str, ...]:
+    return PRIOR_SCOPES + (
+        ("final-evaluation-v3", "dev-gate/post-v3", "dev-gate/pre-v4")
+        if spec.suite == "test-v4"
+        else ()
+    )
+
+
+def receipt(connection: psycopg.Connection, spec: ProgramSpec = V3) -> dict:
     prior = Decimal("0")
-    for scope in PRIOR_SCOPES:
+    for scope in prior_scopes(spec):
         policy = connection.execute(
             "SELECT disabled FROM llm.limits WHERE scope=%s", (scope,)
         ).fetchone()
@@ -46,32 +61,44 @@ def receipt(connection: psycopg.Connection) -> dict:
         ).fetchone()
         assert row is not None
         prior += row[0]
+    production = Decimal("0")
+    if spec.suite == "test-v4":
+        row = connection.execute(
+            "SELECT coalesce(sum(charged_usd),0) FROM llm.reservations WHERE scope='production'"
+        ).fetchone()
+        assert row is not None
+        production = row[0]
+        prior += production
     limit = connection.execute(
-        "SELECT daily_usd,disabled FROM llm.limits WHERE scope=%s", (SCOPE,)
+        "SELECT daily_usd,disabled FROM llm.limits WHERE scope=%s", (spec.scope,)
     ).fetchone()
     runs = connection.execute(
-        "SELECT run_id,limit_usd,enabled FROM llm.runs WHERE scope=%s", (SCOPE,)
+        "SELECT run_id,limit_usd,enabled FROM llm.runs WHERE scope=%s", (spec.scope,)
     ).fetchall()
-    if limit != (CAP, False) or runs != [(RUN_ID, CAP, True)]:
+    if limit != (CAP, False) or runs != [(spec.run_id, CAP, True)]:
         raise RuntimeError(
-            "Prepared v3 policy is absent, changed, disabled, or not a single lifetime run"
+            "Prepared program policy is absent, changed, disabled, or not a single lifetime run"
         )
-    check_exposure(prior, CAP)
+    latency_allowance = LATENCY_SMOKE_ALLOWANCE if spec.suite == "test-v4" else Decimal("0")
+    smoke_allowance = RELEASE_SMOKE_ALLOWANCE + latency_allowance
+    check_exposure(prior, CAP, smoke_allowance=smoke_allowance)
     row = connection.execute(
         "SELECT count(*),coalesce(sum(actual_usd),0),coalesce(sum(charged_usd),0),count(*) FILTER(WHERE actual_usd IS NULL) FROM llm.reservations WHERE scope=%s AND run_id=%s",
-        (SCOPE, RUN_ID),
+        (spec.scope, spec.run_id),
     ).fetchone()
     assert row is not None
     if row[2] > CAP:
-        raise RuntimeError("V3 exposure exceeds its cap")
+        raise RuntimeError("Program exposure exceeds its cap")
     return {
-        "scope": SCOPE,
-        "run_id": RUN_ID,
+        "scope": spec.scope,
+        "run_id": spec.run_id,
         "cap_usd": float(CAP),
         "cumulative_cap_usd": float(CUMULATIVE_CAP),
         "prior_charged_with_reserves_usd": float(prior),
+        "historical_production_charged_with_reserves_usd": float(production),
         "release_smoke_allowance_usd": float(RELEASE_SMOKE_ALLOWANCE),
-        "prior_plus_v3_and_smoke_limits_usd": float(prior + CAP + RELEASE_SMOKE_ALLOWANCE),
+        "in_region_latency_smoke_allowance_usd": float(latency_allowance),
+        "prior_plus_program_and_smoke_limits_usd": float(prior + CAP + smoke_allowance),
         "attempts": row[0],
         "known_cost_usd": float(row[1]),
         "charged_with_reserves_usd": float(row[2]),
@@ -80,13 +107,13 @@ def receipt(connection: psycopg.Connection) -> dict:
     }
 
 
-def prepare(dsn: str) -> dict:
+def prepare(dsn: str, spec: ProgramSpec = V3) -> dict:
     """Owner-approved preparation only. Does not enable any provider or worker."""
     with psycopg.connect(dsn) as connection:
         connection.execute("SET LOCAL ROLE aclara_owner")
         # Same policy rows used by llm.reserve/settle: serialize with in-flight
         # callers, stop new prior-phase reservations, and preserve their charges.
-        for scope in sorted(PRIOR_SCOPES):
+        for scope in sorted(prior_scopes(spec)):
             if (
                 connection.execute(
                     "SELECT scope FROM llm.limits WHERE scope=%s FOR UPDATE", (scope,)
@@ -96,41 +123,44 @@ def prepare(dsn: str) -> dict:
                 raise RuntimeError("Prior budget history is missing")
             connection.execute("UPDATE llm.limits SET disabled=true WHERE scope=%s", (scope,))
         connection.execute(
-            "INSERT INTO llm.limits VALUES(%s,%s,false) ON CONFLICT DO NOTHING", (SCOPE, CAP)
+            "INSERT INTO llm.limits VALUES(%s,%s,false) ON CONFLICT DO NOTHING", (spec.scope, CAP)
         )
         connection.execute(
             "INSERT INTO llm.runs VALUES(%s,%s,%s,true) ON CONFLICT DO NOTHING",
-            (SCOPE, RUN_ID, CAP),
+            (spec.scope, spec.run_id, CAP),
         )
-        return receipt(connection)
+        return receipt(connection, spec)
 
 
-def verify(dsn: str) -> dict:
+def verify(dsn: str, spec: ProgramSpec = V3) -> dict:
     with psycopg.connect(dsn) as connection:
         connection.execute("SET LOCAL ROLE aclara_owner")
-        return receipt(connection)
+        return receipt(connection, spec)
 
 
-def main() -> None:
+def main(spec: ProgramSpec = V3) -> None:
     require_start()
-    result = verify(os.environ["FINAL_BUDGET_OWNER_DSN"])
+    result = verify(os.environ["FINAL_BUDGET_OWNER_DSN"], spec)
     print(json.dumps(result))  # noqa: T201 -- aggregate budget only.
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--prepare", action="store_true")
+    add_arguments(parser)
     args = parser.parse_args()
+    spec = specification(args.suite, args.bindings, args.manifest_pin)
     try:
         if args.prepare:
+            if os.getenv("FINAL_BUDGET_PREPARATION_APPROVED") != "1":
+                raise RuntimeError("Budget preparation requires separate owner release approval")
             from evals.checkpoints import save
-            from scripts.azure_dev import ROOT
             from scripts.azure_migrate_ops import connection_string
 
-            result = prepare(connection_string("aclara_admin"))
-            save(ROOT / "artifacts" / RUN_ID / "prepared-budget.json", result)
+            result = prepare(connection_string("aclara_admin"), spec)
+            save(spec.output / "prepared-budget.json", result)
             print(json.dumps(result))  # noqa: T201 -- no provider call or frozen access.
         else:
-            main()
+            main(spec)
     except Exception as error:
         raise SystemExit("Final budget setup failed: " + type(error).__name__) from None

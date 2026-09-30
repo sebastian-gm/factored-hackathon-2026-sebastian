@@ -19,6 +19,8 @@ import { Button } from "./ui/button";
 import { Modal } from "./ui/dialog";
 import { TransactionCard } from "./transaction-card";
 import { FreezeCard } from "./freeze-card";
+import { ChatStages, responseStage } from "./chat-stages";
+import { queueLabelKey, ruleLabelKey } from "@/lib/ui-copy";
 
 type Line = {
   id: number;
@@ -26,7 +28,13 @@ type Line = {
   speaker: "customer" | "aclara";
   plan?: Plan;
 };
-export function CustomerChat({ initialDraft = "" }: { initialDraft?: string }) {
+export function CustomerChat({
+  initialDraft = "",
+  onPendingChange,
+}: {
+  initialDraft?: string;
+  onPendingChange?: (locked: boolean) => void;
+}) {
   const t = useTranslations();
   const { locale, config, session, signOut } = useApp();
   const [conversation, setConversation] = useState("");
@@ -39,9 +47,44 @@ export function CustomerChat({ initialDraft = "" }: { initialDraft?: string }) {
   const [confirmOpen, setConfirmOpen] = useState(false),
     [expired, setExpired] = useState(false),
     [renew, setRenew] = useState(false);
+  // A stale OTP keeps the exact pending proposal: renew step-up, then confirm again.
+  const [stepUp, setStepUp] = useState<{
+      challenge: string;
+      sms: string;
+    } | null>(null),
+    [otp, setOtp] = useState("");
   const lock = useRef(false),
     log = useRef<HTMLDivElement>(null);
+  const decision = useRef<HTMLElement>(null);
+  const receipt = useRef<HTMLDivElement>(null);
+  const composer = useRef<HTMLTextAreaElement>(null);
+  const [uncertain, setUncertain] = useState(false),
+    [notice, setNotice] = useState("");
+  const [freezePending, setFreezePending] = useState(false);
   const proposal = latest?.proposal;
+  useEffect(() => {
+    onPendingChange?.(
+      !!proposal || busy || renew || uncertain || freezePending,
+    );
+    return () => onPendingChange?.(false);
+  }, [proposal, busy, renew, uncertain, freezePending, onPendingChange]);
+  useEffect(() => {
+    if (!latest || busy || confirmOpen) return;
+    const frame = requestAnimationFrame(() =>
+      (decision.current ?? receipt.current)?.scrollIntoView({
+        block: "nearest",
+      }),
+    );
+    return () => cancelAnimationFrame(frame);
+  }, [latest, busy, confirmOpen]);
+  useEffect(() => {
+    if (!notice || busy) return;
+    const frame = requestAnimationFrame(() => {
+      composer.current?.focus();
+      composer.current?.scrollIntoView({ block: "nearest" });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [notice, busy]);
   useEffect(() => {
     if (log.current) log.current.scrollTop = log.current.scrollHeight;
   }, [lines]);
@@ -54,12 +97,14 @@ export function CustomerChat({ initialDraft = "" }: { initialDraft?: string }) {
     return () => clearInterval(timer);
   }, [proposal]);
   function failed(caught: unknown, mutation = false) {
+    setUncertain(mutation);
     if (caught instanceof ApiError && caught.status === 401) {
       setRenew(true);
       setError(t("renew"));
     } else setError(t(mutation ? "mutationUnknown" : "error"));
   }
   function receive(plan: Plan) {
+    setUncertain(false);
     setLatest(plan);
     setExpired(false);
     setLines((current) => [
@@ -77,6 +122,7 @@ export function CustomerChat({ initialDraft = "" }: { initialDraft?: string }) {
     lock.current = true;
     setBusy(true);
     setError("");
+    setNotice("");
     setDraft("");
     setLines((current) => [
       ...current,
@@ -95,6 +141,33 @@ export function CustomerChat({ initialDraft = "" }: { initialDraft?: string }) {
         ),
       );
     } catch (caught) {
+      setDraft(text);
+      failed(caught);
+    } finally {
+      lock.current = false;
+      setBusy(false);
+    }
+  }
+  function prepareQuery(text: string) {
+    setDraft(text);
+    composer.current?.focus();
+    composer.current?.scrollIntoView({ block: "nearest" });
+  }
+  async function newReview() {
+    if (lock.current || !proposal || !expired) return;
+    lock.current = true;
+    setBusy(true);
+    setError("");
+    try {
+      // Explicitly start a new conversation. Never confirm/replay the expired hash.
+      const next = await api<{ conversation_id: string }>("chat/sessions", {});
+      setConversation(next.conversation_id);
+      setLatest(null);
+      setConfirmOpen(false);
+      setStepUp(null);
+      setOtp("");
+      setNotice(t("newReviewReady"));
+    } catch (caught) {
       failed(caught);
     } finally {
       lock.current = false;
@@ -107,6 +180,7 @@ export function CustomerChat({ initialDraft = "" }: { initialDraft?: string }) {
     lock.current = true;
     setBusy(true);
     setError("");
+    let keepOpen = false;
     try {
       receive(
         planSchema.parse(
@@ -117,13 +191,69 @@ export function CustomerChat({ initialDraft = "" }: { initialDraft?: string }) {
         ),
       );
     } catch (caught) {
-      setLatest(null);
-      failed(caught, true);
+      if (
+        confirmed &&
+        caught instanceof ApiError &&
+        caught.status === 401 &&
+        caught.code === "step_up_required"
+      ) {
+        try {
+          const auth = await api<{ challenge_id: string }>("auth/step-up", {});
+          const sms = await api<{ code: string }>(
+            `auth/challenges/${auth.challenge_id}/sms`,
+          );
+          setStepUp({ challenge: auth.challenge_id, sms: sms.code });
+          setError(t("stepUpRequired"));
+          keepOpen = true;
+        } catch (renewal) {
+          setLatest(null);
+          failed(renewal, true);
+        }
+      } else {
+        setLatest(null);
+        failed(caught, true);
+      }
     } finally {
-      setConfirmOpen(false);
+      if (!keepOpen) setConfirmOpen(false);
       lock.current = false;
       setBusy(false);
     }
+  }
+  async function renewAndConfirm() {
+    if (lock.current || !stepUp) return;
+    lock.current = true;
+    setBusy(true);
+    try {
+      await api("auth/step-up/verify", {
+        challenge_id: stepUp.challenge,
+        code: otp,
+      });
+    } catch (caught) {
+      lock.current = false;
+      setBusy(false);
+      if (
+        caught instanceof ApiError &&
+        caught.status === 401 &&
+        caught.code === "invalid_otp_code"
+      ) {
+        // The server retained this challenge and pending proposal. A wrong
+        // code is retryable by the customer, within its five-attempt limit.
+        setOtp("");
+        setError(t("otpRetry"));
+        return;
+      }
+      setStepUp(null);
+      setOtp("");
+      setLatest(null);
+      setConfirmOpen(false);
+      failed(caught, true);
+      return;
+    }
+    setStepUp(null);
+    setOtp("");
+    lock.current = false;
+    setBusy(false);
+    await confirm(true);
   }
   function submit(event: FormEvent) {
     event.preventDefault();
@@ -142,18 +272,19 @@ export function CustomerChat({ initialDraft = "" }: { initialDraft?: string }) {
         <div>
           <h2 id="conversation-title">Aclara</h2>
           <span>
-            <span className="dot" />
-            {t("active")}
+            <span className={`dot ${renew ? "paused" : ""}`} />
+            {t(renew ? "signInAgain" : "active")}
           </span>
         </div>
-        <span className="secure-pill">
-          <ShieldCheck size={14} />
-          {t("secure")}
+        <span className={`secure-pill ${renew ? "pending" : ""}`}>
+          {renew ? <CircleHelp size={14} /> : <ShieldCheck size={14} />}
+          {t(renew ? "signInAgain" : "secure")}
         </span>
       </header>
+      <ChatStages plan={latest} />
       <div
         ref={log}
-        className="conversation-log"
+        className={`conversation-log ${latest?.verified && (latest.case || latest.handoff) ? "with-receipt" : ""}`}
         role="log"
         aria-label={t("conversation")}
         aria-live="polite"
@@ -192,6 +323,11 @@ export function CustomerChat({ initialDraft = "" }: { initialDraft?: string }) {
               {line.plan?.transaction && (
                 <TransactionCard transaction={line.plan.transaction} />
               )}
+              {line.plan && (
+                <span className="turn-stage" aria-label={t("turnStage")}>
+                  {t(`stage_${responseStage(line.plan)}`)}
+                </span>
+              )}
               {line.plan?.outcome === "cancelled" && (
                 <div className="cancelled-notice" role="status">
                   <CircleSlash2 size={21} aria-hidden="true" />
@@ -202,7 +338,10 @@ export function CustomerChat({ initialDraft = "" }: { initialDraft?: string }) {
                 </div>
               )}
               {line.plan?.case && line.plan.verified === true && (
-                <div className="receipt">
+                <div
+                  ref={line.plan === latest ? receipt : undefined}
+                  className="receipt"
+                >
                   <FileCheck2 size={24} />
                   <div>
                     <h3>
@@ -212,11 +351,14 @@ export function CustomerChat({ initialDraft = "" }: { initialDraft?: string }) {
                           : "receipt",
                       )}
                     </h3>
-                    <strong>{line.plan.case.case_id}</strong>
+                    <details className="case-reference">
+                      <summary>{t("caseReference")}</summary>
+                      <strong>{line.plan.case.case_id}</strong>
+                    </details>
                     <p>
                       {line.plan.case.status === "received"
                         ? t("caseStatus")
-                        : line.plan.case.status}{" "}
+                        : t("caseStatusOther")}{" "}
                       · <CheckCheck size={14} /> {t("verified")}
                     </p>
                     <small>{t("receiptNote")}</small>
@@ -225,13 +367,15 @@ export function CustomerChat({ initialDraft = "" }: { initialDraft?: string }) {
                 </div>
               )}
               {line.plan?.handoff && line.plan.verified === true && (
-                <div className="receipt handoff-receipt">
+                <div
+                  ref={line.plan === latest ? receipt : undefined}
+                  className="receipt handoff-receipt"
+                >
                   <Headphones size={25} />
                   <div>
                     <h3>{t("handoff")}</h3>
                     <strong>
-                      {line.plan.handoff.handoff_id} ·{" "}
-                      {line.plan.handoff.route.queue}
+                      {t(queueLabelKey(line.plan.handoff.route.queue))}
                     </strong>
                     <p>{t("handoffNote")}</p>
                     <small>
@@ -272,7 +416,7 @@ export function CustomerChat({ initialDraft = "" }: { initialDraft?: string }) {
         )}
       </div>
       {latest?.response_type === "choose_transaction" && !busy && (
-        <section className="chooser" aria-label={t("choose")}>
+        <section ref={decision} className="chooser" aria-label={t("choose")}>
           <h3>{t("choose")}</h3>
           <div className="candidate-grid">
             {latest.candidates?.slice(0, 3).map((tx, i) => (
@@ -306,18 +450,19 @@ export function CustomerChat({ initialDraft = "" }: { initialDraft?: string }) {
       {proposal && (
         <div className="proposal-bar">
           <ShieldCheck size={19} />
-          <p>{expired ? t("expired") : t("action")}</p>
+          <p>{expired ? t("expired") : t("dialogDismissed")}</p>
           <Button
             size="small"
-            onClick={() => setConfirmOpen(true)}
+            onClick={() => (expired ? void newReview() : setConfirmOpen(true))}
             disabled={busy}
           >
-            {t("reviewAction")}
+            {t(expired ? "newReview" : "reviewAction")}
           </Button>
         </div>
       )}
       {latest?.response_type === "offer_dispute" && !renew && (
         <section
+          ref={decision}
           className="recognition-actions"
           aria-labelledby="recognition-title"
         >
@@ -340,14 +485,24 @@ export function CustomerChat({ initialDraft = "" }: { initialDraft?: string }) {
           <p className="caption">{t("recognitionHint")}</p>
         </section>
       )}
-      {!config.fixtures && latest?.freeze_offer?.length && !renew ? (
+      {!config.fixtures &&
+      latest?.freeze_offer?.length &&
+      latest.handoff &&
+      !renew ? (
         <FreezeCard
           key={latest.handoff?.handoff_id}
           products={latest.freeze_offer}
+          handoffId={latest.handoff.handoff_id}
           onResult={receive}
+          onPendingChange={setFreezePending}
         />
       ) : null}
-      {error && (
+      {notice && (
+        <p className="review-notice" role="status">
+          {notice}
+        </p>
+      )}
+      {error && !(stepUp && confirmOpen) && (
         <div className="error" role="alert">
           {error}
           {renew && (
@@ -355,8 +510,24 @@ export function CustomerChat({ initialDraft = "" }: { initialDraft?: string }) {
               variant="secondary"
               onClick={() => void signOut().catch(() => setError(t("error")))}
             >
-              {t("restart")}
+              {t("signInAgain")}
             </Button>
+          )}
+          {uncertain && !renew && (
+            <div className="recovery-actions">
+              <Button
+                variant="secondary"
+                onClick={() => prepareQuery(t("statusPrompt"))}
+              >
+                {t("prepareStatus")}
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={() => prepareQuery(t("humanPrompt"))}
+              >
+                {t("askHuman")}
+              </Button>
+            </div>
           )}
         </div>
       )}
@@ -365,6 +536,7 @@ export function CustomerChat({ initialDraft = "" }: { initialDraft?: string }) {
           {t("message")}
         </label>
         <textarea
+          ref={composer}
           id="message"
           rows={2}
           maxLength={1000}
@@ -412,18 +584,65 @@ export function CustomerChat({ initialDraft = "" }: { initialDraft?: string }) {
               : `${t("expires")}: ${date(proposal.expires_at, locale, true)} UTC`}
           </p>
         )}
-        <div className="dialog-actions">
-          <Button
-            variant="secondary"
-            onClick={() => void confirm(false)}
-            disabled={busy}
+        {expired ? (
+          <Button disabled={busy} onClick={() => void newReview()}>
+            {t("newReview")}
+          </Button>
+        ) : stepUp ? (
+          <form
+            className="form-stack"
+            onSubmit={(event) => {
+              event.preventDefault();
+              void renewAndConfirm();
+            }}
           >
-            {t("cancel")}
-          </Button>
-          <Button onClick={() => void confirm(true)} disabled={busy || expired}>
-            {busy ? t("loading") : t("confirm")}
-          </Button>
-        </div>
+            <p className="error" role="alert">
+              {error || t("stepUpRequired")}
+            </p>
+            <div className="sms-panel">
+              <div>
+                <strong>{t("sms")}</strong>
+                <p className="sms-code" data-testid="confirm-step-up-code">
+                  {stepUp.sms || "••••••"}
+                </p>
+              </div>
+            </div>
+            <label>
+              {t("otp")}
+              <input
+                autoFocus
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                pattern="[0-9]{6}"
+                maxLength={6}
+                value={otp}
+                onChange={(event) => setOtp(event.target.value)}
+                required
+                disabled={busy}
+              />
+            </label>
+            <Button type="submit" disabled={busy || expired}>
+              {busy ? t("loading") : t("verifyAndConfirm")}
+            </Button>
+          </form>
+        ) : (
+          <div className="dialog-actions">
+            <Button
+              variant="secondary"
+              onClick={() => void confirm(false)}
+              disabled={busy}
+            >
+              {t("cancel")}
+            </Button>
+            <Button
+              onClick={() => void confirm(true)}
+              disabled={busy || expired}
+            >
+              {busy ? t("loading") : t("confirm")}
+            </Button>
+          </div>
+        )}
+        {!expired && <p className="caption">{t("expiryHint")}</p>}
       </Modal>
       <Modal
         open={!!why}
@@ -457,11 +676,14 @@ export function CustomerChat({ initialDraft = "" }: { initialDraft?: string }) {
               why?.case?.policy_rules ??
               why?.handoff?.reason_codes ??
               []
-            ).map((rule) => (
-              <span className="rule" key={rule}>
-                {rule}
-              </span>
-            ))}
+            )
+              .map(ruleLabelKey)
+              .filter((key, index, keys) => keys.indexOf(key) === index)
+              .map((rule) => (
+                <span className="rule" key={rule}>
+                  {t(rule)}
+                </span>
+              ))}
           </div>
           {!(
             why?.policy_rules?.length ||

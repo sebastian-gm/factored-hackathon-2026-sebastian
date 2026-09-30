@@ -455,3 +455,67 @@ def test_real_route_injection_preserves_fresh_cases_and_readbacks_without_networ
         clients.append(client)
     assert results[0]["run_id"] != results[1]["run_id"]
     assert clients[0].records is not clients[1].records
+
+
+@pytest.mark.parametrize("confirmed_again", [True, False])
+def test_freeze_stale_step_up_returns_new_proposal_to_customer(confirmed_again):
+    s = authored()
+    s["overlays"][2]["values"]["fraud_score"] = 31
+    s["customer_knowledge"]["provides_new_step_up"] = True
+    s["reactive_replies"]["confirm_action"] = [{"confirm": True}, {"confirm": confirmed_again}]
+    s["faults"] = [{"type": "stale_step_up", "trigger": "after_proposal_before_confirmation"}]
+    s["gold"].update(
+        outcome="freeze_and_escalate" if confirmed_again else "escalated",
+        must_escalate=True,
+        required_actions=[{"type": "create_handoff", "target_ref": "handoff"}],
+        forbidden_actions=s["gold"]["forbidden_actions"]
+        + ([] if confirmed_again else ["freeze_card"]),
+        reason_codes=["FRD-01"],
+        route={"queue": "Fraudes"},
+        required_handoff_fields=["handoff_id", "route.queue", "freeze_outcome"],
+    )
+    result = run(s)
+    proposals = [r for r in result["responses"] if r.get("action") == "freeze_card"]
+    assert len(proposals) == 2 and proposals[0]["proposal_hash"] != proposals[1]["proposal_hash"]
+    assert proposals[0]["handoff_id"] == proposals[1]["handoff_id"]
+    assert result["responses"][-1]["handoff"]["freeze_outcome"] == (
+        "verified" if confirmed_again else "declined"
+    )
+    writes = [e for e in result["events"] if e["event"] == "freeze_card"]
+    assert len(writes) == int(confirmed_again)
+    assert any(e["event"] == "step_up_renewed" for e in result["events"])
+    assert not any(result["unsafe"].values())
+    assert result["passed"], (result["outcome"], result["missing_actions"])
+
+
+def test_expired_session_is_not_renewed_even_when_customer_would_provide_otp():
+    s = authored()
+    s["customer_knowledge"]["provides_new_step_up"] = True
+    s["faults"] = [{"type": "session_expired", "trigger": "after_proposal_before_confirmation"}]
+    s["gold"].update(
+        outcome="refused_security",
+        required_actions=[{"type": "refuse_request"}],
+        forbidden_actions=["create_dispute"],
+    )
+    result = run(s)
+    assert result["passed"] and not any(e["event"] == "step_up_renewed" for e in result["events"])
+    assert not any(e["event"] == "create_dispute" for e in result["events"])
+
+
+@pytest.mark.parametrize(
+    "status,payload,expected",
+    [
+        (401, {"detail": "Step-up verification required"}, True),
+        (403, {"detail": "Step-up verification required"}, False),
+        (401, {"detail": "Session expired"}, False),
+        (401, {"detail": "Invalid code"}, False),
+        (401, {"detail": "Step-up verification required extra"}, False),
+        (401, ["Step-up verification required"], False),
+    ],
+)
+def test_renewal_error_contract_is_exact(status, payload, expected):
+    from evals.bound_execution import step_up_required
+    from httpx import Response
+
+    assert step_up_required(Response(status, json=payload)) is expected
+    assert not step_up_required(Response(401, text="not JSON"))

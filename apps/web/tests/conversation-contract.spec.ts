@@ -101,9 +101,7 @@ for (const pt of [false, true]) {
       await expect(
         page.getByRole("heading", { name: offer.transaction!.merchant! }),
       ).toBeVisible();
-      await expect(page.locator(".transaction-card")).toContainText(
-        pt ? "BRL" : "MXN",
-      );
+      await expect(page.locator(".transaction-card")).toContainText("USD");
       await expect(page.locator(".transaction-card time")).toHaveAttribute(
         "datetime",
         offer.transaction!.transaction_date,
@@ -238,9 +236,12 @@ test("Agent Desk shows the supplied primary reason first and preserves all contr
   await expect(reasons).toContainText(
     "Las acciones realizadas y sus verificaciones se muestran por separado.",
   );
-  await expect(page.locator(".queue-item").first().locator(".rule")).toHaveText(
-    "FRD-01 · AUTH-02 · ESC-02",
+  await expect(
+    page.locator(".queue-item").first().locator(".queue-reasons"),
+  ).toHaveText(
+    "Fraude / tarjeta · Verificación reforzada requerida · Queja regulatoria o legal",
   );
+  await page.locator(".action-references summary").click();
   await expect(page.locator(".action-timeline")).toContainText(
     "create_handoff",
   );

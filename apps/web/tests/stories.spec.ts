@@ -31,7 +31,7 @@ async function login(page: Page, persona = "demo.es.mx") {
 }
 async function switchRole(
   page: Page,
-  surface: "Agent Desk" | "Ops · glass box",
+  surface: "Agent Desk" | "Evidencia y operaciones",
   persona: string,
 ) {
   await page.getByRole("button", { name: surface, exact: true }).click();
@@ -60,7 +60,7 @@ test("ES normal: password + OTP, grounded explanation and safe why drawer", asyn
 }) => {
   await page.goto("/");
   await expect(
-    page.getByText("Synthetic data · Simulated bank · Not a real service"),
+    page.getByText("Datos de prueba · Banco simulado · No es un servicio real"),
   ).toBeVisible();
   await expect(page.locator("input[type=password]")).toBeVisible();
   await screenshot(page, "login-desktop");
@@ -75,10 +75,13 @@ test("ES normal: password + OTP, grounded explanation and safe why drawer", asyn
   await expect(
     page.getByText(/Es una autorización|es una autorización/),
   ).toBeVisible();
+  await expect(page.locator(".chat-stages [aria-current=step]")).toHaveText(
+    "Verificar",
+  );
   await expect(page.getByText("185,00")).not.toBeVisible(); // MX formatting is not forced to PT.
-  await expect(page.getByText(/MXN\s*185\.00/)).toBeVisible();
+  await expect(page.getByText(/USD\s*185\.00/)).toBeVisible();
   await page.getByRole("button", { name: "¿Por qué?", exact: true }).click();
-  await expect(page.getByRole("dialog")).toContainText("TXN-01");
+  await expect(page.getByRole("dialog")).toContainText("Estado del movimiento");
   await expect(page.getByRole("dialog")).toContainText(
     "no razonamiento interno",
   );
@@ -113,7 +116,7 @@ test("PT ambiguous: top three, exact confirmation, verified case receipt", async
   await login(page, "demo.pt.br");
   await page
     .getByRole("button", {
-      name: "Não reconheço uma compra de uns 90 reais",
+      name: "Não reconheço uma compra de uns 90 dólares",
       exact: true,
     })
     .click();
@@ -125,8 +128,11 @@ test("PT ambiguous: top three, exact confirmation, verified case receipt", async
     .nth(1)
     .click();
   const dialog = page.getByRole("dialog");
+  await expect(page.locator(".chat-stages [aria-current=step]")).toHaveText(
+    "Agir",
+  );
   await expect(dialog).toContainText("Mercado do Bairro");
-  await expect(dialog).toContainText(/BRL\s*92,50/);
+  await expect(dialog).toContainText(/USD\s*92,50/);
   await expect(dialog).toContainText("Registrar contestação");
   await page.keyboard.press("Tab");
   await expect(page.locator(":focus")).toHaveJSProperty("tagName", "BUTTON");
@@ -144,6 +150,17 @@ test("PT ambiguous: top three, exact confirmation, verified case receipt", async
   await expect(
     page.getByText("Recebido para análise", { exact: false }),
   ).toBeVisible();
+  await expect(page.locator(".chat-stages [aria-current=step]")).toHaveText(
+    "Verificar",
+  );
+  await page.setViewportSize({ width: 390, height: 844 });
+  const receiptTitle = await page
+    .getByRole("heading", { name: "Seu caso está registrado" })
+    .boundingBox();
+  const receiptLog = await page.locator(".conversation-log").boundingBox();
+  expect(receiptTitle!.y).toBeGreaterThanOrEqual(receiptLog!.y);
+  expect(receiptTitle!.y).toBeGreaterThanOrEqual(0);
+  expect(receiptTitle!.y + receiptTitle!.height).toBeLessThan(844);
   await screenshot(page, "pt-receipt");
   await audit(page);
 });
@@ -161,6 +178,9 @@ test("fraud: customer handoff, agent evidence, claim and resolve, ops trace and 
   await expect(
     page.getByRole("heading", { name: "Tu solicitud está en buenas manos" }),
   ).toBeVisible();
+  await expect(page.locator(".chat-stages [aria-current=step]")).toHaveText(
+    "Derivar",
+  );
   await switchRole(page, "Agent Desk", "demo.agent");
   await expect(
     page
@@ -170,7 +190,7 @@ test("fraud: customer handoff, agent evidence, claim and resolve, ops trace and 
   await expect(
     page.getByRole("heading", { name: "Hechos verificados" }),
   ).toBeVisible();
-  await page.getByRole("button", { name: /Evidencia del registro ·/ }).click();
+  await page.getByRole("button", { name: /Evidencia del registro/ }).click();
   await expect(page.getByRole("dialog")).toContainText("get_transaction");
   await page.keyboard.press("Escape");
   await page
@@ -187,7 +207,7 @@ test("fraud: customer handoff, agent evidence, claim and resolve, ops trace and 
     .getByRole("button", { name: "Confirmar", exact: true })
     .click();
   await expect(page.getByText("Resuelto · Verificado")).toBeVisible();
-  await switchRole(page, "Ops · glass box", "demo.ops");
+  await switchRole(page, "Evidencia y operaciones", "demo.ops");
   await expect(
     page.getByText("HANDOFF_CREATED", { exact: false }),
   ).toBeVisible();
@@ -220,7 +240,7 @@ test("cancel consumes the proposal without creating a case", async ({
   await login(page, "demo.pt.br");
   await page
     .getByRole("button", {
-      name: "Não reconheço uma compra de uns 90 reais",
+      name: "Não reconheço uma compra de uns 90 dólares",
       exact: true,
     })
     .click();
@@ -235,6 +255,9 @@ test("cancel consumes the proposal without creating a case", async ({
   await expect(
     page.getByText("Cancelado. Nenhuma contestação foi registrada."),
   ).toBeVisible();
+  await expect(page.locator(".chat-stages [aria-current=step]")).toHaveText(
+    "Agir",
+  );
   await expect(
     page.getByRole("heading", { name: "Seu caso está registrado" }),
   ).toHaveCount(0);
@@ -262,7 +285,7 @@ test("phone layouts, keyboard entry and all locales", async ({ page }) => {
   await audit(page);
   for (const [surface, persona, name] of [
     ["Agent Desk", "demo.agent", "phone-desk"],
-    ["Ops · glass box", "demo.ops", "phone-ops"],
+    ["Evidencia y operaciones", "demo.ops", "phone-ops"],
   ] as const) {
     await switchRole(page, surface, persona);
     await page.waitForLoadState("networkidle");
@@ -313,7 +336,7 @@ test("proposal replay is idempotent and another authenticated browser cannot con
   await login(page, "demo.pt.br");
   await page
     .getByRole("button", {
-      name: "Não reconheço uma compra de uns 90 reais",
+      name: "Não reconheço uma compra de uns 90 dólares",
       exact: true,
     })
     .click();
@@ -351,6 +374,7 @@ test("proposal replay is idempotent and another authenticated browser cannot con
     verified: true,
     id: expect.stringMatching(/^DSP-/),
   });
+  await page.locator(".case-reference summary").click();
   await expect(page.getByText(replay.id, { exact: true })).toBeVisible();
   const other = await browser.newContext();
   const tab = await other.newPage();
@@ -411,10 +435,10 @@ test("OTP is required; failed challenge locks after five attempts and can restar
 test("recording helper resets with read-back, selects all personas and reaches the desk", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/?grabar=1");
   await page.getByText("Preparar grabación", { exact: true }).click();
   await page
-    .getByRole("button", { name: "Entrar como Ops para restablecer" })
+    .getByRole("button", { name: "Entrar en operaciones para restablecer" })
     .click();
   await expect(
     page
@@ -442,7 +466,9 @@ test("recording helper resets with read-back, selects all personas and reaches t
     page.getByText(/Es una autorización|es una autorización/),
   ).toBeVisible();
   await page
-    .getByRole("button", { name: "PT · escolha e confirmação" })
+    .getByRole("button", {
+      name: /Elegir una compra · PT|Escolher compra · PT/,
+    })
     .click();
   await expect(page.locator("html")).toHaveAttribute("lang", "pt-BR");
   await expect(
@@ -466,7 +492,9 @@ test("recording helper resets with read-back, selects all personas and reaches t
   await expect(
     page.getByRole("heading", { name: "Seu caso está registrado" }),
   ).toBeVisible();
-  await page.getByRole("button", { name: "ES · fraude → Agent Desk" }).click();
+  await page
+    .getByRole("button", { name: /Pedir ayuda · ES|Pedir ajuda · ES/ })
+    .click();
   await expect(
     page
       .locator("select")
@@ -491,10 +519,10 @@ test("recording helper resets with read-back, selects all personas and reaches t
 test("recording helper never opens a story when reset read-back fails", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/?grabar=1");
   await page.getByText("Preparar grabación", { exact: true }).click();
   await page
-    .getByRole("button", { name: "Entrar como Ops para restablecer" })
+    .getByRole("button", { name: "Entrar en operaciones para restablecer" })
     .click();
   await login(page, "demo.ops");
   await page.route("**/ops/demo/reset", (route) =>
@@ -622,7 +650,7 @@ test("glass box shows call cost precision, partial totals, fallback and risk uni
     });
     await route.fulfill({ json: data });
   });
-  await switchRole(page, "Ops · glass box", "demo.ops");
+  await switchRole(page, "Evidencia y operaciones", "demo.ops");
   await page
     .getByRole("combobox", { name: "Tu conversación", exact: true })
     .selectOption({ index: 0 });
@@ -631,7 +659,7 @@ test("glass box shows call cost precision, partial totals, fallback and risk uni
   await expect(cost).toContainText("3 llamadas registradas");
   await expect(cost).toContainText("1 costo desconocido");
   await expect(cost).toContainText("Subtotal conocido");
-  await expect(cost).toContainText("Fallback Grok registrado");
+  await expect(cost).toContainText("Ruta alternativa Grok registrada");
   await expect(
     page.locator(".llm-metadata").filter({ hasText: "x-ai/grok-4.20" }),
   ).toContainText("fallback_grok_4_20");
@@ -643,7 +671,7 @@ test("glass box shows call cost precision, partial totals, fallback and risk uni
     .getByRole("row")
     .filter({ has: page.getByRole("rowheader", { name: "Angustia" }) });
   await expect(row).toContainText("84.0%");
-  await expect(row.getByRole("cell")).toHaveText(["No", "84.0%", "Sí", "Sí"]);
+  await expect(row.getByRole("cell")).toHaveText(["Sí", "No", "84.0%", "Sí"]);
   await expect(page.getByText(/sin probabilidades por señal/)).toBeVisible();
   await audit(page);
   await page.setViewportSize({ width: 390, height: 844 });
@@ -652,6 +680,20 @@ test("glass box shows call cost precision, partial totals, fallback and risk uni
       () => document.documentElement.scrollWidth <= window.innerWidth,
     ),
   ).toBe(true);
+  const riskTable = page.locator(".risk-table");
+  await expect(riskTable.locator("thead th").nth(1)).toHaveText("Unión");
+  await expect(page.locator(".lineage-zoom")).toHaveAttribute(
+    "href",
+    "/dbt-lineage.svg",
+  );
+  await riskTable.locator("..").evaluate((element) => {
+    element.scrollLeft = element.scrollWidth;
+  });
+  const signal = await riskTable.locator("thead th").first().boundingBox();
+  const union = await riskTable.locator("thead th").nth(1).boundingBox();
+  expect(signal!.x).toBeGreaterThanOrEqual(0);
+  expect(union!.x + union!.width).toBeLessThanOrEqual(390);
+  await audit(page);
   await screenshot(page, "recording-glassbox-phone");
   await page
     .getByRole("combobox", { name: "Tu conversación", exact: true })
@@ -661,8 +703,8 @@ test("glass box shows call cost precision, partial totals, fallback and risk uni
   ).toContainText("timeout");
   await expect(row.getByRole("cell")).toHaveText([
     "No registrado",
-    "—",
     "No registrado",
+    "—",
     "No registrado",
   ]);
   await expect(cost).toContainText("1 costo desconocido");

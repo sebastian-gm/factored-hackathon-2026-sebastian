@@ -20,22 +20,15 @@ def escalations(text: str) -> list[str]:
         value,
     ):
         reasons.append("ESC-02")
-    if any(
-        t in value
-        for t in (
-            "estoy desesperad",
-            "estou desesperad",
-            "no puedo mas",
-            "nao aguento mais",
-            "no tengo para comer",
-            "nao tenho dinheiro para comer",
-            "estoy angustiad",
-            "estou angustiad",
-            "me siento vulnerable",
-            "estou vulneravel",
-            "me estan amenazando",
-            "estao me ameacando",
-        )
+    # Expressed distress, allowing intensifiers ("estoy muy angustiado"). Never
+    # infers protected attributes; only the customer's own stated state counts.
+    if re.search(
+        r"\b(?:estoy|estou|me siento|me sinto|ando|to|tô)\s+(?:(?:muy|muito|super|bastante|tan|tao|re)\s+)?"
+        r"(?:desesperad|angustiad|agobiad|abrumad|sobrepasad|vulnerable|vulneravel|apavorad|aterrad)"
+        r"|\bno puedo (?:mas|con esto|con todo esto)\b|\bnao (?:aguento mais|consigo lidar|dou conta)\b"
+        r"|\bno tengo para comer\b|\bnao tenho dinheiro para comer\b"
+        r"|\bme estan amenazando\b|\bestao me ameacando\b",
+        value,
     ):
         reasons.append("ESC-03")
     if re.search(

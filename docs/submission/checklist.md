@@ -8,7 +8,14 @@ storage outside Git. The judge-facing content is in [slides](slides.md) and the
 
 ## Current release gate
 
-- [ ] Handoff 12 lifted the merge freeze for Option A dev fixes. Complete its dev acceptance gate and wait for Sebastian before re-release. Latest deployed runtime: `07bccdc630e2b5eeb2dc746a7c3fe000718fd22c`, followed by documentation-only `3ed98c9`. Verify the actual recording revision separately. [Release evidence and abandoned-attempt disclosure](../status/progress-log.md).
+- [ ] Review and resolve PR #62 before release. Main's evaluated v3 SHA is
+  `e12efc73be64f8355aa9f177f08a04337593616c`; Azure currently runs an owner-approved
+  **branch preview** of `dac3801`, including the authorized startup fix, not a new
+  main release. Actions is unblocked under Sebastian's hard $5 cap. Require green
+  remote CI on the complete #62 head; stacked PRs use rigorous local checks.
+  V4 remains unstarted. [Review](../reviews/pr-62-review.md),
+  [startup diagnosis](../evaluation/preview-startup-diagnosis.md),
+  [v3 results and disclosures](../evaluation/final-v3-results.md).
 
 ## Timing and submission owner
 
@@ -46,6 +53,34 @@ storage outside Git. The judge-facing content is in [slides](slides.md) and the
 
 ## Prepare judge access and rehearse the deployed product
 
+- [ ] Review [prepared OFF switches and plan/cost](infrastructure-switches.md).
+  `enable_submission_warm=false`, `min_replicas=0`,
+  `enable_judge_access=false` remain the defaults. Public web login uses separate
+  Key Vault judge credentials; API stays internal. Sebastian approves source
+  persona/role, dates, live plan, monthly cost and the **$3/day** model exposure
+  before any enablement. A 14-day window can reach $47.43 infra before grants/tax
+  and $42 models; do not treat a daily cap as a lifetime cap.
+
+- [ ] Keep web/API **min replicas = 0 while testing**, per Sebastian. Schedule
+  **min replicas = 1 only from share/submission day**, about October 3–4, and
+  record the approved enable/disable dates (tool availability is required through
+  October 16). Obtain approval for the exact infrastructure plan and cost before
+  applying; verify both apps remain ready, with existing ingress and login controls.
+  Revert to zero when the approved availability window ends.
+- [ ] Recheck the warm-replica estimate before that change. East US 2 USD retail
+  rates retrieved **2026-09-30 UTC**: idle CPU $0.000003/vCPU-second, active CPU
+  $0.000024/vCPU-second, memory $0.000003/GiB-second. Two existing apps at
+  **0.25 vCPU / 0.5 GiB each** cost about **$0.39/day idle to $1.30/day continuously
+  active**, before free grants, requests, logs, tax and model calls. For October
+  3–16 inclusive (14 days), budget **$5.44–$18.14** for app compute; a 730-hour
+  month is **$11.83–$39.42**, rather than a fixed-price guarantee. These are total
+  app-compute estimates, not an amount to add on top of already-paid active usage.
+  Existing fixed DB/storage/registry estimate is $21.09/month: a fully active
+  warm month can exceed the **$40 approval gate**, so confirm the full monthly plan
+  with Sebastian. Sources: [Azure retail API](https://prices.azure.com/api/retail/prices),
+  [Container Apps pricing](https://azure.microsoft.com/en-us/pricing/details/container-apps/),
+  [active/idle billing](https://learn.microsoft.com/en-us/azure/container-apps/billing).
+  Ignored live-rate receipt: `artifacts/preview-diagnosis/warm-replica-prices.json`.
 - [ ] The release smoke verified the web-to-API hop, all three surfaces, and a handoff
   claim/resolve. Reverify the selected recording revision and connection. The current deployment permits the owner's IP; external judges are
   not yet covered by that boundary. Arrange explicitly approved judge access and

@@ -20,6 +20,7 @@ from typesafe_sdk import RetryPolicy, TypeSafeClient
 from aclara.agent.contracts import Intent, NluFrame
 from aclara.agent.nlg.grounding import redact_for_model, scan_dlp
 from aclara.agent.nlu.rules import classify_nlu, normalize_text
+from aclara.agent.nlu.word_amounts import parse_word_amount
 from aclara.llm.client import StructuredClient
 from aclara.llm.prompts import data_block, load_prompt
 from aclara.llm.types import BudgetFailure, CallRecord, ModelFailure
@@ -128,27 +129,10 @@ def parse_amount(expression: str | None, country: str | None = None) -> Decimal 
         else:
             raw = raw.replace(",", ".")
     else:
-        word_values = {
-            "un": "1",
-            "una": "1",
-            "um": "1",
-            "uma": "1",
-            "dos": "2",
-            "dois": "2",
-            "duas": "2",
-            "tres": "3",
-            "quatro": "4",
-            "cuatro": "4",
-            "cinco": "5",
-            "seis": "6",
-            "siete": "7",
-            "sete": "7",
-        }
-        raw = next(
-            (value for word, value in word_values.items() if re.search(rf"\b{word}\b", plain)), ""
-        )
-        if not raw:
+        words = parse_word_amount(plain)
+        if words is None:
             return None
+        raw = str(words)
     try:
         value = Decimal(raw)
     except InvalidOperation:
@@ -238,7 +222,7 @@ def parse_relative_date(expression: str | None, bank_clock: datetime) -> tuple[d
         "sabado": 5,
         "domingo": 6,
     }
-    if "pasad" in plain:
+    if "pasad" in plain or "passad" in plain:
         for word, weekday in weekdays.items():
             if re.search(rf"\b{word}\b", plain):
                 delta = (business_day.weekday() - weekday) % 7 or 7
@@ -249,6 +233,46 @@ def parse_relative_date(expression: str | None, bank_clock: datetime) -> tuple[d
         try:
             day = date.fromisoformat(iso.group(1))
         except ValueError:
+            return None
+        return day, day
+    # A stated day/month is exact within the current bank year when already
+    # past; a future date without a year remains ambiguous instead of inventing
+    # a previous year. Impossible dates also remain clarification candidates.
+    months = {
+        "enero": 1,
+        "janeiro": 1,
+        "febrero": 2,
+        "fevereiro": 2,
+        "marzo": 3,
+        "marco": 3,
+        "abril": 4,
+        "mayo": 5,
+        "maio": 5,
+        "junio": 6,
+        "junho": 6,
+        "julio": 7,
+        "julho": 7,
+        "agosto": 8,
+        "septiembre": 9,
+        "setiembre": 9,
+        "setembro": 9,
+        "octubre": 10,
+        "outubro": 10,
+        "noviembre": 11,
+        "novembro": 11,
+        "diciembre": 12,
+        "dezembro": 12,
+    }
+    stated = re.fullmatch(
+        r"(?:(?:el|del|dia|do dia) )?(\d{1,2}) de ([a-z]+)(?: (?:de )?(20\d{2}))?",
+        plain.strip(" .,!¿?¡"),
+    )
+    if stated and stated[2] in months:
+        try:
+            day = date(int(stated[3] or business_day.year), months[stated[2]], int(stated[1]))
+        except ValueError:
+            return None
+        if stated[3] is None and day > business_day:
             return None
         return day, day
     return None

@@ -62,7 +62,7 @@ test("live workspace: trusted ops role, handoff claim/resolve, measured traces a
     ).violations,
   ).toEqual([]);
   await page
-    .getByRole("button", { name: "Ops · glass box", exact: true })
+    .getByRole("button", { name: "Evidencia y operaciones", exact: true })
     .click();
   await expect(
     page.getByRole("heading", { name: "Actividad de este espacio" }),

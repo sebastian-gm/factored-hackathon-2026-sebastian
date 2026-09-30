@@ -1,11 +1,12 @@
 "use client";
-import { useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 import { ArrowRight, LockKeyhole, Smartphone } from "lucide-react";
 import { api } from "@/lib/client";
 import type { Role } from "@/lib/contracts";
 import { useApp } from "./workspace";
 import { Button } from "./ui/button";
+import { personaLabelKey } from "@/lib/ui-copy";
 export function Login({
   role,
   preferredUsername,
@@ -29,6 +30,14 @@ export function Login({
     [sms, setSms] = useState("");
   const [busy, setBusy] = useState(false),
     [failed, setFailed] = useState(false);
+  const form = useRef<HTMLFormElement>(null);
+  useEffect(() => {
+    if (!challenge) return;
+    const frame = requestAnimationFrame(() =>
+      form.current?.scrollIntoView({ block: "nearest" }),
+    );
+    return () => cancelAnimationFrame(frame);
+  }, [challenge, failed]);
   async function submit(event: FormEvent) {
     event.preventDefault();
     if (busy) return;
@@ -63,9 +72,14 @@ export function Login({
       <div className="hero-icon">
         <LockKeyhole size={25} />
       </div>
-      <h2>{t("loginTitle")}</h2>
-      <p className="muted">{t("loginBody")}</p>
-      <form onSubmit={submit} className="form-stack" aria-busy={busy}>
+      <h2>{t(challenge ? "otpTitle" : "loginTitle")}</h2>
+      <p className="muted">{t(challenge ? "otpIntro" : "loginBody")}</p>
+      <form
+        ref={form}
+        onSubmit={submit}
+        className="form-stack"
+        aria-busy={busy}
+      >
         {!challenge ? (
           <>
             <label>
@@ -81,7 +95,9 @@ export function Login({
               >
                 {choices.map((p) => (
                   <option key={p.username} value={p.username}>
-                    {p.label}
+                    {personaLabelKey(p.username)
+                      ? t(personaLabelKey(p.username)!)
+                      : t("authorizedAccount")}
                   </option>
                 ))}
               </select>

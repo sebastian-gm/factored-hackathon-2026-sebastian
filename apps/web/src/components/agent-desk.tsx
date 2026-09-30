@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
   ArrowUpRight,
@@ -8,10 +8,12 @@ import {
   Clock3,
   FileSearch,
   Headphones,
+  CircleAlert,
 } from "lucide-react";
 import { orderedReasons, type DeskPacket } from "@/lib/contracts";
 import { api } from "@/lib/client";
 import { date, remaining } from "@/lib/format";
+import { deskActionLabelKey, handoffReasonLabelKey } from "@/lib/ui-copy";
 import { useApp } from "./workspace";
 import { Button } from "./ui/button";
 import { Modal } from "./ui/dialog";
@@ -25,6 +27,8 @@ export function AgentDesk() {
     [loading, setLoading] = useState(true),
     [error, setError] = useState(false),
     [resolve, setResolve] = useState(false);
+  const [loadError, setLoadError] = useState(false);
+  const packetPanel = useRef<HTMLElement>(null);
   const [evidence, setEvidence] = useState<
       DeskPacket["evidence"][number] | null
     >(null),
@@ -35,12 +39,13 @@ export function AgentDesk() {
   }, []);
   async function load() {
     setLoading(true);
+    setLoadError(false);
     try {
       const values = await api<DeskPacket[]>("agent/handoffs");
       setPackets(values);
-      setError(false);
+      setLoadError(false);
     } catch {
-      setError(true);
+      setLoadError(true);
     } finally {
       setLoading(false);
     }
@@ -50,7 +55,7 @@ export function AgentDesk() {
     api<DeskPacket[]>("agent/handoffs", undefined, c.signal)
       .then(setPackets)
       .catch(() => {
-        if (!c.signal.aborted) setError(true);
+        if (!c.signal.aborted) setLoadError(true);
       })
       .finally(() => {
         if (!c.signal.aborted) setLoading(false);
@@ -58,9 +63,10 @@ export function AgentDesk() {
     return () => c.abort();
   }, []);
   const current = packets.find((p) => p.handoff_id === selected) ?? packets[0];
-  const clock = new Date(
-    Date.parse(config.bankClock ?? "") + tick * 60000,
-  ).toISOString();
+  const baseClock = Date.parse(config.bankClock ?? "");
+  const clock = Number.isFinite(baseClock)
+    ? new Date(baseClock + tick * 60000).toISOString()
+    : "";
   async function act(action: "claim" | "resolve") {
     if (!current || busy) return;
     setBusy(true);
@@ -110,13 +116,23 @@ export function AgentDesk() {
           <header className="panel-heading">
             <h2>{t("queue")}</h2>
             <span className="count-badge">
-              {packets.filter((p) => p.status !== "resolved").length}
+              {loadError
+                ? "—"
+                : packets.filter((p) => p.status !== "resolved").length}
             </span>
           </header>
           {loading ? (
             <p role="status" className="empty">
               {t("loading")}
             </p>
+          ) : loadError ? (
+            <div className="empty load-failed" role="alert">
+              <CircleAlert size={30} />
+              <p>{t("queueLoadFailed")}</p>
+              <Button variant="secondary" onClick={() => void load()}>
+                {t("retry")}
+              </Button>
+            </div>
           ) : !packets.length ? (
             <div className="empty">
               <ClipboardCheck size={34} />
@@ -129,7 +145,12 @@ export function AgentDesk() {
                 <button
                   key={p.handoff_id}
                   className={`queue-item ${current?.handoff_id === p.handoff_id ? "selected" : ""}`}
-                  onClick={() => setSelected(p.handoff_id)}
+                  onClick={() => {
+                    setSelected(p.handoff_id);
+                    requestAnimationFrame(() =>
+                      packetPanel.current?.scrollIntoView({ block: "nearest" }),
+                    );
+                  }}
                   aria-pressed={current?.handoff_id === p.handoff_id}
                 >
                   <span className="row-between">
@@ -148,8 +169,10 @@ export function AgentDesk() {
                   </span>
                   <span className="caption">{p.customer_display}</span>
                   <span className="row-between">
-                    <span className="rule">
-                      {orderedReasons(p).join(" · ")}
+                    <span className="queue-reasons">
+                      {orderedReasons(p)
+                        .map((reason) => t(handoffReasonLabelKey(reason)))
+                        .join(" · ")}
                     </span>
                     <span className="caption">
                       <Clock3 size={12} /> {t("sla")}:{" "}
@@ -164,7 +187,7 @@ export function AgentDesk() {
             </div>
           )}
         </section>
-        <section className="panel packet-panel">
+        <section ref={packetPanel} className="panel packet-panel">
           {current ? (
             <>
               <header className="packet-heading">
@@ -190,11 +213,19 @@ export function AgentDesk() {
                 <h3 id="handoff-reasons-title">{t("handoffReasons")}</h3>
                 <ul className="handoff-reasons">
                   {orderedReasons(current).map((reason) => (
-                    <li key={reason}>
-                      <code className="rule">{reason}</code>
+                    <li
+                      key={reason}
+                      className={
+                        reason === current.primary_reason ? "primary" : ""
+                      }
+                    >
                       {reason === current.primary_reason && (
-                        <span className="badge">{t("primaryReason")}</span>
+                        <span className="reason-kind">
+                          {t("primaryReason")}
+                        </span>
                       )}
+                      <strong>{t(handoffReasonLabelKey(reason))}</strong>
+                      <code className="technical-reference">{reason}</code>
                     </li>
                   ))}
                 </ul>
@@ -215,7 +246,10 @@ export function AgentDesk() {
                         onClick={() => setEvidence(current.evidence[i])}
                       >
                         <FileSearch size={15} />
-                        {t("evidenceTitle")} · {current.evidence[i].id}
+                        {t("evidenceTitle")}
+                        <code className="technical-reference">
+                          {current.evidence[i].id}
+                        </code>
                         <ArrowUpRight size={14} />
                       </Button>
                     )}
@@ -227,21 +261,45 @@ export function AgentDesk() {
                 <ol className="action-timeline">
                   {current.actions.map((action, i) => (
                     <li key={i}>
-                      <span className="timeline-check">
-                        <CheckCheck size={17} />
+                      <span
+                        className={`timeline-check ${action.status === "verified" ? "" : "failed"}`}
+                        data-status={action.status}
+                      >
+                        {action.status === "verified" ? (
+                          <CheckCheck size={17} />
+                        ) : (
+                          <CircleAlert size={17} />
+                        )}
                       </span>
                       <div>
-                        <strong>{action.action}</strong>
+                        <strong>
+                          {t(
+                            deskActionLabelKey(
+                              action.action,
+                              action.status === "verified",
+                            ),
+                          )}
+                        </strong>
                         <p>
-                          <span className="badge">
+                          <span
+                            className={`badge ${action.status === "verified" ? "" : "red"}`}
+                          >
                             {t(
                               action.status === "verified"
-                                ? "verified"
-                                : "unverified",
+                                ? "verifiedInRecords"
+                                : "failedAction",
                             )}
-                          </span>{" "}
-                          <code>{action.evidence_ref}</code>
+                          </span>
                         </p>
+                        <details className="action-references">
+                          <summary>{t("technicalReferences")}</summary>
+                          <code className="technical-reference">
+                            {action.action}
+                          </code>
+                          <code className="technical-reference">
+                            {action.evidence_ref}
+                          </code>
+                        </details>
                       </div>
                     </li>
                   ))}
@@ -288,6 +346,10 @@ export function AgentDesk() {
                 )}
               </div>
             </>
+          ) : loading || loadError ? (
+            <div className="empty">
+              <p>{t(loading ? "loading" : "queueLoadFailed")}</p>
+            </div>
           ) : (
             <div className="empty">
               <FileSearch size={36} />

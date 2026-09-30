@@ -9,6 +9,8 @@ from datetime import UTC, datetime, timedelta
 from time import perf_counter
 from typing import Any
 
+from httpx import Response
+
 from aclara.agent.contracts import DisputeCaseView, HandoffView
 from aclara.agent.nlg.grounding import redact_for_model
 from aclara.agent.runtime import Runtime
@@ -19,6 +21,17 @@ from evals.metrics import score
 from evals.observations import disclosures, validate_gold
 from evals.reactive import Customer
 from evals.runner import _new_authenticated_client
+
+
+def step_up_required(response: Response) -> bool:
+    """Only the API's exact stale-step-up error permits the renewal transition."""
+    if response.status_code != 401:
+        return False
+    try:
+        payload = response.json()
+    except ValueError:
+        return False
+    return isinstance(payload, dict) and payload.get("detail") == "Step-up verification required"
 
 
 async def execute_bound(
@@ -59,6 +72,8 @@ async def execute_bound(
     last: dict[str, Any] = {}
     last_message = ""
     denial, freeze_handle = False, None
+    freeze_handoff_id = None
+    renewed_step_up = False
     not_executed = None
     error = None
     terminal = {
@@ -119,10 +134,14 @@ async def execute_bound(
                         break
                     # Select the visible owned card; no gold or hidden fraud facts used.
                     freeze_handle = last["freeze_offer"][0]["handle"]
+                    freeze_handoff_id = last["handoff"]["handoff_id"]
                     response = await client.post(
                         f"/cards/{freeze_handle}/freeze/proposal",
                         headers=headers,
-                        json={"language": scenario["customer_knowledge"]["preferred_language"]},
+                        json={
+                            "language": scenario["customer_knowledge"]["preferred_language"],
+                            "handoff_id": freeze_handoff_id,
+                        },
                     )
                     durations.append((perf_counter() - start) * 1000)
                     if response.status_code != 200:
@@ -153,6 +172,33 @@ async def execute_bound(
                 )
                 payload = {"proposal_hash": digest, "confirmed": turn["confirm"]}
                 response = await client.post(endpoint, headers=headers, json=payload)
+                if (
+                    step_up_required(response)
+                    and not renewed_step_up
+                    and scenario["customer_knowledge"].get("provides_new_step_up") is True
+                ):
+                    # Disputes may keep the still-valid proposal. Card proposals
+                    # bind the OTP timestamp: renewing it requires a NEW proposal
+                    # and another customer decision, never an automatic freeze.
+                    renewed_step_up = True
+                    if await step_up():
+                        runtime.record("step_up_renewed")
+                        if freeze_handle:
+                            response = await client.post(
+                                f"/cards/{freeze_handle}/freeze/proposal",
+                                headers=headers,
+                                json={
+                                    "language": scenario["customer_knowledge"][
+                                        "preferred_language"
+                                    ],
+                                    "handoff_id": freeze_handoff_id,
+                                },
+                            )
+                            # Normal response processing below exposes this new
+                            # proposal to Customer.reply on the next turn. It can
+                            # confirm or change its mind using its authored replies.
+                        else:
+                            response = await client.post(endpoint, headers=headers, json=payload)
                 if (
                     response.status_code == 200
                     and response.json().get("case")

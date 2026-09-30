@@ -12,6 +12,7 @@ from pydantic import BaseModel, ConfigDict
 
 from aclara.agent.contracts import ResponsePlan, TransactionView
 from aclara.agent.nlg.grounding import AllowedFact, redact_for_model, scan_dlp, verify_draft
+from aclara.agent.nlu.rules import detect_language_evidence
 from aclara.llm.client import StructuredClient
 from aclara.llm.prompts import data_block, load_prompt
 from aclara.llm.types import ModelFailure
@@ -174,7 +175,11 @@ def build_reply(
     client: StructuredClient | None = None,
     prompt_path: Path | None = None,
 ) -> BuiltReply:
-    fallback = render_template(plan, language=language, country=country)
+    template = render_template(plan, language=language, country=country)
+    approved = plan.reply.strip()
+    fallback = (
+        plan.reply if approved and plan.response_type in {"clarify", "explain_status"} else template
+    )
     dlp_text = (
         fallback.replace(plan.case.case_id, "[VERIFIED_CASE_ID]")
         if plan.response_type == "report_case" and plan.case
@@ -187,21 +192,39 @@ def build_reply(
         client is None
         or (client.models["phrase"].provider == "mock" and not client.mock_configured)
         or plan.response_type not in {"clarify", "explain_status"}
+        # Code-supplied clarifications carry state-specific questions, including
+        # bilingual language help and recognition. Generic safe prose is not a
+        # substitute. Keep the existing API recognition guard as well.
+        or (plan.response_type == "clarify" and bool(approved))
     ):
         return BuiltReply(plan.model_copy(update={"reply": fallback}), True, ())
-    prompt = load_prompt(prompt_path or Path("prompts/phrase/v1.md"))
+    prompt = load_prompt(prompt_path or Path("prompts/phrase/v2.md"))
     context = data_block(
         "response_plan",
         json.dumps(
             {
                 "type": plan.response_type,
                 "language": language,
+                "approved_text": redact_for_model(fallback),
                 "facts": [{"id": fact.id, "value": redact_for_model(fact.value)} for fact in facts],
             },
             ensure_ascii=False,
         ),
     )
     violations: list[str] = []
+    merchants = tuple(
+        dict.fromkeys(
+            (
+                *known_merchants,
+                *(fact.value for fact in facts if fact.id == "merchant"),
+                *(
+                    (plan.transaction.merchant,)
+                    if plan.transaction and plan.transaction.merchant
+                    else ()
+                ),
+            )
+        )
+    )
     for _ in range(2):
         try:
             draft = client.generate(
@@ -221,10 +244,15 @@ def build_reply(
             known_merchants=known_merchants,
             other_customer_names=other_customer_names,
         )
-        if verdict.safe:
+        current = list(verdict.violations)
+        # Reject confident opposite-language evidence, not missing evidence.
+        evidence = detect_language_evidence(draft.text, ignored_terms=merchants)
+        if verdict.safe and evidence != "uncertain" and evidence != language:
+            current.append("language_mismatch")
+        if not current:
             return BuiltReply(
                 plan.model_copy(update={"reply": draft.text}), False, tuple(violations)
             )
-        violations.extend(verdict.violations)
-        context += "\nSafety violations to correct: " + ", ".join(verdict.violations)
+        violations.extend(current)
+        context += "\nSafety violations to correct: " + ", ".join(current)
     return BuiltReply(plan.model_copy(update={"reply": fallback}), True, tuple(violations))

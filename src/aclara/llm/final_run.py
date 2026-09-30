@@ -65,14 +65,25 @@ def journal(path: Path) -> Callable[[CallRecord, dict[str, Any] | None], None]:
     return write
 
 
+# Judge rationales can exceed 256 tokens; truncation stopped the v3 judge phase.
+JUDGE_MAX_OUTPUT_TOKENS = 1024
+
+
 def client_for(
     route: str,
     store: Store,
     *,
     response_record: Callable[[CallRecord, dict[str, Any] | None], None] | None = None,
     judge: bool = False,
+    budget_scope: str = SCOPE,
+    budget_run_id: str = RUN_ID,
 ) -> StructuredClient:
     require_start()
+    if (budget_scope, budget_run_id) not in {
+        ("final-evaluation-v3", "final-program-v3"),
+        ("final-evaluation-v4", "final-program-v4"),
+    }:
+        raise ValueError("Final scope and lifetime run must match the approved program")
     if (judge and route != "openrouter_sonnet") or (not judge and route != "default"):
         raise ValueError("Route is outside the approved final program")
     models = load_models(ROOT / "config/models.yaml")
@@ -81,7 +92,7 @@ def client_for(
         load_fallback_route(ROOT / "config/models.yaml", models) if route == "default" else None
     )
     if judge:
-        models = {spec.model_id: replace(spec, max_output_tokens=256)}
+        models = {spec.model_id: replace(spec, max_output_tokens=JUDGE_MAX_OUTPUT_TOKENS)}
     else:
         models["nlu"] = models["phrase"] = spec
     return StructuredClient(
@@ -89,7 +100,9 @@ def client_for(
         load_prices(ROOT / "config/pricing.yaml"),
         budget_usd=None,
         daily_budget_usd=12,
-        spend_gate=FinalSpendGate(PostgresSpendGate(store, scope=SCOPE, run_id=RUN_ID)),
+        spend_gate=FinalSpendGate(
+            PostgresSpendGate(store, scope=budget_scope, run_id=budget_run_id)
+        ),
         fallback_routes={"nlu": fallback, "phrase": fallback} if fallback else None,
         call_timeout_seconds=45,
         response_record=response_record,

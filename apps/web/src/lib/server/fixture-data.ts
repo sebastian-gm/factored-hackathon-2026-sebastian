@@ -22,7 +22,7 @@ export const personas: Config["personas"] = [
   },
   {
     username: "demo.pt.br",
-    label: "Brasil · compras parecidas",
+    label: "México · conversación en portugués",
     role: "customer",
     locale: "pt-BR",
   },
@@ -51,7 +51,7 @@ export const transactions: Transaction[] = [
     handle: "txn_cafe",
     merchant: "Café Horizonte",
     amount: 185,
-    currency: "MXN",
+    currency: "USD",
     transaction_date: "2026-06-16T12:00:00Z",
     transaction_type: "Purchase",
     status: "Pending",
@@ -60,7 +60,7 @@ export const transactions: Transaction[] = [
     handle: "txn_livraria",
     merchant: "Livraria Aurora",
     amount: 89.9,
-    currency: "BRL",
+    currency: "USD",
     transaction_date: "2026-06-14T12:00:00Z",
     transaction_type: "Purchase",
     status: "Approved",
@@ -69,7 +69,7 @@ export const transactions: Transaction[] = [
     handle: "txn_mercado",
     merchant: "Mercado do Bairro",
     amount: 92.5,
-    currency: "BRL",
+    currency: "USD",
     transaction_date: "2026-06-14T15:00:00Z",
     transaction_type: "Purchase",
     status: "Approved",
@@ -78,9 +78,21 @@ export const transactions: Transaction[] = [
     handle: "txn_estudio",
     merchant: "Estúdio Verde",
     amount: 88,
-    currency: "BRL",
+    currency: "USD",
     transaction_date: "2026-06-15T12:00:00Z",
     transaction_type: "Purchase",
     status: "Approved",
   },
 ];
+
+export function transactionsForPersona(username: string): Transaction[] {
+  // Country is part of the authored persona, independent of conversation locale.
+  // The legacy demo.pt.br alias is a Portuguese speaker in Mexico, not Brazil.
+  const currency =
+    username === "demo.es.co"
+      ? "COP"
+      : username === "demo.es.ar"
+        ? "ARS"
+        : "USD";
+  return transactions.map((transaction) => ({ ...transaction, currency }));
+}

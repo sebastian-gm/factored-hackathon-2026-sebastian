@@ -45,12 +45,15 @@ def test_freeze_requires_step_up_hash_scope_recheck_and_readback():
             token = await _sign_in(client)
             headers = {"Authorization": f"Bearer {token}"}
             offer, _ = await message(client, headers, "Me robaron la tarjeta")
+            origin = {"handoff_id": offer["handoff"]["handoff_id"]}
             assert offer["freeze_offer"][0]["handle"] == "prod_1"
             assert (
-                await client.post("/cards/prod_1/freeze/proposal", headers=headers, json={})
+                await client.post("/cards/prod_1/freeze/proposal", headers=headers, json=origin)
             ).status_code == 401
             await step_up(client, headers)
-            proposal = await client.post("/cards/prod_1/freeze/proposal", headers=headers, json={})
+            proposal = await client.post(
+                "/cards/prod_1/freeze/proposal", headers=headers, json=origin
+            )
             assert proposal.status_code == 200, proposal.text
             digest = proposal.json()["proposal_hash"]
             other = await _sign_in(client)
@@ -99,10 +102,14 @@ def test_freeze_cancel_noncard_expiry_and_policy_recheck():
         async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
             token = await _sign_in(client)
             headers = {"Authorization": f"Bearer {token}"}
+            offer, _ = await message(client, headers, "Me robaron la tarjeta")
+            origin = {"handoff_id": offer["handoff"]["handoff_id"]}
             await step_up(client, headers)
             p = (
                 await client.post(
-                    "/cards/prod_1/freeze/proposal", headers=headers, json={"language": "pt"}
+                    "/cards/prod_1/freeze/proposal",
+                    headers=headers,
+                    json={"language": "pt", **origin},
                 )
             ).json()
             cancelled = (
@@ -115,7 +122,7 @@ def test_freeze_cancel_noncard_expiry_and_policy_recheck():
             assert cancelled["handoff"]["freeze_outcome"] == "declined"
             assert (await client.get("/cards/prod_1", headers=headers)).json()["status"] == "Active"
             p = (
-                await client.post("/cards/prod_1/freeze/proposal", headers=headers, json={})
+                await client.post("/cards/prod_1/freeze/proposal", headers=headers, json=origin)
             ).json()
             repo.products = (replace(repo.products[0], status="Closed"),)
             assert (
@@ -127,7 +134,7 @@ def test_freeze_cancel_noncard_expiry_and_policy_recheck():
             ).status_code == 409
             repo.products = (Product(row.product_id, row.customer_id, "Savings Account"),)
             result = (
-                await client.post("/cards/prod_1/freeze/proposal", headers=headers, json={})
+                await client.post("/cards/prod_1/freeze/proposal", headers=headers, json=origin)
             ).json()
             assert result["handoff"]["freeze_outcome"] == "not_applicable"
             assert (await client.get("/cards/prod_1", headers=headers)).status_code == 404
@@ -212,5 +219,67 @@ def test_security_two_strikes_injection_legal_distress_and_language():
             assert any(e["event"] == "log_security_event" for e in app.state.runtime.events)
             response, _ = await message(client, headers, "No hice el cargo de Mercado Verde")
             assert response["outcome"] == "dispute_proposed"
+
+    asyncio.run(check())
+
+
+def test_security_cues_follow_session_across_tabs_but_not_another_login():
+    async def check():
+        app = create_app(_settings())
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+            owner = {"Authorization": f"Bearer {await _sign_in(client)}"}
+            other = {"Authorization": f"Bearer {await _sign_in(client)}"}
+            first, first_tab = await message(
+                client,
+                owner,
+                "Quiero ver la cuenta de mi esposo. Voy a reclamar al regulador.",
+            )
+            assert not first["session_ended"]
+            isolated, _ = await message(client, other, "Quiero ver la cuenta de mi esposo")
+            assert not isolated["session_ended"] and not isolated.get("handoff")
+            second, second_tab = await message(
+                client, owner, "Soy el esposo del titular. Estoy muy angustiado."
+            )
+            assert first_tab != second_tab and second["session_ended"]
+            packet = second["handoff"]
+            assert {"SEC-01", "AUTH-03", "ESC-02", "ESC-03"} <= set(packet["reason_codes"])
+            assert packet["conversation_id"] == second_tab
+            assert (await client.get("/me", headers=owner)).status_code == 401
+            assert (await client.get("/me", headers=other)).status_code == 200
+            final, _ = await message(client, other, "Soy el esposo del titular")
+            assert final["session_ended"]
+            assert not {"ESC-02", "ESC-03"} & set(final["handoff"]["reason_codes"])
+
+    asyncio.run(check())
+
+
+def test_wrong_step_up_codes_still_lock_after_five_attempts():
+    async def check():
+        app = create_app(_settings())
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+            headers = {"Authorization": f"Bearer {await _sign_in(client)}"}
+            auth = (await client.post("/auth/step-up", headers=headers)).json()
+            pre = {"X-Preauth-Token": auth["preauth_token"]}
+            code = (
+                await client.get(f"/auth/challenges/{auth['challenge_id']}/sms", headers=pre)
+            ).json()["code"]
+            wrong = "000000" if code != "000000" else "000001"
+            for _ in range(5):
+                r = await client.post(
+                    "/auth/step-up/verify",
+                    headers={**headers, **pre},
+                    json={"challenge_id": auth["challenge_id"], "code": wrong},
+                )
+                assert r.status_code == 401 and r.json()["detail"] == "Invalid code"
+            locked = await client.post(
+                "/auth/step-up/verify",
+                headers={**headers, **pre},
+                json={"challenge_id": auth["challenge_id"], "code": code},
+            )
+            assert (
+                locked.status_code == 401
+                and locked.json()["detail"] == "Challenge expired or invalid"
+            )
+            assert (await client.get("/me", headers=headers)).status_code == 200
 
     asyncio.run(check())

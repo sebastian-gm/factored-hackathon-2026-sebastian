@@ -79,7 +79,8 @@ export function RecordingHelper({
                 disabled={busy}
                 onClick={() => void run(() => onStory(story))}
               >
-                {story.label}
+                {t(`story_${story.id}`)} ·{" "}
+                {story.locale === "pt-BR" ? "PT" : "ES"}
               </Button>
             ))}
             <Button
@@ -94,18 +95,21 @@ export function RecordingHelper({
         </>
       ) : (
         <>
-          {demoStories.some((story) => !storyPersona(config, story)) && (
-            <p className="caption">{t("recordingUnavailable")}</p>
-          )}
+          {demoStories.some(
+            (story) => !storyPersona(config, story, session?.username),
+          ) && <p className="caption">{t("recordingUnavailable")}</p>}
           <div className="recording-actions">
             {demoStories.map((story) => (
               <Button
                 key={story.id}
                 variant="secondary"
-                disabled={busy || !storyPersona(config, story)}
+                disabled={
+                  busy || !storyPersona(config, story, session?.username)
+                }
                 onClick={() => void run(() => onStory(story))}
               >
-                {story.label}
+                {t(`story_${story.id}`)} ·{" "}
+                {story.locale === "pt-BR" ? "PT" : "ES"}
               </Button>
             ))}
             {(session?.role === "ops" || session?.role === "agent") && (

@@ -1,20 +1,24 @@
 "use client";
 import Link from "next/link";
-import { createContext, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import { NextIntlClientProvider, useTranslations } from "next-intl";
 import {
   ArrowUpRight,
-  CheckCheck,
   CircleHelp,
   Headphones,
   LayoutDashboard,
   LogOut,
   MessageCircle,
   ShieldCheck,
-  Sparkles,
 } from "lucide-react";
 import type { Config, Locale, Session, Surface } from "@/lib/contracts";
-import { api } from "@/lib/client";
+import { api, ApiError } from "@/lib/client";
 import { date } from "@/lib/format";
 import { es, pt } from "@/lib/messages";
 import { Button } from "./ui/button";
@@ -24,6 +28,7 @@ import { AgentDesk } from "./agent-desk";
 import { RecordingHelper } from "./recording-helper";
 import { storyPersona, storyDraft, type DemoStory } from "@/lib/demo-stories";
 import { Ops } from "./ops";
+import { JudgeQuickstart } from "./judge-quickstart";
 
 type AppContext = {
   locale: Locale;
@@ -67,7 +72,10 @@ export default function Workspace() {
     const ctrl = new AbortController();
     Promise.all([
       api<Config>("config", undefined, ctrl.signal),
-      api<Session>("me", undefined, ctrl.signal).catch(() => null),
+      api<Session>("me", undefined, ctrl.signal).catch((error: unknown) => {
+        if (error instanceof ApiError && error.status === 401) return null;
+        throw error;
+      }),
     ])
       .then(([configuration, current]) => {
         setConfig({
@@ -99,14 +107,29 @@ export default function Workspace() {
     </NextIntlClientProvider>
   );
 }
+function subscribeRecordingFlag(changed: () => void) {
+  window.addEventListener("popstate", changed);
+  return () => window.removeEventListener("popstate", changed);
+}
+function recordingFlagEnabled() {
+  return new URLSearchParams(window.location.search).get("grabar") === "1";
+}
 function Shell({ ready, failed }: { ready: boolean; failed: boolean }) {
   const t = useTranslations();
   const { locale, setLocale, config, session, signOut } = useApp();
   const [preferredPersona, setPreferredPersona] = useState("");
   const [story, setStory] = useState<DemoStory | null>(null);
   const [workspaceRevision, setWorkspaceRevision] = useState(0);
+  const [chatLocked, setChatLocked] = useState(false);
+  // Hidden in server HTML. Opt-in visibility grants no action authority.
+  const recordingEnabled = useSyncExternalStore(
+    subscribeRecordingFlag,
+    recordingFlagEnabled,
+    () => false,
+  );
   async function openStory(next: DemoStory) {
-    const persona = storyPersona(config, next);
+    if (chatLocked) throw new Error("Pending customer decision");
+    const persona = storyPersona(config, next, session?.username);
     if (!persona) throw new Error("Persona unavailable");
     if (session && session.username !== persona.username) await signOut();
     setPreferredPersona(persona.username);
@@ -153,7 +176,7 @@ function Shell({ ready, failed }: { ready: boolean; failed: boolean }) {
     }
   }
   return (
-    <div className="app-shell">
+    <div className={`app-shell surface-${surface}`}>
       <a href="#main-content" className="skip-link">
         {locale === "pt-BR" ? "Ir ao conteúdo" : "Ir al contenido"}
       </a>
@@ -196,7 +219,7 @@ function Shell({ ready, failed }: { ready: boolean; failed: boolean }) {
       <div className="workspace">
         <div className="synthetic-banner">
           <ShieldCheck size={13} />
-          <span>Synthetic data · Simulated bank · Not a real service</span>
+          <span>{t("demoNotice")}</span>
         </div>
         <header className="topbar">
           <div className="breadcrumb">
@@ -214,7 +237,7 @@ function Shell({ ready, failed }: { ready: boolean; failed: boolean }) {
                 <option value="es-MX">ES · México</option>
                 <option value="es-CO">ES · Colombia</option>
                 <option value="es-AR">ES · Argentina</option>
-                <option value="pt-BR">PT · Brasil</option>
+                <option value="pt-BR">PT · Português brasileiro</option>
               </select>
             </label>
             {session && (
@@ -232,37 +255,38 @@ function Shell({ ready, failed }: { ready: boolean; failed: boolean }) {
             </span>
           </div>
         </header>
-        <main id="main-content" className="main-content">
+        <main id="main-content" className="main-content" tabIndex={-1}>
           <div className="environment-row">
-            <span className={`status-pill ${config.fixtures ? "amber" : ""}`}>
+            <span
+              className={`status-pill ${!ready || failed ? "neutral" : config.fixtures ? "amber" : ""}`}
+            >
               <span className="dot" />
-              {config.fixtures ? t("fixture") : t("live")}
+              {!ready
+                ? t("connecting")
+                : failed
+                  ? t("unavailable")
+                  : config.fixtures
+                    ? t("fixture")
+                    : t("live")}
             </span>
             <span className="clock">
-              {config.bankClock
-                ? `${t("simulated")} · ${date(config.bankClock, locale)}`
-                : t("noClock")}
+              {!ready || failed
+                ? t(failed ? "unavailable" : "starting")
+                : config.bankClock
+                  ? `${t("simulated")} · ${date(config.bankClock, locale)}`
+                  : t("noClock")}
             </span>
           </div>
           {config.fixtures && (
             <p className="fixture-note">{t("fixtureNote")}</p>
           )}
-          {ready && !failed && (
-            <RecordingHelper
-              onStory={openStory}
-              onStaff={openStaff}
-              onLiveReset={async () => {
-                setWorkspaceRevision((n) => n + 1);
-              }}
-            />
-          )}
           <div className="page-heading">
             <p className="eyebrow">
               {surface === "chat"
-                ? "TU BANCO, MÁS CERCA / SEU BANCO, MAIS PERTO"
+                ? t("chatEyebrow")
                 : surface === "desk"
-                  ? "HUMAN IN THE LOOP"
-                  : "OPERATIONS & EVIDENCE"}
+                  ? t("deskEyebrow")
+                  : t("opsEyebrow")}
             </p>
             <h1>
               {t(
@@ -288,14 +312,21 @@ function Shell({ ready, failed }: { ready: boolean; failed: boolean }) {
               {t("error")}
             </p>
           )}
+          {ready && !failed && surface === "chat" && (
+            <JudgeQuickstart
+              onStory={openStory}
+              selected={story}
+              locked={chatLocked}
+            />
+          )}
           {!ready ? (
             <div className="panel loading" role="status">
-              {t("loading")}
+              {t("starting")}
             </div>
           ) : failed ? (
-            <div className="panel empty">
+            <div className="panel empty" role="alert">
               <CircleHelp />
-              <h2>{t("error")}</h2>
+              <h2>{t("startupUnavailable")}</h2>
               <Button onClick={() => location.reload()}>{t("retry")}</Button>
             </div>
           ) : !allowed ? (
@@ -318,67 +349,43 @@ function Shell({ ready, failed }: { ready: boolean; failed: boolean }) {
                   />
                 )}
               </section>
-              <Journey />
             </div>
           ) : surface === "chat" ? (
             <div className="customer-grid">
               <CustomerChat
                 key={`${session.username}:${workspaceRevision}`}
+                onPendingChange={setChatLocked}
                 initialDraft={
                   story &&
-                  session.username === storyPersona(config, story)?.username
+                  session.username ===
+                    storyPersona(config, story, session?.username)?.username
                     ? storyDraft(config, story)
                     : ""
                 }
               />
-              <Journey />
             </div>
           ) : surface === "desk" ? (
             <AgentDesk key={workspaceRevision} />
           ) : (
             <Ops key={workspaceRevision} />
           )}
+          {recordingEnabled && ready && !failed && (
+            <RecordingHelper
+              onStory={openStory}
+              onStaff={openStaff}
+              onLiveReset={async () => {
+                setWorkspaceRevision((n) => n + 1);
+              }}
+            />
+          )}
           <footer className="page-footer">
             <span>
-              <ShieldCheck size={14} />{" "}
-              {session ? t("secure") : "Password + OTP"}
+              <ShieldCheck size={14} /> {t("accessNotice")}
             </span>
-            <span>Understand → Decide → Act → Verify → Escalate</span>
+            <span>{t("allStages")}</span>
           </footer>
         </main>
       </div>
     </div>
-  );
-}
-export function Journey() {
-  const t = useTranslations();
-  return (
-    <aside className="journey">
-      <div className="journey-card">
-        <span className="eyebrow">ACLARA, CONTIGO / COM VOCÊ</span>
-        <h2>{t("journeyTitle")}</h2>
-        <p>{t("journeyBody")}</p>
-        <ol>
-          {["step1", "step2", "step3", "step4"].map((step, i) => (
-            <li key={step}>
-              <span>{i === 3 ? <CheckCheck size={17} /> : `0${i + 1}`}</span>
-              {t(step)}
-            </li>
-          ))}
-        </ol>
-        <div className="orbit-art" aria-hidden="true">
-          <div />
-          <div />
-          <span>
-            <Sparkles size={25} />
-          </span>
-        </div>
-      </div>
-      <div className="human-note">
-        <Headphones size={23} />
-        <h3>{t("helpTitle")}</h3>
-        <p>{t("helpBody")}</p>
-      </div>
-    </aside>
   );
 }

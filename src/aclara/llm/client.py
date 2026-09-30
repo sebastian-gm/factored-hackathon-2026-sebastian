@@ -230,8 +230,16 @@ class StructuredClient:
             response: ProviderResponse | None = None
             parsed: T | None = None
             status: Literal["valid", "invalid_json", "provider_error", "refusal"] = "provider_error"
+            call_spec = spec
+            if attempt == 1 and spec.first_attempt_timeout_seconds:
+                call_spec = replace(
+                    spec,
+                    timeout_seconds=min(spec.timeout_seconds, spec.first_attempt_timeout_seconds),
+                )
             try:
-                response = self._adapters[spec.provider].complete(spec, system, user, schema, key)
+                response = self._adapters[spec.provider].complete(
+                    call_spec, system, user, schema, key
+                )
                 stop = (response.stop_reason or "").lower()
                 if any(
                     reason in stop

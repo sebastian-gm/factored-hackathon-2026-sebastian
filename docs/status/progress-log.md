@@ -1,5 +1,668 @@
 # Progress log
 
+## 2026-09-30 PDT — #76 integration, pre-v4 accounting and release preparation
+
+### Completed (verified)
+
+- Reviewed #76 (`4436729`), retargeted it to `fix/post-v3-analysis` and merged
+  locally without conflicts. Changes are presentation/authored fixtures; BFF
+  and Desk write handlers remain intact, including the earlier persona/card
+  decision locks. No organizer/v4 row was opened. Recording opt-in grants no
+  action authority; canonical reasons/evidence remain available.
+- Added duration-only BFF `Server-Timing`, a ten-conversation ES/PT latency
+  probe with duplicate-launch protection and release gates, and SHA-bound
+  release/latency $0.10 lifetime purses. Authored full mock probe reaches 20
+  turns without persisting facts/credentials; no real probe ran yet.
+- Added `scripts.pre_v4_budget`: shared **dev-gate/pre-v4 / pre-v4**, $1 lifetime,
+  prior-scope closure (post-v3 included), retained unknowns, conflict/breaker
+  refusal and rollback. Final v4 preparation counts/closes this new scope and
+  conservatively counts historical production charges plus both smoke caps.
+- Read-only verified-TLS ledger at 18:01 UTC: prior **$4.57863620**, including
+  $0.03580104 historical production; + dev $1 + v4 $3 + release $0.10 +
+  latency $0.10 = **$8.77863620 ≤ $12**. Four prior unknown reserves retained.
+- Combined `LLM_PROVIDER=mock make checks`: **449 passed / 20 DB skips**,
+  six hooks, B1 **32/32**, compile/interfaces/catalog. Ruff and strict mypy
+  (85 files) passed; disposable Postgres **23/23**; web typecheck/lint/build;
+  browsers **80 fixture + 12 live API + 1 staff = 93/93**. Both bootstrap
+  regressions additionally pass **6/6** in CI's development-server mode.
+- Corrected a second authored bootstrap race: assert all three shortcuts render
+  before removing mocked config. Expectations unchanged; original failure logs
+  retained. Restored generated Next declarations. No paid model call occurred.
+- Sebastian's standing OK now authorizes green #62 merge/main release and
+  spending within the cumulative ceiling. Temporary smoke-run binding separately
+  approved; resource shape, min=0 and owner ingress remain unchanged.
+
+### Done but not verified
+
+- Remote corrected-head CI/safety, merged main, pushed/deployed images, full
+  Azure release gates, live pre-v4 scope and paid latency remain pending here.
+  Exact milestone evidence is recorded in ignored `artifacts/integration/` and
+  `artifacts/azure/jev-release.json`; read their SHA/results before claiming release.
+- Live v4 scope/inputs/serving/start remain unverified and unstarted. No public
+  judge/warm mode or public repository visibility is enabled.
+
+### Next / blocked
+
+- Publish the full corrected integration once, require remote CI/safety green,
+  merge #62 and release with image tags plus the approved smoke binding only.
+  Run controls/real/browser/outside-access gates and report exact SHA, then create
+  and read back **dev-gate/pre-v4 / pre-v4** for the AI lane, then measure latency.
+- Feature freeze **Oct 2 12:00 COT / 17:00 UTC**; independent v4 run follows
+  freeze/release and a separate GO. Keep v4 blind and v1 untouched.
+- After release, prepare the approved scrubbed snapshot in a new private
+  `factored-hackathon-2026-sebastian`; retain honest chronology and scan it.
+  Public visibility and Oct 4 warm/access activation need explicit approval.
+- [Release/budget/probe commands and measurement scope](../evaluation/pre-v4-release-and-latency.md).
+
+## 2026-09-29 PDT — Single remote #62 gate and test-only hydration correction
+
+### Completed (verified)
+
+- Published combined head **00246eb083121d8234c7ef45a076c7fb78801145** once;
+  GitHub read-back records #63/#65–#75 merged into the feature branch. #62 and
+  blind #64 remain open. Main remains **e12efc73be64f8355aa9f177f08a04337593616c**.
+- Automatic CI **36672780834**, attempt 1: Python checks and Postgres passed;
+  fixture browsers **63/64**, with one startup locale test failure. Safety
+  **36672780958**, attempt 1: passed. No rerun. Aggregate receipt is ignored
+  `artifacts/integration/pr62-remote-gates.json`.
+- Diagnosed an authored-test hydration race: its first connecting label exists
+  in server-rendered HTML, before the locale change handler is attached. The
+  correction waits for client bootstrap, matching the existing startup test;
+  adds a locale assertion. No product, confirmation, OTP, action, timeout or
+  expected-label change. CI dev-server mode passes targeted **3/3**, full
+  fixture **64/64**. Restored generated `next-env.d.ts`. Commands/receipt in
+  [integration review](../reviews/pr-71-75-integration-review.md).
+- Earlier combined local gates remain verified: Python **442**, Postgres **20**,
+  B1 **32/32**, browser **64 fixture + 12 live + 1 staff**, Terraform **5** plans.
+  No paid model calls or Azure changes; v4 unopened/unstarted, submission OFF.
+
+### Done but not verified
+
+- Remote live/staff browser runs were not reached after the fixture failure.
+  The corrected local candidate has not been published or remotely checked.
+  Main promotion is blocked on green remote CI; this record does not claim it.
+
+### Next / blocked
+
+- Obtain approval for a second automatic remote CI cycle (about **$0.06**,
+  owner estimate, within the $5 hard cap), publish the test-only correction and
+  inspect it without manual reruns. Then report the new exact SHA and gates.
+- Main merge/release still needs Sebastian's separate confirmation. No release,
+  submission activation or v4 final run is authorized by this correction.
+
+## 2026-09-29 PDT — Complete #62 integration and local release gates
+
+### Completed (verified)
+
+- Opened private preparation PRs **#73** (`c328553`) and **#75** (`aaa2a97`),
+  read back their feature targets and integrated them locally. Reviewed/merged
+  audit **#71**, UX **#72** and AI evidence **#74** into the feature target,
+  following the earlier #63/#65–#70 integrations. Two progress conflicts kept
+  every entry; no product conflict or force push.
+- Critical #72 review: BFF and Desk write handlers match the reviewed #68 base;
+  recognition, confirmation hashes, OTP renewal, explicit expired review and
+  uncertain-write drafts retain authority in code. Fixed two integration gaps
+  in **8513b9d**: current eligible judge alias is retained on story selection,
+  and pending card decisions lock story changes. Authored browser assertions
+  observe zero message/action POSTs for draft preparation and zero freeze writes
+  through the card retry/review. Corrected one stale live revocation label.
+- Combined local `make checks`: **442 passed / 17 DB skips**, all six hooks,
+  compile/file policy, interfaces/catalog, B1 **32/32**, reactive B1 **32/32**;
+  Ruff and strict mypy **85 files**; disposable local Postgres **20/20**;
+  Terraform fmt/validate and **5/5 mocked plans**. Web typecheck/lint/build;
+  browser **64 fixture + 12 live API + 1 staff = 77/77**. No model spending.
+- Corrected #74's stale preview claim to verified `dac3801` read-only startup;
+  audit #71 explicitly covers its historical snapshot, not these later changes.
+  Official figures/limits and assumption-labeled estimates are unchanged.
+  [Review and commands](../reviews/pr-71-75-integration-review.md).
+- V4 scope is prepared in code, not created/enabled in Azure. Cumulative snapshot
+  $4.54283516 + $3 + $0.10 = **$7.64283516 ≤ $12**. V4 rows/selections/tools/
+  bindings unopened; no preflight/start. V1 untouched. No Azure change; submission
+  toggles OFF. Main/origin/main stay `e12efc73be64f8355aa9f177f08a04337593616c`.
+
+### Done but not verified
+
+- The committed record covers local gates. Remote CI/safety evidence is produced
+  after the single complete-head publication and saved in ignored
+  `artifacts/integration/pr62-remote-gates.json` with its exact SHA/run IDs.
+  Read that receipt and current GitHub #62 checks before promotion; no extra
+  documentation push is needed solely to record a CI result.
+- This combined candidate is not deployed. Public judge login/warm replicas,
+  new real-chat acceptance and independent v4 outcomes remain unverified.
+
+### Next / blocked
+
+- Inspect the one automatic #62 CI/safety run after publication. Main requires
+  remote green plus Sebastian's explicit merge/release confirmation. Avoid
+  needless reruns under the hard $5 Actions cap. Report SHA and gate receipt.
+- A later approved release prepares the real v4 budget/bindings/local-serving
+  pins; separate GO starts the final program. Submission-day activation needs
+  source persona/role, dates, exact plan and infra/model cost approval.
+
+
+## AI lane — 2026-09-29 (judge-facing Production Thinking and Responsible AI)
+
+### Completed (verified)
+
+- Read `docs/production-readiness.md` fully before refreshing it. Used the recorded restricted Azure preview, deployment/budget ADR, existing startup/warm-price evidence, current route/grounding code and published official v2/v3 aggregates only. No v4 row, authoring file or result was opened; no model/cloud call or resource change was made.
+- Refreshed Production Thinking (**502 words**) with Container Apps, Postgres/non-owner forced RLS, Key Vault/managed identity, reserve-before-call daily/run caps, Grok failure fallback, committed read-back and unanchored hash-chain limits. Added clearly labeled pilot effort/monthly-cost assumptions for network, identity/MFA, telemetry/SLOs, scaling/recovery, cold starts, scheduling, human queue and bank/retention/audit work; dated baseline/warm prices are distinguished from fresh quotes and incremental allowances.
+- Added Responsible AI (**509 words**) with actual masked fact/text boundaries, redaction limitations, requested OpenRouter ZDR and unverified Jev ZDR, private content-bearing persistence and unverified purge; bounded injection/DLP/grounding controls and authority in code. Published v2/v3 ES/PT SAR/strict-escalation counts, corrected regional v2 recall, failed safety gates, es-CL n=9/no fluent PT reviewer and a private issue-report proposal. Only v4 retains `TODO(results)`.
+- Checked all quoted figures against existing evidence, all local links/anchors, sensitive-value exclusions and reading length: **2.79 / 2.83 minutes at 180 words/minute**. No product/interface/fixture change and no new runtime tests are needed. Working-tree data/secret/size policy and commit hooks pass, including strict mypy.
+- Corrected PR #71's CI-trigger handoff and read it back: the old parser had mistaken the separate main-push filter for a PR branch filter. Target workflows still trigger all PRs. Owner policy remains local checks for stacked PRs, green remote CI before main promotion. This docs commit uses GitHub's documented `[skip ci]` marker to avoid Actions spend until the lead changes triggers; do not carry a skipped required gate into a main merge. No existing workflow was rerun or cancelled. Prior audit-only session note remains privately preserved in ignored artifacts and is excluded from this PR.
+
+### Done but not verified
+
+- Pilot estimates are assumptions, not implementation promises, observed bills, bank-contract quotes or a summed production forecast. No live deployment recheck, new acceptance run, human PT validation, provider deletion or operational SLO is claimed.
+
+### Next / blocked
+
+- Open one documentation PR against `fix/post-v3-analysis` and leave merging to the lead. Lead reviews the effort/cost assumptions and publication wording; green main-target CI remains mandatory. V4 remains pending and blind. No spend or cloud action is authorized by these pages.
+
+
+## 2026-09-29 PDT — Submission-day infrastructure prepared OFF
+
+### Completed (verified)
+
+- Added independent OFF switches `enable_submission_warm=false`,
+  `min_replicas=0`, `enable_judge_access=false`. Warm 1 requires its switch;
+  judge mode cannot use a smoke budget. API stays internal HTTPS, max=1;
+  public web still uses login/OTP and the existing global $3/day model breaker.
+- Judge account/password are external Key Vault references only, never values
+  in Terraform inputs/state. OFF has no credential requirement or effect.
+  Enabled runtime aliases an existing reviewed source customer/locale/role and
+  gated story hints; it cannot claim new ownership/role. Judge and owner
+  passwords cannot interchange; OTP/session/action semantics are retained.
+- `terraform fmt -check`, `terraform validate`, five mocked plan-only tests
+  pass. Read-only sandbox plans (`-refresh=false -lock=false`, explicit sandbox
+  wrapper) show **OFF: zero changes**; ON: **two app updates + two scoped RBAC
+  grants**, zero deletes, API internal. Plans/JSON stay ignored and 0600.
+  No Azure apply, secret upload, enablement or model call occurred.
+- Live East US 2 compute rates read at 04:17 UTC: two warm replicas
+  **$0.3888–$1.296/day**, 14-day compute **$5.4432–$18.144**. With explicitly
+  historical fixed-service/margin assumptions, monthly infra **$34.73–$47.43**;
+  upper case exceeds $40 approval gate. $3/day models can add $42 over 14 days,
+  separate from v4's lifetime budget. [Plan and approval checklist](../submission/infrastructure-switches.md).
+- Mock `make checks`: **429 passed / 16 DB skips**, six hooks, B1 **32/32**,
+  compile/snapshots/catalog. Ruff and mypy **85 files** pass. Disposable local
+  Postgres **19/19**, including judge RLS/session recovery on restart and owner
+  case isolation. Authored login/security follow-up **19/19**, including only
+  the source's gated story hints. Early test issues (sandbox TestClient stall,
+  wrong test endpoint and inherited private smoke variable in mock tests) were
+  corrected; no product regression remained.
+
+### Done but not verified
+
+- No real judge credential exists from this work. Public ingress, outside-IP
+  login, production account/source choice and live enabled budget are not tested.
+  Read-only no-refresh plans are not fresh drift audits or apply authorization.
+
+### Next / blocked
+
+- Open this preparation PR against `fix/post-v3-analysis`. Sebastian approves
+  source persona/role, dates, exact live plan and total infra/model exposure on
+  submission day before enabling anything. Keep testing min=0 and owner ingress.
+- Integrate preparation/audit/UX and pending AI docs on the feature target, then
+  full local browser/API gates and one remote #62 head run. No main merge,
+  Azure change or v4 start until the subsequent owner gates.
+
+
+
+## 2026-09-29 PDT — V4 runner readiness, no execution
+
+### Completed (verified)
+
+- Generalized suite/binding/manifest configuration, budget scope/run, output and
+  detached start/resume pins for test-v4 (`309c3aa2…`) without opening any v4
+  row, selection, authoring tool or binding. Local non-owner serving DSN is
+  required and preserved; durable Azure budget accounting remains separate.
+  Frozen selections are consumed only inside an authorized start. Judge cap
+  remains 1024; B1 100 / P 160 / dual judge 60 / frontier OFF.
+- Read-only aggregate ledger: prior charged/reserved $4.54283516 + v4 $3.00 +
+  release-smoke allowance $0.10 = **$7.64283516 ≤ $12**. Four prior unknowns
+  remain charged. Future preparation closes prior scopes and rechecks exposure;
+  no Azure budget scope was created or enabled in this session.
+- Authored pins/local-serving/launcher/resume/judge tests passed. Mock
+  `make checks`: **430 passed / 17 DB skips**, hooks, B1 **32/32**, compile,
+  interfaces/catalog; Ruff and strict mypy (84 files). Disposable local
+  `python -m scripts.test_postgres`: **20/20**, including $3 v4 cap across
+  restart, prior v3/dev closure and retained reserves. An initial new test used
+  an unsupported Store context manager; explicit cleanup fixed it before rerun.
+- [Readiness, cost math and limitations](../evaluation/v4-program-readiness.md);
+  [future commands](../evaluation/final-run-plan.md). No model calls or Azure
+  resource changes; main stays unchanged and v1 untouched.
+
+### Done but not verified
+
+- V4 release inputs/bindings, local organizer serving readiness and a new
+  deployed acceptance SHA are not checked here. No v4 preflight, preparation,
+  start or outcome is claimed. Latency will include provider/budget calls.
+
+### Next / blocked
+
+- Open the readiness PR against `fix/post-v3-analysis`; prepare separate OFF
+  submission switches next. Wait for UX before the single combined main-target
+  CI run. Main merge, Azure enablement and v4 execution need their release gates
+  and owner authorization. Stacked PRs use documented local checks.
+
+
+## 2026-09-29 PDT — AI review, feature integration and startup profiling
+
+### Completed (verified)
+
+- Critically reviewed PRs #65/#66 commit by commit. #63 was already merged;
+  #65 merged at `b9dabfb`, #66 at `6800ffd` under the preceding feature-merge
+  authorization while billing was blocked. One progress-log conflict was
+  resolved by keeping both entries in a history-preserving update; no force push.
+- Reproduced #65's lead-owned offer failure at zero cost in ES/PT. Commit
+  `02d6bcc` narrowly exempts charge-origin memory statements from selection
+  uncertainty, retaining separate inability-to-choose clauses and all matcher
+  thresholds. Authored regressions: 10 failures/10 passes before, **20/20 after**.
+  The reported dev case passes a bound replay using authored mock extraction,
+  with its required offer, cancellation and no forbidden/unsafe action. No new
+  real-model result is claimed.
+- Integrated #67 then dependent #68 locally into `fix/post-v3-analysis`, followed
+  by the guard correction. Full combined checks: `make checks` **417 passed /
+  16 DB skips**, six hooks, file policy, compile, B1 **32/32**, **12 readbacks**,
+  snapshots/catalog; Ruff and strict mypy (84 files); reactive B1 **32/32**;
+  `python -m scripts.test_postgres` **19/19**; web typecheck/lint/build; browser
+  **46 story + 12 live + 1 staff = 59/59**. No product merge conflict or local
+  regression. Generated Next/B1 aggregate files were restored after checks.
+- Reviewed and locally integrated #69/#70. Applied #69's six copy changes in
+  `ea34060`, mechanically updating one stale hunk beside #68 provenance code.
+  AST checks confirm six string-only changes/four replacements and identical
+  non-string structure/placeholders/numbers. Corrected the review's coverage
+  cutoff: later OTP retry/UX strings are outside its 134-item model inventory.
+  All four model-card source pins match; no review call was rerun.
+- #70's README/projection numbers match official v2/v3 reports and saved v3
+  aggregate objects. Decimal recomputation confirms every low/base/high output
+  and 4,440-minute sensitivity. Historical FCR, counts, handling and wait times
+  match committed pipeline aggregates; workload/efficiency/infra are labeled
+  assumptions, with safety failures/partial judging retained. Bootstrap order
+  was checked against source, not rerun on organizer data. A second
+  progress-log-only conflict preserved every entry. An early local check on
+  the unresolved index failed in the staged-file scanner; after resolution the
+  stable `95332e0` candidate passed `make checks` **417/417**, B1 **32/32**,
+  hooks/compile/snapshots/catalog. No extra paid calls.
+- Added main-only PR filters and workflow/ref cancellation to CI/safety in
+  `2b41886`. YAML assertions verify PR base main, main pushes and cancellation.
+  The owner initially announced billing recovery; the single authorized reruns
+  on #67/#62 still started zero steps. Further reruns stopped when requested.
+  The later owner confirmation supersedes that block: **$5 hard Actions cap**,
+  rigorous local gates for stacked PRs, remote green required before main merge.
+- Read-only startup profiling of the existing `dac3801` preview: 86.059 s is
+  the prior web→API cold-read chain, with a 43.581 s web-ready/API-ready gap.
+  Cached API/web images are 226.88/72.26 MiB; a separate API activation pulled
+  its image in 7.54 s. Network-disabled local API initialization at 0.25 CPU /
+  512 MiB took 6.399 s; TypeSafe import 0.516 s; LightGBM not loaded at readiness;
+  matcher construction afterward 2.479 s. Non-owner TLS serving/identity/hint
+  timings completed without printing rows. An initial workstation pool timeout
+  was followed by successful TLS/read checks; firewall IP still matched.
+  No Azure change, model call or banking write. [Profile and proposals](../evaluation/preview-startup-profile.md).
+- [Review, commit dispositions, gate commands and limits](../reviews/pr-65-66-integration-review.md).
+  Main/origin/main remain `e12efc73be64f8355aa9f177f08a04337593616c`.
+  V4 files/rows/tools/bindings were neither opened nor executed; v1 untouched.
+
+### Done but not verified
+
+- #67–#70 and the lead guard/copy/CI changes are locally integrated, not yet
+  published on the combined #62 head. GitHub stacked PRs still show open until
+  publication. The frontend UX PR is being prepared on `feat/judge-ux-polish`.
+- Full remote CI on the final combined head and Azure release are pending.
+  Browser/Postgres checks predate only the six verified copy changes; final UX
+  integration still requires its combined local browser gate.
+- Startup timings are individual observations, not a complete Azure cold-start
+  decomposition. No proposed dependency/import/cache/readiness optimization was
+  implemented. No human PT fluency or independent v4 result is claimed.
+
+### Next / blocked
+
+- Wait for the orchestrator's UX PR number, review and integrate it locally.
+  Re-run necessary combined local gates, then publish **one complete #62 head**
+  and inspect its automatically triggered CI/safety; avoid manual reruns.
+  Keep the $5 owner billing cap and main-only trigger/cancellation policy.
+- Do not merge main or start v4. Report the combined SHA and remote gates after
+  the single full-head run. Any release remains a separate authorized step.
+
+
+## AI lane — 2026-09-29 (language model card and cross-vendor copy review)
+
+### Completed (verified)
+
+- Updated [the language model card](../ml/model-card.md) for NLU v5.1, phrase v2's actual approved text and deterministic clarification/recognition guard, contextual ES/PT/uncertain language evidence, the 6 s first-attempt timeout and 1024-token Sonnet judge cap. Source hashes read back exactly; only independent v4 slices retain `TODO(results)`.
+- Recorded PR #65's frozen 40-conversation dev results (39/40 before/after, normalization failures 9→0, clarifications 15→6, cost/latency and limits) separately from official v3 P 77/100 versus B1 52/100, SAR +11 pp (95% CI +5 to +17). V3 is now seen dev data; its post-hoc 100/100 does not replace the official result. V4 remained unopened and unrun.
+- Completed Sonnet cross-vendor review of **134/134** active source strings/variants, **67 ES + 67 pt-BR**, including all templates, offer/recognition questions, approved API replies and all eight added web translations since `e12efc7`. Ten valid calls, no retries/truncation/new unknown costs. [Before/after and decisions](../ml/pt-review.md).
+- Per-call usage and readback of the ten durable reservations agree at **$0.085928**, below the approved $0.10. Existing shared `dev-gate/post-v3` / `post-v3` scope reads **$0.71924554 exposure** (known $0.68326354; three pre-existing unknowns), below the requested $0.90 stop and unchanged $1 cap. Concurrency one; every call reserved before sending under the scope lock. No key-level delta or final scope was used.
+- `LLM_PROVIDER=mock make checks` passes: six hooks, Ruff, strict mypy, compilation, file policy, **308 passed / 14 database-dependent skips**, B1 **32/32**, interfaces and policy catalog. No product code changed in this PR.
+- Reconciled the updated lead target `6800ffd` into this feature branch after PRs #65/#66 merged, preserving every progress entry. The conflict was documentation only; no product or fixture changes were authored. Local 381-test checks on that combined target passed in this session.
+- Pushed only private origin and opened [PR #69](https://github.com/sebastian-gm/bank-agent-lab/pull/69) against `fix/post-v3-analysis`; read back the exact description, branch SHA, mergeable and open/unmerged state. All four remote CI jobs completed with failure: annotations say the jobs were not started because an Actions budget prevents use. No CI was cancelled.
+- Prepared a [lead-owned strings-only patch](../ml/copy-review-post-v3-proposed.patch): five PT occurrences use `contestação` consistently, and one ES freeze offer explains OTP as a new verification code plus confirmation. No lead/front-end product folder was edited. All AI templates and changed web messages were kept. Patch applicability, Python compilation, six string-only AST changes, preserved placeholders/numbers and documentation links were verified.
+
+### Done but not verified
+
+- Copy is model-reviewed, not fluent-human PT validation; no additional production accuracy, fairness or latency measurement was made. The lead-owned proposed strings are not active until the lead applies the patch. PRs #65/#66 describe candidate behavior; this card is not a deployment attestation.
+
+### Next / blocked
+
+- PR #69 stays unmerged for the lead. Review/apply its six lead-owned copy changes and merge the prerequisite fixes before release/final v4. The authorized latest-head reruns still failed before steps; GitHub cited failed recent account payments or a spending limit needing an increase. A meaningful conflict-resolution push gets its normal CI; no further manual rerun is planned until account billing allows jobs to start. Green remote CI remains required before merge. Preserve v4 blindness and make no further paid call.
+## AI lane — 2026-09-29 (Actions policy and documentation handoff)
+
+### Completed (verified)
+
+- Read back [PR #70](https://github.com/sebastian-gm/bank-agent-lab/pull/70) and [PR #69](https://github.com/sebastian-gm/bank-agent-lab/pull/69): both are open, unmerged and mergeable against `fix/post-v3-analysis`. Their descriptions now reflect Sebastian's latest Actions instruction: the $5 budget is unblocked; rigorous local checks are the gate for stacked PRs; green remote CI is required for PRs into `main`.
+- Reconciled PR #69 with lead target `6800ffd`, preserving both progress histories; its proposed lead-owned copy patch still applies. Documentation PR #70 retains the verified **381 passed / 14 database-dependent skips**, B1 **32/32**, strict mypy and Ruff checks. No additional manual CI rerun, model spend, deployment or v4 access followed the new instruction.
+
+### Done but not verified
+
+- The later owner confirmation supersedes the earlier billing-block and all-merge CI notes below. This lane has not independently audited the owner billing change or future main-target CI; no green remote CI is claimed for these stacked PRs.
+
+### Next / blocked
+
+- Lead reviews and merges PRs #69/#70 into `fix/post-v3-analysis`; this lane leaves both unmerged. Require green remote CI before merging a PR into `main`, and avoid needless reruns. Business projection remains assumption-labeled; v4 results remain pending and blind to this lane.
+
+## AI lane — 2026-09-29 (business projection and judge README refresh)
+
+### Completed (verified)
+
+- Read `docs/evaluation/business-projection.md` and root `README.md` before editing, then used only committed dataset aggregates, official v2/v3 reports, architecture/serving source and the historical Azure dev price plan. No v4 row, authoring tool or artifact was opened; no model call or cloud resource change was made.
+- Refreshed [the business projection](../evaluation/business-projection.md) with official v3 P **77/100** versus B1 **52/100**, SAR **39% / 28%**, strict escalation **30/40 / 20/40**, unnecessary transfers **11/60 / 23/60**, precise **$0.00237687544** serving cost and case/turn latency. Kept safety-gate failures and partial judging visible; later seen-v3 checks do not replace the official result.
+- Read back dataset **43.6% Queja contact FCR proxy**, **12,297/67,095 = 18.33% identified charge-dispute complaints**, and **434.606 s / 220.803 s** complaint/transactional handle-time means. The 10,000/month volume and use of category handle times for dispute intake are explicitly assumptions, not monthly/source facts.
+- Authored a reproducible low/base/high projection against B1 with review/remediation and all nonautomated issues receiving human follow-up. Base: **3,900 automated intake outcomes**, **1,200 avoided unnecessary transfers**, **11,621 net agent minutes**, **$23.77 model + $35 assumed infra = $58.77/month**. Low adds **3,028 minutes** of work. Arithmetic uses exact source values, and avoided transfers are not counted twice as time savings. A transactional-time proxy sensitivity reduces base savings to 4,440 minutes. Only v4 retains result placeholders.
+- Replaced the stale mock-diagnostic README with a short judge draft: three guided stories, one Mermaid architecture diagram, separate official v2 and after-fixes v3 evidence, v4 pending, honest language/safety/identity/production limits, and source-checked mock-only local bootstrap. Root README is the explicitly requested shared-file edit; no product code or fixtures changed.
+- Decimal arithmetic, output rounding, evidence links, one-diagram constraint and v4-only `TODO(results)` entries verified. Mock `make checks` passes: six hooks, Ruff, strict mypy, compilation, file policy, **381 passed / 14 database-dependent skips**, B1 **32/32**, interface snapshots and policy catalog.
+- Following Sebastian's Actions-budget instruction, reran only PR #69's latest two blocked workflows: `ci` **36662765802** and `safety` **36662765906**, both attempt 2 on `3c86e27`. All four jobs completed without steps. Their new annotations say recent account payments failed or the spending limit needs increasing; this does not establish which billing condition applies. No older head, merged PR or other lane was rerun; no repeated attempt was requested.
+
+### Done but not verified
+
+- Projection is conditional capacity arithmetic, not realized production savings, a labor-cost estimate or a current cloud price/capacity quote. Dispute-specific agent times, traffic weighting and operational remediation remain unmeasured. Local bootstrap commands were reviewed against code, not executed against organizer data or a new deployment in this session.
+- Remote green CI is required before any merge. The authorized PR #69 reruns are still blocked before startup by GitHub account billing/spending status; the $5 budget announcement did not make those attempts runnable.
+
+### Next / blocked
+
+- The documentation candidate targets `fix/post-v3-analysis` and remains for lead review/merge only after green remote CI. Preserve v4 blindness and zero model spend. Once the owner confirms the GitHub billing block is resolved, rerun blocked current-head workflows once; do not rerun needlessly or merge without green CI.
+
+## AI lane — 2026-09-29 (queued PR #62 review findings 1 and 3)
+
+### Completed (verified)
+
+- Read the lead's review on `fix/preview-startup-review` after opening robustness [PR #65](https://github.com/sebastian-gm/bank-agent-lab/pull/65). Added authored mock regressions before changing behavior; eleven reproduced the assigned defects. No v4 input was opened and no paid call was made.
+- Preserve code-supplied clarification replies exactly, including bilingual language help; retain the existing recognition guard. Rephrased explanations now receive the actual approved `plan.reply` as `approved_text` and fallback, with DLP/grounding checks retained.
+- Added explicit ES/PT/uncertain language evidence, excluding domains and trusted merchant names. Shared `com`/`sim` tokens cannot decide language; NLG rejects only confident opposite-language evidence. The frozen two-language interface retains its default. [Implementation and evidence](../ml/pr-62-ai-review-fixes.md).
+- `make checks` passes: six hooks, Ruff, strict mypy, compilation, file policy, **329 passed / 14 database-dependent skips**, B1 **32/32**, interfaces and policy catalog. Targeted new and existing API/recognition/grounding regressions: **90 passed**. Merged the lead target advancement `dac3801` into this feature branch, preserving both progress-log entries and leaving PR merges to the lead.
+
+### Done but not verified
+
+- Real-model performance, calibrated language probabilities and human PT fluency are not measured in this follow-up. No further paid measurement is planned. Remote CI remains subject to the owner Actions budget block.
+
+### Next / blocked
+
+- [PR #66](https://github.com/sebastian-gm/bank-agent-lab/pull/66) is open, unmerged, targeting `fix/post-v3-analysis`. Lead reviews and merges; preserve both additive progress entries when reconciling PRs #65/#66. GitHub Actions requires the owner budget block to be resolved; read back current-head CI before merge. PR #65 retains the paid robustness study and lead-owned guard follow-up. Keep v4 blind and do not deploy.
+
+## AI lane — 2026-09-29 (post-v3 authored robustness study)
+
+### Completed (verified)
+
+- Read handoff 14; authored and froze 40 synthetic ES/PT conversations at `31826c6` before any P run or language fix. All three fixture hashes read back unchanged after measurement. No v4 data was opened.
+- Real P before/after: **39/40 → 39/40**, ES **19/20 → 19/20**, pt-BR **20/20 → 20/20**, zero unsafe/forbidden outcomes, all four embedded injections logged. Fixed complete ES/PT spoken-amount parsing and Portuguese previous-weekday dates in AI-owned NLU, with 45 authored parser regressions. Opening slot failures **9 → 0**, clarification responses **15 → 6**, case p50 **7.877 → 5.423 s**, p95 **12.195 → 12.273 s**. [Full report](../ml/nlu-robustness-post-v3.md).
+- All **89/89 → 75/75** OpenRouter attempts and **59/59 → 50/50** Jev attempts valid. Known new per-call cost **$0.230932684**, no new unknown usage. Durable `dev-gate/post-v3` / `post-v3` readback: **$0.63331754** including retained reserves, below the $0.90 stop and $1 shared lifetime cap. No final scope was used; no further paid run planned.
+- `make checks` passes: six hooks, Ruff, strict mypy, compilation, staged-file policy, **360 passed / 14 database-dependent skips**, B1 **32/32**, interfaces and policy catalog. Additional strict-mypy and B1 reactive dev **32/32** pass. No prompts, model roles, contracts or policy authority changed.
+
+### Done but not verified
+
+- One offer-path failure remains lead-owned: valid model/postprocess unfamiliarity is overridden by `selection.uncertain()` on a charge-origin memory statement; MATCH was confident. Zero-cost reproduction is saved privately and the report describes the lead's narrow regression/fix. No human language validation or independent accuracy claim is made; latency is one before/after observation.
+- [PR #65](https://github.com/sebastian-gm/bank-agent-lab/pull/65) is open against `fix/post-v3-analysis`, unmerged. All four remote checks completed without starting jobs: their annotations report an owner Actions budget block. Local checks are green; remote CI is not green.
+
+### Next / blocked
+
+- Lead reviews/merges PR #65 into `fix/post-v3-analysis` and fixes the remaining deterministic uncertainty guard before release. The lead base advancement `dac3801` is merged into this feature branch with both progress entries preserved. Queued review findings 1 and 3 are complete in independent [PR #66](https://github.com/sebastian-gm/bank-agent-lab/pull/66), with mocks and zero additional spend. Keep v4 blind; this lane does not merge/deploy.
+
+## 2026-09-29 PDT — Preview diagnosis, code-only startup fix and PR #62 review
+
+### Completed (verified)
+
+- Read handoff 14 fully and applied Sebastian's subsequent decisions: min
+  replicas stay zero while testing; run CI locally while Actions billing is
+  pending. Main and origin/main remain `e12efc73be64f8355aa9f177f08a04337593616c`.
+- Read-only Azure metadata confirmed both preview images at
+  `37627d4001bc02bd3ae0c25c618acd16f5b4a47e`, initially zero replicas. With
+  authenticated `httpx` BFF reads, the first config GET failed 503 after 50.560 s
+  and login failed after the 10.114 s deadline. Warm login/OTP, me including the
+  clock, and repeated transactions passed in 0.1–0.5 s. API logs show completed
+  startup, successful reads and no sampled application exceptions. This confirms
+  the cold-start chain for the reported failure. No chat/provider/banking write
+  was invoked; credentials/OTP/cookies and organizer rows were never printed.
+  [Diagnosis and ignored evidence](../evaluation/preview-startup-diagnosis.md).
+- Code commit `e043356` on `fix/preview-startup-review`, based on PR #62 head
+  `32587c9`, gives startup GETs 75 s and at most one transient GET retry, preserves
+  single-attempt POSTs, and shows ES/PT startup/retry states. No Azure setting,
+  image or access boundary was changed.
+- Pushed the separate candidate to the existing private origin and opened
+  [draft PR #63](https://github.com/sebastian-gm/bank-agent-lab/pull/63), targeting
+  `fix/post-v3-analysis` so its startup/doc changes can be reviewed independently
+  of #62. No PR or branch was merged.
+- Reviewed every PR #62 commit. Authored, zero-cost mock/ASGI reproductions
+  confirmed five findings: approved language clarification lost before phrasing; legal cues
+  lost across session tabs; `.com`/SIM language false positives; renewal reuses an
+  invalid freeze hash; latest fraud packet may belong to another conversation.
+  [Findings, owners and commit dispositions](../reviews/pr-62-review.md).
+  The preliminary recognition-question finding was narrowed after checking the
+  API's existing deterministic guard; the confirmed language-help case was then
+  exercised through the API, not just the NLG helper.
+- Local CI commands passed: `UV_CACHE_DIR=$PWD/artifacts/uv-cache make checks`
+  (308 pytest passed, 14 skipped; B1 dev 32/32; interfaces/catalog current),
+  `.venv/bin/ruff check .`, `.venv/bin/mypy --strict src/aclara`,
+  `.venv/bin/python -m evals.runner --system B1 --scenarios evals/dev_scenarios_v2.yaml`
+  (32/32), and `.venv/bin/python -m scripts.test_postgres` (17/17 in a disposable
+  local database). Web: `pnpm typecheck`, `pnpm lint`, `pnpm build`,
+  `pnpm test:e2e` (46/46), `pnpm test:e2e --live` (8/8),
+  `pnpm test:e2e --staff` (1/1): **55 checks** including all 26 startup checks.
+  Two initial startup test failures were corrected (hydration wait and translated
+  retry label); the full final web run passed. Local caches use writable paths;
+  the missing local pre-commit hook was reinstalled. Generated Next type paths
+  and the authored-dev results page were restored after test commands.
+- Added [the v3 results page](../evaluation/final-v3-results.md) from saved
+  aggregates only: P 77/100 versus B1 52/100; in-scope SAR difference +11 points,
+  95% CI +5 to +17; failed full safety gates and partial judging disclosed.
+  Verified SHA-256 of the four original result/report/partial/sheet files remained
+  unchanged. No v2 rerun or abandoned-v1 access occurred. V3's seen-data 100/100
+  is explicitly a development regression check, not a replacement result.
+- Read GitHub's PR #62 check annotation with `gh api`: jobs did not start because
+  the account Actions budget prevents use. This is not a code-test failure and
+  is not a green remote run. PR #62 remains open and unmerged.
+- Added submission-day-only warm replicas and live East US 2 price assumptions
+  to [the checklist](../submission/checklist.md): two 0.25-vCPU/0.5-GiB apps about
+  $0.39/day idle to $1.30/day continuously active, excluding grants/other charges;
+  a fully active warm month can exceed the $40 total approval gate. No replicas
+  were changed. **New model spend in this session: $0.**
+
+### Done but not verified
+
+- Startup fix is locally verified and committed, **not deployed**; no corrected
+  Azure cold-start smoke is claimed. Paid preview chat/phrasing was not tested.
+- The five review findings are reported with proposed remedies; those product,
+  policy/contract and evaluation fixes are not part of this startup patch.
+- Local CI passes, but GitHub CI/external-access workflow cannot run until the
+  owner's billing decision. V3 judging and human review remain partial/pending.
+
+### Next / blocked
+
+- Review the startup patch for a separately approved preview redeploy, retaining
+  min replicas zero. Decide owners/timing for the five PR #62 findings before
+  release. Keep #62 unmerged until CI can run or an explicit merge exception.
+- Share/submission-day warm replicas require the dated plan and refreshed cost
+  approval in the checklist. No cloud resource or ingress expansion is approved
+  by this session.
+- **V4 remains unopened and unstarted.** Complete fixes/release gates and await
+  the orchestrator's explicit run go. For later sessions paste:
+  “Continue from docs/status/progress-log.md. Next layer: PR #62 review fixes and
+  preview startup release. Same rules.”
+
+## 2026-09-29 UTC — Owner-approved preview deploy of `fix/post-v3-analysis`
+
+### Completed (verified)
+
+- Sebastian approved deploying the branch tonight for his own review. Images for
+  `37627d4001bc02bd3ae0c25c618acd16f5b4a47e` were built from the committed tree,
+  pushed with a temporary private Docker config (token removed), and applied as
+  the only change (`image_tag`; Terraform 0 added, 2 changed, 0 destroyed).
+- `scripts.azure_verify` passed: restricted HTTPS boundaries, single revisions,
+  SHA images, managed identity, TLS, firewall, Key Vault RBAC and budget alerts.
+  Web returns 200 from the owner IP, the BFF returns 401 without a session, and
+  the API revision is healthy on the new image.
+- GitHub Actions did not start PR #62 jobs: "an Actions budget is preventing
+  further use" (account billing, not code). The same CI steps ran locally and
+  passed: pre-commit, Ruff, strict mypy, compileall, pytest, interfaces, policy
+  catalog, B1 dev and B1 v2 (32/32 each), staged-file policy, Postgres
+  integration (17/17), web typecheck/lint/build, browser 29/29.
+
+### Done but not verified
+
+- This is a **preview of a branch, not a release of `main`**. The capped
+  real-model and browser smokes were not rerun: their approved five-conversation
+  allowance was already used by the v3 release smoke. The `azure-access` workflow
+  cannot run until the Actions budget is restored. The deployed app keeps the
+  existing production cap (run `after-v2-release-smoke`, about $0.09 left, $3 daily).
+
+### Next / blocked
+
+- Restore the GitHub Actions budget (owner billing decision) so CI and the
+  external access check can run; then merge PR #62 and release `main` for v4.
+
+## 2026-09-28 UTC — Post-v3 fixes (orchestrator session, branch `fix/post-v3-analysis`)
+
+### Completed (verified)
+
+- Post-hoc analysis of the reported v3 run found six causes for the 23 P-Gemini
+  failures, plus wrong-language phrasing, judge truncation and a web logout on
+  stale OTP. All fixed generically with authored regressions; details in
+  [post-v3 fixes](../evaluation/post-v3-fixes.md). V3 is retired to dev data.
+- Checks: pytest, Ruff, strict mypy, interfaces, policy catalog, B1 dev 32/32,
+  browser 29/29 (fixtures, live, staff).
+- Real P-Gemini on all 100 (seen) v3 cases: 100/100, 23/23 prior failures fixed,
+  0/77 regressions. Real P dev gate (`--profile post-v3`) passed: 20/20, 18/20,
+  12/12, 0 unsafe. Spend $0.40 of the new `dev-gate/post-v3` $1 allowance;
+  all prior scopes closed; cumulative ≈ $4.23 of $12.
+
+### Done but not verified
+
+- Branch not pushed; GitHub CI not yet run. No release or Azure change.
+
+### Next / blocked
+
+- Lead: review, push, CI, merge; v3 results page. Data/frontend lane: author an
+  independent v4 suite with new templates (handoff 14). Then release and a
+  single v4 run after the orchestrator's go.
+
+## 2026-09-28 UTC — V3 system metrics finalized with partial judging
+
+### Completed (verified)
+
+- The sole incomplete judge unit's metadata showed **Sonnet via OpenRouter**
+  twice returning `status=refusal`, stop class `length`, exactly **256 output
+  tokens** per attempt, with no validated score. Jev was not reached on that
+  item. This repeats for the same item at the configured cap, so no further
+  paid resume was attempted. The failure was not HTTP 5xx, timeout, rate limit
+  or budget denial.
+- Existing `evals.final_report.write_report` finalized aggregate system metrics
+  from all **260 completed case checkpoints** and 28 completed judge pairs,
+  with **zero model calls**, no tracked code change and an explicit **partial
+  judging** header and receipt. `results.json` and `results.md` are ignored,
+  mode 0600; `PARTIAL.json` exists and `COMPLETE.json` does not.
+- Primary 100-case figures from `results.json`: B1 **52/100 pass, 28/100
+  in-scope SAR**; P-Gemini **77/100 pass, 39/100 in-scope SAR**. Paired P-minus-B1
+  SAR difference **+11 percentage points**, 95% bootstrap CI **+5 to +17**.
+  Strict escalation recall **20/40 vs 30/40**; all 30 preselected repeats had
+  zero success, SAR and outcome flips. Safety gates remain failed on both systems
+  because fraud/regulator recall and required readbacks are incomplete.
+- Durable v3 spend remains **$0.47321405 / $3**, zero unknown costs. Prior plus v3
+  and release smoke totals **$3.83161437 / $12**. The 20-item human judge sheet
+  exists for owner review; no human agreement claim is made.
+
+### Done but not verified
+
+- Judging is **28/60 paired items**. Sonnet/Jev agreement covers those 28 only;
+  the remaining items were not scored. The partial report is not a full final
+  program completion. V2 remains the official prior result; v3 is after fixes
+  on an independent fresh suite.
+
+### Next / blocked
+
+- Stop without another paid resume. Preserve pinned clean main `e12efc7`, all
+  checkpoints and the partial report. Owner can review the complete primary
+  metrics and the partial judge limitation in ignored
+  `artifacts/final-program-v3/results.json` and `results.md`. This progress-log
+  branch remains unmerged so any later authorized run can retain its release pin.
+
+## 2026-09-28 UTC — Single authorized v3 resume stopped during judging
+
+### Completed (verified)
+
+- Process metadata showed 213 completed case result files versus 212 published
+  progress checkpoints after the first stop. The budget readback occurs between
+  those writes, localizing the earlier `OperationalError` to the budget database
+  connection path without opening a case result.
+- Local Postgres container and TCP port were healthy. Azure admin and app roles
+  both passed `verify-full` TLS connections. Current public IPv4 matched the
+  configured Postgres allowlist; its Azure-services sentinel remained present.
+- Main was clean and matched origin at the pinned release SHA `e12efc73`.
+  Preserved the prior stop receipt, then ran one detached `resume` with the same
+  15-minute stall and original three-hour wall-clock watchdog rules.
+- Resume completed all **260/260 system runs**, then stopped at **28/60 judge
+  items** with `RuntimeError`. The evaluator's sanitized wrapper message is
+  “Judge execution failed; stop without advancing checkpoint.” No worker remains.
+  Durable v3 spend: **484 attempts, $0.47321405 charged with reserves, zero
+  unknown costs / $3**. Prior plus v3 is **$3.82358962**; including release smoke,
+  **$3.83161437 / $12**. The ignored aggregate receipt is
+  `artifacts/final-program-v3/stop-report-resume.json`.
+
+### Done but not verified
+
+- The judge phase and final report are incomplete. No v3 headline metrics have
+  been reported. The underlying judge exception is not identified from the
+  sanitized wrapper; case inputs and outputs were not opened.
+
+### Next / blocked
+
+- Stop after the single authorized resume. Preserve checkpoints, call journals,
+  budget reservations and pinned main. Diagnose the judge failure without
+  disclosing frozen inputs or result rows; await the owner's next instruction
+  before another resume. Keep this documentation branch unmerged while the run
+  requires the exact pinned main SHA.
+
+## 2026-09-28 UTC — V3 stopped on operational error; pinned main preserved
+
+### Completed (verified)
+
+- Evaluation predicate PR #61 merged at `e12efc73be64f8355aa9f177f08a04337593616c`.
+  All four main CI checks passed. The diff from frozen product SHA `9f0bff0`
+  contains only contracts, evaluator code, tests and docs; no product paths.
+- Identical private API/web image digests were retagged and applied in the approved
+  Azure subscription. Azure controls and external access denial passed at the
+  exact SHA; the ignored `artifacts/azure/jev-release.json` records the gates.
+- The zero-cost v3 preflight passed: 100 bound cases, 30 repeat selections and
+  30 judge selections. The first two stopped directories were preserved, each at
+  $0 spend and zero completed checkpoints. Fresh v3 was started on the pinned SHA.
+- Fresh v3 advanced to **212/260 system runs**, then stopped with
+  **`OperationalError`**. Its worker exited; no `COMPLETE.json` exists. Durable
+  budget readback: **291 attempts, $0.26672382 charged with reserves, zero
+  unknown costs / $3**. Prior scopes plus v3 charged **$3.61709939**; including
+  the earlier $0.00802475 release smoke, **$3.62512414 / $12**. Checkpoints and
+  reservations remain intact. The ignored aggregate stop receipt is
+  `artifacts/final-program-v3/stop-report.json`.
+
+### Done but not verified
+
+- V3 is incomplete. No result metrics or human judge sheet are available for
+  reporting; official v2 figures remain unchanged. The cause of the
+  `OperationalError` has not been diagnosed from the saved trace.
+
+### Next / blocked
+
+- Stop on the error gate. Review the failure safely without printing frozen
+  input, case output or credentials. Keep main at the pinned release SHA; after
+  owner review, use `scripts.final_program resume`, never `start`. This log entry
+  is on `docs/v3-operational-stop` only and must stay unmerged while resume needs
+  the exact pinned main SHA.
+
 ## 2026-09-28 UTC — V3 evaluator vocabulary repair
 
 ### Completed (verified)
@@ -1149,3 +1812,93 @@ Restricted web: https://ca-web-aclara-dev-eastus2.lemonbeach-1b769de0.eastus2.az
 Use `demo.es.mx` or `demo.pt.br` for the three-surface workspace; `demo.es.co` and `demo.es.ar` are customer-only. Retrieve `demo-password` from the authenticated Key Vault portal; never paste it into chat, Git or logs. OTP is simulated. Re-login after the identity-source migration; prior fixture sessions do not grant organizer access.
 
 For later sessions, paste: **Continue from docs/status/progress-log.md. Next layer: final evaluation after Sebastian's explicit go. Same rules.**
+
+## 2026-09-29 PDT — authorized startup preview and session-security review fix
+
+### Completed (verified)
+
+- Merged #63 into `fix/post-v3-analysis` at `dac38017d4ea9910afc3aa4851f661dd6608b7ce`
+  and redeployed the explicitly approved PREVIEW. Only ignored `image_tag` changed;
+  reviewed Terraform plan/apply: 0 added, 2 changed, 0 destroyed. Both image tags
+  match. `python -m scripts.azure_verify` passed: owner-IP/login restriction,
+  internal API, TLS/identity/firewall/budget controls and replicas 0..1 unchanged.
+- `.venv/bin/python artifacts/preview-release/read_only.py`: new web/API revisions
+  both reached zero naturally; authenticated cold me 200/86.059 s with clock,
+  transactions 200/0.132 s (four projections), logout revocation readback passed.
+  Sampled console logs contain no application exceptions. No model/banking calls.
+  Detailed aggregate evidence is ignored under `artifacts/preview-release/`.
+- Exact deployed-SHA `UV_CACHE_DIR=artifacts/uv-cache make checks`: 308 Python
+  tests passed, 14 database-dependent skips; B1 32/32; interfaces/catalog,
+  pre-commit and staged-file policy passed. Startup web checks from #63 remain
+  the previously executed 55 browser checks and typecheck/lint/build.
+- Finding #2: authored two-tab regression first reproduced missing ESC-02.
+  Security cues now share the durable, session-scoped strike record; older
+  conversation-only cues are preserved on upgrade. Another login stays isolated.
+  `.venv/bin/pytest tests/test_workflow_api.py tests/test_post_v3_fixes.py`: 32 passed.
+  `.venv/bin/python -m scripts.test_postgres`: 18 passed, including another-tab
+  security termination after app/store restart. Strict mypy and Ruff passed.
+  Fix-candidate `make checks`: 309 passed, 15 skips; B1 32/32; safety/hooks/schema green.
+
+### Done but not verified
+
+- GitHub Actions cannot start because the account Actions budget blocks jobs.
+  Local checks do not claim a successful remote CI run.
+- Paid preview chat has not been tested. The Azure checks exercise auth and reads.
+
+### Next / blocked
+
+- Open the security fix PR against `fix/post-v3-analysis`; retain main at `e12efc7`.
+- Fix freeze-origin binding, exact-error harness renewal/new freeze confirmation,
+  and wrong-code OTP retry with authored regressions, then open a second feature PR.
+- AI lane owns review findings #1/#3. Main merge still needs billing recovery or
+  Sebastian's explicit exception. No min replicas change, paid calls or v4 access.
+
+## 2026-09-29 PDT — lead freeze provenance and OTP follow-up candidate
+
+### Completed (verified)
+
+- Security fix PR is [#67](https://github.com/sebastian-gm/bank-agent-lab/pull/67),
+  head `5720cbe`, targeting `fix/post-v3-analysis`. The second fix branch includes
+  it; merge #67 first to reduce the second PR's diff. No main merge or second
+  Azure deploy was performed.
+- Authorized PREVIEW remains `dac38017d4ea9910afc3aa4851f661dd6608b7ce`.
+  Authenticated browser navigation also passed: login/OTP, visible bank clock,
+  chat composer and sign-out; no message sent. Evidence is ignored
+  `artifacts/preview-release/browser-final.jsonl`. Initial browser helper failures
+  were its own persona/OTP-placeholder race and timeout setup; the helper now
+  waits for the six-digit SMS before submission. They are not app failures.
+- Findings #4/#5: explicit owned fraud-handoff origin, offered-card restriction,
+  hash-bound conversation/reasons, refreshed freeze proposal returned to the
+  simulated customer after exact-error OTP renewal; other 401s never renew.
+  Updated API/BFF/UI/adapter callers and regenerated OpenAPI. Authored tests cover
+  multiple conversations, tampered/wrong-session/unoffered-card origin and a
+  customer declining the refreshed proposal. Wrong-code renewal preserves the
+  pending dispute/challenge and permits retry; five-attempt limit remains enforced.
+- `UV_CACHE_DIR=artifacts/uv-cache make checks`: 324 passed, 16 database-dependent
+  skips; B1 32/32, hooks/staged-file policy/compile/interfaces/catalog passed.
+  `.venv/bin/python -m scripts.test_postgres`: 19 passed, including originating
+  fraud packet after a new conversation and app restart, and wrong OTP followed
+  by correct OTP/dispute readback after app/store restart. No cloud database writes.
+- `.venv/bin/python -m evals.runner --system B1 --scenarios evals/dev_scenarios_v2.yaml`:
+  32/32. Ruff and strict mypy passed. Web typecheck/lint/build passed;
+  `pnpm test:e2e`: 46/46; `pnpm test:e2e --staff`: 1/1. Live customer checks
+  passed 12/12 including the final multi-conversation browser regression.
+  A typecheck started alongside dev-server generation hit missing generated Next
+  type files; sequential typecheck after browser teardown passed.
+
+### Done but not verified
+
+- Follow-up fixes are local/mock validated, not deployed or measured with real NLU.
+- GitHub Actions is still blocked by the account Actions budget; no remote green
+  claim. Main is unchanged; no v4 inputs, authoring tools or bindings opened.
+
+### Next / blocked
+
+- Second private feature PR is [#68](https://github.com/sebastian-gm/bank-agent-lab/pull/68),
+  targeting `fix/post-v3-analysis`, with code commits `aa37227` / `f891584`.
+  All 59 browser checks passed (46 fixture/startup + 12 live customer + 1 staff).
+  Review/merge #67 first, then #68; neither is merged here.
+- AI lane owns #1/#3. Review both lead PRs; main merge waits for billing recovery
+  or Sebastian's explicit exception. Any later release follows its own gate.
+- No paid calls, min replicas change, or new approval needed for the completed
+  preview. No v4 start. Continue from this log under the same rules.

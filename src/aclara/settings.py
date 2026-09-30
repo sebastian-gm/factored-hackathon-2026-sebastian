@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from typing import Literal, cast
 
@@ -27,6 +27,9 @@ class Settings:
     agent_system: str = "B1"
     ops_backend: str = "memory"
     ledger_backend: str = "fixture"
+    judge_access_enabled: bool = False
+    judge_persona: str = field(default="", repr=False)
+    judge_password: str = field(default="", repr=False)
     bank_clock: datetime = datetime(2026, 6, 18, 6, 0, tzinfo=UTC)
 
     def __post_init__(self) -> None:
@@ -54,5 +57,8 @@ class Settings:
             agent_system=os.getenv("AGENT_SYSTEM", "B1"),
             ops_backend=os.getenv("OPS_BACKEND", "postgres" if os.getenv("PGUSER") else "memory"),
             ledger_backend=os.getenv("LEDGER_BACKEND", "fixture"),
+            judge_access_enabled=os.getenv("JUDGE_ACCESS_ENABLED", "false") == "true",
+            judge_persona=os.getenv("JUDGE_PERSONA", ""),
+            judge_password=os.getenv("JUDGE_PASSWORD", ""),
             bank_clock=_bank_clock(os.getenv("BANK_CLOCK", "2026-06-18T06:00:00Z")),
         )

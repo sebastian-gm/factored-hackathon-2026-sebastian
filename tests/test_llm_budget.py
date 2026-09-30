@@ -111,25 +111,30 @@ def test_v3_preparation_closes_prior_scopes_and_never_resets_breaker(budget_stor
     store, prior, owner = budget_store
     fresh = "fixture-v3-" + uuid4().hex
     monkeypatch.setattr(final_budget, "PRIOR_SCOPES", (prior,))
-    monkeypatch.setattr(final_budget, "SCOPE", fresh)
+    from pathlib import Path
+
+    from evals.program_spec import ProgramSpec
+
+    spec = ProgramSpec("test-" + fresh, Path("authored"), "0" * 64)
+    fresh = spec.scope
     prior_gate = PostgresSpendGate(store, scope=prior, run_id="fixture-run")
     prior_gate.reserve(0.10)  # Keep an unsettled exposure across preparation.
-    ready = final_budget.prepare(owner)
+    ready = final_budget.prepare(owner, spec)
     assert ready["prior_charged_with_reserves_usd"] == 0.10
-    assert ready["prior_plus_v3_and_smoke_limits_usd"] == 3.20
+    assert ready["prior_plus_program_and_smoke_limits_usd"] == 3.20
     assert ready["attempts"] == 0
     with pytest.raises(BudgetFailure):
         prior_gate.reserve(0.001)
-    current = PostgresSpendGate(store, scope=fresh, run_id=final_budget.RUN_ID)
+    current = PostgresSpendGate(store, scope=fresh, run_id=spec.run_id)
     current.reserve(2.99)
-    assert final_budget.prepare(owner)["charged_with_reserves_usd"] == 2.99
+    assert final_budget.prepare(owner, spec)["charged_with_reserves_usd"] == 2.99
     with pytest.raises(BudgetFailure):
         current.reserve(0.02)
     with psycopg.connect(owner) as connection:
         connection.execute("SET LOCAL ROLE aclara_owner")
         connection.execute("UPDATE llm.limits SET disabled=true WHERE scope=%s", (fresh,))
     with pytest.raises(RuntimeError, match="disabled"):
-        final_budget.prepare(owner)
+        final_budget.prepare(owner, spec)
     with pytest.raises(BudgetFailure):
         current.reserve(0.001)
 
@@ -231,3 +236,151 @@ def test_unknown_usage_keeps_reserve_and_deadline_stops_retry(monkeypatch):
     with pytest.raises(ModelFailure, match="deadline"):
         client.generate("nlu", "system", "fixture", Answer, prompt_id="fixture")
     assert charges == [None, None] and len(calls) == 2
+
+
+def test_slow_first_attempt_is_abandoned_early_and_retried_with_full_timeout(monkeypatch):
+    from pathlib import Path
+
+    timeouts = []
+
+    class Adapter:
+        def complete(self, spec, *args):
+            timeouts.append(spec.timeout_seconds)
+            if len(timeouts) == 1:
+                raise ModelFailure("first attempt timed out")
+            return ProviderResponse('{"value":"ok"}', "fixture", TokenUsage(10, 2))
+
+    monkeypatch.setenv("LLM_REAL_CALLS_APPROVED", "1")
+    monkeypatch.setenv("FIXTURE_MODEL_KEY", "fixture-only")
+    client = StructuredClient(
+        {
+            "nlu": ModelSpec(
+                "openai_compat",
+                "fixture",
+                key_env="FIXTURE_MODEL_KEY",
+                price_id="gemini-2.5-flash",
+                timeout_seconds=20,
+                first_attempt_timeout_seconds=6,
+            )
+        },
+        load_prices(Path("config/pricing.yaml")),
+        budget_usd=1,
+    )
+    client._adapters["openai_compat"] = Adapter()
+    assert client.generate("nlu", "system", "fixture", Answer, prompt_id="fixture").value == "ok"
+    assert timeouts == [6, 20]
+    assert [record.attempt for record in client.records] == [1, 2]
+
+
+def test_v4_budget_closes_v3_and_dev_preserves_reserves_and_spans_restart(
+    budget_store, monkeypatch
+):
+    from evals.program_spec import specification
+    from scripts import final_budget
+
+    store, prior_v3, owner = budget_store
+    dev = "fixture-dev-" + uuid4().hex
+    with psycopg.connect(owner) as connection:
+        connection.execute("SET LOCAL ROLE aclara_owner")
+        connection.execute("INSERT INTO llm.limits VALUES(%s,1,false)", (dev,))
+        connection.execute("INSERT INTO llm.runs VALUES(%s,'dev',1,true)", (dev,))
+    monkeypatch.setattr(final_budget, "prior_scopes", lambda _: (prior_v3, dev))
+    old = PostgresSpendGate(store, scope=prior_v3, run_id="fixture-run")
+    old.reserve(0.1)
+    PostgresSpendGate(store, scope=dev, run_id="dev").reserve(0.5)
+    spec = specification("test-v4")
+    ready = final_budget.prepare(owner, spec)
+    assert ready["scope"] == "final-evaluation-v4"
+    assert ready["prior_charged_with_reserves_usd"] == 0.6
+    assert ready["prior_plus_program_and_smoke_limits_usd"] == 3.8
+    assert ready["in_region_latency_smoke_allowance_usd"] == 0.1
+    with pytest.raises(BudgetFailure):
+        old.reserve(0.001)
+    current = PostgresSpendGate(store, scope=spec.scope, run_id=spec.run_id)
+    current.reserve(2.99)
+    assert final_budget.prepare(owner, spec)["charged_with_reserves_usd"] == 2.99
+    replacement = Store(os.environ["TEST_OPS_DSN"])
+    try:
+        restarted = PostgresSpendGate(replacement, scope=spec.scope, run_id=spec.run_id)
+        with pytest.raises(BudgetFailure):
+            restarted.reserve(0.02)
+    finally:
+        replacement.close()
+
+
+def test_pre_v4_preparation_retires_prior_and_keeps_lifetime_cap_after_restart(
+    budget_store, monkeypatch
+):
+    from scripts import pre_v4_budget
+
+    store, prior, owner = budget_store
+    fresh = "fixture-pre-v4-" + uuid4().hex
+    monkeypatch.setattr(pre_v4_budget, "PRIOR_SCOPES", (prior,))
+    monkeypatch.setattr(pre_v4_budget, "SCOPE", fresh)
+    old = PostgresSpendGate(store, scope=prior, run_id="fixture-run")
+    old.reserve(0.1)  # Unknown usage stays charged when the scope closes.
+    ready = pre_v4_budget.verify(owner, prepare=True)
+    assert ready["prior_charged_with_reserves_usd"] == 0.1
+    assert ready["maximum_cumulative_usd"] == 4.3
+    assert ready["attempts"] == 0
+    with pytest.raises(BudgetFailure):
+        old.reserve(0.001)
+    current = PostgresSpendGate(store, scope=fresh, run_id=pre_v4_budget.RUN_ID)
+    current.reserve(0.99)
+    assert pre_v4_budget.verify(owner, prepare=True)["charged_with_reserves_usd"] == 0.99
+    replacement = Store(os.environ["TEST_OPS_DSN"])
+    try:
+        restarted = PostgresSpendGate(replacement, scope=fresh, run_id=pre_v4_budget.RUN_ID)
+        with pytest.raises(BudgetFailure):
+            restarted.reserve(0.02)
+    finally:
+        replacement.close()
+    with psycopg.connect(owner) as connection:
+        connection.execute("SET LOCAL ROLE aclara_owner")
+        connection.execute("UPDATE llm.limits SET disabled=true WHERE scope=%s", (fresh,))
+    with pytest.raises(RuntimeError, match="disabled"):
+        pre_v4_budget.verify(owner, prepare=True)
+    with pytest.raises(BudgetFailure):
+        current.reserve(0.001)
+
+
+def test_sha_bound_smoke_cap_survives_reprepare_and_cannot_reenable_breaker(budget_store):
+    from scripts.release_smoke_budget import run_id, verify
+
+    store, _, owner = budget_store
+    sha = uuid4().hex + "0" * 8
+    name = run_id("latency", sha)
+    assert verify(owner, "latency", sha, prepare=True)["attempts"] == 0
+    gate = PostgresSpendGate(store, scope="production", run_id=name)
+    gate.reserve(0.0999)
+    assert verify(owner, "latency", sha, prepare=True)["charged_with_reserves_usd"] == 0.0999
+    with pytest.raises(BudgetFailure):
+        gate.reserve(0.001)
+    with psycopg.connect(owner) as connection:
+        connection.execute("SET LOCAL ROLE aclara_owner")
+        connection.execute(
+            "UPDATE llm.runs SET enabled=false WHERE scope='production' AND run_id=%s", (name,)
+        )
+    with pytest.raises(RuntimeError, match="disabled"):
+        verify(owner, "latency", sha, prepare=True)
+
+
+def test_pre_v4_denied_exposure_rolls_back_closure_and_new_scope(budget_store, monkeypatch):
+    from scripts import pre_v4_budget
+
+    _, prior, owner = budget_store
+    fresh = "fixture-pre-v4-denied-" + uuid4().hex
+    monkeypatch.setattr(pre_v4_budget, "PRIOR_SCOPES", (prior,))
+    monkeypatch.setattr(pre_v4_budget, "SCOPE", fresh)
+    monkeypatch.setattr(pre_v4_budget, "CUMULATIVE_CAP", Decimal("4.19"))
+    with pytest.raises(RuntimeError, match="exceeds"):
+        pre_v4_budget.verify(owner, prepare=True)
+    with psycopg.connect(owner) as connection:
+        connection.execute("SET LOCAL ROLE aclara_owner")
+        assert connection.execute(
+            "SELECT disabled FROM llm.limits WHERE scope=%s", (prior,)
+        ).fetchone() == (False,)
+        assert (
+            connection.execute("SELECT scope FROM llm.limits WHERE scope=%s", (fresh,)).fetchone()
+            is None
+        )

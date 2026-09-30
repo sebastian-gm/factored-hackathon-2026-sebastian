@@ -9,6 +9,7 @@ import {
   type Plan,
   type Product,
 } from "@/lib/contracts";
+import { cardTypeLabelKey } from "@/lib/ui-copy";
 import { date } from "@/lib/format";
 import { useApp } from "./workspace";
 import { Button } from "./ui/button";
@@ -17,10 +18,14 @@ import { Modal } from "./ui/dialog";
 // Every action originates in the bank's offer and proposal. No local policy decision.
 export function FreezeCard({
   products,
+  handoffId,
   onResult,
+  onPendingChange,
 }: {
   products: Product[];
+  handoffId: string;
   onResult: (plan: Plan) => void;
+  onPendingChange?: (pending: boolean) => void;
 }) {
   const t = useTranslations();
   const { locale } = useApp();
@@ -34,6 +39,10 @@ export function FreezeCard({
   const [uncertain, setUncertain] = useState(false);
   const [expired, setExpired] = useState(false);
   const lock = useRef(false);
+  useEffect(() => {
+    onPendingChange?.(!!product || busy || uncertain);
+    return () => onPendingChange?.(false);
+  }, [product, busy, uncertain, onPendingChange]);
   useEffect(() => {
     if (!proposal) return;
     const check = () =>
@@ -53,6 +62,11 @@ export function FreezeCard({
       if (mutation) {
         setProposal(null);
         setUncertain(true);
+      }
+      if (caught instanceof ApiError && caught.code === "invalid_otp_code") {
+        setCode("");
+        setError(t("otpRetry"));
+        return;
       }
       setError(
         t(
@@ -92,6 +106,7 @@ export function FreezeCard({
       setChallenge("");
       const data = await api(`cards/${product.handle}/freeze/proposal`, {
         language: locale === "pt-BR" ? "pt" : "es",
+        handoff_id: handoffId,
       });
       const proposed = freezeProposalSchema.safeParse(data);
       if (proposed.success) setProposal(proposed.data);
@@ -122,14 +137,15 @@ export function FreezeCard({
   return (
     <section className="proposal-bar" aria-label={t("freezeOffer")}>
       <p>{t("freezeOffer")}</p>
-      {products.map((item) => (
+      {products.map((item, index) => (
         <Button
           key={item.handle}
           size="small"
           disabled={busy || uncertain}
           onClick={() => void start(item)}
         >
-          {t("freezeAction")} · {item.handle}
+          {t("freezeAction")} · {t("cardNumber", { number: index + 1 })} ·{" "}
+          {t(cardTypeLabelKey(item.product_type))}
         </Button>
       ))}
       <Modal
@@ -143,7 +159,13 @@ export function FreezeCard({
         busy={busy}
       >
         <p>
-          {product?.product_type} · {product?.handle}
+          {product && t(cardTypeLabelKey(product.product_type))} ·{" "}
+          {product &&
+            t("cardNumber", {
+              number:
+                products.findIndex((item) => item.handle === product.handle) +
+                1,
+            })}
         </p>
         {challenge && !proposal && (
           <form
@@ -183,22 +205,34 @@ export function FreezeCard({
         {proposal && (
           <>
             <p>{proposal.reply}</p>
-            <p className="caption">
-              {t("expires")}: {date(proposal.expires_at, locale, true)} UTC
+            <p className={expired ? "error" : "caption"}>
+              {expired
+                ? t("expired")
+                : `${t("expires")}: ${date(proposal.expires_at, locale, true)} UTC`}
             </p>
             <p>{t("validConfirmation")}</p>
-            <div className="dialog-actions">
+            {expired ? (
               <Button
-                variant="secondary"
                 disabled={busy}
-                onClick={() => void confirm(false)}
+                onClick={() => product && void start(product)}
               >
-                {t("cancel")}
+                {t("newReview")}
               </Button>
-              <Button disabled={busy} onClick={() => void confirm(true)}>
-                {t("confirm")}
-              </Button>
-            </div>
+            ) : (
+              <div className="dialog-actions">
+                <Button
+                  variant="secondary"
+                  disabled={busy}
+                  onClick={() => void confirm(false)}
+                >
+                  {t("cancel")}
+                </Button>
+                <Button disabled={busy} onClick={() => void confirm(true)}>
+                  {t("confirm")}
+                </Button>
+              </div>
+            )}
+            <p className="caption">{t("expiryHint")}</p>
           </>
         )}
         {error && (

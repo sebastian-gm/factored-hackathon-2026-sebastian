@@ -20,6 +20,7 @@ import {
   traceSchema,
 } from "@/lib/staff-contracts";
 import { BANK_CLOCK, personas } from "@/lib/server/fixture-data";
+import { upstreamFetch } from "@/lib/server/upstream-fetch";
 import {
   fixtureLogin,
   fixtureLogout,
@@ -92,12 +93,10 @@ async function upstream(
     "http://127.0.0.1:8212";
   let result: Response;
   try {
-    result = await fetch(`${base.replace(/\/$/, "")}/${path}`, {
+    result = await upstreamFetch(base, path, {
       method,
       cache: "no-store",
       redirect: "error",
-      // NLU and grounded phrasing have bounded provider retries. Never retry a POST here.
-      signal: AbortSignal.timeout(path.endsWith("/messages") ? 180000 : 10000),
       headers: {
         "Content-Type": "application/json",
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -108,15 +107,32 @@ async function upstream(
   } catch {
     throw new HttpError(503, "service_unavailable");
   }
-  if (!result.ok)
+  if (!result.ok) {
+    // A stale step-up is not a dead session: the customer renews the OTP and
+    // confirms the same proposal again. Only the detail string is inspected.
+    let detail = "";
+    if (result.status === 401) {
+      try {
+        const data: unknown = await result.json();
+        if (data && typeof data === "object" && "detail" in data)
+          detail = String((data as { detail: unknown }).detail);
+      } catch {
+        detail = "";
+      }
+    }
     throw new HttpError(
       result.status,
       result.status === 401
-        ? "session_or_credentials_invalid"
+        ? detail === "Step-up verification required"
+          ? "step_up_required"
+          : path === "auth/step-up/verify" && detail === "Invalid code"
+            ? "invalid_otp_code"
+            : "session_or_credentials_invalid"
         : result.status === 409
           ? "proposal_invalid"
           : "request_failed",
     );
+  }
   try {
     return await result.json();
   } catch {
@@ -353,7 +369,10 @@ async function handle(
         .parse(body);
     if (path.endsWith("/freeze/proposal"))
       body = z
-        .object({ language: z.enum(["es", "pt"]) })
+        .object({
+          language: z.enum(["es", "pt"]),
+          handoff_id: z.string().regex(/^[\w-]{1,80}$/),
+        })
         .strict()
         .parse(body);
     const call = (p: string, method = "GET", b?: Record<string, unknown>) =>
@@ -372,7 +391,10 @@ async function handle(
       }
       const proposal = freezeProposalSchema.safeParse(data);
       if (path.endsWith("/proposal") && proposal.success) {
-        if (proposal.data.handle !== handle)
+        if (
+          proposal.data.handle !== handle ||
+          proposal.data.handoff_id !== body.handoff_id
+        )
           throw new HttpError(502, "invalid_response");
         return response(proposal.data);
       }
@@ -472,14 +494,25 @@ async function handle(
     if (
       known &&
       error.status === 401 &&
+      error.code !== "step_up_required" &&
       !request.nextUrl.pathname.includes("/auth/")
     )
       cookie(reply, ACCESS, "", 0);
     return reply;
   }
 }
-export const GET = (
+export const GET = async (
   request: NextRequest,
   context: { params: Promise<{ path: string[] }> },
-) => handle(request, context.params);
+) => {
+  // Measure processing inside the Azure BFF, including upstream/read-back time.
+  // No credentials, facts or identifiers enter this duration-only header.
+  const started = performance.now();
+  const reply = await handle(request, context.params);
+  reply.headers.set(
+    "Server-Timing",
+    `aclara_bff;dur=${(performance.now() - started).toFixed(2)}`,
+  );
+  return reply;
+};
 export const POST = GET;
