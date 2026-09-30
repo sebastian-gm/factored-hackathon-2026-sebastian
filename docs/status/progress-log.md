@@ -1,5 +1,77 @@
 # Progress log
 
+## 2026-09-30 PDT — Release accepted; shared pre-v4 scope and private snapshot
+
+### Completed (verified)
+
+- Released **d23fa5afed2a799f8578a78ec323bf2b4864786f**. Exact-main CI
+  **36770565523**, safety **36770565807** and outside-access **36772309885**
+  passed. Registry digests equal the 21dac9e builds. Reviewed retag apply:
+  **0 added, 2 changed, 0 destroyed**, images/release IDs only; min=0 and access unchanged.
+  `python -m scripts.azure_verify` passed after release and temporary budget restoration.
+- Three-path real smoke at **6e636d3113e4a1cbaf8a3988cdcf0ba9b75e8d7a** is
+  reused explicitly: identical application digests, intervening changes only external
+  smoke harness/tests/progress. ES filing/read-back, PT ambiguity/handoff and deterministic
+  fraud passed. Known **$0.00831825**, charged **$0.02025875**, one unknown reserve retained.
+  Mock-only `azure_smoke` was not run against the real-model deployment.
+- Owner approved exactly one sixth browser attempt: `AZURE_EXTRA_BROWSER_ATTEMPT_APPROVED=1`
+  with the existing 6e636d3 purse, no reset. `python -m scripts.serving_browser --target azure`
+  passed **3 surfaces, 1 handoff, 1 resolved** at d23fa5a; budget unchanged (10 calls).
+  Counter=6 and one-use marker persisted. Seventh attempt is blocked. Fresh ignored
+  `artifacts/azure/jev-release.json` has controls/real-smoke/CI flags true at d23fa5a.
+- `PRE_V4_BUDGET_PREPARATION_APPROVED=1 python -m scripts.pre_v4_budget --prepare`,
+  followed by separate read-back, created **scope `dev-gate/pre-v4`, run ID `pre-v4`,
+  $1.00 lifetime cap**. Prior dev/evaluation scopes, including post-v3, are closed;
+  all charges and unknowns retained. All lanes must use this single run.
+- Approved ten-conversation latency probe stopped correctly after **5 conversations /
+  10 turns** on one unknown-cost call; no retry. In-Azure BFF p50/p95 **1.300s / 8.191s**;
+  excluding the entire first conversation, **1.300s / 7.441s** (8 turns). Client
+  **1.384s / 8.277s** includes workstation network. No forced cold restart; handler
+  timing excludes ingress/module startup. Known **$0.00964182**, charged **$0.02157732**,
+  11 reservations / 1 unknown. Probe purse was closed with reservations preserved;
+  prior release binding restored via plan/apply (**0 added, 1 changed, 0 destroyed**).
+- Cumulative charged exposure after probe **$4.62047227**; retaining full future
+  dev $1 + v4 $3 + both smoke allowances $0.20 gives **$8.82047227 ≤ $12**.
+  Future v4 is not started/authorized by budget preparation. Private evidence in
+  `artifacts/azure/pre-v4-latency-d23fa5afed2a799f8578a78ec323bf2b4864786f/`.
+- Created and pushed **PRIVATE** `sebastian-gm/factored-hackathon-2026-sebastian`,
+  snapshot **890110119ee7af2386c766dcf8a82f1a4aafc125**, one fresh commit with
+  fictional email metadata. Exported 480 source files, excluded 22 frozen/authoring
+  files; no ignored artifacts, secrets or private bindings copied. Scrubbed 40 private
+  links, 13 cloud hostnames, 3 workstation paths and 2 content contacts; 104 product
+  files remain byte-identical to d23fa5a. Honest evaluation chronology retained.
+- Snapshot file policy, compilation and authored mock B1 **32/32** passed, executing
+  exported code (not the editable private install). Pinned Gitleaks **8.30.1** directory
+  and post-push scans each report **4 false positives**, exit 1: 3 AST-verified authored
+  idempotency literals and 1 Key Vault secret-name mapping. History patch scan reports
+  the same 3 idempotency matches; directory scan covers the path-restricted Terraform
+  rule. No actionable secret detected; never claim zero findings. Post-push privacy
+  patterns have zero cloud-host/home-path/private-link matches.
+- GitHub read-back confirms snapshot SHA/PRIVATE visibility, fictional commit emails,
+  Actions disabled and zero runs. Personal sandbox remains PRIVATE with only `origin`.
+  Redacted receipts remain ignored under `artifacts/submission-snapshot/audit/`.
+
+### Done but not verified
+
+- Latency probe is **partial (5/10)**, not a 10-conversation measurement; p95 is a
+  small-sample observation, not an SLA or cold-start bound. Unknown cost remains reserved.
+- Snapshot full frozen-suite reproduction, export-SHA deployment, raw-row equality
+  audit and eventual signed-out public access are unverified. Frozen suites/bindings
+  are deliberately withheld. Snapshot Actions are OFF; private-source CI passed.
+- This documentation follow-up does not change product/image inputs. Azure and the
+  acceptance receipt stay pinned to d23fa5a; do not claim a later docs SHA was deployed.
+
+### Next / blocked
+
+- AI lane may use **dev-gate/pre-v4 / pre-v4**, reserve-before-call, $1 lifetime.
+  Feature freeze **Oct 2 12:00 COT / 17:00 UTC**; then separately approved release
+  and one v4 run. Never start v4 from this session or open its rows.
+- No paid replay of the stopped latency probe or its unknown call. Keep the closed
+  purse, counters, history and receipt. Additional probing needs an owner decision.
+- Snapshot refresh/review after final freeze; explicit Sebastian approval required
+  to flip PUBLIC or enable warm/judge ingress on submission day. No min_replicas,
+  public access, resource creation or personal-remote change occurred.
+
 ## 2026-09-30 PDT — Deployed main; stale Ops smoke selector
 
 ### Completed (verified)
