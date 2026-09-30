@@ -21,10 +21,13 @@
   single-attempt POSTs, and shows ES/PT startup/retry states. No Azure setting,
   image or access boundary was changed.
 - Reviewed every PR #62 commit. Authored, zero-cost mock/ASGI reproductions
-  confirmed five findings: recognition question lost before phrasing; legal cues
+  confirmed five findings: approved language clarification lost before phrasing; legal cues
   lost across session tabs; `.com`/SIM language false positives; renewal reuses an
   invalid freeze hash; latest fraud packet may belong to another conversation.
   [Findings, owners and commit dispositions](../reviews/pr-62-review.md).
+  The preliminary recognition-question finding was narrowed after checking the
+  API's existing deterministic guard; the confirmed language-help case was then
+  exercised through the API, not just the NLG helper.
 - Local CI commands passed: `UV_CACHE_DIR=$PWD/artifacts/uv-cache make checks`
   (308 pytest passed, 14 skipped; B1 dev 32/32; interfaces/catalog current),
   `.venv/bin/ruff check .`, `.venv/bin/mypy --strict src/aclara`,

@@ -7,25 +7,29 @@ Existing local tests passed, but the authored checks below expose missing cases.
 
 ## Findings requiring follow-up before release
 
-### 1. P1: phrase v2 does not receive the actual recognition question
+### 1. P2: phrase v2 does not receive the approved language clarification
 
 `d935c8a`, `src/aclara/agent/nlg/builder.py` (`fallback` and `approved_text`).
 The new approved text is `render_template(plan)`, whose clarification is the
-generic amount/currency/date question. For the orchestrator's awaiting-recognition
-clarification, it is **not** the approved `plan.reply` asking whether the customer
-recognizes the already identified charge or wants to dispute it. `AgentAI.reply`
-then accepts a safe generic draft and replaces that question.
+generic amount/currency/date question. It is **not** the approved `plan.reply`.
+For the early unsupported-language path, `AgentAI.reply` accepts a safe generic
+draft and replaces the approved ES/PT language-help clarification.
 
-**Executed zero-cost reproduction:** an authored recognition plan plus a mock
-Spanish amount/date draft produced a prompt and returned reply with no recognition
-question. The state is still awaiting recognition, but the customer is asked for
-irrelevant charge identifiers. The prompt's “keep its question” instruction cannot
-preserve a question it never receives.
+**Executed zero-cost API reproduction:** an authored English help request plus a
+mock Spanish amount/date draft returned `clarify`, asking for identifiers rather
+than offering the supported languages. The prompt contained no language-help
+text. Its “keep its question” instruction cannot preserve text it never receives.
+
+**Review correction:** a first direct `AgentAI.reply` check suggested recognition
+question loss. Checking the actual API caller showed that awaiting-recognition
+clarifications are already deterministic and preserve that question. That path
+is **not** a confirmed production defect. The finding above is narrowed to the
+unguarded language clarification exercised through the API.
 
 **Owner: AI lane, with lead context tests.** Pass the approved state-specific text
-and preserve required recognition semantics, or keep this clarification entirely
-deterministic. Validate both ES/PT recognition retries, including a generic safe
-draft that must not replace the required question.
+and preserve its semantics, or keep the language clarification deterministic.
+Retain the existing recognition guard and validate language help with a generic
+safe draft that must not replace the required content.
 
 ### 2. P1: session-wide security strikes lose cues across conversation tabs
 
