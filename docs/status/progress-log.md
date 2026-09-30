@@ -4,6 +4,8 @@
 
 ### Completed (verified)
 
+- #87 hydration correction: the authored Insights helper now waits for the existing config bootstrap fetch before selecting locale, as the startup regression already does. All assertions retained; three repeats of both selected Portuguese mobile checks pass (**6/6**), ESLint passed. Next.js regenerated route imports were restored; no product code or dependency changed. Initial failure remains disclosed.
+
 - Integrated #77, final #79 and #80 via **#84**, remote head CI **36784056725** and safety **36784056767** passed on the first run. Main/release **c32fd6429281a764ee33dd96622f237c7c0289c3** is clean and matched origin; main CI **36784943361**, safety **36784943206**, outside-access **36786164303** passed. Original PRs closed after ancestor verification; no redundant merge/rerun. Updated frontend rehearsal readiness reported to the owner.
 - Fresh images built/pushed and registry digests verified: API `sha256:d2ea6f3feaa460628a56db283b985386ae2c90f29fac034f972d15272695b8a1`; web `sha256:e26e76a9ab33580bea87541beadc6eff0e9458ed33ee5510cc097d2ed56abeca`. Fresh East US 2 price estimate **$34.63/month**. Reviewed apply **0 added / 2 changed / 0 destroyed**, images/release identity and approved temporary smoke binding only; min=0 and access unchanged. `python -m scripts.azure_verify` passed. Real ES filing/readback, PT ambiguity/handoff and deterministic fraud smoke passed: **9 valid calls, $0.00801825 known/charged, no unknowns/fallbacks**. `python -m scripts.serving_browser --target azure`: three surfaces, one handoff/one resolved. No extra browser allowance needed. Receipt `artifacts/azure/jev-release.json` has all three flags true at c32fd64. Mock-only `azure_smoke` was not used on the real-provider deployment; real/browser gates are the evidence.
 - At release, cumulative charged exposure **$5.49997829**; conservative helper maximum including full future purses **$11.19997829 ≤ $12**. Scope caps and all prior unknown reserves remain intact; no paid call in reproduction. Azure `/insights` returns 200 and its v4 projection remains explicitly pending.
@@ -20,9 +22,10 @@
 
 ### Done but not verified
 
+- The corrected #87 head still requires green remote CI before its merge. Its initial browser job failed **92/93**; no workflow replay without a cause.
 - Full organizer-backed setup and official frozen-suite reproduction are not verified in the clean clone. Dataset-dependent and omitted private-release tests skipped; they are not passes. The private export still derives from d23fa5a and has not been deployed; refresh after feature freeze.
 - Five-conversation latency study remains partial, with one unknown reserve and no forced cold-start bound. No paid replay, model comparison by the lead or v4 run occurred.
-- This documentation follow-up changes no product/image inputs. Azure acceptance remains c32fd64; do not claim a later docs-only SHA was deployed.
+- This documentation/test follow-up changes no product code or dependency; no images were rebuilt. Azure acceptance remains c32fd64; do not claim this later source SHA was deployed.
 
 ### Next / blocked
 
