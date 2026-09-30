@@ -60,7 +60,9 @@ paths change. Two fresh clones were verified at zero model cost: mock checks
 **80 fixture + 12 live + 1 staff**. The corrected clone's exact README setup,
 Compose readiness and authenticated fixture smoke passed. See
 [clean-clone reproduction](clean-clone-reproduction.md) for timings and limitations.
-Configured post-push tree/history scans remain zero findings; snapshot stays PRIVATE.
+Final snapshot **3dbfc1d69fbc2fc8cabf270e532fe492afc2cdaf** matches origin. Fresh exact-tree and full-history
+Gitleaks scans exit 0; private-link/home-path/cloud-host patterns have zero matches.
+All commit emails are fictional, Actions are disabled and visibility stays PRIVATE.
 This remains an export of d23fa5a, not the newly deployed Insights product.
 
 Full frozen-suite reproduction and export-SHA deployment are unverified, because
