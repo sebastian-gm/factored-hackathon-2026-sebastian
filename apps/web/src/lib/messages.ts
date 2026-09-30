@@ -101,6 +101,9 @@ export const es = {
     "Las acciones se guardan solo en este espacio de prueba. No es una evaluación del sistema.",
   live: "Servicio bancario",
   loading: "Cargando…",
+  starting: "Iniciando el servicio…",
+  startupUnavailable:
+    "El servicio aún no está disponible. Vuelve a intentarlo.",
   retry: "Volver a intentar",
   close: "Cerrar",
   cancel: "Cancelar",
@@ -375,6 +378,8 @@ export const pt: typeof es = {
     "As ações ficam apenas neste espaço de teste. Isto não é uma avaliação do sistema.",
   live: "Serviço bancário",
   loading: "Carregando…",
+  starting: "Iniciando o serviço…",
+  startupUnavailable: "O serviço ainda não está disponível. Tente novamente.",
   retry: "Tentar novamente",
   close: "Fechar",
   cancel: "Cancelar",
