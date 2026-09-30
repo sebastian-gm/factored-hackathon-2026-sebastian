@@ -37,6 +37,7 @@ const auditDir = path.resolve(
   "../../artifacts/ux-audit/insights",
 );
 async function capture(page: Page, name: string) {
+  expect(await page.pageErrors()).toEqual([]);
   await mkdir(auditDir, { recursive: true });
   await page.screenshot({
     path: path.join(auditDir, `${name}-full.png`),
