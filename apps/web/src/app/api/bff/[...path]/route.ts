@@ -20,6 +20,7 @@ import {
   traceSchema,
 } from "@/lib/staff-contracts";
 import { BANK_CLOCK, personas } from "@/lib/server/fixture-data";
+import { upstreamFetch } from "@/lib/server/upstream-fetch";
 import {
   fixtureLogin,
   fixtureLogout,
@@ -92,12 +93,10 @@ async function upstream(
     "http://127.0.0.1:8212";
   let result: Response;
   try {
-    result = await fetch(`${base.replace(/\/$/, "")}/${path}`, {
+    result = await upstreamFetch(base, path, {
       method,
       cache: "no-store",
       redirect: "error",
-      // NLU and grounded phrasing have bounded provider retries. Never retry a POST here.
-      signal: AbortSignal.timeout(path.endsWith("/messages") ? 180000 : 10000),
       headers: {
         "Content-Type": "application/json",
         ...(token ? { Authorization: `Bearer ${token}` } : {}),

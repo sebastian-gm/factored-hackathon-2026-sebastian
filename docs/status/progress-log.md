@@ -16,7 +16,88 @@
 
 ### Next / blocked
 
-- Lead reviews/merges PR #65 after #62 and fixes the remaining deterministic uncertainty guard. Keep v4 blind; this lane does not merge/deploy. Next queued AI work: PR #62 review findings 1 and 3 (approved clarification text and language detection), with authored mock regressions and no new paid measurement.
+- Lead reviews/merges PR #65 into `fix/post-v3-analysis` and fixes the remaining deterministic uncertainty guard before release. The lead base advancement `dac3801` is merged into this feature branch with both progress entries preserved. Queued review findings 1 and 3 are complete in independent [PR #66](https://github.com/sebastian-gm/bank-agent-lab/pull/66), with mocks and zero additional spend. Keep v4 blind; this lane does not merge/deploy.
+
+## 2026-09-29 PDT — Preview diagnosis, code-only startup fix and PR #62 review
+
+### Completed (verified)
+
+- Read handoff 14 fully and applied Sebastian's subsequent decisions: min
+  replicas stay zero while testing; run CI locally while Actions billing is
+  pending. Main and origin/main remain `e12efc73be64f8355aa9f177f08a04337593616c`.
+- Read-only Azure metadata confirmed both preview images at
+  `37627d4001bc02bd3ae0c25c618acd16f5b4a47e`, initially zero replicas. With
+  authenticated `httpx` BFF reads, the first config GET failed 503 after 50.560 s
+  and login failed after the 10.114 s deadline. Warm login/OTP, me including the
+  clock, and repeated transactions passed in 0.1–0.5 s. API logs show completed
+  startup, successful reads and no sampled application exceptions. This confirms
+  the cold-start chain for the reported failure. No chat/provider/banking write
+  was invoked; credentials/OTP/cookies and organizer rows were never printed.
+  [Diagnosis and ignored evidence](../evaluation/preview-startup-diagnosis.md).
+- Code commit `e043356` on `fix/preview-startup-review`, based on PR #62 head
+  `32587c9`, gives startup GETs 75 s and at most one transient GET retry, preserves
+  single-attempt POSTs, and shows ES/PT startup/retry states. No Azure setting,
+  image or access boundary was changed.
+- Pushed the separate candidate to the existing private origin and opened
+  [draft PR #63](https://github.com/sebastian-gm/bank-agent-lab/pull/63), targeting
+  `fix/post-v3-analysis` so its startup/doc changes can be reviewed independently
+  of #62. No PR or branch was merged.
+- Reviewed every PR #62 commit. Authored, zero-cost mock/ASGI reproductions
+  confirmed five findings: approved language clarification lost before phrasing; legal cues
+  lost across session tabs; `.com`/SIM language false positives; renewal reuses an
+  invalid freeze hash; latest fraud packet may belong to another conversation.
+  [Findings, owners and commit dispositions](../reviews/pr-62-review.md).
+  The preliminary recognition-question finding was narrowed after checking the
+  API's existing deterministic guard; the confirmed language-help case was then
+  exercised through the API, not just the NLG helper.
+- Local CI commands passed: `UV_CACHE_DIR=$PWD/artifacts/uv-cache make checks`
+  (308 pytest passed, 14 skipped; B1 dev 32/32; interfaces/catalog current),
+  `.venv/bin/ruff check .`, `.venv/bin/mypy --strict src/aclara`,
+  `.venv/bin/python -m evals.runner --system B1 --scenarios evals/dev_scenarios_v2.yaml`
+  (32/32), and `.venv/bin/python -m scripts.test_postgres` (17/17 in a disposable
+  local database). Web: `pnpm typecheck`, `pnpm lint`, `pnpm build`,
+  `pnpm test:e2e` (46/46), `pnpm test:e2e --live` (8/8),
+  `pnpm test:e2e --staff` (1/1): **55 checks** including all 26 startup checks.
+  Two initial startup test failures were corrected (hydration wait and translated
+  retry label); the full final web run passed. Local caches use writable paths;
+  the missing local pre-commit hook was reinstalled. Generated Next type paths
+  and the authored-dev results page were restored after test commands.
+- Added [the v3 results page](../evaluation/final-v3-results.md) from saved
+  aggregates only: P 77/100 versus B1 52/100; in-scope SAR difference +11 points,
+  95% CI +5 to +17; failed full safety gates and partial judging disclosed.
+  Verified SHA-256 of the four original result/report/partial/sheet files remained
+  unchanged. No v2 rerun or abandoned-v1 access occurred. V3's seen-data 100/100
+  is explicitly a development regression check, not a replacement result.
+- Read GitHub's PR #62 check annotation with `gh api`: jobs did not start because
+  the account Actions budget prevents use. This is not a code-test failure and
+  is not a green remote run. PR #62 remains open and unmerged.
+- Added submission-day-only warm replicas and live East US 2 price assumptions
+  to [the checklist](../submission/checklist.md): two 0.25-vCPU/0.5-GiB apps about
+  $0.39/day idle to $1.30/day continuously active, excluding grants/other charges;
+  a fully active warm month can exceed the $40 total approval gate. No replicas
+  were changed. **New model spend in this session: $0.**
+
+### Done but not verified
+
+- Startup fix is locally verified and committed, **not deployed**; no corrected
+  Azure cold-start smoke is claimed. Paid preview chat/phrasing was not tested.
+- The five review findings are reported with proposed remedies; those product,
+  policy/contract and evaluation fixes are not part of this startup patch.
+- Local CI passes, but GitHub CI/external-access workflow cannot run until the
+  owner's billing decision. V3 judging and human review remain partial/pending.
+
+### Next / blocked
+
+- Review the startup patch for a separately approved preview redeploy, retaining
+  min replicas zero. Decide owners/timing for the five PR #62 findings before
+  release. Keep #62 unmerged until CI can run or an explicit merge exception.
+- Share/submission-day warm replicas require the dated plan and refreshed cost
+  approval in the checklist. No cloud resource or ingress expansion is approved
+  by this session.
+- **V4 remains unopened and unstarted.** Complete fixes/release gates and await
+  the orchestrator's explicit run go. For later sessions paste:
+  “Continue from docs/status/progress-log.md. Next layer: PR #62 review fixes and
+  preview startup release. Same rules.”
 
 ## 2026-09-29 UTC — Owner-approved preview deploy of `fix/post-v3-analysis`
 
