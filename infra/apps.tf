@@ -27,6 +27,14 @@ resource "azurerm_container_app" "api" {
     }
   }
   dynamic "secret" {
+    for_each = var.enable_judge_access ? toset(["judge-persona", "judge-password"]) : toset([])
+    content {
+      name                = secret.value
+      key_vault_secret_id = "${azurerm_key_vault.dev.vault_uri}secrets/${secret.value}"
+      identity            = azurerm_user_assigned_identity.api.id
+    }
+  }
+  dynamic "secret" {
     for_each = var.enable_real_llm ? toset(["openrouter-api-key", "typesafe-api-key"]) : toset([])
     content {
       name                = secret.value
@@ -45,7 +53,7 @@ resource "azurerm_container_app" "api" {
     }
   }
   template {
-    min_replicas = 0
+    min_replicas = var.min_replicas
     max_replicas = 1
     container {
       name   = "api"
@@ -53,7 +61,7 @@ resource "azurerm_container_app" "api" {
       cpu    = 0.25
       memory = "0.5Gi"
       dynamic "env" {
-        for_each = {
+        for_each = merge({
           PGHOST                  = azurerm_postgresql_flexible_server.dev.fqdn
           PGPORT                  = "5432", PGUSER = "aclara_app", PGDATABASE = "aclara"
           PGSSLMODE               = "verify-full", PGSSLROOTCERT = "/etc/ssl/certs/ca-certificates.crt"
@@ -66,7 +74,7 @@ resource "azurerm_container_app" "api" {
           LLM_MODEL_ROUTE         = "default"
           LLM_DAILY_BUDGET_USD    = "3"
           LLM_BUDGET_RUN_ID       = var.llm_budget_run_id
-        }
+        }, var.enable_judge_access ? { JUDGE_ACCESS_ENABLED = "true" } : {})
         content {
           name  = env.key
           value = env.value
@@ -79,6 +87,13 @@ resource "azurerm_container_app" "api" {
       env {
         name        = "DEMO_PASSWORD"
         secret_name = "demo-password"
+      }
+      dynamic "env" {
+        for_each = var.enable_judge_access ? { JUDGE_PERSONA = "judge-persona", JUDGE_PASSWORD = "judge-password" } : {}
+        content {
+          name        = env.key
+          secret_name = env.value
+        }
       }
       dynamic "env" {
         for_each = var.enable_real_llm ? { OPENROUTER_API_KEY = "openrouter-api-key", TYPESAFE_API_KEY = "typesafe-api-key" } : {}
@@ -105,7 +120,7 @@ resource "azurerm_container_app" "api" {
     }
   }
   tags       = merge(local.tags, { release = var.image_tag })
-  depends_on = [azurerm_role_assignment.api_pull, azurerm_role_assignment.api_secrets, azurerm_role_assignment.api_openrouter_secret, azurerm_role_assignment.api_typesafe_secret]
+  depends_on = [azurerm_role_assignment.api_pull, azurerm_role_assignment.api_secrets, azurerm_role_assignment.api_openrouter_secret, azurerm_role_assignment.api_typesafe_secret, azurerm_role_assignment.api_judge_secrets]
 }
 
 resource "azurerm_container_app" "web" {
@@ -128,10 +143,13 @@ resource "azurerm_container_app" "web" {
     allow_insecure_connections = false
     target_port                = 3000
     transport                  = "http"
-    ip_security_restriction {
-      name             = "owner-only"
-      action           = "Allow"
-      ip_address_range = "${var.owner_ipv4}/32"
+    dynamic "ip_security_restriction" {
+      for_each = var.enable_judge_access ? [] : ["owner-only"]
+      content {
+        name             = "owner-only"
+        action           = "Allow"
+        ip_address_range = "${var.owner_ipv4}/32"
+      }
     }
     traffic_weight {
       latest_revision = true
@@ -139,7 +157,7 @@ resource "azurerm_container_app" "web" {
     }
   }
   template {
-    min_replicas = 0
+    min_replicas = var.min_replicas
     max_replicas = 1
     container {
       name   = "web"

@@ -44,6 +44,7 @@ from aclara.agent.nlu.structured import understand as deterministic_understand
 from aclara.agent.runtime import InjectedFailure, Runtime
 from aclara.agent.selection import candidates as identified_candidates
 from aclara.agent.selection import explicit_choice, scoped_inquiry_language, uncertain
+from aclara.api.judge_access import judge_alias
 from aclara.api.staff import complete_packet, install_staff
 from aclara.api.staff_contracts import IdentityView
 from aclara.api.workflows import (
@@ -363,9 +364,17 @@ def create_app(
         )
         if p.username
     }
+    judge = judge_alias(active_settings, app.state.personas)
+    if judge is not None:
+        app.state.personas[judge.username] = judge
     app.state.demo_stories = demo_story_mappings(
         ledger, app.state.personas, active_settings.bank_clock
     )
+    if judge is not None:
+        source_username = json.loads(active_settings.judge_persona)["source_username"]
+        app.state.demo_stories[judge.username] = list(
+            app.state.demo_stories.get(source_username, [])
+        )
     realms = {
         hashlib.sha256(p.username.encode()).hexdigest()[:12]: p.customer_id
         for p in app.state.personas.values()
@@ -480,10 +489,12 @@ def create_app(
         if not app.state.personas or not active_settings.demo_password:
             raise HTTPException(status_code=503, detail="Demo identity is not configured")
         persona = app.state.personas.get(body.username)
-        valid = (
-            hmac.compare_digest(body.password, active_settings.demo_password)
-            and persona is not None
+        expected_password = (
+            active_settings.judge_password
+            if judge is not None and body.username == judge.username
+            else active_settings.demo_password
         )
+        valid = hmac.compare_digest(body.password, expected_password) and persona is not None
         if not valid:
             raise HTTPException(status_code=401, detail="Invalid login")
         session_id = secrets.token_urlsafe(18)

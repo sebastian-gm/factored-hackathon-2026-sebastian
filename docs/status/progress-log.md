@@ -1,5 +1,52 @@
 # Progress log
 
+## 2026-09-29 PDT — Submission-day infrastructure prepared OFF
+
+### Completed (verified)
+
+- Added independent OFF switches `enable_submission_warm=false`,
+  `min_replicas=0`, `enable_judge_access=false`. Warm 1 requires its switch;
+  judge mode cannot use a smoke budget. API stays internal HTTPS, max=1;
+  public web still uses login/OTP and the existing global $3/day model breaker.
+- Judge account/password are external Key Vault references only, never values
+  in Terraform inputs/state. OFF has no credential requirement or effect.
+  Enabled runtime aliases an existing reviewed source customer/locale/role and
+  gated story hints; it cannot claim new ownership/role. Judge and owner
+  passwords cannot interchange; OTP/session/action semantics are retained.
+- `terraform fmt -check`, `terraform validate`, five mocked plan-only tests
+  pass. Read-only sandbox plans (`-refresh=false -lock=false`, explicit sandbox
+  wrapper) show **OFF: zero changes**; ON: **two app updates + two scoped RBAC
+  grants**, zero deletes, API internal. Plans/JSON stay ignored and 0600.
+  No Azure apply, secret upload, enablement or model call occurred.
+- Live East US 2 compute rates read at 04:17 UTC: two warm replicas
+  **$0.3888–$1.296/day**, 14-day compute **$5.4432–$18.144**. With explicitly
+  historical fixed-service/margin assumptions, monthly infra **$34.73–$47.43**;
+  upper case exceeds $40 approval gate. $3/day models can add $42 over 14 days,
+  separate from v4's lifetime budget. [Plan and approval checklist](../submission/infrastructure-switches.md).
+- Mock `make checks`: **429 passed / 16 DB skips**, six hooks, B1 **32/32**,
+  compile/snapshots/catalog. Ruff and mypy **85 files** pass. Disposable local
+  Postgres **19/19**, including judge RLS/session recovery on restart and owner
+  case isolation. Authored login/security follow-up **19/19**, including only
+  the source's gated story hints. Early test issues (sandbox TestClient stall,
+  wrong test endpoint and inherited private smoke variable in mock tests) were
+  corrected; no product regression remained.
+
+### Done but not verified
+
+- No real judge credential exists from this work. Public ingress, outside-IP
+  login, production account/source choice and live enabled budget are not tested.
+  Read-only no-refresh plans are not fresh drift audits or apply authorization.
+
+### Next / blocked
+
+- Open this preparation PR against `fix/post-v3-analysis`. Sebastian approves
+  source persona/role, dates, exact live plan and total infra/model exposure on
+  submission day before enabling anything. Keep testing min=0 and owner ingress.
+- Integrate preparation/audit/UX and pending AI docs on the feature target, then
+  full local browser/API gates and one remote #62 head run. No main merge,
+  Azure change or v4 start until the subsequent owner gates.
+
+
 ## 2026-09-29 PDT — AI review, feature integration and startup profiling
 
 ### Completed (verified)

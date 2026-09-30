@@ -59,3 +59,22 @@ Azure budgets use the subscription billing currency. This subscription reports C
 The owner approved the broad Azure-services PostgreSQL firewall exception for this dev environment. Other Azure tenants can reach the database network port; authentication and verified TLS remain mandatory. See [production readiness](../docs/production-readiness.md) for VNet/private access and durable-state work. App replicas scale to zero; sessions and operational records survive in Postgres. Session expiry remains enforced. Cold starts can require a retry of a read-only request. Never automatically retry unverified writes.
 
 The local state firewall prevents GitHub-hosted apply runners from accessing state. Keep deployment local until a runner/network decision is approved. Any later GitHub OIDC/environment configuration must use this private repository alone.
+
+## Submission-day preparation (OFF)
+
+See [switches, private plan diff and cost](../docs/submission/infrastructure-switches.md).
+Defaults keep `enable_submission_warm=false`, `min_replicas=0` and
+`enable_judge_access=false`. Enablement needs Sebastian's submission-day approval.
+The judge secrets are external Key Vault references, not Terraform values.
+
+Local plan-only gate (both providers mocked, no Azure calls):
+
+```sh
+terraform -chdir=infra fmt -check
+terraform -chdir=infra validate
+terraform -chdir=infra test -filter=tests/submission.tftest.hcl
+```
+
+The ON plan is a preview, not an apply instruction or publication authorization.
+Public web still requires login/OTP; API stays internal; model cap is global
+USD 3 per UTC day. Recheck prices and the private plan after choosing dates.

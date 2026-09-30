@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import json
 import os
 import secrets
+from dataclasses import replace
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -159,9 +161,43 @@ def test_serving_personas_rls_three_surfaces_and_restart(tmp_path: Path) -> None
         assert observed["passed"]
         with pytest.raises(PermissionError):
             bound.ledger.for_customer("fixture-customer-b", clock)
+        # A separate Key Vault-style judge alias inherits only the reviewed
+        # source identity; its username realm keeps the owner's run private.
+        settings = replace(
+            settings,
+            judge_access_enabled=True,
+            judge_password=secrets.token_urlsafe(32),
+            judge_persona=json.dumps(
+                {"username": "judge.authored", "source_username": "serving.es"}
+            ),
+        )
+        with TestClient(create_app(settings, store=store)) as judge_client:
+            challenge = judge_client.post(
+                "/auth/login",
+                json={"username": "judge.authored", "password": settings.judge_password},
+            ).json()
+            preauth = {"X-Preauth-Token": challenge["preauth_token"]}
+            code = judge_client.get(
+                f"/auth/challenges/{challenge['challenge_id']}/sms", headers=preauth
+            ).json()["code"]
+            session = judge_client.post(
+                "/auth/otp/verify",
+                headers=preauth,
+                json={"challenge_id": challenge["challenge_id"], "code": code},
+            ).json()
+            judge_headers = {"Authorization": "Bearer " + session["access_token"]}
+            assert (
+                judge_client.get("/me", headers=judge_headers).json()["username"]
+                == "judge.authored"
+            )
+            assert judge_client.get("/transactions", headers=judge_headers).status_code == 200
+            assert judge_client.get(case_path, headers=judge_headers).status_code == 404
         store.close()
         store = Store(runtime)
         with TestClient(create_app(settings, store=store)) as restored:
+            assert restored.get("/me", headers=judge_headers).json()["username"] == "judge.authored"
+            assert restored.get("/transactions", headers=judge_headers).status_code == 200
+            assert restored.get(case_path, headers=judge_headers).status_code == 404
             assert DisputeCaseView.model_validate(
                 restored.get(case_path, headers=first).json()
             ) == DisputeCaseView.model_validate(case["case"])
