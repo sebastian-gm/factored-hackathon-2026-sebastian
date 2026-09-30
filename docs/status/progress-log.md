@@ -2103,3 +2103,37 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
   credits before every paid comparison. Never reuse the stopped pre-v4 scope.
 - Lead reviews #85 and the corrected #86, with required green main-target CI.
   No merge, publication, held-out v4 access or final run by this lane.
+
+
+## 2026-09-30 PDT — approved paired-sample freeze and disparity CI readback
+
+### Completed (verified)
+
+- Owner approved a balanced paired model sample inside $1.50. Frozen manifest
+  selects 50 pairs: ten per each of the five existing dev sets, five ES/five PT
+  per set, all ten round-two families once. Metadata-only stable ordering and
+  dialect/category buckets; no saved model outcome used for selection. Manifest
+  SHA `40ef32671ff05617dc3246db38891a756b6d200cec48c368cc6e2483416b634c`;
+  full pool and per-case hashes validated before use. No new paid call.
+- Sample/inventory, tamper rejection and freeze checks pass: 19 focused checks,
+  then 299 relevant mock/unit checks with eight DB skips; Ruff/format and strict
+  mypy over 88 files pass. The separate lean study keeps
+  its original complete 240-case adoption gate; production v5.1/Gemini unchanged.
+- Private disparity PR #86 is OPEN/mergeable to main at corrected head
+  `3d86622a94e056d70a9d0303d8b59e9b26f0a7ec`. Required CI run 36789815778
+  and safety run 36789815779 both succeeded on that head. The earlier head also
+  finished green before the substantive denominator correction was pushed; no
+  CI cancellation or manual rerun. Official v2/v3 inputs and scores unchanged.
+
+### Done but not verified
+
+- No Sol execution, comparison result or OpenAI Decisions preview access. Sample
+  uncertainty and equal set weighting prohibit full-240 or population claims.
+
+### Next / blocked
+
+- Wait for the lead's exact model-comparison scope/run readback and restored
+  OpenRouter credits. Cap stays $1.50 with $12 cumulative maximum. Do not use
+  the stopped pre-v4 scope. Lead merges #85/#86; this lane performs no merge.
+- Human CSV path remains unconfirmed; local offline scoring page still exists.
+  Never open v4, start the final run or change a model default without approval.

@@ -1,12 +1,13 @@
 """No-network checks of candidate injection and the dev-only inventory."""
 
 from collections import Counter
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
 from pydantic import BaseModel
 
-from aclara.llm.dev_prompt_study import PromptStudyClient, inputs, inventory_hash
+from aclara.llm.dev_prompt_study import PromptStudyClient, comparison_sample, inputs, inventory_hash
 from aclara.llm.prompts import load_prompt
 from aclara.llm.types import ModelSpec
 
@@ -67,3 +68,24 @@ def test_inventory_covers_all_five_sets_without_any_held_out_access(
         for c in cases
         if c.group == "v3_100" and c.binding is not None
     )
+
+
+def test_approved_paired_sample_is_frozen_balanced_and_covers_round_two_families() -> None:
+    cases = comparison_sample()
+    assert Counter(c.group for c in cases) == {
+        "dev20": 10,
+        "confirmation20": 10,
+        "robustness40": 10,
+        "round2_60": 10,
+        "v3_100": 10,
+    }
+    assert Counter(c.scenario["language"] for c in cases) == {"es": 25, "pt": 25}
+    assert len({c.scenario["id"].split(".")[-1] for c in cases if c.group == "round2_60"}) == 10
+    assert len(inputs()) == 240  # Lean v5.2 adoption still needs all five complete sets.
+
+
+def test_comparison_refuses_changed_inventory_before_any_provider_call() -> None:
+    cases = inputs()
+    cases[0] = replace(cases[0], scenario={**cases[0].scenario, "language": "changed"})
+    with pytest.raises(ValueError, match="inventory changed"):
+        comparison_sample(cases)

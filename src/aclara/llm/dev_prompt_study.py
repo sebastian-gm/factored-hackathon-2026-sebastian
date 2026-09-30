@@ -129,6 +129,34 @@ def inventory_hash(cases: list[StudyCase]) -> str:
     return sha256(json.dumps([asdict(c) for c in cases], sort_keys=True).encode()).hexdigest()
 
 
+def comparison_sample(pool: list[StudyCase] | None = None) -> list[StudyCase]:
+    """Load the separately approved frozen paired sample; never change lean-study coverage."""
+    cases = inputs() if pool is None else pool
+    manifest = json.loads((ROOT / "src/aclara/llm/dev_model_compare_50.manifest.json").read_text())
+    if inventory_hash(cases) != manifest["inventory_sha256"]:
+        raise ValueError("Comparison development inventory changed after sample freeze")
+    by_id = {c.scenario["id"]: c for c in cases}
+    result: list[StudyCase] = []
+    for entry in manifest["cases"]:
+        case = by_id[entry["id"]]
+        if (
+            case.group != entry["group"]
+            or case.scenario["language"] != entry["language"]
+            or inventory_hash([case]) != entry["case_sha256"]
+        ):
+            raise ValueError("Frozen comparison case changed")
+        result.append(case)
+    if len(result) != 50 or len({c.scenario["id"] for c in result}) != 50:
+        raise ValueError("Comparison sample must contain fifty unique pairs")
+    if Counter((c.group, c.scenario["language"]) for c in result) != {
+        (group, language): 5
+        for group in ("dev20", "confirmation20", "robustness40", "round2_60", "v3_100")
+        for language in ("es", "pt")
+    }:
+        raise ValueError("Frozen comparison sample lost its language/set balance")
+    return result
+
+
 async def run(version: str) -> dict[str, Any]:
     cases = inputs()
     digest = inventory_hash(cases)
