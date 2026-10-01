@@ -22,7 +22,14 @@ from aclara.llm.client import StructuredClient
 from aclara.llm.dev_latency import retry_analysis
 from aclara.llm.dev_prompt_study import comparison_sample
 from aclara.llm.dev_robustness import DevBudgetStop, ThresholdGate
-from aclara.llm.types import BudgetFailure, CallRecord, ModelFailure, ProviderResponse, TokenUsage
+from aclara.llm.types import (
+    BudgetFailure,
+    CallRecord,
+    ModelFailure,
+    ProviderFailure,
+    ProviderResponse,
+    TokenUsage,
+)
 from aclara.llm.typesafe import TypedJudgments
 from aclara.llm.typesafe_questions import RISK_CUES
 
@@ -384,6 +391,46 @@ def test_unknown_primary_bill_still_finishes_parallel_jev_accounting(
     assert attempts == [study.SOL]
     assert settlements == [("primary", None), ("typed", 0.0000042)]
     assert [r.provider for r in client.records] == ["openai_compat", "typesafe"]
+
+
+@pytest.mark.parametrize("code", [401, 402, 403, 429])
+@pytest.mark.parametrize("bill", [0.0, 0.001])
+def test_known_bill_on_http_200_credit_or_quota_error_never_retries(
+    monkeypatch: pytest.MonkeyPatch,
+    code: int,
+    bill: float,
+) -> None:
+    models, prices, fallback = study.candidate_config("sol")
+    attempts: list[str] = []
+
+    class Adapter:
+        def complete(self, spec: Any, *_args: Any) -> ProviderResponse:
+            attempts.append(spec.model_id)
+            raise ProviderFailure(
+                response=ProviderResponse(
+                    "", spec.model_id, TokenUsage(100, 0), billed_cost_usd=bill
+                ),
+                status_code=code,
+            )
+
+    client = StructuredClient(
+        models,
+        prices,
+        budget_usd=1,
+        record=study.guard_attempt,
+        fallback_routes={"nlu": fallback} if fallback else None,
+    )
+    client._adapters["openai_compat"] = cast(Any, Adapter())
+    monkeypatch.setenv("LLM_REAL_CALLS_APPROVED", "1")
+    monkeypatch.setenv("OPENROUTER_API_KEY", "unit-fixture")
+    with pytest.raises(BudgetFailure, match="credit or quota"):
+        client.generate("nlu", "system", "synthetic", structured.ExtractedNlu, prompt_id="test")
+    assert attempts == [study.SOL]
+    assert client.records[0].stop_reason == f"provider_{code}"
+    assert client.records[0].cost_usd == bill
+    study.guard_attempt(replace(client.records[0], status="valid", stop_reason="stop"))
+    with pytest.raises(BudgetFailure):
+        study.guard_attempt(replace(client.records[0], stop_reason=f"http_{code}"))
 
 
 def test_resume_never_repeats_completed_or_interrupted_conversations(

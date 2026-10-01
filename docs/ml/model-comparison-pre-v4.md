@@ -51,7 +51,9 @@ shortened first attempt, and a 65 s logical-call budget. Production's 6/20 s
 settings stay unchanged. The comparison stops on its **first unknown-cost
 response**, before another retry/fallback/conversation, while retaining that
 reserve and settling the parallel Jev result. Settlement occurs before callbacks
-that can stop execution. Timeout codes/durations, generic failures, and first
+that can stop execution. HTTP and HTTP-200 envelope codes 401/402/403/429
+also stop even with known zero/positive billing (credentials, credits, forbidden
+budget/entitlement, quota/rate limits). Timeout codes/durations, generic failures, and first
 attempts exceeding the serving 6 s are reported separately. No paid measurement
 has used this corrected protocol, and its changed pins prohibit resuming the old
 run under new settings.

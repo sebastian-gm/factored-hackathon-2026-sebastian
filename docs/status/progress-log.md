@@ -2234,3 +2234,27 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
   verified per-call reconciliation and fresh protocol pins plus owner-approved
   funding/coverage. Gemini/v5.1 stays default; never access held-out v4, run its
   final evaluation, publish content or use another lane's scope.
+
+## 2026-09-30 PDT — comparison account-error stop follow-up
+
+### Completed (verified)
+
+- Lead identified that known-cost HTTP-200 provider_402 bypassed the HTTP-only
+  guard in #85. Guard now stops both http_/provider_ 401, 402, 403 and 429 codes:
+  credential/credit/forbidden-budget/quota/rate-limit failures never retry or
+  fall back, even when usage returns a known zero or positive bill.
+- Authored mock regressions exercise HTTP-200 errors through StructuredClient,
+  both zero/positive bills, both protocol code forms, and no retry/fallback.
+  Original paid comparison remains 30/50 pairs, $0.20973001 known versus
+  $1.49171001 exposure; no further paid calls, reserve release or default change.
+
+### Done but not verified
+
+- Corrected comparison settings are not paid measured; previous result remains
+  partial and unsuitable for equivalence. No new comparison spending authorized.
+
+### Next / blocked
+
+- Lead reviews #85; finish separate main-target NLG corruption/status-label and
+  transaction-kind normalization PR with zero-cost saved-dev replay. Fee aliases
+  map to Adjustment per owner confirmation. No held-out v4 access or merge.

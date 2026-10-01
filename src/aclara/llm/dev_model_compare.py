@@ -158,8 +158,17 @@ def guard_attempt(record: CallRecord) -> None:
     """
     if record.cost_usd is None and record.status != "skipped":
         raise BudgetFailure("Unknown provider cost; stop comparison before more calls")
-    if record.stop_reason == "http_402":
-        raise BudgetFailure("Provider account exhausted; stop comparison")
+    if record.stop_reason in {
+        "http_401",
+        "provider_401",  # credential/entitlement failures
+        "http_402",
+        "provider_402",  # exhausted credits, including HTTP-200 envelopes
+        "http_403",
+        "provider_403",  # forbidden or provider/account budget limits
+        "http_429",
+        "provider_429",  # quota/rate limits: never burn comparison retries
+    }:
+        raise BudgetFailure("Provider account, credit or quota failure; stop comparison")
 
 
 def require_catalog() -> dict[str, Any]:
