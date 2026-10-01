@@ -42,6 +42,24 @@ test("live workspace: trusted ops role, handoff claim/resolve, measured traces a
   await expect(
     page.getByRole("button", { name: "Tomar solicitud" }),
   ).toBeVisible();
+  // A fresh operational deadline is fifteen wall-clock days away, even though
+  // the serving ledger is frozen in June. The old bank-clock subtraction showed
+  // thousands of hours. Use the actual API receipt instead of fixture dates.
+  const packet = await page.evaluate(
+    async () => (await (await fetch("/api/bff/agent/handoffs")).json())[0],
+  );
+  expect(new Date(packet.created_at).getTime()).toBeGreaterThan(
+    new Date("2026-06-18T06:00:00Z").getTime(),
+  );
+  const sla = page.locator(".queue-item .caption").filter({ hasText: "SLA" });
+  await expect(sla).toHaveText(/Tiempo para SLA: (?:359h \d+m|360h 0m)/);
+  await expect(
+    page.getByText("Todavía no se identificó un movimiento.", { exact: false }),
+  ).toBeVisible();
+  await expect(page.locator(".action-timeline li")).toHaveCount(1);
+  expect(packet.actions).toEqual([
+    expect.objectContaining({ action: "create_handoff", status: "verified" }),
+  ]);
   const action = page.waitForRequest((r) => r.url().endsWith("/claim"));
   await page.getByRole("button", { name: "Tomar solicitud" }).click();
   expect((await action).postDataJSON()).toMatchObject({
