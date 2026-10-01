@@ -49,7 +49,7 @@ export function RecordingHelper({
     await onStory(demoStories[0]);
   }
   return (
-    <details className="panel recording-helper">
+    <details id="recording-helper" className="panel recording-helper">
       <summary>{t("recordingHelper")}</summary>
       <p>{t(config.fixtures ? "recordingBody" : "recordingLive")}</p>
       {config.fixtures ? (

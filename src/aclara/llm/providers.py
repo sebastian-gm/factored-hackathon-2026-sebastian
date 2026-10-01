@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import math
 from collections.abc import Callable
+from dataclasses import replace
 from importlib import import_module
 from typing import Any, Protocol
 from urllib.error import HTTPError, URLError
@@ -12,7 +13,7 @@ from urllib.request import Request, urlopen
 
 from pydantic import BaseModel
 
-from aclara.llm.types import ModelFailure, ModelSpec, ProviderResponse, TokenUsage
+from aclara.llm.types import ModelFailure, ModelSpec, ProviderFailure, ProviderResponse, TokenUsage
 
 
 class Provider(Protocol):
@@ -65,7 +66,7 @@ class OpenAICompat:
             "model": spec.model_id,
             "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}],
             "response_format": response_format,
-            "max_tokens": spec.max_output_tokens,
+            spec.max_tokens_parameter: spec.max_output_tokens,
         }
         if spec.reasoning_effort is not None:
             payload["reasoning"] = {"effort": spec.reasoning_effort}
@@ -94,8 +95,6 @@ class OpenAICompat:
         except (HTTPError, URLError, TimeoutError, ValueError) as exc:
             raise ModelFailure("OpenAI-compatible request failed") from exc
         try:
-            choice = data["choices"][0]
-            content = choice["message"]["content"]
             usage = data.get("usage") or {}
             prompt_details = usage.get("prompt_tokens_details") or {}
             usage_known = (
@@ -111,21 +110,40 @@ class OpenAICompat:
             billed_cost = float(raw_cost) if raw_cost is not None else None
             if billed_cost is not None and (not math.isfinite(billed_cost) or billed_cost < 0):
                 raise ValueError("Invalid billed cost")
-            return ProviderResponse(
-                text=content if isinstance(content, str) else "",
+            normalized = ProviderResponse(
+                text="",
                 model_id=str(data.get("model") or spec.model_id),
                 usage=TokenUsage(
                     input_tokens=int(usage.get("prompt_tokens") or 0),
                     output_tokens=int(usage.get("completion_tokens") or 0),
                     cache_read_tokens=int(prompt_details.get("cached_tokens") or 0),
                 ),
-                stop_reason=choice.get("finish_reason"),
                 usage_known=usage_known,
                 billed_cost_usd=billed_cost,
                 generation_id=str(data["id"]) if data.get("id") else None,
             )
-        except (KeyError, IndexError, TypeError, ValueError) as exc:
-            raise ModelFailure("Malformed provider response") from exc
+        except (AttributeError, KeyError, TypeError, ValueError) as exc:
+            raise ModelFailure("Malformed provider billing metadata") from exc
+        # OpenRouter can return an error envelope after HTTP 200. Preserve only
+        # its numeric category and validated billing/id, never its message/body.
+        error = data.get("error")
+        if error is not None:
+            raise ProviderFailure(
+                response=normalized,
+                status_code=error.get("code") if isinstance(error, dict) else None,
+            )
+        try:
+            choice = data["choices"][0]
+            content = choice["message"]["content"]
+            if choice.get("finish_reason") == "error":
+                raise ProviderFailure(response=normalized)
+            return replace(
+                normalized,
+                text=content if isinstance(content, str) else "",
+                stop_reason=choice.get("finish_reason"),
+            )
+        except (KeyError, IndexError, TypeError, AttributeError) as exc:
+            raise ProviderFailure(response=normalized, malformed=True) from exc
 
 
 class Gemini:

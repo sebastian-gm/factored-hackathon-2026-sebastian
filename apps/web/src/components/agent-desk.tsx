@@ -13,7 +13,11 @@ import {
 import { orderedReasons, type DeskPacket } from "@/lib/contracts";
 import { api } from "@/lib/client";
 import { date, remaining } from "@/lib/format";
-import { deskActionLabelKey, handoffReasonLabelKey } from "@/lib/ui-copy";
+import {
+  deskActionLabelKey,
+  handoffReasonLabelKey,
+  riskFlagLabelKey,
+} from "@/lib/ui-copy";
 import { useApp } from "./workspace";
 import { Button } from "./ui/button";
 import { Modal } from "./ui/dialog";
@@ -32,11 +36,20 @@ export function AgentDesk() {
   const [evidence, setEvidence] = useState<
       DeskPacket["evidence"][number] | null
     >(null),
-    [tick, setTick] = useState(0);
+    [clock, setClock] = useState("");
   useEffect(() => {
-    const timer = setInterval(() => setTick((v) => v + 1), 60000);
+    let tick = 0;
+    const base = Date.parse(config.bankClock ?? "");
+    const advance = () => {
+      // Operational deadlines use wall time. Only authored fixtures share the
+      // frozen ledger clock; transaction eligibility still uses bankClock.
+      const now = config.fixtures ? base + tick++ * 60000 : Date.now();
+      setClock(Number.isFinite(now) ? new Date(now).toISOString() : "");
+    };
+    advance();
+    const timer = setInterval(advance, 60000);
     return () => clearInterval(timer);
-  }, []);
+  }, [config.fixtures, config.bankClock]);
   async function load() {
     setLoading(true);
     setLoadError(false);
@@ -63,10 +76,6 @@ export function AgentDesk() {
     return () => c.abort();
   }, []);
   const current = packets.find((p) => p.handoff_id === selected) ?? packets[0];
-  const baseClock = Date.parse(config.bankClock ?? "");
-  const clock = Number.isFinite(baseClock)
-    ? new Date(baseClock + tick * 60000).toISOString()
-    : "";
   async function act(action: "claim" | "resolve") {
     if (!current || busy) return;
     setBusy(true);
@@ -174,7 +183,10 @@ export function AgentDesk() {
                         .map((reason) => t(handoffReasonLabelKey(reason)))
                         .join(" · ")}
                     </span>
-                    <span className="caption">
+                    <span
+                      className="caption sla-countdown"
+                      title={date(p.sla_due_at, locale, true)}
+                    >
                       <Clock3 size={12} /> {t("sla")}:{" "}
                       {p.status === "resolved"
                         ? "—"
@@ -236,6 +248,11 @@ export function AgentDesk() {
               </section>
               <section className="packet-section">
                 <h3>{t("facts")}</h3>
+                {!current.verified_facts.length && (
+                  <p className="caption packet-empty">
+                    {t("packetFactsEmpty")}
+                  </p>
+                )}
                 {current.verified_facts.map((fact, i) => (
                   <div key={fact.handle}>
                     <TransactionCard transaction={fact} />
@@ -258,6 +275,11 @@ export function AgentDesk() {
               </section>
               <section className="packet-section">
                 <h3>{t("actions")}</h3>
+                {!current.actions.length && (
+                  <p className="caption packet-empty">
+                    {t("packetActionsEmpty")}
+                  </p>
+                )}
                 <ol className="action-timeline">
                   {current.actions.map((action, i) => (
                     <li key={i}>
@@ -306,7 +328,22 @@ export function AgentDesk() {
                 </ol>
               </section>
               {current.risk_flags?.length ? (
-                <p className="routing-note">{current.risk_flags.join(" · ")}</p>
+                <section className="routing-note packet-risks">
+                  <h3>{t("riskIndicators")}</h3>
+                  <p>
+                    {current.risk_flags
+                      .map((flag) => t(riskFlagLabelKey(flag)))
+                      .join(" · ")}
+                  </p>
+                  <details className="action-references">
+                    <summary>{t("technicalReferences")}</summary>
+                    {current.risk_flags.map((flag) => (
+                      <code className="technical-reference" key={flag}>
+                        {flag}
+                      </code>
+                    ))}
+                  </details>
+                </section>
               ) : null}
               {current.suggested_next_steps?.length ? (
                 <section className="packet-section">
@@ -320,6 +357,11 @@ export function AgentDesk() {
               ) : null}
               <section className="packet-section">
                 <h3>{t("questions")}</h3>
+                {!current.open_questions.length && (
+                  <p className="caption packet-empty">
+                    {t("packetQuestionsEmpty")}
+                  </p>
+                )}
                 <ul className="questions">
                   {current.open_questions.map((q) => (
                     <li key={q}>{q}</li>

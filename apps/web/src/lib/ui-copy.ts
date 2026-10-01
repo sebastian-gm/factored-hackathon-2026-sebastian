@@ -63,6 +63,18 @@ export function ruleLabelKey(rule: string): string {
   };
   return labels[rule.split("-")[0]] ?? "ruleService";
 }
+export function riskFlagLabelKey(flag: string): string {
+  const labels: Record<string, string> = {
+    fraud_review: "riskFraudReview",
+    lost_stolen: "lost_stolen",
+    regulator: "regulator",
+    legal: "legal",
+    distress: "distress",
+    injection_suspected: "injection_suspected",
+    human_requested: "human_requested",
+  };
+  return labels[flag] ?? "riskOther";
+}
 export function queueLabelKey(queue: string): string {
   const labels: Record<string, string> = {
     Fraudes: "teamFraud",

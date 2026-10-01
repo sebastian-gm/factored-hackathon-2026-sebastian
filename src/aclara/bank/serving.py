@@ -194,24 +194,28 @@ def demo_story_mappings(
         if persona is None or persona.locale != expected_locale or persona.role != "ops":
             continue
         rows = ledger.for_customer(persona.customer_id, clock)
-        displayable = [
+        reviewable = [
             row
-            for _, row in rows
-            if isfinite(row.amount)
+            for handle, row in rows
+            if handle
+            and isfinite(row.amount)
             and row.amount >= 0
-            and row.merchant_name
+            and row.currency.strip()
             and row.transaction_status in {"Approved", "Pending", "Reversed", "Declined"}
         ]
         available = []
         if username == "demo.es.mx":
-            if displayable:
+            if any(row.merchant_name.strip() for row in reviewable):
                 available.append("explain")
             if any(
                 p.product_type in {"Credit Card", "Debit Card"} and p.status == "Active"
                 for _, p in ledger.products_for_customer(persona.customer_id)
             ):
                 available.append("fraud")
-        elif len(displayable) >= 2:
+        elif len(reviewable) >= 2:
+            # Ordinal purchase choices can show an explicitly missing merchant.
+            # for_customer already enforces customer/product ownership and the
+            # 120-day window. A hint grants no policy eligibility or write right.
             available.append("ambiguous")
         stories[username] = available
     return stories

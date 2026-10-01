@@ -423,6 +423,7 @@ export function CustomerChat({
               <TransactionCard
                 key={tx.handle}
                 transaction={tx}
+                choiceNumber={i + 1}
                 disabled={busy}
                 onChoose={() =>
                   void send(

@@ -9,13 +9,16 @@ export function TransactionCard({
   transaction,
   onChoose,
   disabled,
+  choiceNumber,
 }: {
   transaction: Transaction;
   onChoose?: () => void;
   disabled?: boolean;
+  choiceNumber?: number;
 }) {
   const t = useTranslations();
   const { locale, config } = useApp();
+  const merchant = transaction.merchant?.trim();
   const statuses: Record<string, string> = {
     Pending: "pending",
     Approved: "approved",
@@ -24,12 +27,19 @@ export function TransactionCard({
   };
   return (
     <article className="transaction-card">
+      {choiceNumber && (
+        <p className="choice-number caption">
+          {t("movementNumber", { number: choiceNumber })}
+        </p>
+      )}
       <div className="transaction-top">
         <span className="merchant-icon">
           <CreditCard size={20} />
         </span>
         <div>
-          <h3>{transaction.merchant ?? t("merchantMissing")}</h3>
+          <h3>
+            {merchant && merchant !== "—" ? merchant : t("merchantMissing")}
+          </h3>
           <p>{config.fixtures ? t("demoProduct") : t("productMissing")}</p>
         </div>
         <ArrowUpRight size={17} className="muted" />

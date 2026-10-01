@@ -861,6 +861,10 @@ h1 {
   margin-top: 15px;
   width: 100%;
 }
+.choice-number {
+  margin: 0 0 8px;
+  font-weight: 650;
+}
 .candidate-grid {
   display: grid;
   gap: 10px;
@@ -1229,6 +1233,13 @@ h1 {
   background: #edf3e5;
   padding: 9px 12px;
   border-radius: 7px;
+}
+.packet-risks {
+  background: #fff4e0;
+}
+.packet-risks h3 {
+  font-size: 13px;
+  margin: 0 0 8px;
 }
 .packet-section {
   padding-top: 20px;
@@ -2127,6 +2138,11 @@ h1 {
 .judge-quickstart h2 {
   font-size: 18px;
   margin: 0 0 6px;
+}
+.quickstart-links {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 16px;
 }
 .judge-quickstart p {
   font-size: 14px;

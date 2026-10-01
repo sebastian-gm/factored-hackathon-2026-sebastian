@@ -20,12 +20,13 @@ class ModelSpec:
     price_ceiling: tuple[float, float] | None = None
     provider_only: tuple[str, ...] = ()
     max_output_tokens: int = 1024
+    max_tokens_parameter: Literal["max_tokens", "max_completion_tokens"] = "max_tokens"
     reasoning_effort: Literal["max", "xhigh", "high", "medium", "low", "minimal", "none"] | None = (
         None
     )
     timeout_seconds: int = 20
-    # Hedge provider latency outliers: a slow first attempt is abandoned early and
-    # the bounded second attempt uses the full timeout (post-v3 latency analysis).
+    # Sequential retry: the slow first attempt has a shorter timeout and the
+    # second uses the full limit. This does not launch a concurrent hedge.
     first_attempt_timeout_seconds: int | None = None
 
 
@@ -70,6 +71,28 @@ class CallRecord:
 
 class ModelFailure(RuntimeError):
     """A model response cannot be trusted; caller should use the deterministic path."""
+
+
+class ProviderFailure(ModelFailure):
+    """Safe error-envelope category and normalized billing; never provider prose."""
+
+    def __init__(
+        self,
+        *,
+        response: ProviderResponse,
+        status_code: int | None = None,
+        malformed: bool = False,
+    ) -> None:
+        super().__init__("Provider returned an error or malformed response")
+        self.response = response
+        self.status_code = (
+            status_code
+            if isinstance(status_code, int)
+            and not isinstance(status_code, bool)
+            and 400 <= status_code <= 599
+            else None
+        )
+        self.malformed = malformed
 
 
 class BudgetFailure(ModelFailure):

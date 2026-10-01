@@ -14,6 +14,26 @@ from scripts.pre_v4_budget import SCOPE as DEV_SCOPE
 
 CAP = Decimal("0.10")
 CEILING = Decimal("12.00")
+DEV_CAP = Decimal("1.00")
+
+
+def check_exposure(total: Decimal, dev_charged: Decimal) -> Decimal:
+    """Include pre-v4 spend inside its full allowance, retaining every reserve."""
+    if (
+        not total.is_finite()
+        or not dev_charged.is_finite()
+        or dev_charged < 0
+        or dev_charged > DEV_CAP
+        or total < dev_charged
+    ):
+        raise RuntimeError("Invalid cumulative or pre-v4 exposure")
+    # Align pre_v4_budget.receipt: its prior excludes current pre-v4 charges,
+    # then includes that purse's entire $1 (spent + still available). Comparison
+    # charges AND its full future allowance remain conservatively included.
+    maximum = total - dev_charged + DEV_CAP + MODEL_COMPARE_CAP + Decimal("3") + CAP * 2
+    if maximum > CEILING:
+        raise RuntimeError("Cumulative exposure plus dev, v4 and both smoke caps exceeds approval")
+    return maximum
 
 
 def run_id(kind: str, sha: str) -> str:
@@ -32,17 +52,15 @@ def verify(dsn: str, kind: str, sha: str, *, prepare: bool = False) -> dict:
             raise RuntimeError("Ordinary production daily breaker changed or disabled")
         scopes = (*PRIOR_SCOPES, DEV_SCOPE, MODEL_COMPARE_SCOPE, "production")
         row = connection.execute(
-            "SELECT coalesce(sum(charged_usd),0) FROM llm.reservations WHERE scope=ANY(%s)",
-            (list(scopes),),
+            "SELECT coalesce(sum(charged_usd),0),"
+            "coalesce(sum(charged_usd) FILTER(WHERE scope=%s),0) "
+            "FROM llm.reservations WHERE scope=ANY(%s)",
+            (DEV_SCOPE, list(scopes)),
         ).fetchone()
         assert row is not None
-        # Full future allowances retained even when a smoke/dev purse has some
-        # spend: conservative headroom, never a reset or a discount for unknowns.
-        maximum = row[0] + Decimal("1") + MODEL_COMPARE_CAP + Decimal("3") + CAP * 2
-        if maximum > CEILING:
-            raise RuntimeError(
-                "Cumulative exposure plus dev, v4 and both smoke caps exceeds approval"
-            )
+        # Both sums use one snapshot. This is only arithmetic: no reservation,
+        # charge, allowance, policy or unknown-cost classification is changed.
+        maximum = check_exposure(row[0], row[1])
         if prepare:
             connection.execute(
                 "INSERT INTO llm.runs VALUES('production',%s,%s,true) ON CONFLICT DO NOTHING",
@@ -72,6 +90,7 @@ def verify(dsn: str, kind: str, sha: str, *, prepare: bool = False) -> dict:
             "charged_with_reserves_usd": float(usage[2]),
             "unknown_cost_attempts": usage[3],
             "all_prior_charged_with_reserves_usd": float(row[0]),
+            "pre_v4_charged_with_reserves_usd": float(row[1]),
             "conservative_maximum_cumulative_usd": float(maximum),
         }
 

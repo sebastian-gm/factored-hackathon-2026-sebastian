@@ -107,6 +107,9 @@ for (const pt of [false, true]) {
     );
     await login(page, pt, true);
     await page.locator(".queue-item").click();
+    // Authored fixture deadlines keep their bank-clock basis even when the
+    // workstation is months later; the live-clock correction must not alter it.
+    await expect(page.locator(".sla-countdown")).toContainText("6h 0m");
     await rail(page);
     await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
     await rail(page);

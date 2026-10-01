@@ -20,6 +20,7 @@ from typesafe_sdk import RetryPolicy, TypeSafeClient
 from aclara.agent.contracts import Intent, NluFrame
 from aclara.agent.nlg.grounding import redact_for_model, scan_dlp
 from aclara.agent.nlu.rules import classify_nlu, normalize_text
+from aclara.agent.nlu.transaction_types import normalize_transaction_type
 from aclara.agent.nlu.word_amounts import parse_word_amount
 from aclara.llm.client import StructuredClient
 from aclara.llm.prompts import data_block, load_prompt
@@ -264,12 +265,18 @@ def parse_relative_date(expression: str | None, bank_clock: datetime) -> tuple[d
         "dezembro": 12,
     }
     stated = re.fullmatch(
-        r"(?:(?:el|del|dia|do dia) )?(\d{1,2}) de ([a-z]+)(?: (?:de )?(20\d{2}))?",
+        r"(?:(?:el|del|dia|do dia) )?(\d{1,2}|[a-z]+(?: [a-z]+)*) de "
+        r"([a-z]+)(?: (?:de )?(20\d{2}))?",
         plain.strip(" .,!¿?¡"),
     )
     if stated and stated[2] in months:
+        if _SPOKEN_UNIT.search(stated[1]):
+            return None  # Amount units cannot turn an ill-formed phrase into a date.
+        day_value = int(stated[1]) if stated[1].isdigit() else parse_word_amount(stated[1])
+        if day_value is None or not 1 <= day_value <= 31:
+            return None
         try:
-            day = date(int(stated[3] or business_day.year), months[stated[2]], int(stated[1]))
+            day = date(int(stated[3] or business_day.year), months[stated[2]], int(day_value))
         except ValueError:
             return None
         if stated[3] is None and day > business_day:
@@ -289,7 +296,7 @@ def _fallback_recognition(message: str) -> Literal["recognized", "denied", "unsu
             r"sigo sin reconocer|quiero (?:disput|desconoc|reclam)|"
             r"(?:abr|pid).*disputa|nao fui eu|nao passei|nao autorizei|"
             r"nao comprei|ainda nao reconheco|quero contestar)\b",
-            plain,
+            _DECLINED_OFFER.sub("", plain),
         )
     )
     recognized = bool(
@@ -335,6 +342,14 @@ _EXPLICIT_DENIAL_CUE = re.compile(
 _FILING_REQUEST_CUE = re.compile(
     r"\b(?:quiero (?:disputar|contestar|reclamar|abrir (?:una )?disputa)|"
     r"quero (?:contestar|reclamar|abrir (?:uma )?contestacao))\b"
+)
+_DECLINED_OFFER = re.compile(
+    r"\b(?:prefiero no|no quiero|prefiro nao|nao quero) "
+    r"(?:abrir|iniciar|presentar|registrar|seguir con|continuar con) "
+    r"(?:(?:una|la|uma|a) )?(?:disputa|reclamo|reclamacion|contestacao)\b"
+)
+_SPOKEN_UNIT = re.compile(
+    r"\b(?:lucas?|palos?|contos?|pila|varos?|lana|pesos?|reais|dolares?|usd|brl|cop|ars|mxn)\b"
 )
 _CHARGE_TERM = r"(?:cargo|cobro|cobranza|cobranca|consumo|compra|lancamento|debito|transacao)"
 _CHARGE_ARTICLE = r"(?:(?:este|esta|ese|esa|el|la|los|las|un|una|o|a|os|as|um|uma|esse|essa) )?"
@@ -439,6 +454,19 @@ def postprocess(
     awaiting_recognition: bool = False,
     message: str | None = None,
 ) -> NluResult:
+    # Declining an offer is not a claim that the customer made the purchase.
+    # Cancellation itself remains the state machine's responsibility. Preserve
+    # actual recollection when the same message also declines filing.
+    if (
+        awaiting_recognition
+        and message is not None
+        and extracted.recognition == "recognized"
+        and _DECLINED_OFFER.search(normalize_text(message))
+        and _fallback_recognition(message) != "recognized"
+    ):
+        extracted = extracted.model_copy(
+            update={"recognition": "unsure", "customer_confirms": None}
+        )
     language = extracted.language
     intent = _INTENT_MAP[extracted.intent]
     confidence = extracted.intent_confidence
@@ -484,22 +512,16 @@ def postprocess(
         extracted = extracted.model_copy(update={"unfamiliar_charge": unfamiliar_charge})
     public_language: Literal["es", "pt"] = "pt" if language == "pt" else "es"
     currency, ambiguous = resolve_currency(extracted.currency_expr, country)
+    if not extracted.currency_expr and _SPOKEN_UNIT.search(
+        normalize_text(extracted.amount_expr or "")
+    ):
+        # Reuse only units present in the extracted spoken amount. Do not infer
+        # a currency from the country, merchant, or an unqualified number.
+        currency, ambiguous = resolve_currency(extracted.amount_expr, country)
     dates = parse_relative_date(extracted.date_expr, bank_clock)
-    transaction_type = extracted.type_expr
-    # A generic word for "charge" is not a transaction type. MATCH compares this
-    # slot against concrete ledger types, so passing one makes a named charge look
-    # less certain and can force an unnecessary choice.
-    if normalize_text(transaction_type or "").strip() in {
-        "cargo",
-        "cargos",
-        "cobro",
-        "cobros",
-        "cobranca",
-        "cobrancas",
-        "charge",
-        "charges",
-    }:
-        transaction_type = None
+    # MATCH compares exact ledger enums. Preserve the raw expression for audit,
+    # but only pass a canonical kind or missing evidence into its unchanged model.
+    transaction_type = normalize_transaction_type(extracted.type_expr)
     slots = NormalizedSlots(
         amount_value=parse_amount(extracted.amount_expr, country),
         currency=currency,
@@ -589,6 +611,10 @@ def _record_risk_opinion(
         else "skipped",
         attempt=1,
         judgments={
+            "primary_model_id": client.models["nlu"].model_id,
+            "primary_raw_flags": gemini_flags,
+            # Keep the historical key for record readers. The additive primary
+            # identity/flags above identify a development challenger correctly.
             "gemini_raw_flags": gemini_flags,
             # Prompt v4 requests booleans; it exposes no per-cue Gemini probabilities.
             "gemini_raw_probabilities": {cue: None for cue in RISK_CUES},
@@ -648,9 +674,9 @@ def understand(
             data_block("customer_message", redact_for_model(message)),
         )
     )
-    real_route = (
-        client.models["nlu"].provider not in {"mock", "recorded"}
-        and client.models["nlu"].model_id == "google/gemini-3-flash-preview"
+    real_route = client.models["nlu"].provider not in {"mock", "recorded"} and (
+        client.models["nlu"].model_id == "google/gemini-3-flash-preview"
+        or client.risk_second_opinion_enabled
     )
     future: Future[TypedJudgments] | None = None
     executor: ThreadPoolExecutor | None = None

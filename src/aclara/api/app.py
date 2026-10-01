@@ -25,6 +25,7 @@ from aclara.agent.contracts import ResponsePlan, TransactionView
 from aclara.agent.conversation import (
     changes_target,
     classify_request,
+    declines_dispute,
     recognizes_charge,
     risk_reasons,
     unfamiliar_charge,
@@ -45,7 +46,7 @@ from aclara.agent.runtime import InjectedFailure, Runtime
 from aclara.agent.selection import candidates as identified_candidates
 from aclara.agent.selection import explicit_choice, scoped_inquiry_language, uncertain
 from aclara.api.judge_access import judge_alias
-from aclara.api.staff import complete_packet, install_staff
+from aclara.api.staff import complete_packet, install_staff, verify_handoff_commit
 from aclara.api.staff_contracts import IdentityView
 from aclara.api.workflows import (
     fraud_handoff,
@@ -142,6 +143,8 @@ class Conversation:
     # Legal/distress cues seen during cross-customer attempts; the security
     # handoff must retain them (ADR-0015 §3-4).
     security_cues: list[str] = field(default_factory=list)
+    # A scoped, identified movement, never an unresolved MATCH candidate.
+    selected_handle: str | None = None
 
 
 class StrictModel(BaseModel):
@@ -222,10 +225,16 @@ def _explanation(language: str, row: Transaction, reason: str) -> str:
             f"El cargo de {amount} en {row.merchant_name} figura como rechazado; no hubo movimiento de dinero.",
             f"A cobrança de {amount} em {row.merchant_name} aparece como recusada; não houve movimentação de dinheiro.",
         )
+    status = {
+        "Approved": ("aprobado", "aprovada"),
+        "Pending": ("pendiente", "pendente"),
+        "Reversed": ("reversado", "estornada"),
+        "Declined": ("rechazado", "recusada"),
+    }.get(row.transaction_status, ("no disponible", "não disponível"))[language == "pt"]
     return _localized(
         language,
-        f"El registro muestra {amount} en {row.merchant_name}, con estado {row.transaction_status.lower()}.",
-        f"O registro mostra {amount} em {row.merchant_name}, com status {row.transaction_status.lower()}.",
+        f"El registro muestra {amount} en {row.merchant_name}, con estado {status}.",
+        f"O registro mostra {amount} em {row.merchant_name}, com status {status}.",
     )
 
 
@@ -663,19 +672,7 @@ def create_app(
                     )
                 operational.audit({"action": "verified_commit", "case_id": record["case_id"]})
         if result.get("handoff"):
-            with operational.transaction(scope(principal)):
-                if not app.state.handoffs.get(result["handoff"]["handoff_id"]):
-                    raise HTTPException(status_code=503, detail="Durable handoff read-back failed")
-                result["verified"] = True
-                app.state.executions[str(uuid4())] = {
-                    "conversation_id": conversation_id,
-                    "created_at": datetime.now(UTC).isoformat(),
-                    "events": [
-                        {"event": "verify_readback", "handle": result["handoff"]["handoff_id"]}
-                    ],
-                    "outcome": "handoff_verified",
-                    "policy_version": catalog()[0],
-                }
+            verify_handoff_commit(app, result, principal, conversation_id)
         return result
 
     def safe_failure(
@@ -969,21 +966,24 @@ def create_app(
                     bank_clock=active_settings.bank_clock,
                     awaiting_recognition=True,
                 )
-            if normalize_text(body.message).strip(" .,!¿?¡") in {
-                "cancelar",
-                "cancela",
-                "deixa",
-                "deixa pra la",
-            }:
+            changed = changes_target(body.message, offered_row, nlu.slots)
+            if declines_dispute(body.message) and (
+                is_cancellation(body.message)
+                or not changed
+                and nlu.extracted.recognition != "recognized"
+            ):
                 conversation.offer_handle = None
+                conversation.selected_handle = None
                 conversation.unfamiliar_charge = False
                 conversation.intent = None
+                conversation.slots = None
+                conversation.rounds = 0
+                conversation.recognition_rounds = 0
                 return {
                     "response_type": "cancelled",
                     "outcome": "cancelled",
                     "reply": _localized(language, "Disputa cancelada.", "Contestação cancelada."),
                 }
-            changed = changes_target(body.message, offered_row, nlu.slots)
             recognition = nlu.extracted.recognition
             if normalize_text(body.message).strip(" .,!¿?¡") in {"si", "sim", "no", "nao"}:
                 recognition = "unsure"
@@ -1158,6 +1158,7 @@ def create_app(
                 active_settings,
             )
 
+        conversation.selected_handle = None
         rows = ledger.for_customer(principal.customer_id, active_settings.bank_clock)
         if any(injection(row.merchant_name) for _, row in rows):
             security_event(app, "indirect_prompt_injection")
@@ -1294,19 +1295,7 @@ def create_app(
                     )
                 operational.audit({"action": "verified_commit", "case_id": record["case_id"]})
         if result.get("handoff"):
-            with operational.transaction(scope(principal)):
-                if not app.state.handoffs.get(result["handoff"]["handoff_id"]):
-                    raise HTTPException(status_code=503, detail="Durable handoff read-back failed")
-                result["verified"] = True
-                app.state.executions[str(uuid4())] = {
-                    "conversation_id": conversation_id,
-                    "created_at": datetime.now(UTC).isoformat(),
-                    "events": [
-                        {"event": "verify_readback", "handle": result["handoff"]["handoff_id"]}
-                    ],
-                    "outcome": "handoff_verified",
-                    "policy_version": catalog()[0],
-                }
+            verify_handoff_commit(app, result, principal, conversation_id)
         return result
 
     async def process_confirmation(
@@ -1487,6 +1476,7 @@ def _decide_for_transaction(
     if current is None:
         return make_handoff(app, principal, language, ("DATA-01", "COM-01", "ESC-04"))
     row = current
+    conversation.selected_handle = handle
     is_dispute = intent == Intent.DISPUTE_CHARGE
     context = policy_context(app, principal, row)
     decision = evaluate(
