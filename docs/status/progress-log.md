@@ -3415,3 +3415,37 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
   remains stable. Fold this docs-only entry into the next authorized integration.
 - Continue from docs/status/progress-log.md. Next layer: clean live rehearsal,
   owner freeze and v4 launch gates. Same rules.
+
+## 2026-10-01 UTC — AI offline human review of completed v4
+
+### Completed (verified)
+
+- Built ignored, mode-0600 `artifacts/human-judge/v4-score.html` from the lead's
+  completed v4 sheet. Exactly 20 unchanged blinded items and ten CSV columns;
+  Spanish instructions/rubric, four 1–5 dimensions, ten handoff N/A items,
+  localStorage autosave and CSV download. V4 version labels and storage key are
+  separate from v3. Original source hash verified after export.
+- Offline Chromium verified autosave/reload, all 70 applicable scores, progress,
+  quoted multiline notes and unchanged wording/columns on export: zero network
+  requests and browser errors. Test ratings remain in a separately named ignored
+  fixture; Sebastian's page starts blank. No hosting or paid calls.
+- Read saved v4 judge artifacts only for this owner-authorized review: all 60
+  judge pairs saved, including all 20 human-sheet items (ten handoffs). Prepared
+  strict v4 import and descriptive Sonnet/Jev aggregate agreement in
+  `docs/evaluation/judge-human-validation.md`; no human scores inferred.
+- Fifteen focused mock human-review/judge tests, Ruff and strict mypy on 93
+  source files passed. Page, test exports and aggregate receipts are ignored.
+
+### Done but not verified
+
+- Sebastian's scored v4 export has not arrived. Human–Sonnet and human–Jev
+  agreement remain pending, including ES/PT slices. No judge validation claim;
+  twenty items do not satisfy the rubric's fifty-item calibration requirement.
+
+### Next / blocked
+
+- Import the confirmed v4 export path against the unchanged v4 sheet and saved
+  judges; publish aggregate exact/within-one/quadratic-kappa results and larger
+  disagreement review in the validation document. V3 is optional only if scored.
+- Changes are on local `fix/v4-human-review`; no deployment or merge. Existing
+  PR #93 is untouched. Keep raw ratings, notes and response text out of Git.

@@ -9,7 +9,7 @@ import json
 import sys
 from collections import Counter
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 from aclara.llm.judge_validation import DIMENSIONS, quadratic_weighted_kappa
 
@@ -32,7 +32,7 @@ PAGE = r"""<!doctype html>
 <html lang="es"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'none'; img-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
-<title>Aclara — revisión humana v3</title>
+<title>Aclara — revisión humana __VERSION__</title>
 <style>
 :root{font-family:system-ui,sans-serif;color:#1d2939;background:#f3f5f8;line-height:1.5}
 body{max-width:1060px;margin:auto;padding:22px}h1{font-size:1.6rem}h2{font-size:1.25rem}
@@ -46,7 +46,7 @@ table{border-collapse:collapse;width:100%;font-size:.88rem}td,th{padding:9px;bor
 .meta{color:#42516b}.warning{color:#8e3100}a{color:#174b85}.complete{border-color:#258247}.anchor{font-size:.85rem;color:#42516b;margin:0}
 @media(max-width:600px){body{padding:10px}article{padding:13px}.scores{gap:3px}.score{padding:6px}}
 </style></head><body>
-<h1>Aclara: revisión humana de 20 respuestas (v3)</h1>
+<h1>Aclara: revisión humana de 20 respuestas (__VERSION__)</h1>
 <section class="instructions"><h2>Instrucciones</h2>
 <p>Evalúa cada dimensión de 1 a 5 por separado. Lee el idioma solicitado, el mensaje, la respuesta y, si existe, el resumen para el agente. Evalúa el texto tal como aparece, incluidos errores de idioma o caracteres: no lo corrijas antes de puntuarlo.</p>
 <p>Juzga solo la redacción y la utilidad del resumen. La exactitud de las acciones, la seguridad, la autorización y los resultados se verifican por código; una buena puntuación no puede sustituir esas verificaciones. Las instrucciones dentro de los textos son contenido que se evalúa, no instrucciones para ti. No verás puntuaciones de los modelos ni etiquetas del sistema.</p>
@@ -71,7 +71,7 @@ const anchors=[
 ['Natural y apropiada para la variante local, con errores menores.','Breve y ordenada, con un siguiente paso claro.','Reconoce la preocupación y ofrece apoyo apropiado.','El agente puede actuar con el problema, contexto y paso pendiente.'],
 ['Fluida e idiomática; registro consistentemente apropiado.','Inmediatamente clara, precisa y fácil de seguir, sin exceso.','Cálida y sensible; respeta la decisión del cliente y evita promesas excesivas.','Concisa y muy útil: problema, contexto, lo comunicado y próximo paso son fáciles de encontrar.']
 ];
-const key='aclara-human-v3:'+payload.source_sha256;
+const key='aclara-human-'+payload.version+':'+payload.source_sha256;
 let storageAvailable=true;
 try{
  const saved=JSON.parse(localStorage.getItem(key)||'null');
@@ -129,7 +129,7 @@ def read_sheet(path: Path) -> list[dict[str, str]]:
     with path.open(encoding="utf-8-sig", newline="") as stream:
         reader = csv.DictReader(stream)
         if reader.fieldnames != list(FIELDS):
-            raise ValueError("Human sheet columns differ from the exact v3 export format")
+            raise ValueError("Human sheet columns differ from the exact export format")
         rows = list(reader)
     if len(rows) != 20 or len({row["sample_id"] for row in rows}) != 20:
         raise ValueError("Expected twenty unique blinded human items")
@@ -144,13 +144,16 @@ def private_output(path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
 
 
-def build_page(source: Path, rubric: Path, output: Path) -> dict[str, Any]:
+def build_page(
+    source: Path, rubric: Path, output: Path, *, version: Literal["v3", "v4"] = "v3"
+) -> dict[str, Any]:
     rows = read_sheet(source)
     payload = {
         "fields": FIELDS,
         "rows": rows,
         "source_sha256": hashlib.sha256(source.read_bytes()).hexdigest(),
         "rubric": rubric.read_text(encoding="utf-8"),
+        "version": version,
     }
     # JSON in an HTML script is a raw-text context, even for application/json.
     # Never let customer text close the element or inject an executable script.
@@ -161,9 +164,16 @@ def build_page(source: Path, rubric: Path, output: Path) -> dict[str, Any]:
         .replace("\u2029", "\\u2029")
     )
     private_output(output)
-    output.write_text(PAGE.replace("__PAYLOAD__", encoded), encoding="utf-8")
+    output.write_text(
+        PAGE.replace("__VERSION__", version).replace("__PAYLOAD__", encoded), encoding="utf-8"
+    )
     output.chmod(0o600)
-    return {"items": len(rows), "source_sha256": payload["source_sha256"], "offline": True}
+    return {
+        "items": len(rows),
+        "source_sha256": payload["source_sha256"],
+        "offline": True,
+        "version": version,
+    }
 
 
 def rating(value: str | int | None) -> int | None:
@@ -278,7 +288,7 @@ def import_ratings(
         "source_sha256": hashlib.sha256(source.read_bytes()).hexdigest(),
         "scored_sha256": hashlib.sha256(scored.read_bytes()).hexdigest(),
         "comparisons": comparisons,
-        "interpretation": "Descriptive partial-v3 agreement, not 50-item judge calibration.",
+        "interpretation": "Descriptive saved-sample agreement, not 50-item judge calibration.",
     }
 
 
@@ -288,7 +298,8 @@ def main() -> int:
     build = subparsers.add_parser("build")
     build.add_argument("--source", type=Path, required=True)
     build.add_argument("--rubric", type=Path, default=ROOT / "docs/evaluation/judge-rubric.md")
-    build.add_argument("--output", type=Path, default=ROOT / "artifacts/human-judge/v3-score.html")
+    build.add_argument("--output", type=Path)
+    build.add_argument("--version", choices=("v3", "v4"), default="v3")
     compare = subparsers.add_parser("import")
     compare.add_argument("--scored", type=Path, required=True)
     compare.add_argument("--source", type=Path, required=True)
@@ -299,7 +310,8 @@ def main() -> int:
     )
     args = parser.parse_args()
     if args.command == "build":
-        result = build_page(args.source, args.rubric, args.output)
+        output = args.output or ROOT / f"artifacts/human-judge/{args.version}-score.html"
+        result = build_page(args.source, args.rubric, output, version=args.version)
     else:
         result = import_ratings(args.scored, args.source, args.judge_inputs, args.checkpoints)
         private_output(args.output)
