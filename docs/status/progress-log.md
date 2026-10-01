@@ -1,5 +1,25 @@
 # Progress log
 
+## 2026-09-30 PDT — Frontend lane: released Azure rehearsal at 92994d9
+
+### Completed (verified)
+
+- Owner-authorized rehearsal read back both deployed image tags at **92994d933e7e4d4cddbbf988fb4cc748d3cd5db1** (#97). Key Vault demo credentials traveled only through process memory/stdin; screenshot username/password/OTP fields masked, no browser storage state persisted. Used the existing app purse, never this worktree's provider key. No cloud configuration, backend/NLU/policy, frozen suite/gold or evaluation change.
+- **All three quickstart and helper story buttons enabled.** ES neutral inquiry → three choices → explanation; PT shipped inquiry → three choices → explanation → unfamiliarity reopens choices → first re-selection → nonterminal dispute offer → explicit denial → separate confirmation → **new verified case receipt**, independently read back by authenticated GET. Fresh login OTP remained valid; no renewal screen was staged. ES contextual and fresh helper fraud turns each produced a verified FRD-01 primary + AUTH-02 handoff with independent GET read-back.
+- **Ten turns / ten valid Gemini/Jev calls / US$0.008335678 known usage**, zero unknown usage/provider errors/fallbacks; neither `operaci3n` nor English status in any of the ten customer replies. Both Desk SLA counters showed **15d 0h 0m**. Selected-charge handoff displayed one verified fact/evidence record and one verified handoff action; fresh fraud helper correctly had no selected-charge facts and displayed its verified action. Ops showed actual case/handoff verification; fresh deterministic fraud had no model calls. [Aggregate receipt](../submission/video-rehearsal-92994d9.json).
+- **41 views / 82 ignored 0600 PNGs**, directory 0700, private gallery `artifacts/ux-audit/azure-rehearsal-92994d9/index.html`; ES/PT Insights and sources, each conversation step/why drawer, both Desk packets and three Ops traces. Representative images reviewed; all captures have zero overflow and sidebar y=0, zero page errors. Extra Insights pass blocked every POST and used no credential/model. Initial readiness **91.229 s** including startup capture; warm Insights **0.849 s**, no forced cold restart. ES-to-PT harness initially raced asynchronous sign-out; correct PT login captured and ordinary authentication retried before any PT model request, with no duplicate paid turn.
+- Replaced [shot list](../submission/video-shot-list.md) with a final **2:55 edited plan**, exact shipped generic messages/clicks, explicit PT re-selection, context-preserving ES recording order, receipt/no-refund boundaries and per-check private screenshot references. Preserved the prior failed release receipt. Only aggregate documentation and this mandated progress entry changed; raw captures/operational references stay ignored.
+
+### Done but not verified
+
+- Final filmed/exported video, narration synchronization and actual duration remain pending. One live rehearsal is not a quality benchmark or production safety claim. Usage is recorded execution metadata, not a provider invoice; cloud/CI and any future filming are excluded.
+- This rehearsal created one simulated PT case; a later take may show an existing-case status receipt. Do not force a write, erase a case or reset data to stage filming. Missing product/merchant fields retain explicit labels. Fresh unselected fraud does not promise charge facts; the contextual packet verifies their projection.
+
+### Next / blocked
+
+- Publish the aggregate/shot-list PR, require current-head remote CI, leave it unmerged for lead review. Capture startup/login off camera, preserve the observed PT re-selection and selected-charge context, mask organizer/operational fields before export. No further paid rehearsal is needed or planned here.
+- Final recording/export and any deliberate reset remain separate owner work. Keep private captures/diagnostic references local; no frozen suite, gold, B1/P evaluation, freeze, staff claim or resolution was used.
+
 
 ## 2026-09-30 PDT — PR #93 review: enum boundary, merchant citations, private IO (AI)
 
