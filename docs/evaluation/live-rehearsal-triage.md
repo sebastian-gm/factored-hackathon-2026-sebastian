@@ -62,3 +62,26 @@ Commands run from the repository with `LLM_PROVIDER=mock` and real calls disable
 Captured command receipts/logs are ignored under `artifacts/integration/checks/`.
 AI NLG/type-alias fixes, combined remote CI and a new Azure receipt remain pending.
 V4 is unstarted; its rows/selections/bindings remain unopened. Freeze is blocked.
+
+## Round-two review: offer refusal (lead-owned)
+
+The #85 failure breakdown identified a second state-machine issue independent of
+live rehearsal: a polite explicit refusal of filing was accepted by NLU as
+uncertainty, but orchestration recognized only four exact cancellation words.
+A fresh authored mock replay on both B1 and P produced a dispute proposal in ES
+and an out-of-scope handoff in PT, with zero writes. No frozen round-two or v4
+row was inspected or changed to reproduce it.
+
+The generic offered-charge guard now accepts explicit ES/PT filing refusals,
+cancels without success credit, and clears the retained offer/slots. An actual
+recollection in the same reply still ends in explanation; isolated yes/no or
+uncertainty still needs clarification. Security and required human routing retain
+precedence. No confirmation, OTP, write authority, policy or MATCH threshold was
+relaxed. Authored B1/P ES/PT tests include the #85 false-recognition frame and
+restart, and the existing recognition/denial checks remain in the gate.
+
+`pytest tests/test_offer_refusal_state.py tests/test_nlu_round2_regressions.py
+ tests/test_conversation_v3.py`: **50 passed**, mock only. This does not establish
+a fresh real-model pass rate. The broader compound concerns, descriptive
+candidate replies and two-round language-limit conflicts listed in the AI study
+remain limitations; this small repair does not claim to solve them.

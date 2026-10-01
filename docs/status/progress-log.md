@@ -2683,3 +2683,42 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
 - Lead reviews #85; finish separate main-target NLG corruption/status-label and
   transaction-kind normalization PR with zero-cost saved-dev replay. Fee aliases
   map to Adjustment per owner confirmation. No held-out v4 access or merge.
+
+## 2026-10-01 UTC — local pre-v4 integration and offer-refusal repair
+
+### Completed (verified)
+
+- Private stacked PR #90 holds the live rehearsal lead fixes; #91 holds the free
+  credit preflight and exact launch commands. Combined with reviewed #85 head
+  `83be371` on `integration/pre-v4-freeze`, base main `2dfa504`; main unchanged.
+  Merge conflicts were progress-log appends only; preserved both histories.
+- #85's `provider_402` bypass is repaired; authored known-cost error-envelope
+  checks prove stop before retry/fallback. No paid comparison resumed. Production
+  remains v5.1/Gemini; partial comparison does not establish a challenger choice.
+- Combined local Python suite: 579 passed / 22 skipped (aggregate progress marks);
+  disposable Postgres: 30 passed. Pre-commit, web typecheck, lint and build exited
+  0. Local receipts: ignored `artifacts/integration/checks/pre-v4-combined-*`.
+- Independently reproduced the lead-owned polite offer-refusal bug using fresh
+  authored mock messages: ES proposed a dispute; PT handed off out of scope;
+  neither wrote. Generic offered-state cancellation now handles explicit polite
+  refusals, keeps actual recollection as explanation and preserves isolated-assent
+  clarification. Fifty relevant authored B1/P ES/PT checks passed, including
+  restart. No frozen row/gold or threshold changes; no paid calls or Azure changes.
+
+### Done but not verified
+
+- New offer-refusal repair still needs final hooks/publication/integration. Full
+  browser/live API gates on the combined head are running; remote CI deferred to
+  the complete candidate so it runs once. Azure remains the previous release.
+- AI live NLG guard and transaction-kind alias fixes, frontend story-button triage
+  pending. Round-two compound-request/descriptive-choice/language-limit problems
+  remain disclosed limitations; no fresh real gate claimed for those families.
+
+### Next / blocked
+
+- Integrate the forthcoming reviewed AI/frontend rehearsal fixes; run one combined
+  remote CI before main merge and approved release. Estimate/obtain GO before any
+  new real-model smoke. Keep v4 rows, selections and bindings unopened/unstarted.
+- V4 freeze remains pending closure of live blockers and owner confirmation.
+  Continue from docs/status/progress-log.md. Next layer: close live rehearsal
+  blockers, combined release, then v4 launch gates. Same rules.
