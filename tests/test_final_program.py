@@ -152,6 +152,7 @@ def test_results_cover_protocol_and_repeated_pairs(tmp_path, monkeypatch):
         "price_table_dates": {},
         "cost_assumptions": "mock",
         "monthly_infrastructure_estimate_usd": 34.63,
+        "preflight_disclosure": "Authored preflight stop: zero cases and zero spend; same purse.",
     }
     scores = {"language_register": 4, "clarity": 4, "empathy": 4, "handoff_usefulness": None}
     ratings = [
@@ -168,3 +169,4 @@ def test_results_cover_protocol_and_repeated_pairs(tmp_path, monkeypatch):
     assert result["paired_comparison"]["flip_rate"]["count"] == 0
     assert result["judges"]["frozen"]["paired"] == 1
     assert "Price-table dates" in (tmp_path / "results.md").read_text()
+    assert header["preflight_disclosure"] in (tmp_path / "results.md").read_text()

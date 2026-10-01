@@ -1,5 +1,102 @@
 # Progress log
 
+## 2026-10-01 UTC — authorized eval-only v4 preflight recovery
+
+### Completed (verified)
+
+- Orchestrator authorized an eval-only adapter, authored regressions, fresh-SHA
+  identical-image re-verification and a fresh start exception under the SAME $3
+  lifetime scope. Preserved attempt 1 as `artifacts/final-program-v4-attempt1`,
+  including KeyError stop and live $0 budget receipt; no system checkpoints.
+- Read only the author-provided schema vocabulary (field names/types, zero IDs).
+  V4 declares `case_ids`, `purpose`, `selection`; v3 declares `scenario_ids`,
+  `method`, `n`. Adapter validates both exact envelopes, field types, 30 unique
+  members, membership and declared/actual category/language strata. No frozen
+  file or binding changes, and no product/prompt/config change.
+- Authored `pytest` runner/adapter/rehearsal checks: **50 passed**; Ruff, strict
+  mypy and compilation passed. No frozen selection file was executed for testing.
+- First recovery CI exposed the pre-existing minimal legacy selection fixture: the
+  full local replay confirmed exactly one failure (790 passed / 22 skips). Updated
+  that authored fixture to the declared v3 envelope; count comparisons now correctly
+  handle declared zero strata. Targeted legacy/adapter/runner checks: **55 passed**.
+  Corrected full local suite: **791 passed / 22 optional DB skips**.
+  Corrected-head remote CI remains required.
+- Added preflight-recovery disclosure to JSON and Markdown result generation.
+  The standalone selection parser rejected by automatic review was not executed;
+  frozen selection parsing remains inside the authorized program.
+
+### Done but not verified
+
+- Fresh remote CI and final-SHA Azure re-verification are pending. Fresh v4 has not started; no metric or agreement result exists.
+
+### Next / blocked
+
+- Publish one recovery PR for required CI; after green merge, verify identical
+  images/access and regenerate acceptance receipt. Reprepare without resetting
+  `final-evaluation-v4 / final-program-v4`, recheck credits/local serving, then
+  start the authorized fresh program once. Resume only thereafter; product freeze
+  and cumulative ≤ $12 remain in force.
+
+
+## 2026-10-01 UTC — v4 release verified; initial program stopped in preflight
+
+### Completed (verified)
+
+- Final integration #99 merged after its one remote run passed all four checks.
+  #64 and #98 are recorded merged. Main and origin/main are clean at
+  **791e774a518292e0cc143d4d3bdb69f5056bf461**. Exact-main CI 36812214694,
+  safety 36812214691 and outside-network azure-access 36813008449 passed.
+- Retagged accepted 92994d9 API/web images; registry readbacks prove identical
+  digests. Reviewed Terraform apply: 0 added / 2 updated / 0 destroyed; only
+  image/release identity changed. Min replicas 0, ingress, resources, identities,
+  secrets and prior smoke binding unchanged. Live estimate remains $34.63/month.
+- `scripts.azure_verify`, GET-only story hints and authenticated identity/clock/
+  masked transaction reads passed. The private helper initially assumed a customer
+  role and a standalone clock route; corrected it to the configured persona role
+  and bank clock within `/me`. No product change or paid call. Fresh ignored
+  `jev-release.json` has three flags true at final SHA, explicitly reusing the
+  real/browser smoke at byte-identical product 92994d9.
+- Manifest and authorized ignored 0600 bindings match frozen provenance pins.
+  Local serving metadata confirms `aclara_app`, promoted bank clock and forced
+  customer/product/transaction RLS. Authored runner tests, Ruff, compilation and
+  commit hooks passed; no frozen rows, IDs or author-tool contents displayed.
+- `scripts.final_budget --prepare --suite test-v4` closed prior scopes preserving
+  every reserve and created exactly `final-evaluation-v4 / final-program-v4`,
+  $3 lifetime. Fresh maximum: **$7.016418 prior + $3 + $0.10 + $0.10 =
+  $10.216418 ≤ $12**. Free `scripts.openrouter_preflight`: account $9.642788954,
+  key $5.786554, each ≥ $4. Local-serving `final_program prepare` passed.
+- Invoked the authorized detached launcher under nohup. The first outer shell
+  exited before Python entered (no launch/spend); the synchronous launcher then
+  created the actual detached worker and immutable launch receipt. The worker
+  stopped with **KeyError**, after 100-case structural/identity/ownership preflight
+  passed but before any system checkpoint or model call. No worker remains.
+  Live durable readback: **0 attempts, $0 known/charged, 0 unknown** in v4.
+- Preserved `artifacts/final-program-v4/` including launch, stop and budget receipts.
+  Read only aggregate worker metadata/code locations. Zero-cost loader diagnosis
+  passed; the next selection interface is the likely failure site. An attempted
+  standalone selection-parser diagnostic was **rejected by automatic approval
+  review** because it would read frozen selection IDs outside the runner; it did
+  not execute. No bypass, main/product/suite/binding edit or paid retry occurred.
+
+### Done but not verified
+
+- V4 system/repeat/judge/report phases have not run: **0/260 system runs** and no
+  `results.json` or human sheet. No pass, SAR, safety or agreement claim is available.
+- Exact missing selection field is unconfirmed; model has seen no selected IDs,
+  scenario text, binding values, case outcomes or author tool contents.
+
+### Next / blocked
+
+- Asked the orchestrator for author-supplied aggregate selection JSON field names
+  only, and approval for an eval-only interface fix if required. Such a fix changes
+  the SHA, so a fresh verified release and explicit exception to resume-only would
+  be required; preserve the attempted directory and the same $3 lifetime budget.
+- Keep accepted main at 791e774 unchanged. This documentation is on a separate
+  branch; no merge or second start/resume is authorized by this status entry.
+- Continue from docs/status/progress-log.md. Next layer: resolve v4 preflight
+  interface under owner approval, then the pinned final program. Same rules.
+
+
 ## 2026-10-01 UTC — feature freeze and final v4 integration
 
 ### Completed (verified)

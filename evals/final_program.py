@@ -344,6 +344,11 @@ def main(output: Path, sha: str, spec: ProgramSpec = V3) -> None:
                 "frontier_enabled": False,
                 "judge_planned": {"calibration": 0, "frozen": 60},
                 "disclosure": "Candidate fixes use seen prior evaluations and dev evidence; prior official results remain unchanged; this suite is independent",
+                "preflight_disclosure": (
+                    "V4 attempt 1 passed structural and identity/ownership preflight, then stopped with KeyError before systems: 0 cases, 0 paid attempts, USD 0. Its directory and stop receipt are preserved as final-program-v4-attempt1. The owner authorized an evaluation-only selection-interface fix and fresh start under the same USD 3 lifetime scope; product, prompts, config and frozen inputs are unchanged."
+                    if spec.suite == "test-v4" and not spec.rehearsal
+                    else None
+                ),
                 "model": "google/gemini-3-flash-preview + jev-1.13.0 risk union",
                 "resolved_models": {
                     k: asdict(v) for k, v in load_models(ROOT / "config/models.yaml").items()

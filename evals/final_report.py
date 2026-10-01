@@ -201,6 +201,8 @@ def write_report(
         + " before tax.",
         "",
     ]
+    if header.get("preflight_disclosure"):
+        sections.extend(["**Preflight recovery:** " + header["preflight_disclosure"], ""])
     for name, value in result.items():
         if name == "header":
             continue

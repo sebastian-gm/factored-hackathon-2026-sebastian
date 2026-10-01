@@ -47,6 +47,23 @@ Exact commands and immutable resume rules:
 Submission warm replicas, judge ingress/publication and resource changes need
 Sebastian's separate submission-day approval; they are not enabled by this list.
 
+## Authorized preflight recovery — 2026-10-01 UTC
+
+Attempt 1 passed structural and identity/ownership preflight, then stopped with
+`KeyError` before systems (0 cases, 0 paid attempts, $0). Preserved unchanged as
+`artifacts/final-program-v4-attempt1`, including its stop and durable-budget
+receipts. No row text, selected IDs, binding values or outcomes were displayed.
+
+The orchestrator explicitly authorized an **eval-only selection-interface fix**
+with authored tests and an exception to resume-only: after green CI and a fresh
+identical-image release verification at the new SHA, **start once in the fresh
+`artifacts/final-program-v4` directory**, retaining the SAME `final-evaluation-v4`
+/ `final-program-v4` $3 lifetime scope. Preparation is idempotent and must not
+reset charges, reservations or the run cap. Results disclose the preflight stop.
+The field schema must come from the author as names/types only; no selection
+content is opened for the fix. After this fresh start, use resume only on stops.
+Product/prompt/config and all frozen suite/binding bytes remain unchanged.
+
 ## Exact local-serving launch commands
 
 Run from the repository root. This helper constructs the non-owner local serving
