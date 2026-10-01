@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import sys
 from collections import Counter
 from dataclasses import asdict
@@ -24,6 +25,17 @@ from aclara.bank.repository import Transaction
 
 def _json(path: Path) -> dict[str, Any]:
     return dict(json.loads(path.read_text(encoding="utf-8")))
+
+
+def _write_private_json(path: Path, payload: dict[str, Any]) -> None:
+    """Create a new owner-only snapshot; never expose bytes before chmod."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    with os.fdopen(descriptor, "w", encoding="utf-8") as stream:
+        # Preserve exactly 0600 even under a umask that removes owner rights.
+        os.fchmod(stream.fileno(), 0o600)
+        json.dump(payload, stream, ensure_ascii=False, indent=2)
+        stream.write("\n")
 
 
 def _source_kind(path: Path) -> str:
@@ -171,8 +183,7 @@ def freeze(sources: list[Path], output: Path) -> dict[str, Any]:
             digest.update((root / "calls.jsonl").read_bytes())
     pins = _pins()
     payload = {"source_digest": digest.hexdigest(), "matcher_pins": pins, "cases": frozen}
-    output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    _write_private_json(output, payload)
     return {
         "frozen_cases": len(frozen),
         "baseline_sha256": hashlib.sha256(output.read_bytes()).hexdigest(),
@@ -305,9 +316,7 @@ def main() -> None:
         result = compare(args.baseline)
         if args.report is None or args.report.exists():
             raise ValueError("Use a new private report path")
-        args.report.write_text(
-            json.dumps(result, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
-        )
+        _write_private_json(args.report, result)
     sys.stdout.write(
         json.dumps(
             {key: value for key, value in result.items() if key != "private_details"}, indent=2

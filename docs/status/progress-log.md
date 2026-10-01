@@ -1,5 +1,25 @@
 # Progress log
 
+## 2026-09-30 PDT — PR #93 review: enum boundary, merchant citations, private IO (AI)
+
+### Completed (verified)
+
+- Authored ES/PT regressions reproduced all three review findings: **19 failures** before correction. Added generic snake_case rejection (including future/private names) and complete response-plan literal coverage alongside the English-enum guard. The original `operaci3n` bypass remains rejected.
+- Merchant exemptions and grounding require a sourced, cited **merchant** fact; citing status/type=Approved/Pending/Purchase cannot authorize that merchant. Genuinely cited same-named English merchants remain valid. Updated the legacy composite-fact unit with an explicit merchant citation; no production interface changed.
+- Baseline/report JSON now use exclusive creation at **0600**, with owner rights set before writing bytes, independent of umask. Regression checks cover both writers, permissive/restrictive umasks and existing-file protection. Tightened the three existing local replay snapshots to 0600 and verified unchanged content hashes, including the original frozen baseline.
+- No paid call, saved-dev rerun, serving read or v4 access. NLU, prompt hashes, matcher and original dev measurements remain unchanged. Local verification: **330 focused mock tests**, Ruff, strict mypy (90 source files), compile, frozen interfaces and working-tree data/secret/size policy pass. Prior-head remote CI was green; the new head must pass its own CI.
+
+### Done but not verified
+
+- Azure deployment/live acceptance remains lead-owned and unverified for these source changes. No new model-output quality claim.
+- New-head private push and main-target remote CI are reported on #93 after completion; this entry is written before publication.
+
+### Next / blocked
+
+- Push the correction to #93, require all new-head CI green, leave merge to the lead. AI folders plus authored tests/docs/session log only; no default, policy, interface or deployment edits.
+- No more comparison/model spending. Human CSV is still pending owner confirmation; do not open v4.
+
+
 ## 2026-09-30 PDT — Live ES/PT integrity and canonical transaction kinds (AI)
 
 ### Completed (verified)

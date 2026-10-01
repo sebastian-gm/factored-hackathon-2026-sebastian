@@ -585,12 +585,21 @@ def test_generic_charge_expression_keeps_named_pending_match_decisive() -> None:
 
 
 def test_grounding_and_dlp_force_template_fallback() -> None:
-    facts = (AllowedFact(id="F1", value="USD 250.00 Mercado Verde txn_2", source="fixture"),)
+    facts = (
+        AllowedFact(id="F1", value="USD 250.00 Mercado Verde txn_2", source="fixture"),
+        AllowedFact(id="merchant", value="Mercado Verde", source="fixture"),
+    )
     assert verify_draft(
-        "Vi USD 250.00 em Mercado Verde.", ["F1"], facts, known_merchants=("Mercado Verde",)
+        "Vi USD 250.00 em Mercado Verde.",
+        ["F1", "merchant"],
+        facts,
+        known_merchants=("Mercado Verde",),
     ).safe
     unsafe = verify_draft(
-        "Vi USD 900.00 em Mercado Verde.", ["F1"], facts, known_merchants=("Mercado Verde",)
+        "Vi USD 900.00 em Mercado Verde.",
+        ["F1", "merchant"],
+        facts,
+        known_merchants=("Mercado Verde",),
     )
     assert "uncited_number" in unsafe.violations
     assert "uncited_number" in verify_draft("Vi USD 25.00.", ["F1"], facts).violations

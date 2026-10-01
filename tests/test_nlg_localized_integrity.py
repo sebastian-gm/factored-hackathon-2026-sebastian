@@ -25,6 +25,83 @@ def test_reported_digit_and_english_status_leak_is_rejected() -> None:
 
 
 @pytest.mark.parametrize(
+    "identifier",
+    [
+        "awaiting_dispute_decision",
+        "offer_dispute",
+        "choose_transaction",
+        "handoff_created",
+        "dispute_proposed",
+        "NEW_MACHINE_STATE",
+        "pending_authorization",
+        "_awaiting_dispute_decision",
+        "_handoff__created_",
+    ],
+)
+@pytest.mark.parametrize("language", ["es", "pt"])
+def test_machine_identifiers_are_rejected_even_when_cited(identifier: str, language: str) -> None:
+    text = f"El estado es {identifier}." if language == "es" else f"O status é {identifier}."
+    fact = AllowedFact("state", identifier, "code_approved_state")
+    for citations, facts in [([], ()), (["state"], (fact,))]:
+        verdict = verify_draft(text, citations, facts)
+        assert not verdict.safe and "unlocalized_enum" in verdict.violations
+
+
+def test_all_response_contract_literals_are_internal_prose() -> None:
+    properties = ResponsePlan.model_json_schema()["properties"]
+    literals = set(properties["response_type"]["enum"]) | set(properties["outcome"]["enum"])
+    for literal in literals:
+        verdict = verify_draft(f"El estado es {literal}.", [], ())
+        assert not verdict.safe, literal
+
+
+@pytest.mark.parametrize("language", ["es", "pt"])
+@pytest.mark.parametrize(
+    ("name", "fact_id"),
+    [("Approved", "status"), ("Pending", "status"), ("Purchase", "transaction_type")],
+)
+def test_status_or_type_citation_cannot_authorize_a_same_named_merchant(
+    language: str,
+    name: str,
+    fact_id: str,
+) -> None:
+    facts = (
+        AllowedFact("merchant", name, "scoped_transaction_read"),
+        AllowedFact(fact_id, name, "scoped_transaction_read"),
+    )
+    text = f"El cargo de {name}." if language == "es" else f"A cobrança em {name}."
+    verdict = verify_draft(text, [fact_id], facts, known_merchants=(name,))
+    assert not verdict.safe and "uncited_merchant" in verdict.violations
+
+
+@pytest.mark.parametrize("language", ["es", "pt"])
+@pytest.mark.parametrize("name", ["Approved", "Pending", "Purchase"])
+def test_same_named_english_merchant_is_valid_with_its_own_citation(
+    language: str, name: str
+) -> None:
+    facts = (AllowedFact("merchant", name, "scoped_transaction_read"), status_fact())
+    text = (
+        f"El cargo de {name} está aprobado."
+        if language == "es"
+        else f"A cobrança em {name} está aprovada."
+    )
+    assert verify_draft(text, ["merchant", "status"], facts, known_merchants=(name,)).safe
+
+
+def test_merchant_citation_is_required_without_a_separate_known_names_list() -> None:
+    facts = (AllowedFact("merchant", "Approved", "scoped_transaction_read"), status_fact())
+    verdict = verify_draft("El cargo de Approved.", ["status"], facts)
+    assert not verdict.safe and "uncited_merchant" in verdict.violations
+
+
+def test_a_cited_merchant_without_provenance_cannot_exempt_an_english_enum() -> None:
+    verdict = verify_draft(
+        "El cargo de Approved.", ["merchant"], (AllowedFact("merchant", "Approved", ""),)
+    )
+    assert {"missing_source", "unlocalized_enum"} <= set(verdict.violations)
+
+
+@pytest.mark.parametrize(
     "draft",
     [
         "La operaci3n está aprobada.",

@@ -17,7 +17,7 @@ The verified prompt-boundary defect was that the [builder](../../src/aclara/agen
 
 [Phrase v2.1](../../prompts/phrase/v2.md) explicitly requires localized labels and ordinary spelling. SHA-256: `96089ad7985a334b8c6b974298856d939e554d431f04c6c1e7a434d75ec71fd9`. NLU stays v5.1. UTF-8/JSON roundtrip regressions preserve ES/PT accents; source inspection found no digit-substitution transform. This does **not** establish why the particular live generation emitted corruption: no provider generation was rerun or encoding incident inferred.
 
-The initial 36 authored NLG checks were written before the fix: **26 failed / 10 passed**. The expanded 39 now pass, including all four statuses in both languages, model correction → fallback, legitimate `Studio3D`/`B2B Market`, amounts, localized dates, case IDs and masked card suffixes. Existing handle/mojibake/language regressions also pass. The context-free `scan_dlp` retains its existing checks; merchant-aware spelling/enum validation runs in `verify_draft` before accepting a model draft.
+The initial 36 authored NLG checks were written before the fix: **26 failed / 10 passed**. The first expanded 39 passed at `8d3ac42`, including all four statuses in both languages, model correction → fallback, legitimate `Studio3D`/`B2B Market`, amounts, localized dates, case IDs and masked card suffixes. Existing handle/mojibake/language regressions also pass. The context-free `scan_dlp` retains its existing checks; merchant-aware spelling/enum validation runs in `verify_draft` before accepting a model draft.
 
 ## NLU: canonical ledger kinds before MATCH
 
@@ -51,4 +51,13 @@ Reproduce with `LLM_PROVIDER=mock LLM_REAL_CALLS_APPROVED=0 python -m aclara.llm
 
 **Owner handoff:** AI owns the NLG guard, display-fact localization and type normalization. Lead owns merge, deployment and any later live acceptance check; no new paid run is authorized here. The separate [partial comparison PR #85](https://github.com/sebastian-gm/bank-agent-lab/pull/85) stops on HTTP and provider credit/quota codes, including HTTP-200 `provider_402`; it remains partial, with no further comparison spending.
 
-Local validation: **293 focused mock tests passed**, covering NLG integrity, NLU normalization/recognition, language/clarification handling, degraded operation, integration, unchanged MATCH and interfaces. Ruff, strict mypy (90 source files), compilation, frozen-interface and policy-catalog checks pass. Remote main-target CI is required before lead merge.
+Local validation: **330 focused mock tests passed**, covering NLG integrity, NLU normalization/recognition, language/clarification handling, degraded operation, integration, unchanged MATCH and interfaces. Ruff, strict mypy (90 source files), compilation, frozen-interface and policy-catalog checks pass. Remote main-target CI is required before lead merge.
+
+
+## PR #93 review corrections
+
+Three additional zero-cost review findings were reproduced by new mock regressions (**19 failures before correction**). The verifier now rejects generic snake_case identifiers, including `awaiting_dispute_decision`, `choose_transaction`, `handoff_created`, future/private identifiers and every response-plan literal; citations to a state do not authorize showing it in customer prose. Raw English enum checks remain in place.
+
+Merchant exemptions and merchant grounding now require the **sourced `merchant` fact itself to be cited**. A status/type value with the same spelling is not merchant evidence. Cited merchants named Approved/Pending/Purchase remain valid in ES/PT merchant context, while a separate raw English status stays rejected. The older composite-fact unit test now supplies an explicit merchant citation, matching the production fact structure.
+
+Both private replay snapshots are created via exclusive `os.open(..., 0600)`, with permissions set before writing any JSON. Baseline/report tests cover a permissive umask, a restrictive umask and refusing an existing snapshot. The three existing local replay snapshots were tightened to 0600 and their content hashes read back unchanged; the baseline freeze and all original measurements are preserved. No provider or dev conversation was rerun, and no held-out input was opened.
