@@ -59,9 +59,25 @@ def test_independent_preselections_are_used_without_reselecting(tmp_path):
         row["language"] = "es" if i < 48 else "pt" if i < 96 else "mixed"
     repeats, judges = [r["id"] for r in rows[:30]], [r["id"] for r in rows[30:60]]
     for name, ids in (("repeat-selection.json", repeats), ("judge-selection.json", judges)):
-        (tmp_path / name).write_text(json.dumps({"scenario_ids": ids}))
+        selected = [row for row in rows if row["id"] in ids]
+        payload = {
+            "scenario_ids": ids,
+            "method": "authored fixed selection",
+            "seed": "authored fixture",
+            "n": 30,
+            "category_counts": {
+                key: sum(row["category"] == key for row in selected)
+                for key in program_spec.CATEGORIES
+            },
+            "language_counts": {
+                key: sum(row["language"] == key for row in selected)
+                for key in program_spec.LANGUAGES
+            },
+        }
+        (tmp_path / name).write_text(json.dumps(payload))
     assert program_spec.selections({"scenarios": rows}, tmp_path) == (set(repeats), set(judges))
-    (tmp_path / "judge-selection.json").write_text(json.dumps({"scenario_ids": ["absent"] * 30}))
+    payload["scenario_ids"] = ["absent"] * 30
+    (tmp_path / "judge-selection.json").write_text(json.dumps(payload))
     with pytest.raises(ValueError, match="preselected"):
         program_spec.selections({"scenarios": rows}, tmp_path)
 

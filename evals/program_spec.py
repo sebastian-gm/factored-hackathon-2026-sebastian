@@ -243,10 +243,9 @@ def selections(suite: dict, directory: Path) -> tuple[set[str], set[str]]:
         )
         if not set(values) <= ids:
             raise ValueError("Invalid preselected workload")
-        if (
-            Counter(by_id[value]["category"] for value in values) != categories
-            or Counter(by_id[value]["language"] for value in values) != languages
-        ):
+        if Counter(by_id[value]["category"] for value in values) != Counter(categories) or Counter(
+            by_id[value]["language"] for value in values
+        ) != Counter(languages):
             raise ValueError("Selection strata differ from their frozen declaration")
         chosen.append(set(values))
     return chosen[0], chosen[1]

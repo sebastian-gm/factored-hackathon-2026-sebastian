@@ -15,6 +15,12 @@
   file or binding changes, and no product/prompt/config change.
 - Authored `pytest` runner/adapter/rehearsal checks: **50 passed**; Ruff, strict
   mypy and compilation passed. No frozen selection file was executed for testing.
+- First recovery CI exposed the pre-existing minimal legacy selection fixture: the
+  full local replay confirmed exactly one failure (790 passed / 22 skips). Updated
+  that authored fixture to the declared v3 envelope; count comparisons now correctly
+  handle declared zero strata. Targeted legacy/adapter/runner checks: **55 passed**.
+  Corrected full local suite: **791 passed / 22 optional DB skips**.
+  Corrected-head remote CI remains required.
 - Added preflight-recovery disclosure to JSON and Markdown result generation.
   The standalone selection parser rejected by automatic review was not executed;
   frozen selection parsing remains inside the authorized program.
