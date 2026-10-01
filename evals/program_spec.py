@@ -194,6 +194,38 @@ def load_payloads(directory: Path) -> dict:
     return suite
 
 
+def selection_payload(payload: object) -> tuple[list[str], dict, dict]:
+    """Validate the two declared envelopes, without coercing or logging their values."""
+    shared = {"seed", "category_counts", "language_counts"}
+    legacy = shared | {"method", "n", "scenario_ids"}
+    current = shared | {"purpose", "selection", "case_ids"}
+    if not isinstance(payload, dict) or set(payload) not in (legacy, current):
+        raise ValueError("Unknown selection envelope")
+    old = set(payload) == legacy
+    for field in ("seed", "method") if old else ("seed", "purpose", "selection"):
+        if not isinstance(payload[field], str) or not payload[field].strip():
+            raise ValueError("Invalid selection metadata type")
+    values = payload["scenario_ids" if old else "case_ids"]
+    if (
+        not isinstance(values, list)
+        or any(not isinstance(value, str) or not value.strip() for value in values)
+        or len(values) != 30
+        or len(set(values)) != 30
+        or (old and (type(payload["n"]) is not int or payload["n"] != 30))
+    ):
+        raise ValueError("Invalid preselected workload")
+    for field, keys in (("category_counts", CATEGORIES), ("language_counts", LANGUAGES)):
+        counts = payload[field]
+        if (
+            not isinstance(counts, dict)
+            or set(counts) != set(keys)
+            or any(type(value) is not int or value < 0 for value in counts.values())
+            or sum(counts.values()) != 30
+        ):
+            raise ValueError("Invalid selection strata metadata")
+    return values, payload["category_counts"], payload["language_counts"]
+
+
 def selections(suite: dict, directory: Path) -> tuple[set[str], set[str]]:
     rows = suite["scenarios"]
     if (
@@ -203,10 +235,18 @@ def selections(suite: dict, directory: Path) -> tuple[set[str], set[str]]:
     ):
         raise ValueError("Suite counts differ from approved metadata")
     ids = {s["id"] for s in rows}
+    by_id = {s["id"]: s for s in rows}
     chosen = []
     for name in ("repeat-selection.json", "judge-selection.json"):
-        values = json.loads((directory / name).read_text())["scenario_ids"]
-        if len(values) != 30 or len(set(values)) != 30 or not set(values) <= ids:
+        values, categories, languages = selection_payload(
+            json.loads((directory / name).read_text())
+        )
+        if not set(values) <= ids:
             raise ValueError("Invalid preselected workload")
+        if (
+            Counter(by_id[value]["category"] for value in values) != categories
+            or Counter(by_id[value]["language"] for value in values) != languages
+        ):
+            raise ValueError("Selection strata differ from their frozen declaration")
         chosen.append(set(values))
     return chosen[0], chosen[1]

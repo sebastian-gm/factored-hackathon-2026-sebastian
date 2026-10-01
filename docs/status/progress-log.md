@@ -1,5 +1,37 @@
 # Progress log
 
+## 2026-10-01 UTC — authorized eval-only v4 preflight recovery
+
+### Completed (verified)
+
+- Orchestrator authorized an eval-only adapter, authored regressions, fresh-SHA
+  identical-image re-verification and a fresh start exception under the SAME $3
+  lifetime scope. Preserved attempt 1 as `artifacts/final-program-v4-attempt1`,
+  including KeyError stop and live $0 budget receipt; no system checkpoints.
+- Read only the author-provided schema vocabulary (field names/types, zero IDs).
+  V4 declares `case_ids`, `purpose`, `selection`; v3 declares `scenario_ids`,
+  `method`, `n`. Adapter validates both exact envelopes, field types, 30 unique
+  members, membership and declared/actual category/language strata. No frozen
+  file or binding changes, and no product/prompt/config change.
+- Authored `pytest` runner/adapter/rehearsal checks: **50 passed**; Ruff, strict
+  mypy and compilation passed. No frozen selection file was executed for testing.
+- Added preflight-recovery disclosure to JSON and Markdown result generation.
+  The standalone selection parser rejected by automatic review was not executed;
+  frozen selection parsing remains inside the authorized program.
+
+### Done but not verified
+
+- Fresh remote CI and final-SHA Azure re-verification are pending. Fresh v4 has not started; no metric or agreement result exists.
+
+### Next / blocked
+
+- Publish one recovery PR for required CI; after green merge, verify identical
+  images/access and regenerate acceptance receipt. Reprepare without resetting
+  `final-evaluation-v4 / final-program-v4`, recheck credits/local serving, then
+  start the authorized fresh program once. Resume only thereafter; product freeze
+  and cumulative ≤ $12 remain in force.
+
+
 ## 2026-10-01 UTC — v4 release verified; initial program stopped in preflight
 
 ### Completed (verified)
