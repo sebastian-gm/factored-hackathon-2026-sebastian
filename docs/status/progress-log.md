@@ -2722,3 +2722,41 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
 - V4 freeze remains pending closure of live blockers and owner confirmation.
   Continue from docs/status/progress-log.md. Next layer: close live rehearsal
   blockers, combined release, then v4 launch gates. Same rules.
+
+## 2026-10-01 UTC — integration checks complete, live AI fixes pending
+
+### Completed (verified)
+
+- Reviewed/integrated #85 `83be371`, #90, #91 and the small #92 offer-refusal
+  repair on `integration/pre-v4-freeze`; main remains `2dfa504`. Review and exact
+  test scope: [pre-v4-integration-review.md](../evaluation/pre-v4-integration-review.md).
+  Refusal test head `f592971`; no product behavior claimed for unmeasured families.
+- Local Playwright 93 stories + 12 real local BFF/API customer flows + one staff
+  flow passed. B1 reactive dev 32/32 and standard safety harness exited 0. Strict
+  mypy 88 files, Ruff, compile, interface/catalog checks and working-tree safety
+  passed. Parent combined Python 579 passed / 22 skipped; subsequent cancellation
+  regressions 50 passed. Postgres 30 passed. No optional paid rerun.
+- Confirmed updated private reference file mode 0600, four run IDs and four SIDs;
+  no scope values printed. Earlier exact-scope Azure diagnosis established live
+  phrase/MATCH causes while preserving RLS. Generated Next references and dev
+  Markdown restored; official result pages unchanged.
+
+### Done but not verified
+
+- AI live phrase corruption/status and transaction-kind normalization PRs are
+  still awaited, as is frontend story-button triage. New code is not deployed;
+  Azure still runs the previous release. Remote CI is held for the complete head.
+- No new real gate or broader round-two fix claim. Candidate-state descriptive
+  replies, unfamiliarity across early clarification and compound-request handling
+  remain lead-owned limitations; language/colloquial-unit conflicts need adjudication.
+- V4 budget/suite preparation and launch remain unexecuted; no v4 contents opened.
+
+### Next / blocked
+
+- Review/integrate the incoming live AI/frontend fixes, require one combined
+  remote CI, then merge/release under standing approval. Estimate/obtain GO before
+  any new real-model smoke. No spend or Azure access/resource change this session.
+- Feature freeze remains pending live blockers and owner confirmation; exact
+  commands are ready in [v4-launch-checklist.md](../evaluation/v4-launch-checklist.md).
+- Continue from docs/status/progress-log.md. Next layer: close live rehearsal
+  blockers, combined release, then v4 launch gates. Same rules.
