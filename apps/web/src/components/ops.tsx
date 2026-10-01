@@ -232,14 +232,20 @@ export function Ops() {
                   <strong>
                     {totals.count
                       ? usd(totals.known, locale)
-                      : t("notRecorded")}
+                      : t("noModelCallsRecorded")}
                   </strong>
                   <p>
                     {t("recordedCalls", { count: totals.count })} ·{" "}
                     {t("unknownCosts", { count: totals.unknown })}
                   </p>
                   <p className="caption">
-                    {t(totals.unknown ? "partialCost" : "recordedCostOnly")}
+                    {t(
+                      !totals.count
+                        ? "noModelCostMeasurement"
+                        : totals.unknown
+                          ? "partialCost"
+                          : "recordedCostOnly",
+                    )}
                   </p>
                   {totals.grok > 0 && (
                     <p className="badge amber">

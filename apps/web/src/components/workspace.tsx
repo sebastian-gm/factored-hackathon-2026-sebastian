@@ -162,6 +162,14 @@ function Shell({
     recordingFlagEnabled,
     () => false,
   );
+  function showRecordingTools() {
+    const helper =
+      document.querySelector<HTMLDetailsElement>("#recording-helper");
+    if (!helper) return;
+    helper.open = true;
+    helper.scrollIntoView({ block: "start" });
+    helper.querySelector("summary")?.focus({ preventScroll: true });
+  }
   async function openStory(next: DemoStory) {
     if (chatLocked) throw new Error("Pending customer decision");
     const persona = storyPersona(config, next, session?.username);
@@ -375,6 +383,9 @@ function Shell({
                 <JudgeQuickstart
                   onStory={openStory}
                   onInsights={() => setSurface("insights")}
+                  onRecording={
+                    recordingEnabled ? showRecordingTools : undefined
+                  }
                   selected={story}
                   locked={chatLocked}
                 />

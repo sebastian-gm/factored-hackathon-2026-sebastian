@@ -242,9 +242,12 @@ test("live refusal, revoked session and upstream logout", async ({
     .getByRole("button", { name: "Cerrar sesión", exact: true })
     .click();
   await expect(page.locator("input[type=password]")).toBeVisible();
-  const response = await context.request.get("http://127.0.0.1:8212/me", {
-    headers: { Authorization: `Bearer ${capability}` },
-  });
+  const response = await context.request.get(
+    `http://127.0.0.1:${process.env.FRONTEND_E2E_API_PORT ?? "8212"}/me`,
+    {
+      headers: { Authorization: `Bearer ${capability}` },
+    },
+  );
   expect(response.status()).toBe(401);
 });
 
@@ -322,7 +325,7 @@ test("recording helper uses optional bank persona binding and never auto-sends",
     .fill((await sms.textContent())!);
   await page.getByRole("button", { name: "Verificar y entrar" }).click();
   await expect(page.getByRole("textbox", { name: "Tu mensaje" })).toHaveValue(
-    "Quiero entender un cargo pendiente.",
+    "Quiero entender un cargo en mi tarjeta.",
   );
   await expect(
     page.getByRole("heading", { name: "Tu caso está registrado" }),

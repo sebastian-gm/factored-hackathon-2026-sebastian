@@ -1,5 +1,26 @@
 # Progress log
 
+## 2026-09-30 PDT — Frontend lane: live video blocker triage and fixes
+
+### Completed (verified)
+
+- GET-only check at **2026-10-01 01:18:03 UTC** read back web/API release **c32fd6429281a764ee33dd96622f237c7c0289c3**. `/api/bff/config` returned 200 and trusted upstream persona hints: ES Ops has explain/fraud; PT Ops has an empty hint array. Direct unauthenticated BFF personas returned 401 (not a public passthrough). No login, chat message, model call, reset or Azure setting change. Safe project-role/hint evidence committed under `apps/web/fixtures/`; no organizer bindings or secrets.
+- Fixed the frontend customer-only live-hint condition. Hinted Ops/agent personas can prepare stories through normal auth; prefer current hinted identity, then a hinted customer. Missing PT hints remain disabled. Neutral ES charge draft/MX label and previously rehearsed alternative PT inquiry replace misleading shortcuts; fixture templates remain unchanged. No role grant, auto-send, confirmation or backend change.
+- Fixed live Desk SLA to use wall time, retaining simulated fixture time and displaying days/hours/minutes. Added localized risk labels with collapsed raw references, explicit empty facts/actions/questions, numbered missing-merchant choices (numeric names preserved), zero-call/no-cost-measurement wording in Ops, and a recording-only quickstart jump to the helper. Recording controls remain hidden by default.
+- [API proposal and ownership evidence](../../apps/web/API-PROPOSAL.md) distinguish PT hint eligibility (currently requires two named merchants), missing verified handoff action projection and AI/lead-owned generated prose defects. No model reply was rewritten by the browser; missing product/fact/action data is not fabricated. Infrastructure startup remains separate from UI error states.
+- **18 new authored Playwright cases passed**, WCAG/overflow included; **18 views / 36 ignored 0600 screenshots** at ES/PT 1440/390, gallery `artifacts/ux-audit/live-video-triage/after/index.html`. Before reference is the existing private Azure rehearsal; after images are local authored fixtures, not a deployed release or evaluation. Initial local browser start refused occupied port 3212; isolated 3318/8318 checks preserve that server. Optional browser test ports added within apps/web, CI defaults unchanged.
+- Final local typecheck, ESLint, production build, Ruff fixture-script check/format and diff check pass. Production-build browsers **124/124** (**111 UI fixtures + 12 local customer API + 1 staff**), B1/mock only. No frozen suite, gold or paid model call. New frontend code/tests/docs stay in `apps/web/`; this mandated progress entry is the only shared-file addition.
+
+### Done but not verified
+
+- Fixes are local/source changes, not deployed to Azure. PT remains unavailable until the lead supplies a scoped hint. A successful new neutral ES draft was not tested with a real model; the PT alternative was observed in the earlier rehearsal, not replayed here.
+- Missing handoff actions/product metadata and generated ES/PT prose need the owning lane. Client wall-clock skew remains a display limitation; the backend owns the actual SLA deadline/duration. Final recording/export remains pending.
+
+### Next / blocked
+
+- Open main-target frontend PR, require current-head green CI and leave unmerged. Lead reviews PT eligibility and verified handoff projection; AI/lead reviews generated prose. Merge/deployment and any paid rehearsal remain separate owner/lead work.
+- Keep screenshots and rehearsal diagnosis references private; no backend, NLU, policy, interface or held-out content change.
+
 ## 2026-09-30 PDT — Insights integration, scoped scans and new comparison purse
 
 ### Completed (verified)

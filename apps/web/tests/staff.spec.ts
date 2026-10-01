@@ -7,7 +7,10 @@ test("live workspace: trusted ops role, handoff claim/resolve, measured traces a
 }) => {
   const probe = JSON.parse(
     execFileSync(process.execPath, ["scripts/check-api-hop.mjs"], {
-      env: { ...process.env, API_BASE_URL: "http://127.0.0.1:8212" },
+      env: {
+        ...process.env,
+        API_BASE_URL: `http://127.0.0.1:${process.env.FRONTEND_E2E_API_PORT ?? "8212"}`,
+      },
       encoding: "utf8",
     }),
   );

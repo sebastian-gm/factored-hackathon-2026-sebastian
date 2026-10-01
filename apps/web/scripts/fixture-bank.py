@@ -18,4 +18,10 @@ if __name__ == "__main__":
             agent_system="B1",
         )
     )
-    uvicorn.run(app, host="127.0.0.1", port=8212, access_log=False, log_level="warning")
+    uvicorn.run(
+        app,
+        host="127.0.0.1",
+        port=int(os.environ.get("FRONTEND_E2E_API_PORT", "8212")),
+        access_log=False,
+        log_level="warning",
+    )

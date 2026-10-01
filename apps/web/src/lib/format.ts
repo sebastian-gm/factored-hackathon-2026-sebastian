@@ -29,5 +29,7 @@ export function remaining(due: string, clock: string): string {
     Math.ceil((Date.parse(due) - Date.parse(clock)) / 60000),
   );
   if (!Number.isFinite(minutes)) return "—";
-  return `${Math.floor(minutes / 60)}h ${minutes % 60}m`;
+  const days = Math.floor(minutes / 1440);
+  const hours = Math.floor((minutes % 1440) / 60);
+  return `${days ? `${days}d ` : ""}${hours}h ${minutes % 60}m`;
 }

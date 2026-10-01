@@ -379,7 +379,7 @@ test("proposal replay is idempotent and another authenticated browser cannot con
   const other = await browser.newContext();
   const tab = await other.newPage();
   try {
-    await tab.goto("http://127.0.0.1:3212/");
+    await tab.goto("/");
     await login(tab, "demo.pt.br");
     const status = await tab.evaluate(
       async ({ url, body }) =>
