@@ -242,6 +242,14 @@ async def execute_bound(
                     )
                     fixture.refs.add(ref, "case", record["case_id"])
                     readbacks.add(ref)
+                    # Preserve precise gold references while satisfying the
+                    # generic existing/new-case receipt check. Aliases are
+                    # evidence only after this independent authenticated read.
+                    readbacks.add(
+                        "existing-case"
+                        if any(c["case_id"] == record["case_id"] for c in fixture.cases)
+                        else "created-case"
+                    )
                     action_targets.setdefault("report_case", set()).add(ref)
             if response.get("card"):
                 result = await client.get(f"/cards/{response['card']['handle']}", headers=headers)

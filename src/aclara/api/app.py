@@ -21,7 +21,7 @@ from psycopg_pool import PoolTimeout
 from pydantic import BaseModel, ConfigDict, Field
 
 from aclara.agent.ai import AgentAI
-from aclara.agent.contracts import ResponsePlan, TransactionView
+from aclara.agent.contracts import DisputeCaseView, ResponsePlan, TransactionView
 from aclara.agent.conversation import (
     changes_target,
     classify_request,
@@ -423,7 +423,7 @@ def create_app(
 
     def execution(
         result: dict[str, Any], conversation_id: str, cursor: int, message: str | None = None
-    ) -> None:
+    ) -> str:
         record_id = str(uuid4())
         events = app.state.runtime.events[cursor:]
         app.state.executions[record_id] = {
@@ -440,6 +440,36 @@ def create_app(
             "customer_text": redact_for_model(message) if message else None,
             "response": result,
         }
+        return record_id
+
+    def verify_committed_case(
+        result: dict[str, Any], principal: Principal, execution_id: str
+    ) -> None:
+        # This fresh transaction starts after processing commits. RLS and the
+        # principal's scope apply to the independent read, including status-only
+        # requests and duplicate-case paths. Compare the complete public receipt.
+        with operational.transaction(scope(principal)):
+            record = app.state.cases.get(result["case"]["case_id"])
+            if (
+                not record
+                or record["customer_id"] != principal.customer_id
+                or DisputeCaseView.model_validate(public_case(record))
+                != DisputeCaseView.model_validate(result["case"])
+            ):
+                raise HTTPException(status_code=503, detail="Durable read-back verification failed")
+            operational.audit({"action": "verified_commit", "case_id": record["case_id"]})
+            if result["response_type"] == "report_status":
+                app.state.runtime.record(
+                    "verify_readback",
+                    handle=record["transaction_handle"],
+                    case_id=record["case_id"],
+                    source="committed_case_read",
+                )
+                # The original execution committed before the read. Persist the
+                # event in its own scoped transaction before returning success.
+                saved = app.state.executions[execution_id]
+                saved["events"].append(app.state.runtime.events[-1])
+                app.state.executions[execution_id] = saved
 
     learned_matcher: MatchState | None = None
 
@@ -657,20 +687,10 @@ def create_app(
                     )
                 ),
             )
-            execution(result, conversation_id, cursor, body.message)
+            execution_id = execution(result, conversation_id, cursor, body.message)
         # Commit precedes the independent read-back and any success response.
         if result.get("case"):
-            with operational.transaction(scope(principal)):
-                record = app.state.cases.get(result["case"]["case_id"])
-                if (
-                    not record
-                    or record["transaction_handle"] != result["case"]["transaction_handle"]
-                    or record["status"] != result["case"]["status"]
-                ):
-                    raise HTTPException(
-                        status_code=503, detail="Durable read-back verification failed"
-                    )
-                operational.audit({"action": "verified_commit", "case_id": record["case_id"]})
+            verify_committed_case(result, principal, execution_id)
         if result.get("handoff"):
             verify_handoff_commit(app, result, principal, conversation_id)
         return result
@@ -1280,20 +1300,10 @@ def create_app(
                 conversation.language if conversation else "es",
                 deterministic=bool(conversation and conversation.degraded),
             )
-            execution(result, conversation_id, cursor, None)
+            execution_id = execution(result, conversation_id, cursor, None)
         # Commit precedes the independent read-back and any success response.
         if result.get("case"):
-            with operational.transaction(scope(principal)):
-                record = app.state.cases.get(result["case"]["case_id"])
-                if (
-                    not record
-                    or record["transaction_handle"] != result["case"]["transaction_handle"]
-                    or record["status"] != result["case"]["status"]
-                ):
-                    raise HTTPException(
-                        status_code=503, detail="Durable read-back verification failed"
-                    )
-                operational.audit({"action": "verified_commit", "case_id": record["case_id"]})
+            verify_committed_case(result, principal, execution_id)
         if result.get("handoff"):
             verify_handoff_commit(app, result, principal, conversation_id)
         return result

@@ -23,6 +23,14 @@ UNFAMILIAR_ABOUT_CHARGE = (
     r"|\bnao (?:lembro|me lembro|sei) (?:de )?onde "
     r"(?:veio|vem|surgiu|saiu|provem) (?:essa|esta|aquela|a|esse|este|aquele|o) "
     r"(?:cobranca|compra|lancamento)\b"
+    # Recognition of an already described charge is distinct from knowing which
+    # charge to select. Strip only the recognition clause, not later uncertainty
+    # about the amount/date/choice. No MATCH threshold or ownership rule changes.
+    r"|\bno estoy segur\w* de (?:reconocer|haber (?:hecho|autorizado))\b"
+    r"|\bnao (?:tenho certeza de|estou segur\w* de) "
+    r"(?:reconhecer|ter (?:feito|autorizado))\b"
+    r"|\bno (?:recuerdo|me acuerdo de) (?:haber )?(?:hecho|autorizado)\b"
+    r"|\bnao (?:lembro|me lembro de) (?:de )?(?:ter )?(?:feito|autorizado)\b"
 )
 
 
