@@ -7,7 +7,10 @@ test("live workspace: trusted ops role, handoff claim/resolve, measured traces a
 }) => {
   const probe = JSON.parse(
     execFileSync(process.execPath, ["scripts/check-api-hop.mjs"], {
-      env: { ...process.env, API_BASE_URL: "http://127.0.0.1:8212" },
+      env: {
+        ...process.env,
+        API_BASE_URL: `http://127.0.0.1:${process.env.FRONTEND_E2E_API_PORT ?? "8212"}`,
+      },
       encoding: "utf8",
     }),
   );
@@ -52,9 +55,9 @@ test("live workspace: trusted ops role, handoff claim/resolve, measured traces a
     new Date("2026-06-18T06:00:00Z").getTime(),
   );
   const sla = page.locator(".queue-item .caption").filter({ hasText: "SLA" });
-  await expect(sla).toHaveText(/Tiempo para SLA: (?:359h \d+m|360h 0m)/);
+  await expect(sla).toHaveText(/Tiempo para SLA: (?:14d 23h \d+m|15d 0h 0m)/);
   await expect(
-    page.getByText("Todavía no se identificó un movimiento.", { exact: false }),
+    page.getByText("El paquete no incluye movimientos verificados.", { exact: false }),
   ).toBeVisible();
   await expect(page.locator(".action-timeline li")).toHaveCount(1);
   expect(packet.actions).toEqual([

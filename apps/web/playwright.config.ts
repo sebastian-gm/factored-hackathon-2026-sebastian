@@ -2,6 +2,17 @@ import { defineConfig, devices } from "@playwright/test";
 const staff = process.env.FRONTEND_E2E_STAFF === "1";
 const live = process.env.FRONTEND_E2E_LIVE === "1";
 const secret = process.env.FRONTEND_FIXTURE_PASSWORD ?? "";
+const webPort = Number(process.env.FRONTEND_E2E_WEB_PORT ?? "3212");
+const apiPort = Number(process.env.FRONTEND_E2E_API_PORT ?? "8212");
+if (
+  [webPort, apiPort].some(
+    (port) => !Number.isInteger(port) || port < 1024 || port > 65535,
+  ) ||
+  webPort === apiPort
+)
+  throw new Error(
+    "Browser test ports must be distinct valid unprivileged ports",
+  );
 export default defineConfig({
   testDir: "./tests",
   testMatch: staff
@@ -15,6 +26,7 @@ export default defineConfig({
           "**/judge-ux.spec.ts",
           "**/ux-review.spec.ts",
           "**/insights.spec.ts",
+          "**/video-readiness.spec.ts",
         ],
   fullyParallel: false,
   workers: 1,
@@ -23,7 +35,7 @@ export default defineConfig({
   outputDir: "../../artifacts/frontend/playwright",
   reporter: "list",
   use: {
-    baseURL: "http://127.0.0.1:3212",
+    baseURL: `http://127.0.0.1:${webPort}`,
     trace: "off",
     screenshot: "off",
     video: "off",
@@ -34,11 +46,12 @@ export default defineConfig({
       ? [
           {
             command: "../../.venv/bin/python scripts/fixture-bank.py",
-            url: "http://127.0.0.1:8212/healthz",
+            url: `http://127.0.0.1:${apiPort}/healthz`,
             reuseExistingServer: false,
             env: {
               FRONTEND_FIXTURE_PASSWORD: secret,
               FRONTEND_E2E_STAFF: staff ? "1" : "0",
+              FRONTEND_E2E_API_PORT: String(apiPort),
             },
             stdout: "ignore" as const,
             stderr: "pipe" as const,
@@ -48,9 +61,9 @@ export default defineConfig({
     {
       command:
         process.env.FRONTEND_E2E_PRODUCTION === "1"
-          ? "pnpm exec next start --hostname 127.0.0.1 --port 3212"
-          : "pnpm dev --webpack --hostname 127.0.0.1 --port 3212",
-      url: "http://127.0.0.1:3212",
+          ? `pnpm exec next start --hostname 127.0.0.1 --port ${webPort}`
+          : `pnpm dev --webpack --hostname 127.0.0.1 --port ${webPort}`,
+      url: `http://127.0.0.1:${webPort}`,
       reuseExistingServer: false,
       timeout: 120000,
       env: {
@@ -59,7 +72,7 @@ export default defineConfig({
         FRONTEND_DEMO_MODE: live ? "live" : "fixtures",
         FRONTEND_FIXTURE_PASSWORD: secret,
         NEXT_TELEMETRY_DISABLED: "1",
-        API_BASE_URL: "http://127.0.0.1:8212",
+        API_BASE_URL: `http://127.0.0.1:${apiPort}`,
         BANK_CLOCK: "2026-06-18T06:00:00Z",
       },
       stdout: "ignore",

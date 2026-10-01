@@ -13,7 +13,11 @@ import {
 import { orderedReasons, type DeskPacket } from "@/lib/contracts";
 import { api } from "@/lib/client";
 import { date, remaining } from "@/lib/format";
-import { deskActionLabelKey, handoffReasonLabelKey } from "@/lib/ui-copy";
+import {
+  deskActionLabelKey,
+  handoffReasonLabelKey,
+  riskFlagLabelKey,
+} from "@/lib/ui-copy";
 import { useApp } from "./workspace";
 import { Button } from "./ui/button";
 import { Modal } from "./ui/dialog";
@@ -179,7 +183,10 @@ export function AgentDesk() {
                         .map((reason) => t(handoffReasonLabelKey(reason)))
                         .join(" · ")}
                     </span>
-                    <span className="caption">
+                    <span
+                      className="caption sla-countdown"
+                      title={date(p.sla_due_at, locale, true)}
+                    >
                       <Clock3 size={12} /> {t("sla")}:{" "}
                       {p.status === "resolved"
                         ? "—"
@@ -242,7 +249,9 @@ export function AgentDesk() {
               <section className="packet-section">
                 <h3>{t("facts")}</h3>
                 {!current.verified_facts.length && (
-                  <p className="caption">{t("noVerifiedMovement")}</p>
+                  <p className="caption packet-empty">
+                    {t("packetFactsEmpty")}
+                  </p>
                 )}
                 {current.verified_facts.map((fact, i) => (
                   <div key={fact.handle}>
@@ -266,6 +275,11 @@ export function AgentDesk() {
               </section>
               <section className="packet-section">
                 <h3>{t("actions")}</h3>
+                {!current.actions.length && (
+                  <p className="caption packet-empty">
+                    {t("packetActionsEmpty")}
+                  </p>
+                )}
                 <ol className="action-timeline">
                   {current.actions.map((action, i) => (
                     <li key={i}>
@@ -314,7 +328,22 @@ export function AgentDesk() {
                 </ol>
               </section>
               {current.risk_flags?.length ? (
-                <p className="routing-note">{current.risk_flags.join(" · ")}</p>
+                <section className="routing-note packet-risks">
+                  <h3>{t("riskIndicators")}</h3>
+                  <p>
+                    {current.risk_flags
+                      .map((flag) => t(riskFlagLabelKey(flag)))
+                      .join(" · ")}
+                  </p>
+                  <details className="action-references">
+                    <summary>{t("technicalReferences")}</summary>
+                    {current.risk_flags.map((flag) => (
+                      <code className="technical-reference" key={flag}>
+                        {flag}
+                      </code>
+                    ))}
+                  </details>
+                </section>
               ) : null}
               {current.suggested_next_steps?.length ? (
                 <section className="packet-section">
@@ -328,6 +357,11 @@ export function AgentDesk() {
               ) : null}
               <section className="packet-section">
                 <h3>{t("questions")}</h3>
+                {!current.open_questions.length && (
+                  <p className="caption packet-empty">
+                    {t("packetQuestionsEmpty")}
+                  </p>
+                )}
                 <ul className="questions">
                   {current.open_questions.map((q) => (
                     <li key={q}>{q}</li>

@@ -676,7 +676,7 @@ test("a signed-in judge alias keeps its eligible story account and only prepares
   await expect(page.locator(".composer")).toBeVisible();
   await page.getByTestId("quickstart-explain").click();
   await expect(page.locator(".composer textarea")).toHaveValue(
-    "Quiero entender un cargo pendiente.",
+    "Quiero entender un cargo en mi tarjeta.",
   );
   await expect(page.locator("input[type=password]")).toHaveCount(0);
   expect(posts).toBe(0); // No logout, message, proposal, OTP renewal or action call.

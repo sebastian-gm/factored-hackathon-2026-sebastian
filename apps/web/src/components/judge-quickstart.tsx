@@ -10,11 +10,13 @@ export function JudgeQuickstart({
   selected,
   locked,
   onInsights,
+  onRecording,
 }: {
   onStory: (story: DemoStory) => Promise<void>;
   selected: DemoStory | null;
   locked: boolean;
   onInsights: () => void;
+  onRecording?: () => void;
 }) {
   const t = useTranslations();
   const { config, session } = useApp();
@@ -44,9 +46,16 @@ export function JudgeQuickstart({
       <div className="quickstart-intro">
         <h2 id="quickstart-title">{t("quickstartTitle")}</h2>
         <p>{t(session ? "quickstartSignedIn" : "quickstartPurpose")}</p>
-        <button className="insights-quick-link" onClick={onInsights}>
-          {t("quickstartInsights")} <span aria-hidden="true">↗</span>
-        </button>
+        <div className="quickstart-links">
+          <button className="insights-quick-link" onClick={onInsights}>
+            {t("quickstartInsights")} <span aria-hidden="true">↗</span>
+          </button>
+          {onRecording && (
+            <button className="insights-quick-link" onClick={onRecording}>
+              {t("recordingShortcut")} <span aria-hidden="true">↓</span>
+            </button>
+          )}
+        </div>
       </div>
       <div className="story-picker" aria-label={t("quickstartStories")}>
         {demoStories.map((story) => (

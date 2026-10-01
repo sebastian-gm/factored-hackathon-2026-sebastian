@@ -43,16 +43,22 @@ export function storyPersona(
   const eligible = config.personas.filter((p) =>
     config.fixtures
       ? p.username === story.username && p.role === "customer"
-      : p.role === "customer" && p.demo_stories?.includes(story.id),
+      : p.demo_stories?.includes(story.id),
   );
-  return eligible.find((p) => p.username === preferredUsername) ?? eligible[0];
+  // A trusted hint selects a login/draft, not authority. Live Ops personas can
+  // also use customer chat; /me and the API still authorize every staff/write action.
+  return (
+    eligible.find((p) => p.username === preferredUsername) ??
+    eligible.find((p) => p.role === "customer") ??
+    eligible[0]
+  );
 }
 export function storyDraft(config: Config, story: DemoStory): string {
   if (config.fixtures) return story.draft;
   // Generic language only: live transaction values must be supplied by the owner.
   return story.id === "explain"
-    ? "Quiero entender un cargo pendiente."
+    ? "Quiero entender un cargo en mi tarjeta."
     : story.id === "ambiguous"
-      ? "Não reconheço uma compra. Preciso escolher qual movimento."
+      ? "Quero entender uma cobrança no meu cartão. Quais compras posso revisar?"
       : "Perdí mi tarjeta y necesito ayuda con una compra que no reconozco.";
 }

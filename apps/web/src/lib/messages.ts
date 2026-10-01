@@ -27,7 +27,7 @@ export const es = {
   otpTitle: "Verifica tu acceso",
   otpIntro: "Introduce el código del SMS simulado.",
   authorizedAccount: "Cuenta autorizada",
-  personaMX: "México · cargo pendiente",
+  personaMX: "México · consulta de cargos",
   personaCO: "Colombia · consulta",
   personaAR: "Argentina · consulta",
   personaBR: "México · conversación en portugués",
@@ -167,15 +167,18 @@ export const es = {
   human_requested: "Atención humana",
   conversationCost: "Costo de esta conversación",
   recordedCalls: "{count} llamadas registradas",
+  noModelCallsRecorded: "Sin llamadas al modelo registradas",
+  noModelCostMeasurement:
+    "Esta traza no mide un costo de modelo. Consulta los pasos de ejecución y sus verificaciones.",
   unknownCosts:
     "{count, plural, one {# costo desconocido} other {# costos desconocidos}}",
   partialCost:
     "Subtotal conocido: hay costos pendientes. No es el total facturado.",
   recordedCostOnly:
     "Suma de los costos registrados, incluidos reintentos. Excluye infraestructura.",
-  riskUnavailable:
-    "La API actual no expone la unión de riesgo para esta conversación.",
+  riskUnavailable: "Esta traza no incluye juicios de riesgo del modelo.",
   recordingHelper: "Preparar grabación",
+  recordingShortcut: "Abrir herramientas de grabación",
   recordingBody:
     "Ensaya las tres historias con personas y datos de prueba. Restablecer elimina las conversaciones de este espacio.",
   recordingLive:
@@ -299,6 +302,7 @@ export const es = {
   productMissing: "Producto no informado",
   demoProduct: "Tarjeta demo · •••• 4242",
   merchantMissing: "Comercio no informado",
+  movementNumber: "Movimiento {number}",
   approved: "Aprobado",
   declined: "Rechazado",
   reversed: "Reversado",
@@ -352,10 +356,15 @@ export const es = {
   selectPacket: "Selecciona una solicitud para revisar su contexto.",
   packet: "Paquete de atención",
   facts: "Hechos verificados",
-  noVerifiedMovement:
-    "Todavía no se identificó un movimiento. La solicitud del cliente queda pendiente de verificar.",
-  actions: "Acciones realizadas",
+  actions: "Acciones registradas",
   questions: "Preguntas abiertas",
+  packetFactsEmpty: "El paquete no incluye movimientos verificados.",
+  packetActionsEmpty:
+    "El paquete no incluye acciones verificadas. Consulta el registro de ejecución para más detalle.",
+  packetQuestionsEmpty: "No se incluyeron preguntas pendientes.",
+  riskIndicators: "Indicadores para revisión humana",
+  riskFraudReview: "Revisión por fraude",
+  riskOther: "Otro indicador de revisión",
   claim: "Tomar solicitud",
   resolve: "Marcar como resuelta",
   resolveTitle: "¿Finalizar la atención?",
@@ -436,7 +445,7 @@ export const pt: typeof es = {
   otpTitle: "Verifique seu acesso",
   otpIntro: "Digite o código do SMS simulado.",
   authorizedAccount: "Conta autorizada",
-  personaMX: "México · cobrança pendente",
+  personaMX: "México · consulta de cobranças",
   personaCO: "Colômbia · consulta",
   personaAR: "Argentina · consulta",
   personaBR: "México · conversa em português",
@@ -576,14 +585,18 @@ export const pt: typeof es = {
   human_requested: "Atendimento humano",
   conversationCost: "Custo desta conversa",
   recordedCalls: "{count} chamadas registradas",
+  noModelCallsRecorded: "Sem chamadas ao modelo registradas",
+  noModelCostMeasurement:
+    "Este registro não mede um custo de modelo. Confira os passos de execução e suas verificações.",
   unknownCosts:
     "{count, plural, one {# custo desconhecido} other {# custos desconhecidos}}",
   partialCost:
     "Subtotal conhecido: há custos pendentes. Não é o total faturado.",
   recordedCostOnly:
     "Soma dos custos registrados, incluindo novas tentativas. Exclui infraestrutura.",
-  riskUnavailable: "A API atual não expõe a união de risco desta conversa.",
+  riskUnavailable: "Este registro não inclui julgamentos de risco do modelo.",
   recordingHelper: "Preparar gravação",
+  recordingShortcut: "Abrir ferramentas de gravação",
   recordingBody:
     "Ensaie as três histórias com pessoas e dados de teste. Redefinir apaga as conversas deste espaço.",
   recordingLive:
@@ -705,6 +718,7 @@ export const pt: typeof es = {
   productMissing: "Produto não informado",
   demoProduct: "Cartão demo · •••• 4242",
   merchantMissing: "Estabelecimento não informado",
+  movementNumber: "Movimento {number}",
   approved: "Aprovado",
   declined: "Recusado",
   reversed: "Estornado",
@@ -756,10 +770,15 @@ export const pt: typeof es = {
   selectPacket: "Selecione uma solicitação para revisar seu contexto.",
   packet: "Pacote de atendimento",
   facts: "Fatos verificados",
-  noVerifiedMovement:
-    "Ainda não foi identificado um movimento. A solicitação do cliente está pendente de verificação.",
-  actions: "Ações realizadas",
+  actions: "Ações registradas",
   questions: "Perguntas em aberto",
+  packetFactsEmpty: "O pacote não inclui movimentos verificados.",
+  packetActionsEmpty:
+    "O pacote não inclui ações verificadas. Confira o registro de execução para mais detalhes.",
+  packetQuestionsEmpty: "Nenhuma pergunta pendente foi incluída.",
+  riskIndicators: "Indicadores para análise humana",
+  riskFraudReview: "Análise de fraude",
+  riskOther: "Outro indicador de análise",
   claim: "Assumir solicitação",
   resolve: "Marcar como resolvida",
   resolveTitle: "Finalizar o atendimento?",

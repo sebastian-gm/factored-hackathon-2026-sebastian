@@ -334,4 +334,17 @@ test("live recording trusts scoped story hints, allows a shared customer, and ne
     undefined,
     undefined,
   ]);
+  const opsOnly: Config = {
+    ...config,
+    personas: config.personas
+      .filter((p) => p.username !== "demo.agent")
+      .map((p) => ({ ...p, role: "ops" })),
+  };
+  expect(
+    demoStories.map((story) => storyPersona(opsOnly, story)?.username),
+  ).toEqual(["demo.es.mx", "demo.pt.br", "demo.es.mx"]);
+  // Prefer the authenticated hinted persona, without synthesizing staff rights.
+  expect(storyPersona(config, demoStories[0], "demo.agent")?.username).toBe(
+    "demo.agent",
+  );
 });

@@ -1,0 +1,49 @@
+{
+  "checked_at_utc": "2026-10-01T01:18:03.902383+00:00",
+  "web_release_sha": "c32fd6429281a764ee33dd96622f237c7c0289c3",
+  "api_release_sha": "c32fd6429281a764ee33dd96622f237c7c0289c3",
+  "requests": [
+    {
+      "method": "GET",
+      "path": "/api/bff/config",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/bff/personas",
+      "status": 401
+    }
+  ],
+  "fixtures": false,
+  "persona_projection": [
+    {
+      "username": "demo.es.ar",
+      "role": "customer",
+      "demo_stories": [],
+      "locale": "es-AR"
+    },
+    {
+      "username": "demo.es.co",
+      "role": "customer",
+      "demo_stories": [],
+      "locale": "es-CO"
+    },
+    {
+      "username": "demo.es.mx",
+      "role": "ops",
+      "demo_stories": ["explain", "fraud"],
+      "locale": "es-MX"
+    },
+    {
+      "username": "demo.pt.br",
+      "role": "ops",
+      "demo_stories": [],
+      "locale": "pt-BR"
+    }
+  ],
+  "config_personas_match_direct": null,
+  "upstream_read": "BFF config reads GET /personas and validates personaSchema; direct BFF /personas is not a public passthrough",
+  "model_calls": 0,
+  "authentication_requests": 0,
+  "writes": 0
+}
