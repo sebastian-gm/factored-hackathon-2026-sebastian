@@ -2137,3 +2137,43 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
   the stopped pre-v4 scope. Lead merges #85/#86; this lane performs no merge.
 - Human CSV path remains unconfirmed; local offline scoring page still exists.
   Never open v4, start the final run or change a model default without approval.
+## 2026-09-30 PDT — confirmed comparison scope, paired harness and retry analysis
+
+### Completed (verified)
+
+- Read back `dev-gate/model-compare` / `model-compare`: $1.50 lifetime, enabled,
+  zero attempts/cost. Pre-v4 remains enabled at $0.49124327 known / $0.87148777
+  charged including 27 unknown reservations; its $0.90 stop is unchanged. The
+  owner restored credits; free account-health GET now confirms availability.
+- Prepared paired Gemini/Sol NLU+phrasing driver with fresh ZDR/provider-price
+  checks, same prompts/timeouts/Jev union/Grok fallback, lifetime reservations,
+  private checkpoints and no duplicate paid case on resume. Added primary model
+  identity to risk records. Sol uses its advertised max_completion_tokens field;
+  default adapter behavior/config remains unchanged. Mock path does not load keys.
+- Independent opening-slot annotations frozen before comparison calls: 48
+  single-target openings plus two explicit multi-target F1 exclusions, without
+  changing any scenario gold. Existing metadata-only fifty-pair sample unchanged.
+- All 100 mock case-runs execute without exceptions/$0; both deterministic arms
+  pass 33/50 with four materially incorrect outcomes, not model-quality claims.
+  Relevant tests: 253 passed/eight DB skips; 47 additional adapter/API/language
+  checks pass. Ruff, strict mypy (90 files), compile and interface snapshots pass.
+- Saved dev retry replay: two baseline / three follow-up ~6.05 s slow firsts plus
+  successful retries take 7.64–9.18 s. Shifting those retries to 3–4 s leaves sample
+  request p95 unchanged; genuine hedges add duplicates and unmeasured loser cost.
+  Details/assumptions in docs/ml/nlu-robustness-round2.md. No hedge adopted or paid.
+- Disparity PR #86 remains OPEN with all required main-target CI successful at
+  head 3d86622a94e056d70a9d0303d8b59e9b26f0a7ec. No rerun or merge.
+
+### Done but not verified
+
+- Sol accuracy, paired ES/PT outcomes, cost and latency are not yet measured.
+  v5.2 remains a separate unadopted candidate without real latency/accuracy data.
+
+### Next / blocked
+
+- Run approved paired dev comparison on the committed pins using its dedicated
+  $1.50 cap and $12 cumulative maximum. The remaining pre-v4 $0.02851223 cannot
+  fund complete follow-up plus both 240-case prompt arms; do not erase unknown
+  costs, exceed $0.90 or repurpose the comparison scope. No production change.
+- Lead reviews/merges #85/#86. Human CSV path is still pending. No held-out v4
+  input, final run, publication or merge from this lane.

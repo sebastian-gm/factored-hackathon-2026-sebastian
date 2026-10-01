@@ -61,10 +61,14 @@ class StructuredClient:
         spend_gate: SpendGate | None = None,
         call_timeout_seconds: float | None = None,
         fallback_routes: dict[str, str] | None = None,
+        risk_second_opinion_enabled: bool = False,
     ) -> None:
         if budget_usd is None and spend_gate is None:
             raise ValueError("Unbounded local budget requires a durable spend gate")
         self.spend_gate = spend_gate
+        # Explicit comparison injection keeps the same typed-risk path for a
+        # challenger. The application-selected Gemini behavior is unchanged.
+        self.risk_second_opinion_enabled = risk_second_opinion_enabled
         self.call_timeout_seconds = call_timeout_seconds
         self._deadline: float | None = None
         self._lock = RLock()

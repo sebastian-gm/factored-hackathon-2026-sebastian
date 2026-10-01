@@ -65,7 +65,7 @@ class OpenAICompat:
             "model": spec.model_id,
             "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}],
             "response_format": response_format,
-            "max_tokens": spec.max_output_tokens,
+            spec.max_tokens_parameter: spec.max_output_tokens,
         }
         if spec.reasoning_effort is not None:
             payload["reasoning"] = {"effort": spec.reasoning_effort}

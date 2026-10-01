@@ -270,3 +270,63 @@ sets executed with mock only (240 conversations, zero execution exceptions).
 The final two ill-formed word-date regressions, sanitized provider-error metadata
 and lean-study driver were added after the paid stop and have mock validation
 only. The measured implementation SHAs in the table remain the actual run pins.
+## Sequential retries and the hedge question
+
+Additional **zero-spend** analysis replays only these saved dev attempt journals,
+not in-region serving or held-out traffic. The lead reports that in-region p95
+tails involve a failed/slow Gemini first attempt plus retry; that is a separate
+measurement context. The current implementation retries sequentially after a
+short first-attempt timeout; it does not hedge concurrently. Jev runs in parallel
+and is excluded from summed serial request duration.
+
+| Saved stage | Logical NLU + phrase requests¹ | Requests with retry/fallback | Request p50 / p95 | p95 case-bootstrap 95% interval | Request p99 / max |
+|---|---:|---:|---:|---:|---:|
+| Before, 60 cases | 169 | 2 | 2.112 / 2.891 s | 2.545–3.302 s | 6.250 / 8.535 s |
+| After, 47 complete + interrupted case 48 | 128 | 11 | 2.178 / 3.814 s | 2.839–7.834 s | 8.640 / 9.184 s |
+
+¹One logical request groups its failed attempts and Grok fallback; its duration
+is their sum. This differs from the earlier per-attempt NLU latency table and
+from API-turn/conversation wall time. Saved fields reproduce two baseline and
+three follow-up first waits of 6.05–6.07 s, followed by successful retries; total
+request time is 7.64–9.18 s. Old errors lack HTTP/timeout codes, so timing is
+consistent with the configured timeout, without proving each historical cause.
+The other follow-up failures were fast; a timer hedge does not repair those.
+
+| Hypothetical timer | Before: triggers / new duplicates | After: triggers / new duplicates | Extra duplicate cost proxy, before / after² |
+|---|---:|---:|---:|
+| 3 s | 7 / 5 | 10 / 7 | $0.009712 / $0.013722 |
+| 4 s | 4 / 2 | 7 / 4 | $0.003809 / $0.008025 |
+
+²**Assumption, not measured spend or a cap:** each newly duplicated successful
+first request's second call uses the same billed per-call tokens/cost as that
+first call. It omits any changed output, provider contention or extra failures.
+Already-retried requests are shifted earlier, not charged a second time in this
+proxy. Timed-out firsts retain unknown cost/reservations; cancelling a local wait
+does not prove the remote inference stopped or its bill disappeared. Costs here
+come from per-call fields, never a key delta.
+
+The limited optimistic timing replay starts each observed slow unsuccessful
+first's existing retry at 3 or 4 s, assuming unchanged secondary latency/outcome.
+It leaves all successful firsts and fast failures unchanged. Those individual
+retry requests shorten by about 3.05 or 2.05 s, but **request p50/p95 is unchanged
+in both stages**: these slow retries are rarer than 5%. This does not establish
+that hedging leaves in-region turn/case p95 unchanged, nor predict an unobserved
+secondary request's success. The wider follow-up bootstrap interval reflects
+its small, degraded sample.
+
+Keep the production 6 s sequential policy for now. A future funded dev experiment
+should compare serial retry versus a 3–4 s hedge on matched cases and record both
+calls, reserve before both, retain loser cost, reuse one Jev opinion, and allow
+only one winning validated output into orchestration. Report completion, p95/p99
+turn/conversation time, retry/fallback rates and **both** calls' costs. Provider
+tails may be correlated, so independence cannot be assumed. No paid hedge arm
+was run under the stopped pre-v4 scope or the queued comparison scope.
+
+Reproducible calculation: [offline latency utility](../../src/aclara/llm/dev_latency.py),
+private `before/retry-latency-analysis.json` and `after/retry-latency-analysis.json`
+beside unchanged original journals. All 27 unknown-cost reservations remain;
+latest scope readback is $0.49124327 known / $0.87148777 charged exposure. The
+follow-up stopped when its next required reservation did not fit under $0.90;
+the remaining $0.02851223 cannot fund complete follow-up and 240-case lean arms.
+Scope remaining open
+does not authorize exceeding that stop or repurposing the model-comparison cap.

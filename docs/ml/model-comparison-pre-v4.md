@@ -1,9 +1,13 @@
-# Queued development comparison: access preflight
+# Development comparison: frozen protocol and access preflight
 
-**2026-09-30, zero inference calls / $0.** Gemini remains the production choice.
-The new `dev-gate/model-compare` durable scope and exact run ID have **not** been
-confirmed; no paid comparison may start. The pre-v4 robustness scope cannot be
-reused. Read-only checks at 22:51–22:55 UTC used the public model/endpoint catalog
+**2026-09-30 PDT, zero paid comparison calls / $0.** Gemini remains the production
+choice. Owner confirmation and Postgres readback establish scope
+`dev-gate/model-compare`, run `model-compare`, **$1.50 lifetime**; read back with
+zero reservations/cost. The pre-v4 robustness scope cannot be reused. The owner
+initially confirmed exhausted account credits and preparation only. The owner
+then confirmed the top-up; a 2026-10-01 00:22 UTC free health GET verified credits
+available. Paid work is authorized within the scopes; the paired run is next.
+Read-only checks at 22:51–22:55 UTC used the public model/endpoint catalog
 and authenticated metadata GETs only, never inference or a key-balance cost delta.
 Private timestamped receipts: `artifacts/dev-model-compare/`.
 
@@ -90,7 +94,93 @@ alone**, before Jev, retries, unknown costs, or Sol-specific reasoning. This is
 not measured Sol usage and does not predict identical outputs. The other 180
 cases would add cost. The approved smaller sample still needs conservative
 reservations; it has no measured Sol cost or guarantee of complete coverage.
-Once the lead confirms the new lifetime scope/run and credits,
+Once restored credits are confirmed,
 reserve before every request and preserve the $1.50 / $12 cumulative caps. If
 only partial coverage fits, disclose it and withhold a full-study conclusion;
 changing coverage or enlarging funding requires the owner's decision.
+
+## Prepared execution and scoring
+
+[Paired driver](../../src/aclara/llm/dev_model_compare.py) uses both candidates for
+NLU **and** phrasing, with NLU v5.1 and phrase v2 unchanged. Both use strict schemas,
+2048 output tokens, 6 s first-attempt timeout, 20 s subsequent-attempt limit and
+45 s logical-call deadline. Sol requests `max_completion_tokens: 2048`, the token
+parameter its endpoint advertises; Gemini retains `max_tokens: 2048`. OpenRouter
+documents the [equivalent completion-budget semantics](https://github.com/OpenRouterTeam/docs/blob/main/api_reference/parameters.mdx).
+Sol's `low` effort is explicit; Google-default thinking and Sol thinking are not
+matched budgets. Reasoning is discarded by the adapter, never saved in journals.
+
+Each arm explicitly enables the **same Jev risk union** and Grok failure fallback.
+Previously Jev ran only on the Gemini model ID, which would have confounded an
+orchestration comparison. The comparison's client injection opts Sol in; the
+application default is unchanged. Execution records add `primary_model_id` and
+`primary_raw_flags`; historical `gemini_raw_flags` remains a compatibility alias.
+Jev's existing questions/thresholds, [Noul semantics](https://docs.typesafe.ai/primitives/noul)
+and [SDK retry controls](https://docs.typesafe.ai/sdk/python/api/clients/sync)
+are unchanged. No new Jev-vs-Decisions experiment or judge call is made.
+
+Alternate which model runs first per pair; cases remain in the frozen set/language
+order, one case-run at a time. Code, prompts, configuration, scorer, bindings and
+sample are hashed before execution. Every provider/Jev/retry/fallback reserves
+against the **same** $1.50 scope before calling; unknown usage retains its reserve.
+The old shared-dev gate still defaults to its $0.90 stop. Fresh free catalog checks
+reject absent ZDR routes, missing schema/token-cap support or higher prices. A free
+credit check fails before inference while the account is exhausted. The driver
+records all attempts with sanitized timeout/HTTP codes and stops on HTTP 402.
+Atomic private checkpoints support explicit resume with identical pins; completed
+or interrupted conversations are never silently billed again.
+
+[Independent opening-slot annotations](../../src/aclara/llm/dev_model_compare_slots.json)
+were authored and frozen before any comparison call, SHA-256
+`2d63ee91e925b2f2a0df75801813b571ab23c23575ca56d78fb1c99c98d3b8c1`.
+They score amount, currency, date-start, date-end and merchant with populated-slot
+micro F1: wrong values count FP+FN; null/null contributes no TP. Merchant comparison
+ignores case/accents; amount comparison uses exact Decimal values. Gold describes
+the **opening**, including its initially incorrect amount, without inferring final
+target attributes or later corrections. Two multi-target openings are excluded
+from slot F1 only; both remain in objective scoring. No valid extraction counts
+as missing populated slots, and unreached NLU is reported separately. This is an
+opening-slot metric, not all reactive-turn slot F1. Existing scenario labels and
+freezes are untouched.
+
+Quality tables use the common completed pairs only, overall and ES/PT, with Wilson
+intervals from the existing objective scorer. Per-set coverage and both arms'
+incomplete cases remain visible. Costs, schema validity and provider errors include
+**all attempts**, including interrupted conversations. Latency reports attempts,
+serial logical requests including retry/fallback, API turns and conversations with
+case-cluster intervals. Customer-facing language errors are a conservative lexical
+proxy using the existing contextual detector; uncertain replies are counted
+separately. It is not a fluent human review and may flag legitimate initial
+code-switching clarification. Model IDs returned by providers and fallback rates
+remain in the private results.
+
+The same 50 pairs / 100 case-runs completed with **mock/$0 and no exceptions**.
+Both mock arms have 33/50 objective passes and four materially incorrect outcomes;
+those are shared deterministic-path observations, **not Gemini or Sol quality**.
+Local regression checks cover scoped caps, unknown-cost retention, provider/token
+pins, raw-primary identity, normalization, retry replay and resume without duplicate
+calls. Paid accuracy, latency and cost remain unmeasured pending the top-up.
+
+Latest free preflight (2026-10-01 00:10 UTC) revalidated both live ZDR routes and the
+new scope: zero attempts / $0 charged; all-scope charged exposure $5.54885629.
+Remaining comparison plus pre-v4 stops fit within $7.07736852; adding the lead's
+previous $3.20 final/smoke planning allowance gives $10.27736852, below $12.
+These are scope aggregates and planning exposure, not key-balance cost estimates.
+Receipts remain ignored in `artifacts/dev-model-compare/`.
+
+Run commands after credits are confirmed, on a clean committed tree:
+
+```sh
+# Preparation only; no provider or database calls.
+LLM_PROVIDER=mock LLM_REAL_CALLS_APPROVED=0 uv run python -m aclara.llm.dev_model_compare
+# Approved paired comparison, exact durable scope/run built into the driver.
+LLM_PROVIDER=mock LLM_REAL_CALLS_APPROVED=1 uv run python -m aclara.llm.dev_model_compare --real
+# Only if interrupted; identical implementation/data/config pins required.
+LLM_PROVIDER=mock LLM_REAL_CALLS_APPROVED=1 uv run python -m aclara.llm.dev_model_compare --real --resume
+```
+
+Default/replacement recommendation: **none until paired paid evidence exists**.
+The [round-two retry analysis](nlu-robustness-round2.md#sequential-retries-and-the-hedge-question)
+is counterfactual preparation; no concurrent hedge is implemented or adopted.
+The completed [disparity PR #86](https://github.com/sebastian-gm/bank-agent-lab/pull/86)
+has green main-target CI and awaits the lead's merge. Never access held-out v4.

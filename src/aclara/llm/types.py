@@ -20,12 +20,13 @@ class ModelSpec:
     price_ceiling: tuple[float, float] | None = None
     provider_only: tuple[str, ...] = ()
     max_output_tokens: int = 1024
+    max_tokens_parameter: Literal["max_tokens", "max_completion_tokens"] = "max_tokens"
     reasoning_effort: Literal["max", "xhigh", "high", "medium", "low", "minimal", "none"] | None = (
         None
     )
     timeout_seconds: int = 20
-    # Hedge provider latency outliers: a slow first attempt is abandoned early and
-    # the bounded second attempt uses the full timeout (post-v3 latency analysis).
+    # Sequential retry: the slow first attempt has a shorter timeout and the
+    # second uses the full limit. This does not launch a concurrent hedge.
     first_attempt_timeout_seconds: int | None = None
 
 

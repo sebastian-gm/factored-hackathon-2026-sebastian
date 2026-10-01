@@ -622,6 +622,10 @@ def _record_risk_opinion(
         else "skipped",
         attempt=1,
         judgments={
+            "primary_model_id": client.models["nlu"].model_id,
+            "primary_raw_flags": gemini_flags,
+            # Keep the historical key for record readers. The additive primary
+            # identity/flags above identify a development challenger correctly.
             "gemini_raw_flags": gemini_flags,
             # Prompt v4 requests booleans; it exposes no per-cue Gemini probabilities.
             "gemini_raw_probabilities": {cue: None for cue in RISK_CUES},
@@ -681,9 +685,9 @@ def understand(
             data_block("customer_message", redact_for_model(message)),
         )
     )
-    real_route = (
-        client.models["nlu"].provider not in {"mock", "recorded"}
-        and client.models["nlu"].model_id == "google/gemini-3-flash-preview"
+    real_route = client.models["nlu"].provider not in {"mock", "recorded"} and (
+        client.models["nlu"].model_id == "google/gemini-3-flash-preview"
+        or client.risk_second_opinion_enabled
     )
     future: Future[TypedJudgments] | None = None
     executor: ThreadPoolExecutor | None = None

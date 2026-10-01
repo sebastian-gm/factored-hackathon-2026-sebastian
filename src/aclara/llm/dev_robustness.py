@@ -42,9 +42,15 @@ def money(value: float) -> Decimal:
     return result.quantize(Decimal("0.00000001"), rounding=ROUND_CEILING)
 
 
-def check_reserve(charged: Decimal, amount: Decimal) -> None:
-    if charged < 0 or amount <= 0 or charged + amount > STOP:
-        raise DevBudgetStop("Shared dev exposure plus reservation exceeds $0.90 stop")
+def check_reserve(charged: Decimal, amount: Decimal, *, stop: Decimal = STOP) -> None:
+    if (
+        not all(value.is_finite() for value in (charged, amount, stop))
+        or charged < 0
+        or amount <= 0
+        or stop <= 0
+        or charged + amount > stop
+    ):
+        raise DevBudgetStop("Shared dev exposure plus reservation exceeds approved stop")
 
 
 class ThresholdGate:
@@ -56,10 +62,15 @@ class ThresholdGate:
         *,
         scope: str = SCOPE,
         run_id: str = RUN_ID,
+        cap: Decimal = Decimal("1"),
+        stop: Decimal = STOP,
     ):
+        if not cap.is_finite() or not stop.is_finite() or not 0 < stop <= cap:
+            raise ValueError("Development stop must fit its finite positive cap")
         self.connection = connection
         self.lock = RLock()
         self.scope, self.run_id = scope, run_id
+        self.cap, self.stop = cap, stop
 
     def reserve(self, amount_usd: float) -> str:
         amount = money(amount_usd)
@@ -74,14 +85,14 @@ class ThresholdGate:
                     "SELECT limit_usd,enabled FROM llm.runs WHERE scope=%s AND run_id=%s",
                     (self.scope, self.run_id),
                 ).fetchone()
-                if limit != (Decimal("1"), False) or run != (Decimal("1"), True):
+                if limit != (self.cap, False) or run != (self.cap, True):
                     raise DevBudgetStop("Expected shared dev scope changed or closed")
                 used = self.connection.execute(
                     "SELECT coalesce(sum(charged_usd),0) FROM llm.reservations WHERE scope=%s",
                     (self.scope,),
                 ).fetchone()
                 assert used is not None
-                check_reserve(used[0], amount)
+                check_reserve(used[0], amount, stop=self.stop)
                 row = self.connection.execute(
                     "SELECT llm.reserve(%s,%s,%s)", (self.scope, self.run_id, amount)
                 ).fetchone()
