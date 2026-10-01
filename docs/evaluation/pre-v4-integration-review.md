@@ -111,3 +111,26 @@ purse succeeded: unchanged $0.10 cap, 19 attempts, $0.01627249 charged, zero unk
 costs; total $6.99994254 and corrected conservative maximum $11.82845477. Private
 numeric receipt: `artifacts/azure/release-budget-counting-readonly.json`. No new
 purse was created and no model call occurred.
+
+## Corrected AI head and video-readiness integration
+
+Reviewed #93 correction `7c7a96a` at zero cost: the reported digit/status prose,
+actual `awaiting_dispute_decision` literal and status-only merchant exemption
+all fail closed in authored replays. Authored localized-integrity, replay-permission
+and kind-normalization tests: **153 passed**. Existing named merchant citations
+and 0600 snapshot creation are covered. The NLU merge preserves #85's currency,
+spoken-date and quota-stop fixes. Only the progress history conflicted.
+
+Reviewed #94 `93e65a0`: no BFF, confirmation, OTP, proposal or banking-write
+behavior changes. Trusted story hints select a login/draft, never authority.
+Fixture-only usernames remain gated; missing live hints remain disabled. Numbered
+choices send ordinary ordinal text. Recording access only focuses existing opt-in
+controls. Retained lead's clock update on configuration changes, frontend's day
+format and explicit empty sections, plus live verified-action assertions. Preserved
+both progress histories. Local combined gates and Azure verification remain next.
+
+Owner then authorized the lead-owned PT API proposal: choice eligibility requires
+two valid movements from the owned, product-joined 120-day projection, without
+requiring merchant names. Currency/amount/status and handle remain valid; named
+explanation still requires a merchant. No merchant is invented, policy/RLS and
+confirmation remain unchanged, and hints do not promise a dispute receipt.

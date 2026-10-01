@@ -2970,3 +2970,39 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
   the owner's clean rehearsal, freeze and separate GO.
 - Continue from docs/status/progress-log.md. Next layer: complete rehearsal-fix
   integration and release. Same rules.
+
+## 2026-10-01 UTC — corrected language guards and video integration
+
+### Completed (verified)
+
+- Integrated corrected #93 `7c7a96a`; authored replay rejects original corruption,
+  machine-state prose and status-only merchant citation. Local targeted tests:
+  153 passed (localized integrity, kind aliases, private replay permissions).
+- Reviewed/integrated #94 `93e65a0`: overlapping Desk/copy history resolved,
+  verified-action assertions retained and SLA assertion adapted to days. No
+  confirmation/OTP/write/BFF behavior changes. Budget helper #95 integrated.
+- Owner authorized PT API hint change separately: two owned reviewable movements
+  may have missing merchants; named explanation retains its named-merchant gate.
+  No threshold, policy or authority change; authored scope/boundary tests added.
+
+### Done but not verified
+
+- Combined full local/remote gates and Azure release have not yet run. No paid
+  model calls, Azure changes or v4 contents/start this session.
+
+### Next / blocked
+
+- Verify PT hint regression and all combined local checks; publish one candidate
+  for remote CI, then standing-approved main merge and capped image release.
+- Frontend rechecks four live bugs on the actual release before freeze/v4 GO.
+
+- PT hint scope/identity/authentication checks: `pytest
+  tests/test_story_availability.py tests/test_trace_additions.py
+  tests/test_judge_access.py`: 26 passed, mock only. The initial assertion expected
+  an empty merchant but the API deliberately renders the missing sentinel `—`;
+  corrected the authored test to that existing contract. A second assertion expected
+  `verified=False`; choices deliberately use `verified=None` (no write claimed).
+  Both assertions now match the existing contract; the final rerun passed. The
+  preceding commit recorded 26 passes prematurely before checking the receipt;
+  this entry corrects that verification sequence. An earlier sandboxed
+  TestClient run stalled and was terminated; local-network rerun is the evidence.
