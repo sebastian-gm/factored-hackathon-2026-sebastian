@@ -2304,3 +2304,53 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
   untouched. No new spend or infrastructure approval needed for this rehearsal.
 - Continue from docs/status/progress-log.md. Next layer: v4 launch gates after
   feature freeze and owner go. Same rules.
+
+## 2026-10-01 UTC — runner merge and urgent live rehearsal diagnosis
+
+### Completed (verified)
+
+- Merged approved runner-only #89 at `2dfa50408547c001140764f782562e63ebfdede7`;
+  main equals origin/main and its four remote checks succeeded. API/web Docker
+  COPY input-tree fingerprints match the parent; no image build/push or Azure
+  release was required. Receipt: ignored `artifacts/final-program-rehearsal/merge-image-inputs.json`.
+- Read the authorized rehearsal references and four original Azure conversations
+  using the non-owner role and exact customer/run/session scopes. RLS stayed intact;
+  unscoped reads yielded zero. No Azure change or new paid call. Confirmed phrase
+  output corruption passing grounding, raw English fallback status, PT `compra`
+  versus canonical kind mismatch, operational SLA clock mismatch, and missing
+  handoff fact/action projection. Details: [live-rehearsal-triage.md](../evaluation/live-rehearsal-triage.md).
+- Lead fixes on `fix/live-rehearsal-freeze-blockers`: localized fallback;
+  conversation-scoped identified facts; read-backed dispute/handoff actions;
+  offered freeze excluded from executed actions; live Desk wall clock and ES/PT
+  empty-facts copy. Local full Python 503 passed / 22 skipped, disposable Postgres
+  29 passed, authored browser 93 passed, live API staff browser 1 passed. Ruff,
+  mypy 88 files and web typecheck passed. Focused missing-readback/credit regressions
+  21 passed / 1 Postgres skip. No claim of Azure verification for new fixes.
+- Free OpenRouter inference-key GET preflight succeeded at 01:06 UTC: account
+  remaining $9.659101954, key remaining $5.802867, both ≥ $4. No management key,
+  model call or charge. Keys stayed in memory; ignored numeric receipt only.
+- Critical review of updated #85 at `078a4ba` found a confirmed zero-cost replay
+  gap: new `provider_402` error-envelope category bypasses the comparison's
+  `http_402` stop guard when cost is known. Relayed to AI alongside the live NLG
+  and type-alias regressions; no further comparison spending requested.
+
+### Done but not verified
+
+- Lead fixes await review/integration/remote CI and deployment; Azure still runs
+  the previous release. AI NLG/type alias fix PRs and #85 review correction pending.
+- Independent free credit-gate helper is implemented and tested locally; exact
+  v4 launch checklist updates and its PR are being prepared. No v4 budget/worker
+  preparation or start occurred.
+
+### Next / blocked
+
+- Publish lead-owned rehearsal fix PR; integrate AI fixes and complete #85 review.
+  One combined remote CI before merging/releasing. Keep unsupported story hints
+  disabled; coordinate the frontend helper role gate and reviewed serving persona.
+- Reproduce the corrected PT receipt and ES explanation after reviewed integration
+  and release; estimate/obtain GO before any new real-model smoke.
+- V4 freeze/start remain blocked by these live bugs. Earlier Oct 1 evening freeze
+  is tentative; existing Oct 2 noon COT plan requires explicit freeze and final GO.
+  Keep v4 rows/selections/bindings unopened and abandoned v1 untouched.
+- Continue from docs/status/progress-log.md. Next layer: close live rehearsal
+  blockers, combined release, then v4 launch gates. Same rules.

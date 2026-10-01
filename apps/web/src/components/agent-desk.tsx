@@ -32,11 +32,20 @@ export function AgentDesk() {
   const [evidence, setEvidence] = useState<
       DeskPacket["evidence"][number] | null
     >(null),
-    [tick, setTick] = useState(0);
+    [clock, setClock] = useState("");
   useEffect(() => {
-    const timer = setInterval(() => setTick((v) => v + 1), 60000);
+    let tick = 0;
+    const base = Date.parse(config.bankClock ?? "");
+    const advance = () => {
+      // Operational deadlines use wall time. Only authored fixtures share the
+      // frozen ledger clock; transaction eligibility still uses bankClock.
+      const now = config.fixtures ? base + tick++ * 60000 : Date.now();
+      setClock(Number.isFinite(now) ? new Date(now).toISOString() : "");
+    };
+    advance();
+    const timer = setInterval(advance, 60000);
     return () => clearInterval(timer);
-  }, []);
+  }, [config.fixtures, config.bankClock]);
   async function load() {
     setLoading(true);
     setLoadError(false);
@@ -63,10 +72,6 @@ export function AgentDesk() {
     return () => c.abort();
   }, []);
   const current = packets.find((p) => p.handoff_id === selected) ?? packets[0];
-  const baseClock = Date.parse(config.bankClock ?? "");
-  const clock = Number.isFinite(baseClock)
-    ? new Date(baseClock + tick * 60000).toISOString()
-    : "";
   async function act(action: "claim" | "resolve") {
     if (!current || busy) return;
     setBusy(true);
@@ -236,6 +241,9 @@ export function AgentDesk() {
               </section>
               <section className="packet-section">
                 <h3>{t("facts")}</h3>
+                {!current.verified_facts.length && (
+                  <p className="caption">{t("noVerifiedMovement")}</p>
+                )}
                 {current.verified_facts.map((fact, i) => (
                   <div key={fact.handle}>
                     <TransactionCard transaction={fact} />
