@@ -93,6 +93,54 @@ def test_page_preserves_blinding_and_escapes_untrusted_html(tmp_path, monkeypatc
         build_page(source, rubric, tmp_path / "published.html")
 
 
+@pytest.mark.parametrize("version", ["v3", "v4"])
+def test_page_labels_the_selected_version_and_isolates_autosave(tmp_path, monkeypatch, version):
+    monkeypatch.setattr(human_review, "ROOT", tmp_path)
+    source = tmp_path / "source.csv"
+    sheet(source)
+    rubric = tmp_path / "rubric.md"
+    rubric.write_text("Rúbrica local de prueba")
+    output = tmp_path / "artifacts/review/page.html"
+    assert build_page(source, rubric, output, version=version)["version"] == version
+    html = output.read_text()
+    assert f"<title>Aclara — revisión humana {version}</title>" in html
+    assert f"20 respuestas ({version})" in html
+    assert "__VERSION__" not in html
+    encoded = html.partition('<script id="review-data" type="application/json">')[2].partition(
+        "</script>"
+    )[0]
+    assert json.loads(encoded)["version"] == version
+    assert "'aclara-human-'+payload.version+':'+payload.source_sha256" in html
+
+
+def test_v4_cli_default_output_preserves_the_v3_page(tmp_path, monkeypatch):
+    monkeypatch.setattr(human_review, "ROOT", tmp_path)
+    source = tmp_path / "source.csv"
+    sheet(source)
+    rubric = tmp_path / "rubric.md"
+    rubric.write_text("Rúbrica local de prueba")
+    v3 = tmp_path / "artifacts/human-judge/v3-score.html"
+    v3.parent.mkdir(parents=True)
+    v3.write_text("Existing v3 page")
+    monkeypatch.setattr(
+        human_review.sys,
+        "argv",
+        [
+            "human_review",
+            "build",
+            "--source",
+            str(source),
+            "--rubric",
+            str(rubric),
+            "--version",
+            "v4",
+        ],
+    )
+    assert human_review.main() == 0
+    assert v3.read_text() == "Existing v3 page"
+    assert "20 respuestas (v4)" in (v3.parent / "v4-score.html").read_text()
+
+
 def test_partial_judges_intersect_ids_and_exclude_na(tmp_path) -> None:
     result = import_ratings(*saved(tmp_path))
     assert result["human_complete"]

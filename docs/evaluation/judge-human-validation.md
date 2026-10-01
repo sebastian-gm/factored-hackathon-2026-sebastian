@@ -1,99 +1,86 @@
-# Human wording review of the saved v3 sample
+# Human wording review of the final v4 system
 
-**Status: human ratings pending.** This is a descriptive review of existing v3
-responses, not a new model run or the rubric's required 50-item calibration.
-No human–judge agreement is claimed yet. The original outputs and official v3
-results remain unchanged; v3 is now development evidence.
+**Status: v4 page ready; human ratings pending.** Sebastian will rate the final
+system's saved v4 responses. No human–judge agreement is claimed before his
+export is received. This 20-item review is descriptive; it does not satisfy the
+[rubric's 50-item calibration requirement](judge-rubric.md).
 
-## Offline scoring and import
+## Offline scoring
 
-The private page is
-`artifacts/human-judge/v3-score.html` in the AI worktree. It embeds the lead's
-unchanged `artifacts/final-program-v3/human-judge-20.csv` and the
-[rubric](judge-rubric.md), with Spanish instructions and translated score anchors.
-It shows locale, customer message, delivered reply and handoff summary, without
-system identities, objective gold or model scores. Four independent 1–5 ratings
-and optional notes autosave to localStorage. Handoff usefulness is N/A when no
-summary exists and exports as a blank cell. «Exportar CSV» preserves the exact
-ten source columns and original wording, including any visible defects.
+Open `artifacts/human-judge/v4-score.html` in the AI worktree:
 
-Open the HTML directly in a browser. It has no dependencies, external assets,
-hosting or network calls; CSP prohibits connections. Ratings stay in that
-browser/device until exported. The original source, generated HTML, notes and
-exported CSV stay out of Git. Offline Chromium checks verified 20 items, six
-N/A summaries, autosave/reload and CSV export with quoted multiline notes:
-zero network requests and zero browser errors. Source SHA-256:
-`898c2702856dc4475e5e8f7f4d22865081cd74369330e6759f4385db78a75418`.
+```bash
+xdg-open /home/megagdev/.herdr/worktrees/bank-agent-lab/feat-ai/artifacts/human-judge/v4-score.html
+```
 
-After Sebastian confirms his export path, run the
+The page embeds the lead's unchanged `artifacts/final-program-v4/human-judge-20.csv`
+and the [rubric](judge-rubric.md), with Spanish instructions and 1–5 anchors.
+Each item shows locale, customer message, delivered reply and handoff summary.
+Model identities, judge scores and objective gold are hidden. Four independent
+ratings and optional notes autosave locally; handoff usefulness is N/A when no
+summary exists and exports as a blank cell. «Exportar CSV» downloads
+`human-judge-20-scored.csv`, preserving all ten original columns and customer text.
+
+The single HTML file works offline without external assets, hosting or network
+calls; CSP prohibits connections. V4 autosave is separate from v3 and keyed to
+the source hash. Local Chromium verified 20 items, ten N/A summaries, all 70
+applicable ratings, autosave/reload and CSV export with quoted multiline notes:
+zero network requests and zero browser errors. The original wording survived the
+export unchanged. The generated page is mode 0600; source, page, notes and CSV
+remain private and outside Git. Source SHA-256:
+`84ed0d45458c0c6fba7dd92950b364ab5156887ca012ff75ce91a5fc0f6ae169`.
+
+## Import the human export
+
+Once the exported path is confirmed, run the
 [importer](../../src/aclara/llm/human_review.py) from the AI worktree:
 
 ```bash
 .venv/bin/python -m aclara.llm.human_review import \
   --scored /home/megagdev/Downloads/human-judge-20-scored.csv \
-  --source /home/megagdev/megagdev/factored-hackathon-2026/bank-agent-lab/artifacts/final-program-v3/human-judge-20.csv \
-  --judge-inputs /home/megagdev/megagdev/factored-hackathon-2026/bank-agent-lab/artifacts/final-program-v3/judge-inputs.json \
-  --checkpoints /home/megagdev/megagdev/factored-hackathon-2026/bank-agent-lab/artifacts/final-program-v3/checkpoints
+  --source /home/megagdev/megagdev/factored-hackathon-2026/bank-agent-lab/artifacts/final-program-v4/human-judge-20.csv \
+  --judge-inputs /home/megagdev/megagdev/factored-hackathon-2026/bank-agent-lab/artifacts/final-program-v4/judge-inputs.json \
+  --checkpoints /home/megagdev/megagdev/factored-hackathon-2026/bank-agent-lab/artifacts/final-program-v4/checkpoints \
+  --output artifacts/human-judge/v4-agreement.json
 ```
 
-The Downloads path is provisional. Import requires all applicable human ratings,
-the original twenty unique IDs, identical locale/text and exact CSV columns. It
-also matches saved judge inputs before joining score checkpoints by blinded ID.
-No additional judge calls are made. Its ignored `v3-agreement.json` reports human
-vs Sonnet, human vs Jev and Sonnet vs Jev, by dimension and ES/PT slice: paired n,
+The Downloads path is provisional. Import requires all applicable ratings,
+twenty unique original IDs, exact columns and unchanged locale/text, and checks
+the wording against saved judge inputs before joining checkpoint scores by ID.
+A v3 export cannot be substituted. It makes no new model calls.
+
+Report human–Sonnet, human–Jev and Sonnet–Jev agreement per dimension: paired n,
 exact agreement, within-one agreement and quadratic-weighted Cohen's κ on the
-fixed 1–5 scale. Missing scores and N/A are excluded, never imputed as zero.
-Empty pairs and zero expected disagreement produce undefined κ.
+fixed 1–5 scale, overall and for ES/PT. Missing ratings and absent handoffs are
+excluded; they never become zero. Empty pairs and zero expected disagreement
+produce undefined κ. Keep item-level ratings and notes private; inspect
+disagreements exceeding one point after the human scores arrive.
 
-## Available pairs and limitations
+## Saved v4 judge pairs
 
-[V3 judging](final-v3-results.md) stopped at **28/60** items. Only **10/20** sheet
-items have saved scores: six ES, two PT and two mixed. Eight of those ten have
-handoff summaries. Thus completing all twenty human ratings cannot create
-twenty model pairs. On these existing shared sheet items only:
+All **60/60** planned v4 judge items have saved Sonnet/Jev scores. All **20/20**
+human-sheet items can be paired: eleven ES, three pt-BR, three mixed and three
+other-language items. Ten have handoff summaries. On these shared sheet items,
+before any human ratings:
 
 | Sonnet vs Jev dimension | Paired n | Exact | Within one | Quadratic κ |
 |---|---:|---:|---:|---:|
-| Language/register | 10 | 60% | 100% | 0.429 |
-| Clarity | 10 | 30% | 100% | 0.286 |
-| Empathy | 10 | 20% | 90% | 0.000 |
-| Handoff usefulness | 8 | 100% | 100% | Undefined: no variance |
+| Language/register | 20 | 50% | 100% | 0.174 |
+| Clarity | 20 | 60% | 90% | 0.364 |
+| Empathy | 20 | 30% | 100% | 0.200 |
+| Handoff usefulness | 10 | 90% | 100% | 0.000 |
 
-Human vs Sonnet and human vs Jev results will be added after the confirmed export.
-These small, partially observed pairs cannot validate either judge. One reviewer,
-partial judging and correlated response types limit interpretation; mixed items
-are included in the overall denominator but excluded from ES/PT slices. Fluent
-PT human review remains unconfirmed. Inspect differences exceeding one point;
-keep item-level notes and ratings private. Objective outcomes remain code-scored.
+These are judge–judge agreements, not correctness or human validation. Two
+clarity pairs differ by more than one point. The private aggregate receipt is
+`artifacts/human-judge/v4-agreement-pending.json`; human pair counts are currently
+zero. **TODO(human export):** add each judge's agreement with Sebastian, ES/PT
+slice denominators and the review of larger disagreements.
 
-## Item 1 integrity check and repair
+One reviewer, a small sample, correlated response types and only three pt-BR
+items limit interpretation. Fluent PT human review remains unconfirmed. Mixed
+and other-language items are included overall but excluded from ES/PT slices.
+Objective outcomes, authorization and safety remain code-scored. Neither judge
+is validated by agreement with the other.
 
-The reported defect is present in both the CSV and its saved reply; it was not
-introduced by export. The pinned v3 implementation is `e12efc7`, with phrase
-**v1**. This historical sample does not demonstrate a phrase-v2 failure.
-
-Current [phrase v2](../../prompts/phrase/v2.md) preserves the approved reply and
-requested language. Its [language guard](../../src/aclara/agent/nlg/builder.py)
-identifies the saved reply as PT and rejects confidently opposite-language drafts
-when the caller requests ES. This is a conservative heuristic: ambiguous text or
-an incorrectly supplied target language cannot be guaranteed correct.
-
-Before this repair, [grounding/DLP](../../src/aclara/agent/nlg/grounding.py) rejected
-uncited handles but accepted cited internal handles and corrupted characters.
-It now rejects customer-text `txn_`, `prod_`, `card_` and `cust_` numeric handles
-regardless of citation; verified customer case references remain allowed. It also
-rejects replacement characters, common UTF-8 mojibake, a narrow word-internal
-apostrophe/hash corruption signature and non-whitespace control characters.
-Valid ES/PT accents are preserved. Unknown corruption patterns can still escape
-this detector; it is not a universal text-quality proof.
-
-The [authored regressions](../../tests/test_nlg_output_integrity.py) reproduced
-14 failures before the repair. A zero-cost replay of the saved reply through the
-current builder rejects both integrity defects and returns a clean Spanish
-approved template after two mock attempts. Opposite-language tests pass separately
-in both directions. Private aggregate receipt:
-`artifacts/human-judge/item1-replay.json`. No deployment, paid calls or v4 access.
-
-Local verification: 459 Python tests passed, 17 database-dependent skips; the
-v4-specific test module was excluded and a file-access barrier protected actual
-v4 inputs. Strict mypy, Ruff, interface/catalog checks and B1 dev 32/32 passed.
+V4 is the primary human-review sample. Analyze the earlier v3 sheet separately
+only if Sebastian also scores it; it will not substitute for final-system ratings.
