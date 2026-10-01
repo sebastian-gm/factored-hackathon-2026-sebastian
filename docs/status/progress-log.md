@@ -2874,3 +2874,35 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
   at launch, preserving all retained reservations.
 - Continue from docs/status/progress-log.md. Next layer: combined rehearsal fixes
   and release, then freeze and v4 launch gates. Same rules.
+
+## 2026-10-01 UTC — release helper cumulative accounting correction
+
+### Completed (verified)
+
+- Found release helper adding already-counted pre-v4 dev charges to its full $1
+  allowance again. Corrected only the maximum calculation, matching the existing
+  shared-dev preflight. One SQL snapshot returns both sums; no charge/reserve/cap
+  update, comparison allowance still conservatively retained in full.
+- `pytest tests/test_release_smoke_budget.py tests/test_pre_v4_budget.py
+  tests/test_llm_budget.py tests/test_after_v2_budget.py`: 19 passed / 9 database
+  skips. Ruff passed. Two initial invocations used nonexistent guessed test paths
+  and collected no tests; the corrected command above is the completed check.
+- Existing release purse read-only verification (`prepare=False`) passed actual
+  Azure budget SQL: $0.10 cap unchanged, 19 attempts, $0.01627249 charged, no unknown
+  costs. Total $6.99994254; conservative maximum $11.82845477. No new run, prepare,
+  scope closure or provider request. Receipt ignored under artifacts/azure.
+- Frontend video PR #94 `93e65a0` is now available for critical review; includes
+  trusted Ops persona hints and preserves API-gated PT unavailability.
+
+### Done but not verified
+
+- New helper fix still needs publication/integration/final CI. #94 review and
+  corrected #93 head pending; no Azure change or paid call this session.
+
+### Next / blocked
+
+- Finish the corrected AI/frontend integration and local gates, then one remote
+  CI before standing-approved main merge/release. No v4 contents or start until
+  the owner's clean rehearsal, freeze and separate GO.
+- Continue from docs/status/progress-log.md. Next layer: complete rehearsal-fix
+  integration and release. Same rules.

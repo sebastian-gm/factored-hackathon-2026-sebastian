@@ -94,3 +94,20 @@ new capped real smoke and feature freeze follow reviewed closure of live blocker
 The frontend video-readiness PR and corrected #93 head are still pending. Main
 remote CI will run once on the complete candidate. Release has standing approval;
 feature freeze and v4 GO remain separate, after the owner's live rehearsal.
+
+## Release helper arithmetic correction
+
+The existing release helper would count current pre-v4 dev charges and then add
+its full $1 allowance again, yielding $12.69994254 and refusing a release that
+passes the shared preflight. Its aggregate SQL now reads total and pre-v4 charged
+exposure in one snapshot and includes that spend inside the full $1 allowance.
+All historical/production/comparison charges, comparison's full $1.50 allowance,
+$3 v4 and both $0.10 smokes remain counted. No record, reserve or cap is changed.
+
+Authored budget boundaries: **19 passed / 9 Postgres-dependent skips**. Invalid,
+overspent dev or above-$12 exposure fails; the exact ceiling passes. Read-only
+`release_smoke_budget.verify(..., prepare=False)` on the existing deployed SHA's
+purse succeeded: unchanged $0.10 cap, 19 attempts, $0.01627249 charged, zero unknown
+costs; total $6.99994254 and corrected conservative maximum $11.82845477. Private
+numeric receipt: `artifacts/azure/release-budget-counting-readonly.json`. No new
+purse was created and no model call occurred.
