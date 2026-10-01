@@ -71,3 +71,26 @@ quality measurement. Generated browser references and B1 Markdown were restored;
 official result pages remain unchanged. Remote CI is held for the complete
 candidate to preserve the owner's single-run requirement. Main merge/release,
 new capped real smoke and feature freeze follow reviewed closure of live blockers.
+
+## Subsequent PR review and cumulative preflight
+
+- #88 `a3f54d3`: original live failure observations, project-authored messages and
+  aggregate timing/cost receipts only; no organizer values, operational IDs or
+  credentials. Integrated without claiming the failed PT draft was repaired.
+- #86 `3d86622`: supporting aggregate disparity analysis, checked against official
+  v3 ES/PT/strict-transfer figures and caveats. No result/gold/scorer change.
+- #93 `8d3ac42`: original corruption is rejected, source status/type display facts
+  localize and raw kind aliases canonicalize without threshold changes. Held for
+  three zero-cost corrections sent to the AI lane: the actual
+  `awaiting_dispute_decision` machine enum is not rejected; an uncited merchant
+  `Approved` is exempted/counted as cited through a status citation; private
+  replay snapshots/reports are created with default permissions rather than 0600.
+  Authored source-only replays reproduced both guard gaps; no frozen row or paid
+  run. Stacked base now `integration/pre-v4-freeze` so corrections use local checks.
+- Fresh `scripts.pre_v4_budget` readback: $6.99994254 current charged/reserved;
+  conservative full dev + v4 + smoke allowances $11.82845477 ≤ $12. No budgets
+  changed and no unknown reserves released. Recheck after release/before launch.
+
+The frontend video-readiness PR and corrected #93 head are still pending. Main
+remote CI will run once on the complete candidate. Release has standing approval;
+feature freeze and v4 GO remain separate, after the owner's live rehearsal.

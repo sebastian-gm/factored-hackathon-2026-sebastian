@@ -121,3 +121,20 @@ while writing this checklist. The runner's detached/resume behavior was exercise
 only in the zero-spend retired-v3 rehearsal. The free credit helper was checked
 with authored HTTP mocks and the inference key's two metadata GETs; it never
 calls a completion endpoint or prints the key, account label or raw response.
+
+## Latest zero-cost durable readback
+
+`python -m scripts.pre_v4_budget` on 2026-10-01 UTC read metadata only; no scope
+creation/closure or model call. Current charged exposure **including retained
+unknown reservations** is **$6.99994254**. Its deliberately conservative guard
+adds full allowances (it also retains comparison charges already made in the
+prior subtotal):
+
+`$6.12845477 prior + $1 pre-v4 + $1.50 comparison + $3 v4 + $0.10 release + $0.10 latency = $11.82845477 ≤ $12`.
+
+Pre-v4 has $0.87148777 charged/reserved ($0.49124327 known, 27 unknown attempts).
+Comparison has $1.49171001 charged/reserved; the partial comparison is stopped.
+Do not release either set of unknown reserves. At final preparation both dev
+scopes must close and all fresh production/smoke charges must be counted again.
+The current receipt is `artifacts/pre-v4-dev/budget.json`; it is not a cached
+substitute for the launch-time readback. V4 remains unauthorized/unprepared here.

@@ -2839,3 +2839,38 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
 - Robustness changes remain in private PR #85 to `fix/post-v3-analysis`. The
   queued model comparison still awaits its separate durable scope/readback and
   restored OpenRouter account credits; metadata checks are zero-call only.
+
+## 2026-10-01 UTC — supporting PRs and fresh cumulative preflight
+
+### Completed (verified)
+
+- Integrated reviewed #88 `a3f54d3` and supporting AI aggregate #86 `3d86622` on
+  the private candidate, keeping rehearsal failures and official figures intact.
+  Progress conflicts resolved by preserving all histories. Main unchanged.
+- Critically reviewed #93 `8d3ac42`: source-only authored replays confirm original
+  digit/English leak is rejected but expose machine-enum and merchant-citation
+  gaps. Also found default-mode private replay outputs. Orchestrator relayed all
+  three corrections; hold this PR until updated. Retargeted it to the integration
+  branch to avoid redundant main-target CI pushes.
+- `python -m scripts.pre_v4_budget`: $6.99994254 current charged/reserved,
+  conservative maximum $11.82845477 including full dev allowances, $3 v4 and both
+  $0.10 smokes. Current pre-v4 $0.87148777, 27 unknown attempts; comparison
+  $1.49171001 retained. Metadata-only read; no prepare, closure or reserve release.
+  Exact math in [v4-launch-checklist.md](../evaluation/v4-launch-checklist.md).
+
+### Done but not verified
+
+- Corrected #93 and frontend video-readiness PR are awaited. Combined remote CI
+  and Azure release have not run. Existing main's four checks are success.
+- V4 stays unopened/unprepared/unstarted. No new model spend in this session.
+
+### Next / blocked
+
+- Review corrected #93 plus frontend readiness; complete local gates, then one
+  remote CI on the full main candidate. Standing approval covers main merge and
+  image release. Frontend rechecks the four live bugs after release.
+- Feature freeze and final v4 GO follow a clean owner rehearsal; they have not
+  been granted. Recheck actual cumulative exposure and free OpenRouter balances
+  at launch, preserving all retained reservations.
+- Continue from docs/status/progress-log.md. Next layer: combined rehearsal fixes
+  and release, then freeze and v4 launch gates. Same rules.
