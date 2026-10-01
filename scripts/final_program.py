@@ -13,6 +13,7 @@ import time
 from datetime import UTC, datetime
 from pathlib import Path
 
+from evals import rehearsal
 from evals.checkpoints import atomic_write, exclusive, save
 from evals.program_spec import (
     ProgramSpec,
@@ -46,6 +47,9 @@ def release() -> str:
 
 
 def environment(spec: ProgramSpec) -> None:
+    if spec.rehearsal:
+        rehearsal.environment(spec)
+        return
     serving_pin(spec)
     # Credentials are fetched in memory in the child, never placed in argv/log/files.
     from scripts.azure_dev import VAULT, az
@@ -67,17 +71,21 @@ def environment(spec: ProgramSpec) -> None:
 
 def worker(spec: ProgramSpec) -> None:
     output = spec.output
-    require_start()
+    authorize(spec)
+    if spec.rehearsal:
+        environment(spec)
     with exclusive(output / "worker.lock"):
-        sha = release()
+        sha = implementation(spec)
         launch = json.loads((output / "launch.json").read_text())
         if (
             launch["implementation_sha"] != sha
             or launch.get("program") != spec.identity()
             or launch.get("serving") != serving_pin(spec)
+            or (spec.rehearsal and launch.get("controls_sha256") != rehearsal.controls_pin(spec))
         ):
             raise RuntimeError("Restore the pinned release before resuming")
         atomic_write(output / "worker.pid", str(os.getpid()) + "\n")
+        (output / "STOPPED.json").unlink(missing_ok=True)
         signal.signal(signal.SIGHUP, signal.SIG_IGN)
         worker_started = time.time()
 
@@ -101,7 +109,10 @@ def worker(spec: ProgramSpec) -> None:
             from evals.final_program import main as evaluate
             from scripts.final_budget import main as initialize_budget
 
-            initialize_budget(spec)  # Validate the prepared cap; never reset or re-enable it.
+            if spec.rehearsal:
+                rehearsal.receipt(spec)
+            else:
+                initialize_budget(spec)  # Validate the cap; never reset or re-enable it.
             from evals.final_program import budget_receipt
 
             previous = output / "progress.json"
@@ -120,8 +131,10 @@ def worker(spec: ProgramSpec) -> None:
             save(
                 output / "STOPPED.json",
                 {
-                    "error_type": type(error).__name__,
-                    "resume": "python -m scripts.final_program resume --suite " + spec.suite,
+                    **error_metadata(error),
+                    "resume": "python -m scripts.final_program resume --suite "
+                    + spec.suite
+                    + (" --rehearsal " + spec.rehearsal if spec.rehearsal else ""),
                 },
             )
             print(json.dumps({"state": "stopped", "error_type": type(error).__name__}), flush=True)
@@ -131,12 +144,36 @@ def worker(spec: ProgramSpec) -> None:
             (output / "worker.pid").unlink(missing_ok=True)
 
 
+def authorize(spec: ProgramSpec) -> None:
+    if spec.rehearsal:
+        rehearsal.guard(spec)
+    else:
+        require_start()
+
+
+def implementation(spec: ProgramSpec) -> str:
+    return rehearsal.release(spec) if spec.rehearsal else release()
+
+
+def error_metadata(error: BaseException) -> dict:
+    """Only exception classes; messages can echo credentials or scenario inputs."""
+    names = []
+    seen = set()
+    current: BaseException | None = error
+    while current is not None and id(current) not in seen:
+        seen.add(id(current))
+        names.append(type(current).__name__)
+        current = current.__cause__
+    return {"error_type": names[0], "cause_types": names[1:]}
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("action", choices=["prepare", "start", "resume", "status", "_worker"])
     add_arguments(parser)
+    parser.add_argument("--rehearsal", help="Zero-spend retired-v3 rehearsal in isolated artifacts")
     args = parser.parse_args()
-    spec = specification(args.suite, args.bindings, args.manifest_pin)
+    spec = specification(args.suite, args.bindings, args.manifest_pin, args.rehearsal)
     output = spec.output
     if args.action == "status":
         for name in ("prepared.json", "progress.json", "STOPPED.json", "COMPLETE.json"):
@@ -148,9 +185,14 @@ def main() -> None:
         from scripts.azure_migrate_ops import connection_string
         from scripts.final_budget import verify
 
-        sha = release()
+        sha = implementation(spec)
         if (output / "launch.json").exists():
             raise RuntimeError("Preparation cannot modify a launched program")
+        budget = (
+            rehearsal.prepare(spec)
+            if spec.rehearsal
+            else verify(connection_string("aclara_admin"), spec)
+        )
         receipt = {
             "state": "prepared_not_started",
             "implementation_sha": sha,
@@ -167,19 +209,26 @@ def main() -> None:
                 "frontier": False,
                 "calibration_items": 0,
             },
-            "budget": verify(connection_string("aclara_admin"), spec),
+            "budget": budget,
         }
+        if spec.rehearsal:
+            receipt["controls_sha256"] = rehearsal.controls_pin(spec)
+            receipt["workload"]["routes"] = "B1 only; mock judges; no model comparison"
         save(output / "prepared.json", receipt)
         print(json.dumps(receipt))
         return
-    require_start()
+    authorize(spec)
     if args.action == "_worker":
         worker(spec)
         return
-    sha = release()
+    if spec.rehearsal:
+        environment(spec)
+    sha = implementation(spec)
     prepared = json.loads((output / "prepared.json").read_text())
     if prepared.get("program") != spec.identity() or prepared.get("serving") != serving_pin(spec):
         raise RuntimeError("Restore the prepared program and serving connection")
+    if spec.rehearsal and prepared.get("controls_sha256") != rehearsal.controls_pin(spec):
+        raise RuntimeError("Restore the prepared rehearsal controls")
     if prepared["implementation_sha"] != sha or any(
         prepared[k] != v for k, v in verify_envelope(spec).items()
     ):
@@ -197,6 +246,7 @@ def main() -> None:
                     "program": spec.identity(),
                     "serving": serving_pin(spec),
                     "started_at": datetime.now(UTC).isoformat(),
+                    **({"controls_sha256": rehearsal.controls_pin(spec)} if spec.rehearsal else {}),
                 },
             )
         elif not launch.exists() or json.loads(launch.read_text())["implementation_sha"] != sha:
@@ -219,6 +269,7 @@ def main() -> None:
                 spec.identity()["bindings"],
                 "--manifest-pin",
                 spec.manifest_pin,
+                *(["--rehearsal", spec.rehearsal] if spec.rehearsal else []),
             ],
             cwd=ROOT,
             stdin=subprocess.DEVNULL,
