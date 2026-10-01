@@ -130,4 +130,4 @@ def test_pt_hint_prepares_authentication_and_real_missing_merchant_choices_only(
         assert all(row["merchant"] == "—" for row in response["candidates"])
         assert all(row["handle"] for row in response["candidates"])
         assert response["proposal"] is None and response["case"] is None
-        assert response["verified"] is False
+        assert response["verified"] is None  # No write/readback is claimed by a choice.

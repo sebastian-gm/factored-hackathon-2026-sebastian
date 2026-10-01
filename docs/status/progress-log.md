@@ -3000,5 +3000,9 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
   tests/test_story_availability.py tests/test_trace_additions.py
   tests/test_judge_access.py`: 26 passed, mock only. The initial assertion expected
   an empty merchant but the API deliberately renders the missing sentinel `—`;
-  corrected the authored test to that existing contract. An earlier sandboxed
+  corrected the authored test to that existing contract. A second assertion expected
+  `verified=False`; choices deliberately use `verified=None` (no write claimed).
+  Both assertions now match the existing contract; the final rerun passed. The
+  preceding commit recorded 26 passes prematurely before checking the receipt;
+  this entry corrects that verification sequence. An earlier sandboxed
   TestClient run stalled and was terminated; local-network rerun is the evidence.
