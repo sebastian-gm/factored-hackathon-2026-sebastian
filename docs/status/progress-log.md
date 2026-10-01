@@ -1,5 +1,28 @@
 # Progress log
 
+## 2026-09-30 PDT — Live ES/PT integrity and canonical transaction kinds (AI)
+
+### Completed (verified)
+
+- Reproduced the reported `operaci3n` / `approved` grounding bypass before fixing it. Added merchant-aware digit-corruption and raw English/machine-enum rejection; internal-handle/mojibake guards remain intact. Localized status/type display facts for the phrase model, retaining canonical source facts. Phrase v2.1 SHA-256 `96089ad7985a334b8c6b974298856d939e554d431f04c6c1e7a434d75ec71fd9`; approved reply, recognition and opposite-language guards preserved. UTF-8 roundtrip tests preserve accents; no transport encoding incident is claimed.
+- Normalized stated ES/PT kinds to the contract's six ledger enums before unchanged MATCH. Fee/comisión/tarifa/taxa aliases map to **Adjustment**, per Sebastian; unknown/generic/ambiguous kinds become missing evidence. Raw extraction remains auditable. No interface, policy, matcher artifact/threshold, production model or provider setting changed.
+- Authored before-fix regressions: NLG 26 failed/10 passed; NLU kinds 45 failed/16 passed. Expanded mock checks pass **293/293**, including 39 NLG, 71 kind and six replay checks. Ruff, strict mypy (90 source files), compile, frozen interfaces and policy catalog pass.
+- Froze the type-only replay baseline before normalization (SHA-256 `f3ab2b76f89d723d7b7fff8df37d3c449b13065b6555acd336f7ec6e2cb3cc73`). Read only saved P primary v3 and authored robustness checkpoints: 100 + 40 before/after + 60 before/47 partial after. V3 gains two correct direct proposals in already-passing cases; robustness 40 decisions unchanged. Round-two before has five failed cases with a correct proposal gain and an agreeing reconstructed baseline action; these are potential contributors, not proven conversation rescues. No correct proposal lost. Details and limits: [live-language-failure-analysis.md](../ml/live-language-failure-analysis.md).
+- **$0 spend**: no provider, serving or cloud calls; original dev checkpoints untouched, no held-out v4 access. Reconstruction uses transaction day for missing process_date and does not replay sticky slots/product state. Original pass/SAR/unsafe metrics stay unchanged.
+- Separately pushed/read back #85 at `83be37164c4470ac04882f1debafaf943d908322`: comparison stops on both HTTP and provider 401/402/403/429 credit/quota paths, including HTTP-200 `provider_402`; 36 focused regressions and hooks pass. Comparison remains **partial**, no further spending. Last durable receipt: $0.20973001 known plus $1.28198 retained unknown reserves = $1.49171001 exposure of $1.50. No reserves released.
+
+### Done but not verified
+
+- These fixes are local source candidates, not a deployed Azure correction. A complete end-to-end type-normalized dev rerun and any new live model output are unmeasured; no new paid run is authorized.
+- Publication and final main-target remote CI readback will be reported on the fix PR. This progress entry records pre-publication local checks.
+
+### Next / blocked
+
+- Lead reviews/merges the main-target fix PR only after all remote CI is green, then owns release/acceptance. Tests and the session progress entry are minimal additive shared-folder changes; AI implementation stays in NLU/NLG/LLM/prompts plus docs/ml.
+- Keep #85's study partial and Gemini/v5.1 as the default. No more comparison spending; ask before any other paid run. Do not merge from this lane or open v4.
+- Human judge CSV path is still pending owner confirmation; use existing judge scores only when delivered.
+
+
 ## 2026-09-30 PDT — Insights integration, scoped scans and new comparison purse
 
 ### Completed (verified)

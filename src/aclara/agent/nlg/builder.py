@@ -32,6 +32,36 @@ class BuiltReply:
     violations: tuple[str, ...]
 
 
+_STATUS_LABELS = {
+    "pending": ("pendiente", "pendente"),
+    "reversed": ("reversada", "estornada"),
+    "declined": ("rechazada", "recusada"),
+    "approved": ("aprobada", "aprovada"),
+}
+_TYPE_LABELS = {
+    "purchase": ("compra", "compra"),
+    "withdrawal": ("retiro", "saque"),
+    "atmwithdrawal": ("retiro en cajero", "saque no caixa eletrônico"),
+    "deposit": ("depósito", "depósito"),
+    "payment": ("pago", "pagamento"),
+    "transfer": ("transferencia", "transferência"),
+    "refund": ("reembolso", "reembolso"),
+    "adjustment": ("ajuste", "ajuste"),
+    "fee": ("comisión", "tarifa"),
+}
+
+
+def _phrase_fact_value(fact: AllowedFact, language: str) -> str:
+    """Localize display enums; canonical source facts stay intact for grounding."""
+    labels = _STATUS_LABELS if fact.id == "status" else _TYPE_LABELS
+    if fact.id not in {"status", "transaction_type"}:
+        return fact.value
+    value = labels.get(fact.value.strip().casefold())
+    if value is None:
+        return "indisponível" if language == "pt" else "no disponible"
+    return value[1 if language == "pt" else 0]
+
+
 def _locale(language: str, country: str | None) -> str:
     if language == "pt":
         return "pt_BR"
@@ -206,7 +236,10 @@ def build_reply(
                 "type": plan.response_type,
                 "language": language,
                 "approved_text": redact_for_model(fallback),
-                "facts": [{"id": fact.id, "value": redact_for_model(fact.value)} for fact in facts],
+                "facts": [
+                    {"id": fact.id, "value": redact_for_model(_phrase_fact_value(fact, language))}
+                    for fact in facts
+                ],
             },
             ensure_ascii=False,
         ),
@@ -241,7 +274,7 @@ def build_reply(
             draft.text,
             draft.cited_fact_ids,
             facts,
-            known_merchants=known_merchants,
+            known_merchants=merchants,
             other_customer_names=other_customer_names,
         )
         current = list(verdict.violations)
