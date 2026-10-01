@@ -1,5 +1,54 @@
 # Progress log
 
+## 2026-10-01 UTC — owner-approved post-v4 fixes and combined release candidate
+
+### Completed (verified)
+
+- Official v4 remains unchanged at evaluated **1ec9c2f**, frozen product **92994d9**.
+  The official page, safety analysis, completion/access entries and AI offline
+  human-review commit **ca8fe2c** are integrated. Repeat flips are **0/30**, and
+  McNemar p=0.004 is repeated-subset majority pass. No held-out rerun/rescoring.
+- Implemented the two owner-approved product repairs: bounded typo-tolerant
+  positive ES/PT human requests preserve concurrent `ESC-01` in early fraud/legal
+  packets; recognition-memory uncertainty no longer discards an accepted scoped
+  MATCH proposal after denial. Explicit inability to choose stays gated; MATCH
+  thresholds, policy, confirmation and OTP are unchanged.
+- Case-status `verify_readback` now follows the independent scoped post-commit
+  read, compares the complete typed public receipt/owner, and persists in the
+  originating execution. Failed independent reads emit no verification event.
+  Adapter reads retain precise references and existing/new-case receipt aliases.
+- Authored ES/PT regressions, strict mypy and the full local CI passed: **834 Python
+  tests / 23 optional skips**, **31 disposable local Postgres tests**, **111 fixture
+  + 12 live API + 1 staff browser checks**, B1 dev **32/32** and reactive **32/32**.
+  Commands: `python artifacts/post-v4/checks.py python|web|postgres`; receipts and
+  logs stay ignored in `artifacts/post-v4/checks/`. The first sandboxed pytest
+  stalled and was terminated at 437 s; a host-capable diagnostic retry completed
+  in 69 s. No application/evaluation worker was signalled.
+- **855** official/input files checksum-verified unchanged; no abandoned-v1 access.
+  New regression fixtures contain authored values only. No paid calls so far.
+- Critical review of offline tooling: unchanged wording/ID validation, CSP and
+  HTML escaping remain; v3/v4 page labels/autosaves are separated, no model-score
+  leakage or human-rating inference. Progress conflict retained both histories.
+- README renders official v4 without a new safety claim and documents the explicit
+  fixture/mock path. Added the previously tested fixture BFF smoke and checkout
+  hook-cache default for clean-clone reproduction. Post-v4 disclosure:
+  `docs/evaluation/post-v4-release-notes.md` — **not reflected in v4 numbers**.
+
+### Done but not verified
+
+- Candidate remote CI, main merge, Azure release gates and refreshed private
+  snapshot/clean-clone are still pending; local passes are not deployment claims.
+- Human v4 ratings/agreement and fluent-human PT review remain pending.
+
+### Next / blocked
+
+- One combined main PR with remote CI; then standing-authorized image release and
+  capped smokes. Resource shape, replicas and access stay off/unchanged.
+- Refresh and scan the private submission snapshot, follow only its README in a
+  clean clone. Publication and submission-day warm/judge modes need separate OK.
+- Continue from docs/status/progress-log.md. Next layer: post-v4 release and private
+  submission refresh. Same rules.
+
 ## 2026-10-01 UTC — official v4 page and authorized post-hoc safety analysis
 
 ### Completed (verified)
