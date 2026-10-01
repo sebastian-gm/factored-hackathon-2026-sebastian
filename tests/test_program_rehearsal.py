@@ -165,6 +165,15 @@ def test_objective_projection_keeps_safety_cost_and_intervals():
         "sar": {"wilson_95": [0.1, 0.8]},
         "cost": {"total_usd": 0},
     }
+    assert objective(
+        {
+            "repeat_metric_ranges": {
+                "p50_turn_ms": {"mean": 5},
+                "p95_turn_ms": {"mean": 9},
+                "containment": {"mean": 0.5},
+            }
+        }
+    ) == {"repeat_metric_ranges": {"containment": {"mean": 0.5}}}
 
 
 def test_rehearsal_launcher_forwards_name_and_pins_controls(spec, monkeypatch):

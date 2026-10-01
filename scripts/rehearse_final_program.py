@@ -31,6 +31,8 @@ VOLATILE = {
     "repeat_clustered_latency",
     "recovered_case_attempts",
     "components_note",
+    "p50_turn_ms",
+    "p95_turn_ms",
 }
 
 
