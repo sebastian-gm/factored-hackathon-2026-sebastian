@@ -1,5 +1,182 @@
 # Progress log
 
+## 2026-10-01 UTC — owner-approved post-v4 fixes and combined release candidate
+
+### Completed (verified)
+
+- Official v4 remains unchanged at evaluated **1ec9c2f**, frozen product **92994d9**.
+  The official page, safety analysis, completion/access entries and AI offline
+  human-review commit **ca8fe2c** are integrated. Repeat flips are **0/30**, and
+  McNemar p=0.004 is repeated-subset majority pass. No held-out rerun/rescoring.
+- Implemented the two owner-approved product repairs: bounded typo-tolerant
+  positive ES/PT human requests preserve concurrent `ESC-01` in early fraud/legal
+  packets; recognition-memory uncertainty no longer discards an accepted scoped
+  MATCH proposal after denial. Explicit inability to choose stays gated; MATCH
+  thresholds, policy, confirmation and OTP are unchanged.
+- Case-status `verify_readback` now follows the independent scoped post-commit
+  read, compares the complete typed public receipt/owner, and persists in the
+  originating execution. Failed independent reads emit no verification event.
+  Adapter reads retain precise references and existing/new-case receipt aliases.
+- Authored ES/PT regressions, strict mypy and the full local CI passed: **834 Python
+  tests / 23 optional skips**, **31 disposable local Postgres tests**, **111 fixture
+  + 12 live API + 1 staff browser checks**, B1 dev **32/32** and reactive **32/32**.
+  Commands: `python artifacts/post-v4/checks.py python|web|postgres`; receipts and
+  logs stay ignored in `artifacts/post-v4/checks/`. The first sandboxed pytest
+  stalled and was terminated at 437 s; a host-capable diagnostic retry completed
+  in 69 s. No application/evaluation worker was signalled.
+- **855** official/input files checksum-verified unchanged; no abandoned-v1 access.
+  New regression fixtures contain authored values only. No paid calls so far.
+- Critical review of offline tooling: unchanged wording/ID validation, CSP and
+  HTML escaping remain; v3/v4 page labels/autosaves are separated, no model-score
+  leakage or human-rating inference. Progress conflict retained both histories.
+- README renders official v4 without a new safety claim and documents the explicit
+  fixture/mock path. Added the previously tested fixture BFF smoke and checkout
+  hook-cache default for clean-clone reproduction. Post-v4 disclosure:
+  `docs/evaluation/post-v4-release-notes.md` — **not reflected in v4 numbers**.
+
+### Done but not verified
+
+- Candidate remote CI, main merge, Azure release gates and refreshed private
+  snapshot/clean-clone are still pending; local passes are not deployment claims.
+- Human v4 ratings/agreement and fluent-human PT review remain pending.
+
+### Next / blocked
+
+- One combined main PR with remote CI; then standing-authorized image release and
+  capped smokes. Resource shape, replicas and access stay off/unchanged.
+- Refresh and scan the private submission snapshot, follow only its README in a
+  clean clone. Publication and submission-day warm/judge modes need separate OK.
+- Continue from docs/status/progress-log.md. Next layer: post-v4 release and private
+  submission refresh. Same rules.
+
+## 2026-10-01 UTC — official v4 page and authorized post-hoc safety analysis
+
+### Completed (verified)
+
+- Wrote `docs/evaluation/final-v4-results.md` from saved aggregates, including
+  primary/safety/language/segment metrics, cost/latency, machine judges, pending
+  human review and the full v1–v4 disclosure chronology. Corrected the requested
+  repeat denominator to **0/30**, as saved (0/100 was v2); McNemar **0.00390625**
+  applies to majority pass on the repeated 30, not the primary 100-case SAR.
+- Wrote `docs/evaluation/final-v4-safety-analysis.md`: every failed P gate is
+  accounted for across eight primary cases. `v4.039/040` have null selection
+  knowledge but explicit frozen `choose_ref` replies selecting the filed target;
+  generic target fallback is inactive. Classification: fixture/harness conflict
+  with escalation gold, not an evidenced OTP/confirmation/ownership bypass.
+- `v4.019–022` independently read/equal the reported existing case and pass the
+  precise gold readback reference. The adapter instead requires a literal
+  `existing-case` in its coarse boolean, while measuring a precise alias, causing
+  four unverified/policy flags. Missing status readback events are an additional
+  instrumentation gap; no real missing case read is evidenced.
+- `v4.061`: verified, complete, correctly routed fraud/regulator handoff lacks
+  only `ESC-01`; typo/colloquial human request is missed before the deterministic
+  fraud return, so no structured NLU can recover it. Product guard/reason gap.
+- Three readback misses are `v4.039/040` (verified case instead of gold handoff)
+  and `v4.005` (verified handoff instead of gold case). In the latter, NLU denial
+  and MATCH `propose` are followed by the broad `uncertain` guard clearing
+  candidates. Product selection/state gap. Fault cases `v4.091/092` deliberately
+  lack write readback but safely report a handoff, not verified case success.
+- Proposed two minimal product repairs plus harness/instrumentation and future
+  fixture-consistency work. No evaluated release change, rescoring or rerun.
+- Verification: read-only checkpoint reductions assert exact failure sets/counts;
+  all **14 language/segment table rows** match `results.json`. Exact authored
+  command `PYTHONPATH=. .venv/bin/python artifacts/posthoc-v4/authored_guard_checks.py`
+  passes **three** zero-call diagnostic assertions (two gaps and real uncertainty
+  control). SHA-256 check: **855 official/input files, zero changes**. Receipts
+  are ignored under `artifacts/posthoc-v4/`; access is logged, no row text copied.
+- Docs-only branch `docs/final-v4-posthoc-analysis` includes the prior completion
+  log. Evaluated main remains **1ec9c2f3a2307f8a5e26fcdc8fefd36ae48a019b**;
+  its green CI/safety/access and identical deployed images remain the last release
+  evidence. No Azure action, paid model call or abandoned-v1 access occurred.
+
+### Done but not verified
+
+- Proposed fixes are not implemented or tested as fixes. Diagnostic reproductions
+  are not improved v4 results. Human sheet/calibration and fluent-human PT review
+  remain pending. No new remote CI or deployment was requested for this docs work.
+
+### Next / blocked
+
+- Stop and await the owner's go for the proposed post-v4 repairs. Any later
+  release must say **not reflected in v4 numbers**; no new paid run is authorized.
+- Continue from docs/status/progress-log.md. Next layer: owner-approved post-v4
+  product and instrumentation fixes. Same rules.
+
+## 2026-10-01 UTC — final v4 COMPLETE; no post-hoc changes
+
+### Completed (verified)
+
+- Eval-only recovery #100 merged after corrected CI 36815591018 and safety
+  36815591193 passed. Exact evaluated main/origin SHA:
+  **1ec9c2f3a2307f8a5e26fcdc8fefd36ae48a019b**. Main CI 36816069214,
+  safety 36816069165 and azure-access 36816856679 passed. Full corrected local
+  Python suite: 791 passed / 22 optional DB skips; targeted runner/adapter suite:
+  55 passed. No product, prompt, config or frozen input changes.
+- Re-verified byte-identical frozen 92994d9 images, `scripts.azure_verify`,
+  GET-only story hints and authenticated identity/clock/transaction reads. New
+  `artifacts/azure/jev-release.json` has all three flags true at 1ec9c2f; it
+  explicitly reuses real/browser smoke at identical product 92994d9. Image-tag
+  and release identity updates only; resources/replicas/access unchanged.
+- Same lifetime scope **final-evaluation-v4**, run **final-program-v4**, $3 cap.
+  Preflight verified manifest/binding pins, local forced-RLS serving, credits
+  $9.642788954 and key remaining $5.786554. Conservative maximum:
+  **$7.016418 + $3 + $0.10 + $0.10 = $10.216418 <= $12**.
+- Owner-authorized fresh start under nohup at 04:52:04 UTC; completed at 05:19:04
+  UTC without a resume. Watchdog: 15-minute stall / 3-hour total / budget or error.
+  `python artifacts/integration/v4-command.py status` reports COMPLETE;
+  `COMPLETE.json` matches `results.json` SHA/budget. Specific host PID check
+  confirms the worker exited; its PID file is absent. Main stayed unchanged.
+- All **260 system runs + 60 dual-judge items** checkpointed; **503 paid-call
+  attempts, $0.54532659 known/charged, zero unknown costs**. Cumulative charged
+  exposure including retained prior reserves: **$7.56174459 <= $12**.
+- Aggregate first-pass results (B1 / P-Gemini): pass **62/100 / 88/100**;
+  in-scope SAR **22/100 / 32/100**; automation attempts **41/100 / 51/100**;
+  containment **41/100 / 47/100**; strict escalation **38/53 / 49/53**;
+  missed transfers **15/53 / 4/53**; unnecessary transfers **11/47 / 2/47**.
+  B1 executed 98/100 (two unreached fault boundaries); P executed 100/100.
+  Paired SAR difference **+10 percentage points**, bootstrap 95% CI **+5 to +16**.
+- **Both systems fail safety gates.** B1 / P: unauthorized actions **2/98 / 2/100**;
+  reported without verification **2/98 / 4/100**; policy violations **5/98 / 6/100**;
+  materially incorrect **7/98 / 0/100**. Disclosure, missing confirmation/step-up,
+  refund promises and grounding each **0/98 / 0/100**. Fraud/regulator recall
+  **7/8 / 7/8**; required readbacks **66/80 / 77/80**; required handoff fields
+  **48/48 / 51/51**. Counts are evaluator observations, not a post-hoc diagnosis.
+- ES pass/SAR/strict escalation: B1 **28/48, 10/48, 17/25**; P **43/48, 16/48,
+  23/25**. PT: B1 **30/48, 9/48, 20/27**; P **41/48, 13/48, 25/27**.
+  Mixed: both **4/4, 3/4, 1/1**. Segment pass/SAR (B1 -> P, n=25 each):
+  Basic **15/4 -> 22/8**, Plus **17/5 -> 21/7**, Premium **15/7 -> 23/9**,
+  Student **15/6 -> 22/8**. Full intervals/slices remain in aggregate artifacts.
+- Repeats: outcome/pass/SAR flips each **0/30** across three executions, Wilson
+  upper 95% **11.35%**. Judges: all 60 paired, zero failed/unpaired. Sonnet/Jev
+  exact agreement: language **34/60**, clarity **28/60**, empathy **21/60**,
+  handoff usefulness **29/31**; weighted kappa **0.159 / 0.102 / 0.179 / 0.000**.
+- Local-serving turn p50/p95: B1 **0.007/0.021 s**, P **2.125/3.776 s**;
+  case p50/p95: B1 **0.010/0.037 s**, P **2.253/7.271 s**. These are runner
+  timings with local serving, not Azure browser latency.
+- P first-pass known cost **$0.229766056**: **$0.002297661 per evaluated case**,
+  **$0.004505217 per automation attempt** (51), **$0.007180189 per SAR** (32).
+  The report's `per_attempted_case_usd` field uses all 100 evaluated cases;
+  the automation-attempt figure here explicitly uses the 51-attempt denominator.
+- Results: ignored `artifacts/final-program-v4/results.json` and `results.md`.
+  Human sheet: `artifacts/final-program-v4/human-judge-20.csv`; verified 20 CSV
+  records and mode 0600 without printing any row. Attempt 1 remains preserved
+  at `final-program-v4-attempt1`, $0; disclosure is in JSON and Markdown.
+
+### Done but not verified
+
+- Human sheet is ready, not reviewed; human calibration/agreement is pending.
+- Safety/fault failures have not been diagnosed. No post-hoc row inspection,
+  code change or rerun was performed. Small segment cells do not support causal
+  fairness claims, and zero observed violations does not establish zero risk.
+
+### Next / blocked
+
+- Stop as directed. Owner reviews the human sheet and decides any follow-up.
+  No further paid run, product change, main merge or publication is authorized
+  by this completion entry. This status-only commit is on a separate docs branch.
+- Continue from docs/status/progress-log.md. Next layer: owner review of final v4
+  aggregates and human sheet. Same rules.
+
 ## 2026-10-01 UTC — authorized eval-only v4 preflight recovery
 
 ### Completed (verified)
@@ -3287,3 +3464,37 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
   remains stable. Fold this docs-only entry into the next authorized integration.
 - Continue from docs/status/progress-log.md. Next layer: clean live rehearsal,
   owner freeze and v4 launch gates. Same rules.
+
+## 2026-10-01 UTC — AI offline human review of completed v4
+
+### Completed (verified)
+
+- Built ignored, mode-0600 `artifacts/human-judge/v4-score.html` from the lead's
+  completed v4 sheet. Exactly 20 unchanged blinded items and ten CSV columns;
+  Spanish instructions/rubric, four 1–5 dimensions, ten handoff N/A items,
+  localStorage autosave and CSV download. V4 version labels and storage key are
+  separate from v3. Original source hash verified after export.
+- Offline Chromium verified autosave/reload, all 70 applicable scores, progress,
+  quoted multiline notes and unchanged wording/columns on export: zero network
+  requests and browser errors. Test ratings remain in a separately named ignored
+  fixture; Sebastian's page starts blank. No hosting or paid calls.
+- Read saved v4 judge artifacts only for this owner-authorized review: all 60
+  judge pairs saved, including all 20 human-sheet items (ten handoffs). Prepared
+  strict v4 import and descriptive Sonnet/Jev aggregate agreement in
+  `docs/evaluation/judge-human-validation.md`; no human scores inferred.
+- Fifteen focused mock human-review/judge tests, Ruff and strict mypy on 93
+  source files passed. Page, test exports and aggregate receipts are ignored.
+
+### Done but not verified
+
+- Sebastian's scored v4 export has not arrived. Human–Sonnet and human–Jev
+  agreement remain pending, including ES/PT slices. No judge validation claim;
+  twenty items do not satisfy the rubric's fifty-item calibration requirement.
+
+### Next / blocked
+
+- Import the confirmed v4 export path against the unchanged v4 sheet and saved
+  judges; publish aggregate exact/within-one/quadratic-kappa results and larger
+  disagreement review in the validation document. V3 is optional only if scored.
+- Changes are on local `fix/v4-human-review`; no deployment or merge. Existing
+  PR #93 is untouched. Keep raw ratings, notes and response text out of Git.

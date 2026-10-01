@@ -576,3 +576,56 @@ def test_wrong_step_up_code_preserves_dispute_and_retry_after_restart(dsn: str) 
             second.close()
 
     asyncio.run(check())
+
+
+def test_post_v4_case_status_verification_survives_new_store(dsn: str) -> None:
+    """The status read occurs after commit; its appended trace must also commit."""
+    from test_api_security import _settings, _sign_in
+    from test_dev_acceptance import ledger
+    from test_workflow_api import message
+
+    async def check() -> None:
+        first = Store(dsn)
+        try:
+            app = create_app(_settings(), ledger(), store=first)
+            async with AsyncClient(
+                transport=ASGITransport(app=app), base_url="http://test"
+            ) as client:
+                token = await _sign_in(client)
+                headers = {"Authorization": f"Bearer {token}"}
+                proposal, conversation = await message(
+                    client, headers, "No hice el cargo de Taller Prisma"
+                )
+                created = await client.post(
+                    f"/chat/sessions/{conversation}/confirm",
+                    headers=headers,
+                    json={
+                        "proposal_hash": proposal["proposal"]["proposal_hash"],
+                        "confirmed": True,
+                    },
+                )
+                assert created.status_code == 200
+                status, _ = await message(client, headers, "Estado de mi caso")
+                assert status["verified"]
+                principal = app.state.sessions[token]
+                scope = Scope(principal.customer_id, principal.run_id, principal.session_id)
+        finally:
+            first.close()
+        restarted = Store(dsn)
+        try:
+            with restarted.transaction(scope):
+                records = [
+                    r
+                    for r in restarted.mapping("execution_records", dict).values()
+                    if r["response"]["response_type"] == "report_status"
+                ]
+                assert len(records) == 1
+                reads = [e for e in records[0]["events"] if e["event"] == "verify_readback"]
+                assert len(reads) == 1 and reads[0]["case_id"] == status["case"]["case_id"]
+                assert reads[0]["source"] == "committed_case_read"
+            with restarted.transaction(Scope(scope.customer_id, scope.run_id, "other-session")):
+                assert not restarted.mapping("execution_records", dict)
+        finally:
+            restarted.close()
+
+    asyncio.run(check())

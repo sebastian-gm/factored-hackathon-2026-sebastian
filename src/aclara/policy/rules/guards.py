@@ -12,6 +12,89 @@ def normalized(text: str) -> str:
     )
 
 
+def _one_typo(word: str, expected: str) -> bool:
+    """One insertion, deletion or substitution, only on bounded staff nouns."""
+    if word == expected:
+        return True
+    if abs(len(word) - len(expected)) > 1:
+        return False
+    if len(word) == len(expected):
+        return sum(a != b for a, b in zip(word, expected, strict=True)) == 1
+    shorter, longer = sorted((word, expected), key=len)
+    return any(longer[:i] + longer[i + 1 :] == shorter for i in range(len(longer)))
+
+
+def human_request(text: str) -> bool:
+    """Positive request + nearby staff noun; bounded typo tolerance, no fuzzy prose."""
+    staff = ("persona", "pessoa", "humano", "humana", "agente", "atendente", "alguien", "alguem")
+    for clause in re.split(r"[.;!?\n]|\b(?:pero|mas|y|e)\b", normalized(text)):
+        words = re.findall(r"[a-z]+", clause)
+        for i, word in enumerate(words):
+            if len(word) < 5 or not any(_one_typo(word, noun) for noun in staff):
+                continue
+            prefix = words[max(0, i - 10) : i]
+            # Standalone short requests are accepted, never third-party mentions.
+            if (not prefix or prefix in (["una"], ["un"], ["uma"], ["um"])) and (
+                not words[i + 1 :] or words[i + 1 :] == ["por", "favor"]
+            ):
+                return True
+            verbs = {
+                "quiero",
+                "kiero",
+                "necesito",
+                "hablar",
+                "pasame",
+                "derivame",
+                "quero",
+                "preciso",
+                "falar",
+                "fale",
+                "transfira",
+            }
+            for j, token in enumerate(prefix):
+                if token not in verbs:
+                    continue
+                # Negation may precede a request or its nested "hablar/falar".
+                if any(w in {"no", "nao", "sin", "sem"} for w in prefix):
+                    continue
+                contact = {
+                    "hablar",
+                    "falar",
+                    "con",
+                    "com",
+                    "un",
+                    "una",
+                    "um",
+                    "uma",
+                    "a",
+                    "o",
+                    "al",
+                    "ao",
+                    "para",
+                    "pra",
+                    "de",
+                    "que",
+                    "me",
+                    "mi",
+                    "eu",
+                    "atienda",
+                    "atenda",
+                    "atencion",
+                    "atendimento",
+                    "ayuda",
+                    "ajuda",
+                    "ahora",
+                    "agora",
+                    "por",
+                    "favor",
+                    "necesito",
+                    "preciso",
+                }
+                if i - (max(0, i - 10) + j) <= 8 and all(w in contact for w in prefix[j + 1 :]):
+                    return True
+    return False
+
+
 def escalations(text: str) -> list[str]:
     value = normalized(text)
     reasons = []
@@ -31,10 +114,7 @@ def escalations(text: str) -> list[str]:
         value,
     ):
         reasons.append("ESC-03")
-    if re.search(
-        r"\b(?:quiero|necesito|hablar|pasame|derivame|quero|preciso|falar|fale|transfira).{0,60}\b(?:persona|pessoa|humano|agente|atendente|alguien|alguem)\b|^(?:una? |uma? )?(?:persona|pessoa|humano|agente|atendente)\b",
-        value,
-    ):
+    if human_request(text):
         reasons.append("ESC-01")
     return reasons
 
