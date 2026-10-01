@@ -20,6 +20,7 @@ from typesafe_sdk import RetryPolicy, TypeSafeClient
 from aclara.agent.contracts import Intent, NluFrame
 from aclara.agent.nlg.grounding import redact_for_model, scan_dlp
 from aclara.agent.nlu.rules import classify_nlu, normalize_text
+from aclara.agent.nlu.transaction_types import normalize_transaction_type
 from aclara.agent.nlu.word_amounts import parse_word_amount
 from aclara.llm.client import StructuredClient
 from aclara.llm.prompts import data_block, load_prompt
@@ -518,21 +519,9 @@ def postprocess(
         # a currency from the country, merchant, or an unqualified number.
         currency, ambiguous = resolve_currency(extracted.amount_expr, country)
     dates = parse_relative_date(extracted.date_expr, bank_clock)
-    transaction_type = extracted.type_expr
-    # A generic word for "charge" is not a transaction type. MATCH compares this
-    # slot against concrete ledger types, so passing one makes a named charge look
-    # less certain and can force an unnecessary choice.
-    if normalize_text(transaction_type or "").strip() in {
-        "cargo",
-        "cargos",
-        "cobro",
-        "cobros",
-        "cobranca",
-        "cobrancas",
-        "charge",
-        "charges",
-    }:
-        transaction_type = None
+    # MATCH compares exact ledger enums. Preserve the raw expression for audit,
+    # but only pass a canonical kind or missing evidence into its unchanged model.
+    transaction_type = normalize_transaction_type(extracted.type_expr)
     slots = NormalizedSlots(
         amount_value=parse_amount(extracted.amount_expr, country),
         currency=currency,

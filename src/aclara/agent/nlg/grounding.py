@@ -32,6 +32,19 @@ _CORRUPTION = re.compile(
     r"\ufffd|(?:Ã|Â)[\u0080-\u00bf]|â(?:€|[\u0080-\u009f])|(?<=\w)['’]#(?=[A-Za-z])"
 )
 _CASE = re.compile(r"\b(?:DSP|HO)-[A-Z0-9-]+\b", re.I)
+_MASKED_CARD = re.compile(r"(?:[Xx]{2,}|[*•]{2,})[ -]?\d{2,4}(?:[Xx*•]{2,})?")
+_WORD_DIGIT = re.compile(r"[^\W\d_]\d+[^\W\d_]", re.UNICODE)
+# Machine identifiers stay internal, including future/private snake_case names.
+_MACHINE_IDENTIFIER = re.compile(r"(?<!\w)_*[A-Za-z][A-Za-z0-9]*(?:_+[A-Za-z0-9]+)+_*(?!\w)")
+_RAW_ENUM = re.compile(
+    r"\b(?:approved|pending|declined|reversed|authorized|posted|settled|processing|"
+    r"completed|failed|rejected|cancelled|canceled|purchase|withdrawal|deposit|"
+    r"payment|transfer|refund|adjustment|active|inactive|blocked|frozen|closed|"
+    r"abstain|clarify|clarification|explained|refuse|"
+    r"dispute_filed|dispute_proposed|offer_dispute|explain_status|awaiting_recognition|"
+    r"charge_inquiry|dispute_charge|out_of_scope|human_request)\b",
+    re.I,
+)
 _NUMBER = re.compile(r"(?<!\w)\d+(?:[.,]\d+)*(?!\w)")
 _ISO_DATE = re.compile(r"\b20\d{2}-\d{2}-\d{2}(?=T|\b)")
 _INJECTION = re.compile(
@@ -119,6 +132,36 @@ def redact_for_model(text: str) -> str:
     return redacted
 
 
+def _customer_prose(text: str, cited_facts: tuple[AllowedFact, ...]) -> str:
+    """Remove exact grounded names/references only for prose-quality checks.
+
+    DLP, citation, numeric and authority checks still inspect the original text.
+    Arbitrary fact values never exempt ordinary words or untranslated enums.
+    """
+    merchants = {fact.value for fact in cited_facts if fact.id == "merchant" and fact.value}
+    literals = set(merchants)
+    for fact in cited_facts:
+        literals.update(match.group(0) for match in _CASE.finditer(fact.value))
+        literals.update(match.group(0) for match in _MASKED_CARD.finditer(fact.value))
+    prose = text
+    for literal in sorted(literals, key=len, reverse=True):
+        pattern = r"(?<!\w)" + re.escape(literal) + r"(?!\w)"
+        if literal in merchants and (
+            _RAW_ENUM.fullmatch(literal) or _MACHINE_IDENTIFIER.fullmatch(literal)
+        ):
+            # A merchant named Pending is not a blanket exemption for a model
+            # that also copies pending as the status elsewhere in the sentence.
+            prefix = (
+                r"(?P<merchant_context>\b(?:cargo|cobro|compra|cobrança|transação|"
+                r"transacción|comercio|comércio|establecimiento|estabelecimento|loja)"
+                r"(?:\s+(?:en|em|de|do|da|no|na))?\s*(?::\s*)?['\"“]?)"
+            )
+            prose = re.sub(prefix + pattern, r"\g<merchant_context> ", prose, flags=re.I)
+        else:
+            prose = re.sub(pattern, " ", prose, flags=re.I)
+    return prose
+
+
 def verify_draft(
     text: str,
     cited_fact_ids: list[str],
@@ -141,6 +184,16 @@ def verify_draft(
         allowed_by_id[fact_id].value for fact_id in cited_fact_ids if fact_id in allowed_by_id
     )
     cited_fold = _fold(cited_values)
+    cited_facts = tuple(
+        allowed_by_id[fact_id]
+        for fact_id in cited_fact_ids
+        if fact_id in allowed_by_id and allowed_by_id[fact_id].source
+    )
+    prose = _customer_prose(text, cited_facts)
+    if _WORD_DIGIT.search(prose):
+        violations.append("text_corruption")
+    if _RAW_ENUM.search(prose) or _MACHINE_IDENTIFIER.search(prose):
+        violations.append("unlocalized_enum")
     if not _numeric_tokens(text).issubset(_numeric_tokens(cited_values)):
         violations.append("uncited_number")
     for label, pattern in (("date", _ISO_DATE), ("handle", _HANDLE), ("case_id", _CASE)):
@@ -157,13 +210,15 @@ def verify_draft(
     }
     for status, patterns in status_claims.items():
         if (
-            any(re.search(pattern, _fold(text)) for pattern in patterns)
+            any(re.search(pattern, _fold(prose)) for pattern in patterns)
             and status not in cited_fold
         ):
             violations.append("uncited_status")
     text_fold = _fold(text)
-    for merchant in known_merchants:
-        if merchant and _fold(merchant) in text_fold and _fold(merchant) not in cited_fold:
+    cited_merchants = {_fold(fact.value) for fact in cited_facts if fact.id == "merchant"}
+    merchants = {*known_merchants, *(fact.value for fact in facts if fact.id == "merchant")}
+    for merchant in merchants:
+        if merchant and _fold(merchant) in text_fold and _fold(merchant) not in cited_merchants:
             violations.append("uncited_merchant")
             break
     return Verdict(not violations, tuple(dict.fromkeys(violations)))
