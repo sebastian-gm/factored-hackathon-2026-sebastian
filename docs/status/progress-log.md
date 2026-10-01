@@ -3081,3 +3081,48 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
 - Capped real smoke estimate $0.01–$0.03, hard $0.10 shared with browser smoke.
   No resource/replica/access change. Frontend then rechecks four live bugs before
   owner feature freeze and separate v4 GO.
+
+## 2026-10-01 UTC — live rehearsal fixes released and verified
+
+### Completed (verified)
+
+- Single combined PR #97 CI/safety passed first run; merged under standing OK to
+  **92994d933e7e4d4cddbbf988fb4cc748d3cd5db1**. Automatic main CI 36806917133 and
+  safety 36806917242 passed. Exact main == origin/main, clean. #85 exact head is
+  an ancestor and was closed as integrated through #97, without redundant CI.
+- Built/pushed both private SHA images; registry digest readbacks passed. Reviewed
+  Terraform apply: 0 added / 2 changed / 0 destroyed, image/release identity and
+  approved temporary smoke binding only. Min replicas 0; shape/access unchanged.
+- `scripts.azure_verify` passed. Capped `scripts.azure_llm_smoke`: ES filing with
+  independent readback, PT ambiguity/handoff and deterministic fraud passed;
+  **9 valid calls, $0.00813975, zero unknown/fallbacks**. Hard $0.10 lifetime run:
+  `pre-v4-release-92994d933e7e4d4cddbbf988fb4cc748d3cd5db1`.
+- `scripts.serving_browser --target azure` passed chat/Desk/Ops, verified handoff
+  and resolution; four attempted conversations total, no extra allowance/reset.
+  Outside-network azure-access 36807587445 passed. GET-only config verifies ES
+  explain/fraud and PT ambiguous hints are all present. No merchant was invented.
+- New ignored `artifacts/azure/jev-release.json`: controls/real smoke/CI flags all
+  true at the release SHA. Cumulative charged/reserved **$7.00808229**; conservative
+  maximum **$11.83659452 ≤ $12** including v4 $3 and both smoke allowances.
+  Prior unknown reserves and all dev/production caps remain intact.
+- Full local gates were 769 Python / 30 disposable Postgres / 124 browser passes;
+  B1 safety + reactive dev both 32/32. Detailed commands/evidence and initial
+  failed local invocations are in pre-v4-integration-review.md.
+
+### Done but not verified
+
+- Fresh frontend Azure rehearsal of all four formerly observed live bugs is still
+  pending. Release smoke is not a new evaluation or proof of full story quality.
+- V4 rows/selections/bindings remain unopened; no prepare/start or paid comparison.
+  Feature freeze/final v4 GO remain pending. Submission warm/access modes OFF.
+
+### Next / blocked
+
+- Frontend can rehearse the deployed **92994d9** now. Confirm prose corruption,
+  PT choices/receipt, real SLA countdown, scoped facts/actions and all story buttons.
+- Owner decides feature freeze and v4 GO after a clean rehearsal; no new resource,
+  replica, access/publication change authorized by this release.
+- Release evidence is published on `integration/pre-v4-freeze` so exact green main
+  remains stable. Fold this docs-only entry into the next authorized integration.
+- Continue from docs/status/progress-log.md. Next layer: clean live rehearsal,
+  owner freeze and v4 launch gates. Same rules.
