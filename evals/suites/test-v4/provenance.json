@@ -1,0 +1,92 @@
+{
+  "suite_id": "heldout-e2e-v4-independent-20260929",
+  "prepared_at": "2026-09-30T01:53:21.736344+00:00",
+  "authoring_base_main": "e12efc73be64f8355aa9f177f08a04337593616c",
+  "dataset_version": "b86f445cb468332bde984a788ef24f72f7070952b2d9292e0259e7b8f36397c9",
+  "policy_source": {
+    "reference": "contracts/interfaces/conversation-policy-v3.md",
+    "sha256": "11de8e0f898b74716d59e87104aaca7bead6433c0fcf655396df6e901b21fc93"
+  },
+  "gold_authority": [
+    "docs/adr/0015-post-v2-conversation-and-policy-contract.md",
+    "contracts/interfaces/conversation-policy-v3.md"
+  ],
+  "gold_independence": "Literal new authored interaction labels; no policy/system imports, execution outputs, v3 family list, post-v3 implementation or failure analysis used for gold.",
+  "pinned_repository_inputs": {
+    "docs/adr/0015-post-v2-conversation-and-policy-contract.md": "5e9db249b5c5a884d64167170f631adcde785f93c755d4df8941cc72eb113a3d",
+    "contracts/interfaces/conversation-policy-v3.md": "11de8e0f898b74716d59e87104aaca7bead6433c0fcf655396df6e901b21fc93",
+    "contracts/interfaces/scenario-suite.schema.json": "3d904f80f95155d85209941a5332d1ae0b0a4ea7f50e6bf3a2ff30146cf3c030",
+    "contracts/scenario-v2-definitions.json": "eca69a77cc5d8a188a8cef9a7c37e05a4e095800669fd4edff465da7c361a0c6",
+    "evals/observations.py": "d193d13b27fdd93d2ae6cdaa74bd850326b954c8837301c5e83466ab5a0d93e2",
+    "evals/suites/tools/author_test_v4.py": "cb44c08c6f375ca58effd01c8dd7bc505d7f76dbc177fac1347c9648d1be9e3b"
+  },
+  "bindings_audit": {
+    "personas": 100,
+    "unique_customers": 100,
+    "test_bucket_min_hex": "da",
+    "dataset_version": "b86f445cb468332bde984a788ef24f72f7070952b2d9292e0259e7b8f36397c9",
+    "private_bindings_sha256": "7805535e1eae8c8358440a8807cfa6b156ccf4d450c15de5e85d14b4c6a8016b",
+    "private_bindings_mode": "0600",
+    "excluded_unique_customers": 11737,
+    "inventory_customer_counts": {
+      "matcher_v1": 11207,
+      "matcher_v2": 11207,
+      "v1": 200,
+      "v2": 200,
+      "v3": 100,
+      "human_cards": 40
+    },
+    "inventory_sha256": {
+      "artifacts/charge_matcher/v1/dataset/train.jsonl": "158503d6c70b071ad4f763694426cce39f931546e3c82bd5094fbded0d86f092",
+      "artifacts/charge_matcher/v1/dataset/validation.jsonl": "495c80679d1da61c7aa21cf0a1ecb635b9691d1d0cdc71b20672f415e7c8010e",
+      "artifacts/charge_matcher/v1/dataset/test.jsonl": "7ac91f29be805a8980b847e8ff7f416bbf2466ef7491571dda8f6e2cffb2b8bb",
+      "artifacts/charge_matcher/v2/train.jsonl": "e81a920732e52552ad85052f770fdae7820d26c3fbde84110d1127921e5c04db",
+      "artifacts/charge_matcher/v2/validation.jsonl": "cd999f1ba7396a1c53cc0c273887f17a7a135f82376b53806103fd40ff1d99eb",
+      "artifacts/charge_matcher/v2/test.jsonl": "b24f0c12ad68a8e3c0a6e109f31deb0797dd8b3404c4ba8c5e0be0754d00bad0",
+      "artifacts/charge_matcher/v2/train-expressions.jsonl": "4598eac4a586778f8257d570b3bcf9a67dec36b45d8e4325ccf19942ca3c5c14",
+      "artifacts/charge_matcher/v2/validation-expressions.jsonl": "82ff9ea000ac9c29427f034737784eaeb61d3df348c259714b16208479c56f5b",
+      "artifacts/charge_matcher/v2/test-expressions.jsonl": "681855e10aa29c97bd04e3020c6e3d0e0711730fd2b221c1c3a6526b31d90504",
+      "artifacts/evaluation-authoring/customer-bindings.json": "d9635357520c12bf0262c5359341a6d52004a14a98f1cb16a4ed123b5beb1fd8",
+      "artifacts/evaluation-v3/customer-bindings.json": "0c31ea3301961d9ff07f28322c6d92a8eeaf0f30829c850ae474e2a86eba6fa8",
+      "artifacts/human-validation/spanish-40/references.json": "5dcb84cc8c4887fff4fb70dcf63b3528e4e65ef48ab295f0570fe6d65fb47d21"
+    },
+    "archived_v1_private_checksum_reconstructed_and_verified": true,
+    "overlap_by_inventory": {
+      "matcher_v1": 0,
+      "matcher_v2": 0,
+      "v1": 0,
+      "v2": 0,
+      "v3": 0,
+      "human_cards": 0
+    },
+    "country_counts": {
+      "AR": 33,
+      "CO": 33,
+      "MX": 34
+    },
+    "segment_counts": {
+      "Basic": 25,
+      "Plus": 25,
+      "Premium": 25,
+      "Student": 25
+    },
+    "transaction_provenance": "100% project-generated; no organizer transaction rows read or copied"
+  },
+  "language_authoring": {
+    "origin": "model_generated",
+    "generator_vendor": "OpenAI",
+    "generator_model": "Codex",
+    "human_review_status": "pending",
+    "second_vendor_review_status": "pending",
+    "paid_provider_calls": 0
+  },
+  "dialect_encoding": "es-CL is explicit in author_dialect and stored as other in the frozen wire schema; no schema change.",
+  "behavioral_execution": "Never run B1 or P during authoring; no outcome measurements or runtime correctness claims.",
+  "limitations": [
+    "Model-authored wording/gold without independent human or second-vendor language review.",
+    "Paired ES/PT variants share written interaction designs; uncertainty estimates must acknowledge family clustering.",
+    "Fictional charge overlays assess the conversation/policy contract, not fidelity to organizer transaction distributions.",
+    "Exact wording/template hashes check byte-level reuse, not a proof of semantic independence.",
+    "Fault activation, serving binding/readback and post-v3 stale-OTP simulator support remain release-owner gates."
+  ]
+}
