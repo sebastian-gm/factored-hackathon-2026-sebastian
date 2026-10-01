@@ -109,6 +109,7 @@ def judge_report(ratings: list[dict], planned: dict | None = None) -> dict:
             "attempted": len(rows),
             "paired": len(pairs),
             "unpaired": len(rows) - len(pairs),
+            "failed": sum(r.get("status") == "judge_failed" for r in rows),
             "dimensions": values,
         }
     out["human_validation"] = {
@@ -143,7 +144,7 @@ def write_report(
     systems = {}
     for name, rows in [
         ("B1", b1),
-        ("P-Gemini", p),
+        (header.get("p_system_label", "P-Gemini"), p),
         ("P-Sonnet", [c for c in cases if c["system"] == "P-Sonnet"]),
     ]:
         if name == "P-Sonnet" and not rows:

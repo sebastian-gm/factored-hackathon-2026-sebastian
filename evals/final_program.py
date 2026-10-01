@@ -26,6 +26,9 @@ from aclara.llm.final_run import (
 )
 from aclara.llm.judge_validation import DIMENSIONS
 from aclara.llm.prompts import load_prompt
+from aclara.llm.types import BudgetFailure, ModelFailure
+from aclara.ops.store import Store
+from evals import rehearsal
 from evals.access import access
 from evals.bindings import ROOT, bind
 from evals.bound_execution import execute_bound
@@ -49,6 +52,8 @@ def digest(path: Path) -> str:
 
 
 def budget_receipt(spec: ProgramSpec = V3) -> dict:
+    if spec.rehearsal:
+        return rehearsal.receipt(spec)
     from scripts.final_budget import verify
 
     return verify(os.environ["FINAL_BUDGET_OWNER_DSN"], spec)
@@ -121,6 +126,8 @@ async def execute(suite, identities, directory, serving, store, checkpoints, rep
     cases = []
     planned = 2 * len(suite["scenarios"]) + 2 * len(repeat_ids)
     for system, repeat, route in WORKLOAD:
+        if spec.rehearsal:
+            route = None  # Exercise the same workload/checkpoints with deterministic B1 only.
         for scenario in suite["scenarios"]:
             if repeat and scenario["id"] not in repeat_ids:
                 continue
@@ -130,6 +137,8 @@ async def execute(suite, identities, directory, serving, store, checkpoints, rep
                 cases.append(cached)
                 continue
             path = checkpoints.begin(key)
+            if spec.rehearsal:
+                rehearsal.hook(spec, "systems", len(cases), before=True)
             client = (
                 client_for(
                     route,
@@ -172,6 +181,8 @@ async def execute(suite, identities, directory, serving, store, checkpoints, rep
                     "budget": budget_receipt(spec),
                 },
             )
+            if spec.rehearsal:
+                rehearsal.hook(spec, "systems", len(cases))
     return cases
 
 
@@ -194,28 +205,53 @@ def judges(cases, selected, checkpoints, store, spec=V3):
             ratings.append(cached)
             continue
         path = checkpoints.begin(key)
-        client = client_for(
-            "openrouter_sonnet",
-            store,
-            judge=True,
-            response_record=journal(path),
-            budget_scope=spec.scope,
-            budget_run_id=spec.run_id,
+        truncate = (
+            rehearsal.hook(spec, "judges", len(ratings), before=True) if spec.rehearsal else False
+        )
+        client = (
+            rehearsal.client(
+                path, spec, has_handoff=bool(row["handoff_summary"].strip()), truncate=truncate
+            )
+            if spec.rehearsal
+            else client_for(
+                "openrouter_sonnet",
+                store,
+                judge=True,
+                response_record=journal(path),
+                budget_scope=spec.scope,
+                budget_run_id=spec.run_id,
+            )
         )
         try:
             if not row["customer_reply"]:
                 result = {"status": "not_scored", "reason": "no_delivered_reply"}
             else:
-                with jev_judge_adapter() as adapter:
-                    result = score_pair(
-                        row,
-                        sonnet_client=client,
-                        jev_adapter=adapter,
-                        prompt=load_prompt(ROOT / "prompts/judge/v1.md"),
-                    )
+                if spec.rehearsal:
+                    result = rehearsal.score_pair(row, client)
+                else:
+                    with jev_judge_adapter() as adapter:
+                        result = score_pair(
+                            row,
+                            sonnet_client=client,
+                            jev_adapter=adapter,
+                            prompt=load_prompt(ROOT / "prompts/judge/v1.md"),
+                        )
                 result["status"] = "scored"
-        except FinalBudgetStop:
+        except (FinalBudgetStop, BudgetFailure):
             raise
+        except ModelFailure as error:
+            # The client already exhausted its bounded attempts. Preserve a failed
+            # item, never invent scores or replay it on resume; keep primary reports.
+            result = {
+                "status": "judge_failed",
+                "error_type": type(error).__name__,
+                "sonnet_scores": None,
+                "jev_scores": None,
+                "attempt_statuses": [record.status for record in client.records],
+                "length_failures": sum(
+                    record.stop_reason in {"length", "max_tokens"} for record in client.records
+                ),
+            }
         except Exception as error:
             raise RuntimeError(
                 "Judge execution failed; stop without advancing checkpoint"
@@ -234,6 +270,8 @@ def judges(cases, selected, checkpoints, store, spec=V3):
                 "budget": budget_receipt(spec),
             },
         )
+        if spec.rehearsal:
+            rehearsal.hook(spec, "judges", len(ratings))
     return ratings
 
 
@@ -255,7 +293,10 @@ def saved_cases(suite: dict, repeat_ids: set[str], checkpoints: Checkpoints) -> 
 
 
 def main(output: Path, sha: str, spec: ProgramSpec = V3) -> None:
-    require_start()
+    if spec.rehearsal:
+        rehearsal.guard(spec)
+    else:
+        require_start()
     serving_connection = serving_pin(spec)
     # All frozen reads, including pin verification on resume, are inside the access ledger.
     paths = sorted(p for p in spec.release.iterdir() if p.is_file())
@@ -265,10 +306,21 @@ def main(output: Path, sha: str, spec: ProgramSpec = V3) -> None:
         for split in ("train", "validation", "test")
     ]
     with access(
-        "final_program", paths, "Owner-approved final program; pinned start/resume, no tuning"
+        "final_program",
+        paths,
+        "Owner-approved zero-spend retired-v3 rehearsal"
+        if spec.rehearsal
+        else "Owner-approved final program; pinned start/resume, no tuning",
     ):
-        serving, store = open_serving(), open_budget_store()
+        serving = open_serving()
         try:
+            store = Store(os.environ["EVAL_BUDGET_DSN"]) if spec.rehearsal else open_budget_store()
+        except BaseException:
+            serving.store.close()
+            raise
+        try:
+            if spec.rehearsal:
+                rehearsal.budget_denial(spec, store)
             verify_envelope(spec)
             suite, identities, directory = load(
                 serving, release=spec.release, binding_path=spec.bindings
@@ -282,6 +334,7 @@ def main(output: Path, sha: str, spec: ProgramSpec = V3) -> None:
                 "budget_run_id": spec.run_id,
                 "program": spec.identity(),
                 "serving": serving_connection,
+                **({"controls_sha256": rehearsal.controls_pin(spec)} if spec.rehearsal else {}),
             }
             checkpoints = Checkpoints(output, pins)
             header = {
@@ -325,6 +378,18 @@ def main(output: Path, sha: str, spec: ProgramSpec = V3) -> None:
                 "operational_storage": "isolated fresh in-memory state per case; durable production separately tested",
                 "human_label_review": "pending; model-generated PT/MX/AR wording is a limitation",
             }
+            if spec.rehearsal:
+                header.update(
+                    workload="DEV REHEARSAL: retired v3, B1-only 260 runs; repeats and mock-client judges",
+                    model="B1 deterministic fallback only; identical synthetic judge scores",
+                    disclosure="Operational rehearsal only; no new official evaluation or vendor agreement claim",
+                    resolved_models={},
+                    cost_assumptions="No paid providers; isolated local durable $0 lifetime cap; positive reservations denied",
+                    serving_location="local",
+                    latency_scope="Rehearsal wall-clock only; not real-model latency",
+                    rehearsal=True,
+                    p_system_label="B1-repeated",
+                )
             from evals.final_report import write_report
 
             try:

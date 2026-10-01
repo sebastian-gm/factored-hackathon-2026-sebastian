@@ -32,6 +32,7 @@ class ProgramSpec:
     suite: str
     bindings: Path
     manifest_pin: str
+    rehearsal: str | None = None
 
     @property
     def release(self) -> Path:
@@ -39,24 +40,33 @@ class ProgramSpec:
 
     @property
     def scope(self) -> str:
+        if self.rehearsal:
+            return "rehearsal/final-program/" + self.rehearsal
         return "final-evaluation-" + self.suite.removeprefix("test-")
 
     @property
     def run_id(self) -> str:
+        if self.rehearsal:
+            return "rehearsal-" + self.rehearsal
         return "final-program-" + self.suite.removeprefix("test-")
 
     @property
     def output(self) -> Path:
+        if self.rehearsal:
+            return ROOT / "artifacts/final-program-rehearsal" / self.rehearsal
         return ROOT / "artifacts" / self.run_id
 
     def identity(self) -> dict[str, str]:
-        return {
+        identity = {
             "suite": self.suite,
             "bindings": str(self.bindings.relative_to(ROOT)),
             "manifest_pin": self.manifest_pin,
             "scope": self.scope,
             "run_id": self.run_id,
         }
+        if self.rehearsal:
+            identity["rehearsal"] = self.rehearsal
+        return identity
 
 
 MANIFEST_PINS = {
@@ -66,7 +76,10 @@ MANIFEST_PINS = {
 
 
 def specification(
-    suite: str, bindings: str | Path | None = None, manifest_pin: str | None = None
+    suite: str,
+    bindings: str | Path | None = None,
+    manifest_pin: str | None = None,
+    rehearsal: str | None = None,
 ) -> ProgramSpec:
     """Resolve only approved metadata, without inspecting suite or binding files."""
     if suite not in MANIFEST_PINS:
@@ -82,18 +95,24 @@ def specification(
     path = (ROOT / path).resolve()
     if not path.is_relative_to(ROOT / "artifacts"):
         raise ValueError("Private bindings must remain in ignored repository artifacts")
-    return ProgramSpec(suite, path, pin)
+    if rehearsal is not None:
+        import re
+
+        if suite != "test-v3" or not re.fullmatch(r"[a-z][a-z0-9-]{0,39}", rehearsal):
+            raise ValueError("Rehearsal requires retired test-v3 and a safe isolated name")
+    return ProgramSpec(suite, path, pin, rehearsal)
 
 
 def add_arguments(parser) -> None:
     parser.add_argument("--suite", choices=tuple(MANIFEST_PINS), default="test-v4")
     parser.add_argument("--bindings", help="Ignored private binding path; never its contents")
     parser.add_argument("--manifest-pin", help="Must equal the approved suite manifest SHA256")
+    parser.add_argument("--rehearsal", help="Zero-spend retired-v3 rehearsal in isolated artifacts")
 
 
 def serving_pin(spec: ProgramSpec) -> dict[str, str]:
     """Reject remote/owner serving connections before any secret/provider access."""
-    if spec.suite != "test-v4":
+    if spec.suite != "test-v4" and not spec.rehearsal:
         return {"location": "legacy"}
     dsn = os.getenv("EVAL_SERVING_DSN")
     if not dsn:
