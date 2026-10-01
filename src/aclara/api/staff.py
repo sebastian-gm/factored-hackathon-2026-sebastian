@@ -8,6 +8,7 @@ import json
 import secrets
 from datetime import UTC, datetime, timedelta
 from typing import Any
+from uuid import uuid4
 
 from fastapi import Depends, FastAPI, HTTPException
 
@@ -46,9 +47,35 @@ def complete_packet(
     key = result["handoff"]["handoff_id"]
     packet = app.state.handoffs[key]
     language = packet["route"]["language"]
-    if conversation_id is None:
-        conversation_id = next(iter(app.state.conversations), None)
     conversation = app.state.conversations.get(conversation_id) if conversation_id else None
+    # Never borrow facts from the first/latest conversation in a multi-tab session.
+    if conversation and conversation.selected_handle and not packet["verified_facts"]:
+        from aclara.api.app import _masked_transaction
+
+        row = dict(
+            app.state.ledger.for_customer(principal.customer_id, app.state.settings.bank_clock)
+        ).get(conversation.selected_handle)
+        if row is not None:
+            packet["verified_facts"] = [_masked_transaction(conversation.selected_handle, row)]
+    # A proposal is not an action. Include a previous dispute only after reading
+    # its persisted record, and only from this conversation's execution history.
+    for record in app.state.executions.values() if conversation_id else ():
+        response = record.get("response", {})
+        case = response.get("case")
+        if (
+            record.get("conversation_id") == conversation_id
+            and response.get("outcome") == "dispute_filed"
+            and response.get("verified") is True
+            and case
+        ):
+            persisted = app.state.cases.get(case["case_id"])
+            if (
+                persisted
+                and persisted.get("customer_id") == principal.customer_id
+                and persisted.get("transaction_handle") == case["transaction_handle"]
+                and "create_dispute" not in packet["actions_taken"]
+            ):
+                packet["actions_taken"].append("create_dispute")
     preferred = conversation.language if conversation else language
     statements = packet.get("customer_statements", [])
     if message and not cross_customer(message) and not injection(message):
@@ -102,6 +129,59 @@ def complete_packet(
     ).model_dump(mode="json")
 
 
+def verify_handoff_commit(
+    app: FastAPI, result: dict[str, Any], principal: Any, conversation_id: str | None
+) -> None:
+    """Read the committed packet before recording or showing a completed handoff."""
+    store = app.state.store
+    scope = Scope(principal.customer_id, principal.run_id, principal.session_id)
+    key = result["handoff"]["handoff_id"]
+    with store.transaction(scope):
+        packet = app.state.handoffs.get(key)
+        if (
+            not packet
+            or packet.get("customer_id") != principal.customer_id
+            or packet.get("session_id") != principal.session_id
+        ):
+            raise HTTPException(503, "Durable handoff read-back failed")
+        view = HandoffView.model_validate(
+            {
+                k: v
+                for k, v in packet.items()
+                if k not in {"customer_id", "session_id", "request_summary"}
+            }
+        )
+        expected = HandoffView.model_validate(result["handoff"])
+        if view.model_copy(
+            update={"actions_taken": [a for a in view.actions_taken if a != "create_handoff"]}
+        ) != expected.model_copy(
+            update={"actions_taken": [a for a in expected.actions_taken if a != "create_handoff"]}
+        ):
+            raise HTTPException(503, "Durable handoff read-back failed")
+        if "create_handoff" not in packet["actions_taken"]:
+            packet["actions_taken"].append("create_handoff")
+        app.state.handoffs[key] = packet
+        app.state.executions[str(uuid4())] = {
+            "conversation_id": conversation_id,
+            "created_at": datetime.now(UTC).isoformat(),
+            "events": [{"event": "verify_readback", "handle": key}],
+            "outcome": "handoff_verified",
+            "policy_version": catalog()[0],
+        }
+    with store.transaction(scope):
+        committed = app.state.handoffs.get(key)
+        if not committed or committed != packet:
+            raise HTTPException(503, "Durable handoff read-back failed")
+        result["handoff"] = HandoffView.model_validate(
+            {
+                k: v
+                for k, v in committed.items()
+                if k not in {"customer_id", "session_id", "request_summary"}
+            }
+        ).model_dump(mode="json")
+        result["verified"] = True
+
+
 def install_staff(app: FastAPI, principal_dependency: Any) -> None:
     principal_default = Depends(principal_dependency)
     store = app.state.store
@@ -138,7 +218,11 @@ def install_staff(app: FastAPI, principal_dependency: Any) -> None:
             }
             for i, fact in enumerate(packet["verified_facts"])
         ]
-        actions = (
+        actions = [
+            {"action": action, "status": "verified", "evidence_ref": packet.get("trace_ref") or key}
+            for action in packet["actions_taken"]
+            if action in {"create_handoff", "create_dispute"}
+        ] + (
             [
                 {
                     "action": "freeze_card",

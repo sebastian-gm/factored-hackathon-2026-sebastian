@@ -116,6 +116,10 @@ def test_serving_personas_rls_three_surfaces_and_restart(tmp_path: Path) -> None
             endpoint + "/messages", headers=first, json={"message": "Quiero hablar con una persona"}
         ).json()
         assert handoff["verified"]
+        assert (
+            handoff["handoff"]["verified_facts"][0]["handle"] == proposal["transaction"]["handle"]
+        )
+        assert handoff["handoff"]["actions_taken"] == ["create_dispute", "create_handoff"]
         packet_path = "/agent/handoffs/" + handoff["handoff"]["handoff_id"]
         claim = client.post(
             packet_path + "/claim",
@@ -123,6 +127,11 @@ def test_serving_personas_rls_three_surfaces_and_restart(tmp_path: Path) -> None
             json={"expected_version": 1, "idempotency_key": "serving-claim"},
         ).json()
         assert claim["status"] == "claimed"
+        assert len(claim["evidence"]) == 1
+        assert [action["action"] for action in claim["actions"]] == [
+            "create_dispute",
+            "create_handoff",
+        ]
         assert client.get(packet_path, headers=first).json() == claim
         snapshot = client.get("/ops/snapshot", headers=first).json()
         assert snapshot["source_kind"] == "organizer_serving"
