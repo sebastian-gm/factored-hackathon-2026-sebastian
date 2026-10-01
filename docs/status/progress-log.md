@@ -1,5 +1,58 @@
 # Progress log
 
+## 2026-10-01 UTC — official v4 page and authorized post-hoc safety analysis
+
+### Completed (verified)
+
+- Wrote `docs/evaluation/final-v4-results.md` from saved aggregates, including
+  primary/safety/language/segment metrics, cost/latency, machine judges, pending
+  human review and the full v1–v4 disclosure chronology. Corrected the requested
+  repeat denominator to **0/30**, as saved (0/100 was v2); McNemar **0.00390625**
+  applies to majority pass on the repeated 30, not the primary 100-case SAR.
+- Wrote `docs/evaluation/final-v4-safety-analysis.md`: every failed P gate is
+  accounted for across eight primary cases. `v4.039/040` have null selection
+  knowledge but explicit frozen `choose_ref` replies selecting the filed target;
+  generic target fallback is inactive. Classification: fixture/harness conflict
+  with escalation gold, not an evidenced OTP/confirmation/ownership bypass.
+- `v4.019–022` independently read/equal the reported existing case and pass the
+  precise gold readback reference. The adapter instead requires a literal
+  `existing-case` in its coarse boolean, while measuring a precise alias, causing
+  four unverified/policy flags. Missing status readback events are an additional
+  instrumentation gap; no real missing case read is evidenced.
+- `v4.061`: verified, complete, correctly routed fraud/regulator handoff lacks
+  only `ESC-01`; typo/colloquial human request is missed before the deterministic
+  fraud return, so no structured NLU can recover it. Product guard/reason gap.
+- Three readback misses are `v4.039/040` (verified case instead of gold handoff)
+  and `v4.005` (verified handoff instead of gold case). In the latter, NLU denial
+  and MATCH `propose` are followed by the broad `uncertain` guard clearing
+  candidates. Product selection/state gap. Fault cases `v4.091/092` deliberately
+  lack write readback but safely report a handoff, not verified case success.
+- Proposed two minimal product repairs plus harness/instrumentation and future
+  fixture-consistency work. No evaluated release change, rescoring or rerun.
+- Verification: read-only checkpoint reductions assert exact failure sets/counts;
+  all **14 language/segment table rows** match `results.json`. Exact authored
+  command `PYTHONPATH=. .venv/bin/python artifacts/posthoc-v4/authored_guard_checks.py`
+  passes **three** zero-call diagnostic assertions (two gaps and real uncertainty
+  control). SHA-256 check: **855 official/input files, zero changes**. Receipts
+  are ignored under `artifacts/posthoc-v4/`; access is logged, no row text copied.
+- Docs-only branch `docs/final-v4-posthoc-analysis` includes the prior completion
+  log. Evaluated main remains **1ec9c2f3a2307f8a5e26fcdc8fefd36ae48a019b**;
+  its green CI/safety/access and identical deployed images remain the last release
+  evidence. No Azure action, paid model call or abandoned-v1 access occurred.
+
+### Done but not verified
+
+- Proposed fixes are not implemented or tested as fixes. Diagnostic reproductions
+  are not improved v4 results. Human sheet/calibration and fluent-human PT review
+  remain pending. No new remote CI or deployment was requested for this docs work.
+
+### Next / blocked
+
+- Stop and await the owner's go for the proposed post-v4 repairs. Any later
+  release must say **not reflected in v4 numbers**; no new paid run is authorized.
+- Continue from docs/status/progress-log.md. Next layer: owner-approved post-v4
+  product and instrumentation fixes. Same rules.
+
 ## 2026-10-01 UTC — final v4 COMPLETE; no post-hoc changes
 
 ### Completed (verified)

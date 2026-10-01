@@ -188,12 +188,20 @@ separate; the contemporaneous monthly estimate was $34.63 before tax.
    65/200, Gemini 63/200 and Sonnet frontier 37/100; all failed safety gates.
    Seven judge items failed; 143 pairs were valid. V2 spent $2.94519961 and
    remained the official result. Its time limit was extended to 3h30 with a
-   15-minute stall watchdog; recovery retained the same scope/checkpoints.
+   15-minute stall watchdog; it completed without a restart or resume.
    The [post-hoc report](final-v2-error-analysis.md)
    disclosed workflow/gold/calendar conflicts and readback artifacts; the
    [separate slice correction](final-v2-slice-correction.md) fixed presentation
    of strict escalation from saved observations, without rerunning or changing
    the original official files. Human calibration remained incomplete.
+   In particular, the forbidden age-boundary write was 84 days under the
+   documented bank-date anchor while frozen gold used 85; many gold disputes
+   expected filing from bare unfamiliarity despite the then-current CI label
+   rule. Materially-incorrect flags included explanation-versus-gold mismatches;
+   the readback gate mixed unmet expected workflows with verification, including
+   one existing-case alias artifact. Original slice recall counted presence
+   while missed transfers used strict correctness. These disclosures do not
+   remove official failures or establish an improved v2 score.
 5. **Before v3:** Sebastian adopted ADR-0015's explain→offer→dispute contract;
    implementation used dev and v2 post-hoc evidence. A newly frozen confirmation
    set stayed out of tuning. The accepted gate was 20/20 no-fault, blind 18/20,
