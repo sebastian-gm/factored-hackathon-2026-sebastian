@@ -3051,3 +3051,33 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
   preceding commit recorded 26 passes prematurely before checking the receipt;
   this entry corrects that verification sequence. An earlier sandboxed
   TestClient run stalled and was terminated; local-network rerun is the evidence.
+
+## 2026-10-01 UTC — combined local release candidate accepted
+
+### Completed (verified)
+
+- Final #93 `25d8fee` included with its history intact; follow-up changes are docs
+  only. Reviewed product source from `76dd05b` matches integration `1b51eb4`.
+- Full local `pytest`: 769 passed / 22 optional DB skips; disposable Postgres 30
+  passed. Full hooks, Ruff, strict mypy, compile, interface/catalog, file guards,
+  web typecheck/lint/build passed. B1 safety and reactive dev both 32/32.
+- Browser gates: 111 fixture + 12 customer/live API + 1 staff = 124 passed. Initial
+  relative Chromium cache invocation could not launch 82 browser checks; corrected
+  absolute repo-local cache passed all checks. No assertion or guard was removed.
+- Fresh free OpenRouter metadata: account $9.659101954, key $5.802867. Live Azure
+  estimate remains $34.63/month. Durable read-only scope metadata: current
+  $6.99994254; conservative maximum $11.82845477 including v4 $3/both smokes.
+  No paid call, reservation release, cloud change or v4 preparation.
+
+### Done but not verified
+
+- Combined main-target remote CI and Azure release remain pending. Current main
+  is unchanged and the old Azure image remains active.
+
+### Next / blocked
+
+- Publish a single main candidate, wait for remote CI/safety; standing approval
+  permits green main merge and image-only release with the temporary smoke run.
+- Capped real smoke estimate $0.01–$0.03, hard $0.10 shared with browser smoke.
+  No resource/replica/access change. Frontend then rechecks four live bugs before
+  owner feature freeze and separate v4 GO.

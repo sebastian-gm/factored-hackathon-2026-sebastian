@@ -134,3 +134,29 @@ two valid movements from the owned, product-joined 120-day projection, without
 requiring merchant names. Currency/amount/status and handle remain valid; named
 explanation still requires a merchant. No merchant is invented, policy/RLS and
 confirmation remain unchanged, and hints do not promise a dispute receipt.
+
+## Combined local acceptance — 2026-10-01 UTC
+
+Product source at `76dd05b` is identical to the integrated `1b51eb4` (only docs
+followed). Verified with the same command capture receipts under ignored
+`artifacts/integration/checks/`:
+
+- Full `pytest`: **769 passed / 22 optional database skips**.
+- `python -m scripts.test_postgres`: **30 passed** on disposable local non-owner
+  storage, including RLS, serving, restart, budget and handoff readback tests.
+- Full hooks, Ruff, strict mypy, compile, frozen interfaces, policy catalog and
+  staged-file policy passed. Web typecheck, lint and build passed.
+- B1 safety **32/32**, reactive v2 dev **32/32**. Generated dev report restored;
+  official v2/v3 artifacts and figures remain unchanged.
+- Browser **124 passed**: 111 authored fixture, 12 local live customer and 1 staff
+  check. Initial fixture invocation failed to launch Chromium at a mistakenly
+  relative cache path (82 could not launch / 29 non-browser checks passed).
+  Absolute repository-local cache rerun passed all 111; no assertion removed.
+- Free credit GETs: account **$9.659101954**, key remaining **$5.802867**, both ≥$4.
+  Live East US 2 list-price estimate **$34.63/month**, approved assumptions and
+  replicas zero unchanged. Current durable exposure **$6.99994254**, maximum
+  **$11.82845477** with retained unknowns, full allowances, v4 $3 and both smokes.
+
+These are local/mock and metadata gates. Remote CI, deployed product behavior and
+the frontend's fresh live Azure rehearsal are separate acceptance steps. V4
+remains unopened/unprepared/unstarted; feature freeze and run GO are pending.
