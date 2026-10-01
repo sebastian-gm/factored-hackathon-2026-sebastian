@@ -1,0 +1,179 @@
+{
+  "recorded_at_utc": "2026-10-01T00:30:30.484814+00:00",
+  "release_sha": "c32fd6429281a764ee33dd96622f237c7c0289c3",
+  "status": "three_stories_attempted_pt_choice_not_achieved",
+  "browser": {
+    "engine": "Chromium",
+    "width_px": 1440,
+    "height_px": 1000
+  },
+  "credentials": "Key Vault to process memory/stdin only; credential and OTP screenshot fields masked; no persisted browser state",
+  "timing_method": "Single observed browser click to rendered response; BFF Server-Timing excludes browser/network/startup; screenshot and independent readback occur after timing",
+  "model_cost": {
+    "models": ["google/gemini-3-flash-preview", "jev-1.13.0"],
+    "valid": 7,
+    "calls": 7,
+    "known_usd": 0.00596448,
+    "unknown": 0,
+    "provider_errors": 0,
+    "fallbacks": 0
+  },
+  "spend_stop_usd": 0.05,
+  "turns": [
+    {
+      "step": "es-explain-draft",
+      "story": "explain",
+      "authored_message": "Quiero entender un cargo pendiente.",
+      "browser_wall_seconds": 5.380902,
+      "azure_bff_seconds": 5.04265,
+      "http_status": 200,
+      "response_type": "choose_transaction",
+      "outcome": "choose_transaction",
+      "candidate_count": 3,
+      "proposal_present": false,
+      "case_present": false,
+      "handoff_present": false,
+      "independent_handoff_readback": null,
+      "reason_codes": [],
+      "primary_reason": null,
+      "new_valid_model_calls": 2,
+      "known_model_cost_usd": 0.001857908
+    },
+    {
+      "step": "es-explain-select-first",
+      "story": "explain",
+      "authored_message": "el primero",
+      "browser_wall_seconds": 1.973932,
+      "azure_bff_seconds": 1.86197,
+      "http_status": 200,
+      "response_type": "explain_status",
+      "outcome": "explained",
+      "candidate_count": 0,
+      "proposal_present": false,
+      "case_present": false,
+      "handoff_present": false,
+      "independent_handoff_readback": null,
+      "reason_codes": [],
+      "primary_reason": null,
+      "new_valid_model_calls": 1,
+      "known_model_cost_usd": 0.0003665
+    },
+    {
+      "step": "pt-choose-draft",
+      "story": "ambiguous",
+      "authored_message": "Não reconheço uma compra. Preciso escolher qual movimento.",
+      "browser_wall_seconds": 2.525349,
+      "azure_bff_seconds": 2.10552,
+      "http_status": 200,
+      "response_type": "clarify",
+      "outcome": "clarification",
+      "candidate_count": 0,
+      "proposal_present": false,
+      "case_present": false,
+      "handoff_present": false,
+      "independent_handoff_readback": null,
+      "reason_codes": [],
+      "primary_reason": null,
+      "new_valid_model_calls": 2,
+      "known_model_cost_usd": 0.001863702
+    },
+    {
+      "step": "pt-choose-card-detail",
+      "story": "ambiguous",
+      "authored_message": "Foi uma compra com cartão de crédito. Não lembro o valor exato nem a data.",
+      "browser_wall_seconds": 2.564815,
+      "azure_bff_seconds": 2.43854,
+      "http_status": 200,
+      "response_type": "offer_human",
+      "outcome": "handoff_created",
+      "candidate_count": 0,
+      "proposal_present": false,
+      "case_present": false,
+      "handoff_present": true,
+      "independent_handoff_readback": true,
+      "reason_codes": ["ESC-04"],
+      "primary_reason": "ESC-04",
+      "new_valid_model_calls": 2,
+      "known_model_cost_usd": 0.00187637
+    },
+    {
+      "step": "es-fraud-help",
+      "story": "fraud",
+      "authored_message": "Perdí mi tarjeta y necesito ayuda con una compra que no reconozco.",
+      "browser_wall_seconds": 0.378218,
+      "azure_bff_seconds": 0.12233,
+      "http_status": 200,
+      "response_type": "offer_human",
+      "outcome": "handoff_created",
+      "candidate_count": 0,
+      "proposal_present": false,
+      "case_present": false,
+      "handoff_present": true,
+      "independent_handoff_readback": true,
+      "reason_codes": ["FRD-01", "AUTH-02"],
+      "primary_reason": "FRD-01",
+      "new_valid_model_calls": 0,
+      "known_model_cost_usd": 0.0
+    }
+  ],
+  "story_preparation": {
+    "all_recording_helper_buttons_disabled": true,
+    "path": "ordinary_authenticated_persona_login_and_chat_composer",
+    "server_authority_changed": false,
+    "resets": 0
+  },
+  "operations": {
+    "verified_handoffs": 2,
+    "disputes_filed": 0,
+    "cards_frozen": 0,
+    "staff_claims": 0,
+    "staff_resolutions": 0,
+    "handoff_readbacks_passed": true
+  },
+  "desk_observations": {
+    "fraud_packet_present": true,
+    "reason_count": 2,
+    "primary_reason_first": true,
+    "reason_labels_localized": true,
+    "verified_fact_cards_displayed": 0,
+    "action_entries_displayed": 0,
+    "raw_risk_label_visible": "fraud_review",
+    "sla_counter_spans_months_for_fresh_handoff": true
+  },
+  "ops_observations": {
+    "fraud_execution_visible": true,
+    "readback_verification_badge_visible": true,
+    "fraud_model_calls": 0,
+    "fraud_turn_known_model_cost_usd": 0,
+    "model_risk_union_unavailable_for_deterministic_fraud": true
+  },
+  "copy_observations": {
+    "es_generated_explanation_contains_operaci3n": true,
+    "es_generated_explanation_contains_english_approved": true,
+    "es_choice_missing_merchant_labels": 2,
+    "es_choice_product_label_unavailable": true
+  },
+  "captures": {
+    "directory": "artifacts/ux-audit/azure-conversations-c32fd64",
+    "views": 21,
+    "pngs": 42,
+    "file_mode": "0600",
+    "page_errors": 0,
+    "horizontal_overflow": 0,
+    "sidebar_y_zero": true,
+    "rows_private_not_committed": true
+  },
+  "requested_scenes": {
+    "es_charge_explanation": "observed_after_choice",
+    "pt_choose_purchase": "not_observed_clarification_then_ESC_04_handoff",
+    "es_fraud_to_agent_desk": "observed_verified_two_reason_handoff",
+    "insights": "recaptured_aggregate_views",
+    "offer_dispute_confirmation_otp_case_receipt": "not_reached_not_claimed"
+  },
+  "limitations": [
+    "Three demonstration stories, not an evaluation or accuracy estimate.",
+    "Known model subtotal includes Gemini and Jev; excludes cloud compute and CI; no unknown usage in these traces.",
+    "No fallback or provider error; fraud turn is a designed deterministic path, not a real-model inference.",
+    "No organizer field values, identifiers, response prose or raw traces in this aggregate."
+  ]
+}

@@ -1,5 +1,24 @@
 # Progress log
 
+## 2026-09-30 PDT — Frontend lane: resumed Azure conversation rehearsal
+
+### Completed (verified)
+
+- After the owner's credit-restoration ping, verified both deployed image tags at **c32fd6429281a764ee33dd96622f237c7c0289c3** and rehearsed three drafts through ordinary authenticated Azure chat. Helper buttons remain disabled; no authority/availability gate or serving data changed. Credentials stayed in Key Vault/process memory/stdin; no persisted browser state. No direct provider key/call, cloud setting change, frozen-suite access or evaluation run.
+- **Five turns / seven valid Gemini/Jev calls, known US$0.00596448**, zero unknown usage/provider errors/fallbacks. ES: three choices → selected-charge explanation. PT: clarification → verified ESC-04 handoff after one detail reply; **no PT choices/proposal/receipt**. ES lost-card/help: deterministic verified FRD-01 primary + AUTH-02 handoff, zero model calls in that turn. Both handoffs passed independent authenticated GET read-backs; fraud packet primary/other reasons visible in Agent Desk, actual execution/read-back badge visible in Ops. No dispute, card freeze, claim, resolution or reset.
+- Captured **21 views / 42 ignored 0600 PNGs** after restoration, including each turn, why drawer, packet/execution and Insights. Zero page errors/overflow; sidebar at y=0. Generic messages and per-turn timings/costs only in [aggregate receipt](../submission/video-rehearsal-conversations.json). [Shot list](../submission/video-shot-list.md) remains a **2:55 plan**, rewritten around actual outcomes; the prior PT receipt sequence is removed.
+- Flagged video defects without changing product/model/policy: disabled stories/no PT ambiguous hint; PT path fails intended choice scene; generated ES `operaci3n` and English `approved`; pending draft selects an Approved card; missing candidate merchant/product labels; fresh Desk SLA spans months; empty fact/action entries and raw `fraud_review`. Deterministic Ops zero model calls are distinguished from total rehearsal cost. No organizer field value or operational ID committed.
+
+### Done but not verified
+
+- Requested PT purchase-choice scene is unmet; no offer_dispute/confirmation/OTP/case receipt reached or claimed. Three demo attempts do not establish accuracy or production safety. Final video export, narration synchronization and actual duration remain pending.
+- Known model subtotal is execution-trace usage, not a new provider invoice/account-balance reading; excludes cloud compute/CI. Empty Desk action arrays are not positive evidence of displayed verified actions. Mixed SLA clock bases are a plausible frontend diagnosis only.
+
+### Next / blocked
+
+- Update existing unmerged PR #88 and require current-head green CI. Lead/frontend review story eligibility/scoped PT availability and clock semantics; AI/lead review ES generated copy. No further paid replay planned for a prettier outcome; a repaired PT path needs a separate concrete rehearsal.
+- Keep raw captures private; mask organizer card values/operational references before any export. V4 remains unopened/unrun. No backend, NLU, policy or model tuning from this lane.
+
 ## 2026-09-30 PDT — Frontend lane: partial Azure video rehearsal
 
 ### Completed (verified)
