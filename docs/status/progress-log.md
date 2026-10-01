@@ -1,5 +1,80 @@
 # Progress log
 
+## 2026-10-01 UTC — final v4 COMPLETE; no post-hoc changes
+
+### Completed (verified)
+
+- Eval-only recovery #100 merged after corrected CI 36815591018 and safety
+  36815591193 passed. Exact evaluated main/origin SHA:
+  **1ec9c2f3a2307f8a5e26fcdc8fefd36ae48a019b**. Main CI 36816069214,
+  safety 36816069165 and azure-access 36816856679 passed. Full corrected local
+  Python suite: 791 passed / 22 optional DB skips; targeted runner/adapter suite:
+  55 passed. No product, prompt, config or frozen input changes.
+- Re-verified byte-identical frozen 92994d9 images, `scripts.azure_verify`,
+  GET-only story hints and authenticated identity/clock/transaction reads. New
+  `artifacts/azure/jev-release.json` has all three flags true at 1ec9c2f; it
+  explicitly reuses real/browser smoke at identical product 92994d9. Image-tag
+  and release identity updates only; resources/replicas/access unchanged.
+- Same lifetime scope **final-evaluation-v4**, run **final-program-v4**, $3 cap.
+  Preflight verified manifest/binding pins, local forced-RLS serving, credits
+  $9.642788954 and key remaining $5.786554. Conservative maximum:
+  **$7.016418 + $3 + $0.10 + $0.10 = $10.216418 <= $12**.
+- Owner-authorized fresh start under nohup at 04:52:04 UTC; completed at 05:19:04
+  UTC without a resume. Watchdog: 15-minute stall / 3-hour total / budget or error.
+  `python artifacts/integration/v4-command.py status` reports COMPLETE;
+  `COMPLETE.json` matches `results.json` SHA/budget. Specific host PID check
+  confirms the worker exited; its PID file is absent. Main stayed unchanged.
+- All **260 system runs + 60 dual-judge items** checkpointed; **503 paid-call
+  attempts, $0.54532659 known/charged, zero unknown costs**. Cumulative charged
+  exposure including retained prior reserves: **$7.56174459 <= $12**.
+- Aggregate first-pass results (B1 / P-Gemini): pass **62/100 / 88/100**;
+  in-scope SAR **22/100 / 32/100**; automation attempts **41/100 / 51/100**;
+  containment **41/100 / 47/100**; strict escalation **38/53 / 49/53**;
+  missed transfers **15/53 / 4/53**; unnecessary transfers **11/47 / 2/47**.
+  B1 executed 98/100 (two unreached fault boundaries); P executed 100/100.
+  Paired SAR difference **+10 percentage points**, bootstrap 95% CI **+5 to +16**.
+- **Both systems fail safety gates.** B1 / P: unauthorized actions **2/98 / 2/100**;
+  reported without verification **2/98 / 4/100**; policy violations **5/98 / 6/100**;
+  materially incorrect **7/98 / 0/100**. Disclosure, missing confirmation/step-up,
+  refund promises and grounding each **0/98 / 0/100**. Fraud/regulator recall
+  **7/8 / 7/8**; required readbacks **66/80 / 77/80**; required handoff fields
+  **48/48 / 51/51**. Counts are evaluator observations, not a post-hoc diagnosis.
+- ES pass/SAR/strict escalation: B1 **28/48, 10/48, 17/25**; P **43/48, 16/48,
+  23/25**. PT: B1 **30/48, 9/48, 20/27**; P **41/48, 13/48, 25/27**.
+  Mixed: both **4/4, 3/4, 1/1**. Segment pass/SAR (B1 -> P, n=25 each):
+  Basic **15/4 -> 22/8**, Plus **17/5 -> 21/7**, Premium **15/7 -> 23/9**,
+  Student **15/6 -> 22/8**. Full intervals/slices remain in aggregate artifacts.
+- Repeats: outcome/pass/SAR flips each **0/30** across three executions, Wilson
+  upper 95% **11.35%**. Judges: all 60 paired, zero failed/unpaired. Sonnet/Jev
+  exact agreement: language **34/60**, clarity **28/60**, empathy **21/60**,
+  handoff usefulness **29/31**; weighted kappa **0.159 / 0.102 / 0.179 / 0.000**.
+- Local-serving turn p50/p95: B1 **0.007/0.021 s**, P **2.125/3.776 s**;
+  case p50/p95: B1 **0.010/0.037 s**, P **2.253/7.271 s**. These are runner
+  timings with local serving, not Azure browser latency.
+- P first-pass known cost **$0.229766056**: **$0.002297661 per evaluated case**,
+  **$0.004505217 per automation attempt** (51), **$0.007180189 per SAR** (32).
+  The report's `per_attempted_case_usd` field uses all 100 evaluated cases;
+  the automation-attempt figure here explicitly uses the 51-attempt denominator.
+- Results: ignored `artifacts/final-program-v4/results.json` and `results.md`.
+  Human sheet: `artifacts/final-program-v4/human-judge-20.csv`; verified 20 CSV
+  records and mode 0600 without printing any row. Attempt 1 remains preserved
+  at `final-program-v4-attempt1`, $0; disclosure is in JSON and Markdown.
+
+### Done but not verified
+
+- Human sheet is ready, not reviewed; human calibration/agreement is pending.
+- Safety/fault failures have not been diagnosed. No post-hoc row inspection,
+  code change or rerun was performed. Small segment cells do not support causal
+  fairness claims, and zero observed violations does not establish zero risk.
+
+### Next / blocked
+
+- Stop as directed. Owner reviews the human sheet and decides any follow-up.
+  No further paid run, product change, main merge or publication is authorized
+  by this completion entry. This status-only commit is on a separate docs branch.
+- Continue from docs/status/progress-log.md. Next layer: owner review of final v4
+  aggregates and human sheet. Same rules.
+
 ## 2026-10-01 UTC — authorized eval-only v4 preflight recovery
 
 ### Completed (verified)
