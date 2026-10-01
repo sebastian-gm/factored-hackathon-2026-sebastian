@@ -1,5 +1,8 @@
 .PHONY: up down checks eval-smoke interfaces pipeline test-recovery
 
+PRE_COMMIT_HOME ?= $(CURDIR)/artifacts/precommit-cache
+export PRE_COMMIT_HOME
+
 up:
 	uv run --no-sync python -m scripts.local_ops
 	docker compose up --build -d --wait --wait-timeout 120
@@ -8,7 +11,7 @@ down:
 	docker compose down
 
 checks:
-	PRE_COMMIT_HOME=/tmp/aclara-precommit-cache uv run --no-sync pre-commit run --all-files
+	uv run --no-sync pre-commit run --all-files
 	uv run --no-sync python scripts/check_staged_files.py --working-tree
 	uv run --no-sync python -m compileall -q src evals scripts
 	uv run --no-sync pytest

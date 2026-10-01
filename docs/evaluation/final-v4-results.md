@@ -7,6 +7,9 @@ documentation and selection-interface integration preserved identical images.
 This page renders the saved aggregates. The official JSON, Markdown, checkpoints,
 frozen suite and private bindings remain unchanged.
 
+Owner-approved [post-v4 repairs](post-v4-release-notes.md) are **not reflected in
+these numbers**. They are checked on authored dev data and release smokes only.
+
 Sources: ignored `artifacts/final-program-v4/results.json`, `results.md`,
 `COMPLETE.json` and the durable budget receipt. Suite manifest SHA-256:
 `309c3aa22c2eab51b3289075b733c52bb7934a879299762c3fb9ba16a3d9bec8`.
