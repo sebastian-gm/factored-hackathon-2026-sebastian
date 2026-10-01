@@ -25,6 +25,7 @@ from aclara.agent.contracts import ResponsePlan, TransactionView
 from aclara.agent.conversation import (
     changes_target,
     classify_request,
+    declines_dispute,
     recognizes_charge,
     risk_reasons,
     unfamiliar_charge,
@@ -965,21 +966,24 @@ def create_app(
                     bank_clock=active_settings.bank_clock,
                     awaiting_recognition=True,
                 )
-            if normalize_text(body.message).strip(" .,!¿?¡") in {
-                "cancelar",
-                "cancela",
-                "deixa",
-                "deixa pra la",
-            }:
+            changed = changes_target(body.message, offered_row, nlu.slots)
+            if declines_dispute(body.message) and (
+                is_cancellation(body.message)
+                or not changed
+                and nlu.extracted.recognition != "recognized"
+            ):
                 conversation.offer_handle = None
+                conversation.selected_handle = None
                 conversation.unfamiliar_charge = False
                 conversation.intent = None
+                conversation.slots = None
+                conversation.rounds = 0
+                conversation.recognition_rounds = 0
                 return {
                     "response_type": "cancelled",
                     "outcome": "cancelled",
                     "reply": _localized(language, "Disputa cancelada.", "Contestação cancelada."),
                 }
-            changed = changes_target(body.message, offered_row, nlu.slots)
             recognition = nlu.extracted.recognition
             if normalize_text(body.message).strip(" .,!¿?¡") in {"si", "sim", "no", "nao"}:
                 recognition = "unsure"
