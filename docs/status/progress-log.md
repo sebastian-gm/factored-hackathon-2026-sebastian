@@ -1,5 +1,32 @@
 # Progress log
 
+## 2026-10-01 UTC — feature freeze and final v4 integration
+
+### Completed (verified)
+
+- Received Sebastian/orchestrator feature freeze and final v4 GO after the clean
+  92994d9 Azure rehearsal. Integrated #64 and #98 with history-preserving merges;
+  only suite/protocol/rehearsal/progress documentation changes since product freeze.
+- Opaque-byte SHA-256 verifies the v4 manifest as
+  `309c3aa22c2eab51b3289075b733c52bb7934a879299762c3fb9ba16a3d9bec8`.
+  Authorized private binding copy matches provenance
+  `7805535e1eae8c8358440a8807cfa6b156ccf4d450c15de5e85d14b4c6a8016b`;
+  ignored destination is mode 0600. No rows, selection IDs, author tool contents
+  or bindings were displayed or used to change the product.
+
+### Done but not verified
+
+- Final combined-head remote CI, exact-main identical-image re-verification, fresh
+  durable budget/credit/local-serving gates and final program execution are pending.
+
+### Next / blocked
+
+- Finalize clean green main, reverify identical frozen product images and acceptance
+  receipt, close prior dev scopes preserving reserves, then run the single detached
+  `test-v4` program under `final-evaluation-v4` / `final-program-v4` ($3 lifetime).
+  Enforce cumulative ≤ $12, local RLS serving, 1024-token judge cap, and immutable
+  resume-only pins. Keep main frozen during the run; inspect aggregate outputs only.
+
 ## 2026-09-30 PDT — Frontend lane: released Azure rehearsal at 92994d9
 
 ### Completed (verified)
