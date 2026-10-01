@@ -171,6 +171,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("action", choices=["prepare", "start", "resume", "status", "_worker"])
     add_arguments(parser)
+    parser.add_argument("--rehearsal", help="Zero-spend retired-v3 rehearsal in isolated artifacts")
     args = parser.parse_args()
     spec = specification(args.suite, args.bindings, args.manifest_pin, args.rehearsal)
     output = spec.output

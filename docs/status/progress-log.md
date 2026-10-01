@@ -2246,3 +2246,61 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
   paid call, default change or v4 access is authorized by these preparatory checks.
 - Import the confirmed human CSV via the #77 branch and update its agreement doc
   without new judges. Current provisional Downloads path has not been confirmed.
+
+## 2026-09-30 PDT — Zero-spend final-program rehearsal (lead)
+
+### Completed (verified)
+
+- Retired v3 only, local RLS serving, B1-only system positions and mock-client
+  judges. `LLM_PROVIDER=mock`, real-call approval off. No v4 rows/selections/bindings,
+  historical final-program directories, product paths or Azure resources changed.
+- `python -m scripts.rehearse_final_program --name sept30-b` completed all three
+  programs in 178.97 s on runner `af769b7c776f160c23cbd1b2df6cc5ab834be41c`:
+  260 system runs + 60 judge items each, JSON/Markdown reports + 20-item sheets.
+  Aggregate evidence: `artifacts/final-program-rehearsal/sept30-b-summary.json`.
+- Actual SIGTERM at systems 12 and judges 12, followed by `resume` each time:
+  identical objective aggregates/intervals and judge aggregates versus baseline;
+  320 completed units / 320 attempts, 60 mock calls, no replay of completed units.
+  Measured timing is excluded from equality, not fabricated. A completed `resume`
+  was a no-op; all worker PID files are absent and worker locks free.
+- Injected one real local connection refusal at systems 22: `OperationalError`,
+  preserved checkpoints, successful non-owner `SELECT 1` on original serving,
+  one resume. Fault program finished with only one recovered unit (321 attempts).
+  One judge length failure exhausted two attempts, recorded null scores and
+  continued: 59 paired / one failed item; primary/report phases completed.
+- Exact local throwaway scopes `rehearsal/final-program/sept30-b-{baseline,resumed,faults}`,
+  run IDs `rehearsal-sept30-b-{baseline,resumed,faults}`, all durable $0 lifetime
+  caps. Actual non-owner reserve function denied positive $0.00000001 attempts;
+  owner readback: zero paid reservations, $0 charged, no unknown costs. Production
+  migrations/functions and existing paid scopes unchanged. Connections mode 0600.
+- Runner fixes: exhausted judge failures checkpointed unpaired; budget/infrastructure
+  failures stop; sanitized exception class chains; stale stop handling on resume;
+  serving closed if budget initialization fails. Explicit rehearsal cannot select
+  v4, fetch cloud keys or enable real calls. Final CLI-only guard prevents the
+  paid budget parser silently ignoring `--rehearsal`; authored parser/launcher
+  regressions pass. Product behavior unchanged.
+- Local full suite 497 passed / 21 skipped; final runner regressions 33 passed;
+  disposable Postgres gate 24 passed. Ruff, strict mypy (88 files), compile,
+  interface/catalog checks, pre-commit and working-tree data/secret gate passed.
+  Both B1 commands exited 0; reactive dev 32/32. First restricted full pytest
+  stalled and was terminated; completed run used authorized local networking and
+  bounded numerical-library threads. Initial rehearsal comparator wrongly included
+  six timing fields; fixed and the complete rehearsal repeated successfully.
+- Details/commands/limitations: [final-program-rehearsal.md](../evaluation/final-program-rehearsal.md).
+  Earlier `sept30-a` rehearsal evidence is preserved. No paid model calls.
+
+### Done but not verified
+
+- Live provider cancellation, actual vendor agreement, model quality and Azure
+  connectivity are outside this mock/local rehearsal; no such claims made.
+- Remote CI on the rehearsal PR is pending publication. Main remains unchanged
+  at `5e55ee8519d56d81938bb6a7aa7e4247e8d6c91c`; no main merge or redeploy performed.
+
+### Next / blocked
+
+- Open the runner-only PR to main, require remote CI, then review/merge separately.
+- V4 remains unstarted until the Oct 2 12:00 COT freeze, release gates and owner go.
+  Keep its rows, selections and bindings unopened; keep historical final programs
+  untouched. No new spend or infrastructure approval needed for this rehearsal.
+- Continue from docs/status/progress-log.md. Next layer: v4 launch gates after
+  feature freeze and owner go. Same rules.

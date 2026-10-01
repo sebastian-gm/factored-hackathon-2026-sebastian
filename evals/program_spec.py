@@ -107,7 +107,6 @@ def add_arguments(parser) -> None:
     parser.add_argument("--suite", choices=tuple(MANIFEST_PINS), default="test-v4")
     parser.add_argument("--bindings", help="Ignored private binding path; never its contents")
     parser.add_argument("--manifest-pin", help="Must equal the approved suite manifest SHA256")
-    parser.add_argument("--rehearsal", help="Zero-spend retired-v3 rehearsal in isolated artifacts")
 
 
 def serving_pin(spec: ProgramSpec) -> dict[str, str]:

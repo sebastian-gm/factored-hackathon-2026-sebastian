@@ -132,6 +132,16 @@ def test_stop_metadata_never_contains_exception_input_values():
     assert "private" not in json.dumps(error_metadata(outer))
 
 
+def test_paid_budget_parser_cannot_silently_ignore_rehearsal_flag():
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    program_spec.add_arguments(parser)
+    with pytest.raises(SystemExit) as error:
+        parser.parse_args(["--rehearsal", "authored"])
+    assert error.value.code == 2
+
+
 def test_connectivity_is_not_claimed_as_budget_denial(spec, monkeypatch):
     class Gate:
         def __init__(self, *a, **k):
