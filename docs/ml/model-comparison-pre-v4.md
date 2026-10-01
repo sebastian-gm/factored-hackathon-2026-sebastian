@@ -1,186 +1,197 @@
-# Development comparison: frozen protocol and access preflight
+# Development model comparison: partial results and budget stop
 
-**2026-09-30 PDT, zero paid comparison calls / $0.** Gemini remains the production
-choice. Owner confirmation and Postgres readback establish scope
-`dev-gate/model-compare`, run `model-compare`, **$1.50 lifetime**; read back with
-zero reservations/cost. The pre-v4 robustness scope cannot be reused. The owner
-initially confirmed exhausted account credits and preparation only. The owner
-then confirmed the top-up; a 2026-10-01 00:22 UTC free health GET verified credits
-available. Paid work is authorized within the scopes; the paired run is next.
-Read-only checks at 22:51–22:55 UTC used the public model/endpoint catalog
-and authenticated metadata GETs only, never inference or a key-balance cost delta.
-Private timestamped receipts: `artifacts/dev-model-compare/`.
+**2026-09-30 PDT / 2026-10-01 UTC. Paid work stopped; no rerun.** Thirty of the
+planned fifty pairs completed. Gemini and the Sol route both passed **25/30**,
+with the same five failed conversations. This is a partial integration replay,
+not a fair model-equivalence or replacement result: Sol inherited the serving
+route's short first timeout, had unresolved provider failures, and used Grok
+fallback in six completed conversations. **Gemini remains the default.**
+Only the five approved dev sets were used; held-out v4 was never accessed.
 
-## NLU / phrasing candidates
+## Budget readback and failure diagnosis
 
-| Exact model ID | Confirmed ZDR provider tag | Input / output per 1M tokens | Access evidence |
-|---|---|---:|---|
-| `google/gemini-3-flash-preview` | `google-vertex/global` | $0.50 / $3.00 | Current pin; ZDR endpoint and user-model lists |
-| `openai/gpt-6.1-sol` | `azure` | $2.00 / $10.00 | ZDR endpoint and user-model lists; structured outputs supported |
+Every request, retry, fallback and Jev call reserved against
+`dev-gate/model-compare` / `model-compare`, **$1.50 lifetime**. Postgres readback
+at **00:41:56 UTC** after the stop:
 
-The [live model catalog](https://openrouter.ai/api/v1/models?zdr=true),
-[ZDR endpoint list](https://openrouter.ai/api/v1/endpoints/zdr) and
-[user-model listing documentation](https://openrouter.ai/docs/api/api-reference/models/list-models-filtered-by-user-provider-preferences-privacy-settings-and-guardrails)
-support these metadata checks. Sol's ZDR list also includes `azure/us` and
-`azure/eu` at $2.20 / $11.00. Its cheaper `openai/flex` route appears in the
-unfiltered endpoint list but **not** in the ZDR list; exclude it from this study.
-Catalog membership does not prove a successful request or that account credits
-are available. The earlier health GET verified exhausted OpenRouter credits;
-no paid probe was made to override that evidence.
+| Accounting quantity | USD |
+|---|---:|
+| Returned per-call costs, rounded by Postgres | $0.20973001 |
+| Retained reserves for 31 unknown-cost attempts | $1.28198000 |
+| Charged exposure including those reserves | $1.49171001 |
+| Remaining below the $1.50 cap | $0.00828999 |
+| All scopes' charged exposure at readback | $7.04653079 |
 
-Any candidate overlay must enforce `provider.only: [azure]`, `zdr: true`,
-`data_collection: deny`, `require_parameters: true` and no provider spillover.
-Use the existing code-authorized Grok failure fallback and report its rate
-separately. Do not edit production config. Sol supports Chat Completions without
-tools; lowest supported reasoning effort is `low`, not `none` or `minimal`.
-Pin that setting, token/timeout limits and returned model snapshot, and never
-store reasoning. These are documented model differences, not matched reasoning
-budgets. [Official OpenAI model specifications](https://developers.openai.com/api/docs/models/gpt-6.1-sol)
-give the supported API and effort values.
+The unrounded journal sum is $0.209729548; the difference is per-call money
+rounding. Reserves are **not billed-cost estimates**. No key/account delta was
+used, no reserve was released, and no unknown bill was set to zero. A fair
+restart cannot fit the remaining scope; paid work stops here. The separate
+pre-v4 scope remains at $0.87148777 exposure against its $0.90 stop, with only
+$0.02851223 left. It cannot fund the remaining round-two follow-up or complete
+240-case-per-prompt latency study; see [round-two evidence](nlu-robustness-round2.md).
 
-Gemini 4 Argon is excluded per the owner's instruction; no general-availability
-claim or benchmark was independently made here.
+There were **239 attempts**: Gemini 61 valid, Sol 49 valid + 31 provider errors,
+Grok 8 valid, Jev 90 valid. All unknown bills belong to Sol, across 17 attempted
+conversations (15 ES attempts / 16 PT attempts). They returned in
+**0.409–4.033 s**; 29/31 returned before 0.7 s. All have the saved diagnostic
+`model_failure`, with no generation ID, usage or error-envelope code. None is
+identified as a timeout. Their cause cannot be recovered from the journal:
+provider routing, capacity, schema rejection and server-side deadlines remain
+unverified explanations. A longer timeout alone is not a demonstrated fix.
 
-## Decisions challenger: no OpenAI access established
+Both original candidate specs inherited **6 s first attempt / 20 s subsequent**
+and a 45 s logical-call budget. That was inappropriate for an ability comparison
+with a reasoning model and is withdrawn as the future protocol. `urlopen`'s
+timeout is a socket/read setting, not a strict elapsed-time deadline: one valid
+Sol first attempt took 6.827 s. Recorded failures are latency observations, never
+zero-duration parses or semantic errors.
 
-The authenticated `models/user?output_modalities=decisions` GET returned nine
-listed decision models, **none `openai/*`**; the corresponding public modality
-list agreed. The worktree has no direct `OPENAI_API_KEY` and no installed OpenAI
-SDK. Official [OpenAI changelog](https://developers.openai.com/api/docs/changelog)
-and documentation searches did not establish a callable Decisions API endpoint
-or this account's preview entitlement. This is an access limitation, not proof
-that a limited-preview product does not exist. The owner's approximate latency
-and calibration claims are not measured evidence.
+Zero-cost corrections now prepare **both candidates at 30 s per attempt**, no
+shortened first attempt, and a 65 s logical-call budget. Production's 6/20 s
+settings stay unchanged. The comparison stops on its **first unknown-cost
+response**, before another retry/fallback/conversation, while retaining that
+reserve and settling the parallel Jev result. Settlement occurs before callbacks
+that can stop execution. Timeout codes/durations, generic failures, and first
+attempts exceeding the serving 6 s are reported separately. No paid measurement
+has used this corrected protocol, and its changed pins prohibit resuming the old
+run under new settings.
 
-OpenRouter has its own `alpha.decisions` API serving third-party typed models,
-including Jev; that is not evidence of an OpenAI Decisions model. See
-[OpenRouter's Jev access example](https://openrouter.ai/blog/insights/what-is-jev/).
-Do not substitute a different vendor or ordinary LLM-generated confidence.
-Jev-versus-OpenAI recall, precision, ECE, latency and cost therefore remain
-unmeasured pending actual preview access and approved scoped funding.
+The adapter now handles HTTP-200 error envelopes separately from normal output:
+it keeps only numeric error category, normalized usage/cost and generation ID,
+discarding provider prose, raw bodies and reasoning. Missing/malformed choices
+also preserve valid returned billing. This closes a diagnostics/reconciliation
+gap; it cannot retrospectively recover discarded metadata. OpenRouter documents
+[errors after HTTP 200 and possible charges without content](https://openrouter.ai/docs/api_reference/errors-and-debugging).
 
-## Paired study and budget feasibility
+## Completed paired results
 
-The owner subsequently approved a **balanced paired sample under $1.50** instead
-of full 240-case coverage. The same frozen dev 20, explain/offer confirmation 20,
-robustness 40, round-two 60 and retired v3 100 form the source pool, with no v4.
-The [frozen sample manifest](../../src/aclara/llm/dev_model_compare_50.manifest.json)
-selects **50 pairs / 100 planned P case-runs**: ten per set, five ES/five PT in
-each (25 ES/25 PT overall). Selection uses metadata-only stable SHA ordering,
-dialect/category buckets, all ten round-two families once, alternating languages
-and round-robin sets; it reads no saved model outcomes. Manifest SHA-256:
+Execution head: `60f3bfa982ff547e4d1dbd74d6500bbe790d976c`. Same NLU **v5.1**,
+phrase **v2**, orchestration, scorer, Jev risk union and failure-only Grok fallback.
+Six paired cases per dev set, three ES/three PT per set: **15 ES / 15 PT**.
+Gemini completed one additional unpaired case; Sol's matching case was interrupted
+by the reservation guard. It is excluded from quality, included in attempted cost.
+
+| Exact candidate model ID | ZDR provider | Input / output per 1M | Objective pass, Wilson 95% | Opening-slot F1, bootstrap 95% | Grok fallback, completed cases |
+|---|---|---:|---|---|---|
+| `google/gemini-3-flash-preview` | `google-vertex/global` | $0.50 / $3.00 | 25/30, 83.3% [66.4–92.7] | 97.64% [93.81–100] | 0/30 |
+| `openai/gpt-6.1-sol` | `azure` | $2.00 / $10.00 | 25/30, 83.3% [66.4–92.7] | 99.21% [97.03–100] | 6/30 |
+
+Sol uses supported `low` reasoning effort and `max_completion_tokens: 2048`;
+Gemini uses `max_tokens: 2048`. Returned model IDs match the candidate IDs.
+Grok is `x-ai/grok-4.20`; its eight calls cost $0.0188027, already included below.
+The Sol arm therefore measures a **Sol/Jev/Grok route**, not pure Sol performance.
+
+| Objective metric | Gemini route | Sol route | Wilson 95% for either route |
+|---|---:|---:|---|
+| In-scope safe automated resolution (SAR) | 19/28, 67.9% | 19/28, 67.9% | 49.3–82.1% |
+| Eligible SAR | 19/25, 76.0% | 19/25, 76.0% | 56.6–88.5% |
+| Strict escalation recall | 3/3 | 3/3 | 43.9–100% |
+| Unnecessary transfers | 5/27 | 5/27 | 8.2–36.7% |
+| Each of the eight unsafe classes | 0/30 | 0/30 | 0–11.4% |
+| Confident opposite-language reply cases | 0/30 | 0/30 | 0–11.4% |
+
+All five failures are in round two: `ar.case-and-charge`, `br1.detail-correction`,
+`br2.code-switch`, `br3.polite-refusal`, `cl.emotion` (each prefixed `round2.`).
+Both arms pass **1/6 round-two cases** and 6/6 from each other set. The
+[owner-grouped round-two diagnosis](nlu-robustness-round2.md) still applies;
+changing model did not resolve these shared flow/action failures. Zero observed
+unsafe cases in this small sample is not a safety certification.
+
+| Language | Candidate | Pass, Wilson 95% | In-scope SAR | Strict escalation | Unnecessary transfer | Slot F1, bootstrap 95% |
+|---|---|---|---|---|---|---|
+| ES | Gemini | 13/15, 86.7% [62.1–96.3] | 9/14 | 2/2 | 2/13 | 100% [100–100] |
+| ES | Sol | 13/15, 86.7% [62.1–96.3] | 9/14 | 2/2 | 2/13 | 100% [100–100] |
+| PT | Gemini | 12/15, 80.0% [54.8–93.0] | 10/14 | 1/1 | 3/14 | 95.89% [89.28–100] |
+| PT | Sol | 12/15, 80.0% [54.8–93.0] | 10/14 | 1/1 | 3/14 | 98.63% [94.11–100] |
+
+Opposite-language errors are a conservative lexical proxy, not fluent human
+review. Replies with uncertain language evidence: Gemini 16 (ES 13 / PT 3), Sol
+17 (ES 13 / PT 4). Both have 0/15 confident error cases in each language, Wilson
+upper bound 20.4%. The degenerate ES slot bootstrap reflects no observed errors,
+not certainty about unseen cases. Synthetic families and reused dev data limit
+all interval interpretations; this is not held-out evidence.
+
+## Latency and cost over all attempts
+
+| Candidate | NLU attempt p50 / p95 | Paired turn p50 / p95 | Paired conversation p50 / p95 | Known cost / attempted conversation | Unknown bills |
+|---|---|---|---|---:|---:|
+| Gemini | 1.922 / 2.650 s | 3.558 / 6.574 s | 5.403 / 14.784 s | $0.003075 (31 attempted; $0.095315656 total) | 0 |
+| Sol | 2.317 / 4.432 s | 4.395 / 10.870 s | 6.424 / 27.307 s | ≥$0.003691 (31 attempted; $0.114413892 known) | 31 |
+
+NLU attempts include failures and Grok fallback; case/turn times are local real-P
+replay, not deployed in-region latency. Case-cluster bootstrap 95% for paired
+conversation p50/p95: Gemini **3.832–7.328 / 10.086–20.176 s**; Sol
+**5.587–10.700 / 14.121–33.651 s**. Retry-inclusive serial NLU/phrase request
+p50/p95 is **1.864/2.430 s** Gemini and **2.914/5.320 s** Sol. Sol has 22 logical
+requests with retry/fallback; Gemini has none. Sol's unresolved costs prevent a
+complete cost comparison, even though its returned-cost lower bound is higher.
+
+| Language | Candidate | NLU attempt p50 / p95 | Paired conversation p50 / p95 | Known cost / attempted case | Unknown bills |
+|---|---|---|---|---:|---:|
+| ES | Gemini | 1.829 / 2.416 s | 6.256 / 14.321 s | $0.002934 (16 attempted) | 0 |
+| ES | Sol | 2.384 / 4.348 s | 7.679 / 20.222 s | ≥$0.003906 (16 attempted) | 15 |
+| PT | Gemini | 1.971 / 2.961 s | 4.856 / 16.420 s | $0.003225 (15 attempted) | 0 |
+| PT | Sol | 2.312 / 4.489 s | 5.978 / 25.191 s | ≥$0.003461 (15 attempted) | 16 |
+
+Schema-valid final responses over **all OpenRouter attempts**, including failures
+and the interrupted case: Gemini **61/61 (100%, Wilson 94.1–100)**; Sol route
+**57/88 (64.8%, 54.4–73.9)**, including eight Grok successes. Primary Sol alone
+is 49/80 (61.25%). Jev is valid 90/90. This is schema-valid response availability;
+provider errors are not evidence of syntactically invalid model JSON.
+No concurrent hedge was run or adopted; the
+[3–4 s retry replay](nlu-robustness-round2.md#sequential-retries-and-the-hedge-question)
+remains a timing-only counterfactual with unmeasured duplicate billing.
+
+## Frozen protocol, provenance and access
+
+The owner approved a balanced sample under $1.50 instead of full 240-case pairs.
+[Manifest](../../src/aclara/llm/dev_model_compare_50.manifest.json): fifty planned
+pairs, ten per set, five ES/five PT each, selected using metadata-only stable
+ordering and dialect/category buckets, never saved outcomes. SHA-256:
 `40ef32671ff05617dc3246db38891a756b6d200cec48c368cc6e2483416b634c`.
-The loader validates full-pool and per-case hashes before use. Equal set weighting
-does not estimate pass on the original 240-case mix, and n=5 language/set cells
-will have wide intervals. The separate lean-v5.2 adoption gate still needs all
-240 cases per prompt; this approval changes only the model comparison.
-Local verification: 299 relevant mock/unit checks passed with eight DB skips;
-Ruff, format and strict mypy (88 source files) passed. No sample provider run.
+Full pool/per-case/code/prompt/scorer/binding hashes were checked. The incomplete
+prefix is balanced but not the whole sample or original 240-case mix.
 
-Pin implementation,
-v5.1 NLU / phrase v2, scenario/binding/scorer hashes and routing. Interleave paired
-cases across the five sets; keep timeouts, provider errors, fallback and incomplete
-cases in attempt/cost denominators. Compare objective pass, in-scope and eligible
-SAR, strict escalation/unnecessary transfers, unsafe, slot F1, confident language
-errors, p50/p95 NLU/turn/case latency, cost per conversation and ES/PT. Report
-Wilson and case-cluster uncertainty, with synthetic/correlated-case caveats.
-No comparison or replacement recommendation is yet supported.
-
-**The original full study was unlikely to fit $1.50.** As a transparent cost estimate,
-the saved round-two baseline's 169 valid Gemini calls used 409,438 input and
-25,963 output tokens. Repricing those same tokens without caching at the confirmed
-routes gives $0.282608 Gemini + $1.078506 Sol = **$1.361114 for that 60-case set
-alone**, before Jev, retries, unknown costs, or Sol-specific reasoning. This is
-not measured Sol usage and does not predict identical outputs. The other 180
-cases would add cost. The approved smaller sample still needs conservative
-reservations; it has no measured Sol cost or guarantee of complete coverage.
-Once restored credits are confirmed,
-reserve before every request and preserve the $1.50 / $12 cumulative caps. If
-only partial coverage fits, disclose it and withhold a full-study conclusion;
-changing coverage or enlarging funding requires the owner's decision.
-
-## Prepared execution and scoring
-
-[Paired driver](../../src/aclara/llm/dev_model_compare.py) uses both candidates for
-NLU **and** phrasing, with NLU v5.1 and phrase v2 unchanged. Both use strict schemas,
-2048 output tokens, 6 s first-attempt timeout, 20 s subsequent-attempt limit and
-45 s logical-call deadline. Sol requests `max_completion_tokens: 2048`, the token
-parameter its endpoint advertises; Gemini retains `max_tokens: 2048`. OpenRouter
-documents the [equivalent completion-budget semantics](https://github.com/OpenRouterTeam/docs/blob/main/api_reference/parameters.mdx).
-Sol's `low` effort is explicit; Google-default thinking and Sol thinking are not
-matched budgets. Reasoning is discarded by the adapter, never saved in journals.
-
-Each arm explicitly enables the **same Jev risk union** and Grok failure fallback.
-Previously Jev ran only on the Gemini model ID, which would have confounded an
-orchestration comparison. The comparison's client injection opts Sol in; the
-application default is unchanged. Execution records add `primary_model_id` and
-`primary_raw_flags`; historical `gemini_raw_flags` remains a compatibility alias.
-Jev's existing questions/thresholds, [Noul semantics](https://docs.typesafe.ai/primitives/noul)
-and [SDK retry controls](https://docs.typesafe.ai/sdk/python/api/clients/sync)
-are unchanged. No new Jev-vs-Decisions experiment or judge call is made.
-
-Alternate which model runs first per pair; cases remain in the frozen set/language
-order, one case-run at a time. Code, prompts, configuration, scorer, bindings and
-sample are hashed before execution. Every provider/Jev/retry/fallback reserves
-against the **same** $1.50 scope before calling; unknown usage retains its reserve.
-The old shared-dev gate still defaults to its $0.90 stop. Fresh free catalog checks
-reject absent ZDR routes, missing schema/token-cap support or higher prices. A free
-credit check fails before inference while the account is exhausted. The driver
-records all attempts with sanitized timeout/HTTP codes and stops on HTTP 402.
-Atomic private checkpoints support explicit resume with identical pins; completed
-or interrupted conversations are never silently billed again.
-
-[Independent opening-slot annotations](../../src/aclara/llm/dev_model_compare_slots.json)
-were authored and frozen before any comparison call, SHA-256
+[Opening-slot annotations](../../src/aclara/llm/dev_model_compare_slots.json) were
+authored by **Codex, not a human reviewer**, and frozen before paid calls. The
+immutable JSON's `method` mistakenly says `Human-authored`; this provenance
+correction does not change annotations or their SHA-256:
 `2d63ee91e925b2f2a0df75801813b571ab23c23575ca56d78fb1c99c98d3b8c1`.
-They score amount, currency, date-start, date-end and merchant with populated-slot
-micro F1: wrong values count FP+FN; null/null contributes no TP. Merchant comparison
-ignores case/accents; amount comparison uses exact Decimal values. Gold describes
-the **opening**, including its initially incorrect amount, without inferring final
-target attributes or later corrections. Two multi-target openings are excluded
-from slot F1 only; both remain in objective scoring. No valid extraction counts
-as missing populated slots, and unreached NLU is reported separately. This is an
-opening-slot metric, not all reactive-turn slot F1. Existing scenario labels and
-freezes are untouched.
+Forty-eight single-target openings score amount/currency/date bounds/merchant;
+two multi-target openings are excluded from slot F1 only. Twenty-nine of the
+thirty completed pairs are slot-scored. Wrong values count FP+FN; null/null is
+not TP; unreached/invalid extraction misses populated slots. This is opening F1,
+not reactive-turn F1. Bootstrap resamples conversations, 2,000 draws, seed 61;
+it does not correct correlated synthetic families or lack of human validation.
 
-Quality tables use the common completed pairs only, overall and ES/PT, with Wilson
-intervals from the existing objective scorer. Per-set coverage and both arms'
-incomplete cases remain visible. Costs, schema validity and provider errors include
-**all attempts**, including interrupted conversations. Latency reports attempts,
-serial logical requests including retry/fallback, API turns and conversations with
-case-cluster intervals. Customer-facing language errors are a conservative lexical
-proxy using the existing contextual detector; uncertain replies are counted
-separately. It is not a fluent human review and may flag legitimate initial
-code-switching clarification. Model IDs returned by providers and fallback rates
-remain in the private results.
+Fresh preflight at 00:10 UTC and paid launch verified the
+[ZDR endpoint list](https://openrouter.ai/api/v1/endpoints/zdr), provider pins,
+schema/token parameter support and price ceilings. Sol's cheaper `openai/flex`
+route was absent from ZDR and excluded. Both arms enforce `zdr: true`,
+`data_collection: deny`, strict schemas and no provider spillover. Sol's effort
+support follows [official model documentation](https://developers.openai.com/api/docs/models/gpt-6.1-sol).
+Reasoning is never saved. Gemini 4 Argon was skipped per owner instruction.
 
-The same 50 pairs / 100 case-runs completed with **mock/$0 and no exceptions**.
-Both mock arms have 33/50 objective passes and four materially incorrect outcomes;
-those are shared deterministic-path observations, **not Gemini or Sol quality**.
-Local regression checks cover scoped caps, unknown-cost retention, provider/token
-pins, raw-primary identity, normalization, retry replay and resume without duplicate
-calls. Paid accuracy, latency and cost remain unmeasured pending the top-up.
+No OpenAI Decisions access was established: authenticated Decisions model list
+had nine entries, none `openai/*`; no direct OpenAI credential/SDK or confirmed
+preview endpoint. OpenRouter's third-party Decisions API is not an OpenAI model.
+Jev-versus-Decisions recall/precision/ECE/latency/cost remain unmeasured; no paid
+probe or replacement was made. See the
+[OpenRouter Jev example](https://openrouter.ai/blog/insights/what-is-jev/).
 
-Latest free preflight (2026-10-01 00:10 UTC) revalidated both live ZDR routes and the
-new scope: zero attempts / $0 charged; all-scope charged exposure $5.54885629.
-Remaining comparison plus pre-v4 stops fit within $7.07736852; adding the lead's
-previous $3.20 final/smoke planning allowance gives $10.27736852, below $12.
-These are scope aggregates and planning exposure, not key-balance cost estimates.
-Receipts remain ignored in `artifacts/dev-model-compare/`.
-
-Run commands after credits are confirmed, on a clean committed tree:
-
-```sh
-# Preparation only; no provider or database calls.
-LLM_PROVIDER=mock LLM_REAL_CALLS_APPROVED=0 uv run python -m aclara.llm.dev_model_compare
-# Approved paired comparison, exact durable scope/run built into the driver.
-LLM_PROVIDER=mock LLM_REAL_CALLS_APPROVED=1 uv run python -m aclara.llm.dev_model_compare --real
-# Only if interrupted; identical implementation/data/config pins required.
-LLM_PROVIDER=mock LLM_REAL_CALLS_APPROVED=1 uv run python -m aclara.llm.dev_model_compare --real --resume
-```
-
-Default/replacement recommendation: **none until paired paid evidence exists**.
-The [round-two retry analysis](nlu-robustness-round2.md#sequential-retries-and-the-hedge-question)
-is counterfactual preparation; no concurrent hedge is implemented or adopted.
-The completed [disparity PR #86](https://github.com/sebastian-gm/bank-agent-lab/pull/86)
-has green main-target CI and awaits the lead's merge. Never access held-out v4.
+Private immutable evidence: `artifacts/dev-model-compare/paired/{launch.json,
+calls.jsonl,summary.json}`, plus `stopped-analysis.json` and
+`stopped-scope-readback.json`. Call journal SHA-256:
+`7a48ddd933ab5ac310157584afdf6fe8131a54272a849d394bcf8b22a579bac4`.
+No customer rows, secrets, prose errors or reasoning are published here.
+The [paired driver](../../src/aclara/llm/dev_model_compare.py) has resume/pin and
+unknown-cost protections; **do not rerun it under this exhausted scope**.
+Local verification: 318 mock/unit/API checks passed with eight disposable-DB
+skips; final focused provider/comparison rerun 28 passed, including concurrent
+Jev settlement. Ruff, format, strict mypy and interface snapshots passed. All
+100 corrected mock case-runs completed at $0; original paid artifact hashes match.
+The separate v5.2 full-dev adoption gate remains unmeasured/unadopted.
+Recommendation: keep the existing Gemini default; no model-choice conclusion
+from this partial, fallback-contaminated comparison. Disparity evidence is in
+[PR #86](https://github.com/sebastian-gm/bank-agent-lab/pull/86), green and awaiting
+the lead's merge. No v4 or final run by this lane.

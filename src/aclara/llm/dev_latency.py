@@ -65,6 +65,11 @@ def retry_analysis(calls: list[dict[str, Any]]) -> dict[str, Any]:
             "duplicate_cost_if_same_usage_as_slow_success_usd": duplicate_cost_proxy,
         }
     totals = [sum(c["latency_ms"] for c in group) for group in groups]
+    attempted = [c for group in groups for c in group]
+    # Preserve censored timeout durations in all latency distributions. A
+    # generic provider error is not evidence that either timeout was reached.
+    timeout_codes = {"timeout", "http_408", "http_504", "provider_408", "provider_504"}
+    timeouts = [c for c in attempted if c.get("stop_reason") in timeout_codes]
     return {
         "serial_requests": len(groups),
         "requests_with_retry_or_fallback": sum(len(g) > 1 for g in groups),
@@ -73,6 +78,19 @@ def retry_analysis(calls: list[dict[str, Any]]) -> dict[str, Any]:
         "serial_request_p99_ms": metrics.percentile(totals, 0.99),
         "serial_request_max_ms": max(totals) if totals else None,
         "retry_first_latency_ms": [g[0]["latency_ms"] for g in groups if len(g) > 1],
+        "latency_failures": {
+            "timeout_attempts": len(timeouts),
+            "timeout_cases": len({c["id"] for c in timeouts}),
+            "timeout_latency_ms": [c["latency_ms"] for c in timeouts],
+            "provider_error_codes": dict(
+                Counter(
+                    c.get("stop_reason") or "unknown"
+                    for c in attempted
+                    if c["status"] == "provider_error"
+                )
+            ),
+            "first_attempts_over_serving_6s": sum(g[0]["latency_ms"] > 6000 for g in groups),
+        },
         "hedge_counterfactual": hedges,
         "counterfactual_assumptions": (
             "Only shift observed unsuccessful slow-first retries; keep successful firsts and "

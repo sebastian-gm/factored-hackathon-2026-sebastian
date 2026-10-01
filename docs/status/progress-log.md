@@ -2177,3 +2177,60 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
   costs, exceed $0.90 or repurpose the comparison scope. No production change.
 - Lead reviews/merges #85/#86. Human CSV path is still pending. No held-out v4
   input, final run, publication or merge from this lane.
+
+## 2026-09-30 PDT — partial paid comparison, timeout correction and spend stop
+
+### Completed (verified)
+
+- After owner-confirmed credits restoration, real comparison ran at committed
+  head 60f3bfa using only the frozen approved dev sample, exact scope/run
+  dev-gate/model-compare / model-compare and reserve-before-call. Thirty of fifty
+  pairs complete (six per set, 15 ES/15 PT); one extra Gemini case and one
+  interrupted Sol case excluded from paired quality but included in attempts.
+- Postgres readback 2026-10-01 00:41:56 UTC: 239 attempts, $0.20973001 returned
+  per-call costs, $1.28198000 retained across 31 unknown-cost attempts,
+  $1.49171001 charged exposure of $1.50. Only $0.00828999 remains. All-scope
+  exposure $7.04653079. Paid work stopped; no further provider call or reserve
+  release, no key-level cost delta, no new scope or funding assumption.
+- Both routes pass 25/30 (Wilson 66.4–92.7%), SAR 19/28, strict escalation 3/3,
+  unnecessary transfers 5/27, each unsafe class 0/30. ES 13/15, PT 12/15 in
+  both. Opening-slot F1 97.64% Gemini / 99.21% Sol route; six completed Sol
+  conversations used Grok. Five common failures are all in round two; both
+  routes pass 1/6 there. Partial tables, intervals and caveats published in
+  docs/ml/model-comparison-pre-v4.md; no equivalence or replacement conclusion.
+- Owner's timeout audit: both candidates inherited the serving 6/20 s limits.
+  Corrected comparison overlay to 30 s per attempt / 65 s logical-call budget
+  for both, with no shortened first. No production config change or paid rerun.
+  The 31 unknown errors were generic model_failure at 0.409–4.033 s, not proven
+  timeouts; none retained usage, numeric envelope code or generation ID.
+- Comparison now stops after its first unknown bill, before retry/fallback or
+  another case, retaining the reserve. Settlement precedes stop callbacks,
+  including concurrent Jev. HTTP-200 errors/malformed choices preserve numeric
+  category, normalized billing/id and no provider prose/reasoning. Timeout
+  durations stay in latency; generic failures remain separate diagnostics.
+- Original paid launch/call/summary artifacts and frozen labels preserved. Slot
+  annotations were authored by Codex, not human reviewed; documented the frozen
+  JSON's erroneous Human-authored method wording without changing its hash.
+- Broad local mock/unit/API suite: 318 passed/eight DB skips before the final
+  additional parallel-Jev regression; focused final rerun 28 passed. Ruff,
+  format (323 files), strict mypy (90 source files) and interface snapshots pass.
+  Corrected 100-case mock comparison completes/$0. No new paid measurements.
+
+### Done but not verified
+
+- Fair-timeout comparison has no paid result. Unknown Sol bills remain
+  unreconciled; discarded IDs cannot be reconstructed from the saved records.
+  Current route latency/cost is not pure Sol or in-region serving evidence.
+- Full round-two after coverage and both 240-case lean-prompt arms remain
+  incomplete: pre-v4 exposure $0.87148777 leaves $0.02851223 under the $0.90 stop.
+  v5.2 remains unadopted. Human judge CSV path remains unconfirmed.
+
+### Next / blocked
+
+- Lead reviews #85 to fix/post-v3-analysis and #86 to main; #86's required remote
+  CI was green at 3d86622a94e056d70a9d0303d8b59e9b26f0a7ec. Integration-target
+  #85 uses local checks under the owner's main-only CI rule. No merges/reruns.
+- No more paid comparison within the exhausted cap. Any fair restart needs
+  verified per-call reconciliation and fresh protocol pins plus owner-approved
+  funding/coverage. Gemini/v5.1 stays default; never access held-out v4, run its
+  final evaluation, publish content or use another lane's scope.

@@ -36,11 +36,12 @@ from aclara.llm.dev_latency import retry_analysis
 from aclara.llm.dev_prompt_study import StudyCase, comparison_sample, inventory_hash
 from aclara.llm.dev_robustness import DevBudgetStop, ThresholdGate, save, summarize
 from aclara.llm.dev_robustness_cases import ROOT
-from aclara.llm.types import CallRecord, ModelSpec
+from aclara.llm.types import BudgetFailure, CallRecord, ModelSpec
 
 SCOPE, RUN_ID, CAP = "dev-gate/model-compare", "model-compare", Decimal("1.50")
 OUTPUT = ROOT / "artifacts/dev-model-compare/paired"
 GEMINI, SOL = "google/gemini-3-flash-preview", "openai/gpt-6.1-sol"
+COMPARISON_ATTEMPT_SECONDS, COMPARISON_CALL_SECONDS = 30, 65
 T = TypeVar("T", bound=BaseModel)
 TRUTH = ROOT / "src/aclara/llm/dev_model_compare_slots.json"
 
@@ -48,7 +49,14 @@ TRUTH = ROOT / "src/aclara/llm/dev_model_compare_slots.json"
 def candidate_config(candidate: str) -> tuple[dict[str, ModelSpec], dict[str, Price], str | None]:
     models = load_models(ROOT / "config/models.yaml")
     prices = load_prices(ROOT / "config/pricing.yaml")
-    spec = replace(models["default"], price_ceiling=(0.5, 3.0))
+    # Ability comparison: neither arm inherits the serving route's short first
+    # attempt. Report deadline failures separately from semantic/model errors.
+    spec = replace(
+        models["default"],
+        price_ceiling=(0.5, 3.0),
+        timeout_seconds=COMPARISON_ATTEMPT_SECONDS,
+        first_attempt_timeout_seconds=None,
+    )
     if spec.model_id != GEMINI or spec.provider_only != ("google-vertex/global",):
         raise ValueError("Selected Gemini configuration changed; re-review study pins")
     if candidate == "sol":
@@ -142,6 +150,18 @@ def require_credits() -> None:
         raise DevBudgetStop("Provider account credits exhausted; no inference")
 
 
+def guard_attempt(record: CallRecord) -> None:
+    """Stop after journaling one unknown bill, before any retry or fallback.
+
+    Never replace unknown usage with zero or release its durable reservation.
+    BudgetFailure also lets the concurrent Jev result settle before NLU exits.
+    """
+    if record.cost_usd is None and record.status != "skipped":
+        raise BudgetFailure("Unknown provider cost; stop comparison before more calls")
+    if record.stop_reason == "http_402":
+        raise BudgetFailure("Provider account exhausted; stop comparison")
+
+
 def require_catalog() -> dict[str, Any]:
     """Fresh free ZDR catalog verification; cheaper non-ZDR routes never qualify."""
     try:
@@ -210,6 +230,8 @@ def pins(cases: list[StudyCase]) -> dict[str, Any]:
         },
         "risk_union": "same Jev questions and 0.5 threshold in both arms",
         "order": "alternate first model per pair; frozen round-robin cases; sequential case-runs",
+        "logical_call_seconds": COMPARISON_CALL_SECONDS,
+        "unknown_cost_policy": "stop on first unknown; retain reserve; no paid retry/fallback",
     }
 
 
@@ -432,8 +454,7 @@ async def run(*, real: bool, resume: bool = False) -> dict[str, Any]:
                 stream.write(json.dumps({"call": call, "validated": parsed}) + "\n")
                 stream.flush()
                 os.fsync(stream.fileno())
-            if record.stop_reason == "http_402":
-                raise DevBudgetStop("Provider account exhausted; stop without more attempts")
+            guard_attempt(record)
 
         bound = import_module("evals.bound_execution").execute_bound
         bind = import_module("evals.bindings").bind
@@ -467,7 +488,7 @@ async def run(*, real: bool, resume: bool = False) -> dict[str, Any]:
                     if connection
                     else None,
                     response_record=journal,
-                    call_timeout_seconds=45,
+                    call_timeout_seconds=COMPARISON_CALL_SECONDS,
                     fallback_routes={"nlu": fallback, "phrase": fallback} if fallback else None,
                     risk_second_opinion_enabled=True,
                 )

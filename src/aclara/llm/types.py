@@ -73,6 +73,28 @@ class ModelFailure(RuntimeError):
     """A model response cannot be trusted; caller should use the deterministic path."""
 
 
+class ProviderFailure(ModelFailure):
+    """Safe error-envelope category and normalized billing; never provider prose."""
+
+    def __init__(
+        self,
+        *,
+        response: ProviderResponse,
+        status_code: int | None = None,
+        malformed: bool = False,
+    ) -> None:
+        super().__init__("Provider returned an error or malformed response")
+        self.response = response
+        self.status_code = (
+            status_code
+            if isinstance(status_code, int)
+            and not isinstance(status_code, bool)
+            and 400 <= status_code <= 599
+            else None
+        )
+        self.malformed = malformed
+
+
 class BudgetFailure(ModelFailure):
     """Budget denial must not invoke a retry or alternate model."""
 

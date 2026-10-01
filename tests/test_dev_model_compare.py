@@ -22,12 +22,12 @@ from aclara.llm.client import StructuredClient
 from aclara.llm.dev_latency import retry_analysis
 from aclara.llm.dev_prompt_study import comparison_sample
 from aclara.llm.dev_robustness import DevBudgetStop, ThresholdGate
-from aclara.llm.types import ProviderResponse, TokenUsage
+from aclara.llm.types import BudgetFailure, CallRecord, ModelFailure, ProviderResponse, TokenUsage
 from aclara.llm.typesafe import TypedJudgments
 from aclara.llm.typesafe_questions import RISK_CUES
 
 
-def test_candidates_share_prompt_boundary_timeouts_fallback_and_privacy_pins() -> None:
+def test_comparison_candidates_have_generous_timeouts_without_changing_production() -> None:
     gemini, _, fallback = study.candidate_config("gemini")
     sol, prices, sol_fallback = study.candidate_config("sol")
     assert fallback == sol_fallback == "fallback_grok_4_20"
@@ -46,6 +46,12 @@ def test_candidates_share_prompt_boundary_timeouts_fallback_and_privacy_pins() -
         assert getattr(sol["nlu"], field) == getattr(gemini["nlu"], field)
     assert gemini["nlu"].model_id == study.GEMINI
     assert sol["nlu"].model_id == study.SOL
+    assert sol["nlu"].timeout_seconds == gemini["nlu"].timeout_seconds == 30
+    assert sol["nlu"].first_attempt_timeout_seconds is None
+    assert study.COMPARISON_CALL_SECONDS == 65
+    production = study.load_models(study.ROOT / "config/models.yaml")["default"]
+    assert production.first_attempt_timeout_seconds == 6
+    assert production.timeout_seconds == 20
     with pytest.raises(ValueError):
         study.candidate_config("unapproved")
 
@@ -214,6 +220,170 @@ def test_latency_replay_groups_failed_attempts_and_does_not_invent_cost() -> Non
     h4 = result["hedge_counterfactual"]["4"]
     assert h4["new_duplicate_requests"] == 0
     assert h4["optimistic_request_latency"]["p50_ms"] == 5000
+
+
+def test_timeout_is_a_censored_latency_failure_and_generic_error_is_not() -> None:
+    result = retry_analysis(
+        [
+            {**_attempt("nlu", "provider_error", 1, 30000, None), "stop_reason": "timeout"},
+            {**_attempt("nlu", "provider_error", 2, 500, None), "stop_reason": "model_failure"},
+            _attempt("nlu", "valid", 1, 6800, 0.001),
+        ]
+    )
+    assert result["serial_request_max_ms"] == 30500
+    assert result["latency_failures"] == {
+        "timeout_attempts": 1,
+        "timeout_cases": 1,
+        "timeout_latency_ms": [30000],
+        "provider_error_codes": {"timeout": 1, "model_failure": 1},
+        "first_attempts_over_serving_6s": 2,
+    }
+
+
+@pytest.mark.parametrize("known_cost", [None, 0.001])
+def test_first_unknown_bill_stops_before_retry_or_fallback_and_keeps_reserve(
+    monkeypatch: pytest.MonkeyPatch, known_cost: float | None
+) -> None:
+    models, prices, fallback = study.candidate_config("sol")
+    attempts: list[int] = []
+    settlements: list[tuple[str, float | None]] = []
+
+    class Gate:
+        def reserve(self, _amount: float) -> str:
+            return "durable-fixture"
+
+        def settle(self, reservation: str, cost: float | None) -> None:
+            settlements.append((reservation, cost))
+
+    class Adapter:
+        def complete(self, spec: Any, *_args: Any) -> ProviderResponse:
+            attempts.append(spec.timeout_seconds)
+            if known_cost is None:
+                raise ModelFailure("Request failed") from TimeoutError("DO-NOT-RETAIN")
+            return ProviderResponse(
+                '{"language":"es","intent":"charge_inquiry","intent_confidence":0.9}',
+                spec.model_id,
+                TokenUsage(100, 20),
+                billed_cost_usd=known_cost,
+            )
+
+    def journal(record: CallRecord, _parsed: Any) -> None:
+        assert settlements  # settled before the callback can stop execution
+        study.guard_attempt(record)
+
+    client = StructuredClient(
+        models,
+        prices,
+        spend_gate=Gate(),
+        budget_usd=None,
+        response_record=journal,
+        fallback_routes={"nlu": fallback} if fallback else None,
+        call_timeout_seconds=study.COMPARISON_CALL_SECONDS,
+    )
+    client._adapters["openai_compat"] = cast(Any, Adapter())
+    monkeypatch.setenv("LLM_REAL_CALLS_APPROVED", "1")
+    monkeypatch.setenv("OPENROUTER_API_KEY", "unit-fixture")
+    if known_cost is None:
+        with pytest.raises(BudgetFailure, match="Unknown provider cost"):
+            client.generate("nlu", "system", "synthetic", structured.ExtractedNlu, prompt_id="test")
+        assert client.records[0].stop_reason == "timeout"
+    else:
+        client.generate("nlu", "system", "synthetic", structured.ExtractedNlu, prompt_id="test")
+    assert attempts == [30]
+    assert len(client.records) == 1
+    assert settlements == [("durable-fixture", known_cost)]
+
+
+def test_external_unknown_bill_settles_before_stop_callback(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    models, prices, _ = study.candidate_config("sol")
+    settlements: list[tuple[str, float | None]] = []
+
+    class Gate:
+        def reserve(self, _amount: float) -> str:
+            return "typed-reservation"
+
+        def settle(self, reservation: str, cost: float | None) -> None:
+            settlements.append((reservation, cost))
+
+    client = StructuredClient(
+        models,
+        prices,
+        spend_gate=Gate(),
+        budget_usd=None,
+        record=study.guard_attempt,
+    )
+    record = CallRecord(
+        "nlu_risk_second_opinion",
+        "typesafe",
+        "jev-1.13.0",
+        "risk",
+        "hash",
+        0,
+        0,
+        0,
+        0,
+        5000,
+        None,
+        "timeout",
+        "provider_error",
+        1,
+    )
+    with pytest.raises(BudgetFailure):
+        client.finish_external_judgment(record, reserve_usd=0.001, reservation="typed-reservation")
+    assert settlements == [("typed-reservation", None)]
+
+
+def test_unknown_primary_bill_still_finishes_parallel_jev_accounting(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    models, prices, fallback = study.candidate_config("sol")
+    settlements: list[tuple[str, float | None]] = []
+    attempts: list[str] = []
+
+    class Gate:
+        def reserve(self, amount: float) -> str:
+            return "typed" if amount == structured.JEV_RESERVE_USD else "primary"
+
+        def settle(self, reservation: str, cost: float | None) -> None:
+            settlements.append((reservation, cost))
+
+    class Adapter:
+        def complete(self, spec: Any, *_args: Any) -> ProviderResponse:
+            attempts.append(spec.model_id)
+            raise ModelFailure("Unknown bill") from TimeoutError("DO-NOT-RETAIN")
+
+    client = StructuredClient(
+        models,
+        prices,
+        spend_gate=Gate(),
+        budget_usd=None,
+        record=study.guard_attempt,
+        risk_second_opinion_enabled=True,
+        fallback_routes={"nlu": fallback} if fallback else None,
+    )
+    client._adapters["openai_compat"] = cast(Any, Adapter())
+    monkeypatch.setattr(
+        structured,
+        "_ask_jev_risks",
+        lambda *_: TypedJudgments(
+            "jev-1.13.0", {}, {cue: 0.0 for cue in RISK_CUES}, {}, 100, 0, 1, 0.0000042
+        ),
+    )
+    for name in ("OPENROUTER_API_KEY", "TYPESAFE_API_KEY"):
+        monkeypatch.setenv(name, "unit-fixture")
+    monkeypatch.setenv("LLM_REAL_CALLS_APPROVED", "1")
+    with pytest.raises(BudgetFailure):
+        structured.understand(
+            "Não reconheço",
+            country="BR",
+            bank_clock=datetime(2026, 6, 18, tzinfo=UTC),
+            client=client,
+        )
+    assert attempts == [study.SOL]
+    assert settlements == [("primary", None), ("typed", 0.0000042)]
+    assert [r.provider for r in client.records] == ["openai_compat", "typesafe"]
 
 
 def test_resume_never_repeats_completed_or_interrupted_conversations(

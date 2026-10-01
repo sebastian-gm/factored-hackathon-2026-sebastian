@@ -330,3 +330,13 @@ follow-up stopped when its next required reservation did not fit under $0.90;
 the remaining $0.02851223 cannot fund complete follow-up and 240-case lean arms.
 Scope remaining open
 does not authorize exceeding that stop or repurposing the model-comparison cap.
+
+At the owner's credit-restoration instruction (2026-09-30 PDT), the pre-v4
+scope's retained exposure still left only $0.02851223. No new call was made in
+that scope: the complete follow-up and 240-case-per-version lean adoption gate
+remain budget-stopped, and v5.2 remains unadopted. The separately approved
+[model comparison](model-comparison-pre-v4.md) ran under its own scope and stopped
+at $1.49171001 exposure, with 30/50 pairs complete. Its six-case round-two slice
+passes 1/6 in both routes, including the same five flow/action failures. That
+small partial replay is not a substitute for either complete round-two follow-up
+or the lean-prompt gate. No v4 or production model/prompt change.
