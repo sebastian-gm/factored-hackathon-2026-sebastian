@@ -2392,3 +2392,294 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
   balances immediately before the authorized first start. No new spending now.
 - Continue from docs/status/progress-log.md. Next layer: close live rehearsal
   blockers, combined release, then v4 launch gates. Same rules.
+
+## 2026-09-30 PDT — AI approved pre-v4 development baseline
+
+### Completed (verified)
+
+- Orchestrator confirmed `dev-gate/pre-v4` / `pre-v4`; durable readback: $1
+  lifetime, zero reservations/exposure, prior scopes closed. All paid dev calls
+  reserve before request through this scope, including Jev, and stop at $0.90
+  shared exposure. No final-evaluation scope or v4 rows accessed.
+- Frozen 60-case hashes still match. Added a sequential real-P entry point with
+  clean-commit/config/prompt pins, private per-call checkpoints and cost from
+  per-case usage fields. Scope/run routing and unknown-cost retention are tested.
+- Baseline carries the previously reviewed PR #77 grounding fix (internal handles
+  and corrupt text); its 34 focused mock/freeze/budget checks pass with no spend.
+
+### Done but not verified
+
+- The first real baseline and lean-prompt comparison have not started. v5.1 and
+  production model selection are unchanged; PR #77 remains a separate lead merge.
+
+### Next / blocked
+
+- Run frozen round-two real P, diagnose by owner, then repair AI causes and compare
+  the lean prompt as budget permits. No adoption without the full five-set gate.
+- Human export remains pending. The next model/Decisions comparison is queued;
+  wait for its separate scope before any paid comparison.
+
+### 2026-09-30 PDT — round-two real baseline and AI regressions
+
+- Completed (verified): frozen 60-case real P baseline at `0161c3a`: pass 15/60
+  (ES 9/30, PT 6/30), injection logging 6/6, no forbidden actions, one materially
+  incorrect final outcome (polite refusal treated as recognition). Scope readback
+  $0.30949149 charged/reserved, $0.28551849 known, two unknown-cost reservations
+  retained. Per-call known sum differs only by eight-decimal durable rounding.
+  All attempts included: Gemini 169/171 schema-valid, Jev 140 valid judgments.
+- Completed (verified): authored 15 new regression cases before NLU repairs;
+  eight failed initially. Repairs reject offer refusal as purchase recognition
+  while preserving actual recollection, parse explicit day/month dates in words
+  without guessing missing month/year, and reuse units already present in the
+  extracted amount when the currency field is absent. Interfaces unchanged.
+- Done but not verified: repaired real-P follow-up pending. Most strict failures
+  concern lead-owned candidate/correction/compound-request state; gold remains
+  untouched. Two mixed-language openings may exhaust the contract's two-round
+  clarification rule; request adjudication rather than changing labels to pass.
+- Next / blocked: v5.2 is a separate development candidate, not the active prompt.
+  Complete comparable five-set evidence is required for adoption; the shared
+  $0.90 stop has priority over completing that potentially larger study. Default
+  Gemini and production v5.1 remain unchanged. No v4 access or final run.
+
+## 2026-09-30 PDT — round-two budget stop and lean-study preparation
+
+### Completed (verified)
+
+- Real v5.1 baseline: 15/60 pass (ES 9/30, PT 6/30), one materially incorrect
+  polite-refusal outcome, zero forbidden actions. Repaired follow-up at `331fb57`
+  completed 47: 9/47 pass (ES 6/24, PT 3/23), zero unsafe findings on those 47.
+  On the common 47 both versions pass 9/47, with one flip each direction under
+  degraded NLU. The baseline unsafe case lies outside the partial follow-up;
+  this is neither a demonstrated improvement nor proof its real outcome is fixed.
+- Durable `dev-gate/pre-v4` / `pre-v4` readback: $0.87148777 charged/reserved,
+  $0.49124327 known, 564 reservations, 27 unknown costs retained. Next reservation
+  was denied before request at the $0.90 stop. Interrupted case 48's costs remain
+  in the ledger/journal. Known costs use per-call fields, never key deltas.
+- All-attempt OR schema validity: before 169/171, after 123/148; Jev 140/140 and
+  105/105. Zero-cost GET health checks verified available key limit but exhausted
+  account credits. Twenty-two short follow-up failures suggest billing rejection;
+  old records lack HTTP codes, so no retrospective individual attribution.
+  Future records now keep sanitized status codes only, not error text/URLs/body.
+- Seventeen authored NLU regressions protect refusal vs actual recognition,
+  complete word dates vs invalid/missing dates, and explicit amount units. The
+  frozen sixty definitions/builders remain unchanged. Lead-owned state/matching
+  and compound-request causes, plus two gold/spec adjudications, are grouped in
+  `docs/ml/nlu-robustness-round2.md`. No orchestration or interface changes.
+- Separate v5.2 development candidate is 31.1% shorter in body characters. A
+  development-only driver inventories 240 allowlisted cases, with synthetic
+  identities and complete authored overlays for retired v3. All 240 execute with
+  mock/$0 and no exceptions; mock unsafe findings are retained, not mislabeled
+  as real accuracy. Case-cluster latency bootstrap now includes failed Grok NLU
+  attempts; corrected aggregate receipts preserve the original paid journals.
+- Local verification: 297 relevant mock/unit checks pass, eight DB-dependent
+  skips, Ruff and strict mypy (88 source files). Final two invalid-date guards,
+  error metadata and candidate driver have mock validation only after the stop.
+
+### Done but not verified
+
+- v5.2 has zero paid measurements; its token savings, p50/p95 and accuracy are
+  unverified. No complete five-set comparison or adoption gate is claimed.
+- The polite-refusal real follow-up case remains unmeasured; most failing
+  multi-turn state behavior needs lead work. Default Gemini and v5.1 stay active.
+
+### Next / blocked
+
+- No further paid call under this scope: exposure denial and account credits
+  block completion. Any resumed latency study needs explicit new authorization;
+  the queued `dev-gate/model-compare` scope cannot be repurposed for it.
+- Private [PR #85](https://github.com/sebastian-gm/bank-agent-lab/pull/85) is OPEN
+  and mergeable into `fix/post-v3-analysis`, code head `226bf3e` read back. It
+  carries #80's freeze and #77's output guards because both earlier PRs now show
+  closed without merges. Integration PRs use rigorous local checks under the
+  owner's main-only remote CI policy. Lead reviews/merges; no merge performed.
+- Human CSV path remains unconfirmed. Continue zero-spend disparity analysis and
+  model/API availability checks; no v4 input, final run or default change.
+
+
+## 2026-09-30 PDT — queued comparison read-only preflight
+
+### Completed (verified)
+
+- Free OpenRouter catalog, ZDR endpoint and authenticated user-model GETs confirm
+  `openai/gpt-6.1-sol`, ZDR `azure` at $2/$10 per million input/output tokens;
+  `openai/flex` is absent from the ZDR list. Gemini's existing Vertex pin remains.
+  Receipt timestamps/hashes and primary citations are in the preflight document.
+- Authenticated Decisions modality list has nine models, none `openai/*`; no
+  direct OpenAI credential or SDK in this worktree. Official searches did not
+  establish preview entitlement. Do not substitute OpenRouter's third-party
+  Decisions API for an OpenAI model. Zero inference, spend or config changes.
+- Repricing saved round-two valid-call tokens uncached gives $1.361114 for just
+  that 60-case Gemini/Sol pair, excluding Jev/retries/new reasoning. Full five-set
+  coverage is unlikely inside $1.50; disclose partial coverage if the cap stops it.
+- Private disparity PR #86 targets main, head `6ff70e1`, OPEN and mergeable at
+  readback. Safety/checks/Postgres have passed; web CI is still running. An extra
+  cross-check found raw fault-prefix unsafe flags needed the official executed-
+  case filter; correcting that documentation before lead review, without reruns
+  or changed official cases/results.
+
+### Done but not verified
+
+- No Sol accuracy/latency, language comparison or Decisions risk results exist.
+  Production Gemini/v5.1 stays unchanged. Human export still awaits its path.
+
+### Next / blocked
+
+- Wait for exact `dev-gate/model-compare` run/scope readback and restored account
+  credits before every paid comparison. Never reuse the stopped pre-v4 scope.
+- Lead reviews #85 and the corrected #86, with required green main-target CI.
+  No merge, publication, held-out v4 access or final run by this lane.
+
+
+## 2026-09-30 PDT — approved paired-sample freeze and disparity CI readback
+
+### Completed (verified)
+
+- Owner approved a balanced paired model sample inside $1.50. Frozen manifest
+  selects 50 pairs: ten per each of the five existing dev sets, five ES/five PT
+  per set, all ten round-two families once. Metadata-only stable ordering and
+  dialect/category buckets; no saved model outcome used for selection. Manifest
+  SHA `40ef32671ff05617dc3246db38891a756b6d200cec48c368cc6e2483416b634c`;
+  full pool and per-case hashes validated before use. No new paid call.
+- Sample/inventory, tamper rejection and freeze checks pass: 19 focused checks,
+  then 299 relevant mock/unit checks with eight DB skips; Ruff/format and strict
+  mypy over 88 files pass. The separate lean study keeps
+  its original complete 240-case adoption gate; production v5.1/Gemini unchanged.
+- Private disparity PR #86 is OPEN/mergeable to main at corrected head
+  `3d86622a94e056d70a9d0303d8b59e9b26f0a7ec`. Required CI run 36789815778
+  and safety run 36789815779 both succeeded on that head. The earlier head also
+  finished green before the substantive denominator correction was pushed; no
+  CI cancellation or manual rerun. Official v2/v3 inputs and scores unchanged.
+
+### Done but not verified
+
+- No Sol execution, comparison result or OpenAI Decisions preview access. Sample
+  uncertainty and equal set weighting prohibit full-240 or population claims.
+
+### Next / blocked
+
+- Wait for the lead's exact model-comparison scope/run readback and restored
+  OpenRouter credits. Cap stays $1.50 with $12 cumulative maximum. Do not use
+  the stopped pre-v4 scope. Lead merges #85/#86; this lane performs no merge.
+- Human CSV path remains unconfirmed; local offline scoring page still exists.
+  Never open v4, start the final run or change a model default without approval.
+## 2026-09-30 PDT — confirmed comparison scope, paired harness and retry analysis
+
+### Completed (verified)
+
+- Read back `dev-gate/model-compare` / `model-compare`: $1.50 lifetime, enabled,
+  zero attempts/cost. Pre-v4 remains enabled at $0.49124327 known / $0.87148777
+  charged including 27 unknown reservations; its $0.90 stop is unchanged. The
+  owner restored credits; free account-health GET now confirms availability.
+- Prepared paired Gemini/Sol NLU+phrasing driver with fresh ZDR/provider-price
+  checks, same prompts/timeouts/Jev union/Grok fallback, lifetime reservations,
+  private checkpoints and no duplicate paid case on resume. Added primary model
+  identity to risk records. Sol uses its advertised max_completion_tokens field;
+  default adapter behavior/config remains unchanged. Mock path does not load keys.
+- Independent opening-slot annotations frozen before comparison calls: 48
+  single-target openings plus two explicit multi-target F1 exclusions, without
+  changing any scenario gold. Existing metadata-only fifty-pair sample unchanged.
+- All 100 mock case-runs execute without exceptions/$0; both deterministic arms
+  pass 33/50 with four materially incorrect outcomes, not model-quality claims.
+  Relevant tests: 253 passed/eight DB skips; 47 additional adapter/API/language
+  checks pass. Ruff, strict mypy (90 files), compile and interface snapshots pass.
+- Saved dev retry replay: two baseline / three follow-up ~6.05 s slow firsts plus
+  successful retries take 7.64–9.18 s. Shifting those retries to 3–4 s leaves sample
+  request p95 unchanged; genuine hedges add duplicates and unmeasured loser cost.
+  Details/assumptions in docs/ml/nlu-robustness-round2.md. No hedge adopted or paid.
+- Disparity PR #86 remains OPEN with all required main-target CI successful at
+  head 3d86622a94e056d70a9d0303d8b59e9b26f0a7ec. No rerun or merge.
+
+### Done but not verified
+
+- Sol accuracy, paired ES/PT outcomes, cost and latency are not yet measured.
+  v5.2 remains a separate unadopted candidate without real latency/accuracy data.
+
+### Next / blocked
+
+- Run approved paired dev comparison on the committed pins using its dedicated
+  $1.50 cap and $12 cumulative maximum. The remaining pre-v4 $0.02851223 cannot
+  fund complete follow-up plus both 240-case prompt arms; do not erase unknown
+  costs, exceed $0.90 or repurpose the comparison scope. No production change.
+- Lead reviews/merges #85/#86. Human CSV path is still pending. No held-out v4
+  input, final run, publication or merge from this lane.
+
+## 2026-09-30 PDT — partial paid comparison, timeout correction and spend stop
+
+### Completed (verified)
+
+- After owner-confirmed credits restoration, real comparison ran at committed
+  head 60f3bfa using only the frozen approved dev sample, exact scope/run
+  dev-gate/model-compare / model-compare and reserve-before-call. Thirty of fifty
+  pairs complete (six per set, 15 ES/15 PT); one extra Gemini case and one
+  interrupted Sol case excluded from paired quality but included in attempts.
+- Postgres readback 2026-10-01 00:41:56 UTC: 239 attempts, $0.20973001 returned
+  per-call costs, $1.28198000 retained across 31 unknown-cost attempts,
+  $1.49171001 charged exposure of $1.50. Only $0.00828999 remains. All-scope
+  exposure $7.04653079. Paid work stopped; no further provider call or reserve
+  release, no key-level cost delta, no new scope or funding assumption.
+- Both routes pass 25/30 (Wilson 66.4–92.7%), SAR 19/28, strict escalation 3/3,
+  unnecessary transfers 5/27, each unsafe class 0/30. ES 13/15, PT 12/15 in
+  both. Opening-slot F1 97.64% Gemini / 99.21% Sol route; six completed Sol
+  conversations used Grok. Five common failures are all in round two; both
+  routes pass 1/6 there. Partial tables, intervals and caveats published in
+  docs/ml/model-comparison-pre-v4.md; no equivalence or replacement conclusion.
+- Owner's timeout audit: both candidates inherited the serving 6/20 s limits.
+  Corrected comparison overlay to 30 s per attempt / 65 s logical-call budget
+  for both, with no shortened first. No production config change or paid rerun.
+  The 31 unknown errors were generic model_failure at 0.409–4.033 s, not proven
+  timeouts; none retained usage, numeric envelope code or generation ID.
+- Comparison now stops after its first unknown bill, before retry/fallback or
+  another case, retaining the reserve. Settlement precedes stop callbacks,
+  including concurrent Jev. HTTP-200 errors/malformed choices preserve numeric
+  category, normalized billing/id and no provider prose/reasoning. Timeout
+  durations stay in latency; generic failures remain separate diagnostics.
+- Original paid launch/call/summary artifacts and frozen labels preserved. Slot
+  annotations were authored by Codex, not human reviewed; documented the frozen
+  JSON's erroneous Human-authored method wording without changing its hash.
+- Broad local mock/unit/API suite: 318 passed/eight DB skips before the final
+  additional parallel-Jev regression; focused final rerun 28 passed. Ruff,
+  format (323 files), strict mypy (90 source files) and interface snapshots pass.
+  Corrected 100-case mock comparison completes/$0. No new paid measurements.
+
+### Done but not verified
+
+- Fair-timeout comparison has no paid result. Unknown Sol bills remain
+  unreconciled; discarded IDs cannot be reconstructed from the saved records.
+  Current route latency/cost is not pure Sol or in-region serving evidence.
+- Full round-two after coverage and both 240-case lean-prompt arms remain
+  incomplete: pre-v4 exposure $0.87148777 leaves $0.02851223 under the $0.90 stop.
+  v5.2 remains unadopted. Human judge CSV path remains unconfirmed.
+
+### Next / blocked
+
+- Lead reviews #85 to fix/post-v3-analysis and #86 to main; #86's required remote
+  CI was green at 3d86622a94e056d70a9d0303d8b59e9b26f0a7ec. Integration-target
+  #85 uses local checks under the owner's main-only CI rule. No merges/reruns.
+- No more paid comparison within the exhausted cap. Any fair restart needs
+  verified per-call reconciliation and fresh protocol pins plus owner-approved
+  funding/coverage. Gemini/v5.1 stays default; never access held-out v4, run its
+  final evaluation, publish content or use another lane's scope.
+
+## 2026-09-30 PDT — comparison account-error stop follow-up
+
+### Completed (verified)
+
+- Lead identified that known-cost HTTP-200 provider_402 bypassed the HTTP-only
+  guard in #85. Guard now stops both http_/provider_ 401, 402, 403 and 429 codes:
+  credential/credit/forbidden-budget/quota/rate-limit failures never retry or
+  fall back, even when usage returns a known zero or positive bill.
+- Authored mock regressions exercise HTTP-200 errors through StructuredClient,
+  both zero/positive bills, both protocol code forms, and no retry/fallback.
+  Original paid comparison remains 30/50 pairs, $0.20973001 known versus
+  $1.49171001 exposure; no further paid calls, reserve release or default change.
+
+### Done but not verified
+
+- Corrected comparison settings are not paid measured; previous result remains
+  partial and unsuitable for equivalence. No new comparison spending authorized.
+
+### Next / blocked
+
+- Lead reviews #85; finish separate main-target NLG corruption/status-label and
+  transaction-kind normalization PR with zero-cost saved-dev replay. Fee aliases
+  map to Adjustment per owner confirmation. No held-out v4 access or merge.

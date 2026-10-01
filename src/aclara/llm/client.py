@@ -11,6 +11,7 @@ from hashlib import sha256
 from threading import RLock
 from time import perf_counter
 from typing import Any, Literal, TypeVar
+from urllib.error import HTTPError, URLError
 
 from pydantic import BaseModel, ValidationError
 
@@ -21,12 +22,31 @@ from aclara.llm.types import (
     CallRecord,
     ModelFailure,
     ModelSpec,
+    ProviderFailure,
     ProviderResponse,
     SpendGate,
     TokenUsage,
 )
 
 T = TypeVar("T", bound=BaseModel)
+
+
+def provider_failure_code(error: BaseException) -> str:
+    """Metadata only: never retain exception text, URLs, headers or response bodies."""
+    cause: BaseException | None = error
+    while cause is not None:
+        if isinstance(cause, ProviderFailure):
+            if cause.status_code is not None:
+                return f"provider_{cause.status_code}"
+            return "malformed_response" if cause.malformed else "provider_error"
+        if isinstance(cause, HTTPError):
+            return f"http_{cause.code}"
+        if isinstance(cause, TimeoutError):
+            return "timeout"
+        if isinstance(cause, URLError):
+            return "timeout" if isinstance(cause.reason, TimeoutError) else "network_error"
+        cause = cause.__cause__
+    return "model_failure"
 
 
 class StructuredClient:
@@ -46,10 +66,14 @@ class StructuredClient:
         spend_gate: SpendGate | None = None,
         call_timeout_seconds: float | None = None,
         fallback_routes: dict[str, str] | None = None,
+        risk_second_opinion_enabled: bool = False,
     ) -> None:
         if budget_usd is None and spend_gate is None:
             raise ValueError("Unbounded local budget requires a durable spend gate")
         self.spend_gate = spend_gate
+        # Explicit comparison injection keeps the same typed-risk path for a
+        # challenger. The application-selected Gemini behavior is unchanged.
+        self.risk_second_opinion_enabled = risk_second_opinion_enabled
         self.call_timeout_seconds = call_timeout_seconds
         self._deadline: float | None = None
         self._lock = RLock()
@@ -131,12 +155,12 @@ class StructuredClient:
                 self.spent_usd += adjustment
                 self._daily_spend_usd += adjustment
             self.records.append(record)
+            if reservation is not None and self.spend_gate:
+                self.spend_gate.settle(reservation, record.cost_usd)
             if self._record:
                 self._record(record)
             if self._response_record:
                 self._response_record(record, record.judgments)
-            if reservation is not None and self.spend_gate:
-                self.spend_gate.settle(reservation, record.cost_usd)
 
     def generate(
         self,
@@ -230,6 +254,7 @@ class StructuredClient:
             response: ProviderResponse | None = None
             parsed: T | None = None
             status: Literal["valid", "invalid_json", "provider_error", "refusal"] = "provider_error"
+            failure_code: str | None = None
             call_spec = spec
             if attempt == 1 and spec.first_attempt_timeout_seconds:
                 call_spec = replace(
@@ -254,7 +279,10 @@ class StructuredClient:
                     raise ModelFailure("Model returned invalid structured output") from exc
                 status = "valid"
                 return parsed
-            except ModelFailure:
+            except ModelFailure as exc:
+                failure_code = provider_failure_code(exc)
+                if isinstance(exc, ProviderFailure):
+                    response = exc.response
                 if attempt == 2:
                     raise
             finally:
@@ -281,18 +309,24 @@ class StructuredClient:
                     cache_write_tokens=usage.cache_write_tokens if usage else 0,
                     latency_ms=(perf_counter() - started) * 1000,
                     cost_usd=cost,
-                    stop_reason=response.stop_reason if response else None,
+                    stop_reason=failure_code
+                    if status == "provider_error"
+                    else response.stop_reason
+                    if response
+                    else failure_code,
                     status=status,
                     attempt=attempt,
                     generation_id=response.generation_id if response else None,
                 )
                 self.records.append(call)
+                # Accounting must finish even when an audit callback stops a
+                # study after an unknown bill. None retains the reservation.
+                if reservation is not None and self.spend_gate:
+                    self.spend_gate.settle(reservation, cost)
                 if self._record:
                     self._record(call)
                 if self._response_record:
                     self._response_record(call, parsed.model_dump(mode="json") if parsed else None)
-                if reservation is not None and self.spend_gate:
-                    self.spend_gate.settle(reservation, cost)
             if spec.provider not in {"mock", "recorded"} and (
                 (self.budget_usd is not None and self.spent_usd >= self.budget_usd)
                 or self._daily_spend_usd >= self.daily_budget_usd

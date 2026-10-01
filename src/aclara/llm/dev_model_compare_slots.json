@@ -1,0 +1,496 @@
+{
+  "version": "opening-slots-v1",
+  "frozen_at": "2026-09-30T23:58:18.652516+00:00",
+  "sample_sha256": "678c9fe4a466b8fac942ad8a5e4ed8bce1ccefa17422be5a5333a413c0c76471",
+  "method": "Human-authored before comparison; opening only, independent of model outputs and target row attributes. Amount/currency/date-start/date-end/merchant populated-slot micro F1. Relative dates use declared bank clock business date 2026-06-17. No later correction or reactive reply inferred. Two multi-target openings excluded from slot F1 only.",
+  "cases": {
+    "es.choose.v2": {
+      "slots": {
+        "merchant_expr": null,
+        "amount_value": "250",
+        "currency": "USD",
+        "date_start": null,
+        "date_end": null
+      },
+      "exclusion": null
+    },
+    "offer.es.mx.recognize.01": {
+      "slots": {
+        "merchant_expr": "Mercado Verde",
+        "amount_value": null,
+        "currency": null,
+        "date_start": null,
+        "date_end": null
+      },
+      "exclusion": null
+    },
+    "robust.co.cancels-after-offer": {
+      "slots": {
+        "merchant_expr": "Café Jacarandá",
+        "amount_value": null,
+        "currency": null,
+        "date_start": null,
+        "date_end": null
+      },
+      "exclusion": null
+    },
+    "round2.ar.case-and-charge": {
+      "slots": null,
+      "exclusion": "multi-target opening requires independent multi-slot gold"
+    },
+    "test-v3.normal.034.pending_recent_status": {
+      "slots": {
+        "merchant_expr": "Mercado Olmo BH",
+        "amount_value": "239",
+        "currency": "USD",
+        "date_start": "2026-06-03",
+        "date_end": "2026-06-03"
+      },
+      "exclusion": null
+    },
+    "pt.outscope.v2": {
+      "slots": {
+        "merchant_expr": null,
+        "amount_value": null,
+        "currency": null,
+        "date_start": null,
+        "date_end": null
+      },
+      "exclusion": null
+    },
+    "offer.pt.br.deny.04": {
+      "slots": {
+        "merchant_expr": "Mercado Verde",
+        "amount_value": null,
+        "currency": null,
+        "date_start": null,
+        "date_end": null
+      },
+      "exclusion": null
+    },
+    "robust.br.word-yesterday": {
+      "slots": {
+        "merchant_expr": "Bazar Capim",
+        "amount_value": "200",
+        "currency": "BRL",
+        "date_start": "2026-06-16",
+        "date_end": "2026-06-16"
+      },
+      "exclusion": null
+    },
+    "round2.br2.code-switch": {
+      "slots": {
+        "merchant_expr": "Armazém Lua Nova Centro",
+        "amount_value": null,
+        "currency": null,
+        "date_start": null,
+        "date_end": null
+      },
+      "exclusion": null
+    },
+    "test-v3.normal.027.explicit_denial": {
+      "slots": {
+        "merchant_expr": "Librería Boreal BA",
+        "amount_value": "218",
+        "currency": "USD",
+        "date_start": "2026-05-29",
+        "date_end": "2026-05-29"
+      },
+      "exclusion": null
+    },
+    "es.reversed.v2": {
+      "slots": {
+        "merchant_expr": "Loja Sol",
+        "amount_value": null,
+        "currency": null,
+        "date_start": null,
+        "date_end": null
+      },
+      "exclusion": null
+    },
+    "offer.es.ar.recognize.01": {
+      "slots": {
+        "merchant_expr": "Mercado Verde",
+        "amount_value": null,
+        "currency": null,
+        "date_start": null,
+        "date_end": null
+      },
+      "exclusion": null
+    },
+    "robust.ar.existing-case": {
+      "slots": {
+        "merchant_expr": "Café Lapacho",
+        "amount_value": null,
+        "currency": null,
+        "date_start": null,
+        "date_end": null
+      },
+      "exclusion": null
+    },
+    "round2.co.currency-change": {
+      "slots": {
+        "merchant_expr": "Ferretería Rocío Norte",
+        "amount_value": "80",
+        "currency": "COP",
+        "date_start": null,
+        "date_end": null
+      },
+      "exclusion": null
+    },
+    "test-v3.human_required.072.age90_boundary": {
+      "slots": {
+        "merchant_expr": "Taller Brisa CT",
+        "amount_value": "353",
+        "currency": "USD",
+        "date_start": "2026-03-19",
+        "date_end": "2026-03-19"
+      },
+      "exclusion": null
+    },
+    "pt.dispute.v2": {
+      "slots": {
+        "merchant_expr": "Mercado Verde",
+        "amount_value": null,
+        "currency": null,
+        "date_start": null,
+        "date_end": null
+      },
+      "exclusion": null
+    },
+    "offer.pt.br.recognize.04": {
+      "slots": {
+        "merchant_expr": "Mercado Verde",
+        "amount_value": null,
+        "currency": null,
+        "date_start": null,
+        "date_end": null
+      },
+      "exclusion": null
+    },
+    "robust.br.existing-case": {
+      "slots": {
+        "merchant_expr": "Boutique Jacarandá",
+        "amount_value": null,
+        "currency": null,
+        "date_start": null,
+        "date_end": null
+      },
+      "exclusion": null
+    },
+    "round2.br1.detail-correction": {
+      "slots": {
+        "merchant_expr": "Loja Janela Norte",
+        "amount_value": "40",
+        "currency": "BRL",
+        "date_start": null,
+        "date_end": null
+      },
+      "exclusion": null
+    },
+    "test-v3.security_robustness.093.existing_case_blocks_duplicate": {
+      "slots": {
+        "merchant_expr": "26 Oficina Luar DO",
+        "amount_value": "416",
+        "currency": "USD",
+        "date_start": "2026-05-26",
+        "date_end": "2026-05-26"
+      },
+      "exclusion": null
+    },
+    "es.outscope.v2": {
+      "slots": {
+        "merchant_expr": null,
+        "amount_value": null,
+        "currency": null,
+        "date_start": null,
+        "date_end": null
+      },
+      "exclusion": null
+    },
+    "offer.es.ar.deny.01": {
+      "slots": {
+        "merchant_expr": "Mercado Verde",
+        "amount_value": null,
+        "currency": null,
+        "date_start": null,
+        "date_end": null
+      },
+      "exclusion": null
+    },
+    "robust.cl.slang-word-weekday": {
+      "slots": {
+        "merchant_expr": "Ferretería Peumo",
+        "amount_value": "120",
+        "currency": "USD",
+        "date_start": "2026-06-16",
+        "date_end": "2026-06-16"
+      },
+      "exclusion": null
+    },
+    "round2.cl.emotion": {
+      "slots": {
+        "merchant_expr": "Taller Girasol Sur",
+        "amount_value": null,
+        "currency": null,
+        "date_start": null,
+        "date_end": null
+      },
+      "exclusion": null
+    },
+    "test-v3.security_robustness.086.cross_customer_second": {
+      "slots": {
+        "merchant_expr": null,
+        "amount_value": null,
+        "currency": null,
+        "date_start": null,
+        "date_end": null
+      },
+      "exclusion": null
+    },
+    "pt.choose.v2": {
+      "slots": {
+        "merchant_expr": null,
+        "amount_value": "250",
+        "currency": "USD",
+        "date_start": null,
+        "date_end": null
+      },
+      "exclusion": null
+    },
+    "offer.pt.br.recognize.05": {
+      "slots": {
+        "merchant_expr": "Mercado Verde",
+        "amount_value": null,
+        "currency": null,
+        "date_start": null,
+        "date_end": null
+      },
+      "exclusion": null
+    },
+    "robust.br.weekday-twins": {
+      "slots": {
+        "merchant_expr": "Farmácia Aurora",
+        "amount_value": "80",
+        "currency": "BRL",
+        "date_start": "2026-06-16",
+        "date_end": "2026-06-16"
+      },
+      "exclusion": null
+    },
+    "round2.br3.polite-refusal": {
+      "slots": {
+        "merchant_expr": "Café Mirassol Sul",
+        "amount_value": null,
+        "currency": null,
+        "date_start": null,
+        "date_end": null
+      },
+      "exclusion": null
+    },
+    "test-v3.human_required.070.prior_date_fx": {
+      "slots": {
+        "merchant_expr": "Jardim Cedro CR",
+        "amount_value": "425",
+        "currency": "BRL",
+        "date_start": "2026-05-22",
+        "date_end": "2026-05-22"
+      },
+      "exclusion": null
+    },
+    "es.pending.v2": {
+      "slots": {
+        "merchant_expr": "Café Central",
+        "amount_value": null,
+        "currency": null,
+        "date_start": null,
+        "date_end": null
+      },
+      "exclusion": null
+    },
+    "offer.es.cl.deny.01": {
+      "slots": {
+        "merchant_expr": "Mercado Verde",
+        "amount_value": null,
+        "currency": null,
+        "date_start": null,
+        "date_end": null
+      },
+      "exclusion": null
+    },
+    "robust.mx.typo-denial": {
+      "slots": {
+        "merchant_expr": "Tienda Brisa",
+        "amount_value": "80",
+        "currency": "USD",
+        "date_start": null,
+        "date_end": null
+      },
+      "exclusion": null
+    },
+    "round2.cl.recognition": {
+      "slots": {
+        "merchant_expr": "Panadería Sendero Sur",
+        "amount_value": null,
+        "currency": null,
+        "date_start": null,
+        "date_end": null
+      },
+      "exclusion": null
+    },
+    "test-v3.ambiguous_unsupported.040.adjustment_and_missing_fx": {
+      "slots": {
+        "merchant_expr": "29 Taller Brisa BN",
+        "amount_value": "345",
+        "currency": "BRL",
+        "date_start": "2026-05-25",
+        "date_end": "2026-05-25"
+      },
+      "exclusion": null
+    },
+    "pt.fraud.v2": {
+      "slots": {
+        "merchant_expr": null,
+        "amount_value": null,
+        "currency": null,
+        "date_start": null,
+        "date_end": null
+      },
+      "exclusion": null
+    },
+    "offer.pt.br.deny.02": {
+      "slots": {
+        "merchant_expr": "Mercado Verde",
+        "amount_value": null,
+        "currency": null,
+        "date_start": null,
+        "date_end": null
+      },
+      "exclusion": null
+    },
+    "robust.br.word-amount": {
+      "slots": {
+        "merchant_expr": "Livraria Maré",
+        "amount_value": "150",
+        "currency": "BRL",
+        "date_start": null,
+        "date_end": null
+      },
+      "exclusion": null
+    },
+    "round2.br3.slang-words": {
+      "slots": {
+        "merchant_expr": "Livraria Brisa Clara Sul",
+        "amount_value": "80",
+        "currency": "BRL",
+        "date_start": null,
+        "date_end": null
+      },
+      "exclusion": null
+    },
+    "test-v3.ambiguous_unsupported.047.clarify_currency_retains_intent": {
+      "slots": {
+        "merchant_expr": "Armazém Aurora BU",
+        "amount_value": "278",
+        "currency": null,
+        "date_start": "2026-05-27",
+        "date_end": "2026-05-27"
+      },
+      "exclusion": null
+    },
+    "es.human.v2": {
+      "slots": {
+        "merchant_expr": null,
+        "amount_value": null,
+        "currency": null,
+        "date_start": null,
+        "date_end": null
+      },
+      "exclusion": null
+    },
+    "offer.es.ar.recognize.02": {
+      "slots": {
+        "merchant_expr": "Mercado Verde",
+        "amount_value": null,
+        "currency": null,
+        "date_start": null,
+        "date_end": null
+      },
+      "exclusion": null
+    },
+    "robust.cl.slang-unfamiliar": {
+      "slots": {
+        "merchant_expr": "Almacén Copihue",
+        "amount_value": null,
+        "currency": null,
+        "date_start": null,
+        "date_end": null
+      },
+      "exclusion": null
+    },
+    "round2.co.two-charges": {
+      "slots": null,
+      "exclusion": "multi-target opening requires independent multi-slot gold"
+    },
+    "test-v3.ambiguous_unsupported.038.choice_then_recognition": {
+      "slots": {
+        "merchant_expr": "Jardim Cedro BL",
+        "amount_value": null,
+        "currency": null,
+        "date_start": "2026-05-27",
+        "date_end": "2026-05-27"
+      },
+      "exclusion": null
+    },
+    "pt.reversed.v2": {
+      "slots": {
+        "merchant_expr": "Loja Sol",
+        "amount_value": null,
+        "currency": null,
+        "date_start": null,
+        "date_end": null
+      },
+      "exclusion": null
+    },
+    "offer.pt.br.deny.05": {
+      "slots": {
+        "merchant_expr": "Mercado Verde",
+        "amount_value": null,
+        "currency": null,
+        "date_start": null,
+        "date_end": null
+      },
+      "exclusion": null
+    },
+    "robust.br.slang-unfamiliar": {
+      "slots": {
+        "merchant_expr": "Mercearia Ipê",
+        "amount_value": null,
+        "currency": null,
+        "date_start": null,
+        "date_end": null
+      },
+      "exclusion": null
+    },
+    "round2.br1.vague-specific": {
+      "slots": {
+        "merchant_expr": null,
+        "amount_value": null,
+        "currency": null,
+        "date_start": null,
+        "date_end": null
+      },
+      "exclusion": null
+    },
+    "test-v3.ambiguous_unsupported.051.clarify_amount_retains_intent": {
+      "slots": {
+        "merchant_expr": "Librería Boreal BY",
+        "amount_value": null,
+        "currency": null,
+        "date_start": "2026-05-23",
+        "date_end": "2026-05-23"
+      },
+      "exclusion": null
+    }
+  }
+}

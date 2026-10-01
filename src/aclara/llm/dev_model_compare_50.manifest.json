@@ -1,0 +1,315 @@
+{
+  "version": "model-compare-50-v1",
+  "frozen_at": "2026-09-30T23:23:04.904830+00:00",
+  "selection": "metadata-only stable SHA order; five ES/five PT per set; round-two families once each; round-robin sets and alternating languages; no saved outcome reads",
+  "seed": "owner-approved-paired-sample-2026-09-30",
+  "pool_count": 240,
+  "inventory_sha256": "0f7a22b3348d8b0d967da05a010742657756b6bdeb7fbf6d35ed64c5df118874",
+  "planned_pairs": 50,
+  "model_ids": [
+    "google/gemini-3-flash-preview",
+    "openai/gpt-6.1-sol"
+  ],
+  "cases": [
+    {
+      "group": "dev20",
+      "id": "es.choose.v2",
+      "language": "es",
+      "case_sha256": "bfe019ec03714dcc9be20cb85189bbaff964f3b288a6cd09be418318166dd075"
+    },
+    {
+      "group": "confirmation20",
+      "id": "offer.es.mx.recognize.01",
+      "language": "es",
+      "case_sha256": "d875e9e6bd3588339ce4051aa16ed388ffc2c43565b15aeec3c017643c3dbcd0"
+    },
+    {
+      "group": "robustness40",
+      "id": "robust.co.cancels-after-offer",
+      "language": "es",
+      "case_sha256": "bfbef3e5bc8292371d1f4fb00242ac4e1fe6d0721b46b8de18473866b355c567"
+    },
+    {
+      "group": "round2_60",
+      "id": "round2.ar.case-and-charge",
+      "language": "es",
+      "case_sha256": "ab6688922c94beaec264d37268dfb3f2d259534e3b897a8cf0400006d5860d28"
+    },
+    {
+      "group": "v3_100",
+      "id": "test-v3.normal.034.pending_recent_status",
+      "language": "es",
+      "case_sha256": "5be9ce01ca4d114762d8b728a3390a4310674935b94d04d8be1c8d3995f84d90"
+    },
+    {
+      "group": "dev20",
+      "id": "pt.outscope.v2",
+      "language": "pt",
+      "case_sha256": "7563fe7df81235dab64b66a807f3c3d4b45d1bd24ef4ed3f9627bbe7b7f4d9dc"
+    },
+    {
+      "group": "confirmation20",
+      "id": "offer.pt.br.deny.04",
+      "language": "pt",
+      "case_sha256": "ac5092887696a41ec34334f9d8759f23f984910b0782f35bd723aaae40b40026"
+    },
+    {
+      "group": "robustness40",
+      "id": "robust.br.word-yesterday",
+      "language": "pt",
+      "case_sha256": "dbbca9e7752577080c25f05d55bece8ccdfd384046428efd8092412c3293ac87"
+    },
+    {
+      "group": "round2_60",
+      "id": "round2.br2.code-switch",
+      "language": "pt",
+      "case_sha256": "9c24fa82d55bd95223cf05deccce1f374726b7b05b09074dbdd39fd08def5771"
+    },
+    {
+      "group": "v3_100",
+      "id": "test-v3.normal.027.explicit_denial",
+      "language": "pt",
+      "case_sha256": "b7e2fce2f39696c49ed92f1fa82d9b117ba7120a8fb7a2eeeada0e4e594a0e91"
+    },
+    {
+      "group": "dev20",
+      "id": "es.reversed.v2",
+      "language": "es",
+      "case_sha256": "429c9fd1417a0dc6b4c3f1e4ebbff097de3ce11e16555c3e22aae57e2988b7ee"
+    },
+    {
+      "group": "confirmation20",
+      "id": "offer.es.ar.recognize.01",
+      "language": "es",
+      "case_sha256": "1e8048d75dc993df67c9bcee405159987385b6d79e5fe7bf22379d88b2803c88"
+    },
+    {
+      "group": "robustness40",
+      "id": "robust.ar.existing-case",
+      "language": "es",
+      "case_sha256": "19614d5f2d8026b54c5855007e906331da430b08a8eac43da56ef17a7ab85f68"
+    },
+    {
+      "group": "round2_60",
+      "id": "round2.co.currency-change",
+      "language": "es",
+      "case_sha256": "d9b558ff7765ca93c8f40e3eb4128f885e1ed57739340575a9f1aa14a5cf848c"
+    },
+    {
+      "group": "v3_100",
+      "id": "test-v3.human_required.072.age90_boundary",
+      "language": "es",
+      "case_sha256": "1a9a6152be7606da2433c8be58793d2d94e8978ef8004b61961c5ad40445a80e"
+    },
+    {
+      "group": "dev20",
+      "id": "pt.dispute.v2",
+      "language": "pt",
+      "case_sha256": "f6f20cc53578fbc14d9ba227fa23d66f6bd8b0fad31a5e12b8ec47ff0f7fb8c5"
+    },
+    {
+      "group": "confirmation20",
+      "id": "offer.pt.br.recognize.04",
+      "language": "pt",
+      "case_sha256": "f2d1d7f66299e49ef2a7df00ba66a2efe67f58ea098568c16cc52807e25c108a"
+    },
+    {
+      "group": "robustness40",
+      "id": "robust.br.existing-case",
+      "language": "pt",
+      "case_sha256": "425eab164ecc5105ceb2adbe29959bae6281f84ba572c84c6946baef99da5864"
+    },
+    {
+      "group": "round2_60",
+      "id": "round2.br1.detail-correction",
+      "language": "pt",
+      "case_sha256": "1abcec33866aeba715841f24b7695de854bcdae094579475bbe2e07c62dfe1ee"
+    },
+    {
+      "group": "v3_100",
+      "id": "test-v3.security_robustness.093.existing_case_blocks_duplicate",
+      "language": "pt",
+      "case_sha256": "f989a4d15155c0d258893c71b6843c64661b85473f028d947dde44b41de10f65"
+    },
+    {
+      "group": "dev20",
+      "id": "es.outscope.v2",
+      "language": "es",
+      "case_sha256": "85b603d0f4a408bc92e8dcbeeaec050b5c737e7b6676c87e37188c19d79cb1e4"
+    },
+    {
+      "group": "confirmation20",
+      "id": "offer.es.ar.deny.01",
+      "language": "es",
+      "case_sha256": "45a3fba3d574af1e01224d2ed42654d2b4cc612cdead059423c571fde7bcdc10"
+    },
+    {
+      "group": "robustness40",
+      "id": "robust.cl.slang-word-weekday",
+      "language": "es",
+      "case_sha256": "2bb14214f4b31c97216112b72af19c50858a30b38d7b5e6723a3ab42ebced2a2"
+    },
+    {
+      "group": "round2_60",
+      "id": "round2.cl.emotion",
+      "language": "es",
+      "case_sha256": "5161e31338faa9872012c60c9ec45280226ba97268db25feeea970d0f3a515c5"
+    },
+    {
+      "group": "v3_100",
+      "id": "test-v3.security_robustness.086.cross_customer_second",
+      "language": "es",
+      "case_sha256": "94c9452149132eb90cb760c60ecea57b30e63845f2563149dda5566a93f45e74"
+    },
+    {
+      "group": "dev20",
+      "id": "pt.choose.v2",
+      "language": "pt",
+      "case_sha256": "64c7794eaa61e8860f01ee3e0d2aa195d34f3aedcb521b67f11a210b19344e61"
+    },
+    {
+      "group": "confirmation20",
+      "id": "offer.pt.br.recognize.05",
+      "language": "pt",
+      "case_sha256": "65ae048a367520afe21be7429c90d4f4d874f6bc93378ed2c1bc7f29eca27f3e"
+    },
+    {
+      "group": "robustness40",
+      "id": "robust.br.weekday-twins",
+      "language": "pt",
+      "case_sha256": "055b4dbf65a5444afde6ef371e19d93386fd07b256a3301ad43403da1466ea46"
+    },
+    {
+      "group": "round2_60",
+      "id": "round2.br3.polite-refusal",
+      "language": "pt",
+      "case_sha256": "16676f5b128319ab807b2de57a989ca2917a56eaec249ab7371c508ea3b89b84"
+    },
+    {
+      "group": "v3_100",
+      "id": "test-v3.human_required.070.prior_date_fx",
+      "language": "pt",
+      "case_sha256": "cd426addbd044b9286d18eeec0163b8c1d82d4fd2dfc7074ac64ce0ace9b5766"
+    },
+    {
+      "group": "dev20",
+      "id": "es.pending.v2",
+      "language": "es",
+      "case_sha256": "18214219e719fc5148c782c82eb53a2a15d501395d374c99dc0cd5fa26f9b3b9"
+    },
+    {
+      "group": "confirmation20",
+      "id": "offer.es.cl.deny.01",
+      "language": "es",
+      "case_sha256": "d40d1ea55acdb7cf4d318446bb304e924f04e47db55c84745152ff97cc6ba45b"
+    },
+    {
+      "group": "robustness40",
+      "id": "robust.mx.typo-denial",
+      "language": "es",
+      "case_sha256": "7536ec4f885d7f5503e73bfae7bf6f68bff93445b6dd9365e34f45ceb8046ab9"
+    },
+    {
+      "group": "round2_60",
+      "id": "round2.cl.recognition",
+      "language": "es",
+      "case_sha256": "1f5587a3e92af80d93039e0eed8465b74e437c2228139dbedcf980c16270214e"
+    },
+    {
+      "group": "v3_100",
+      "id": "test-v3.ambiguous_unsupported.040.adjustment_and_missing_fx",
+      "language": "es",
+      "case_sha256": "8f1a9da2e3776a9df808e772a890f378acb350b428d06098a904bd299ffcff2c"
+    },
+    {
+      "group": "dev20",
+      "id": "pt.fraud.v2",
+      "language": "pt",
+      "case_sha256": "ed70d631b4376a6e6a0ced32abac1d53648854d215ca5b1920f93dd57a01b67b"
+    },
+    {
+      "group": "confirmation20",
+      "id": "offer.pt.br.deny.02",
+      "language": "pt",
+      "case_sha256": "7e4e10f95a310b031cad47055f48313e1ef9f878524324ee1bb477f5ec385724"
+    },
+    {
+      "group": "robustness40",
+      "id": "robust.br.word-amount",
+      "language": "pt",
+      "case_sha256": "f718988655bd02c1415969cca2e5b5a976530a5621795643d80bba72970b803f"
+    },
+    {
+      "group": "round2_60",
+      "id": "round2.br3.slang-words",
+      "language": "pt",
+      "case_sha256": "7ccf4ba8e846263d7290f419bf0695d85118ac81236d77620d04340333deb9e0"
+    },
+    {
+      "group": "v3_100",
+      "id": "test-v3.ambiguous_unsupported.047.clarify_currency_retains_intent",
+      "language": "pt",
+      "case_sha256": "95a60ff393fcf38db62300bf1e73007c0da7b334dc64720b1330f8c30cdf705c"
+    },
+    {
+      "group": "dev20",
+      "id": "es.human.v2",
+      "language": "es",
+      "case_sha256": "b0ee24da8d613fd66e01134c2158dbec7d6b2ac3565424709a8bba1059187245"
+    },
+    {
+      "group": "confirmation20",
+      "id": "offer.es.ar.recognize.02",
+      "language": "es",
+      "case_sha256": "fed295a5cf075e63fe366abf737d2759a8d069662f5b9c8ee900e40d0dc4d748"
+    },
+    {
+      "group": "robustness40",
+      "id": "robust.cl.slang-unfamiliar",
+      "language": "es",
+      "case_sha256": "3a71469fc6cd755702f46841c9175b827538bc79905f666d4718182d2b25d642"
+    },
+    {
+      "group": "round2_60",
+      "id": "round2.co.two-charges",
+      "language": "es",
+      "case_sha256": "7a95168ab53d01a629cf27d18e24717e1d8718024bd56c82cd810498781dd8b5"
+    },
+    {
+      "group": "v3_100",
+      "id": "test-v3.ambiguous_unsupported.038.choice_then_recognition",
+      "language": "es",
+      "case_sha256": "526cb8cfb2674feece0d4dc01ac7f41d8045722dff06c0d51cffeecc4aba92a2"
+    },
+    {
+      "group": "dev20",
+      "id": "pt.reversed.v2",
+      "language": "pt",
+      "case_sha256": "b0f4968222be00980bc69e517a3bff5bbdf3f621670311e1e17c5420d657f4aa"
+    },
+    {
+      "group": "confirmation20",
+      "id": "offer.pt.br.deny.05",
+      "language": "pt",
+      "case_sha256": "b98cad806ea256641c237062b866dd3b384a6027254a4a236f29822f5a122f7d"
+    },
+    {
+      "group": "robustness40",
+      "id": "robust.br.slang-unfamiliar",
+      "language": "pt",
+      "case_sha256": "2679702dfcd3f0fde398f5949b2c4627e551b21b5305a6346747e1208665571f"
+    },
+    {
+      "group": "round2_60",
+      "id": "round2.br1.vague-specific",
+      "language": "pt",
+      "case_sha256": "1ad9eb3ed825810f23ec1ae0bde34d2295fe07a1fef204d9c0cf78da0775d6bd"
+    },
+    {
+      "group": "v3_100",
+      "id": "test-v3.ambiguous_unsupported.051.clarify_amount_retains_intent",
+      "language": "pt",
+      "case_sha256": "c72d0884c9c3c7046aac0dc1cd9b1c804e90dbf89937ebd5bc0bd338bdf3334b"
+    }
+  ]
+}
