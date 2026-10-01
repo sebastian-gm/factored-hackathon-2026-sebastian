@@ -2352,5 +2352,43 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
 - V4 freeze/start remain blocked by these live bugs. Earlier Oct 1 evening freeze
   is tentative; existing Oct 2 noon COT plan requires explicit freeze and final GO.
   Keep v4 rows/selections/bindings unopened and abandoned v1 untouched.
+
+## 2026-10-01 UTC — free OpenRouter launch gate prepared
+
+### Completed (verified)
+
+- `scripts.openrouter_preflight` uses the existing inference key in memory and
+  GETs only `/api/v1/credits` and `/api/v1/key`. It requires account balance and
+  per-key `limit_remaining` each ≥ $4, rejects invalid/missing metadata, and
+  retains only a numeric mode-0600 receipt under ignored artifacts. Error output
+  excludes keys, account labels and raw provider bodies. No management key needed.
+- `.venv/bin/pytest tests/test_openrouter_preflight.py`: 16 passed with authored
+  HTTP mocks, covering either insufficient balance and sanitized failures.
+  Ruff passed. Live free GET gate at 01:06 UTC passed: $9.659101954 account /
+  $5.802867 key remaining; zero model calls / $0. Receipt is point-in-time only.
+- [v4-launch-checklist.md](../evaluation/v4-launch-checklist.md) now has exact
+  local-DSN prepare/start/status/resume commands without secrets in argv/output.
+  The documented helper's `status` command exited 0 without creating a program
+  directory, fetching a provider key or opening suite rows/bindings. The runner's
+  detach/resume behavior is independently covered by the zero-cost rehearsal.
+- #89 merged at `2dfa504` with green main remote CI; unchanged Docker COPY input
+  trees. Lead live rehearsal fix PR #90 is published, locally verified, targeting
+  `integration/pre-v4-freeze`; no Azure redeploy or paid call in this session.
+
+### Done but not verified
+
+- No v4 budget preparation, suite preparation, start or resume was executed.
+  Product freeze/release and a fresh final GO are still required. Oct 1 evening
+  COT is tentative; the existing Oct 2 noon COT plan has not been overridden.
+- Updated #85 includes the provider_402 guard correction; it still needs lead
+  integration verification. AI-owned live NLG/type normalization fixes pending.
+
+### Next / blocked
+
+- Integrate reviewed round-two and live rehearsal fixes; one combined remote
+  CI before main merge/release. Keep v4 rows/selections/bindings unopened.
+- On confirmed release approval, close/count dev scopes and verify live prior
+  exposure + $3 v4 + $0.10 release + $0.10 latency ≤ $12. Recheck fresh OpenRouter
+  balances immediately before the authorized first start. No new spending now.
 - Continue from docs/status/progress-log.md. Next layer: close live rehearsal
   blockers, combined release, then v4 launch gates. Same rules.
