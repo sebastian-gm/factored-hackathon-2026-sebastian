@@ -160,3 +160,41 @@ followed). Verified with the same command capture receipts under ignored
 These are local/mock and metadata gates. Remote CI, deployed product behavior and
 the frontend's fresh live Azure rehearsal are separate acceptance steps. V4
 remains unopened/unprepared/unstarted; feature freeze and run GO are pending.
+
+## Accepted Azure release — 2026-10-01 UTC
+
+Release **`92994d933e7e4d4cddbbf988fb4cc748d3cd5db1`**, integrated via #97.
+PR CI/safety passed first run (`36806164942` / `36806164802`); automatic exact-main
+CI/safety also passed (`36806917133` / `36806917242`). No workflow rerun. Obsolete
+#85 was closed after exact-head ancestor verification; its commits are integrated
+through #97. Other reviewed PRs were automatically marked merged.
+
+- Private API/web images built/pushed and registry digests verified. API digest
+  `sha256:939f9221dc9444474db1e76fd23da0d5934fe1010b1e6024ffbf0775aa9c725f`;
+  web `sha256:1118658884edec5879ef73ee2b69d95bf2d1ba1b06d2b231bd5d80d7fa66c85c`.
+- Reviewed/apply: **0 added / 2 changed / 0 destroyed**, images/release identity
+  plus approved temporary `LLM_BUDGET_RUN_ID` only. CPU/memory, min=0/max=1,
+  ingress, identities, secrets, storage and database unchanged. Explicit
+  subscription `Seb Azure Sandbox` throughout; no public/judge/warm mode enabled.
+- `python -m scripts.azure_verify` passed exact-image and all access/TLS controls.
+- `AZURE_RELEASE_SMOKE_RUN_ID=pre-v4-release-<SHA> python -m
+  scripts.azure_llm_smoke` passed ES explain→offer→deny→proposal→filing/readback,
+  PT ambiguity/handoff and deterministic fraud. **9 valid calls, $0.00813975,
+  zero unknowns or fallbacks**. Browser shares that hard $0.10 lifetime purse.
+- `python -m scripts.serving_browser --target azure` passed three surfaces,
+  verified handoff and resolution. Four conservative attempted conversations;
+  no counter reset or extra attempt. Generic mock-only `azure_smoke` is not
+  applicable on the real deployment and was not reported as passed.
+- Outside-network workflow `36807587445` passed at the release SHA.
+- GET-only BFF configuration confirms both ES story hints and the PT choice hint.
+  This proves availability; the frontend's full fresh live-story rehearsal remains
+  the next gate, including the four formerly observed bugs and actual prose.
+- Fresh `artifacts/azure/jev-release.json`: all three acceptance flags true.
+  Current exposure **$7.00808229** including retained reserves; conservative max
+  **$11.83659452 ≤ $12**, counting full dev/comparison allowances, v4 $3 and both
+  smokes. No old reservation or cap reset; no further comparison spend.
+
+Main was clean/equal to origin and released at that exact SHA. This documentation
+is published separately on `integration/pre-v4-freeze` so the tested release SHA
+stays stable and no redundant main CI is triggered. V4 remains unopened,
+unprepared and unstarted. Feature freeze/final GO follow the owner's rehearsal.

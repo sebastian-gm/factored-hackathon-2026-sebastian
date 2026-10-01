@@ -1,5 +1,52 @@
 # Progress log
 
+## 2026-10-01 UTC — feature freeze and final v4 integration
+
+### Completed (verified)
+
+- Received Sebastian/orchestrator feature freeze and final v4 GO after the clean
+  92994d9 Azure rehearsal. Integrated #64 and #98 with history-preserving merges;
+  only suite/protocol/rehearsal/progress documentation changes since product freeze.
+- Opaque-byte SHA-256 verifies the v4 manifest as
+  `309c3aa22c2eab51b3289075b733c52bb7934a879299762c3fb9ba16a3d9bec8`.
+  Authorized private binding copy matches provenance
+  `7805535e1eae8c8358440a8807cfa6b156ccf4d450c15de5e85d14b4c6a8016b`;
+  ignored destination is mode 0600. No rows, selection IDs, author tool contents
+  or bindings were displayed or used to change the product.
+
+### Done but not verified
+
+- Final combined-head remote CI, exact-main identical-image re-verification, fresh
+  durable budget/credit/local-serving gates and final program execution are pending.
+
+### Next / blocked
+
+- Finalize clean green main, reverify identical frozen product images and acceptance
+  receipt, close prior dev scopes preserving reserves, then run the single detached
+  `test-v4` program under `final-evaluation-v4` / `final-program-v4` ($3 lifetime).
+  Enforce cumulative ≤ $12, local RLS serving, 1024-token judge cap, and immutable
+  resume-only pins. Keep main frozen during the run; inspect aggregate outputs only.
+
+## 2026-09-30 PDT — Frontend lane: released Azure rehearsal at 92994d9
+
+### Completed (verified)
+
+- Owner-authorized rehearsal read back both deployed image tags at **92994d933e7e4d4cddbbf988fb4cc748d3cd5db1** (#97). Key Vault demo credentials traveled only through process memory/stdin; screenshot username/password/OTP fields masked, no browser storage state persisted. Used the existing app purse, never this worktree's provider key. No cloud configuration, backend/NLU/policy, frozen suite/gold or evaluation change.
+- **All three quickstart and helper story buttons enabled.** ES neutral inquiry → three choices → explanation; PT shipped inquiry → three choices → explanation → unfamiliarity reopens choices → first re-selection → nonterminal dispute offer → explicit denial → separate confirmation → **new verified case receipt**, independently read back by authenticated GET. Fresh login OTP remained valid; no renewal screen was staged. ES contextual and fresh helper fraud turns each produced a verified FRD-01 primary + AUTH-02 handoff with independent GET read-back.
+- **Ten turns / ten valid Gemini/Jev calls / US$0.008335678 known usage**, zero unknown usage/provider errors/fallbacks; neither `operaci3n` nor English status in any of the ten customer replies. Both Desk SLA counters showed **15d 0h 0m**. Selected-charge handoff displayed one verified fact/evidence record and one verified handoff action; fresh fraud helper correctly had no selected-charge facts and displayed its verified action. Ops showed actual case/handoff verification; fresh deterministic fraud had no model calls. [Aggregate receipt](../submission/video-rehearsal-92994d9.json).
+- **41 views / 82 ignored 0600 PNGs**, directory 0700, private gallery `artifacts/ux-audit/azure-rehearsal-92994d9/index.html`; ES/PT Insights and sources, each conversation step/why drawer, both Desk packets and three Ops traces. Representative images reviewed; all captures have zero overflow and sidebar y=0, zero page errors. Extra Insights pass blocked every POST and used no credential/model. Initial readiness **91.229 s** including startup capture; warm Insights **0.849 s**, no forced cold restart. ES-to-PT harness initially raced asynchronous sign-out; correct PT login captured and ordinary authentication retried before any PT model request, with no duplicate paid turn.
+- Replaced [shot list](../submission/video-shot-list.md) with a final **2:55 edited plan**, exact shipped generic messages/clicks, explicit PT re-selection, context-preserving ES recording order, receipt/no-refund boundaries and per-check private screenshot references. Preserved the prior failed release receipt. Only aggregate documentation and this mandated progress entry changed; raw captures/operational references stay ignored.
+
+### Done but not verified
+
+- Final filmed/exported video, narration synchronization and actual duration remain pending. One live rehearsal is not a quality benchmark or production safety claim. Usage is recorded execution metadata, not a provider invoice; cloud/CI and any future filming are excluded.
+- This rehearsal created one simulated PT case; a later take may show an existing-case status receipt. Do not force a write, erase a case or reset data to stage filming. Missing product/merchant fields retain explicit labels. Fresh unselected fraud does not promise charge facts; the contextual packet verifies their projection.
+
+### Next / blocked
+
+- Publish the aggregate/shot-list PR, require current-head remote CI, leave it unmerged for lead review. Capture startup/login off camera, preserve the observed PT re-selection and selected-charge context, mask organizer/operational fields before export. No further paid rehearsal is needed or planned here.
+- Final recording/export and any deliberate reset remain separate owner work. Keep private captures/diagnostic references local; no frozen suite, gold, B1/P evaluation, freeze, staff claim or resolution was used.
+
 
 ## 2026-09-30 PDT — PR #93 review: enum boundary, merchant citations, private IO (AI)
 
@@ -2178,6 +2225,23 @@ The following sections retain the AI lane’s historical reports; later dated de
 
 - Open and keep this AI-lane PR unmerged until Sebastian announces the final run is finished. The lead can then merge it after review. No further paid development run is planned under these caps; a complete second-vendor review of lead-owned strings would need a separate cost authorization and coordinated lead-lane edits.
 
+## Data/frontend lane — 2026-09-29 (independent v4 freeze)
+
+### Completed (verified)
+
+- Read handoff 14 in full. Authored a new 100-case v4 release from ADR-0015 and the written conversation contract, with 35/20/20/25 category counts, 48 ES / 48 PT / 4 mixed, and new interaction wording. Kept v3 as retired development data; no old template list, system output or post-v3 failure analysis defined v4 gold.
+- Verified 100 unique test-split customers and owned products with zero overlap against v1, v2, v3, both matcher inventories and all 40 human cards. Reconstructed the archived v1 identity mapping and matched its original private checksum. All charge/case/FX facts are fictional; native organizer identities exist only in ignored mode-0600 bindings.
+- Structural preflight passed schema, vocabulary, references, explicit reactive replies, counts, exclusions and exact wording/template overlap checks. Froze and read back all release hashes. MANIFEST file SHA-256: `309c3aa22c2eab51b3289075b733c52bb7934a879299762c3fb9ba16a3d9bec8`. No B1/P executions, paid provider calls, cloud changes or spend occurred.
+- Added an aggregate-only v4 evaluation protocol and pre-registered the repeat/dual-judge subsets. Lead, AI and fix authors must not open v4 scenario rows, selection IDs or its authoring tool. [PR #64](https://github.com/sebastian-gm/bank-agent-lab/pull/64) was read back as open and unmerged; origin remains private. Ruff, compilation, strict mypy (81 source files), all six commit hooks and the post-commit freeze verification passed.
+
+### Done but not verified
+
+- Behavioral correctness, serving ownership validation, fault activation and durable runtime readbacks are deliberately untested on v4. The post-v3 stale-OTP harness support remains a release dependency. Human and second-vendor language review are pending; ES/PT pairs share interaction designs.
+
+### Next / blocked
+
+- Leave PR #64 unmerged until the owner releases it. The later final run requires Sebastian's explicit go and the release owner's gates. Remote CI failed before jobs started; the [check annotation](https://github.com/sebastian-gm/bank-agent-lab/actions/runs/36657943458/job/109706208743) says an Actions budget prevents further use. This is not a green CI claim. Do not tune product behavior on v4 or publish row-level content.
+
 ## Access and continuation
 
 Restricted web: https://ca-web-aclara-dev-eastus2.lemonbeach-1b769de0.eastus2.azurecontainerapps.io/
@@ -3081,3 +3145,48 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
 - Capped real smoke estimate $0.01–$0.03, hard $0.10 shared with browser smoke.
   No resource/replica/access change. Frontend then rechecks four live bugs before
   owner feature freeze and separate v4 GO.
+
+## 2026-10-01 UTC — live rehearsal fixes released and verified
+
+### Completed (verified)
+
+- Single combined PR #97 CI/safety passed first run; merged under standing OK to
+  **92994d933e7e4d4cddbbf988fb4cc748d3cd5db1**. Automatic main CI 36806917133 and
+  safety 36806917242 passed. Exact main == origin/main, clean. #85 exact head is
+  an ancestor and was closed as integrated through #97, without redundant CI.
+- Built/pushed both private SHA images; registry digest readbacks passed. Reviewed
+  Terraform apply: 0 added / 2 changed / 0 destroyed, image/release identity and
+  approved temporary smoke binding only. Min replicas 0; shape/access unchanged.
+- `scripts.azure_verify` passed. Capped `scripts.azure_llm_smoke`: ES filing with
+  independent readback, PT ambiguity/handoff and deterministic fraud passed;
+  **9 valid calls, $0.00813975, zero unknown/fallbacks**. Hard $0.10 lifetime run:
+  `pre-v4-release-92994d933e7e4d4cddbbf988fb4cc748d3cd5db1`.
+- `scripts.serving_browser --target azure` passed chat/Desk/Ops, verified handoff
+  and resolution; four attempted conversations total, no extra allowance/reset.
+  Outside-network azure-access 36807587445 passed. GET-only config verifies ES
+  explain/fraud and PT ambiguous hints are all present. No merchant was invented.
+- New ignored `artifacts/azure/jev-release.json`: controls/real smoke/CI flags all
+  true at the release SHA. Cumulative charged/reserved **$7.00808229**; conservative
+  maximum **$11.83659452 ≤ $12** including v4 $3 and both smoke allowances.
+  Prior unknown reserves and all dev/production caps remain intact.
+- Full local gates were 769 Python / 30 disposable Postgres / 124 browser passes;
+  B1 safety + reactive dev both 32/32. Detailed commands/evidence and initial
+  failed local invocations are in pre-v4-integration-review.md.
+
+### Done but not verified
+
+- Fresh frontend Azure rehearsal of all four formerly observed live bugs is still
+  pending. Release smoke is not a new evaluation or proof of full story quality.
+- V4 rows/selections/bindings remain unopened; no prepare/start or paid comparison.
+  Feature freeze/final v4 GO remain pending. Submission warm/access modes OFF.
+
+### Next / blocked
+
+- Frontend can rehearse the deployed **92994d9** now. Confirm prose corruption,
+  PT choices/receipt, real SLA countdown, scoped facts/actions and all story buttons.
+- Owner decides feature freeze and v4 GO after a clean rehearsal; no new resource,
+  replica, access/publication change authorized by this release.
+- Release evidence is published on `integration/pre-v4-freeze` so exact green main
+  remains stable. Fold this docs-only entry into the next authorized integration.
+- Continue from docs/status/progress-log.md. Next layer: clean live rehearsal,
+  owner freeze and v4 launch gates. Same rules.

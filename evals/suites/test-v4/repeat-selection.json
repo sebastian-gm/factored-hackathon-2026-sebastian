@@ -1,0 +1,48 @@
+{
+  "purpose": "repeats",
+  "selection": "pre-registered hash ordering within category/language strata",
+  "seed": "heldout-v4-new-interactions-20260929/repeats",
+  "category_counts": {
+    "normal": 11,
+    "ambiguous_unsupported": 6,
+    "human_required": 6,
+    "security_robustness": 7
+  },
+  "language_counts": {
+    "es": 14,
+    "pt": 14,
+    "mixed": 2
+  },
+  "case_ids": [
+    "v4.002",
+    "v4.005",
+    "v4.008",
+    "v4.010",
+    "v4.012",
+    "v4.013",
+    "v4.015",
+    "v4.021",
+    "v4.029",
+    "v4.032",
+    "v4.034",
+    "v4.036",
+    "v4.038",
+    "v4.043",
+    "v4.044",
+    "v4.047",
+    "v4.051",
+    "v4.055",
+    "v4.057",
+    "v4.062",
+    "v4.066",
+    "v4.067",
+    "v4.070",
+    "v4.075",
+    "v4.081",
+    "v4.086",
+    "v4.087",
+    "v4.090",
+    "v4.095",
+    "v4.098"
+  ]
+}

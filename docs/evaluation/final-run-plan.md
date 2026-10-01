@@ -1,11 +1,13 @@
-# Priced final evaluation plan — $12 approved, execution on hold
+# Priced final evaluation plan — v4 GO, cumulative $12 ceiling
 
-## V4 readiness — future commands, not authorization
+## V4 — owner-authorized launch after release gates
 
 See [v4 readiness, budget math and latency limits](v4-program-readiness.md).
 All older commands below describe historical releases; use the explicit v4
-configuration for a future owner-approved release. No v4 input has been read
-by this preparation. Bindings must be copied/checked privately under approval.
+configuration below. Feature freeze and final GO were received on 2026-10-01
+UTC after the clean rehearsal of 92994d9. Suite/docs integration and opaque
+binding checks are authorized; product behavior is frozen. The final run remains
+conditional on exact-SHA release, fresh credit, local serving and budget gates.
 
 Before prepare, export `EVAL_SERVING_DSN` from local ignored configuration using
 the loopback organizer serving DB and `aclara_app`; never echo it. The same
@@ -22,7 +24,7 @@ FINAL_BUDGET_PREPARATION_APPROVED=1 \
 .venv/bin/python -m scripts.final_program status --suite test-v4
 ```
 
-**Separate final-run GO is still required.** After the release and cost approval:
+**Final-run GO received.** After all release and preflight gates pass:
 
 ```sh
 LLM_FINAL_RUN_STARTED=1 LLM_REAL_CALLS_APPROVED=1 \

@@ -1,17 +1,19 @@
-# V4 launch checklist — not started
+# V4 launch checklist — owner-authorized final run
 
-Feature freeze: **2026-10-02 12:00 COT / 17:00 UTC**. Freeze plus an explicit
-orchestrator run GO is required. No v4 rows, selections, authoring tool or binding
-contents have been opened by the lead during this preparation.
-An earlier **Oct 1 evening COT** freeze is tentative, pending the round-two work
-and live rehearsal blockers; it is not a start authorization.
+Feature freeze and final v4 GO: **2026-10-01 UTC**, received after the clean
+Azure rehearsal on product SHA **92994d933e7e4d4cddbbf988fb4cc748d3cd5db1**.
+Sebastian's standing approval covers the final $3 lifetime scope and cumulative
+$12 ceiling. The earlier tentative dates below are superseded by this GO.
+The final suite/docs integration does not change product or image inputs.
+No v4 rows, selections, authoring tool or binding contents have been opened by
+the lead. The runner may consume them only inside the authorized start gate.
 
-- [ ] Freeze the product; record clean main equal to origin/main and green remote
+- [x] Freeze the product; record clean main equal to origin/main and green remote
   CI/safety at that SHA. Keep official v2/v3 results unchanged.
 - [ ] Under release approval, merge the suite release PR from its description and
   structural/hash checks only. Verify manifest pin
   `309c3aa22c2eab51b3289075b733c52bb7934a879299762c3fb9ba16a3d9bec8`.
-- [ ] Copy only the approved private binding artifact to ignored
+- [x] Copy only the approved private binding artifact to ignored
   `artifacts/evaluation-v4/customer-bindings.json`, mode 0600; compare opaque
   checksums to provenance without printing its contents.
 - [ ] Verify the local serving DB is promoted and reachable as `aclara_app`;
@@ -137,4 +139,4 @@ Comparison has $1.49171001 charged/reserved; the partial comparison is stopped.
 Do not release either set of unknown reserves. At final preparation both dev
 scopes must close and all fresh production/smoke charges must be counted again.
 The current receipt is `artifacts/pre-v4-dev/budget.json`; it is not a cached
-substitute for the launch-time readback. V4 remains unauthorized/unprepared here.
+substitute for the launch-time readback. This historical readback predates the final GO; a fresh launch-time readback is required.

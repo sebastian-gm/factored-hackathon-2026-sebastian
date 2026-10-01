@@ -1,0 +1,374 @@
+{
+  "recorded_at_utc": "2026-10-01T03:14:43.375293+00:00",
+  "release_sha": "92994d933e7e4d4cddbbf988fb4cc748d3cd5db1",
+  "status": "three_live_stories_and_static_surfaces_observed",
+  "browser": {
+    "engine": "Chromium",
+    "width_px": 1440,
+    "height_px": 1000
+  },
+  "credentials": "Key Vault to process memory/stdin only; password, username and OTP screenshot fields masked; no persisted browser state",
+  "timing_method": "Single browser click to rendered response; screenshots and independent readbacks follow timing. BFF Server-Timing excludes browser/network/ingress startup. Not a benchmark.",
+  "model_cost": {
+    "calls": 10,
+    "valid": 10,
+    "models": ["google/gemini-3-flash-preview", "jev-1.13.0"],
+    "known_usd": 0.008335678,
+    "unknown": 0,
+    "provider_errors": 0,
+    "fallbacks": 0
+  },
+  "spend_stop_usd": 0.05,
+  "checks": {
+    "reply_integrity": {
+      "result": "pass",
+      "reply_count": 10,
+      "digit_corruption_count": 0,
+      "english_status_count": 0
+    },
+    "pt_choices_to_verified_receipt": {
+      "result": "pass",
+      "candidate_count": 3,
+      "selected_ordinal": 1,
+      "offer_observed": true,
+      "explicit_denial_observed": true,
+      "confirmation_observed": true,
+      "independent_case_readback": true,
+      "reselection_required_after_explanation": true,
+      "extra_otp_required": false
+    },
+    "desk_sla": {
+      "result": "pass",
+      "fresh_packet_count": 2,
+      "display": "15d 0h 0m",
+      "remaining_days_upper_bound": 15.002
+    },
+    "verified_handoff_packet": {
+      "result": "pass",
+      "selected_charge_context": {
+        "facts": 1,
+        "evidence_records": 1,
+        "verified_actions": 1,
+        "reason_count": 2,
+        "primary_reason": "FRD-01",
+        "reason_codes": ["FRD-01", "AUTH-02"],
+        "independent_handoff_readback": true
+      },
+      "fresh_fraud_shortcut": {
+        "facts": 0,
+        "verified_actions": 1,
+        "reason_count": 2,
+        "facts_empty_explicit": true,
+        "independent_handoff_readback": true
+      }
+    },
+    "story_controls": {
+      "result": "pass",
+      "quickstart_enabled": 3,
+      "helper_enabled": 3,
+      "trusted_hint_counts": [
+        {
+          "id": "explain",
+          "eligible": 1
+        },
+        {
+          "id": "ambiguous",
+          "eligible": 1
+        },
+        {
+          "id": "fraud",
+          "eligible": 1
+        }
+      ]
+    },
+    "insights_desk_ops": {
+      "result": "pass",
+      "insights_languages": ["es-MX", "pt-BR"],
+      "desk_packet_reads": 2,
+      "ops_execution_traces": 3
+    }
+  },
+  "turns": [
+    {
+      "step": "es-explain-options",
+      "authored_message": "Quiero entender un cargo en mi tarjeta.",
+      "http_status": 200,
+      "response_type": "choose_transaction",
+      "outcome": "choose_transaction",
+      "browser_wall_seconds": 5.463734,
+      "azure_bff_seconds": 5.18782,
+      "candidate_count": 3,
+      "proposal_present": false,
+      "case_present": false,
+      "handoff_present": false,
+      "verified": false,
+      "independent_action_readback": null,
+      "receipt_rendered": null,
+      "copy_check": {
+        "digit_corruption": false,
+        "english_status": false
+      },
+      "new_valid_model_calls": 2,
+      "known_model_cost_usd": 0.001861992
+    },
+    {
+      "step": "es-explain-select",
+      "authored_message": "el primero",
+      "http_status": 200,
+      "response_type": "explain_status",
+      "outcome": "explained",
+      "browser_wall_seconds": 1.501688,
+      "azure_bff_seconds": 1.39623,
+      "candidate_count": 0,
+      "proposal_present": false,
+      "case_present": false,
+      "handoff_present": false,
+      "verified": false,
+      "independent_action_readback": null,
+      "receipt_rendered": null,
+      "copy_check": {
+        "digit_corruption": false,
+        "english_status": false
+      },
+      "new_valid_model_calls": 1,
+      "known_model_cost_usd": 0.000401
+    },
+    {
+      "step": "es-context-fraud",
+      "authored_message": "Perdí mi tarjeta y necesito ayuda con una compra que no reconozco.",
+      "http_status": 200,
+      "response_type": "offer_human",
+      "outcome": "handoff_created",
+      "browser_wall_seconds": 0.359418,
+      "azure_bff_seconds": 0.15691,
+      "candidate_count": 0,
+      "proposal_present": false,
+      "case_present": false,
+      "handoff_present": true,
+      "verified": true,
+      "independent_action_readback": true,
+      "receipt_rendered": null,
+      "copy_check": {
+        "digit_corruption": false,
+        "english_status": false
+      },
+      "new_valid_model_calls": 0,
+      "known_model_cost_usd": 0.0
+    },
+    {
+      "step": "es-fraud-helper-handoff",
+      "authored_message": "Perdí mi tarjeta y necesito ayuda con una compra que no reconozco.",
+      "http_status": 200,
+      "response_type": "offer_human",
+      "outcome": "handoff_created",
+      "browser_wall_seconds": 0.354873,
+      "azure_bff_seconds": 0.12847,
+      "candidate_count": 0,
+      "proposal_present": false,
+      "case_present": false,
+      "handoff_present": true,
+      "verified": true,
+      "independent_action_readback": true,
+      "receipt_rendered": null,
+      "copy_check": {
+        "digit_corruption": false,
+        "english_status": false
+      },
+      "new_valid_model_calls": 0,
+      "known_model_cost_usd": 0.0
+    },
+    {
+      "step": "pt-purchase-options",
+      "authored_message": "Quero entender uma cobrança no meu cartão. Quais compras posso revisar?",
+      "http_status": 200,
+      "response_type": "choose_transaction",
+      "outcome": "choose_transaction",
+      "browser_wall_seconds": 2.471408,
+      "azure_bff_seconds": 2.21464,
+      "candidate_count": 3,
+      "proposal_present": false,
+      "case_present": false,
+      "handoff_present": false,
+      "verified": false,
+      "independent_action_readback": null,
+      "receipt_rendered": null,
+      "copy_check": {
+        "digit_corruption": false,
+        "english_status": false
+      },
+      "new_valid_model_calls": 2,
+      "known_model_cost_usd": 0.001943244
+    },
+    {
+      "step": "pt-purchase-select",
+      "authored_message": "o primeiro",
+      "http_status": 200,
+      "response_type": "explain_status",
+      "outcome": "explained",
+      "browser_wall_seconds": 1.623635,
+      "azure_bff_seconds": 1.50767,
+      "candidate_count": 0,
+      "proposal_present": false,
+      "case_present": false,
+      "handoff_present": false,
+      "verified": false,
+      "independent_action_readback": null,
+      "receipt_rendered": null,
+      "copy_check": {
+        "digit_corruption": false,
+        "english_status": false
+      },
+      "new_valid_model_calls": 1,
+      "known_model_cost_usd": 0.0003815
+    },
+    {
+      "step": "pt-unfamiliarity-offer",
+      "authored_message": "Não reconheço esse movimento.",
+      "http_status": 200,
+      "response_type": "choose_transaction",
+      "outcome": "choose_transaction",
+      "browser_wall_seconds": 1.821511,
+      "azure_bff_seconds": 1.68082,
+      "candidate_count": 3,
+      "proposal_present": false,
+      "case_present": false,
+      "handoff_present": false,
+      "verified": false,
+      "independent_action_readback": null,
+      "receipt_rendered": null,
+      "copy_check": {
+        "digit_corruption": false,
+        "english_status": false
+      },
+      "new_valid_model_calls": 2,
+      "known_model_cost_usd": 0.00185745
+    },
+    {
+      "step": "pt-unfamiliarity-select",
+      "authored_message": "o primeiro",
+      "http_status": 200,
+      "response_type": "offer_dispute",
+      "outcome": "awaiting_dispute_decision",
+      "browser_wall_seconds": 0.223496,
+      "azure_bff_seconds": 0.08379,
+      "candidate_count": 0,
+      "proposal_present": false,
+      "case_present": false,
+      "handoff_present": false,
+      "verified": false,
+      "independent_action_readback": null,
+      "receipt_rendered": null,
+      "copy_check": {
+        "digit_corruption": false,
+        "english_status": false
+      },
+      "new_valid_model_calls": 0,
+      "known_model_cost_usd": 0.0
+    },
+    {
+      "step": "pt-dispute-proposal",
+      "authored_message": "Não reconheço, quero contestar",
+      "http_status": 200,
+      "response_type": "confirm_action",
+      "outcome": "dispute_proposed",
+      "browser_wall_seconds": 2.126752,
+      "azure_bff_seconds": 2.00059,
+      "candidate_count": 0,
+      "proposal_present": true,
+      "case_present": false,
+      "handoff_present": false,
+      "verified": false,
+      "independent_action_readback": null,
+      "receipt_rendered": null,
+      "copy_check": {
+        "digit_corruption": false,
+        "english_status": false
+      },
+      "new_valid_model_calls": 2,
+      "known_model_cost_usd": 0.001890492
+    },
+    {
+      "step": "pt-confirm-receipt",
+      "authored_message": null,
+      "http_status": 200,
+      "response_type": "report_case",
+      "outcome": "dispute_filed",
+      "browser_wall_seconds": 0.268719,
+      "azure_bff_seconds": 0.15256,
+      "candidate_count": 0,
+      "proposal_present": false,
+      "case_present": true,
+      "handoff_present": false,
+      "verified": true,
+      "independent_action_readback": true,
+      "receipt_rendered": true,
+      "copy_check": {
+        "digit_corruption": false,
+        "english_status": false
+      },
+      "new_valid_model_calls": 0,
+      "known_model_cost_usd": 0.0
+    }
+  ],
+  "static_observations": {
+    "initial_ready_seconds": 91.228876,
+    "initial_ready_includes_startup_capture": true,
+    "forced_cold_restart": false,
+    "surface_timings": [
+      {
+        "name": "explain-desk",
+        "wall_s": 0.47701698399998715
+      },
+      {
+        "name": "explain-ops",
+        "wall_s": 0.3510513510000019
+      },
+      {
+        "name": "fraud-desk",
+        "wall_s": 0.35292511000001103
+      },
+      {
+        "name": "fraud-ops",
+        "wall_s": 0.8297493029999896
+      },
+      {
+        "name": "ambiguous-ops",
+        "wall_s": 0.8804627420000033
+      },
+      {
+        "name": "ambiguous-insights",
+        "wall_s": 0.08804651400004514
+      },
+      {
+        "name": "es-insights-direct-ready",
+        "wall_s": 0.8485654669999999
+      },
+      {
+        "name": "pt-insights-language-switch",
+        "wall_s": 0.023414896999999654
+      }
+    ],
+    "get_only_extra_capture_model_calls": 0,
+    "get_only_extra_capture_post_attempts": 0
+  },
+  "captures": {
+    "private_directory": "artifacts/ux-audit/azure-rehearsal-92994d9",
+    "views": 41,
+    "pngs": 82,
+    "page_errors": 0,
+    "overflow_views": 0,
+    "sidebar_nonzero_y_views": 0,
+    "file_mode": "0600",
+    "directory_mode": "0700"
+  },
+  "limitations": [
+    "One live rehearsal, not an accuracy or safety evaluation.",
+    "PT bare unfamiliarity after explanation reopened choices; the observed recording path reselects the first movement.",
+    "Fresh fraud without a selected charge has no verified charge facts; the contextual handoff demonstrates one sourced fact.",
+    "Confirmation used the fresh login OTP; no renewal/incorrect-OTP replay or freeze, staff claim, resolution, reset, cloud modification or held-out evaluation.",
+    "Model subtotal is recorded usage, not a provider invoice; cloud/CI and future filming excluded.",
+    "An automation wait raced the asynchronous ES-to-PT sign-out before the login form appeared. Captured the correct PT login and retried auth; no duplicate model request.",
+    "Another live take can encounter an existing-case receipt; no reset was performed.",
+    "Final video recording/export and actual duration remain pending."
+  ]
+}
