@@ -15,7 +15,7 @@ from fastapi import Depends, FastAPI, Header, HTTPException
 from pydantic import BaseModel, ConfigDict, Field
 
 from aclara.agent.contracts import InterfaceModel, ProductView, ResponsePlan
-from aclara.api.staff import complete_packet
+from aclara.api.staff import complete_packet, verify_handoff_commit
 from aclara.bank.repository import Transaction
 from aclara.handoff.packet import create_packet
 from aclara.ops.store import Scope
@@ -77,7 +77,8 @@ def make_handoff(
     packet["verified_facts"] = facts or []
     if freeze_outcome:
         packet["freeze_outcome"] = freeze_outcome
-        packet["actions_taken"] = [f"freeze_card:{freeze_outcome}"]
+        if freeze_outcome in {"verified", "unverified"}:
+            packet["actions_taken"] = [f"freeze_card:{freeze_outcome}"]
     app.state.handoffs[packet["handoff_id"]] = {
         **packet,
         "customer_id": principal.customer_id,
@@ -455,4 +456,5 @@ def install_workflows(app: FastAPI, principal_dependency: Any) -> None:
                 raise HTTPException(503, "Durable freeze readback failed")
             if not app.state.handoffs.get(result["handoff"]["handoff_id"]):
                 raise HTTPException(503, "Durable handoff readback failed")
+        verify_handoff_commit(app, result, principal, proposal["conversation_id"])
         return cast(dict[str, Any], result)

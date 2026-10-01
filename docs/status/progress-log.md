@@ -7,7 +7,7 @@
 - Authored ES/PT regressions reproduced all three review findings: **19 failures** before correction. Added generic snake_case rejection (including future/private names) and complete response-plan literal coverage alongside the English-enum guard. The original `operaci3n` bypass remains rejected.
 - Merchant exemptions and grounding require a sourced, cited **merchant** fact; citing status/type=Approved/Pending/Purchase cannot authorize that merchant. Genuinely cited same-named English merchants remain valid. Updated the legacy composite-fact unit with an explicit merchant citation; no production interface changed.
 - Baseline/report JSON now use exclusive creation at **0600**, with owner rights set before writing bytes, independent of umask. Regression checks cover both writers, permissive/restrictive umasks and existing-file protection. Tightened the three existing local replay snapshots to 0600 and verified unchanged content hashes, including the original frozen baseline.
-- No paid call, saved-dev rerun, serving read or v4 access. NLU, prompt hashes, matcher and original dev measurements remain unchanged. Local verification: **330 focused mock tests**, Ruff, strict mypy (90 source files), compile, frozen interfaces and working-tree data/secret/size policy pass. Prior-head remote CI was green; the new head must pass its own CI.
+- No paid call, saved-dev rerun, serving read or v4 access. NLU, prompt hashes, matcher and original dev measurements remain unchanged. Correction-head local verification: **330 focused mock tests**, Ruff, strict mypy (90 source files), compile, frozen interfaces and working-tree data/secret/size policy pass. After merging the lead-retargeted integration base, **383 focused/integration mock checks**, Ruff, strict mypy (93 source files) and frozen interfaces pass. Prior main-target head CI was green; current integration target has no remote CI trigger under the main-only policy.
 
 ### Done but not verified
 
@@ -16,7 +16,7 @@
 
 ### Next / blocked
 
-- Push the correction to #93, require all new-head CI green, leave merge to the lead. AI folders plus authored tests/docs/session log only; no default, policy, interface or deployment edits.
+- Lead retargeted #93 to `integration/pre-v4-freeze`; merged that base and preserved both AI and frontend progress entries while resolving the sole progress-log conflict. The main-only CI trigger does not run on this integration-target PR; rigorous local checks apply, and the lead must obtain green CI on the aggregate PR into main. Leave merge/deployment to the lead. No manual edits to other lanes or held-out inputs.
 - No more comparison/model spending. Human CSV is still pending owner confirmation; do not open v4.
 
 
@@ -42,6 +42,44 @@
 - Keep #85's study partial and Gemini/v5.1 as the default. No more comparison spending; ask before any other paid run. Do not merge from this lane or open v4.
 - Human judge CSV path is still pending owner confirmation; use existing judge scores only when delivered.
 
+
+## 2026-09-30 PDT — Frontend lane: resumed Azure conversation rehearsal
+
+### Completed (verified)
+
+- After the owner's credit-restoration ping, verified both deployed image tags at **c32fd6429281a764ee33dd96622f237c7c0289c3** and exercised the three drafts through ordinary authenticated Azure chat. Helper buttons remain disabled; no authority/availability gate or serving data changed. Credentials stayed in Key Vault/process memory/stdin; no persisted browser state. No direct provider key/call, cloud setting change, frozen-suite access or evaluation run.
+- **Seven turns / ten valid Gemini/Jev calls, known US$0.008254224**, zero unknown usage/provider errors/fallbacks. ES: three choices → selected-charge explanation. Original PT: clarification → verified ESC-04 handoff after one detail reply. One bounded, alternative generic PT inquiry in a fresh workspace: **three choices → selected-charge explanation**. Original failure retained; alternative success does not repair the disabled helper/default draft. ES lost-card/help: deterministic verified FRD-01 primary + AUTH-02 handoff, zero model calls in that turn. Both handoffs passed independent authenticated GET read-backs; fraud reasons visible in Agent Desk, actual execution/read-back badge visible in Ops. No dispute, freeze, claim, resolution or reset.
+- Captured **28 views / 56 ignored 0600 PNGs** across both conversation passes, including each turn, ES/PT why drawers, packet/execution and Insights. Zero page errors/overflow; sidebar y=0. Generic messages and per-turn timings/costs only in [aggregate receipt](../submission/video-rehearsal-conversations.json). [Shot list](../submission/video-shot-list.md) is a **2:55 edited plan** using the observed alternative PT inquiry; no case-receipt scene claimed.
+- At the lead's explicit diagnostic request, recovered four conversation references, nine execution IDs, 25 trace-event IDs, selected ES opaque transaction handle, PT persona username and seven exact authored customer inputs through SELECT-only persisted metadata. Saved only those references/inputs to ignored `artifacts/ux-audit/azure-rehearsal-c32fd64/diagnosis-refs.json`, **0600**, verified by read-back. Added only originating `run_id` and `sid` per conversation on the follow-up request; no organizer card facts, token/capability digest/cookie/password/OTP persisted. No operational identifier committed.
+- Flagged video defects without changing product/model/policy: disabled stories/no PT ambiguous hint; failed default PT draft; generated ES `operaci3n` and English `approved` in ES/PT; pending ES draft selects an Approved card; missing candidate merchant/product labels; fresh Desk SLA spans months; empty fact/action entries and raw `fraud_review`. Deterministic Ops zero calls are distinguished from total rehearsal cost.
+
+### Done but not verified
+
+- No offer_dispute/confirmation/OTP/case receipt reached or claimed. Three stories plus a bounded alternative inquiry do not establish accuracy or production safety. Final video export, narration synchronization and actual duration remain pending.
+- Known model subtotal is execution-trace usage, not a provider invoice/account-balance reading; excludes cloud compute/CI. Empty Desk action arrays are not positive evidence of displayed verified actions. Mixed SLA clock bases are a plausible frontend diagnosis only.
+
+### Next / blocked
+
+- Update existing unmerged PR #88 and require current-head green CI. Lead/frontend review story eligibility/scoped PT availability and clock semantics; AI/lead review generated copy. No further paid replay planned; original failed path remains disclosed.
+- Keep captures/diagnostic references private; mask organizer values/operational references before export. V4 remains unopened/unrun. No backend, NLU, policy or model tuning from this lane.
+
+## 2026-09-30 PDT — Frontend lane: partial Azure video rehearsal
+
+### Completed (verified)
+
+- Read back both deployed container image tags at **c32fd6429281a764ee33dd96622f237c7c0289c3**. Demo credential retrieved from Key Vault into memory and a pipe only; no credential or OTP persisted. Authenticated ES workspace; inspected ES/PT navigation, Insights, empty Agent Desk and Ops with Playwright. Non-authentication POSTs blocked during the static pass. **Zero chat messages, zero model spend, zero banking writes/reset**.
+- Captured **18 read-only views / 36 PNGs**, plus first startup/login (**40 PNGs total**), ignored and mode 0600; username/password/OTP fields masked. Zero page errors/overflow, sidebar starts at y=0 throughout. Initial readiness **99.28 s** includes startup captures; warm **1.26 s**. Individual navigation/authentication timings are in the [aggregate receipt](../submission/video-rehearsal-static.json), not a cold-start distribution or model timing study.
+- Recorded two story-availability blockers: ES explain/fraud hints are attached to an Ops persona excluded by the frontend customer-role predicate; PT ambiguous has no live hint. All three quickstart/helper buttons disabled. Desk is genuinely empty (HTTP 200); Ops has no conversation execution in this workspace. Prepared the [2:55 shot-list draft](../submission/video-shot-list.md), with exact shipped generic messages, observed static shots, pending conversation shots and video issues. No product/backend/NLU/policy change, organizer row in Git, frozen-suite access or system evaluation.
+
+### Done but not verified
+
+- Owner paused model-dependent rehearsal after reporting exhausted OpenRouter balance, before any chat was sent. No real-model story, choice, proposal, receipt or handoff packet is claimed. PT static screenshots use the language selector on the same authorized ES workspace; they do not verify PT NLU/persona behavior.
+- Final recorded clip, narration synchronization and exported duration remain pending. The shot list is an execution draft for conversation steps, not successful-demo evidence.
+
+### Next / blocked
+
+- Wait for owner's credit-top-up ping before sending any model-dependent story. Resolve live story eligibility/availability with the lead; no authority/scoping bypass. Rehearse each story once, time every turn, read back actual actions, retain failures and update the shot list from observation. Use only the existing approved app purse; no direct provider key/call or reset.
+- Publish this aggregate/documentation PR and leave it unmerged; green main-target remote CI remains required. Keep private captures local. No cloud access/replica changes, publication or v4 run.
 
 ## 2026-09-30 PDT — Insights integration, scoped scans and new comparison purse
 
@@ -2347,3 +2385,535 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
   untouched. No new spend or infrastructure approval needed for this rehearsal.
 - Continue from docs/status/progress-log.md. Next layer: v4 launch gates after
   feature freeze and owner go. Same rules.
+
+## 2026-10-01 UTC — runner merge and urgent live rehearsal diagnosis
+
+### Completed (verified)
+
+- Merged approved runner-only #89 at `2dfa50408547c001140764f782562e63ebfdede7`;
+  main equals origin/main and its four remote checks succeeded. API/web Docker
+  COPY input-tree fingerprints match the parent; no image build/push or Azure
+  release was required. Receipt: ignored `artifacts/final-program-rehearsal/merge-image-inputs.json`.
+- Read the authorized rehearsal references and four original Azure conversations
+  using the non-owner role and exact customer/run/session scopes. RLS stayed intact;
+  unscoped reads yielded zero. No Azure change or new paid call. Confirmed phrase
+  output corruption passing grounding, raw English fallback status, PT `compra`
+  versus canonical kind mismatch, operational SLA clock mismatch, and missing
+  handoff fact/action projection. Details: [live-rehearsal-triage.md](../evaluation/live-rehearsal-triage.md).
+- Lead fixes on `fix/live-rehearsal-freeze-blockers`: localized fallback;
+  conversation-scoped identified facts; read-backed dispute/handoff actions;
+  offered freeze excluded from executed actions; live Desk wall clock and ES/PT
+  empty-facts copy. Local full Python 503 passed / 22 skipped, disposable Postgres
+  29 passed, authored browser 93 passed, live API staff browser 1 passed. Ruff,
+  mypy 88 files and web typecheck passed. Focused missing-readback/credit regressions
+  21 passed / 1 Postgres skip. No claim of Azure verification for new fixes.
+- Free OpenRouter inference-key GET preflight succeeded at 01:06 UTC: account
+  remaining $9.659101954, key remaining $5.802867, both ≥ $4. No management key,
+  model call or charge. Keys stayed in memory; ignored numeric receipt only.
+- Critical review of updated #85 at `078a4ba` found a confirmed zero-cost replay
+  gap: new `provider_402` error-envelope category bypasses the comparison's
+  `http_402` stop guard when cost is known. Relayed to AI alongside the live NLG
+  and type-alias regressions; no further comparison spending requested.
+
+### Done but not verified
+
+- Lead fixes await review/integration/remote CI and deployment; Azure still runs
+  the previous release. AI NLG/type alias fix PRs and #85 review correction pending.
+- Independent free credit-gate helper is implemented and tested locally; exact
+  v4 launch checklist updates and its PR are being prepared. No v4 budget/worker
+  preparation or start occurred.
+
+### Next / blocked
+
+- Publish lead-owned rehearsal fix PR; integrate AI fixes and complete #85 review.
+  One combined remote CI before merging/releasing. Keep unsupported story hints
+  disabled; coordinate the frontend helper role gate and reviewed serving persona.
+- Reproduce the corrected PT receipt and ES explanation after reviewed integration
+  and release; estimate/obtain GO before any new real-model smoke.
+- V4 freeze/start remain blocked by these live bugs. Earlier Oct 1 evening freeze
+  is tentative; existing Oct 2 noon COT plan requires explicit freeze and final GO.
+  Keep v4 rows/selections/bindings unopened and abandoned v1 untouched.
+
+## 2026-10-01 UTC — free OpenRouter launch gate prepared
+
+### Completed (verified)
+
+- `scripts.openrouter_preflight` uses the existing inference key in memory and
+  GETs only `/api/v1/credits` and `/api/v1/key`. It requires account balance and
+  per-key `limit_remaining` each ≥ $4, rejects invalid/missing metadata, and
+  retains only a numeric mode-0600 receipt under ignored artifacts. Error output
+  excludes keys, account labels and raw provider bodies. No management key needed.
+- `.venv/bin/pytest tests/test_openrouter_preflight.py`: 16 passed with authored
+  HTTP mocks, covering either insufficient balance and sanitized failures.
+  Ruff passed. Live free GET gate at 01:06 UTC passed: $9.659101954 account /
+  $5.802867 key remaining; zero model calls / $0. Receipt is point-in-time only.
+- [v4-launch-checklist.md](../evaluation/v4-launch-checklist.md) now has exact
+  local-DSN prepare/start/status/resume commands without secrets in argv/output.
+  The documented helper's `status` command exited 0 without creating a program
+  directory, fetching a provider key or opening suite rows/bindings. The runner's
+  detach/resume behavior is independently covered by the zero-cost rehearsal.
+- #89 merged at `2dfa504` with green main remote CI; unchanged Docker COPY input
+  trees. Lead live rehearsal fix PR #90 is published, locally verified, targeting
+  `integration/pre-v4-freeze`; no Azure redeploy or paid call in this session.
+
+### Done but not verified
+
+- No v4 budget preparation, suite preparation, start or resume was executed.
+  Product freeze/release and a fresh final GO are still required. Oct 1 evening
+  COT is tentative; the existing Oct 2 noon COT plan has not been overridden.
+- Updated #85 includes the provider_402 guard correction; it still needs lead
+  integration verification. AI-owned live NLG/type normalization fixes pending.
+
+### Next / blocked
+
+- Integrate reviewed round-two and live rehearsal fixes; one combined remote
+  CI before main merge/release. Keep v4 rows/selections/bindings unopened.
+- On confirmed release approval, close/count dev scopes and verify live prior
+  exposure + $3 v4 + $0.10 release + $0.10 latency ≤ $12. Recheck fresh OpenRouter
+  balances immediately before the authorized first start. No new spending now.
+- Continue from docs/status/progress-log.md. Next layer: close live rehearsal
+  blockers, combined release, then v4 launch gates. Same rules.
+
+## 2026-09-30 PDT — AI approved pre-v4 development baseline
+
+### Completed (verified)
+
+- Orchestrator confirmed `dev-gate/pre-v4` / `pre-v4`; durable readback: $1
+  lifetime, zero reservations/exposure, prior scopes closed. All paid dev calls
+  reserve before request through this scope, including Jev, and stop at $0.90
+  shared exposure. No final-evaluation scope or v4 rows accessed.
+- Frozen 60-case hashes still match. Added a sequential real-P entry point with
+  clean-commit/config/prompt pins, private per-call checkpoints and cost from
+  per-case usage fields. Scope/run routing and unknown-cost retention are tested.
+- Baseline carries the previously reviewed PR #77 grounding fix (internal handles
+  and corrupt text); its 34 focused mock/freeze/budget checks pass with no spend.
+
+### Done but not verified
+
+- The first real baseline and lean-prompt comparison have not started. v5.1 and
+  production model selection are unchanged; PR #77 remains a separate lead merge.
+
+### Next / blocked
+
+- Run frozen round-two real P, diagnose by owner, then repair AI causes and compare
+  the lean prompt as budget permits. No adoption without the full five-set gate.
+- Human export remains pending. The next model/Decisions comparison is queued;
+  wait for its separate scope before any paid comparison.
+
+### 2026-09-30 PDT — round-two real baseline and AI regressions
+
+- Completed (verified): frozen 60-case real P baseline at `0161c3a`: pass 15/60
+  (ES 9/30, PT 6/30), injection logging 6/6, no forbidden actions, one materially
+  incorrect final outcome (polite refusal treated as recognition). Scope readback
+  $0.30949149 charged/reserved, $0.28551849 known, two unknown-cost reservations
+  retained. Per-call known sum differs only by eight-decimal durable rounding.
+  All attempts included: Gemini 169/171 schema-valid, Jev 140 valid judgments.
+- Completed (verified): authored 15 new regression cases before NLU repairs;
+  eight failed initially. Repairs reject offer refusal as purchase recognition
+  while preserving actual recollection, parse explicit day/month dates in words
+  without guessing missing month/year, and reuse units already present in the
+  extracted amount when the currency field is absent. Interfaces unchanged.
+- Done but not verified: repaired real-P follow-up pending. Most strict failures
+  concern lead-owned candidate/correction/compound-request state; gold remains
+  untouched. Two mixed-language openings may exhaust the contract's two-round
+  clarification rule; request adjudication rather than changing labels to pass.
+- Next / blocked: v5.2 is a separate development candidate, not the active prompt.
+  Complete comparable five-set evidence is required for adoption; the shared
+  $0.90 stop has priority over completing that potentially larger study. Default
+  Gemini and production v5.1 remain unchanged. No v4 access or final run.
+
+## 2026-09-30 PDT — round-two budget stop and lean-study preparation
+
+### Completed (verified)
+
+- Real v5.1 baseline: 15/60 pass (ES 9/30, PT 6/30), one materially incorrect
+  polite-refusal outcome, zero forbidden actions. Repaired follow-up at `331fb57`
+  completed 47: 9/47 pass (ES 6/24, PT 3/23), zero unsafe findings on those 47.
+  On the common 47 both versions pass 9/47, with one flip each direction under
+  degraded NLU. The baseline unsafe case lies outside the partial follow-up;
+  this is neither a demonstrated improvement nor proof its real outcome is fixed.
+- Durable `dev-gate/pre-v4` / `pre-v4` readback: $0.87148777 charged/reserved,
+  $0.49124327 known, 564 reservations, 27 unknown costs retained. Next reservation
+  was denied before request at the $0.90 stop. Interrupted case 48's costs remain
+  in the ledger/journal. Known costs use per-call fields, never key deltas.
+- All-attempt OR schema validity: before 169/171, after 123/148; Jev 140/140 and
+  105/105. Zero-cost GET health checks verified available key limit but exhausted
+  account credits. Twenty-two short follow-up failures suggest billing rejection;
+  old records lack HTTP codes, so no retrospective individual attribution.
+  Future records now keep sanitized status codes only, not error text/URLs/body.
+- Seventeen authored NLU regressions protect refusal vs actual recognition,
+  complete word dates vs invalid/missing dates, and explicit amount units. The
+  frozen sixty definitions/builders remain unchanged. Lead-owned state/matching
+  and compound-request causes, plus two gold/spec adjudications, are grouped in
+  `docs/ml/nlu-robustness-round2.md`. No orchestration or interface changes.
+- Separate v5.2 development candidate is 31.1% shorter in body characters. A
+  development-only driver inventories 240 allowlisted cases, with synthetic
+  identities and complete authored overlays for retired v3. All 240 execute with
+  mock/$0 and no exceptions; mock unsafe findings are retained, not mislabeled
+  as real accuracy. Case-cluster latency bootstrap now includes failed Grok NLU
+  attempts; corrected aggregate receipts preserve the original paid journals.
+- Local verification: 297 relevant mock/unit checks pass, eight DB-dependent
+  skips, Ruff and strict mypy (88 source files). Final two invalid-date guards,
+  error metadata and candidate driver have mock validation only after the stop.
+
+### Done but not verified
+
+- v5.2 has zero paid measurements; its token savings, p50/p95 and accuracy are
+  unverified. No complete five-set comparison or adoption gate is claimed.
+- The polite-refusal real follow-up case remains unmeasured; most failing
+  multi-turn state behavior needs lead work. Default Gemini and v5.1 stay active.
+
+### Next / blocked
+
+- No further paid call under this scope: exposure denial and account credits
+  block completion. Any resumed latency study needs explicit new authorization;
+  the queued `dev-gate/model-compare` scope cannot be repurposed for it.
+- Private [PR #85](https://github.com/sebastian-gm/bank-agent-lab/pull/85) is OPEN
+  and mergeable into `fix/post-v3-analysis`, code head `226bf3e` read back. It
+  carries #80's freeze and #77's output guards because both earlier PRs now show
+  closed without merges. Integration PRs use rigorous local checks under the
+  owner's main-only remote CI policy. Lead reviews/merges; no merge performed.
+- Human CSV path remains unconfirmed. Continue zero-spend disparity analysis and
+  model/API availability checks; no v4 input, final run or default change.
+
+
+## 2026-09-30 PDT — queued comparison read-only preflight
+
+### Completed (verified)
+
+- Free OpenRouter catalog, ZDR endpoint and authenticated user-model GETs confirm
+  `openai/gpt-6.1-sol`, ZDR `azure` at $2/$10 per million input/output tokens;
+  `openai/flex` is absent from the ZDR list. Gemini's existing Vertex pin remains.
+  Receipt timestamps/hashes and primary citations are in the preflight document.
+- Authenticated Decisions modality list has nine models, none `openai/*`; no
+  direct OpenAI credential or SDK in this worktree. Official searches did not
+  establish preview entitlement. Do not substitute OpenRouter's third-party
+  Decisions API for an OpenAI model. Zero inference, spend or config changes.
+- Repricing saved round-two valid-call tokens uncached gives $1.361114 for just
+  that 60-case Gemini/Sol pair, excluding Jev/retries/new reasoning. Full five-set
+  coverage is unlikely inside $1.50; disclose partial coverage if the cap stops it.
+- Private disparity PR #86 targets main, head `6ff70e1`, OPEN and mergeable at
+  readback. Safety/checks/Postgres have passed; web CI is still running. An extra
+  cross-check found raw fault-prefix unsafe flags needed the official executed-
+  case filter; correcting that documentation before lead review, without reruns
+  or changed official cases/results.
+
+### Done but not verified
+
+- No Sol accuracy/latency, language comparison or Decisions risk results exist.
+  Production Gemini/v5.1 stays unchanged. Human export still awaits its path.
+
+### Next / blocked
+
+- Wait for exact `dev-gate/model-compare` run/scope readback and restored account
+  credits before every paid comparison. Never reuse the stopped pre-v4 scope.
+- Lead reviews #85 and the corrected #86, with required green main-target CI.
+  No merge, publication, held-out v4 access or final run by this lane.
+
+
+## 2026-09-30 PDT — approved paired-sample freeze and disparity CI readback
+
+### Completed (verified)
+
+- Owner approved a balanced paired model sample inside $1.50. Frozen manifest
+  selects 50 pairs: ten per each of the five existing dev sets, five ES/five PT
+  per set, all ten round-two families once. Metadata-only stable ordering and
+  dialect/category buckets; no saved model outcome used for selection. Manifest
+  SHA `40ef32671ff05617dc3246db38891a756b6d200cec48c368cc6e2483416b634c`;
+  full pool and per-case hashes validated before use. No new paid call.
+- Sample/inventory, tamper rejection and freeze checks pass: 19 focused checks,
+  then 299 relevant mock/unit checks with eight DB skips; Ruff/format and strict
+  mypy over 88 files pass. The separate lean study keeps
+  its original complete 240-case adoption gate; production v5.1/Gemini unchanged.
+- Private disparity PR #86 is OPEN/mergeable to main at corrected head
+  `3d86622a94e056d70a9d0303d8b59e9b26f0a7ec`. Required CI run 36789815778
+  and safety run 36789815779 both succeeded on that head. The earlier head also
+  finished green before the substantive denominator correction was pushed; no
+  CI cancellation or manual rerun. Official v2/v3 inputs and scores unchanged.
+
+### Done but not verified
+
+- No Sol execution, comparison result or OpenAI Decisions preview access. Sample
+  uncertainty and equal set weighting prohibit full-240 or population claims.
+
+### Next / blocked
+
+- Wait for the lead's exact model-comparison scope/run readback and restored
+  OpenRouter credits. Cap stays $1.50 with $12 cumulative maximum. Do not use
+  the stopped pre-v4 scope. Lead merges #85/#86; this lane performs no merge.
+- Human CSV path remains unconfirmed; local offline scoring page still exists.
+  Never open v4, start the final run or change a model default without approval.
+## 2026-09-30 PDT — confirmed comparison scope, paired harness and retry analysis
+
+### Completed (verified)
+
+- Read back `dev-gate/model-compare` / `model-compare`: $1.50 lifetime, enabled,
+  zero attempts/cost. Pre-v4 remains enabled at $0.49124327 known / $0.87148777
+  charged including 27 unknown reservations; its $0.90 stop is unchanged. The
+  owner restored credits; free account-health GET now confirms availability.
+- Prepared paired Gemini/Sol NLU+phrasing driver with fresh ZDR/provider-price
+  checks, same prompts/timeouts/Jev union/Grok fallback, lifetime reservations,
+  private checkpoints and no duplicate paid case on resume. Added primary model
+  identity to risk records. Sol uses its advertised max_completion_tokens field;
+  default adapter behavior/config remains unchanged. Mock path does not load keys.
+- Independent opening-slot annotations frozen before comparison calls: 48
+  single-target openings plus two explicit multi-target F1 exclusions, without
+  changing any scenario gold. Existing metadata-only fifty-pair sample unchanged.
+- All 100 mock case-runs execute without exceptions/$0; both deterministic arms
+  pass 33/50 with four materially incorrect outcomes, not model-quality claims.
+  Relevant tests: 253 passed/eight DB skips; 47 additional adapter/API/language
+  checks pass. Ruff, strict mypy (90 files), compile and interface snapshots pass.
+- Saved dev retry replay: two baseline / three follow-up ~6.05 s slow firsts plus
+  successful retries take 7.64–9.18 s. Shifting those retries to 3–4 s leaves sample
+  request p95 unchanged; genuine hedges add duplicates and unmeasured loser cost.
+  Details/assumptions in docs/ml/nlu-robustness-round2.md. No hedge adopted or paid.
+- Disparity PR #86 remains OPEN with all required main-target CI successful at
+  head 3d86622a94e056d70a9d0303d8b59e9b26f0a7ec. No rerun or merge.
+
+### Done but not verified
+
+- Sol accuracy, paired ES/PT outcomes, cost and latency are not yet measured.
+  v5.2 remains a separate unadopted candidate without real latency/accuracy data.
+
+### Next / blocked
+
+- Run approved paired dev comparison on the committed pins using its dedicated
+  $1.50 cap and $12 cumulative maximum. The remaining pre-v4 $0.02851223 cannot
+  fund complete follow-up plus both 240-case prompt arms; do not erase unknown
+  costs, exceed $0.90 or repurpose the comparison scope. No production change.
+- Lead reviews/merges #85/#86. Human CSV path is still pending. No held-out v4
+  input, final run, publication or merge from this lane.
+
+## 2026-09-30 PDT — partial paid comparison, timeout correction and spend stop
+
+### Completed (verified)
+
+- After owner-confirmed credits restoration, real comparison ran at committed
+  head 60f3bfa using only the frozen approved dev sample, exact scope/run
+  dev-gate/model-compare / model-compare and reserve-before-call. Thirty of fifty
+  pairs complete (six per set, 15 ES/15 PT); one extra Gemini case and one
+  interrupted Sol case excluded from paired quality but included in attempts.
+- Postgres readback 2026-10-01 00:41:56 UTC: 239 attempts, $0.20973001 returned
+  per-call costs, $1.28198000 retained across 31 unknown-cost attempts,
+  $1.49171001 charged exposure of $1.50. Only $0.00828999 remains. All-scope
+  exposure $7.04653079. Paid work stopped; no further provider call or reserve
+  release, no key-level cost delta, no new scope or funding assumption.
+- Both routes pass 25/30 (Wilson 66.4–92.7%), SAR 19/28, strict escalation 3/3,
+  unnecessary transfers 5/27, each unsafe class 0/30. ES 13/15, PT 12/15 in
+  both. Opening-slot F1 97.64% Gemini / 99.21% Sol route; six completed Sol
+  conversations used Grok. Five common failures are all in round two; both
+  routes pass 1/6 there. Partial tables, intervals and caveats published in
+  docs/ml/model-comparison-pre-v4.md; no equivalence or replacement conclusion.
+- Owner's timeout audit: both candidates inherited the serving 6/20 s limits.
+  Corrected comparison overlay to 30 s per attempt / 65 s logical-call budget
+  for both, with no shortened first. No production config change or paid rerun.
+  The 31 unknown errors were generic model_failure at 0.409–4.033 s, not proven
+  timeouts; none retained usage, numeric envelope code or generation ID.
+- Comparison now stops after its first unknown bill, before retry/fallback or
+  another case, retaining the reserve. Settlement precedes stop callbacks,
+  including concurrent Jev. HTTP-200 errors/malformed choices preserve numeric
+  category, normalized billing/id and no provider prose/reasoning. Timeout
+  durations stay in latency; generic failures remain separate diagnostics.
+- Original paid launch/call/summary artifacts and frozen labels preserved. Slot
+  annotations were authored by Codex, not human reviewed; documented the frozen
+  JSON's erroneous Human-authored method wording without changing its hash.
+- Broad local mock/unit/API suite: 318 passed/eight DB skips before the final
+  additional parallel-Jev regression; focused final rerun 28 passed. Ruff,
+  format (323 files), strict mypy (90 source files) and interface snapshots pass.
+  Corrected 100-case mock comparison completes/$0. No new paid measurements.
+
+### Done but not verified
+
+- Fair-timeout comparison has no paid result. Unknown Sol bills remain
+  unreconciled; discarded IDs cannot be reconstructed from the saved records.
+  Current route latency/cost is not pure Sol or in-region serving evidence.
+- Full round-two after coverage and both 240-case lean-prompt arms remain
+  incomplete: pre-v4 exposure $0.87148777 leaves $0.02851223 under the $0.90 stop.
+  v5.2 remains unadopted. Human judge CSV path remains unconfirmed.
+
+### Next / blocked
+
+- Lead reviews #85 to fix/post-v3-analysis and #86 to main; #86's required remote
+  CI was green at 3d86622a94e056d70a9d0303d8b59e9b26f0a7ec. Integration-target
+  #85 uses local checks under the owner's main-only CI rule. No merges/reruns.
+- No more paid comparison within the exhausted cap. Any fair restart needs
+  verified per-call reconciliation and fresh protocol pins plus owner-approved
+  funding/coverage. Gemini/v5.1 stays default; never access held-out v4, run its
+  final evaluation, publish content or use another lane's scope.
+
+## 2026-09-30 PDT — comparison account-error stop follow-up
+
+### Completed (verified)
+
+- Lead identified that known-cost HTTP-200 provider_402 bypassed the HTTP-only
+  guard in #85. Guard now stops both http_/provider_ 401, 402, 403 and 429 codes:
+  credential/credit/forbidden-budget/quota/rate-limit failures never retry or
+  fall back, even when usage returns a known zero or positive bill.
+- Authored mock regressions exercise HTTP-200 errors through StructuredClient,
+  both zero/positive bills, both protocol code forms, and no retry/fallback.
+  Original paid comparison remains 30/50 pairs, $0.20973001 known versus
+  $1.49171001 exposure; no further paid calls, reserve release or default change.
+
+### Done but not verified
+
+- Corrected comparison settings are not paid measured; previous result remains
+  partial and unsuitable for equivalence. No new comparison spending authorized.
+
+### Next / blocked
+
+- Lead reviews #85; finish separate main-target NLG corruption/status-label and
+  transaction-kind normalization PR with zero-cost saved-dev replay. Fee aliases
+  map to Adjustment per owner confirmation. No held-out v4 access or merge.
+
+## 2026-10-01 UTC — local pre-v4 integration and offer-refusal repair
+
+### Completed (verified)
+
+- Private stacked PR #90 holds the live rehearsal lead fixes; #91 holds the free
+  credit preflight and exact launch commands. Combined with reviewed #85 head
+  `83be371` on `integration/pre-v4-freeze`, base main `2dfa504`; main unchanged.
+  Merge conflicts were progress-log appends only; preserved both histories.
+- #85's `provider_402` bypass is repaired; authored known-cost error-envelope
+  checks prove stop before retry/fallback. No paid comparison resumed. Production
+  remains v5.1/Gemini; partial comparison does not establish a challenger choice.
+- Combined local Python suite: 579 passed / 22 skipped (aggregate progress marks);
+  disposable Postgres: 30 passed. Pre-commit, web typecheck, lint and build exited
+  0. Local receipts: ignored `artifacts/integration/checks/pre-v4-combined-*`.
+- Independently reproduced the lead-owned polite offer-refusal bug using fresh
+  authored mock messages: ES proposed a dispute; PT handed off out of scope;
+  neither wrote. Generic offered-state cancellation now handles explicit polite
+  refusals, keeps actual recollection as explanation and preserves isolated-assent
+  clarification. Fifty relevant authored B1/P ES/PT checks passed, including
+  restart. No frozen row/gold or threshold changes; no paid calls or Azure changes.
+
+### Done but not verified
+
+- New offer-refusal repair still needs final hooks/publication/integration. Full
+  browser/live API gates on the combined head are running; remote CI deferred to
+  the complete candidate so it runs once. Azure remains the previous release.
+- AI live NLG guard and transaction-kind alias fixes, frontend story-button triage
+  pending. Round-two compound-request/descriptive-choice/language-limit problems
+  remain disclosed limitations; no fresh real gate claimed for those families.
+
+### Next / blocked
+
+- Integrate the forthcoming reviewed AI/frontend rehearsal fixes; run one combined
+  remote CI before main merge and approved release. Estimate/obtain GO before any
+  new real-model smoke. Keep v4 rows, selections and bindings unopened/unstarted.
+- V4 freeze remains pending closure of live blockers and owner confirmation.
+  Continue from docs/status/progress-log.md. Next layer: close live rehearsal
+  blockers, combined release, then v4 launch gates. Same rules.
+
+## 2026-10-01 UTC — integration checks complete, live AI fixes pending
+
+### Completed (verified)
+
+- Reviewed/integrated #85 `83be371`, #90, #91 and the small #92 offer-refusal
+  repair on `integration/pre-v4-freeze`; main remains `2dfa504`. Review and exact
+  test scope: [pre-v4-integration-review.md](../evaluation/pre-v4-integration-review.md).
+  Refusal test head `f592971`; no product behavior claimed for unmeasured families.
+- Local Playwright 93 stories + 12 real local BFF/API customer flows + one staff
+  flow passed. B1 reactive dev 32/32 and standard safety harness exited 0. Strict
+  mypy 88 files, Ruff, compile, interface/catalog checks and working-tree safety
+  passed. Parent combined Python 579 passed / 22 skipped; subsequent cancellation
+  regressions 50 passed. Postgres 30 passed. No optional paid rerun.
+- Confirmed updated private reference file mode 0600, four run IDs and four SIDs;
+  no scope values printed. Earlier exact-scope Azure diagnosis established live
+  phrase/MATCH causes while preserving RLS. Generated Next references and dev
+  Markdown restored; official result pages unchanged.
+
+### Done but not verified
+
+- AI live phrase corruption/status and transaction-kind normalization PRs are
+  still awaited, as is frontend story-button triage. New code is not deployed;
+  Azure still runs the previous release. Remote CI is held for the complete head.
+- No new real gate or broader round-two fix claim. Candidate-state descriptive
+  replies, unfamiliarity across early clarification and compound-request handling
+  remain lead-owned limitations; language/colloquial-unit conflicts need adjudication.
+- V4 budget/suite preparation and launch remain unexecuted; no v4 contents opened.
+
+### Next / blocked
+
+- Review/integrate the incoming live AI/frontend fixes, require one combined
+  remote CI, then merge/release under standing approval. Estimate/obtain GO before
+  any new real-model smoke. No spend or Azure access/resource change this session.
+- Feature freeze remains pending live blockers and owner confirmation; exact
+  commands are ready in [v4-launch-checklist.md](../evaluation/v4-launch-checklist.md).
+- Continue from docs/status/progress-log.md. Next layer: close live rehearsal
+  blockers, combined release, then v4 launch gates. Same rules.
+
+
+## 2026-09-30 PDT — AI zero-spend saved-result disparity investigation
+
+### Completed (verified)
+
+- Reaggregated saved primary P-Gemini repeat-0 results only: v2 200 and v3 100.
+  Official pass remains 63/200 and 77/100. All 300 checkpoints and two official
+  reports were hashed before/after, unchanged; no execution, rescoring, paid call
+  or v4 input. Private aggregate/composition receipts stay ignored.
+- `docs/evaluation/disparity-analysis.md` reports ES/PT, Basic/Plus/Premium/Student
+  and AR/CO/MX pass with Wilson intervals, eligible/in-scope SAR and strict
+  transfers, unsafe caveats, and the failure causes behind the observed gaps.
+  V3's ES 38/48 vs PT 35/48 gap is two extra PT security-packet failures and one
+  extra selection failure. V3 country/segment counts are language-balanced;
+  coarse category adjustment changes +6.25 pp to +6.37 pp, not a causal effect.
+- Existing shared routing/selection defects, policy/case mix, synthetic correlated
+  cells, no fluent PT human review and es-CL n=9 limit interpretation. Proposed
+  semantic PT regressions and fluent review are follow-ups, not new results or
+  prompt changes. Only v4 results remain TODO. Relative evidence links verified.
+
+### Done but not verified
+
+- No population disparity or language equivalence claim; dialect naturalness is
+  not established by objective pass. Human judge CSV path remains unconfirmed.
+
+### Next / blocked
+
+- Private [PR #86](https://github.com/sebastian-gm/bank-agent-lab/pull/86) is OPEN
+  and mergeable to main, initial head `6ff70e1` read back. Safety/checks/Postgres
+  passed; web CI still running. No cancellation, rerun or merge by this lane.
+  Shared progress-log entry is the only change outside the requested document.
+- Corrected the draft's unsafe aggregation to exclude unexecuted fault prefixes,
+  matching official v2 P's 187 executed / 59 materially-incorrect flags. ES
+  29/89 and PT 22/78 are the executed-case counts; provisional prefix flags stay
+  in workload failures, not safety exposure. Original draft receipt is retained
+  privately; all 302 saved inputs remain unchanged. A new push is necessary for
+  this substantive evidence correction and requires green CI on that head.
+- Robustness changes remain in private PR #85 to `fix/post-v3-analysis`. The
+  queued model comparison still awaits its separate durable scope/readback and
+  restored OpenRouter account credits; metadata checks are zero-call only.
+
+## 2026-10-01 UTC — supporting PRs and fresh cumulative preflight
+
+### Completed (verified)
+
+- Integrated reviewed #88 `a3f54d3` and supporting AI aggregate #86 `3d86622` on
+  the private candidate, keeping rehearsal failures and official figures intact.
+  Progress conflicts resolved by preserving all histories. Main unchanged.
+- Critically reviewed #93 `8d3ac42`: source-only authored replays confirm original
+  digit/English leak is rejected but expose machine-enum and merchant-citation
+  gaps. Also found default-mode private replay outputs. Orchestrator relayed all
+  three corrections; hold this PR until updated. Retargeted it to the integration
+  branch to avoid redundant main-target CI pushes.
+- `python -m scripts.pre_v4_budget`: $6.99994254 current charged/reserved,
+  conservative maximum $11.82845477 including full dev allowances, $3 v4 and both
+  $0.10 smokes. Current pre-v4 $0.87148777, 27 unknown attempts; comparison
+  $1.49171001 retained. Metadata-only read; no prepare, closure or reserve release.
+  Exact math in [v4-launch-checklist.md](../evaluation/v4-launch-checklist.md).
+
+### Done but not verified
+
+- Corrected #93 and frontend video-readiness PR are awaited. Combined remote CI
+  and Azure release have not run. Existing main's four checks are success.
+- V4 stays unopened/unprepared/unstarted. No new model spend in this session.
+
+### Next / blocked
+
+- Review corrected #93 plus frontend readiness; complete local gates, then one
+  remote CI on the full main candidate. Standing approval covers main merge and
+  image release. Frontend rechecks the four live bugs after release.
+- Feature freeze and final v4 GO follow a clean owner rehearsal; they have not
+  been granted. Recheck actual cumulative exposure and free OpenRouter balances
+  at launch, preserving all retained reservations.
+- Continue from docs/status/progress-log.md. Next layer: combined rehearsal fixes
+  and release, then freeze and v4 launch gates. Same rules.

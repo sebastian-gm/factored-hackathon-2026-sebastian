@@ -21,6 +21,19 @@ def recognizes_charge(message: str) -> bool:
     )
 
 
+def declines_dispute(message: str) -> bool:
+    """An explicit refusal of filing is different from an isolated no/nao."""
+    value = normalize_text(message).strip(" .,!¿?¡")
+    return value in {"cancelar", "cancela", "deixa", "deixa pra la"} or bool(
+        re.search(
+            r"\b(?:prefiero no|no quiero|prefiro nao|nao quero) "
+            r"(?:abrir|iniciar|presentar|registrar|seguir con|continuar con) "
+            r"(?:(?:una|la|uma|a) )?(?:disputa|reclamo|reclamacion|contestacao)\b",
+            value,
+        )
+    )
+
+
 def unfamiliar_charge(message: str) -> bool:
     return unfamiliar_about_charge(message) or bool(
         re.search(

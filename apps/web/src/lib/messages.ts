@@ -2,7 +2,8 @@ export const es = {
   insights: "Insights",
   insightsEyebrow: "DATOS, DECISIONES Y EVIDENCIA",
   insightsTitle: "Una duda cotidiana. Un sistema comprobable.",
-  insightsIntro: "Explora el problema, los límites de autonomía y lo que realmente medimos.",
+  insightsIntro:
+    "Explora el problema, los límites de autonomía y lo que realmente medimos.",
   quickstartInsights: "Conoce los datos detrás de Aclara",
   quickstartTitle: "Prueba Aclara",
   quickstartPurpose:
@@ -351,6 +352,8 @@ export const es = {
   selectPacket: "Selecciona una solicitud para revisar su contexto.",
   packet: "Paquete de atención",
   facts: "Hechos verificados",
+  noVerifiedMovement:
+    "Todavía no se identificó un movimiento. La solicitud del cliente queda pendiente de verificar.",
   actions: "Acciones realizadas",
   questions: "Preguntas abiertas",
   claim: "Tomar solicitud",
@@ -408,7 +411,8 @@ export const pt: typeof es = {
   insights: "Insights",
   insightsEyebrow: "DADOS, DECISÕES E EVIDÊNCIAS",
   insightsTitle: "Uma dúvida cotidiana. Um sistema verificável.",
-  insightsIntro: "Explore o problema, os limites de autonomia e o que realmente medimos.",
+  insightsIntro:
+    "Explore o problema, os limites de autonomia e o que realmente medimos.",
   quickstartInsights: "Conheça os dados por trás do Aclara",
   quickstartTitle: "Experimente o Aclara",
   quickstartPurpose:
@@ -752,6 +756,8 @@ export const pt: typeof es = {
   selectPacket: "Selecione uma solicitação para revisar seu contexto.",
   packet: "Pacote de atendimento",
   facts: "Fatos verificados",
+  noVerifiedMovement:
+    "Ainda não foi identificado um movimento. A solicitação do cliente está pendente de verificação.",
   actions: "Ações realizadas",
   questions: "Perguntas em aberto",
   claim: "Assumir solicitação",
