@@ -1,5 +1,39 @@
 # Clean-clone reproduction
 
+## October 2 original-repository clean clone
+
+Fresh authenticated clone of the **private original submission repository** at
+`f5e128dd7e544e2378081361f4a8a409af94f221`, after the rename/audit batch. This is
+not the archived snapshot. Followed **only README A and its checks**, using fresh
+checkout-local dependency/hook/Chromium caches, authored fixtures and mock models.
+No `.env`, venv, node_modules, organizer data, lake, private bindings or cloud/model
+credential was copied. Existing workstation Docker layers/browser OS libraries
+were reused; bare-OS package installation is not verified. Model spend **$0**.
+
+All **17 steps passed, 724.10 seconds (12m04s)** elapsed, sequentially:
+
+| Command / stage | Verified result |
+|---|---|
+| Locked `uv sync` / `pnpm install` and README-generated `.env` | Passed; local random passwords, no values printed |
+| `make up` / `python -m scripts.fixture_smoke` | Healthy Postgres/API/web; login/OTP, intake/handoff readbacks, staff and logout |
+| Mock `make checks` | **1,121 passed / 31 skipped**, hooks/Ruff/mypy/interfaces/catalog, B1 **32/32** |
+| `python -m evals.runner --system B1` | **32/32**, 12 readbacks; development fixtures only |
+| `python -m scripts.test_postgres` | **49/49** disposable persistence/RLS tests |
+| Web typecheck / lint / build / Chromium install | Passed |
+| Browser fixture / local live API / staff | **148/148**, **12/12**, **1/1** |
+| `make down` | Stopped only this disposable project; volume retained |
+
+No step failed or required undocumented setup. Thirty-one skips are not passes;
+no full organizer-serving setup, official held-out reproduction or paid final
+program ran. The subsequent current-tree scrub changes operator target resolution
+and documentation, not product behavior or the verified fixture commands. Original
+suite definitions/selections remain authored evidence; private bindings, organizer
+records and raw human sheets are withheld. The README now states that distinction.
+Private timed receipts: ignored `artifacts/reproduction-v0.6/receipts/steps.json`.
+
+The Azure operator/browser helper had a separate stale Ops navigation label; that
+is recorded in the release log and is not a failure of this local README test.
+
 ## Historical September 30 reproduction
 
 The following records the earlier d23fa5a export. The October 1 post-v4

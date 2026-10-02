@@ -224,7 +224,7 @@ integration work; those extensions are not delivered workflows.
 
 </details>
 
-[demo]: https://ca-web-aclara-dev-eastus2.lemonbeach-1b769de0.eastus2.azurecontainerapps.io/
+[demo]: <owner-supplied-web-origin>
 [problem-data]: ../data/problem-analysis-aggregates.json
 [problem-analysis]: ../problem-analysis.md
 [matcher-metrics]: ../../models/charge_matcher/v1/metrics.json
