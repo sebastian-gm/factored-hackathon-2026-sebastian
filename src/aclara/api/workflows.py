@@ -16,6 +16,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from aclara.agent.contracts import InterfaceModel, ProductView, ResponsePlan
 from aclara.api.staff import complete_packet, verify_handoff_commit
+from aclara.api.turn_logging import log_turn
 from aclara.bank.repository import Transaction
 from aclara.handoff.packet import create_packet
 from aclara.ops.store import Scope, open_case
@@ -390,6 +391,7 @@ def install_workflows(app: FastAPI, principal_dependency: Any) -> None:
                 or proposal["reason_codes"] != origin["reason_codes"]
             ):
                 raise HTTPException(409, "Action proposal expired or changed")
+            degraded = app.state.conversations[proposal["conversation_id"]].degraded
             previous = app.state.idempotency.get("freeze-result:" + body.proposal_hash)
             if previous:
                 originally_confirmed = previous["handoff"].get("freeze_outcome") != "declined"
@@ -474,4 +476,5 @@ def install_workflows(app: FastAPI, principal_dependency: Any) -> None:
             if not app.state.handoffs.get(result["handoff"]["handoff_id"]):
                 raise HTTPException(503, "Durable handoff readback failed")
         verify_handoff_commit(app, result, principal, proposal["conversation_id"])
+        log_turn(proposal["conversation_id"], result, app.state.runtime.trace(), degraded=degraded)
         return cast(dict[str, Any], result)

@@ -734,7 +734,8 @@ def create_app(
     async def judge_profiles(
         principal: Principal = Depends(get_judge_principal),
     ) -> dict[str, Any]:
-        assert judge_sessions is not None
+        if judge_sessions is None:
+            raise HTTPException(404, "Judge profiles unavailable")
         return {
             "profiles": judge_sessions.views(app.state.demo_stories),
             "active_profile_id": principal.judge_profile,
@@ -749,7 +750,8 @@ def create_app(
     async def select_judge_profile(
         body: JudgeProfileBody, principal: Principal = Depends(get_judge_principal)
     ) -> dict[str, Any]:
-        assert judge_sessions is not None
+        if judge_sessions is None:
+            raise HTTPException(404, "Judge profiles unavailable")
         token, selected = judge_sessions.select(principal, body.profile_id)
         return {
             "access_token": token,
@@ -1042,6 +1044,20 @@ def create_app(
         principal: Principal,
         inferred: NluResult | None,
     ) -> dict[str, Any]:
+        """Process the scoped conversation in this precedence order.
+
+        State / input                 -> transition or response
+        Any / cross-customer request  -> refuse; invalidate pending decisions
+        Terminal handoff              -> repeat the owned handoff
+        Pending proposal              -> cancel, replace, or require /confirm
+        Any / injection, risk, language, status -> guards or verified status
+        Pending recognition offer     -> cancel, recognize/deny, clarify, retarget
+        Pending transaction choices   -> select; bounded clarification/handoff
+        New or collecting details     -> NLU/MATCH; clarify, choose, or policy
+
+        Guards precede selection. Policy may explain, offer recognition, propose
+        a dispute or hand off; writes use separate confirmation and readback.
+        """
         conversation: Conversation | None = app.state.conversations.get(conversation_id)
         if conversation is None or conversation.session_id != principal.session_id:
             raise HTTPException(status_code=404, detail="Conversation not found")
@@ -1294,7 +1310,8 @@ def create_app(
                 recognition = "denied"
             if not changed and recognition in {"recognized", "denied"}:
                 handle = conversation.offer_handle
-                assert handle is not None
+                if handle is None:
+                    raise HTTPException(503, "Dispute offer context unavailable")
                 conversation.offer_handle = None
                 conversation.unfamiliar_charge = False
                 conversation.recognition_rounds = 0
