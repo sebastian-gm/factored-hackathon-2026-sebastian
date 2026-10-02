@@ -993,6 +993,47 @@
             "title": "Bank Clock",
             "type": "string"
           },
+          "demo_stories": {
+            "anyOf": [
+              {
+                "items": {
+                  "enum": [
+                    "explain",
+                    "ambiguous",
+                    "fraud"
+                  ],
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Demo Stories"
+          },
+          "judge_profile_id": {
+            "anyOf": [
+              {
+                "enum": [
+                  "mx-es",
+                  "co-es",
+                  "ar-es",
+                  "pt"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Judge Profile Id"
+          },
+          "judge_profiles_enabled": {
+            "default": false,
+            "title": "Judge Profiles Enabled",
+            "type": "boolean"
+          },
           "language": {
             "enum": [
               "es",
@@ -1010,6 +1051,11 @@
             ],
             "title": "Locale",
             "type": "string"
+          },
+          "profile_selection_required": {
+            "default": false,
+            "title": "Profile Selection Required",
+            "type": "boolean"
           },
           "role": {
             "enum": [
@@ -1033,6 +1079,161 @@
           "bank_clock"
         ],
         "title": "IdentityView",
+        "type": "object"
+      },
+      "JudgeProfileBody": {
+        "additionalProperties": false,
+        "properties": {
+          "profile_id": {
+            "enum": [
+              "mx-es",
+              "co-es",
+              "ar-es",
+              "pt"
+            ],
+            "title": "Profile Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "profile_id"
+        ],
+        "title": "JudgeProfileBody",
+        "type": "object"
+      },
+      "JudgeProfileView": {
+        "additionalProperties": false,
+        "properties": {
+          "demo_stories": {
+            "items": {
+              "enum": [
+                "explain",
+                "ambiguous",
+                "fraud"
+              ],
+              "type": "string"
+            },
+            "title": "Demo Stories",
+            "type": "array"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "language": {
+            "enum": [
+              "es",
+              "pt"
+            ],
+            "title": "Language",
+            "type": "string"
+          },
+          "locale": {
+            "enum": [
+              "es-MX",
+              "es-CO",
+              "es-AR",
+              "pt-BR"
+            ],
+            "title": "Locale",
+            "type": "string"
+          },
+          "profile_id": {
+            "enum": [
+              "mx-es",
+              "co-es",
+              "ar-es",
+              "pt"
+            ],
+            "title": "Profile Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "profile_id",
+          "label",
+          "locale",
+          "language",
+          "demo_stories"
+        ],
+        "title": "JudgeProfileView",
+        "type": "object"
+      },
+      "JudgeProfilesView": {
+        "additionalProperties": false,
+        "properties": {
+          "active_profile_id": {
+            "anyOf": [
+              {
+                "enum": [
+                  "mx-es",
+                  "co-es",
+                  "ar-es",
+                  "pt"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Active Profile Id"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "title": "Expires At",
+            "type": "string"
+          },
+          "profiles": {
+            "items": {
+              "$ref": "#/components/schemas/JudgeProfileView"
+            },
+            "title": "Profiles",
+            "type": "array"
+          }
+        },
+        "required": [
+          "profiles",
+          "active_profile_id",
+          "expires_at"
+        ],
+        "title": "JudgeProfilesView",
+        "type": "object"
+      },
+      "JudgeSelectionView": {
+        "additionalProperties": false,
+        "properties": {
+          "access_token": {
+            "title": "Access Token",
+            "type": "string"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "title": "Expires At",
+            "type": "string"
+          },
+          "identity": {
+            "$ref": "#/components/schemas/IdentityView"
+          },
+          "token_type": {
+            "const": "bearer",
+            "title": "Token Type",
+            "type": "string"
+          },
+          "verified": {
+            "const": true,
+            "title": "Verified",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "access_token",
+          "token_type",
+          "verified",
+          "identity",
+          "expires_at"
+        ],
+        "title": "JudgeSelectionView",
         "type": "object"
       },
       "LlmMetadata": {
@@ -2344,6 +2545,108 @@
           }
         },
         "summary": "Simulated Sms"
+      }
+    },
+    "/auth/judge/profile": {
+      "post": {
+        "operationId": "select_judge_profile_auth_judge_profile_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JudgeProfileBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JudgeSelectionView"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Select Judge Profile"
+      }
+    },
+    "/auth/judge/profiles": {
+      "get": {
+        "operationId": "judge_profiles_auth_judge_profiles_get",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JudgeProfilesView"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Judge Profiles"
       }
     },
     "/auth/login": {

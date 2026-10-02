@@ -16,6 +16,10 @@ class IdentityView(InterfaceModel):
     role: Literal["customer", "agent", "ops"]
     locale: Literal["es-MX", "es-CO", "es-AR", "pt-BR"]
     bank_clock: datetime
+    judge_profiles_enabled: bool = False
+    judge_profile_id: Literal["mx-es", "co-es", "ar-es", "pt"] | None = None
+    profile_selection_required: bool = False
+    demo_stories: list[Literal["explain", "ambiguous", "fraud"]] | None = None
 
 
 class PersonaView(InterfaceModel):

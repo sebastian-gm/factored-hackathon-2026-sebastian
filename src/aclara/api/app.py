@@ -45,7 +45,15 @@ from aclara.agent.nlu.structured import understand as deterministic_understand
 from aclara.agent.runtime import InjectedFailure, Runtime
 from aclara.agent.selection import candidates as identified_candidates
 from aclara.agent.selection import explicit_choice, scoped_inquiry_language, uncertain
-from aclara.api.judge_access import judge_alias
+from aclara.api.auth_models import Principal
+from aclara.api.judge_access import judge_configuration
+from aclara.api.judge_sessions import (
+    JudgeProfilesView,
+    JudgeSelectionView,
+    JudgeSessions,
+    ProfileId,
+    realm,
+)
 from aclara.api.staff import complete_packet, install_staff, verify_handoff_commit
 from aclara.api.staff_contracts import IdentityView
 from aclara.api.workflows import (
@@ -73,20 +81,6 @@ from aclara.policy.engine import PolicyDecision, evaluate
 from aclara.policy.rules import catalog, rule
 from aclara.policy.rules.guards import cross_customer, escalations, injection, unsupported_language
 from aclara.settings import Settings
-
-
-@dataclass(frozen=True, slots=True)
-class Principal:
-    session_id: str
-    run_id: str
-    customer_id: str
-    username: str
-    otp_at: datetime
-    expires_at: datetime
-    step_up_at: datetime | None = None
-    capability_digest: str = ""
-    role: str = "customer"
-    locale: str = "es-MX"
 
 
 @dataclass(slots=True)
@@ -163,6 +157,10 @@ class OtpBody(StrictModel):
 
 class MessageBody(StrictModel):
     message: str = Field(min_length=1, max_length=1000)
+
+
+class JudgeProfileBody(StrictModel):
+    profile_id: ProfileId
 
 
 class ConfirmBody(StrictModel):
@@ -373,29 +371,44 @@ def create_app(
         )
         if p.username
     }
-    judge = judge_alias(active_settings, app.state.personas)
+    judge_config = judge_configuration(active_settings, app.state.personas)
+    judge = judge_config.alias if judge_config else None
     if judge is not None:
         app.state.personas[judge.username] = judge
     app.state.demo_stories = demo_story_mappings(
         ledger, app.state.personas, active_settings.bank_clock
     )
-    if judge is not None:
-        source_username = json.loads(active_settings.judge_persona)["source_username"]
-        app.state.demo_stories[judge.username] = list(
+    if judge_config is not None:
+        source_username = judge_config.source_username
+        app.state.demo_stories[judge_config.alias.username] = list(
             app.state.demo_stories.get(source_username, [])
         )
     realms = {
         hashlib.sha256(p.username.encode()).hexdigest()[:12]: p.customer_id
         for p in app.state.personas.values()
     }
+    judge_realms = (
+        {
+            realm(judge_config.alias.username): judge_config.alias.customer_id,
+            **{
+                realm(judge_config.alias.username + ":" + key): p.customer_id
+                for key, p in judge_config.profiles.items()
+            },
+        }
+        if judge_config and judge_config.profiles
+        else {}
+    )
+    realms.update(judge_realms)
 
     def auth_customer(run_id: str) -> str:
+        identity_realm, separator, _ = run_id.partition("_")
+        if separator and identity_realm in judge_realms:
+            return judge_realms[identity_realm]
         if not isinstance(ledger, ServingRepository):
             return active_settings.demo_customer_id
-        realm, separator, _ = run_id.partition("_")
-        if not separator or realm not in realms:
+        if not separator or identity_realm not in realms:
             raise KeyError("Unknown identity realm")
-        return str(realms[realm])
+        return str(realms[identity_realm])
 
     app.state.store = operational
     app.state.agent_directory = (
@@ -410,6 +423,12 @@ def create_app(
     app.state.sessions = operational.mapping(
         "sessions", Principal, auth_scope=auth_scope, auth_customer=auth_customer
     )
+    judge_sessions = (
+        JudgeSessions(operational, app.state.sessions, judge_config, app.state.dataset_version)
+        if judge_config and judge_config.profiles
+        else None
+    )
+    app.state.judge_sessions = judge_sessions
     app.state.conversations = operational.mapping("conversations", Conversation)
     app.state.cases = operational.mapping("cases", dict[str, Any])
     app.state.handoffs = operational.mapping("handoffs", dict[str, Any])
@@ -489,13 +508,37 @@ def create_app(
         if principal is None or principal.expires_at <= now:
             app.state.sessions.pop(token, None)
             raise HTTPException(status_code=401, detail="Session expired")
-        return replace(principal, capability_digest=hashlib.sha256(token.encode()).hexdigest())
+        principal = replace(principal, capability_digest=hashlib.sha256(token.encode()).hexdigest())
+        if principal.judge_reference is not None:
+            if judge_sessions is None:
+                raise HTTPException(401, "Judge session unavailable")
+            judge_sessions.validate(principal)
+        return principal
 
-    async def get_principal(authorization: str | None = Header(default=None)) -> Principal:
+    async def get_authenticated_principal(
+        authorization: str | None = Header(default=None),
+    ) -> Principal:
         scheme, _, token = (authorization or "").partition(" ")
         if scheme.lower() != "bearer" or not token:
             raise HTTPException(status_code=401, detail="Authentication required")
         return principal_from_token(token)
+
+    async def get_principal(
+        principal: Principal = Depends(get_authenticated_principal),
+    ) -> Principal:
+        if principal.judge_reference is not None and principal.judge_profile is None:
+            raise HTTPException(403, "Judge profile selection required")
+        return principal
+
+    async def get_judge_principal(
+        authorization: str | None = Header(default=None),
+    ) -> Principal:
+        if judge_sessions is None:
+            raise HTTPException(404, "Judge profiles unavailable")
+        principal = await get_authenticated_principal(authorization)
+        if principal.judge_reference is None:
+            raise HTTPException(403, "Judge account required")
+        return principal
 
     @app.get("/healthz")
     async def healthz() -> dict[str, str]:
@@ -538,8 +581,10 @@ def create_app(
             raise HTTPException(status_code=401, detail="Invalid login")
         session_id = secrets.token_urlsafe(18)
         run_id = app.state.runtime.run_id
-        if isinstance(ledger, ServingRepository):
-            run_id = hashlib.sha256(body.username.encode()).hexdigest()[:12] + "_" + run_id
+        if isinstance(ledger, ServingRepository) or (
+            judge_sessions and body.username == judge_sessions.configuration.alias.username
+        ):
+            run_id = realm(body.username) + "_" + run_id
         challenge_id = f"{run_id}.{session_id}.{secrets.token_urlsafe(18)}"
         preauth_token = secrets.token_urlsafe(24)
         app.state.challenges[challenge_id] = OtpChallenge(
@@ -611,7 +656,7 @@ def create_app(
         if persona is None or persona.customer_id != auth_customer(run_id):
             raise HTTPException(401, "Identity unavailable")
         session_token = f"{run_id}.{session_id}.{secrets.token_urlsafe(32)}"
-        app.state.sessions[session_token] = Principal(
+        principal = Principal(
             session_id=session_id,
             run_id=run_id,
             customer_id=persona.customer_id,
@@ -621,11 +666,18 @@ def create_app(
             otp_at=now,
             expires_at=now + timedelta(minutes=int(rule("AUTH-01").parameters["session_minutes"])),
         )
+        if judge_sessions and persona.username == judge_sessions.configuration.alias.username:
+            principal = judge_sessions.initialize(principal, session_token)
+        app.state.sessions[session_token] = principal
         del app.state.challenges[body.challenge_id]
         return {"access_token": session_token, "token_type": "bearer"}
 
-    @app.get("/me", response_model=IdentityView)
-    async def me(principal: Principal = Depends(get_principal)) -> IdentityView:
+    def identity(principal: Principal) -> IdentityView:
+        profile = (
+            judge_sessions.configuration.profiles.get(principal.judge_profile or "")
+            if judge_sessions and principal.judge_reference
+            else None
+        )
         return IdentityView.model_validate(
             {
                 "username": principal.username,
@@ -633,8 +685,48 @@ def create_app(
                 "role": principal.role,
                 "locale": principal.locale,
                 "bank_clock": active_settings.bank_clock,
+                "judge_profiles_enabled": principal.judge_reference is not None,
+                "judge_profile_id": principal.judge_profile,
+                "profile_selection_required": principal.judge_reference is not None
+                and principal.judge_profile is None,
+                "demo_stories": app.state.demo_stories.get(profile.username, [])
+                if profile
+                else None,
             }
         )
+
+    @app.get("/me", response_model=IdentityView, response_model_exclude_defaults=True)
+    async def me(principal: Principal = Depends(get_authenticated_principal)) -> IdentityView:
+        return identity(principal)
+
+    @app.get("/auth/judge/profiles", response_model=JudgeProfilesView)
+    async def judge_profiles(
+        principal: Principal = Depends(get_judge_principal),
+    ) -> dict[str, Any]:
+        assert judge_sessions is not None
+        return {
+            "profiles": judge_sessions.views(app.state.demo_stories),
+            "active_profile_id": principal.judge_profile,
+            "expires_at": principal.expires_at.isoformat(),
+        }
+
+    @app.post(
+        "/auth/judge/profile",
+        response_model=JudgeSelectionView,
+        response_model_exclude_defaults=True,
+    )
+    async def select_judge_profile(
+        body: JudgeProfileBody, principal: Principal = Depends(get_judge_principal)
+    ) -> dict[str, Any]:
+        assert judge_sessions is not None
+        token, selected = judge_sessions.select(principal, body.profile_id)
+        return {
+            "access_token": token,
+            "token_type": "bearer",
+            "verified": True,
+            "identity": identity(selected).model_dump(mode="json", exclude_defaults=True),
+            "expires_at": selected.expires_at.isoformat(),
+        }
 
     @app.get("/transactions")
     async def list_transactions(
@@ -1466,7 +1558,7 @@ def create_app(
             }
 
     install_workflows(app, get_principal)
-    install_staff(app, get_principal)
+    install_staff(app, get_principal, get_authenticated_principal)
     return app
 
 
