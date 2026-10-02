@@ -18,8 +18,8 @@ through **October 16 inclusive**. Proposed closure: **October 17, 00:00 COT =
 | Gate | Explicit Sebastian OK / scope |
 | --- | --- |
 | A — warm | **Required:** date/window, both apps min=1, exact plan and monthly estimate; separately approve an estimate above $40 |
-| B — judge | **Required:** public web HTTPS, separate account/four reviewed sources, secret creation/rotation, two secret-scoped role assignments, global $3/UTC-day model exposure and external access check |
-| C — final release | **Standing OK already granted:** CI-green main image-tag updates and approved smoke binding within the $12 cumulative ceiling. Record the final picker/redesign SHA; no repeat permission needed within that scope. Additional spend/resource/access changes require a new OK |
+| B — judge | **Required:** public web HTTPS, separate account/four reviewed sources, secret creation/rotation, two secret-scoped role assignments, proposed shared $1/UTC-day cap with a cumulative judging limit, and external access check |
+| C — final release | **Standing OK already granted:** CI-green main image-tag updates and approved smoke binding. Sebastian approved +$3 on October 2: **$15 cumulative including reserves**, for the final smoke and judging window. Record the final SHA; additional resource/access changes still require a new OK |
 | D — public repo | **Required:** exact original-repo release SHA, full-history/PR/Actions audit and `sebastian-gm/factored-hackathon-2026-sebastian` only. It stays private until this gate |
 | E — send | Sebastian approves the completed email, attachments/links and private credential delivery; the operator does not send on a draft's authority |
 | F — retirement | **Required:** exact closure time, scale-down versus irreversible deletion, backup retention/destination and any extra availability/model allowance |
@@ -180,13 +180,34 @@ Re-fetch prices October 4. Public web adds request/log/egress exposure and secre
 operations, not a dedicated compute SKU; these allowances are not hard Azure caps.
 Azure's CAD billing alerts approximate USD 30/50 and notify rather than stop spend.
 
-The global model breaker is **$3 per UTC day**, shared across owner and all judge
-profiles/retries/Jev calls. Oct 4 05:00 UTC through Oct 17 05:00 UTC intersects
-**14 UTC budget dates**, so conservative model exposure is **$42**, even though
-the COT window is 13 days. Approve this **separate demo availability allowance**;
-the $12 evaluation/development/release ceiling is not a $42 authorization.
-Rough combined window maximum: $46.08 infra + $42 models = **$88.08**, before
-tax/grants and traffic beyond the stated margins. No monthly hard cloud cap exists.
+### Proposed judging model cap — OFF pending Gate B
+
+Sebastian approved **$15 cumulative LLM exposure including reserves** on October 2;
+see the [approval ledger](../status/model-budget-ledger.md). Last verified
+conservative exposure is **$11.97937448**, leaving **$3.02062552**. Earmark at most
+**$0.10** for a fresh final-release smoke and propose **$2.92 lifetime** for judging:
+**$11.97937448 + $0.10 + $2.92 = $14.99937448 ≤ $15**. Refresh this arithmetic
+before preparation; never treat unknown reserves as available money.
+
+Propose **$1 per UTC day**, shared across all profiles/workers/retries/providers,
+bounded also by the remaining cumulative allowance and the production key's own
+limit. Keep the key limit as an independent hard stop; no top-up/limit increase
+or alternate-provider retry on exhaustion. Read free account/key metadata before
+and after smoke, without printing keys. Unspent reserves and disabled scopes
+are not reset. Stop paid calls at whichever bound is reached first and degrade
+deterministically; the service may remain available through October 16.
+
+The window intersects **14 UTC dates**; $1/day therefore does **not** authorize
+$14 in judging calls. Approximate conservative upper allocation is $46.08
+infrastructure + $2.92 judging models = **$49.00**, before tax/grants and traffic
+beyond stated margins; infrastructure still needs its separate cost approval.
+
+**Activation prerequisite:** review and test the $1 daily configuration plus a
+durable judging lifetime binding before Gate B. The existing Terraform/readback
+snippets below describe today's $3/day configuration and empty judge run binding;
+they cannot enforce this proposal. Do not execute judge activation until those
+snippets and controls are updated on green CI and the exact plan is approved.
+No live cap, replica or access change is made by this proposal.
 
 Refresh rates without model spend:
 
@@ -253,7 +274,7 @@ pass, three model paths pass, three browser surfaces pass, outside-owner web
 **403** and API **404**, known smoke cost/exposure **≤$0.10**, zero unknown costs.
 Typical previous three-path smoke cost was under $0.01; this is an estimate, not
 permission for more than the approved $0.10 lifetime purse. The budget setup may
-refuse the conservative $12 calculation; stop, do not reset caps/reservations or
+refuse the conservative $15 calculation; stop, do not reset caps/reservations or
 change run IDs to retry. A completed v4 needs no new final-program start.
 
 `azure_smoke` is mock-only and restarts a replica: **do not run it on a real-
@@ -333,9 +354,9 @@ with psycopg.connect(connection_string('aclara_admin')) as db:
     total=db.execute('SELECT coalesce(sum(charged_usd),0) FROM llm.reservations').fetchone()[0]
     v4=db.execute("SELECT coalesce(sum(charged_usd),0) FROM llm.reservations WHERE scope='final-evaluation-v4'").fetchone()[0]
 extra=total-v4-Decimal(str(budget['all_prior_charged_with_reserves_usd']))
-assert extra>=0 and total<=12
+assert extra>=0 and total<=15
 maximum=Decimal(str(budget['conservative_maximum_cumulative_usd']))+extra
-assert maximum<=12
+assert maximum<=15
 runs=json.loads(subprocess.check_output(['gh','api',
     'repos/sebastian-gm/factored-hackathon-2026-sebastian/actions/runs?head_sha='+sha+'&per_page=50']))['workflow_runs']
 checks={}
@@ -403,7 +424,9 @@ min=0/max=1. Actual replicas may stay active until idle; this is not a stop comm
 ## 2. Enable the judge entry and verify public access
 
 **Gate B:** approve exact four source profiles, account, public web, role grants,
-$3/day exposure/window, external check and any private credential delivery.
+the proposed $1/UTC-day plus cumulative judging exposure/window, external check
+and any private credential delivery. The budget activation prerequisite above
+must be satisfied before executing the remaining commands in this section.
 No owner/provider/database password is given to judges. API stays internal.
 
 Privately create `$RB_OUT/judge-definition.json` with exactly `username` and
