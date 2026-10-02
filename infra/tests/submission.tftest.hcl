@@ -138,3 +138,40 @@ run "judge_rejects_sha_bound_smoke" {
   }
   expect_failures = [var.enable_judge_access]
 }
+
+run "burst_scale_off_by_default" {
+  command = plan
+  assert {
+    condition     = azurerm_container_app.api[0].template[0].max_replicas == 1 && length(azurerm_container_app.api[0].template[0].http_scale_rule) == 0
+    error_message = "Testing must preserve max 1 and no custom scaling rule."
+  }
+}
+
+run "burst_scale_plan_only" {
+  command = plan
+  variables {
+    enable_submission_warm  = true
+    enable_submission_scale = true
+    min_replicas            = 1
+  }
+  assert {
+    condition     = azurerm_container_app.api[0].template[0].min_replicas == 1 && azurerm_container_app.api[0].template[0].max_replicas == 3 && azurerm_container_app.web[0].template[0].min_replicas == 1 && azurerm_container_app.web[0].template[0].max_replicas == 1
+    error_message = "Gate A warms both apps; only the API has three-replica burst capacity."
+  }
+  assert {
+    condition     = one(azurerm_container_app.api[0].template[0].http_scale_rule).concurrent_requests == "5" && !azurerm_container_app.api[0].ingress[0].external_enabled && length(azurerm_container_app.web[0].ingress[0].ip_security_restriction) == 1
+    error_message = "HTTP scaling must retain internal API and owner-IP web."
+  }
+  assert {
+    condition     = azurerm_container_app.api[0].template[0].container[0].cpu == 0.25 && azurerm_container_app.api[0].template[0].container[0].memory == "0.5Gi"
+    error_message = "Gate A does not resize compute."
+  }
+}
+
+run "burst_scale_requires_warm" {
+  command = plan
+  variables {
+    enable_submission_scale = true
+  }
+  expect_failures = [var.enable_submission_scale]
+}

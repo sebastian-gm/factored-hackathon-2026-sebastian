@@ -54,7 +54,14 @@ resource "azurerm_container_app" "api" {
   }
   template {
     min_replicas = var.min_replicas
-    max_replicas = 1
+    max_replicas = var.enable_submission_scale ? 3 : 1
+    dynamic "http_scale_rule" {
+      for_each = var.enable_submission_scale ? ["submission-http"] : []
+      content {
+        name                = http_scale_rule.value
+        concurrent_requests = "5"
+      }
+    }
     container {
       name   = "api"
       image  = "${azurerm_container_registry.images.login_server}/aclara-api:${var.image_tag}"
