@@ -1,6 +1,6 @@
-# Language-layer model card
-
 > **superseded by v4 (2026-10-01)** — Earlier evaluation/release claims on this page are historical; use the [current summary](../../README.md) and [official v4 results](../evaluation/final-v4-results.md). [Post-v4 fixes](../evaluation/post-v4-release-notes.md) are **not reflected in v4 numbers**.
+
+# Language-layer model card
 
 Status: **post-v3 development candidate**, including AI PRs [#65](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/pull/65) and [#66](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/pull/66). This card describes their behavior; it does not attest to a deployed release. The official v3 result remains pinned to `e12efc73be64f8355aa9f177f08a04337593616c`. V3 has since become dev data; v4 remains unopened and unrun by this lane. [Official v3 report](../evaluation/final-v3-results.md), [post-v3 development analysis](../evaluation/post-v3-fixes.md).
 

@@ -100,6 +100,55 @@
 - Continue from docs/status/progress-log.md. Next layer: frontend picker/redesign
   and submission-day approvals. Same rules.
 
+## 2026-10-02 UTC — frontend merges and one v4 narrative
+
+### Completed (verified)
+
+- PR **#104** merged after all four remote gates passed, at
+  **b938c0a12acb906fe04bfd9b1e7c9dee5a93ac72**. PR **#105** was rebased onto
+  that main revision; a history-preserving merge retained its published ancestry
+  for a normal fast-forward push, with no force-push. A tree comparison confirmed
+  that the updated head has identical product files to the prior green picker head.
+- PR #105's fresh CI initially passed checks/Postgres/invariants but timed out
+  clicking the PT login OTP button (136/137 fixtures passed). The exact isolated
+  test passed **3/3** consecutive local fixture runs; only the failed browser job
+  was retried. All four fresh remote gates then passed; PR #105 merged at
+  **7ff7d2a8c3014fdd7b1fe9145c3e11397c1b6054**.
+- Implemented handoff 15 item 9 in Markdown only: README leads with completed
+  v4, both SAR denominators, exact and rounded model cost per evaluated case and
+  allocated cost per safe automated resolution, three limits, Jev's role, PT
+  provenance and one sourced sentence explaining the two unauthorized-action flags.
+  Official failures remain unchanged; post-v4 fixes are not reflected in v4 numbers.
+- Added superseded-by-v4 banners to all six requested historical pages and the
+  stale language card/serving guide linked from the README. Matcher v2's earlier
+  v1-default instruction is superseded; the projection retains its original v3
+  assumptions. The checklist points to complete v4 and owner-only release/access gates.
+- Local source/arithmetic, relative-link, heading-target and Markdown-only checks
+  passed. Strict mypy and staged data/secret/large-file hooks passed. No per-case IDs
+  or organizer values added; no model calls, frozen-suite execution, rescoring or
+  product changes. Model/cloud spend **$0**; CI uses the existing owner-approved cap.
+
+- Docs PR **#109** initially passed all four remote gates at 74eb7a5. Main
+  advanced during CI; GitHub rejected the merge for conflicts. Preserved the
+  repository-transition URLs, language-card banner and both session histories.
+  The updated 7d12154 head also passed all four remote gates, but a concurrent
+  AI-lane log append caused a second conflict. Kept both entries and placed this
+  record beside the earlier profile-backend section to avoid shared top/end
+  insertions. The resulting head requires fresh CI; no force-push or held-out rerun.
+
+### Done but not verified
+
+- At entry creation, the docs PR's remote CI and merge remain to be read back.
+- New design and judge picker have local/browser and remote-CI evidence, but this
+  session does not deploy or attest to their live release. Judge access stays OFF.
+
+### Next / blocked
+
+- Open one docs-only PR onto updated main and merge only after all remote gates
+  pass, under Sebastian's standing authorization; retain the CI/merge readback.
+- Lead owns the next release and owner-approved judge-access activation. Keep
+  official v4 evidence fixed; no held-out rerun or new acceptance score is claimed.
+
 ## 2026-10-02 UTC — one judge login, scoped profile backend
 
 ### Completed (verified)
@@ -3813,48 +3862,54 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
 - Lead releases the post-v4 image after the batch. Human v4 CSV export remains
   pending separately; no human agreement has been invented.
 
-## 2026-10-02 UTC — frontend merges and one v4 narrative
+## 2026-10-01 — AI external-audit fixes, items 2 and 3
 
 ### Completed (verified)
 
-- PR **#104** merged after all four remote gates passed, at
-  **b938c0a12acb906fe04bfd9b1e7c9dee5a93ac72**. PR **#105** was rebased onto
-  that main revision; a history-preserving merge retained its published ancestry
-  for a normal fast-forward push, with no force-push. A tree comparison confirmed
-  that the updated head has identical product files to the prior green picker head.
-- PR #105's fresh CI initially passed checks/Postgres/invariants but timed out
-  clicking the PT login OTP button (136/137 fixtures passed). The exact isolated
-  test passed **3/3** consecutive local fixture runs; only the failed browser job
-  was retried. All four fresh remote gates then passed; PR #105 merged at
-  **7ff7d2a8c3014fdd7b1fe9145c3e11397c1b6054**.
-- Implemented handoff 15 item 9 in Markdown only: README leads with completed
-  v4, both SAR denominators, exact and rounded model cost per evaluated case and
-  allocated cost per safe automated resolution, three limits, Jev's role, PT
-  provenance and one sourced sentence explaining the two unauthorized-action flags.
-  Official failures remain unchanged; post-v4 fixes are not reflected in v4 numbers.
-- Added superseded-by-v4 banners to all six requested historical pages and the
-  stale language card/serving guide linked from the README. Matcher v2's earlier
-  v1-default instruction is superseded; the projection retains its original v3
-  assumptions. The checklist points to complete v4 and owner-only release/access gates.
-- Local source/arithmetic, relative-link, heading-target and Markdown-only checks
-  passed. Strict mypy and staged data/secret/large-file hooks passed. No per-case IDs
-  or organizer values added; no model calls, frozen-suite execution, rescoring or
-  product changes. Model/cloud spend **$0**; CI uses the existing owner-approved cap.
-
-- Docs PR **#109** initially passed all four remote gates at 74eb7a5. Main
-  advanced during CI; GitHub rejected the merge for conflicts. Preserved the
-  repository-transition URLs, language-card banner and both session histories.
-  The updated head requires fresh CI; no force-push or held-out rerun.
+- Authored six API-boundary regressions before the fix; all six reproduced the
+  audit failures. Exhausted and already-disabled gates now answer HTTP 200 with
+  localized ES/PT degraded copy and deterministic rules; denied reservations
+  produce no provider call, retry, fallback or fabricated action receipt.
+- Runtime budget denial degrades at the primary or optional typed-risk reserve
+  boundary. Existing paid-study hard-stop wrappers remain hard stops. An already
+  started second opinion is settled without promoting its flags when the
+  primary budget is denied; uncertain settlement retains the reservation.
+- NLU receives country from the authenticated customer's scoped ledger snapshot
+  on each request, including the security confirmation and recognition path.
+  The shared runtime is never mutated; model country/dialect suggestions cannot
+  override this context. Real ASGI mock tests verify CO `2 palos` = 2,000,000 COP
+  and AR `4 lucas` = 4,000 ARS while runtime and model hints say MX.
+- Focused API, integration and guard regressions passed, as did mocked typed-risk
+  budget checks. These are **post-v4 fixes, not reflected in v4 numbers**.
+  Mock providers only; zero provider spend, no official suite rerun/rescore.
 
 ### Done but not verified
 
-- At entry creation, the docs PR's remote CI and merge remain to be read back.
-- New design and judge picker have local/browser and remote-CI evidence, but this
-  session does not deploy or attest to their live release. Judge access stays OFF.
+- Full mock suite: 1015 passed, 25 database-dependent skips; four additional
+  typed-reserve API variants passed afterward (ten focused API cases total).
+  Ruff and strict mypy on 95 source files passed. Required remote CI and merge
+  for this second PR remain pending.
+- Minimal additive shared `api/app.py` wiring is authorized by handoff 15.
+  No persona, identity, NluFrame or frozen interface contract changed.
 
 ### Next / blocked
 
-- Open one docs-only PR onto updated main and merge only after all remote gates
-  pass, under Sebastian's standing authorization; retain the CI/merge readback.
-- Lead owns the next release and owner-approved judge-access activation. Keep
-  official v4 evidence fixed; no held-out rerun or new acceptance score is claimed.
+- PR #107 merged at `3604ee5` after checks/web/Postgres/invariants passed.
+  PR #110 contains items 2+3 and the subsequent punctuated-ID correction;
+  require all green CI before merging under standing OK.
+- Complete approved item 10 afterward: verify saved v4 risk-union records and
+  disable live Jev behind its flag with an evidence-linked ADR. Lead releases
+  the image after the batch. Human v4 validation still awaits the scored export.
+
+### Additional verified review correction — punctuated identifiers
+
+- Lead reproduced six third-party-access misses with dotted/dashed CPF, DNI,
+  cédula and RUT identifiers; authored all six plus six benign self-ID and
+  separate-sentence controls before changing the guard. All six misses failed
+  as expected before the fix.
+- Normalize dots only inside a bounded typed identifier before clause splitting.
+  Preserve sentence boundaries and self-ID exemptions, including RUT check
+  digits. Forty benign controls and eighteen actual attacks now run through the
+  unit/API refusal and P-confirmation contracts. No customer data or paid calls.
+- This follow-up is in #110 because #107 had already merged. Remote CI on the new
+  head is required; no Azure release or official-v4 metric change is claimed.

@@ -36,7 +36,7 @@ from aclara.llm.dev_latency import retry_analysis
 from aclara.llm.dev_prompt_study import StudyCase, comparison_sample, inventory_hash
 from aclara.llm.dev_robustness import DevBudgetStop, ThresholdGate, save, summarize
 from aclara.llm.dev_robustness_cases import ROOT
-from aclara.llm.types import BudgetFailure, CallRecord, ModelSpec
+from aclara.llm.types import CallRecord, ModelSpec
 
 SCOPE, RUN_ID, CAP = "dev-gate/model-compare", "model-compare", Decimal("1.50")
 OUTPUT = ROOT / "artifacts/dev-model-compare/paired"
@@ -154,10 +154,11 @@ def guard_attempt(record: CallRecord) -> None:
     """Stop after journaling one unknown bill, before any retry or fallback.
 
     Never replace unknown usage with zero or release its durable reservation.
-    BudgetFailure also lets the concurrent Jev result settle before NLU exits.
+    A study hard stop remains distinct from runtime budget degradation. NLU
+    settles any concurrent Jev result before propagating this stop.
     """
     if record.cost_usd is None and record.status != "skipped":
-        raise BudgetFailure("Unknown provider cost; stop comparison before more calls")
+        raise DevBudgetStop("Unknown provider cost; stop comparison before more calls")
     if record.stop_reason in {
         "http_401",
         "provider_401",  # credential/entitlement failures
@@ -168,7 +169,7 @@ def guard_attempt(record: CallRecord) -> None:
         "http_429",
         "provider_429",  # quota/rate limits: never burn comparison retries
     }:
-        raise BudgetFailure("Provider account, credit or quota failure; stop comparison")
+        raise DevBudgetStop("Provider account, credit or quota failure; stop comparison")
 
 
 def require_catalog() -> dict[str, Any]:
