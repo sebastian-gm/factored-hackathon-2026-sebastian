@@ -26,11 +26,13 @@ class PostgresSpendGate:
         self.store, self.scope, self.run_id = store, scope, run_id
 
     def reserve(self, amount_usd: float) -> str:
-        assert self.store.pool is not None
+        pool = self.store.pool
+        if pool is None:
+            raise BudgetFailure("Durable model budget unavailable")
         try:
             # Separate connection: commits before the external request, even when the
             # enclosing customer action later rolls back or the worker disappears.
-            with self.store.pool.connection() as connection:
+            with pool.connection() as connection:
                 row = connection.execute(
                     "SELECT llm.reserve(%s,%s,%s)",
                     (self.scope, self.run_id, _money(amount_usd)),
@@ -42,9 +44,11 @@ class PostgresSpendGate:
         return str(row[0])
 
     def settle(self, reservation: str, actual_usd: float | None) -> None:
-        assert self.store.pool is not None
+        pool = self.store.pool
+        if pool is None:
+            raise BudgetFailure("Durable model settlement unavailable; reserve retained")
         try:
-            with self.store.pool.connection() as connection:
+            with pool.connection() as connection:
                 row = connection.execute(
                     "SELECT llm.settle(%s,%s)",
                     (UUID(reservation), _money(actual_usd) if actual_usd is not None else None),

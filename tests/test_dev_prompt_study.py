@@ -10,6 +10,7 @@ from evals.studies.llm.dev_prompt_study import (
     comparison_sample,
     inputs,
     inventory_hash,
+    load_study_prompt,
 )
 from pydantic import BaseModel
 
@@ -36,7 +37,7 @@ def test_candidate_overrides_only_nlu_and_records_its_own_hash(
         {},
         mock_response=answer,
     )
-    candidate = load_prompt(Path("prompts/nlu/v5_2.md"))
+    candidate = load_study_prompt("v5.2")
     client.nlu_prompt = candidate
     client.generate("nlu", "production NLU", "message", Judgment, prompt_id="nlu@v5.1")
     client.generate("phrase", "approved phrase", "message", Judgment, prompt_id="phrase@v2")
@@ -45,6 +46,19 @@ def test_candidate_overrides_only_nlu_and_records_its_own_hash(
     assert client.records[0].prompt_id == "nlu@v5.2"
     assert client.records[1].prompt_id == "phrase@v2"
     assert load_prompt(Path("prompts/nlu/v5.md")).version == "v5.1"
+
+
+def test_archived_candidate_preserves_hash_and_live_prompt_selection() -> None:
+    assert not Path("prompts/nlu/v5_2.md").exists()
+    candidate = load_study_prompt("v5.2")
+    assert candidate.version == "v5.2"
+    assert (
+        candidate.content_hash == "2ab79a133cd93e2ab413fd278b84a461a9a7a7b8e46f2436fe596d2372c682d2"
+    )
+    active = load_study_prompt("v5.1")
+    assert active.version == "v5.1"
+    assert active.content_hash == "e40182de2f232932a12d61d722be5e6356d787217048378fbc2a84f330d241cc"
+    assert load_prompt(Path("prompts/phrase/v2.md")).version == "v2.1"
 
 
 def test_inventory_covers_all_five_sets_without_any_held_out_access(

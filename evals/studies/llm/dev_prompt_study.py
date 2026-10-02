@@ -71,6 +71,15 @@ class StudyCase:
     binding: dict[str, Any] | None = None
 
 
+def load_study_prompt(version: str) -> Prompt:
+    path = (
+        ROOT / "prompts/nlu/v5.md"
+        if version == "v5.1"
+        else ROOT / "evals/studies/prompts/nlu/v5_2.md"
+    )
+    return load_prompt(path)
+
+
 def inputs() -> list[StudyCase]:
     """Round-robin ordering gives every set coverage before a shared-budget stop."""
     validate()
@@ -167,7 +176,7 @@ async def run(version: str) -> dict[str, Any]:
         ["git", "-C", str(ROOT), "status", "--porcelain"], text=True
     ).strip():
         raise RuntimeError("Real study requires a clean committed tree")
-    prompt = load_prompt(ROOT / "prompts/nlu" / ("v5.md" if version == "v5.1" else "v5_2.md"))
+    prompt = load_study_prompt(version)
     output = ROOT / "artifacts/dev-pre-v4/lean" / version
     if output.exists():
         raise FileExistsError("Preserve previous paid evidence; no overwrite or implicit rerun")

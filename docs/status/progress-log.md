@@ -1,5 +1,56 @@
 # Progress log
 
+## 2026-10-02 — Approved cleanup merges and supplementary v4 analyses
+
+### Completed (verified)
+
+- Owner approved #124 and #126 merges. Read back #124's four green gates and
+  merged its exact head 7f4a964; private main merge is 2700d299.
+- Retargeted #126 to main and integrated 2700d299 without a source-tree change.
+  Its existing final mock evidence remains 1203 passed / 31 DB skips, B1 32/32.
+- Supplementary work is restricted to existing v4 artifacts and aggregates:
+  confidence/correctness calibration and family-clustered paired bootstrap.
+  No new model call, official rescore, release or cloud/key access is authorized.
+
+### Done but not verified
+
+- Fresh main-target #126 remote CI and merge pending. Saved-artifact analyses
+  and their separate documentation PR are not yet complete.
+
+### Next / blocked
+
+- Merge #126 only on its exact green head. Preserve all official v4 bytes;
+  report limitations of confidence labels and the family grouping explicitly.
+
+## 2026-10-02 — Prompt version index and unadopted candidate archive
+
+### Completed (verified)
+
+- Moved the unused v5.2 candidate to evals/studies/prompts/nlu/v5_2.md and
+  updated the development driver and evidence link. All nine original prompt
+  files retain their exact bytes and hashes; live NLU v5.1 and phrase v2.1 stay
+  selected by the same runtime paths.
+- Added prompts/README.md identifying live defaults, historical versions,
+  offline-only judging and the unadopted candidate. No route/default change.
+- Archive/import checks: 12 mock tests passed, including candidate hash,
+  runtime-prompt selection, offline CLI imports and fresh API isolation.
+  Final current-main mock checks: 1203 passed / 31 DB skips, strict mypy,
+  hooks, snapshots and B1 32/32. No paid calls, cloud/key access or held-out inputs.
+- Refreshed on #124's history-preserving main merge. Rebuilt the final wheel
+  offline: eight runtime LLM files, no studies/data. All prompt hashes unchanged.
+- Opened private-origin PR #124 (relocation) and stacked PR #126 (prompt index).
+  Exact #124 head 7f4a964 has checks, invariants, Postgres and web all SUCCESS.
+
+### Done but not verified
+
+- Lead review/merge pending. Stacked #126 intentionally has no remote CI under
+  the main-only trigger; require its own green gates after retargeting to main.
+
+### Next / blocked
+
+- Keep prompt cleanup stacked on #124 for a small review, then retarget to main
+  after the lead merges the relocation. Remote CI is required before main merge.
+
 ## 2026-10-02 — Offline language studies outside the runtime package
 
 ### Completed (verified)
@@ -35,6 +86,35 @@
 - Leave the relocation PR for lead review. Integrated merged #122/#123 while
   retaining their progress entries and refreshing new imports. Archive v5.2 and
   clearly identify live versus historical prompts in a separate small PR.
+
+## 2026-10-02 — Item 7 hygiene completion and conversation state table
+
+### Completed-verified
+
+- Checked all five item-7 points; [evidence and commands](../evaluation/item7-hygiene.md).
+  API image UID **10001** with networking disabled; fixture BFF config **200**,
+  **5 customer entries / 0 staff or judge identities**; live session **35 min**.
+- Replaced nine API/serving/accounting assertions with explicit errors. Authored
+  regressions cover unavailable judge controllers, lost ES/PT recognition targets,
+  absent serving connections, missing budget pools and rollback without writes.
+- Added the missing single JSON log after verified card-freeze responses, including
+  lost-response retries. Chat and dispute confirmation logs were already present;
+  integration coverage verifies one metadata-only line per completed turn.
+- Added a short state-table docstring at the top of `process_message`, with no
+  refactor. Local mock checks **1215 passed / 31 DB skips**, B1 **32/32**,
+  affected API checks **67 passed / 1 skip**, optimized hygiene checks **18 passed**.
+
+### Done-not-verified
+
+- These post-v4 fixes have local/mock evidence only; official v4 remains unchanged.
+  No new Azure release, real-model validation or production concurrency claim.
+
+### Next-blocked
+
+- Merge only on green remote CI. Measure five concurrent authenticated sessions
+  with a one-second mock NLU delay and document queued turn latency honestly.
+- No paid calls or Azure changes; a new paid release smoke requires Sebastian's
+  budget approval at the conservative **$11.97937448 / $12** maximum.
 
 ## 2026-10-02 — Lead review of the basic-mode reply contract (#123)
 
