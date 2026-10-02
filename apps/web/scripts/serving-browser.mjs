@@ -52,7 +52,7 @@ try {
   await page.getByText("Resuelto · Verificado").waitFor();
   stage = "ops";
   await page
-    .getByRole("button", { name: "Evidencia y operaciones", exact: true })
+    .getByRole("button", { name: "Operaciones", exact: true })
     .click();
   await page
     .getByRole("heading", { name: "Actividad de este espacio" })
