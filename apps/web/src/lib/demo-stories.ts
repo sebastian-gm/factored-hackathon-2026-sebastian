@@ -1,4 +1,10 @@
-import type { Config, Locale, Surface } from "./contracts";
+import type {
+  Config,
+  Locale,
+  Surface,
+  JudgeProfile,
+  ProfileId,
+} from "./contracts";
 // Authored fixtures only. Live persona bindings must come from the bank's trusted config.
 export const demoStories = [
   {
@@ -34,6 +40,23 @@ export const demoStories = [
   draft: string;
 }[];
 export type DemoStory = (typeof demoStories)[number];
+export function storyProfile(
+  profiles: JudgeProfile[],
+  story: DemoStory,
+  current?: ProfileId | null,
+) {
+  const eligible = profiles.filter(
+    (p) =>
+      p.demo_stories.includes(story.id) &&
+      p.language === (story.locale === "pt-BR" ? "pt" : "es"),
+  );
+  const preferred: ProfileId = story.id === "ambiguous" ? "pt" : "mx-es";
+  return (
+    eligible.find((p) => p.profile_id === preferred) ??
+    eligible.find((p) => p.profile_id === current) ??
+    eligible[0]
+  );
+}
 
 export function storyPersona(
   config: Config,

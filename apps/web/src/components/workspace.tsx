@@ -7,10 +7,28 @@ import {
   useEffect,
   useState,
   useSyncExternalStore,
+  useRef,
+  useCallback,
 } from "react";
 import { NextIntlClientProvider, useTranslations } from "next-intl";
 import { CircleHelp, ShieldCheck, LogOut } from "lucide-react";
-import type { Config, Locale, Session, Surface } from "@/lib/contracts";
+import type {
+  Config,
+  Locale,
+  Session,
+  Surface,
+  JudgeProfiles,
+  ProfileId,
+} from "@/lib/contracts";
+import { judgeProfilesSchema } from "@/lib/contracts";
+import {
+  retireWorkspace,
+  configureWorkspace,
+  listenProfileChanges,
+  notifyProfileChange,
+  SESSION_EVENT,
+} from "@/lib/profile-workspace";
+import { JudgeProfilePicker, profileTitle } from "./judge-profile-picker";
 import { api, ApiError } from "@/lib/client";
 import { date } from "@/lib/format";
 import { es, pt } from "@/lib/messages";
@@ -19,7 +37,12 @@ import { Login } from "./login";
 import { CustomerChat } from "./customer-chat";
 import { AgentDesk } from "./agent-desk";
 import { RecordingHelper } from "./recording-helper";
-import { storyPersona, storyDraft, type DemoStory } from "@/lib/demo-stories";
+import {
+  storyPersona,
+  storyDraft,
+  storyProfile,
+  type DemoStory,
+} from "@/lib/demo-stories";
 import { Ops } from "./ops";
 import { JudgeQuickstart } from "./judge-quickstart";
 import { Insights } from "./insights";
@@ -31,6 +54,15 @@ type AppContext = {
   session: Session | null;
   signedIn: () => Promise<void>;
   signOut: () => Promise<void>;
+  profiles: JudgeProfiles | null;
+  profileFlow: boolean;
+  pickerOpen: boolean;
+  profileBusy: boolean;
+  profileError: boolean;
+  preparedStory: DemoStory | null;
+  chooseProfile: (id: ProfileId, story?: DemoStory) => Promise<void>;
+  openProfiles: () => Promise<void>;
+  refreshProfiles: () => Promise<void>;
 };
 const Context = createContext<AppContext | null>(null);
 export function useApp() {
@@ -52,16 +84,191 @@ export default function Workspace({
   const [session, setSession] = useState<Session | null>(null);
   const [ready, setReady] = useState(false),
     [failed, setFailed] = useState(false);
+  const [revision, setRevision] = useState(0);
+  const [profiles, setProfiles] = useState<JudgeProfiles | null>(null);
+  const [profileFlow, setProfileFlow] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [profileBusy, setProfileBusy] = useState(false);
+  const [profileError, setProfileError] = useState(false);
+  const [preparedStory, setPreparedStory] = useState<DemoStory | null>(null);
+  const judgeMode = useRef(false);
+  const selectionLock = useRef(false);
+  const remoteChanging = useRef(false);
+  const pickerVisible = useRef(false);
+  const deadline = useRef<string | null>(null);
+  const configuredClock = useRef<string | null>(null);
+  const clearWorkspace = useCallback(() => {
+    retireWorkspace();
+    setRevision((n) => n + 1);
+    setSession(null);
+    setProfiles(null);
+    setPreparedStory(null);
+    setConfig((c) => ({ ...c, bankClock: null }));
+    // Do not store customer/profile state in history. Back cannot restore it.
+    if (window.location.pathname !== "/")
+      window.history.replaceState(null, "", "/" + window.location.search);
+  }, []);
+  const installSession = useCallback(async (current: Session | null) => {
+    const isJudge = current?.judge_profiles_enabled === true;
+    judgeMode.current = isJudge;
+    setProfileFlow(isJudge);
+    setProfileError(false);
+    if (isJudge) {
+      pickerVisible.current = true;
+      setPickerOpen(true);
+      setProfileBusy(true);
+      configureWorkspace(true, true);
+      const choices = judgeProfilesSchema.parse(
+        await api("auth/judge/profiles"),
+      );
+      setProfiles(choices);
+      deadline.current = choices.expires_at;
+    } else {
+      setProfiles(null);
+      deadline.current = null;
+    }
+    configureWorkspace(isJudge, current?.profile_selection_required === true);
+    setSession(current);
+    setPickerOpen(current?.profile_selection_required === true);
+    pickerVisible.current = current?.profile_selection_required === true;
+    setProfileBusy(false);
+    if (current?.locale) setLocale(current.locale);
+    setConfig((c) => ({
+      ...c,
+      bankClock: current?.bank_clock ?? configuredClock.current,
+    }));
+  }, []);
+  const recheckSession = useCallback(async () => {
+    try {
+      await installSession(await api<Session>("me"));
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") return;
+      configureWorkspace(false, true);
+      judgeMode.current = false;
+      setSession(null);
+      setProfiles(null);
+      setProfileFlow(false);
+      setProfileBusy(false);
+      setProfileError(true);
+    }
+  }, [installSession]);
   async function signedIn() {
     const current = await api<Session>("me");
-    setSession(current);
-    if (current.bank_clock)
-      setConfig((c) => ({ ...c, bankClock: current.bank_clock! }));
-    if (current.locale) setLocale(current.locale);
+    if (current.judge_profiles_enabled) {
+      judgeMode.current = true;
+      setProfileFlow(true);
+      clearWorkspace();
+      notifyProfileChange("changing");
+      try {
+        await installSession(current);
+      } catch (error) {
+        configureWorkspace(false, true);
+        judgeMode.current = false;
+        setProfileFlow(false);
+        setProfileBusy(false);
+        setProfileError(true);
+        throw error;
+      } finally {
+        notifyProfileChange("settled");
+      }
+    } else await installSession(current);
   }
   async function signOut() {
-    await api("auth/logout", {});
-    setSession(null);
+    const isJudge = judgeMode.current;
+    if (isJudge) {
+      clearWorkspace();
+      setProfileBusy(true);
+      notifyProfileChange("changing");
+    }
+    try {
+      await api("auth/logout", {});
+      if (!isJudge) {
+        retireWorkspace(false);
+        setSession(null);
+      }
+      judgeMode.current = false;
+      configureWorkspace(false, false);
+      setProfileFlow(false);
+      setProfileBusy(false);
+      setProfileError(false);
+    } catch (error) {
+      if (isJudge) {
+        configureWorkspace(false, true);
+        judgeMode.current = false;
+        setProfileFlow(false);
+        setProfileBusy(false);
+        setProfileError(true);
+      }
+      throw error;
+    } finally {
+      if (isJudge) notifyProfileChange("settled");
+    }
+  }
+  async function refreshProfiles() {
+    setProfileBusy(true);
+    setProfileError(false);
+    try {
+      const choices = judgeProfilesSchema.parse(
+        await api("auth/judge/profiles"),
+      );
+      setProfiles(choices);
+      deadline.current = choices.expires_at;
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 401)
+        await recheckSession();
+      else setProfileError(true);
+    } finally {
+      setProfileBusy(false);
+    }
+  }
+  async function openProfiles() {
+    pickerVisible.current = true;
+    clearWorkspace();
+    setPickerOpen(true);
+    setProfileError(false);
+    await refreshProfiles();
+  }
+  async function chooseProfile(id: ProfileId, story?: DemoStory) {
+    if (selectionLock.current) return;
+    selectionLock.current = true;
+    const select = async () => {
+      pickerVisible.current = true;
+      clearWorkspace();
+      setPickerOpen(true);
+      setProfileBusy(true);
+      setProfileError(false);
+      notifyProfileChange("changing");
+      try {
+        // Exactly one POST. The BFF rotates the cookie; JS receives no capability.
+        const result = await api<{
+          verified: true;
+          identity: Session;
+          expires_at: string;
+        }>("auth/judge/profile", { profile_id: id });
+        if (!result.verified || result.identity.judge_profile_id !== id)
+          throw new Error("Invalid selection");
+        await installSession(result.identity);
+        setPreparedStory(story ?? null);
+      } catch {
+        // Activation may have happened. Do not recover or replay an old write.
+        configureWorkspace(false, true);
+        judgeMode.current = false;
+        setSession(null);
+        setProfiles(null);
+        setProfileFlow(false);
+        setProfileBusy(false);
+        setProfileError(true);
+      } finally {
+        notifyProfileChange("settled");
+      }
+    };
+    try {
+      if (navigator.locks)
+        await navigator.locks.request("aclara-judge-profile-selection", select);
+      else await select();
+    } finally {
+      selectionLock.current = false;
+    }
   }
   useEffect(() => {
     document.documentElement.lang = locale;
@@ -75,22 +282,77 @@ export default function Workspace({
         throw error;
       }),
     ])
-      .then(([configuration, current]) => {
+      .then(async ([configuration, current]) => {
+        configuredClock.current = configuration.bankClock;
         setConfig({
           ...configuration,
           bankClock: current?.bank_clock ?? configuration.bankClock,
         });
-        setSession(current);
+        await installSession(current);
         setReady(true);
       })
-      .catch(() => {
-        if (!ctrl.signal.aborted) {
+      .catch((error: unknown) => {
+        if (
+          !ctrl.signal.aborted &&
+          !(error instanceof DOMException && error.name === "AbortError")
+        ) {
           setFailed(true);
           setReady(true);
         }
       });
-    return () => ctrl.abort();
-  }, []);
+    const expire = () => {
+      clearWorkspace();
+      judgeMode.current = false;
+      setProfileFlow(false);
+      setProfileBusy(false);
+      setProfileError(true);
+      notifyProfileChange("settled");
+    };
+    const unsubscribe = listenProfileChanges((kind) => {
+      remoteChanging.current = kind === "changing";
+      clearWorkspace();
+      setProfileBusy(true);
+      if (kind === "settled") void recheckSession();
+    });
+    const restore = () => {
+      if (
+        !judgeMode.current ||
+        selectionLock.current ||
+        remoteChanging.current ||
+        pickerVisible.current
+      )
+        return;
+      clearWorkspace();
+      setProfileBusy(true);
+      void recheckSession();
+    };
+    const visible = () => {
+      if (document.visibilityState === "visible") restore();
+    };
+    window.addEventListener(SESSION_EVENT, expire);
+    window.addEventListener("pageshow", restore);
+    window.addEventListener("popstate", restore);
+    document.addEventListener("visibilitychange", visible);
+    return () => {
+      ctrl.abort();
+      unsubscribe();
+      window.removeEventListener(SESSION_EVENT, expire);
+      window.removeEventListener("pageshow", restore);
+      window.removeEventListener("popstate", restore);
+      document.removeEventListener("visibilitychange", visible);
+    };
+  }, [clearWorkspace, installSession, recheckSession]);
+  useEffect(() => {
+    if (!profileFlow || !deadline.current) return;
+    const timer = window.setTimeout(
+      () => {
+        clearWorkspace();
+        void recheckSession();
+      },
+      Math.max(0, Date.parse(deadline.current) - Date.now()),
+    );
+    return () => clearTimeout(timer);
+  }, [profileFlow, profiles, clearWorkspace, recheckSession]);
   return (
     <NextIntlClientProvider
       locale={locale}
@@ -98,9 +360,30 @@ export default function Workspace({
       timeZone="UTC"
     >
       <Context.Provider
-        value={{ locale, setLocale, config, session, signedIn, signOut }}
+        value={{
+          locale,
+          setLocale,
+          config,
+          session,
+          signedIn,
+          signOut,
+          profiles,
+          profileFlow,
+          pickerOpen,
+          profileBusy,
+          profileError,
+          preparedStory,
+          chooseProfile,
+          openProfiles,
+          refreshProfiles,
+        }}
       >
-        <Shell ready={ready} failed={failed} initialSurface={initialSurface} />
+        <Shell
+          key={revision}
+          ready={ready}
+          failed={failed}
+          initialSurface={profileFlow ? "chat" : initialSurface}
+        />
       </Context.Provider>
     </NextIntlClientProvider>
   );
@@ -123,9 +406,25 @@ function Shell({
 }) {
   const t = useTranslations();
   const pathname = usePathname();
-  const { locale, setLocale, config, session, signOut } = useApp();
+  const {
+    locale,
+    setLocale,
+    config,
+    session,
+    signOut,
+    profiles,
+    profileFlow,
+    pickerOpen,
+    profileBusy,
+    profileError,
+    preparedStory,
+    chooseProfile,
+    openProfiles,
+    refreshProfiles,
+  } = useApp();
   const [preferredPersona, setPreferredPersona] = useState("");
-  const [story, setStory] = useState<DemoStory | null>(null);
+  const [localStory, setStory] = useState<DemoStory | null>(null);
+  const story = profileFlow ? preparedStory : localStory;
   const [workspaceRevision, setWorkspaceRevision] = useState(0);
   const [chatLocked, setChatLocked] = useState(false);
   const [workspaceSurface, setWorkspaceSurface] = useState<
@@ -163,6 +462,16 @@ function Shell({
   }
   async function openStory(next: DemoStory) {
     if (chatLocked) throw new Error("Pending customer decision");
+    if (profileFlow) {
+      const profile = storyProfile(
+        profiles?.profiles ?? [],
+        next,
+        session?.judge_profile_id,
+      );
+      if (!profile) throw new Error("Story unavailable");
+      await chooseProfile(profile.profile_id, next);
+      return;
+    }
     const persona = storyPersona(config, next, session?.username);
     if (!persona) throw new Error("Persona unavailable");
     if (session && session.username !== persona.username) await signOut();
@@ -215,7 +524,9 @@ function Shell({
     }
   }
   return (
-    <div className={`app-shell surface-${surface}`}>
+    <div
+      className={`app-shell surface-${surface} ${profileFlow && session?.judge_profile_id ? "profile-selected" : ""}`}
+    >
       <a href="#main-content" className="skip-link">
         {locale === "pt-BR" ? "Ir ao conteúdo" : "Ir al contenido"}
       </a>
@@ -260,22 +571,38 @@ function Shell({
               <strong>{t(surface)}</strong>
             </div>
             <div className="topbar-controls">
-              <label className="locale-select">
-                <span className="sr-only">{t("language")}</span>
-                <select
-                  value={locale}
-                  onChange={(e) => setLocale(e.target.value as Locale)}
+              {profileFlow && session?.judge_profile_id && (
+                <Button
+                  variant="ghost"
+                  disabled={profileBusy}
+                  onClick={() => void openProfiles()}
+                  aria-label={`${t("changeProfile")} · ${profileTitle(session.judge_profile_id, locale)}`}
                 >
-                  <option value="es-MX">ES · México</option>
-                  <option value="es-CO">ES · Colombia</option>
-                  <option value="es-AR">ES · Argentina</option>
-                  <option value="pt-BR">PT · Português brasileiro</option>
-                </select>
-              </label>
-              {session && (
+                  <span className="profile-switch-label">
+                    {t("changeProfile")} ·{" "}
+                  </span>
+                  {profileTitle(session.judge_profile_id, locale)}
+                </Button>
+              )}
+              {!(profileFlow && session?.judge_profile_id) && (
+                <label className="locale-select">
+                  <span className="sr-only">{t("language")}</span>
+                  <select
+                    value={locale}
+                    onChange={(e) => setLocale(e.target.value as Locale)}
+                  >
+                    <option value="es-MX">ES · México</option>
+                    <option value="es-CO">ES · Colombia</option>
+                    <option value="es-AR">ES · Argentina</option>
+                    <option value="pt-BR">PT · Português brasileiro</option>
+                  </select>
+                </label>
+              )}
+              {(session || profileFlow) && (
                 <Button
                   variant="ghost"
                   size="icon"
+                  disabled={profileBusy}
                   onClick={() => void exit()}
                   aria-label={t("signOut")}
                 >
@@ -286,6 +613,13 @@ function Shell({
           </div>
         </header>
         <main id="main-content" className="main-content" tabIndex={-1}>
+          {profileFlow && session?.judge_profile_id && !pickerOpen && (
+            <p role="status" className="sr-only">
+              {t("profileReady", {
+                profile: profileTitle(session.judge_profile_id, locale),
+              })}
+            </p>
+          )}
           {surface !== "insights" && (
             <div className="environment-row">
               <span
@@ -345,9 +679,15 @@ function Shell({
               )}
             </p>
           </div>
-          {authError && (
+          {(authError || profileError) && (
             <p className="error" role="alert">
-              {t("error")}
+              {t(
+                profileError
+                  ? profileFlow
+                    ? "profileUnavailable"
+                    : "profileLoginAgain"
+                  : "error",
+              )}
             </p>
           )}
           {surface === "insights" && (
@@ -355,17 +695,21 @@ function Shell({
           )}
           {workspaceVisited && (
             <div className="workspace-pane" hidden={surface === "insights"}>
-              {ready && !failed && workspaceSurface === "chat" && (
-                <JudgeQuickstart
-                  onStory={openStory}
-                  onInsights={() => setSurface("insights")}
-                  onRecording={
-                    recordingEnabled ? showRecordingTools : undefined
-                  }
-                  selected={story}
-                  locked={chatLocked}
-                />
-              )}
+              {ready &&
+                !failed &&
+                !pickerOpen &&
+                !profileBusy &&
+                workspaceSurface === "chat" && (
+                  <JudgeQuickstart
+                    onStory={openStory}
+                    onInsights={() => setSurface("insights")}
+                    onRecording={
+                      recordingEnabled ? showRecordingTools : undefined
+                    }
+                    selected={story}
+                    locked={chatLocked}
+                  />
+                )}
               {!ready ? (
                 <div className="panel loading" role="status">
                   {t("starting")}
@@ -378,6 +722,16 @@ function Shell({
                     {t("retry")}
                   </Button>
                 </div>
+              ) : profileFlow &&
+                (pickerOpen ||
+                  profileBusy ||
+                  session?.profile_selection_required) ? (
+                <JudgeProfilePicker
+                  profiles={profiles}
+                  busy={profileBusy}
+                  onSelect={chooseProfile}
+                  onRetry={refreshProfiles}
+                />
               ) : !allowed ? (
                 <div className="customer-grid">
                   <section className="panel login-panel">
@@ -404,13 +758,20 @@ function Shell({
               ) : workspaceSurface === "chat" ? (
                 <div className="customer-grid">
                   <CustomerChat
-                    key={`${session.username}:${workspaceRevision}`}
+                    key={`${session.username}:${workspaceRevision}:${profileFlow ? (preparedStory?.id ?? "") : ""}`}
                     onPendingChange={setChatLocked}
                     initialDraft={
                       story &&
-                      session.username ===
-                        storyPersona(config, story, session?.username)?.username
-                        ? storyDraft(config, story)
+                      (profileFlow ||
+                        session.username ===
+                          storyPersona(config, story, session?.username)
+                            ?.username)
+                        ? storyDraft(
+                            profileFlow
+                              ? { ...config, fixtures: false }
+                              : config,
+                            story,
+                          )
                         : ""
                     }
                   />
@@ -422,15 +783,20 @@ function Shell({
               )}
             </div>
           )}
-          {surface !== "insights" && recordingEnabled && ready && !failed && (
-            <RecordingHelper
-              onStory={openStory}
-              onStaff={openStaff}
-              onLiveReset={async () => {
-                setWorkspaceRevision((n) => n + 1);
-              }}
-            />
-          )}
+          {surface !== "insights" &&
+            recordingEnabled &&
+            ready &&
+            !failed &&
+            !pickerOpen &&
+            !profileBusy && (
+              <RecordingHelper
+                onStory={openStory}
+                onStaff={openStaff}
+                onLiveReset={async () => {
+                  setWorkspaceRevision((n) => n + 1);
+                }}
+              />
+            )}
           <footer className="page-footer">
             <span>
               <ShieldCheck size={14} /> {t("accessNotice")}

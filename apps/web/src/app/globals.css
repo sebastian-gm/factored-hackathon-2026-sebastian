@@ -3658,3 +3658,65 @@ label {
     padding: 0;
   }
 }
+
+/* Profile entry uses the same three-size scale and eight-pixel spacing. */
+.profile-picker {
+  max-width: 800px;
+  padding: 24px 0;
+}
+.profile-picker > p {
+  margin: 16px 0;
+}
+.profile-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 32px;
+  margin: 24px 0;
+}
+.profile-options > button {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+  text-align: start;
+  padding: 24px 0;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
+  cursor: pointer;
+  font: inherit;
+}
+.profile-options > button strong {
+  font-size: var(--type-heading);
+}
+.profile-options > button span {
+  color: var(--muted);
+}
+.profile-options > button:hover strong {
+  color: var(--accent);
+}
+.profile-options > button:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+@media (max-width: 680px) {
+  .profile-options {
+    grid-template-columns: 1fr;
+    margin: 16px 0;
+  }
+  .profile-options > button {
+    padding: 16px 0;
+  }
+  .topbar-controls {
+    flex-wrap: wrap;
+  }
+}
+@media (max-width: 680px) {
+  .profile-selected .profile-switch-label {
+    display: none;
+  }
+  .profile-selected .topbar-controls {
+    flex-wrap: nowrap;
+  }
+}
