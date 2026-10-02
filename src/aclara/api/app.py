@@ -447,8 +447,17 @@ def create_app(
         business_judge_realms.add(realm(judge_config.alias.username))
 
     def business_realm(current: Scope) -> str:
-        prefix = current.run_id.partition("_")[0]
-        return "judge:" + prefix if prefix in business_judge_realms else "owner"
+        prefix, _, suffix = current.run_id.partition("_")
+        if prefix not in business_judge_realms:
+            return "owner"
+        if judge_sessions and prefix != realm(judge_sessions.configuration.alias.username):
+            visit, separator, _ = suffix.partition("_")
+            if not separator or not re.fullmatch(r"[a-f0-9]{24}", visit):
+                raise PermissionError("Judge business visit unavailable")
+            # Authentication already bound this nonce to the live root controller.
+            # Profile switches retain its cases/cards; a new login gets fresh state.
+            return "judge:" + prefix + ":" + visit
+        return "judge:" + prefix
 
     app.state.cases = operational.customer_mapping(
         "customer_cases", dict[str, Any], business_realm, legacy="cases"

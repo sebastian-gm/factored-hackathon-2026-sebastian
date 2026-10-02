@@ -36,6 +36,13 @@ change, not reflected in official v4 numbers. No held-out run or paid call is ne
 - Each selection creates a fresh server-generated run, session and opaque token
   in the selected customer's realm. Roles/locales come from that trusted persona.
   The child contains a non-secret controller reference; only token hashes persist.
+- Post-v0.7 correction: the business realm includes the profile and a 96-bit
+  visit identifier derived from the authenticated controller digest. Separate
+  password/OTP logins to the shared account get independent case/card state.
+  Switching away and back within one visit retains that visitor's bank state;
+  a later login starts fresh. Controller validation checks the visit identifier;
+  a caller cannot choose another visitor's namespace. No client customer claim
+  or RLS bypass is added, and restart preserves the controller-bound realm.
 - Publish the child first, then atomically compare-and-swap the controller's active
   digest under its existing advisory lock. An unpublished/orphan child cannot
   authenticate. A losing concurrent switch never supersedes the winning token.
@@ -51,8 +58,9 @@ change, not reflected in official v4 numbers. No held-out run or paid call is ne
   confirmation remain required. No model call or per-profile budget is created.
 - Logout revokes the controller, invalidating every child. Judge reset endpoints
   are forbidden even in an authored environment with reset enabled. Each visit
-  starts a fresh operational workspace; old conversations/proposals/receipts
-  cannot be recovered by selecting that profile again. Existing demo overlays are
+  starts a fresh operational workspace; old conversations/proposals cannot be
+  recovered by selecting that profile again. Bank receipts remain available only
+  to the same visit/profile, with fresh action OTP still required. Existing demo overlays are
   workspace-scoped, not a production banking ledger mutation.
 - Audit records contain selection/revocation and fixed profile IDs/generation,
   not tokens, passwords or row facts. The global durable `production` budget stays
