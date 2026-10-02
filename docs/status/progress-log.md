@@ -29,6 +29,38 @@
   and refresh conservative budget/key metadata before spending. Public/judge
   access and warm replicas still require separate submission-day approval.
 
+## 2026-10-02 — Sebastian approved the final smoke/judging extension
+
+### Completed-verified
+
+- Recorded Sebastian's explicit **+$3** approval: cumulative LLM ceiling is
+  now **$15 including retained reserves**, for the final release smoke and
+  judging window. [Budget approval ledger](model-budget-ledger.md) preserves
+  historical $12 approvals and official evaluation provenance.
+- Last verified conservative exposure **$11.97937448** leaves **$3.02062552**.
+  Proposed $0.10 final smoke + $2.92 judging lifetime yields **$14.99937448**.
+  Production key limit remains an independent hard stop; no reset/top-up.
+- Prepared the release helper's $15 check and runbook's **proposed $1/UTC-day**
+  shared judging cap. No paid call, Azure setting or durable limit changed.
+- Authored release/pre-v4/reservation budget tests: **20 passed / 9 DB skips**;
+  Ruff passed. Exact $15 boundary passes; one atomic unit above fails. Historical
+  evaluation caps and the $0.10 smoke cap stay unchanged.
+- Private approval receipt read back at **0600**; includes authorization,
+  conservative arithmetic and zero new model calls, without resetting history.
+
+### Done-not-verified
+
+- Approval PR gates and fresh live budget/key readback pending. The last
+  verified exposure above is not a new balance measurement.
+- Judging lifetime/daily binding is a proposal, not activated or proven live.
+
+### Next-blocked
+
+- Final smoke/reload follows the green temporal-policy/data merge batch and
+  release gates. Warm replicas/public judge access still need submission-day OK.
+- Before judge activation, review/test its lifetime binding and $1/day controls,
+  update the runbook activation snippets and obtain the exact plan's approval.
+
 ## 2026-10-02 — Saved-v4 confidence and contract-family intervals
 
 ### Completed (verified)
