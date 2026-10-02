@@ -20,10 +20,16 @@ import {
   resetProposalSchema,
   resetReceiptSchema,
   traceSchema,
+  realmInvitationSchema,
+  realmJoinSchema,
 } from "@/lib/staff-contracts";
 import { BANK_CLOCK, personas } from "@/lib/server/fixture-data";
 import { upstreamFetch } from "@/lib/server/upstream-fetch";
-import { admit, admissionMessage, carryAdmission } from "@/lib/server/admission";
+import {
+  admit,
+  admissionMessage,
+  carryAdmission,
+} from "@/lib/server/admission";
 import {
   fixtureLogin,
   fixtureLogout,
@@ -164,6 +170,12 @@ async function liveStaff(
     if (path === "ops/metrics") return metricsSchema.parse(await call(path));
     if (/^ops\/reset\/[a-f0-9]{64}$/.test(path))
       return resetReceiptSchema.parse(await call(path));
+  } else if (path === "agent/handoff-realm") {
+    const input = z
+      .object({ invitation: z.string().min(20).max(160) })
+      .strict()
+      .parse(body);
+    return realmJoinSchema.parse(await call(path, "POST", input));
   } else if (/^agent\/handoffs\/[\w-]{1,80}\/(claim|resolve)$/.test(path)) {
     const input = z
       .object({
@@ -179,9 +191,10 @@ async function liveStaff(
     );
     if (
       actual.handoff_id !== result.handoff_id ||
-      actual.version !== result.version ||
+      actual.version < result.version ||
       actual.status !== result.status ||
-      actual.claimed_by !== result.claimed_by
+      actual.claimed_by !== result.claimed_by ||
+      actual.scope !== result.scope
     )
       throw new HttpError(502, "readback_failed");
     return actual;
@@ -248,11 +261,17 @@ async function handle(
     if (request.method === "POST") {
       const wait = admit(path, token, request.headers);
       if (wait !== null) {
-        const reply = response({
-          error: "admission_limited",
-          message: admissionMessage(request.headers.get("accept-language"), wait),
-          retry_after_seconds: wait,
-        }, 429);
+        const reply = response(
+          {
+            error: "admission_limited",
+            message: admissionMessage(
+              request.headers.get("accept-language"),
+              wait,
+            ),
+            retry_after_seconds: wait,
+          },
+          429,
+        );
         reply.headers.set("Retry-After", String(wait));
         return reply;
       }
@@ -434,6 +453,13 @@ async function handle(
       const reply = response(verified);
       cookie(reply, PREAUTH, "", 0);
       return reply;
+    }
+    if (path === "handoffs/realm-invitations" && request.method === "POST") {
+      z.object({}).strict().parse(body);
+      if (fixtures()) throw new HttpError(501, "contract_pending");
+      return response(
+        realmInvitationSchema.parse(await upstream(path, "POST", token, {})),
+      );
     }
     if (path.startsWith("agent/") || path.startsWith("ops/")) {
       if (fixtures())

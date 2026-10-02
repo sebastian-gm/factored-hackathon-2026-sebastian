@@ -117,9 +117,7 @@ for (const pt of [false, true]) {
       );
       await login(page, pt, true);
       await expect(page.getByRole("heading", { level: 1 })).toHaveText(
-        pt
-          ? "Seus encaminhamentos, com contexto."
-          : "Tus derivaciones, con contexto.",
+        pt ? "Atendimento com contexto." : "Atención con contexto.",
       );
       await expect(
         page.getByRole("heading", {
