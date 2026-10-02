@@ -3772,3 +3772,43 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
   disagreement review in the validation document. V3 is optional only if scored.
 - Changes are on local `fix/v4-human-review`; no deployment or merge. Existing
   PR #93 is untouched. Keep raw ratings, notes and response text out of Git.
+
+
+## 2026-10-01 — AI external-audit fixes, items 1 and 4
+
+### Completed (verified)
+
+- Rebased onto private `origin/main` `6a221a4` before changes. These are
+  **post-v4 fixes, not reflected in v4 numbers**; no official suite rerun/rescore,
+  real-model call or new provider spending.
+- `explain_status` is template-only. Generated blank-plan clarifications reject
+  ES/PT completed-action and invented-cause claims, including all three audit
+  probes, and fall back to the approved template. Action receipts stay in code.
+- Added independent evaluator action/causal checks, with runtime DLP disabled
+  in negative regressions. Verified receipts, proposed actions and absent
+  settlement dates retain their correct meanings.
+- Narrowed third-party guards to access requests, and bare processo/demanda to
+  legal context. Thirty-four authored benign controls pass normally; twelve real
+  attacks stay refused. B1 and regex-only P hits cannot terminate authentication;
+  P needs two non-degraded model-confirmed access strikes. Session-scoped restart,
+  cue retention and pending-action invalidation tests now exercise that contract.
+- Full local mock Python suite: 1004 passed, 25 database-dependent skips. Ruff,
+  strict mypy (95 source files), frozen interfaces and policy catalog passed.
+  B1 standard and reactive dev harnesses both remain 32/32. Authored additional
+  counter tests are checked separately. Generated dev result-page edits restored.
+
+### Done but not verified
+
+- PR #107 Python, Postgres and invariant CI passed. Its browser job exposed
+  a missing plural charge alias and old B1-revocation expectations; fixed the
+  guard and the two browser tests. Remote CI on the corrected head and merge
+  remain pending. No Azure image release.
+- Shared changes are explicitly required by the assignment: policy guards,
+  minimal API refusal wiring, evaluator and tests. No frozen interface change.
+
+### Next / blocked
+
+- Push the private priority PR, require green CI, then merge under standing OK.
+  Implement items 2+3 in a separate PR: budget degradation and trusted country.
+- Lead releases the post-v4 image after the batch. Human v4 CSV export remains
+  pending separately; no human agreement has been invented.

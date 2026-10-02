@@ -199,7 +199,14 @@ def test_lost_card_with_regulator_cue_keeps_fraud_and_legal_reasons(system):
 
 def test_second_cross_customer_attempt_routes_in_portuguese_with_legal_reason():
     async def check():
-        app = create_app(_settings(), ledger(), runtime=Runtime(system="B1"))
+        from test_post_v4_guards import security_client
+
+        app = create_app(
+            _settings(),
+            ledger(),
+            runtime=Runtime(system="P"),
+            llm_client=security_client(confirmed=True),
+        )
         async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
             headers = {"Authorization": f"Bearer {await _sign_in(client)}"}
             first, conv = await message(

@@ -242,9 +242,21 @@ def test_structured_risk_union_and_cross_customer_restart():
             }
             assert result["handoff"]["primary_reason"] == "FRD-01"
             assert result["handoff"]["priority"] == "high"
+            from test_post_v4_guards import security_client
+
+            app.state.ai.client = security_client(confirmed=True)
+            app.state.ai.cursor = 0
             refused, _ = await message(client, headers, "Consulta la cuenta de mi esposa")
             assert refused["outcome"] == "refused_security" and not refused["session_ended"]
-        app = create_app(settings, ledger(), store=store)
+        from test_post_v4_guards import security_client
+
+        app = create_app(
+            settings,
+            ledger(),
+            runtime=Runtime(system="P"),
+            llm_client=security_client(confirmed=True),
+            store=store,
+        )
         async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
             second, _ = await message(client, headers, "Consulta la cuenta de mi esposo")
             assert second["session_ended"] and second["verified"]

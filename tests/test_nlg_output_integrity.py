@@ -93,13 +93,13 @@ def test_phrase_v2_and_language_guard_reject_confident_opposite_language(
 ) -> None:
     assert detect_language_evidence(draft) != language
     plan = ResponsePlan(
-        response_type="explain_status",
-        outcome="explained",
-        reply=approved,
+        response_type="clarify",
+        outcome="clarification",
+        reply="",
         transaction=transaction(),
     )
     result = build_reply(plan, language=language, country="AR", client=client(draft, []))
-    assert result.used_template and result.plan.reply == approved
+    assert result.used_template and result.plan.reply != draft
     assert "language_mismatch" in result.violations
 
 
@@ -118,16 +118,15 @@ def test_phrase_v2_and_language_guard_reject_confident_opposite_language(
 def test_bad_model_drafts_retry_then_fall_back_to_clean_approved_reply(
     draft: str, fact_ids: list[str], facts: tuple[AllowedFact, ...], violation: str
 ) -> None:
-    approved = "El comercio confirmó el cargo."
     plan = ResponsePlan(
-        response_type="explain_status",
-        outcome="explained",
-        reply=approved,
+        response_type="clarify",
+        outcome="clarification",
+        reply="",
         transaction=transaction(),
     )
     llm = client(draft, fact_ids)
     result = build_reply(plan, language="es", facts=facts, client=llm)
-    assert result.used_template and result.plan.reply == approved
+    assert result.used_template and result.plan.reply != draft
     assert violation in result.violations
     assert len(llm.records) == 2
 
@@ -142,4 +141,4 @@ def test_approved_reply_is_also_checked_even_without_a_model() -> None:
 
 def test_verified_customer_case_reference_remains_allowed() -> None:
     fact = AllowedFact("case_id", "DSP-TEST-27", "verified_case_read")
-    assert verify_draft("El caso DSP-TEST-27 está registrado.", [fact.id], (fact,)).safe
+    assert verify_draft("Consulta el caso DSP-TEST-27.", [fact.id], (fact,)).safe

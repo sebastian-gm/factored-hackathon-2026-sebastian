@@ -816,7 +816,12 @@ def create_app(
         }
 
     def refuse_cross_customer(
-        principal: Principal, conversation: Conversation, language: str, message: str
+        principal: Principal,
+        conversation: Conversation,
+        language: str,
+        message: str,
+        *,
+        model_confirmed: bool = False,
     ) -> dict[str, Any]:
         security_event(app, "cross_customer_attempt")
         cues = {reason for reason in escalations(message) if reason in {"ESC-02", "ESC-03"}}
@@ -831,8 +836,14 @@ def create_app(
             | {cue for tab in app.state.conversations.values() for cue in tab.security_cues}
         )
         state["attempts"] += 1
+        state["confirmed_attempts"] = state.get("confirmed_attempts", 0) + int(model_confirmed)
         app.state.executions["security_state"] = state
-        ended = state["attempts"] >= int(rule("SEC-01").parameters["end_session_attempts"])
+        ended = (
+            app.state.runtime.system == "P"
+            and model_confirmed
+            and state["confirmed_attempts"]
+            >= int(rule("SEC-01").parameters["end_session_attempts"])
+        )
         # Invalidate all pending decisions in this authenticated session, including
         # another chat tab. Scoped maps cannot enumerate another session's state.
         for pending in app.state.conversations.values():
@@ -874,6 +885,11 @@ def create_app(
         if conversation is None or conversation.session_id != principal.session_id:
             raise HTTPException(status_code=404, detail="Conversation not found")
         if cross_customer(body.message):
+            confirmation = (
+                ai.understand(body.message, active_settings.bank_clock)
+                if app.state.runtime.system == "P"
+                else None
+            )
             if not (
                 conversation.candidates
                 or conversation.offer_handle
@@ -883,7 +899,15 @@ def create_app(
                 # No established conversation language yet: route in the language used.
                 conversation.language = classify(body.message).language
             return refuse_cross_customer(
-                principal, conversation, conversation.language, body.message
+                principal,
+                conversation,
+                conversation.language,
+                body.message,
+                model_confirmed=bool(
+                    confirmation
+                    and not confirmation.degraded
+                    and confirmation.extracted.other_customer_reference
+                ),
             )
         if conversation.terminal_handoff_id:
             packet = app.state.handoffs[conversation.terminal_handoff_id]
@@ -1021,7 +1045,13 @@ def create_app(
                 else None,
             )
             if nlu.extracted.other_customer_reference:
-                return refuse_cross_customer(principal, conversation, language, body.message)
+                return refuse_cross_customer(
+                    principal,
+                    conversation,
+                    language,
+                    body.message,
+                    model_confirmed=not nlu.degraded and cross_customer(body.message),
+                )
             extracted_reasons = risk_reasons(nlu.extracted)
             if extracted_reasons:
                 if "FRD-01" in extracted_reasons:

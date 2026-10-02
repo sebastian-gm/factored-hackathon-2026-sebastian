@@ -87,7 +87,7 @@ def test_p_api_extraction_grounding_and_no_model_confirmation_authority() -> Non
                 },
             )
             assert result.json()["verified"] is True
-            # Exercise phrasing through a separate inquiry with a harmless model frame.
+            # Status explanations are now deterministic even with a malicious phrase stub.
             cid = (await http.post("/chat/sessions", headers=headers)).json()["conversation_id"]
             result = await http.post(
                 f"/chat/sessions/{cid}/messages",
@@ -95,7 +95,8 @@ def test_p_api_extraction_grounding_and_no_model_confirmation_authority() -> Non
                 json={"message": "¿Qué es la compra de Café Central por 18.75 USD del 2026-06-17?"},
             )
             assert result.json()["outcome"] == "explained"
-            assert any(e["event"] == "phrasing" and e["violations"] for e in runtime.events)
+            assert any(e["event"] == "phrasing" and e["used_template"] for e in runtime.events)
+            assert not any(r.route == "phrase" for r in client.records)
             assert "refund" not in result.json()["reply"]
 
     asyncio.run(check())
