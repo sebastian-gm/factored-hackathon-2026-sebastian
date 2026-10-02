@@ -161,6 +161,20 @@ def test_judge_case_and_card_realms_are_fresh_per_login_and_survive_return_and_r
         f"/chat/sessions/{fresh_cid}/messages", headers=headers(second), json={"message": query}
     ).json()
     assert fresh["outcome"] == "dispute_proposed"
+    second_filed = client.post(
+        f"/chat/sessions/{fresh_cid}/confirm",
+        headers=headers(second),
+        json={"proposal_hash": fresh["proposal"]["proposal_hash"], "confirmed": True},
+    ).json()
+    assert second_filed["verified"]
+    assert second_filed["case"]["case_id"] != filed["case"]["case_id"]
+    assert second_filed["case"]["transaction_handle"] == filed["case"]["transaction_handle"]
+    assert (
+        client.get(
+            "/disputes/" + second_filed["case"]["case_id"], headers=headers(first)
+        ).status_code
+        == 404
+    )
     # The second visitor does not revoke or acquire the first visitor's authority.
     other_profile = "pt" if profile != "pt" else "mx-es"
     returned = select(client, select(client, first, other_profile), profile)
