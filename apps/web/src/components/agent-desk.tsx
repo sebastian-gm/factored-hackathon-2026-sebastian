@@ -16,11 +16,13 @@ import {
   deskActionLabelKey,
   handoffReasonLabelKey,
   riskFlagLabelKey,
+  queueLabelKey,
 } from "@/lib/ui-copy";
 import { useApp } from "./workspace";
 import { Button } from "./ui/button";
 import { Modal } from "./ui/dialog";
 import { TransactionCard } from "./transaction-card";
+import { StaffRealmAccess } from "./staff-realm-access";
 export function AgentDesk() {
   const t = useTranslations();
   const { config, locale } = useApp();
@@ -32,6 +34,9 @@ export function AgentDesk() {
     [resolve, setResolve] = useState(false);
   const [loadError, setLoadError] = useState(false);
   const packetPanel = useRef<HTMLElement>(null);
+  const generation = useRef(0);
+  const [realmJoined, setRealmJoined] = useState(false);
+  const [claimVerified, setClaimVerified] = useState(false);
   const [evidence, setEvidence] = useState<
       DeskPacket["evidence"][number] | null
     >(null),
@@ -52,37 +57,69 @@ export function AgentDesk() {
   async function load() {
     setLoading(true);
     setLoadError(false);
+    setClaimVerified(false);
+    const epoch = generation.current;
     try {
       const values = await api<DeskPacket[]>("agent/handoffs");
+      if (epoch !== generation.current) return;
       setPackets(values);
       setLoadError(false);
+      setError(false);
     } catch {
-      setLoadError(true);
+      if (epoch === generation.current) setLoadError(true);
     } finally {
-      setLoading(false);
+      if (epoch === generation.current) setLoading(false);
     }
   }
   useEffect(() => {
     const c = new AbortController();
+    const epoch = generation.current;
     api<DeskPacket[]>("agent/handoffs", undefined, c.signal)
-      .then(setPackets)
+      .then((values) => {
+        if (epoch === generation.current) setPackets(values);
+      })
       .catch(() => {
-        if (!c.signal.aborted) setLoadError(true);
+        if (!c.signal.aborted && epoch === generation.current)
+          setLoadError(true);
       })
       .finally(() => {
-        if (!c.signal.aborted) setLoading(false);
+        if (!c.signal.aborted && epoch === generation.current)
+          setLoading(false);
       });
     return () => c.abort();
   }, []);
-  const current = packets.find((p) => p.handoff_id === selected) ?? packets[0];
+  const current =
+    loading || loadError
+      ? undefined
+      : (packets.find((p) => p.handoff_id === selected) ?? packets[0]);
+  const realm =
+    realmJoined ||
+    (!!packets.length && packets.every((p) => p.scope === "current_realm"));
+  const workspace =
+    config.fixtures ||
+    (!!packets.length && packets.every((p) => p.scope === "current_workspace"));
+  function changingRealm() {
+    generation.current++;
+    setPackets([]);
+    setSelected("");
+    setEvidence(null);
+    setClaimVerified(false);
+    setError(false);
+    setLoading(true);
+    setRealmJoined(false);
+    setBusy(false);
+    setResolve(false);
+  }
   async function act(action: "claim" | "resolve") {
     if (!current || busy) return;
     setBusy(true);
     setError(false);
+    setClaimVerified(false);
+    const epoch = generation.current;
     try {
       if (!config.fixtures && !current.version)
         throw new Error("Missing version");
-      await api(
+      const receipt = await api<DeskPacket>(
         `agent/handoffs/${current.handoff_id}/${action}`,
         config.fixtures
           ? {}
@@ -97,30 +134,65 @@ export function AgentDesk() {
       const verified = await api<DeskPacket>(
         `agent/handoffs/${current.handoff_id}`,
       );
+      if (epoch !== generation.current) return;
       if (
+        (action === "claim" && !receipt.claimed_by) ||
         verified.handoff_id !== current.handoff_id ||
         verified.status !== (action === "claim" ? "claimed" : "resolved") ||
+        verified.claimed_by !== receipt.claimed_by ||
+        verified.scope !== receipt.scope ||
         (!config.fixtures &&
-          (verified.version !== current.version! + 1 || !verified.verified))
+          (verified.version! < receipt.version! ||
+            !verified.verified ||
+            !receipt.verified ||
+            receipt.version! <= current.version!))
       )
         throw new Error("Read-back failed");
       setPackets((items) =>
         items.map((p) => (p.handoff_id === verified.handoff_id ? verified : p)),
       );
       setResolve(false);
+      setClaimVerified(action === "claim");
     } catch {
-      setError(true);
+      if (epoch === generation.current) setError(true);
     } finally {
-      setBusy(false);
+      if (epoch === generation.current) setBusy(false);
     }
   }
   return (
     <>
-      <p className="caption muted">{t("workspaceScope")}</p>
+      <p className="caption muted">
+        {t(
+          realm
+            ? "realmScope"
+            : workspace
+              ? "workspaceScope"
+              : "authorizedQueueScope",
+        )}
+      </p>
+      {!config.fixtures && (
+        <StaffRealmAccess
+          connected={realm}
+          onStart={changingRealm}
+          onFinish={(joined) => {
+            setRealmJoined(joined);
+            void load();
+          }}
+        />
+      )}
+      {claimVerified && (
+        <p role="status" className="verified-note">
+          {t("claimReadback")}
+        </p>
+      )}
       <div className="desk-grid">
         <section className="panel queue-panel">
           <header className="panel-heading">
-            <h2>{t("queue")}</h2>
+            <h2>
+              {t(
+                realm ? "realmQueue" : workspace ? "queue" : "authorizedQueue",
+              )}
+            </h2>
             <span className="count-badge">
               {loadError
                 ? "—"
@@ -153,6 +225,7 @@ export function AgentDesk() {
                   className={`queue-item ${current?.handoff_id === p.handoff_id ? "selected" : ""}`}
                   onClick={() => {
                     setSelected(p.handoff_id);
+                    setClaimVerified(false);
                     requestAnimationFrame(() =>
                       packetPanel.current?.scrollIntoView({ block: "nearest" }),
                     );
@@ -168,7 +241,7 @@ export function AgentDesk() {
                     </span>
                   </span>
                   <span>
-                    {p.route.queue}{" "}
+                    {t(queueLabelKey(p.route.queue))}{" "}
                     <span className="language-flag">
                       {p.route.language.toUpperCase()}
                     </span>
@@ -204,7 +277,7 @@ export function AgentDesk() {
                   <h2>{t("packet")}</h2>
                   <p className="technical-reference">{current.handoff_id}</p>
                   <p>
-                    {current.route.queue} ·{" "}
+                    {t(queueLabelKey(current.route.queue))} ·{" "}
                     {current.route.language.toUpperCase()} · {t(current.status)}
                   </p>
                 </div>
@@ -212,6 +285,14 @@ export function AgentDesk() {
               <p className="routing-note">
                 {t(current.route.fallback_used ? "fallback" : "noFallback")}
               </p>
+              <section className="packet-section">
+                <h3>{t("requestSummary")}</h3>
+                <p>
+                  {typeof current.request_summary?.text === "string"
+                    ? current.request_summary.text
+                    : t("requestSummaryEmpty")}
+                </p>
+              </section>
               <section
                 className="packet-section"
                 aria-labelledby="handoff-reasons-title"
@@ -365,10 +446,16 @@ export function AgentDesk() {
               </section>
               <div className="packet-actions">
                 {current.status === "waiting" ? (
-                  <Button disabled={busy} onClick={() => void act("claim")}>
+                  <Button
+                    disabled={busy || error}
+                    onClick={() => void act("claim")}
+                  >
                     {busy ? t("loading") : t("claim")}
                     <ArrowUpRight size={17} />
                   </Button>
+                ) : current.status === "claimed" &&
+                  current.scope === "current_realm" ? (
+                  <p className="caption">{t("realmClaimOnly")}</p>
                 ) : current.status === "claimed" ? (
                   <Button disabled={busy} onClick={() => setResolve(true)}>
                     {t("resolve")}

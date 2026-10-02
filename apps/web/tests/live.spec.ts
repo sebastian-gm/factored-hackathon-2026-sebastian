@@ -95,8 +95,9 @@ test("live ADR-0015: password, OTP, explanation, offer, denial and separate conf
   ).toBeVisible();
   await page.getByRole("button", { name: "Agent Desk", exact: true }).click();
   await expect(
-    page.getByRole("heading", { name: "Este espacio requiere otra cuenta" }),
+    page.getByRole("heading", { name: "Comparte tu solicitud con atención" }),
   ).toBeVisible();
+  await expect(page.locator(".desk-grid")).toHaveCount(0);
   const status = await page.evaluate(
     async () => (await fetch("/api/bff/agent/handoffs")).status,
   );

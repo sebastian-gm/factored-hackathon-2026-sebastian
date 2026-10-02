@@ -1,4 +1,38 @@
 export const es = {
+  staffLoginTitle: "Acceso de Agent Desk",
+  staffLoginBody:
+    "Usa tu cuenta de atención con contraseña y código de verificación.",
+  staffShareTitle: "Comparte tu solicitud con atención",
+  staffShareBody:
+    "La cuenta de atención necesita su propio acceso. Tu invitación comparte solo derivaciones enmascaradas de esta visita.",
+  staffInvite: "Crear invitación para Agent Desk",
+  staffSeparateBrowser:
+    "Abre Agent Desk en otro perfil del navegador o una ventana privada. Otra pestaña comparte tu acceso. Mantén esta sesión abierta: al salir, revocas la invitación y el acceso compartido.",
+  staffInvitation: "Invitación temporal",
+  staffInviteExpiry:
+    "Válida hasta cinco minutos, para una sola sesión de atención. No la envíes al chat.",
+  staffInviteExpired: "La invitación venció o se cerró. Crea una nueva.",
+  staffInviteFailed:
+    "No pudimos preparar o copiar la invitación. Vuelve a crearla.",
+  staffCopy: "Copiar invitación",
+  staffCopied: "Invitación copiada. Pégala solo en Agent Desk.",
+  staffConnect: "Conectar esta visita",
+  staffChangeVisit: "Conectar otra visita",
+  staffConnectBody:
+    "Pega la invitación del cliente. Tu cuenta conserva sus permisos; la invitación solo comparte la cola enmascarada.",
+  staffJoinFailed:
+    "No pudimos verificar el vínculo. La invitación puede haber vencido o estar en uso. Pide una nueva; no reintentamos automáticamente.",
+  realmScope:
+    "Cola enmascarada de esta visita. No incluye otras visitas ni acceso a movimientos o conversaciones del banco.",
+  authorizedQueueScope:
+    "Solo solicitudes del ámbito autorizado. Conecta una invitación para ver la visita del cliente.",
+  realmQueue: "Solicitudes de esta visita",
+  authorizedQueue: "Solicitudes autorizadas",
+  requestSummary: "Solicitud del cliente",
+  requestSummaryEmpty: "Sin resumen registrado.",
+  claimReadback: "Asignación verificada en registros.",
+  realmClaimOnly:
+    "Esta cola permite tomar la solicitud. La resolución requiere el proceso del equipo.",
   profileTitle: "Elige un perfil",
   profileUnavailable: "No pudimos cargar los perfiles. Inténtalo de nuevo.",
   profileReady: "Perfil {profile} listo. Espacio nuevo.",
@@ -45,7 +79,7 @@ export const es = {
   unavailable: "Servicio no disponible",
   accessNotice: "Contraseña + código de verificación",
   chatEyebrow: "TU BANCO, MÁS CERCA",
-  deskEyebrow: "DERIVACIONES DE TU ESPACIO",
+  deskEyebrow: "ATENCIÓN HUMANA",
   opsEyebrow: "OPERACIONES Y EVIDENCIA",
   otpTitle: "Verifica tu acceso",
   otpIntro: "Introduce el código del SMS simulado.",
@@ -370,9 +404,8 @@ export const es = {
   otpRetry: "El código no es correcto. Revisa el SMS e inténtalo de nuevo.",
   mutationUnknown:
     "No pudimos verificar el resultado. No repetiremos la acción automáticamente. Consulta el estado antes de volver a intentarlo.",
-  deskTitle: "Tus derivaciones, con contexto.",
-  deskIntro:
-    "Vista de atención de tu espacio de cliente: hechos, acciones y próximos pasos.",
+  deskTitle: "Atención con contexto.",
+  deskIntro: "Solicitudes, hechos verificados y próximos pasos.",
   queue: "Derivaciones de este espacio",
   high: "Alta",
   normal: "Normal",
@@ -446,6 +479,40 @@ export const es = {
     "Esta vista estará disponible cuando el servicio publique su contrato de agente y operaciones. La conversación de cliente ya está conectada.",
 };
 export const pt: typeof es = {
+  staffLoginTitle: "Acesso ao Agent Desk",
+  staffLoginBody:
+    "Use sua conta de atendimento com senha e código de verificação.",
+  staffShareTitle: "Compartilhe sua solicitação com o atendimento",
+  staffShareBody:
+    "A conta de atendimento precisa de acesso próprio. Seu convite compartilha somente encaminhamentos mascarados desta visita.",
+  staffInvite: "Criar convite para o Agent Desk",
+  staffSeparateBrowser:
+    "Abra o Agent Desk em outro perfil do navegador ou janela privada. Outra aba compartilha seu acesso. Mantenha esta sessão aberta: sair revoga o convite e o acesso compartilhado.",
+  staffInvitation: "Convite temporário",
+  staffInviteExpiry:
+    "Válido por até cinco minutos, para uma única sessão de atendimento. Não o envie ao chat.",
+  staffInviteExpired: "O convite expirou ou foi fechado. Crie outro.",
+  staffInviteFailed:
+    "Não conseguimos preparar ou copiar o convite. Crie outro.",
+  staffCopy: "Copiar convite",
+  staffCopied: "Convite copiado. Cole somente no Agent Desk.",
+  staffConnect: "Conectar esta visita",
+  staffChangeVisit: "Conectar outra visita",
+  staffConnectBody:
+    "Cole o convite do cliente. Sua conta mantém suas permissões; o convite compartilha somente a fila mascarada.",
+  staffJoinFailed:
+    "Não conseguimos verificar o vínculo. O convite pode ter expirado ou estar em uso. Peça outro; não repetimos automaticamente.",
+  realmScope:
+    "Fila mascarada desta visita. Não inclui outras visitas nem acesso a movimentos ou conversas do banco.",
+  authorizedQueueScope:
+    "Somente solicitações do escopo autorizado. Conecte um convite para ver a visita do cliente.",
+  realmQueue: "Solicitações desta visita",
+  authorizedQueue: "Solicitações autorizadas",
+  requestSummary: "Solicitação do cliente",
+  requestSummaryEmpty: "Sem resumo registrado.",
+  claimReadback: "Atribuição verificada nos registros.",
+  realmClaimOnly:
+    "Esta fila permite assumir a solicitação. A resolução exige o processo da equipe.",
   profileTitle: "Escolha um perfil",
   profileUnavailable: "Não foi possível carregar os perfis. Tente novamente.",
   profileReady: "Perfil {profile} pronto. Espaço novo.",
@@ -492,7 +559,7 @@ export const pt: typeof es = {
   unavailable: "Serviço indisponível",
   accessNotice: "Senha + código de verificação",
   chatEyebrow: "SEU BANCO, MAIS PERTO",
-  deskEyebrow: "ENCAMINHAMENTOS DO SEU ESPAÇO",
+  deskEyebrow: "ATENDIMENTO HUMANO",
   opsEyebrow: "OPERAÇÕES E EVIDÊNCIAS",
   otpTitle: "Verifique seu acesso",
   otpIntro: "Digite o código do SMS simulado.",
@@ -813,9 +880,8 @@ export const pt: typeof es = {
   otpRetry: "O código está incorreto. Confira o SMS e tente novamente.",
   mutationUnknown:
     "Não foi possível verificar o resultado. Não repetiremos a ação automaticamente. Consulte o status antes de tentar de novo.",
-  deskTitle: "Seus encaminhamentos, com contexto.",
-  deskIntro:
-    "Atendimento do seu espaço de cliente: fatos, ações e próximos passos.",
+  deskTitle: "Atendimento com contexto.",
+  deskIntro: "Solicitações, fatos verificados e próximos passos.",
   queue: "Encaminhamentos deste espaço",
   high: "Alta",
   normal: "Normal",

@@ -7,6 +7,7 @@ import uvicorn
 from fastapi import Header, HTTPException
 
 from aclara.api.app import create_app
+from aclara.bank.serving import Persona
 from aclara.ops.store import Scope
 from aclara.settings import Settings
 
@@ -21,6 +22,13 @@ if __name__ == "__main__":
             agent_system="B1",
         )
     )
+
+    if os.environ.get("FRONTEND_E2E_STAFF") == "1":
+        # Test-only authored identities; independent customer/staff OTP sessions.
+        for username, role in (("demo.customer", "customer"), ("demo.agent", "agent")):
+            app.state.personas[username] = Persona(
+                username, app.state.settings.demo_customer_id, "es-MX", role
+            )
 
     @app.post("/_fixture/reset-bank-state")
     async def reset_bank_state(x_fixture_secret: str = Header(default="")) -> dict[str, bool]:
