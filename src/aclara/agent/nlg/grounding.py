@@ -25,6 +25,11 @@ _EMAIL = re.compile(r"\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b", re.I)
 _PHONE = re.compile(r"(?<!\w)(?:\+\d{1,3}[ .-]?)?(?:\d[ .-]?){9,14}(?!\w)")
 _CARD = re.compile(r"(?<!\d)(?:\d[ -]?){13,19}(?!\d)")
 _DOCUMENT = re.compile(r"(?<!\w)\d{8,12}(?!\w)")
+_LABELLED_DOCUMENT = re.compile(
+    r"(\b(?:CPF|DNI|RUT|c[eé]dula)\b(?:\s+(?:es|e|é))?\s*[:#]?\s*)"
+    r"([0-9][0-9.\s-]{5,16}[0-9kK])(?=\b|$)",
+    re.I,
+)
 _HANDLE = re.compile(r"\b(?:txn|card|prod|cust)_\d+\b", re.I)
 # UTF-8 decoded as Latin-1/Windows-1252, replacement characters, and a narrow
 # word-internal ASCII corruption signature. Ordinary ES/PT accents remain valid.
@@ -123,6 +128,7 @@ def scan_dlp(text: str, *, other_customer_names: tuple[str, ...] = ()) -> tuple[
         ("phone", _PHONE),
         ("card_number", _CARD),
         ("document_number", _DOCUMENT),
+        ("document_number", _LABELLED_DOCUMENT),
         # A citation establishes provenance, not permission to show internal
         # selection handles in customer prose. Verified DSP/HO IDs stay separate.
         ("internal_handle", _HANDLE),
@@ -144,7 +150,9 @@ def scan_dlp(text: str, *, other_customer_names: tuple[str, ...] = ()) -> tuple[
 
 def redact_for_model(text: str) -> str:
     """Strip direct identifiers before any customer text or fact reaches a provider."""
-    redacted = text
+    # Preserve the label but remove dotted/dashed national identifiers, which
+    # are shorter than the phone pattern once separators split the digit runs.
+    redacted = _LABELLED_DOCUMENT.sub(lambda match: match[1] + "[REDACTED]", text)
     for pattern in (_EMAIL, _CARD, _PHONE, _DOCUMENT):
         redacted = pattern.sub("[REDACTED]", redacted)
     return redacted

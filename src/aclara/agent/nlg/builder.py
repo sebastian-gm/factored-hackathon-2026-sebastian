@@ -77,6 +77,33 @@ def _transaction_phrase(txn: TransactionView, language: str, country: str | None
     return f"{amount}, {day}"
 
 
+def _template_dlp_text(
+    text: str, transaction: TransactionView | None, language: str, country: str | None
+) -> str:
+    """Exclude only the exact code-rendered monetary slot, never model prose.
+
+    Grouped amounts plus cents can resemble a phone number. The amount and
+    currency come from the scoped transaction; identifiers elsewhere still scan.
+    Mask the last occurrence, so a merchant containing the same literal retains
+    its independent DLP check. Generated drafts continue through verify_draft
+    with their original text and no monetary exemption.
+    """
+    if transaction is None:
+        return text
+    amount = _transaction_phrase(transaction, language, country).split(", ", 1)[0]
+    for literal in dict.fromkeys(
+        (
+            amount,
+            re.sub(r"\b([A-Z]{3})(?=\d)", r"\1 ", amount),
+            f"{transaction.amount:.2f} {transaction.currency}",
+        )
+    ):
+        if literal in text:
+            before, after = text.rsplit(literal, 1)
+            return before + "[valor]" + after
+    return text
+
+
 def render_dispute_offer(
     transaction: TransactionView, *, language: str, country: str | None = None
 ) -> str:
@@ -113,7 +140,7 @@ def render_dispute_offer(
         and key in {"merchant", "amount", "currency", "transaction_date", "status"}
     )
     verdict = verify_draft(
-        text,
+        _template_dlp_text(text, transaction, language, country),
         [fact.id for fact in facts],
         facts,
         known_merchants=(merchant,),
@@ -215,7 +242,10 @@ def build_reply(
         if plan.response_type == "report_case" and plan.case
         else fallback
     )
-    fallback_violations = scan_dlp(dlp_text, other_customer_names=other_customer_names)
+    fallback_violations = scan_dlp(
+        _template_dlp_text(dlp_text, plan.transaction, language, country),
+        other_customer_names=other_customer_names,
+    )
     if fallback_violations:
         raise ValueError("Approved template contains sensitive content")
     if (
