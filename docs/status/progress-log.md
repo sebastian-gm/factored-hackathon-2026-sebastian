@@ -16,11 +16,13 @@
   hooks, snapshots and B1 32/32. No paid calls, cloud/key access or held-out inputs.
 - Refreshed on #124's history-preserving main merge. Rebuilt the final wheel
   offline: eight runtime LLM files, no studies/data. All prompt hashes unchanged.
+- Opened private-origin PR #124 (relocation) and stacked PR #126 (prompt index).
+  Exact #124 head 7f4a964 has checks, invariants, Postgres and web all SUCCESS.
 
 ### Done but not verified
 
-- Lead-reviewed stacked PR pending. Relocation PR #124 has current-main
-  checks, Postgres and safety green; web is still running at this readback.
+- Lead review/merge pending. Stacked #126 intentionally has no remote CI under
+  the main-only trigger; require its own green gates after retargeting to main.
 
 ### Next / blocked
 
