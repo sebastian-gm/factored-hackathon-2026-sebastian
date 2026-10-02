@@ -4598,7 +4598,7 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
 
 - Reconciliation/null-profile PR awaits remote CI and review. The organizer's
   approximate quality/volume targets have no verifiable upstream explanation.
-- Temporal findings require operational exclusions: future dimension statuses
+- Temporal findings require a runtime quality gate: future dimension statuses
   currently can affect dispute eligibility. Existing serving data is unchanged.
 
 ### Next / blocked
@@ -4665,10 +4665,13 @@ later flag-only session for the current contract and activation dependencies.
   mismatches, old/missing/tampered flags and pre-bank rejection: **29 passed,
   1 local-Postgres skip**. Ruff and strict mypy (73 source files) passed.
   Model/cloud spend USD 0; no frozen suite or official result changed or run.
+- Refreshed the feature branch on main including #129 without rewriting
+  published history. Final full mock suite: **1,243 passed / 31 DB skips**;
+  repository-wide Ruff passed. Actual Postgres/live activation remains pending.
 
 ### Done but not verified
 
-- Full mock suite against refreshed main and the final data head remains pending.
+- Draft #128 needs current-head remote CI and lead integration review.
   Postgres migration/load/readback and live policy handling are not activated.
   Correct flags alone do not prove that runtime disputes reject anomalous facts.
 
