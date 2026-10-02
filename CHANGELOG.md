@@ -14,7 +14,7 @@ certification. The v0.1.0–v0.5.0 annotated tags and GitHub Releases were creat
 - Every change now uses a feature branch and PR; every Azure release gets a tag.
 - `v1.0.0` is reserved for the exact submission-day Azure release SHA.
 
-## [0.6.0] — audit hardening (post-v4)
+## [0.6.0] — 2026-10-02, audit hardening (post-v4)
 
 ### Fixed
 
@@ -33,7 +33,8 @@ certification. The v0.1.0–v0.5.0 annotated tags and GitHub Releases were creat
   evidence remains. BFF admission limits bound auth/chat attempts.
 - Release smoke checks Jev-off routing, existing bank state and receipt retries.
 - These changes are **not reflected in official v4 numbers**. Deployment evidence
-  and the exact SHA/digests accompany the annotated release tag after its gates.
+  and the exact SHA/digests accompany the verified annotated tag at `f5e128d`.
+  [Release evidence](docs/evaluation/v0.6-release-notes.md).
 
 ## [0.5.0] — post-v4 release (`b8c1305`)
 

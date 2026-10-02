@@ -1,5 +1,35 @@
 # Progress log
 
+## 2026-10-02 — v0.6.0 released; paid work stopped
+
+### Completed-verified
+
+- Annotated `v0.6.0` and private GitHub Release verified at deployed
+  `f5e128dd7e544e2378081361f4a8a409af94f221`; API/web tags, registry digests and ready revisions read back.
+- Exactly one owner-approved extra `scripts.serving_browser --target azure`
+  attempt passed all three surfaces: Chat, Desk, Ops; one handoff resolved and
+  verified. Counter **6**, no reset; ledger stayed **12 calls / $0.02292**,
+  **zero new paid calls / $0** from this attempt.
+- Fresh `scripts.azure_verify` passed. Exact deployed-source CI/safety/access
+  and operator main CI/safety all success. `jev-release.json` has all three
+  acceptance flags true; the annotated tag and Release were read back from origin.
+- [Full evidence](../evaluation/v0.6-release-notes.md) records the SHA, digests,
+  commands, run IDs and limits. Post-v4 fixes do not change official v4 numbers.
+
+### Done-not-verified
+
+- No new held-out safety/performance score is claimed for this release.
+  Submission-day public/warm/judge activation remains OFF and unverified.
+
+### Next-blocked
+
+- **Stop paid calls.** Conservative cumulative maximum **$11.97937448 / $12**.
+  The next release smoke needs Sebastian's explicit budget OK; do not create a
+  fresh purse, replay the consumed browser allowance or reset reservations.
+- Other lanes' main merge hold is lifted; #118/#119 are outside the tagged image
+  and need a separate approved release. Publication/warm/judge changes still need
+  submission-day go. Main protection remains prepared for the supported plan.
+
 ## 2026-10-01 — Audit release smoke: Jev disabled and durable bank state
 
 ### Completed-verified
