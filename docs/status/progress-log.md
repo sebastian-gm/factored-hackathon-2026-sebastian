@@ -4507,12 +4507,14 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
 - Private LOCAL_RAW_DIR-derived aggregates: 60,924/492,414 recent transactions
   blocked (union); 431,490 remain eligible. Historical silver/matcher rows stay
   intact. Per-reason flags and the coverage cost are committed as aggregates.
-- Full mock pytest: **1,210 passed / 31 DB skips**, including eleven new
+- Full mock pytest on main's merged #124 refactor: **1,217 passed / 31 DB
+  skips**, including eleven new
   clock/date/altered-export checks and existing data/CLI tests. Ruff and strict
   mypy pass. The sandbox's local async thread-wakeup restriction was reproduced
   independently; the mock suite passed outside it. No model/cloud calls.
-- Reconciliation PR #125 is green across checks, invariants, Postgres and web
-  on exact head `56b0946bcda9cbf083016e3a21296e6ec39f86ec`. Source diagnostics
+- Reconciliation PR #125 initially passed all four gates at `56b0946`; refreshed
+  on current main and appended session notes to avoid parallel header conflicts.
+  The new head needs its fresh gates before merge. Source diagnostics
   are ignored/private; no organizer rows or backend/policy code changed.
 
 ### Done but not verified
