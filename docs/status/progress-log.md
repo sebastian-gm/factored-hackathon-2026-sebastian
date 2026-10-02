@@ -1,5 +1,66 @@
 # Progress log
 
+## 2026-10-02 UTC — submission-day runbook, preparation only
+
+### Completed (verified)
+
+- Wrote [October 4 runbook](../submission/submission-day-runbook.md): explicit
+  owner gates, release-before-picker activation, fresh private plans, warm and
+  judge readbacks, Key Vault-only password creation, four-profile cookie/RLS
+  checks, non-allowlisted access probe, sanitized snapshot/publication,
+  README-only fixture reproduction, email/private credentials, availability
+  through October 16 and scale-down/deletion with rollback/retention gates.
+- `PYTHONPATH=. .venv/bin/python artifacts/submission-prep/plan_only.py`:
+  read-only `-refresh=false -lock=false` previews against existing state. OFF:
+  **zero changes**. Warm + judge ON: **two app updates / two secret-scoped RBAC
+  creates / zero deletes**, same images, internal API, HTTPS, min=1/max=1 and
+  only web's IP rule removed. No apply/lease/bootstrap/registration or secret
+  creation; private plans remain ignored. Initial invocation without PYTHONPATH
+  failed import; the corrected invocation produced the successful receipts.
+- `terraform -chdir=infra fmt -check apps.tf main.tf variables.tf versions.tf
+  tests/submission.tftest.hcl`, `validate` and
+  `test -filter=tests/submission.tftest.hcl`: **all passed; 10 mocked plan tests**.
+  Unqualified fmt includes ignored tfvars and initially failed their formatting;
+  no private inputs were rewritten. The tracked-file check is the runbook gate.
+- `scripts.azure_prices` and ignored `read_prices.py`: live public East US 2 USD
+  meters read at **2026-10-02 02:28:59 UTC**, no model calls. Fixed infrastructure
+  **$21.09/month**; two warm replicas **$5.0544–$16.848** for 312 hours. Decimal
+  arithmetic verified full monthly estimate **$34.28–$46.08**, including stated
+  margins/requests, excluding grants/tax/models/usage outside that window.
+  The proposed COT availability window spans **14 UTC budget dates**: potential
+  **$42** models at $3/day requires separate approval from the $12 eval ceiling.
+- Extracted all runbook shell fences: `bash -n` with no warnings, Python
+  `ast.parse`, and YAML dispatch-schema parse passed: **23 shell blocks,
+  17 Python heredocs, one YAML heredoc**. Caught/fixed an indented heredoc
+  terminator issue; these are syntax checks, not activation/restore evidence.
+  Local Azure CLI help/source confirmed scope and inherited-role syntax; scoped
+  grants omit incompatible `--all` and avoid a Microsoft Graph principal lookup.
+- Main remains **6a221a4e61133ab4fbedeb770e39ee229237ba18 == origin/main**.
+  Read-only GitHub metadata confirms existing main **ci 36954572221 / safety
+  36954572164 success**. No new workflow, paid call, Azure change or publication.
+
+### Done but not verified
+
+- Future command snippets are not executed. Final frontend picker/redesign,
+  final-image owner smoke, enabled judge/profile/browser/outside-IP checks,
+  final-main export/clean clone and encrypted Azure backup/independent restore
+  remain future gates. Historical snapshot/release receipts do not prove them.
+- Docs branch is prepared for review; no main merge or new Actions run is
+  requested in this zero-spend task. Existing Azure remains testing mode.
+
+### Next / blocked
+
+- Stop. Sebastian approves October 4 warm/public ingress/four source profiles/
+  secret creation/window, **the >$40 upper estimate**, separate daily model
+  exposure, exact public snapshot SHA, private credential delivery/email and
+  retirement/backup plan at their marked gates. Image-only release remains
+  within the existing standing OK and cumulative smoke allowance.
+- Frontend picker/redesign must land with green CI/browser evidence before any
+  judge activation. Teardown requires independently verified encrypted retention
+  and exact resource inventory; PostgreSQL `prevent_destroy` is not bypassed.
+- Continue from docs/status/progress-log.md. Next layer: frontend picker/redesign
+  and submission-day approvals. Same rules.
+
 ## 2026-10-02 UTC — one judge login, scoped profile backend
 
 ### Completed (verified)
