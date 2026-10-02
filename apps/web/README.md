@@ -206,3 +206,22 @@ remain enabled without unrelated fixture tests sharing a login bucket. Coverage
 includes actual BFF login/OTP/chat 429s, cross-conversation limits, proposal
 retention, rolling-day expiry, profile-counter rotation, IP normalization and
 bounded-store saturation. Tests use authored fixtures and mock models only.
+
+## Basic mode, expiry and handoff scope
+
+An optional trusted reply `degraded: true` shows **Modo básico** as a neutral
+status in ES/PT; it does not turn a verified offer/receipt into an alarming error.
+Missing/false flags show no notice. The live API field request is documented in
+[API-PROPOSAL.md](API-PROPOSAL.md#basic-mode-reply-signal-2026-10-02-utc).
+
+A protected 401 or `session_ended` response retires the customer workspace,
+aborts/discards pending responses and clears chat drafts, proposals, receipts,
+dialogs and codes before showing an explicit ES/PT re-login message. Other tabs
+receive only a nonsecret generation notification and re-read identity. Wrong OTP,
+step-up-required and expired action challenges remain distinct from login expiry;
+no POST is replayed. An expired login challenge clears its SMS/code and starts a
+fresh password entry. No secret or customer state is cached in browser storage.
+
+Agent Desk describes the **customer workspace's handoff view**, in both languages,
+with scoped handoffs, verified facts/actions and next steps. It is not a bank-wide
+staff queue. Existing role gates and readback controls are unchanged.

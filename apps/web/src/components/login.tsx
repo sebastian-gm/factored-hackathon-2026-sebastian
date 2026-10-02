@@ -62,6 +62,12 @@ export function Login({
     } catch (error) {
       setPassword("");
       setOtp("");
+      if (error instanceof ApiError && error.code === "challenge_expired") {
+        setChallenge("");
+        setSms("");
+        setFailed(t("verificationExpired"));
+        return;
+      }
       setFailed(
         error instanceof ApiError && error.status === 429
           ? t("rateLimited", { seconds: error.retryAfter })

@@ -30,6 +30,7 @@ export default defineConfig({
           "**/minimal-design.spec.ts",
           "**/judge-profiles.spec.ts",
           "**/admission.spec.ts",
+          "**/resilience-ux.spec.ts",
         ],
   fullyParallel: false,
   workers: 1,

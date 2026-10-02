@@ -103,6 +103,7 @@ export const planSchema = z
     policy_rules: z.array(z.string()).nullish(),
     verified: z.boolean().nullish(),
     session_ended: z.boolean().optional(),
+    degraded: z.boolean().optional(),
     freeze_offer: z.array(productSchema).nullish(),
     card: cardSchema.nullish(),
   })

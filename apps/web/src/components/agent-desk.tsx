@@ -116,9 +116,7 @@ export function AgentDesk() {
   }
   return (
     <>
-      {!config.fixtures && (
-        <p className="fixture-note">{t("workspaceScope")}</p>
-      )}
+      <p className="caption muted">{t("workspaceScope")}</p>
       <div className="desk-grid">
         <section className="panel queue-panel">
           <header className="panel-heading">

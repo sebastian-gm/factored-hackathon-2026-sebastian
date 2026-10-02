@@ -41,7 +41,7 @@ test("live workspace: trusted ops role, handoff claim/resolve, measured traces a
   await page.getByRole("button", { name: "Agent Desk", exact: true }).click();
   await expect(
     page.getByText(
-      "Solo los registros de esta sesión de demostración. No es una cola global de clientes.",
+      "Solo las derivaciones de tu espacio de cliente. No es una cola de otros clientes del banco.",
     ),
   ).toBeVisible();
   await expect(
