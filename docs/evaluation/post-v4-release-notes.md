@@ -52,3 +52,44 @@ bindings, human sheets, provider traces and frozen evaluation releases.
 Local/remote CI and the deployed release SHA are recorded in the latest
 [progress log](../status/progress-log.md). Publication, submission-day warm
 replicas and judge access remain off pending separate owner approval.
+
+## Delivered release — 2026-10-01 UTC
+
+Merged combined PR #101 after its single candidate CI/safety run passed. Delivered
+main is **b8c13059e1332f974279ffd61ecb2e6b19c35876**; automatic main CI
+36888960606 and safety 36888960892 passed. Azure runs both SHA-tagged images:
+
+- API: `sha256:c6232ec6adc4568eeeb1125065c0dc7fcfdbbe10f76aad98bb4a4f73a24d972f`
+- Web: `sha256:9f7ebee079a92fd3dc127db893d9668ca861051f8a700563702d7660e7e2bd85`
+
+Reviewed Terraform plan/apply changed only the two existing apps' images/release
+identity and the approved temporary smoke budget binding: **0 added, 2 changed,
+0 destroyed**. Min replicas remain 0, max 1; the owner-IP allowlist, app login,
+internal API, TLS/managed identity and submission-day modes are unchanged. Live
+East US 2 price readback estimated **$34.63/month**, below the $40 stop threshold;
+this is an estimate, not an invoice or an approved warm-replica change.
+
+`scripts.azure_verify`, the capped `scripts.azure_llm_smoke` exercise with authored
+post-v4 assertions, `scripts.serving_browser --target azure`, GET-only story-hint
+checks and azure-access run **36890629027** passed. The smoke independently checked
+the persisted status `verify_readback` and concurrent fraud/legal/human reasons.
+All three story hints were available. Nine model calls were valid, with no fallback
+or unknown costs; charged smoke cost **$0.00827475** under its $0.10 lifetime purse.
+The standard mock-only `scripts.azure_smoke` refuses a real-provider deployment
+and was not run or claimed as passing; the capped real and browser gates cover
+this release. The new ignored `jev-release.json` has all three release flags true.
+
+All-scope charged/reserved cumulative exposure is **$7.61889734**. Including
+retained reserves, remaining dev/comparison allowances, the full v4 cap and
+remaining smoke allowances, the conservative maximum is **$11.90208298 ≤ $12**.
+This broader accounting includes $0.048878 of older scopes outside the legacy
+release helper's named-scope list. No reserve was discarded. Official v4 cost
+**$0.54532659** and its historical completion cumulative **$7.56174459** are unchanged.
+
+Local candidate verification: **834 Python passed / 23 optional skips**, strict
+mypy on 93 files, Ruff/hooks/compile/contracts; **31 disposable Postgres** tests,
+**124 browser** checks (111 fixture + 12 live API + 1 staff), and B1 dev **32/32**
+on both baseline and reactive authored suites. The initial sandbox TestClient run
+stalled and was stopped; the complete host-capable rerun is the passing evidence.
+SHA-256 checks confirmed **855 official/frozen/input files unchanged**, with no
+held-out replay or rescoring. These are repair/release checks, not v4 improvements.

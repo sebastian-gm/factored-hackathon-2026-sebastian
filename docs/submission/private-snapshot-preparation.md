@@ -70,3 +70,42 @@ private evaluation releases are deliberately withheld. No public endpoint or
 visibility was enabled. Refresh and re-audit the snapshot after final feature
 freeze before requesting publication approval. Private receipts are ignored in
 `artifacts/submission-snapshot/audit/`; never attach them or their raw values.
+
+## 2026-10-01 — post-v4 final refresh
+
+Private snapshot **299d0d00ad159a6febe88fd96034dbaa5cb57d7f** is pushed and
+matches GitHub origin/main. Source/deployed main is
+**b8c13059e1332f974279ffd61ecb2e6b19c35876**. This preserves the earlier clean
+snapshot history, imports no private sandbox commits and keeps fictional metadata.
+All **118** product/prompt/config files are byte-identical to source. The post-v4
+repairs are **not reflected in official v4 scores**; the official page/chronology,
+safety failures, both v4 attempts and 0/30 repeat denominator remain disclosed.
+
+Export: **546** allowed source files, **36** withheld. Organizer rows, bindings,
+frozen suites/selections, authoring tools, sheets/provider output, credentials,
+lake/artifacts and private Terraform inputs/state/plans are absent. Only the
+aggregate-only generic validator is retained under suite tools because runner
+tests import it. Five missing-seen-v3-input tests explicitly skip in this export;
+all remaining provider/budget/runner tests remain active. Product files did not
+change. See the [reproduction corrections](clean-clone-reproduction.md#post-v4-clean-clone).
+
+Final pushed-tree and full-history Gitleaks **8.30.1** scans exit **0**, zero
+findings with embedded default rules and five exact path/value exceptions. The
+new fifth false positive is an independently verified Git SHA in frontend evidence;
+every path/value exception has a detecting negative control. No broad exclusions
+or blanket test allowance. Privacy patterns have zero matches, all author/committer
+emails are fictional, visibility PRIVATE, Actions OFF, zero Actions runs.
+
+Fresh corrected clone **aea3d72** verified README fixture/mock setup at **$0**:
+Compose plus authenticated BFF fixture smoke, **829 Python / 28 skips**, B1 **32/32**,
+**31 disposable Postgres** and **124 browsers**, typing/lint/build/contracts.
+Sequential command wall time **543.74 s**. Docker layers and Linux browser libraries
+already existed; Python/web/hooks/Chromium were installed in fresh checkout caches.
+The final commit adds documentation/cache/prerequisite clarifications only.
+Full-data README B, cold OS installation and official evaluation reproduction are
+unverified. No organizer data/key was copied into the clone; its stack is stopped.
+
+The snapshot Git SHA itself was not evaluated or deployed. Public visibility,
+submission-day warming and judge access still require Sebastian's separate OK.
+Private receipts remain ignored; source release evidence is on the docs-only
+`docs/post-v4-release-evidence` branch so exact green main remains stable.

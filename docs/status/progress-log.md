@@ -1,5 +1,111 @@
 # Progress log
 
+## 2026-10-01 UTC — private post-v4 snapshot and clean-clone verified
+
+### Completed (verified)
+
+- Private submission origin/main is
+  **299d0d00ad159a6febe88fd96034dbaa5cb57d7f**. History-preserving refresh from
+  3dbfc1d; source/deployed main **b8c13059e1332f974279ffd61ecb2e6b19c35876**.
+  All **118** product/prompt/config files are byte-identical. Private source
+  history, real commit emails, organizer rows/bindings, sheets/provider traces,
+  frozen suites/selections and authoring tools are excluded. Scrub checks found
+  zero private sandbox links, workstation paths or Azure hostnames.
+- Final Gitleaks 8.30.1 exact directory and full-history scans: **exit 0 / zero
+  findings**, default rules plus five exact path/value exceptions. Added one
+  exception only for an evidence fixture's independently verified Git SHA;
+  negative controls still detect different credentials at every excepted path
+  and an allowed test idempotency value in a different path. Fictional metadata
+  verified; GitHub visibility PRIVATE, Actions OFF, zero Actions runs.
+- README-only fresh clone **aea3d72**: locked Python/web installs, random mode-0600
+  fixture credentials, `make up`, authenticated `scripts.fixture_smoke`,
+  `make checks` (**829 passed / 28 skipped**), explicit B1 (**32/32**), disposable
+  Postgres (**31/31**), typecheck/lint/build, fresh Chromium and browser suites
+  (**111 + 12 + 1 = 124**) all passed. `make down` stopped only that project's
+  containers. Sequential command wall time **543.74 s**; model cost **$0**.
+- Disclosed export failures: missing aggregate-only validator broke collection;
+  retaining the exact source validator fixed it. Five model-study tests need
+  withheld seen-v3 inputs; export-only conditional skips are explicit, not passes.
+  Other runner/provider/budget tests stay active. The sole retained tools file is
+  `validate_release.py`, with no case rows or authoring templates. No product,
+  prompt/config or official metric changed. README adds tested cache/browser
+  prerequisites and removes a stale results-table cell.
+- Final snapshot differs from the tested clone only in README/evidence docs;
+  GitHub SHA readback and final post-push scans passed. Evidence/commands/timings:
+  [clean-clone reproduction](../submission/clean-clone-reproduction.md),
+  [snapshot preparation](../submission/private-snapshot-preparation.md), and
+  [post-v4 release notes](../evaluation/post-v4-release-notes.md). Source evidence
+  is committed on `docs/post-v4-release-evidence`, preserving exact released main.
+
+### Done but not verified
+
+- Organizer-data README B and official evaluation reproduction in the export
+  were not run; private releases are deliberately withheld. Bare-machine OS
+  package installation was not tested; Linux libraries/image layers pre-existed.
+- Human v4 ratings/agreement and fluent-human PT review remain pending. These
+  repairs are **not reflected in v4 results**; no held-out rerun or rescoring.
+
+### Next / blocked
+
+- Stop. Owner supplies the scored human export and decides publication/warm
+  replicas/judge access separately; all remain OFF. No additional spend required.
+- Fold the docs-only evidence branch into the next authorized green integration;
+  no unnecessary Actions run or redeploy for these receipts.
+- Continue from docs/status/progress-log.md. Next layer: human review and
+  submission-day owner decisions. Same rules.
+
+## 2026-10-01 UTC — post-v4 main release verified
+
+### Completed (verified)
+
+- Combined PR **#101** passed its one candidate CI/safety run (36887864771 /
+  36887864886), then merged under standing OK. Released main is
+  **b8c13059e1332f974279ffd61ecb2e6b19c35876**. Automatic main CI 36888960606,
+  safety 36888960892 and outside-network azure-access 36890629027 passed.
+  Owner-approved repairs and AI human-review **ca8fe2c** are included. Official
+  v4 remains unchanged, including failed safety gates and **0/30** repeat flips;
+  McNemar applies to majority pass on the repeated subset.
+- Built/pushed both exact SHA images and read back digests. Fresh East US 2 price
+  estimate **$34.63/month**, below $40. Reviewed image/release identity and
+  approved temporary smoke budget binding only: Terraform **0 added / 2 changed /
+  0 destroyed**. Min replicas 0/max 1, internal API, login/IP allowlist, TLS,
+  managed identity and warm/judge modes unchanged.
+- `scripts.azure_verify` and capped `scripts.azure_llm_smoke` exercise passed.
+  Authored additional smoke assertions verify the independently persisted status
+  readback event and concurrent fraud/legal/typo-human handoff reasons. Nine valid
+  model calls, zero fallback/unknown costs, **$0.00827475** charged. Lifetime purse
+  **$0.10**, scope `production`, run
+  `pre-v4-release-b8c13059e1332f974279ffd61ecb2e6b19c35876` (legacy name retained).
+- `scripts.serving_browser --target azure` passed Chat/Desk/Ops and a verified
+  resolved handoff. GET-only config check confirms all three story hints. New
+  ignored `artifacts/azure/jev-release.json` has all release flags true. The
+  standard mock-only `azure_smoke` was not run on this real-provider release;
+  it is not claimed as passing. Capped real/browser gates are the release evidence.
+- All-scope cumulative charged/reserved **$7.61889734**; conservative maximum
+  **$11.90208298 ≤ $12**, including retained reserves, remaining dev/comparison,
+  full v4 cap and smoke allowances. Older scopes omitted by the legacy helper
+  add **$0.048878** to its narrower total. Official v4 cost **$0.54532659** and
+  historical completion cumulative **$7.56174459** are unchanged.
+- Repair candidate checks: **834 Python / 23 optional skips**, **31 disposable
+  Postgres**, **124 browsers**, B1 baseline/reactive **32/32 each**, strict typing,
+  hooks/contracts/compile passed. Rechecked all **855** official/frozen/input
+  hashes unchanged. No held-out replay, rescoring or abandoned-v1 access.
+
+### Done but not verified
+
+- Refreshed snapshot final audit/clean-clone completed in the newer entry above.
+  Human v4 ratings/agreement and fluent-human PT review remain pending.
+
+### Next / blocked
+
+- Finish the private snapshot audit/reproduction, publish documentation evidence,
+  then stop. No new model spending or evaluation is required.
+- Publication, submission-day warm replicas and judge access remain OFF pending
+  Sebastian's separate approval. Release evidence uses a docs-only branch so the
+  exact green/deployed main SHA remains stable.
+- Continue from docs/status/progress-log.md. Next layer: private submission audit,
+  human review and owner submission-day decisions. Same rules.
+
 ## 2026-10-01 UTC — owner-approved post-v4 fixes and combined release candidate
 
 ### Completed (verified)

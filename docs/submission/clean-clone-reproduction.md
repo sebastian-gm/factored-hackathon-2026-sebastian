@@ -1,5 +1,10 @@
 # Clean-clone reproduction
 
+## Historical September 30 reproduction
+
+The following records the earlier d23fa5a export. The October 1 post-v4
+refresh is recorded separately below; these earlier counts are not current gates.
+
 ## Scope
 
 A fresh clone of this private snapshot was tested without organizer data, private
@@ -78,3 +83,71 @@ release tests are skips, not passes; official evaluation is not reproduced.
 
 Actions stay disabled and this repository stays private. Publication requires the
 owner's separate approval. No Azure resources or access settings were changed.
+
+## Post-v4 clean clone
+
+On 2026-10-01 UTC, a fresh clone of private snapshot
+**aea3d72c7c6333644ffe02a0fbfc74ee5718ebf4** followed README A. Delivered source
+is **b8c13059e1332f974279ffd61ecb2e6b19c35876**. All 118 product/prompt/config
+files are byte-identical to that source. No copied venv, node_modules, .env, lake,
+organizer records, private bindings or provider credentials. Mock only, **$0** model
+spend; no Azure change. This is not reproduction or improvement of v4 scores.
+
+Python 3.12.13, uv 0.11.2, Node 22.20.0, pnpm 10.30.1, Compose 2.36.0-desktop.1.
+Dependencies/hooks and Chromium were installed into fresh checkout-local caches;
+Docker image layers and Linux browser libraries already existed. OS package
+installation on a bare machine is **not verified**. The tested Chromium-only
+install and optional cache variables are now explicit in README; use its separate
+`--with-deps` prerequisite only when libraries are missing. Source/default models,
+policy thresholds, confirmation and OTP were not changed to pass this test.
+
+### Export failures and corrections
+
+1. First driver was stopped manually before OS-package installation; dependency
+   setup and Compose readiness had passed. Its unfinished smoke is not counted.
+   Only its disposable project was stopped, preserving the volume.
+2. Fresh snapshot 3011d74 passed setup and authenticated fixture smoke, but
+   `make checks` failed collection of two runner test modules: the export had
+   withheld their generic `evals/suites/tools/validate_release.py` dependency.
+   Retained only that byte-identical, aggregate-only validator. Authoring tools,
+   frozen suites/selections and bindings remain withheld.
+3. With collection repaired, tests exposed five model-study tests requiring the
+   withheld, previously seen v3 development input: 829 passed, five failed,
+   23 skipped. Those five export tests now explicitly skip when the input directory
+   is absent. All other provider, budget and runner tests remain active. Missing
+   inputs are skips, not passes; no source product or evaluation score changed.
+4. The final fresh clone below ran all README application/check commands
+   successfully. README's stale extra results-table cell was also removed.
+   No undocumented application configuration or organizer input was needed.
+
+### Corrected fresh-clone measurements
+
+| README step | Seconds | Verified result |
+|---|---:|---|
+| `uv sync --extra dev --extra data-ml` | 27.78 | Fresh locked dependencies |
+| `pnpm --dir apps/web install --frozen-lockfile` | 14.02 | Fresh locked dependencies |
+| Local credential/fixture setup | 0.09 | Random ignored credentials, mode 0600 |
+| `make up` | 26.02 | Postgres/API/web healthy |
+| `python -m scripts.fixture_smoke` | 3.74 | Login/OTP, case/handoff readbacks, staff, logout |
+| `make checks` | 101.35 | **829 passed / 28 skipped**, hooks/types/contracts, B1 32/32 |
+| Explicit B1 dev harness | 2.67 | **32/32**, safety guards/readbacks |
+| `python -m scripts.test_postgres` | 29.29 | **31/31**, disposable DB/persistence/RLS |
+| Web typecheck / lint / build | 4.36 / 5.83 / 35.73 | All passed |
+| `playwright install chromium` | 34.18 | Fresh checkout-local browser download |
+| Fixture / live API / staff browsers | 213.11 / 32.06 / 11.94 | **111 + 12 + 1 = 124 passed** |
+| `make down` | 1.58 | Only this project's containers stopped; volume preserved |
+
+Sequential setup/check command wall time: **543.74 s (~9m04s)**,
+excluding clone transfer, diagnosis, failed attempts and documentation. No
+cold-machine speed promise. The five export-only missing-input skips add to 23
+normal optional skips; source candidate checks were separately **834/23**.
+Disposable DB tests are verified separately, not silently included as passes in
+those skips. Browser development generated only `apps/web/next-env.d.ts`, left
+uncommitted in the disposable clone. README documents rebuilding before a later
+production typecheck; no generated test state is exported.
+
+Subsequent snapshot changes record this evidence and README/cache/prerequisite
+clarifications only. The tested setup and product tree remain unchanged. Full-data
+README B, frozen-suite reproduction, cold OS provisioning, human rating agreement
+and public/submission-day access are **not verified** here. Actions stay OFF and
+visibility PRIVATE; publication needs separate owner approval.

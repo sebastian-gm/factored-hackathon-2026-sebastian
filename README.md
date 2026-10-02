@@ -55,7 +55,7 @@ V3 used a fresh suite after v2-informed fixes; it does not revise v2.
 |---|---:|---:|---:|
 | [V2 official](docs/evaluation/final-v2-error-analysis.md) | 65/200 | 63/200 | 21.2% / 20.2% |
 | [V3 after fixes](docs/evaluation/final-v3-results.md) | **52/100** | **77/100** | **28% / 39%** |
-| [V4 official](docs/evaluation/final-v4-results.md) | **62/100** | **88/100** | **22% / 32%** | TODO(results) |
+| [V4 official](docs/evaluation/final-v4-results.md) | **62/100** | **88/100** | **22% / 32%** |
 
 V4's paired SAR difference is **+10 pp (95% CI +5 to +16)**; strict escalation was
 38/53 versus 49/53. P cost **$0.002297661/evaluated case**, with local-serving case
@@ -78,8 +78,10 @@ MFA. Real banking/identity integration, load/recovery and privacy controls remai
 Run these commands from the repository root. Prerequisites: **Python 3.12**, `uv`,
 **Node.js 22**, **pnpm 10.30.1**, Docker Engine with **Compose v2**, `make`, and Git.
 Dependency/image downloads need internet access; no cloud account or model key is
-needed. On Linux, Chromium also needs its OS libraries (the Playwright install
-command below may request sudo). The tested setup and timings are recorded in
+needed. On Linux, Chromium also needs its OS libraries. If they are missing, run
+`pnpm --dir apps/web exec playwright install --with-deps chromium` (may request
+sudo) or ask your administrator; the normal install below downloads Chromium only.
+The tested setup and timings are recorded in
 [clean-clone reproduction](docs/submission/clean-clone-reproduction.md).
 
 ### A. No organizer data: authored fixtures and mock models
@@ -87,6 +89,15 @@ command below may request sudo). The tested setup and timings are recorded in
 This is the runnable judge setup. It exercises real local Postgres, FastAPI and
 the Next.js BFF with a small **authored ledger**. Its results are development
 checks, not reproduction of the official organizer-backed evaluation.
+
+Optional checkout-local caches used in the reproduction test:
+
+```sh
+export UV_CACHE_DIR="$PWD/artifacts/uv-cache"
+export PRE_COMMIT_HOME="$PWD/artifacts/precommit-cache"
+export npm_config_store_dir="$PWD/artifacts/pnpm-store"
+export PLAYWRIGHT_BROWSERS_PATH="$PWD/artifacts/chromium"
+```
 
 ```sh
 uv sync --extra dev --extra data-ml
@@ -139,7 +150,7 @@ uv run --no-sync python -m scripts.test_postgres
 pnpm --dir apps/web typecheck
 pnpm --dir apps/web lint
 pnpm --dir apps/web build
-pnpm --dir apps/web exec playwright install --with-deps chromium
+pnpm --dir apps/web exec playwright install chromium
 pnpm --dir apps/web test:e2e
 pnpm --dir apps/web test:e2e --live
 pnpm --dir apps/web test:e2e --staff
