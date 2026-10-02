@@ -24,6 +24,31 @@
   OpenAPI snapshot, FORCE-RLS migration and Postgres test-runner change.
 - Keep AgentAI/StructuredClient untouched until the concurrency PR lands.
 - Then the approved $0.08 post-v4 dev rerun; human agreement awaits v4 human CSV.
+## 2026-10-02 — Controls ablation authored before inference (AI lane)
+
+### Completed (verified)
+
+- Read handoff 17 and refreshed to main `1f8b838`. Authored/froze 20 synthetic
+  ES/PT dev cases before viewing model outputs; tools exist only in an in-memory fake.
+- All 20 local mock P cases completed; seven isolation/billing/confirmation
+  regressions pass. Free production-key credit preflight passed without key persistence.
+- No edit to the lead's concurrent `AgentAI` / `StructuredClient` work.
+
+### Done but not verified
+
+- Real ablation completed: 20/20 paired dev cases, 59 calls, $0.0441715
+  known/charged cost and zero unknowns, read back from its own $0.15 lifetime
+  purse. P/naive: zero unauthorized/unconfirmed writes, six correct referrals
+  each; naive two success claims without read-back versus P zero. A negated
+  refund scorer false positive was regression-tested and saved arms rescored.
+- Full local/remote CI and PR merge are pending.
+
+### Next / blocked
+
+- Measure once within `dev-gate/controls-ablation`, report aggregates and a chart;
+  then implement the realm-scoped staff queue for lead review, then the approved
+  $0.08 post-v4 dev rerun. These changes are not reflected in official v4.
+- Human agreement awaits Sebastian's exported v4 CSV.
 
 ## 2026-10-02 — Temporal batch merged; approval and local gold verified
 
