@@ -1,5 +1,35 @@
 # Clean-clone reproduction
 
+## October 2 one-command mock demo
+
+A fresh authenticated clone of the private original repository at
+`9f64c0413cf53fee17d5e2c18a9e0e8f4fdbdb02` ran `make demo` unchanged.
+No `.env`, venv, node_modules, lake, organizer data, private bindings or provider
+credentials were copied. Git, make, Python 3.12 and local Docker Compose were
+already installed; workstation Docker layers were cached. Bare-OS installation
+and cold image-download time are not verified. Model spend **$0**.
+
+| Command | Seconds | Verified result |
+|---|---:|---|
+| `make demo` | 40.23 | Healthy Postgres/API/web; ES persona, six authored transactions |
+| `DEMO_LANGUAGE=pt make demo` | 47.70 | Separate project/ports; PT persona, six authored transactions |
+
+Both commands used the live web BFF and mock bank API, rather than browser-only
+presentation fixtures. Each read back login, simulated SMS OTP, persona scope,
+authored ledger, operational-store quality and revoked logout. The readiness
+check deliberately creates no dispute or handoff, so the stories remain ready
+to try. Generated credentials, logs and aggregate receipts stay in ignored,
+checkout-local storage with mode 0600. Four helper isolation/readback tests
+passed; the existing worktree's `.env` was neither read nor overwritten.
+The disposable projects were stopped with `make demo-stop` and its PT variant;
+database volumes were preserved. Existing development projects were untouched.
+
+This is **post-v4 development tooling, not reflected in v4**. It verifies the
+no-organizer fixture demo, not full-data serving, official held-out evaluation,
+paid models or Azure. The later documentation commit records these measurements
+without changing the tested demo source. Private receipts are under ignored
+`artifacts/reproduction-make-demo/clone/artifacts/demo/`.
+
 ## October 2 original-repository clean clone
 
 Fresh authenticated clone of the **private original submission repository** at

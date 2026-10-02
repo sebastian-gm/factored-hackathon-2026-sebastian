@@ -1,4 +1,4 @@
-.PHONY: up down checks eval-smoke interfaces pipeline test-recovery
+.PHONY: up down checks eval-smoke interfaces pipeline test-recovery demo demo-stop demo-check
 
 PRE_COMMIT_HOME ?= $(CURDIR)/artifacts/precommit-cache
 export PRE_COMMIT_HOME
@@ -30,3 +30,13 @@ pipeline:
 
 test-recovery:
 	uv run --no-sync python -m scripts.backup_restore
+
+# Mock-only, isolated credentials and ports; never uses the worktree .env.
+demo:
+	python3 -m scripts.local_demo
+
+demo-stop:
+	python3 -m scripts.local_demo --stop
+
+demo-check:
+	python3 -m scripts.local_demo --check

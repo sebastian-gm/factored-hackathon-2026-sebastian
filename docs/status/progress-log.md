@@ -4978,3 +4978,34 @@ later flag-only session for the current contract and activation dependencies.
   smoke allowance **$0.076661**; conservative maximum **$14.99937448 ≤ $15**.
   Recheck ledger/key before approval/activation; no new paid call authorized by
   these source fixes. Publication/submission/retirement require their own gates.
+
+
+## 2026-10-02 — Final improvements w8: one-command local demo
+
+### Completed (verified)
+
+- Added `make demo`, `demo-check` and `demo-stop`: isolated localhost Compose
+  project/ports per checkout and ES/PT choice; fresh ignored 0600 credentials.
+  Existing worktree .env is neither read nor overwritten. Provider keys and
+  organizer inputs are not passed; mock/fixture settings are enforced.
+- Initial ES demo built and reached healthy Postgres/API/web. Live BFF readback
+  verified login/OTP, authored ledger, store quality and revoked logout without
+  writing a dispute/handoff. Four isolation/readback unit tests and Ruff passed.
+- Fresh private clone of 9f64c04 passed `make demo` (ES **40.23 s**) and
+  `DEMO_LANGUAGE=pt make demo` (**47.70 s**): live BFF, six authored rows each,
+  authentication/OTP/store quality/revoked logout readbacks. No host dependency,
+  environment, organizer or credential copy; cached Docker layers are disclosed
+  in [clean-clone evidence](../submission/clean-clone-reproduction.md).
+- No model/cloud spend, Azure changes or held-out runs. The demo is post-v4
+  development tooling, not reflected in official v4 numbers.
+
+### Done but not verified
+
+- Remote current-head CI and merge are pending. Shared Makefile/Compose
+  overlay changes are explicit in this assignment/PR.
+
+### Next / blocked
+
+- Merge only on green CI. Prepare PNG/SVG slide assets
+  from committed v4 aggregates. Controls ablation and staff queue UI await the
+  orchestrator's item-5 results and item-6 backend contract; no guessed contract.
