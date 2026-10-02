@@ -100,7 +100,7 @@ def test_pt_hint_prepares_authentication_and_real_missing_merchant_choices_only(
     app = create_app(settings, TransactionRepository((first, second)))
     with TestClient(app) as client:
         public = client.get("/personas")
-        assert public.json()[0]["demo_stories"] == ["ambiguous"]
+        assert public.json() == []  # An ops login is not enumerated publicly.
         assert "authored-owner" not in public.text
         assert client.get("/transactions").status_code == 401
         challenge = client.post(
@@ -117,6 +117,7 @@ def test_pt_hint_prepares_authentication_and_real_missing_merchant_choices_only(
             json={"challenge_id": challenge["challenge_id"], "code": code},
         ).json()
         headers = {"Authorization": "Bearer " + session["access_token"]}
+        assert client.get("/me", headers=headers).json()["demo_stories"] == ["ambiguous"]
         cid = client.post("/chat/sessions", headers=headers).json()["conversation_id"]
         response = client.post(
             f"/chat/sessions/{cid}/messages",

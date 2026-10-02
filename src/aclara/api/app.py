@@ -56,6 +56,7 @@ from aclara.api.judge_sessions import (
 )
 from aclara.api.staff import complete_packet, install_staff, verify_handoff_commit
 from aclara.api.staff_contracts import IdentityView
+from aclara.api.turn_logging import log_turn
 from aclara.api.workflows import (
     fraud_handoff,
     install_workflows,
@@ -373,6 +374,7 @@ def create_app(
     }
     judge_config = judge_configuration(active_settings, app.state.personas)
     judge = judge_config.alias if judge_config else None
+    app.state.judge_username = judge.username if judge else None
     if judge is not None:
         app.state.personas[judge.username] = judge
     app.state.demo_stories = demo_story_mappings(
@@ -690,7 +692,11 @@ def create_app(
             principal = judge_sessions.initialize(principal, session_token)
         app.state.sessions[session_token] = principal
         del app.state.challenges[body.challenge_id]
-        return {"access_token": session_token, "token_type": "bearer"}
+        return {
+            "access_token": session_token,
+            "token_type": "bearer",
+            "expires_at": principal.expires_at.isoformat(),
+        }
 
     def identity(principal: Principal) -> IdentityView:
         profile = (
@@ -711,7 +717,7 @@ def create_app(
                 and principal.judge_profile is None,
                 "demo_stories": app.state.demo_stories.get(profile.username, [])
                 if profile
-                else None,
+                else app.state.demo_stories.get(principal.username, []),
             }
         )
 
@@ -819,6 +825,12 @@ def create_app(
             verify_committed_case(result, principal, execution_id)
         if result.get("handoff"):
             verify_handoff_commit(app, result, principal, conversation_id)
+        log_turn(
+            conversation_id,
+            result,
+            app.state.runtime.events[cursor:],
+            degraded=bool(conversation and conversation.degraded),
+        )
         return result
 
     def trusted_country(principal: Principal) -> str | None:
@@ -1463,6 +1475,7 @@ def create_app(
                         public_case(record)
                     ) != DisputeCaseView.model_validate(result["case"]):
                         raise HTTPException(503, "Durable receipt readback failed")
+                log_turn(conversation_id, result, [], degraded=conversation.degraded)
                 return cast(dict[str, Any], result)
             try:
                 result = await process_confirmation(conversation_id, body, principal)
@@ -1501,6 +1514,12 @@ def create_app(
             verify_committed_case(result, principal, execution_id)
         if result.get("handoff"):
             verify_handoff_commit(app, result, principal, conversation_id)
+        log_turn(
+            conversation_id,
+            result,
+            app.state.runtime.events[cursor:],
+            degraded=bool(conversation and conversation.degraded),
+        )
         return result
 
     async def process_confirmation(
