@@ -29,11 +29,16 @@ Invitation consumption and membership activation use separate existing session
 transactions: a crash between them is recoverable by the same staff session.
 
 Only the new masked queue has realm visibility. Its table has **FORCE RLS**;
-the API can insert immutable masked payloads and update only claim-state columns.
+staff can update only claim-state columns. A narrow owner function publishes or
+refreshes a source customer's masked payload under that customer's realm RLS;
+staff cannot invoke it in staff context or directly mutate payloads or realms.
+Verified action updates preserve claim ownership and advance the packet version;
+idempotent claim replay reads the latest verified snapshot.
 Banking tables, transcripts, traces and existing session RLS are unchanged. The
 realm is derived from trusted server identity, never a client-supplied selector.
 Queue payloads omit raw customer/session IDs and recursively redact direct
-identifiers from prose. Claimants use an opaque staff reference. Trace/transcript
+identifiers from prose; generated masked handoff/fact IDs remain intact.
+Claimants use an opaque staff reference. Trace/transcript
 links are omitted because queue permission does not grant those routes.
 
 The customer handoff is published only after its original read-back. Publication

@@ -8,6 +8,7 @@ from datetime import UTC, datetime, timedelta
 
 from test_judge_profiles import application, authenticate, headers, select
 
+from aclara.api import staff_queue
 from aclara.ops.store import Scope
 
 
@@ -72,6 +73,20 @@ def test_same_visit_queue_masking_and_claim_readback_idempotence(monkeypatch):
         ).status_code
         == 409
     )
+    # Verified source updates preserve the claim and idempotent replay reads current facts.
+    source = app.state.sessions[customer]
+    with app.state.store.transaction(staff_queue.scope(source)):
+        packet = dict(app.state.handoffs[key])
+    packet["freeze_outcome"] = "verified"
+    packet["actions_taken"] = [*packet["actions_taken"], "freeze_card"]
+    staff_queue.publish(app, source, packet)
+    refreshed = client.get(path, headers=headers(agent)).json()
+    assert refreshed["status"] == "claimed" and refreshed["version"] == 3
+    assert refreshed["claimed_by"] == claimed.json()["claimed_by"]
+    assert refreshed["freeze_outcome"] == "verified"
+    assert client.post(path + "/claim", headers=headers(agent), json=body).json() == refreshed
+    staff_queue.publish(app, source, packet)
+    assert client.get(path, headers=headers(agent)).json()["version"] == 3
     # A second customer profile in the same visit publishes to the same realm.
     pt = select(client, customer, "pt")
     second = handoff(client, pt)
@@ -130,3 +145,10 @@ def test_expired_and_forged_invites_never_attach_staff(monkeypatch):
         Scope(principal.customer_id, principal.run_id, principal.session_id)
     ):
         assert app.state.idempotency.get("staff-realm") is None
+
+
+def test_digit_only_masked_case_reference_survives_structural_redaction():
+    packet = dict(handoff_id="HO-12345678", customer_statements=[dict(quote="CPF 123.456.789-01")])
+    redacted = staff_queue.masked(packet)
+    assert redacted["handoff_id"] == packet["handoff_id"]
+    assert "123.456.789-01" not in redacted["customer_statements"][0]["quote"]

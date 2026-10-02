@@ -54,6 +54,8 @@ def test_realm_rls_immutable_payload_restart_claim_race_and_audit():
                 pg.execute("UPDATE ops.realm_handoffs SET realm=%s", (other,))
             with pytest.raises(psycopg.errors.InsufficientPrivilege), pg.transaction():
                 pg.execute("DELETE FROM ops.realm_handoffs")
+            with pytest.raises(psycopg.errors.RaiseException), pg.transaction():
+                pg.execute("SELECT ops.publish_handoff_queue('{}'::jsonb)")
 
         def compete(agent):
             replica = Store(dsn)
@@ -83,6 +85,13 @@ def test_realm_rls_immutable_payload_restart_claim_race_and_audit():
                 )
                 audit_count += sum('"claim_handoff_queue"' in row[0] for row in rows)
         assert audit_count == 1
+        with store.transaction(customer), queue.context(store, realm, staff=False):
+            queue.publish(store, realm, payload | dict(summary="Updated verified facts"))
+        with store.transaction(agents[0]), queue.context(store, realm, staff=True):
+            refreshed = queue.read(store, realm)[0]
+            assert refreshed["version"] == 3 and refreshed["status"] == "claimed"
+            assert refreshed["claimed_by"] == saved["claimed_by"]
+            assert refreshed["summary"] == "Updated verified facts"
         # Transaction-local realm settings do not survive pool reuse.
         with store.transaction(agents[0]):
             assert store._unit().connection.execute(

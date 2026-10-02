@@ -76,16 +76,28 @@ def publish(store: Store, realm: str, packet: dict[str, Any]) -> None:
         raise PermissionError("Only a customer can publish a packet")
     key = packet["handoff_id"]
     if unit.connection:
-        unit.connection.execute(
-            "INSERT INTO ops.realm_handoffs(customer_id,realm,id,payload) VALUES(%s,%s,%s,%s) "
-            "ON CONFLICT DO NOTHING",
-            (unit.scope.customer_id, realm, key, Jsonb(packet)),
-        )
+        unit.connection.execute("SELECT ops.publish_handoff_queue(%s)", (Jsonb(packet),))
     else:
-        store.memory.setdefault(
-            (Scope("realm-queue", realm, "queue"), "realm_handoffs", key),
-            dict(owner=unit.scope.customer_id, payload=dict(packet)),
-        )
+        storage_key = (Scope("realm-queue", realm, "queue"), "realm_handoffs", key)
+        previous = store.memory.get(storage_key)
+        if previous is None:
+            store.memory[storage_key] = dict(owner=unit.scope.customer_id, payload=dict(packet))
+        elif previous["owner"] != unit.scope.customer_id:
+            raise PermissionError("Only the source customer can refresh a packet")
+        elif {
+            k: v
+            for k, v in previous["payload"].items()
+            if k not in {"status", "claimed_by", "version"}
+        } != {k: v for k, v in packet.items() if k not in {"status", "claimed_by", "version"}}:
+            stored = previous["payload"]
+            store.memory[storage_key] = previous | dict(
+                payload=packet
+                | dict(
+                    status=stored["status"],
+                    claimed_by=stored["claimed_by"],
+                    version=stored["version"] + 1,
+                )
+            )
     store.audit(dict(action="publish_handoff_queue", handoff_id=key))
 
 

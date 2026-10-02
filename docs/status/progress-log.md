@@ -9,7 +9,10 @@
   $0.0441715 known/charged, 59 calls, zero unknowns; no official v4 changes.
 - Added masked realm publication, short-lived customer invitations, separate
   authenticated staff membership, audited idempotent claims and read-back.
-- Strict mypy and 25 focused mock regressions pass. Customer/root logout revokes
+- Strict mypy and focused mock regressions pass. Initial full checks caught
+  verified packet refresh and digit-only masked-ID regressions; authored tests
+  and fixes preserve claim state while updating verified facts. All 31 targeted
+  routing/freeze/evaluation/queue tests now pass (one DB skip). Customer/root logout revokes
   delegated queue access; different judge visits remain isolated.
 
 ### Done but not verified

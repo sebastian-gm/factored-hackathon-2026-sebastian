@@ -42,13 +42,31 @@ def customer_realm(principal: Any) -> str:
     return hashlib.sha256(("handoff:" + identity).encode()).hexdigest()
 
 
-def masked(value: Any) -> Any:
+STRUCTURAL_FIELDS = frozenset(
+    {
+        "handoff_id",
+        "conversation_id",
+        "id",
+        "record_ref",
+        "handle",
+        "evidence_ref",
+        "created_at",
+        "sla_due_at",
+        "verified_at",
+        "dataset_version",
+        "otp_at",
+        "transaction_date",
+    }
+)
+
+
+def masked(value: Any, field: str = "") -> Any:
     if isinstance(value, str):
-        return redact_for_model(value)
+        return value if field in STRUCTURAL_FIELDS else redact_for_model(value)
     if isinstance(value, list):
-        return [masked(item) for item in value]
+        return [masked(item, field) for item in value]
     if isinstance(value, dict):
-        return {key: masked(item) for key, item in value.items()}
+        return {key: masked(item, key) for key, item in value.items()}
     return value
 
 
@@ -100,7 +118,9 @@ def publish(app: Any, principal: Any, packet: dict[str, Any]) -> None:
         queue.publish(store, realm, expected)
     with store.transaction(scope(principal)), queue.context(store, realm, staff=False):
         rows = queue.read(store, realm, packet["handoff_id"])
-        if len(rows) != 1 or rows[0] != expected:
+        if len(rows) != 1 or {
+            k: v for k, v in rows[0].items() if k not in {"status", "claimed_by", "version"}
+        } != {k: v for k, v in expected.items() if k not in {"status", "claimed_by", "version"}}:
             raise HTTPException(503, "Queue publication readback failed")
 
 
@@ -222,7 +242,12 @@ def claim(app: Any, principal: Any, realm: str, key: str, body: StaffAction) -> 
                 fingerprint=fingerprint, result=expected.model_dump(mode="json")
             )
     actual = packets(app, principal, realm, key)
-    if actual != [expected]:
+    if (
+        len(actual) != 1
+        or actual[0].version < expected.version
+        or actual[0].status != expected.status
+        or actual[0].claimed_by != expected.claimed_by
+    ):
         raise HTTPException(503, "Claim readback failed")
     with store.transaction(scope(principal)):
         store.audit(
