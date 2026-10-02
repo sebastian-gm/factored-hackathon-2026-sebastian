@@ -59,7 +59,8 @@
 
 ### Done but not verified
 
-- Remote CI and merge are pending. These are **post-v4 fixes, not reflected
+- AI item 6 merged as #113 at 2ee162b3cbc864991d28f7a569325db859626d5a
+  after all four remote checks passed. These are **post-v4 fixes, not reflected
   in v4 numbers**; no held-out suite was opened, rerun or rescored.
 
 ### Next / blocked
