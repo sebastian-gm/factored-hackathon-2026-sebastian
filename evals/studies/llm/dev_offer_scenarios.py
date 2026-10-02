@@ -9,8 +9,8 @@ from typing import Any
 import yaml  # type: ignore[import-untyped]
 
 ROOT = Path(__file__).resolve().parents[3]
-CASES = ROOT / "src/aclara/llm/dev_explain_offer_20.yaml"
-MANIFEST = ROOT / "src/aclara/llm/dev_explain_offer_20.sha256"
+CASES = ROOT / "evals/studies/llm/dev_explain_offer_20.yaml"
+MANIFEST = ROOT / "evals/studies/llm/dev_explain_offer_20.sha256"
 
 
 def load_offer_scenarios() -> list[dict[str, Any]]:

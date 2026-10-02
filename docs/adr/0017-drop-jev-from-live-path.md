@@ -10,7 +10,7 @@ It supplied no slots, arithmetic, phrasing or authority. Sebastian approved
 removing it after the external audits. These are **post-v4 fixes, not reflected
 in v4 numbers**; the official evaluation measured Gemini **with Jev**.
 
-The zero-cost [saved-record replay](../../src/aclara/llm/jev_live_replay.py) reads
+The zero-cost [saved-record replay](../../evals/studies/llm/jev_live_replay.py) reads
 only call/decision metadata from completed P checkpoint results. It never opens
 suite rows, exports customer text or requests fresh model outputs. Across 160 P executions it verifies **184 Gemini NLU + 184 Jev risk
 calls = 368**, plus 15 Gemini phrasing calls (**383 total P calls**).
@@ -35,7 +35,7 @@ Reproduce locally with an authorized saved checkpoint directory:
 
 ```sh
 LLM_PROVIDER=mock LLM_REAL_CALLS_APPROVED=0 \
-  uv run --no-sync python -m aclara.llm.jev_live_replay --checkpoints /path/to/saved/checkpoints
+  uv run --no-sync python -m evals.studies.llm.jev_live_replay --checkpoints /path/to/saved/checkpoints
 ```
 
 The earlier [150-case synthetic dev comparison](../ml/typesafe-jev-comparison.md#supporting-risk-cue-union-replayed-after-sebastians-decision)

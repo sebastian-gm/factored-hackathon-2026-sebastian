@@ -6,9 +6,8 @@ import csv
 from pathlib import Path
 
 import pytest
-
-from aclara.llm.judge import JudgeScores, run
-from aclara.llm.judge_validation import (
+from evals.studies.llm.judge import JudgeScores, run
+from evals.studies.llm.judge_validation import (
     DIMENSIONS,
     SHEET_FIELDS,
     agreement,

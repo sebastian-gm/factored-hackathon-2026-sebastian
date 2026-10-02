@@ -4,10 +4,10 @@ from dataclasses import replace
 from pathlib import Path
 
 import pytest
+from evals.studies.llm.dev_post_v4 import inventory, one_attempt, score
+from evals.studies.llm.dev_robustness import DevBudgetStop, save
 
 from aclara.llm.client import StructuredClient
-from aclara.llm.dev_post_v4 import inventory, one_attempt, score
-from aclara.llm.dev_robustness import DevBudgetStop, save
 from aclara.llm.types import ModelSpec
 
 

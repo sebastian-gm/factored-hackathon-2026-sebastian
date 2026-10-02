@@ -6,8 +6,7 @@ from typing import Any
 from uuid import uuid4
 
 import pytest
-
-from aclara.llm.dev_robustness import (
+from evals.studies.llm.dev_robustness import (
     DevBudgetStop,
     ThresholdGate,
     canonical_freeze,
@@ -15,7 +14,7 @@ from aclara.llm.dev_robustness import (
     money,
     summarize,
 )
-from aclara.llm.dev_robustness_cases import validate
+from evals.studies.llm.dev_robustness_cases import validate
 
 
 def test_authored_freeze_remains_structurally_valid() -> None:

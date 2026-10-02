@@ -19,11 +19,7 @@ from aclara.agent.nlg.grounding import redact_for_model
 from aclara.agent.nlu.structured import ExtractedNlu
 from aclara.llm.client import StructuredClient
 from aclara.llm.config import load_models, load_prices
-from aclara.llm.judge import SMOKE_OUTPUT, _read_samples, _smoke_sample
-from aclara.llm.judge_validation import SHEET
 from aclara.llm.prompts import data_block, load_prompt
-from aclara.llm.round_one import ROOT
-from aclara.llm.round_two import load_cases
 from aclara.llm.types import ModelFailure
 from aclara.llm.typesafe import INPUT_USD_PER_MILLION, MODEL_ID, TypeSafeAdapter
 from aclara.llm.typesafe_questions import (
@@ -33,6 +29,10 @@ from aclara.llm.typesafe_questions import (
     judge_questions,
     nlu_questions,
 )
+from evals.studies.llm.judge import SMOKE_OUTPUT, _read_samples, _smoke_sample
+from evals.studies.llm.judge_validation import SHEET
+from evals.studies.llm.round_one import ROOT
+from evals.studies.llm.round_two import load_cases
 
 ARTIFACTS = ROOT / "artifacts/typesafe"
 CHECKPOINTS = {
@@ -361,7 +361,7 @@ def main() -> int:
     )
     args = parser.parse_args()
     if args.stage == "report":
-        from aclara.llm.typesafe_report import report
+        from evals.studies.llm.typesafe_report import report
 
         LOGGER.info("%s", json.dumps(report(), sort_keys=True))
         return 0

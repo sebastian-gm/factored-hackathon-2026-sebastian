@@ -6,8 +6,7 @@ from pathlib import Path
 
 import pytest
 import yaml
-
-from aclara.llm import dev_offer_scenarios
+from evals.studies.llm import dev_offer_scenarios
 
 
 def test_offer_scenarios_preserve_frozen_replies_and_require_the_offer() -> None:

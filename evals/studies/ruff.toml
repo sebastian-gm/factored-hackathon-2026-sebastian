@@ -1,0 +1,5 @@
+extend = "../../pyproject.toml"
+
+[lint.isort]
+# Preserve the frozen builder's historical import grouping after relocation.
+known-first-party = ["aclara", "evals", "scripts"]

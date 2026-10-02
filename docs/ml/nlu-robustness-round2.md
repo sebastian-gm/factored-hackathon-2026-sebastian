@@ -1,9 +1,9 @@
 # Round-two robustness and lean NLU protocol
 
 **Frozen before any round-two product run or repair.** The
-[60 authored conversations](../../src/aclara/llm/dev_robustness_round2_60.yaml),
-[builder](../../src/aclara/llm/dev_robustness_round2_cases.py) and
-[hash manifest](../../src/aclara/llm/dev_robustness_round2_60.manifest.json) contain
+[60 authored conversations](../../evals/studies/llm/dev_robustness_round2_60.yaml),
+[builder](../../evals/studies/llm/dev_robustness_round2_cases.py) and
+[hash manifest](../../evals/studies/llm/dev_robustness_round2_60.manifest.json) contain
 project-generated fixtures only. No organizer records, previous model output or
 v4 input was consulted to author gold. The priority human-review/output-integrity
 PR #77 is separate; any later paid baseline must pin its actual integration SHA.
@@ -238,7 +238,7 @@ Prompt hashes: v5.1
 v5.2
 `2ab79a133cd93e2ab413fd278b84a461a9a7a7b8e46f2436fe596d2372c682d2`.
 
-The [development-only driver](../../src/aclara/llm/dev_prompt_study.py) inventories
+The [development-only driver](../../evals/studies/llm/dev_prompt_study.py) inventories
 all five sets, 240 cases/version, round-robin to avoid covering only the cheapest
 set before a cap. An explicit injected client changes NLU only; production v5.1,
 phrasing, model selection, scoring and authority remain unchanged. Retired v3
@@ -322,7 +322,7 @@ turn/conversation time, retry/fallback rates and **both** calls' costs. Provider
 tails may be correlated, so independence cannot be assumed. No paid hedge arm
 was run under the stopped pre-v4 scope or the queued comparison scope.
 
-Reproducible calculation: [offline latency utility](../../src/aclara/llm/dev_latency.py),
+Reproducible calculation: [offline latency utility](../../evals/studies/llm/dev_latency.py),
 private `before/retry-latency-analysis.json` and `after/retry-latency-analysis.json`
 beside unchanged original journals. All 27 unknown-cost reservations remain;
 latest scope readback is $0.49124327 known / $0.87148777 charged exposure. The

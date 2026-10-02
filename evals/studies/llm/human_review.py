@@ -11,7 +11,7 @@ from collections import Counter
 from pathlib import Path
 from typing import Any, Literal
 
-from aclara.llm.judge_validation import DIMENSIONS, quadratic_weighted_kappa
+from evals.studies.llm.judge_validation import DIMENSIONS, quadratic_weighted_kappa
 
 FIELDS = (
     "sample_id",

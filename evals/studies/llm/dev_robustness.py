@@ -23,8 +23,8 @@ from dotenv import load_dotenv
 
 from aclara.llm.client import StructuredClient
 from aclara.llm.config import load_fallback_route, load_models, load_prices
-from aclara.llm.dev_robustness_cases import ROOT, identity, materialize, validate
 from aclara.llm.types import CallRecord
+from evals.studies.llm.dev_robustness_cases import ROOT, identity, materialize, validate
 
 SCOPE, RUN_ID = "dev-gate/post-v3", "post-v3"
 STOP = Decimal("0.90")
@@ -187,7 +187,7 @@ def summarize(
 
 
 async def run(stage: str, *, round_two: bool = False) -> dict[str, Any]:
-    factory = import_module("aclara.llm.dev_robustness_round2_cases") if round_two else None
+    factory = import_module("evals.studies.llm.dev_robustness_round2_cases") if round_two else None
     validator = factory.validate if factory else validate
     frozen = canonical_freeze(validator())
     scope, run_id = ("dev-gate/pre-v4", "pre-v4") if round_two else (SCOPE, RUN_ID)

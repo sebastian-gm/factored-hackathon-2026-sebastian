@@ -16,14 +16,14 @@ from typesafe_sdk import RetryPolicy, TypeSafeClient
 
 from aclara.agent.nlg.grounding import redact_for_model
 from aclara.llm.client import StructuredClient
-from aclara.llm.final_run import require_start
-from aclara.llm.judge import FULL_CSV, JEV_FULL_CSV, _score
-from aclara.llm.judge_validation import DIMENSIONS, SHEET, _rating, quadratic_weighted_kappa
 from aclara.llm.prompts import Prompt
 from aclara.llm.types import CallRecord
 from aclara.llm.typesafe import MODEL_ID as JEV_MODEL_ID
 from aclara.llm.typesafe import TypedJudgments, TypeSafeAdapter
 from aclara.llm.typesafe_questions import QUESTION_SOURCE_HASH, QUESTION_VERSION, judge_questions
+from evals.studies.llm.final_run import require_start
+from evals.studies.llm.judge import FULL_CSV, JEV_FULL_CSV, _score
+from evals.studies.llm.judge_validation import DIMENSIONS, SHEET, _rating, quadratic_weighted_kappa
 
 LOGGER = logging.getLogger(__name__)
 JEV_JUDGE_RESERVE_USD = 0.01

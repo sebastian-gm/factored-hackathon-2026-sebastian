@@ -40,7 +40,7 @@ The [TypeSafe data-term record](../data-provenance.md) notes that its published 
 
 Sebastian selected Jev as a **risk-cue second opinion**, with Gemini still providing intent, slots and phrasing. The NLU lane now starts one risk-only Jev `Noul` call concurrently with the selected Gemini NLU call, unions each cue at Jev probability `>=0.5`, and keeps Gemini-only flags if Jev fails or times out. Its execution record includes both models' raw flags, Jev's raw probabilities, union flags, per-call cost and a degradation code. Gemini v4 exposes boolean cues but no per-cue probabilities, so its per-cue probability fields are explicitly `null`; `intent_confidence` is recorded separately and is not passed off as risk confidence. Mock and Sonnet frontier routes do not call Jev. This path has offline fixture tests and has **not** been exercised with live paired providers.
 
-The [aggregate-only paired replay](../../src/aclara/llm/typesafe_union_report.py) uses the already saved 150 Gemini and Jev dev observations; it made **no new paid calls**. It preserves the original case IDs, labels and fixed `0.5` threshold.
+The [aggregate-only paired replay](../../evals/studies/llm/typesafe_union_report.py) uses the already saved 150 Gemini and Jev dev observations; it made **no new paid calls**. It preserves the original case IDs, labels and fixed `0.5` threshold.
 
 | Cue | Gemini flags | Jev flags | Union flags |
 |---|---:|---:|---:|
