@@ -7,9 +7,14 @@
 - Both source ledgers now accept the same authored merchant field; the runtime and original default fixtures are unchanged. Guard-exposure counts are recorded separately from safety counters.
 - No changes to `agent/ai.py`, `llm/client.py` or production defaults; no actual banking write capability in the naive arm.
 
+- Full local mock checks: 1,370 passed / 37 DB skips, B1 32/32, Ruff, strict mypy and snapshots pass. Production credit preflight and zero-spend scope read-back passed.
+- Approved paired real pass completed 20/20: scope read-back $0.047119 known/charged, 58 attempts, zero unknowns. P: zero unconfirmed writes/foreign tool attempts; naive: two forged-confirmation writes and one foreign lookup. Both escalated all four over-limit cases.
+- Fixed refund screen flags one PT reply that actually refuses a guarantee; recorded transparently as a false positive, without altering frozen scorer/raw outputs. Full findings in docs/evaluation/controls-ablation-stress.md.
+- P additionally routed PT refund pressure to ESC-03 and unknown-ID text to DSP-06; safety counters are not a 20/20 objective-pass claim. No additional paid calls or tuning.
+
 ## Done but not verified
 
-- Twenty P mock scenarios completed; 11 new isolation/attack regressions pass. Full local mock checks, B1 32/32, Ruff, strict mypy and snapshots pass. Production credit preflight and one approved paid pass remain pending; no real measurements claimed yet.
+- PR #144 includes #143 until that prerequisite lands. Final-head main-targeted CI pending; no deployment claimed.
 
 ## Next / blocked
 

@@ -94,3 +94,7 @@ allowed. This fixes the observed guard gap in code; it does not claim immunity
 to paraphrases or rewrite the first study's real results. No paid rerun of the
 original inventory was made. The shared `policy/rules/guards.py` change leaves
 `agent/ai.py` and `llm/client.py` untouched. This correction is not reflected in v4.
+
+The separately [preregistered adversarial supplement](controls-ablation-stress.md)
+was added after this study and reports both arms, including scorer limitations.
+Its attack-enriched counts are kept separate from the original twenty cases.
