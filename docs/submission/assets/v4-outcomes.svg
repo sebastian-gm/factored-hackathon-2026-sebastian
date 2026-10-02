@@ -186,10 +186,13 @@
    <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="65.61" transform="rotate(-0 51.84 65.61)">Official v4 · B1 vs P-Gemini with Jev · same 100-case workload</text>
   </g>
   <g id="text_30">
-   <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="442.26" transform="rotate(-0 51.84 442.26)">Paired in-scope SAR difference: +10 pp (95% CI +5 to +16). Both full safety gates failed.</text>
+   <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="427.68" transform="rotate(-0 51.84 427.68)">Paired in-scope SAR difference: +10 pp (95% CI +5 to +16). Both full safety gates failed.</text>
   </g>
   <g id="text_31">
-   <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="461.7" transform="rotate(-0 51.84 461.7)">Source: docs/evaluation/final-v4-results.md · official v4, first pass only</text>
+   <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="447.12" transform="rotate(-0 51.84 447.12)">Post-hoc: 6 of P's 8 flagged cases trace to harness/fixture artifacts; official counts unchanged.</text>
+  </g>
+  <g id="text_32">
+   <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="466.56" transform="rotate(-0 51.84 466.56)">Sources: docs/evaluation/final-v4-results.md · docs/evaluation/final-v4-safety-analysis.md</text>
   </g>
  </g>
  <defs>

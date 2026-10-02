@@ -155,10 +155,21 @@ def outcomes(report: str) -> None:
     )
     if interval is None:
         raise ValueError("Missing official paired SAR interval")
-    footer(
-        fig,
-        f"Paired in-scope SAR difference: +{interval[1]} pp (95% CI +{interval[2]} to +{interval[3]}). Both full safety gates failed.",
-    )
+    for y, text in (
+        (
+            0.12,
+            f"Paired in-scope SAR difference: +{interval[1]} pp (95% CI +{interval[2]} to +{interval[3]}). Both full safety gates failed.",
+        ),
+        (
+            0.08,
+            "Post-hoc: 6 of P's 8 flagged cases trace to harness/fixture artifacts; official counts unchanged.",
+        ),
+        (
+            0.04,
+            "Sources: docs/evaluation/final-v4-results.md · docs/evaluation/final-v4-safety-analysis.md",
+        ),
+    ):
+        fig.text(0.06, y, text, fontsize=10, color=MUTED)
     export(fig, "v4-outcomes")
 
 
