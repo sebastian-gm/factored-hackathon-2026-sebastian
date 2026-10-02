@@ -1,5 +1,44 @@
 # Progress log
 
+## 2026-10-01 — Post-v4 dev evidence and verified-money DLP
+
+### Completed (verified)
+
+- Item-6 PR #113 merged at 2ee162b after checks, invariants, postgres and web
+  all passed. Rebased first on merged #109/#111; no deployment was performed.
+- Replayed the unchanged, pre-measurement-frozen 36 authored messages against
+  pre-audit 6a221a4 and current P with the same mock truth/scorer: **21/36 →
+  34/36** after the audits; **35/36** with this monetary DLP correction.
+  Summaries improved from 0/15 useful packets to 12/12; observed unsafe 0.
+- Corrected a false positive on the code-approved 2000000.00 COP display,
+  which resembled a phone number. Only the exact scoped monetary slot in a
+  code-rendered template is excluded; raw/model DLP remains strict. Authored
+  ES/PT regressions retain identifier and duplicate-merchant checks.
+- One serial real pass completed **32/36** (ES 15/18, PT 17/18), observed
+  unsafe/language errors 0. All **28/28** attempts had valid JSON; no retry,
+  fallback, Jev or second pass. Production-key credit preflight passed.
+- Created/read back dedicated scope dev-gate/post-v4-audit, run post-v4-audit,
+  lifetime cap USD 0.10. Final readback: **USD 0.0543715 known/charged**, zero
+  unknown costs. Production/final-evaluation scopes were not used.
+- Mock `make checks`: **1119 passed / 30 DB skips**, hooks, strict mypy, B1
+  **32/32**, compilation and interface/policy checks green. Private receipts
+  and checkpoints are ignored and mode 0600. No credentials/reasoning saved.
+
+### Done but not verified
+
+- Monetary DLP follow-up and evidence PR awaits remote CI/merge. Four real
+  failures and proposed follow-ups are in docs/ml/post-v4-dev-evidence.md;
+  no paid baseline exists, so mock/real scores are not a causal model comparison.
+- This is **post-v4 dev evidence, not held-out**; these are **post-v4 fixes,
+  not reflected in v4 numbers**. No v4 suite was opened/rerun/rescored.
+
+### Next / blocked
+
+- Merge the follow-up only on green remote CI; the lead owns the tagged release.
+  No further inference is authorized by this one-pass task. Portuguese spoken
+  cents, false unfamiliarity, vague amounts and status-duration parsing remain
+  documented dev gaps; defaults remain unchanged.
+
 ## 2026-10-01 — AI audit item 6: handoff context and slot clarification
 
 ### Completed (verified)
