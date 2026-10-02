@@ -4514,7 +4514,8 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
   independently; the mock suite passed outside it. No model/cloud calls.
 - Reconciliation PR #125 initially passed all four gates at `56b0946`; refreshed
   on current main and appended session notes to avoid parallel header conflicts.
-  The new head needs its fresh gates before merge. Source diagnostics
+  All four gates passed again at `e995c8bf30c800117efdbff39496dae89c65958a`.
+  Temporal guard PR #128 is stacked on #125 and awaits lead review. Source diagnostics
   are ignored/private; no organizer rows or backend/policy code changed.
 
 ### Done but not verified
