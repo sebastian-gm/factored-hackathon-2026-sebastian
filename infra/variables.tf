@@ -76,6 +76,16 @@ variable "min_replicas" {
   }
 }
 
+variable "enable_submission_scale" {
+  type        = bool
+  default     = false
+  description = "Plan-only Gate A option: API max 3 with HTTP threshold 5. Requires Sebastian's separate cost/plan approval; workers remain 1."
+  validation {
+    condition     = !var.enable_submission_scale || (var.deploy_apps && var.enable_submission_warm && var.min_replicas == 1)
+    error_message = "API burst scaling requires deployed apps and the separately approved warm window (min 1)."
+  }
+}
+
 variable "enable_judge_access" {
   type        = bool
   default     = false

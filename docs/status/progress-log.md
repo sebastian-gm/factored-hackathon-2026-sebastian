@@ -5030,3 +5030,23 @@ later flag-only session for the current contract and activation dependencies.
 
 - Green remote concurrency PR, plan-only Gate A, v0.8.0 capped release, then
   staff-queue security review. Warm/public judge access remains separately gated.
+
+## 2026-10-02 — Handoff 17, Gate A preparation
+
+### Completed (verified)
+
+- OFF-default API burst option, 13/13 mocked Terraform plans, real preview
+  0 create / 2 update / 0 delete, no apply. Two-worker mock cgroup peak 234.23 MiB;
+  keep workers 1 because 3 × 2 × 9 connections exceeds Postgres's live limit 50.
+- [Gate A plan/cost](../submission/gate-a-scaling-plan.md): $34.28–$62.93/month
+  sharing-window estimate, warm delta $3.43, burst delta $0.054/hour.
+
+### Done but not verified
+
+- Scaling remains OFF; neither production load capacity nor worker RSS is proven.
+
+### Next / blocked
+
+- Separate Gate A plan/window/cost approval before activation. Owner confirms
+  judge OFF for v0.8.0: local/CI realm tests now, live realm gate after submission
+  Gate B approval. Concurrency remote checks/release remain in progress.

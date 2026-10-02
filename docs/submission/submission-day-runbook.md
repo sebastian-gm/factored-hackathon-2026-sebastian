@@ -548,6 +548,13 @@ smoke purse is exhausted, rollback verification is read-only until a new spend O
 
 ## 1. Warm both apps
 
+Optional burst scaling is separately prepared in the
+[Gate A concurrency plan](gate-a-scaling-plan.md): API max 3/HTTP threshold 5,
+workers 1, defaults OFF, monthly upper estimate $62.93. The commands below are
+**warm-only/max 1**. For the burst option, Sebastian must approve the updated
+plan/cost; include `enable_submission_scale=true`, verify API max 3 and its HTTP
+rule, and include `enable_submission_scale=false` in rollback/retirement.
+
 **Gate A, including the >$40 upper estimate.** Final release must already pass.
 
 ```bash
@@ -586,6 +593,14 @@ same inputs/plan/review/apply sequence; leave ingress/login unchanged. Read back
 min=0/max=1. Actual replicas may stay active until idle; this is not a stop command.
 
 ## 2. Enable the judge entry and verify public access
+
+**Deferred live realm gate (v0.8.0):** after Sebastian's Gate B approval and judge
+activation, use two independent judge logins/OTP visits, select the same profile
+and eligible story in each, and file with confirmation/step-up/readback. Both
+must receive distinct verified receipts for the same scoped transaction. Confirm
+neither visit can read the other's receipt; switching back in one visit retains
+its own case. Preserve traces privately, report aggregates only, use the approved
+judging purse. Before activation this is covered only by local/Postgres/CI tests.
 
 **Gate B:** approve exact four source profiles, account, public web, role grants,
 the proposed $1/UTC-day plus cumulative judging exposure/window, external check
