@@ -30,7 +30,11 @@ worker. Two workers require a separately verified connection/memory plan.
 
 ## Verified plan and cost
 
-Mocked Terraform plans: **13 passed / 0 failed**. Real state-based preview,
+Mocked Terraform plans: **13 passed / 0 failed**. The deferred Gate B check is
+also strengthened: two visits actually file the same authored story with distinct
+verified receipts and cross-visit denial (four memory cases; disposable Postgres
+suite **86/86**, covering all four profiles). Judge access stays OFF in Azure.
+Real state-based preview,
 `-refresh=false -lock=false`: **0 create / 2 update / 0 delete**. Only API min/max/
 HTTP rule and web min change; inputs unchanged. Private plan SHA-256:
 `78a3e7a518fe8293c8032e1a4cf5c937e56fe3bf39c01eff0f7af2815b7b577c`.

@@ -5076,6 +5076,9 @@ later flag-only session for the current contract and activation dependencies.
 - [Gate A plan/cost](../submission/gate-a-scaling-plan.md): $34.28–$62.93/month
   sharing-window estimate, warm delta $3.43, burst delta $0.054/hour.
 
+- Strengthened judge filing/readback/isolation checks: 4/4 memory profiles and
+  disposable Postgres suite 86/86; no Azure judge activation.
+
 ### Done but not verified
 
 - Scaling remains OFF; neither production load capacity nor worker RSS is proven.
