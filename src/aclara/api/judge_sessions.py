@@ -47,6 +47,11 @@ def realm(username: str) -> str:
     return hashlib.sha256(username.encode()).hexdigest()[:12]
 
 
+def visit_id(reference: JudgeReference) -> str:
+    """Stable within one authenticated visit; independent shared-account logins differ."""
+    return hashlib.sha256(reference.digest.encode()).hexdigest()[:24]
+
+
 class JudgeSessions:
     def __init__(
         self,
@@ -131,6 +136,9 @@ class JudgeSessions:
                 and principal.locale == persona.locale
                 and principal.run_id.partition("_")[0]
                 == self.profile_realm(principal.judge_profile)
+                and hmac.compare_digest(
+                    principal.run_id.partition("_")[2].partition("_")[0], visit_id(reference)
+                )
             )
         if not valid:
             raise HTTPException(401, "Judge scope unavailable")
@@ -140,7 +148,13 @@ class JudgeSessions:
         controller = self.validate(principal)
         reference = self._reference(principal)
         persona = self.configuration.profiles[profile_id]
-        run_id = self.profile_realm(profile_id) + "_" + secrets.token_urlsafe(18)
+        run_id = (
+            self.profile_realm(profile_id)
+            + "_"
+            + visit_id(reference)
+            + "_"
+            + secrets.token_urlsafe(18)
+        )
         sid = secrets.token_urlsafe(18)
         token = f"{run_id}.{sid}.{secrets.token_urlsafe(32)}"
         digest = hashlib.sha256(token.encode()).hexdigest()

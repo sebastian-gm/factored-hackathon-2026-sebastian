@@ -126,6 +126,129 @@ def test_customer_dispute_survives_login_and_lost_response_retry(store):
     asyncio.run(check())
 
 
+@pytest.mark.parametrize("profile", ["mx-es", "co-es", "ar-es", "pt"])
+def test_judge_case_and_card_realms_are_fresh_per_login_and_survive_return_and_restart(
+    store, monkeypatch, profile
+):
+    from test_judge_profiles import application, authenticate, headers, select
+
+    app, settings, client = application(monkeypatch, store=store)
+    first = select(client, authenticate(client, settings), profile)
+    auth = headers(first)
+    cid = client.post("/chat/sessions", headers=auth).json()["conversation_id"]
+    query = "No hice el cargo de Fixture " + profile + " por 20 USD"
+    proposal = client.post(
+        f"/chat/sessions/{cid}/messages", headers=auth, json={"message": query}
+    ).json()
+    assert proposal["outcome"] == "dispute_proposed"
+    filed = client.post(
+        f"/chat/sessions/{cid}/confirm",
+        headers=auth,
+        json={"proposal_hash": proposal["proposal"]["proposal_hash"], "confirmed": True},
+    ).json()
+    assert filed["verified"]
+    principal = app.state.sessions[first]
+    with store.transaction(Scope(principal.customer_id, principal.run_id, principal.session_id)):
+        app.state.card_states["judge-product-" + profile] = {"status": "Frozen"}
+    second = select(client, authenticate(client, settings), profile)
+    assert (
+        client.get("/disputes/" + filed["case"]["case_id"], headers=headers(second)).status_code
+        == 404
+    )
+    assert client.get("/cards/prod_1", headers=headers(second)).json()["status"] == "Active"
+    fresh_cid = client.post("/chat/sessions", headers=headers(second)).json()["conversation_id"]
+    fresh = client.post(
+        f"/chat/sessions/{fresh_cid}/messages", headers=headers(second), json={"message": query}
+    ).json()
+    assert fresh["outcome"] == "dispute_proposed"
+    # The second visitor does not revoke or acquire the first visitor's authority.
+    other_profile = "pt" if profile != "pt" else "mx-es"
+    returned = select(client, select(client, first, other_profile), profile)
+    assert (
+        client.get("/disputes/" + filed["case"]["case_id"], headers=headers(returned)).status_code
+        == 200
+    )
+    assert client.get("/cards/prod_1", headers=headers(returned)).json()["status"] == "Frozen"
+    _, _, restarted = application(monkeypatch, store=store, settings=settings)
+    assert (
+        restarted.get(
+            "/disputes/" + filed["case"]["case_id"], headers=headers(returned)
+        ).status_code
+        == 200
+    )
+    assert (
+        restarted.get("/disputes/" + filed["case"]["case_id"], headers=headers(second)).status_code
+        == 404
+    )
+    assert restarted.get("/cards/prod_1", headers=headers(second)).json()["status"] == "Active"
+
+
+def test_owner_reset_clears_customer_bank_maps_across_logins_without_touching_judge_realm(store):
+    async def check():
+        settings = replace(
+            _settings(),
+            demo_role="ops",
+            allow_demo_reset=True,
+            demo_customer_id="fixture-reset-" + uuid4().hex,
+        )
+        ledger = TransactionRepository(
+            tuple(
+                replace(r, customer_id=settings.demo_customer_id)
+                for r in TransactionRepository()._rows
+                if r.customer_id == "demo-customer-01"
+            )
+        )
+        app = create_app(settings, ledger, store=store)
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+            token = await _sign_in(client)
+            auth = {"Authorization": "Bearer " + token}
+            other = {"Authorization": "Bearer " + await _sign_in(client)}
+            proposal, cid = await message(client, auth, "No hice el cargo de Mercado Verde")
+            body = {"proposal_hash": proposal["proposal"]["proposal_hash"], "confirmed": True}
+            filed = (
+                await client.post(f"/chat/sessions/{cid}/confirm", headers=auth, json=body)
+            ).json()
+            assert filed["verified"]
+            principal = app.state.sessions[token]
+            owner_scope = Scope(principal.customer_id, principal.run_id, principal.session_id)
+            with store.transaction(owner_scope):
+                app.state.card_states[ledger._rows[0].product_id] = {"status": "Frozen"}
+            protected = store.customer_mapping(
+                "customer_cases", dict, lambda _: "judge:authored", legacy="cases"
+            )
+            protected_scope = Scope(principal.customer_id, "authored-other-visit", "protected")
+            with store.transaction(protected_scope):
+                protected["DSP-AUTHORED-PROTECTED"] = {
+                    "transaction_id": "protected",
+                    "status": "received",
+                }
+            assert (
+                await client.get("/disputes/" + filed["case"]["case_id"], headers=other)
+            ).status_code == 200
+            await step_up(client, auth)
+            reset_proposal = (await client.post("/ops/reset/proposal", headers=auth)).json()
+            reset_body = {"proposal_hash": reset_proposal["proposal_hash"], "confirmed": True}
+            reset = await client.post("/ops/reset", headers=auth, json=reset_body)
+            assert reset.status_code == 200 and reset.json()["remaining_operations"] == 0
+            assert (
+                await client.get("/ops/reset/" + reset.json()["receipt_id"], headers=auth)
+            ).json() == reset.json()
+            assert (
+                await client.post("/ops/reset", headers=auth, json=reset_body)
+            ).json() == reset.json()
+            assert (
+                await client.get("/disputes/" + filed["case"]["case_id"], headers=other)
+            ).status_code == 404
+            assert (await client.get("/cards/prod_1", headers=other)).json()["status"] == "Active"
+            assert (await client.get("/me", headers=other)).status_code == 200
+            with store.transaction(protected_scope):
+                assert len(protected) == 1
+            fresh, _ = await message(client, other, "No hice el cargo de Mercado Verde")
+            assert fresh["outcome"] == "dispute_proposed"
+
+    asyncio.run(check())
+
+
 def test_frozen_card_receipt_retry_is_read_only_after_step_up_expires(store):
     async def check():
         app = create_app(_settings(), store=store)

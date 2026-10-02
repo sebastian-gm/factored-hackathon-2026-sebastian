@@ -531,11 +531,24 @@ def install_staff(
             ):
                 raise HTTPException(409, "Reset proposal expired or changed")
             if body.confirmed:
+                # Bank maps are customer/realm-scoped since #111. Clearing only
+                # legacy session tables leaves disputes/cards visible after login.
+                for records in (app.state.cases, app.state.card_states):
+                    for key in list(records):
+                        del records[key]
                 for table in (*OPERATIONS, "idempotency_keys"):
                     for key in store.keys(table):
                         store.delete(table, key)
                 store.audit({"action": "workspace_reset", "audit_retained": True})
-            remaining = sum(len(store.keys(table)) for table in OPERATIONS)
+            remaining = (
+                len(app.state.cases)
+                + len(app.state.card_states)
+                + sum(
+                    len(store.keys(table))
+                    for table in OPERATIONS
+                    if table not in {"cases", "card_states"}
+                )
+            )
             result = ResetReceipt(
                 receipt_id=body.proposal_hash,
                 reset=body.confirmed,
@@ -546,7 +559,11 @@ def install_staff(
                 mode="json"
             )
         with store.transaction(scope(principal)):
-            if body.confirmed and any(store.keys(table) for table in OPERATIONS):
+            if body.confirmed and (
+                app.state.cases
+                or app.state.card_states
+                or any(store.keys(table) for table in OPERATIONS)
+            ):
                 raise HTTPException(503, "Reset readback failed")
         return result
 
