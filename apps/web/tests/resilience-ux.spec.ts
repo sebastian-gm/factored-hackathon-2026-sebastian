@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "./helpers/test";
+import { selectLoginPersona } from "./helpers/login-persona";
 import AxeBuilder from "@axe-core/playwright";
 import { mkdir, chmod } from "node:fs/promises";
 import { offerFixture, multiReasonPacket } from "./fixtures/conversation-ui";
@@ -8,6 +9,7 @@ async function login(page: Page, pt: boolean, agent = false) {
   await page.goto("/");
   if (agent)
     await page.getByRole("button", { name: "Agent Desk", exact: true }).click();
+  if (agent) await selectLoginPersona(page, "demo.agent");
   if (pt) await page.getByLabel("Idioma y región").selectOption("pt-BR");
   await page
     .locator("input[type=password]")
