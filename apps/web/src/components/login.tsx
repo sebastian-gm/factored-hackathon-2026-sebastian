@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 import { ArrowRight, LockKeyhole, Smartphone } from "lucide-react";
-import { api } from "@/lib/client";
+import { api, ApiError } from "@/lib/client";
 import type { Role } from "@/lib/contracts";
 import { useApp } from "./workspace";
 import { Button } from "./ui/button";
@@ -27,7 +27,7 @@ export function Login({
     [challenge, setChallenge] = useState(""),
     [sms, setSms] = useState("");
   const [busy, setBusy] = useState(false),
-    [failed, setFailed] = useState(false);
+    [failed, setFailed] = useState("");
   const form = useRef<HTMLFormElement>(null);
   useEffect(() => {
     if (!challenge) return;
@@ -40,7 +40,7 @@ export function Login({
     event.preventDefault();
     if (busy) return;
     setBusy(true);
-    setFailed(false);
+    setFailed("");
     try {
       if (!challenge) {
         const auth = await api<{ challenge_id: string }>("auth/login", {
@@ -59,8 +59,14 @@ export function Login({
         setSms("");
         await signedIn();
       }
-    } catch {
-      setFailed(true);
+    } catch (error) {
+      setPassword("");
+      setOtp("");
+      setFailed(
+        error instanceof ApiError && error.status === 429
+          ? t("rateLimited", { seconds: error.retryAfter })
+          : t("loginFail"),
+      );
     } finally {
       setBusy(false);
     }
@@ -171,7 +177,7 @@ export function Login({
                 setChallenge("");
                 setSms("");
                 setOtp("");
-                setFailed(false);
+                setFailed("");
               }}
             >
               {t("restart")}
@@ -180,7 +186,7 @@ export function Login({
         )}
         {failed && (
           <p className="error" role="alert">
-            {t("loginFail")}
+            {failed}
           </p>
         )}
       </form>
