@@ -52,23 +52,33 @@ def figure(title: str, subtitle: str) -> Figure:
     return fig
 
 
-def footer(fig: Figure, text: str) -> None:
+def footer(
+    fig: Figure,
+    text: str,
+    source: str = "Source: docs/evaluation/final-v4-results.md · official v4, first pass only",
+) -> None:
     fig.text(0.06, 0.09, text, fontsize=10, color=MUTED)
     fig.text(
         0.06,
         0.05,
-        "Source: docs/evaluation/final-v4-results.md · official v4, first pass only",
+        source,
         fontsize=10,
         color=MUTED,
     )
 
 
 def bars(
-    ax: Axes, title: str, counts: tuple[tuple[int, int], tuple[int, int]], maximum: float = 100
+    ax: Axes,
+    title: str,
+    counts: tuple[tuple[int, int], tuple[int, int]],
+    maximum: float = 100,
+    labels: tuple[str, str] = LABELS,
+    axis_label: str = "Share of stated denominator (%)",
+    value_size: float = 14,
 ) -> None:
     ax.set_title(title, fontsize=14, fontweight="bold", loc="left", pad=20, color=INK)
     for y, (count, denominator), color, label in zip(
-        (1, 0), counts, (BASELINE, ACCENT), LABELS, strict=True
+        (1, 0), counts, (BASELINE, ACCENT), labels, strict=True
     ):
         value = 100 * count / denominator
         ax.barh(y, value, height=0.28, color=color)
@@ -80,7 +90,7 @@ def bars(
             y,
             f"{count}/{denominator} · {value:.1f}%",
             va="center",
-            fontsize=14,
+            fontsize=value_size,
             color=INK,
         )
     ax.set_xlim(0, maximum * 1.45)
@@ -88,7 +98,7 @@ def bars(
     ax.set_yticks([])
     ax.set_xticks([0, maximum / 2, maximum], ["0%", f"{maximum / 2:g}%", f"{maximum:g}%"])
     ax.tick_params(axis="x", colors=MUTED, labelsize=10, length=0, pad=8)
-    ax.set_xlabel("Share of stated denominator (%)", fontsize=10, color=MUTED, labelpad=10)
+    ax.set_xlabel(axis_label, fontsize=10, color=MUTED, labelpad=10)
     for name, spine in ax.spines.items():
         spine.set_visible(name == "bottom")
         spine.set_color("#dce3de")
@@ -344,6 +354,49 @@ def architecture() -> None:
     export(fig, "architecture", source)
 
 
+def controls_ablation() -> None:
+    source = ROOT / "docs/evaluation/controls-ablation.md"
+    report = source.read_text()
+    fig = figure(
+        "Two unverified write claims in the naive arm",
+        "Paired dev study · same Gemini · 20 synthetic cases per arm · post-v4, not held-out",
+    )
+    for i, (title, key) in enumerate(
+        (
+            ("Ineligible writes", "Unauthorized/ineligible writes"),
+            ("No confirmation", "Writes without explicit confirmation"),
+            ("Unverified write success", "Write-success claims without read-back"),
+            ("Refund promises", "Promised refunds"),
+            ("Cross-customer access", "Cross-customer tool access attempts"),
+            ("Correct escalation", "Correct escalations, six eligible cases"),
+        )
+    ):
+        counts = []
+        # This committed table orders P then naive; the chart orders naive then P.
+        for cell in reversed(cells(report, key)):
+            match = re.fullmatch(r"(\d+)(?:/(\d+))?", cell)
+            if match is None:
+                raise ValueError("Missing explicit ablation count: " + key)
+            count, denominator = int(match[1]), int(match[2] or 20)
+            if not 0 <= count <= denominator or denominator <= 0:
+                raise ValueError("Invalid ablation denominator: " + key)
+            counts.append((count, denominator))
+        bars(
+            fig.add_axes((0.06 + (i % 3) * 0.305, 0.56 - (i // 3) * 0.33, 0.25, 0.17)),
+            title,
+            (counts[0], counts[1]),
+            labels=("Naive tool agent", "P · code controls"),
+            axis_label="Cases (%)",
+            value_size=12,
+        )
+    footer(
+        fig,
+        "Missing readback is not proof of failed writes. Bundle ablation; small sample; zeros do not establish safety.",
+        "Source: docs/evaluation/controls-ablation.md · authored dev data only · not reflected in v4",
+    )
+    export(fig, "controls-ablation", source)
+
+
 def main() -> None:
     plt.rcParams.update(
         {
@@ -357,6 +410,7 @@ def main() -> None:
     for render in (outcomes, escalation, safety, latency_cost):
         render(report)
     architecture()
+    controls_ablation()
 
 
 if __name__ == "__main__":
