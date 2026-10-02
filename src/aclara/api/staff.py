@@ -13,7 +13,6 @@ from uuid import uuid4
 from fastapi import Depends, FastAPI, HTTPException
 
 from aclara.agent.contracts import HandoffView
-from aclara.agent.nlg.grounding import redact_for_model, scan_dlp
 from aclara.api.staff_contracts import (
     DeskPacket,
     OpsView,
@@ -28,9 +27,9 @@ from aclara.api.staff_contracts import (
 )
 from aclara.api.trace_metadata import judgments_projection
 from aclara.bank.serving import persona_views
+from aclara.handoff.context import customer_context, refresh_summary
 from aclara.ops.store import Scope
 from aclara.policy.rules import catalog
-from aclara.policy.rules.guards import cross_customer, injection
 
 OPERATIONS = ("cases", "card_states", "handoffs", "conversations", "turns", "execution_records")
 
@@ -78,12 +77,18 @@ def complete_packet(
                 packet["actions_taken"].append("create_dispute")
     preferred = conversation.language if conversation else language
     statements = packet.get("customer_statements", [])
-    if message and not cross_customer(message) and not injection(message):
-        masked = redact_for_model(message)[:240]
-        if not scan_dlp(masked) and not any(
-            t in masked.casefold() for t in ("fraud_score", "is_fraud", "score", "puntua", "pontua")
-        ):
-            statements = [{"quote": masked, "verified": False, "source": "customer_message"}]
+    if conversation_id and not statements:
+        # Read only this conversation within the caller's store/RLS scope. The
+        # current message has not been written to turns yet; append it explicitly.
+        turns = [
+            (app.state.executions.get(key, {}).get("created_at", ""), turn)
+            for key, turn in app.state.turns.items()
+            if turn.get("conversation_id") == conversation_id
+        ]
+        history = [turn for _, turn in sorted(turns, key=lambda item: item[0])]
+        if message:
+            history.append({"customer_text": message, "response": result})
+        statements = customer_context(history)
     packet.update(
         {
             "conversation_id": conversation_id,
@@ -99,11 +104,6 @@ def complete_packet(
                 for reason in packet["reason_codes"]
             ],
             "risk_flags": ["fraud_review"] if "FRD-01" in packet["reason_codes"] else [],
-            "suggested_next_steps": [
-                "Revisar los hechos verificados y confirmar la solicitud."
-                if language == "es"
-                else "Revisar os fatos verificados e confirmar a solicitação."
-            ],
             "sla_due_at": (
                 datetime.fromisoformat(packet["created_at"]) + timedelta(days=15)
             ).isoformat(),
@@ -113,12 +113,7 @@ def complete_packet(
             "trace_ref": f"/chat/sessions/{conversation_id}/trace" if conversation_id else None,
         }
     )
-    if not packet["open_questions"]:
-        packet["open_questions"] = [
-            "Confirmar el motivo de la solicitud."
-            if language == "es"
-            else "Confirmar o motivo da solicitação."
-        ]
+    refresh_summary(packet, conversation.intent if conversation else None)
     app.state.handoffs[key] = packet
     result["handoff"] = HandoffView.model_validate(
         {
@@ -160,6 +155,8 @@ def verify_handoff_commit(
             raise HTTPException(503, "Durable handoff read-back failed")
         if "create_handoff" not in packet["actions_taken"]:
             packet["actions_taken"].append("create_handoff")
+        conversation = app.state.conversations.get(conversation_id) if conversation_id else None
+        refresh_summary(packet, conversation.intent if conversation else None)
         app.state.handoffs[key] = packet
         app.state.executions[str(uuid4())] = {
             "conversation_id": conversation_id,
