@@ -61,6 +61,14 @@ literal still receives DLP checks; independent phone numbers remain blocked.
 [Regressions](../../tests/test_post_v4_verified_money.py) cover ES/PT large
 amounts, canonical approved replies, offers, proposals and identifier controls.
 
+A subsequent **mock-only** privacy correction masks labelled dotted/dashed
+CPF/DNI/RUT/cédula values before model input and in handoff quotes, while
+preserving ordinary financial amounts and dates. A dotted eight-digit DNI
+previously escaped both the plain document regex and the nine-digit phone
+minimum. [Authored redaction tests](../../tests/test_post_v4_document_redaction.py)
+cover the gap. The measured source above predates this additional correction;
+no second real pass was made.
+
 The one real pass left four observable failures; no paid rerun followed:
 
 | Dev ID | Observed behavior | Diagnosis / proposed follow-up |

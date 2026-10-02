@@ -23,10 +23,14 @@
 - Mock `make checks`: **1119 passed / 30 DB skips**, hooks, strict mypy, B1
   **32/32**, compilation and interface/policy checks green. Private receipts
   and checkpoints are ignored and mode 0600. No credentials/reasoning saved.
+- During the owner's merge hold, added mock-only redaction for labelled
+  dotted/dashed CPF/DNI/RUT/cédula in model inputs and staff quotes. The earlier
+  dotted DNI escaped the plain document and phone patterns. Targeted context,
+  money and redaction checks: **39 passed**; paid metrics predate this patch.
 
 ### Done but not verified
 
-- Monetary DLP follow-up and evidence PR awaits remote CI/merge. Four real
+- Monetary DLP follow-up and evidence PR #118 awaits remote CI/merge. Four real
   failures and proposed follow-ups are in docs/ml/post-v4-dev-evidence.md;
   no paid baseline exists, so mock/real scores are not a causal model comparison.
 - This is **post-v4 dev evidence, not held-out**; these are **post-v4 fixes,
@@ -35,6 +39,8 @@
 ### Next / blocked
 
 - Merge the follow-up only on green remote CI; the lead owns the tagged release.
+  Owner's new merge hold requires #114 → #116 → #117 and explicit clearance
+  before any further merge; #113 merged before that hold. Keep #118 refreshed.
   No further inference is authorized by this one-pass task. Portuguese spoken
   cents, false unfamiliarity, vague amounts and status-duration parsing remain
   documented dev gaps; defaults remain unchanged.
