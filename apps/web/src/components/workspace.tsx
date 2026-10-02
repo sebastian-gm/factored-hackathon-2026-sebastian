@@ -103,7 +103,13 @@ export default function Workspace({
     setSession(null);
     setProfiles(null);
     setPreparedStory(null);
-    setConfig((c) => ({ ...c, bankClock: null }));
+    setConfig((c) => ({
+      ...c,
+      bankClock: null,
+      personas: c.personas.filter(
+        (p) => p.role === "customer" && !p.username.startsWith("judge."),
+      ),
+    }));
     // Do not store customer/profile state in history. Back cannot restore it.
     if (window.location.pathname !== "/")
       window.history.replaceState(null, "", "/" + window.location.search);
@@ -136,6 +142,31 @@ export default function Workspace({
     setConfig((c) => ({
       ...c,
       bankClock: current?.bank_clock ?? configuredClock.current,
+      // Only the authenticated identity supplies private account hints. Public
+      // config never enumerates staff/judge identities. Logout removes them.
+      personas: [
+        ...c.personas.filter(
+          (p) => p.role === "customer" && !p.username.startsWith("judge."),
+        ),
+        ...(current &&
+        !isJudge &&
+        !c.personas.some(
+          (p) =>
+            p.username === current.username &&
+            p.role === "customer" &&
+            !p.username.startsWith("judge."),
+        )
+          ? [
+              {
+                username: current.username,
+                label: "",
+                role: current.role,
+                locale: current.locale!,
+                demo_stories: current.demo_stories ?? [],
+              },
+            ]
+          : []),
+      ],
     }));
   }, []);
   const recheckSession = useCallback(async () => {

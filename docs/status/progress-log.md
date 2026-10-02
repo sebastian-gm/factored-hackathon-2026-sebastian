@@ -1,5 +1,46 @@
 # Progress log
 
+## 2026-10-01 — Audit item 7: runtime and login hygiene
+
+### Completed-verified
+
+- Refreshed onto merged #109/#111 using history-preserving main updates. API
+  image runs as UID 10001: local Docker build and actual non-root mock import
+  passed. Freeze readback failure raises 503 and rolls back, including under -O.
+- Public personas/BFF config omit staff/judge names. Staff login accepts manual
+  usernames. Authenticated /me supplies only that account's gated story hints;
+  logout discards them. Session/cookie lifetime is 35 minutes, with the cookie
+  deadline taken from the server's grant. Judge profile expiry remains unchanged.
+- One metadata-only JSON line per committed chat/confirmation turn records
+  conversation ID, outcome, rules, model latency/cost and degradation. Unknown
+  model cost remains null; no customer text, facts, credentials or prompts.
+- Bounded-thread mock `make checks`: **1090 passed / 30 database skips**, Ruff,
+  strict mypy, compilation, interfaces/policy snapshots and B1 **32/32**. Reactive
+  B1 also **32/32**. Latest targeted hygiene checks **5 passed** plus Ruff/mypy.
+- Web typecheck/lint/build passed. Privacy/story browser checks **18/18**;
+  `pnpm --dir apps/web test:e2e --live` **12/12**, `--staff` **1/1**. Initial
+  browser expectations enumerated staff names; corrected to authenticated hints.
+  The expiry check initially read cookies before OTP completed; its explicit
+  authenticated-state wait fixed the test race. All verification used mocks.
+
+- Concurrent #115 rate-limit merge required a second history-preserving refresh.
+  Kept the admission fixture and private-login helper. Combined local typecheck,
+  **148 fixture + 12 live API browser checks** pass, real limiter enabled.
+  Explicit optimized Python freeze regression **1 passed** under `python -O`.
+
+### Done-not-verified
+
+- Full fixture browser suite previously had 129 passes and eight obsolete
+  public-persona expectations; corrected target suite passed 18/18. Fresh full
+  remote browser gate and PR merge pending. Nothing in this entry claims Azure.
+- Minimal web/login and staff shared-file edits implement the authorized public
+  enumeration fix. These are **post-v4 fixes, not reflected in v4 numbers**.
+
+### Next-blocked
+
+- Merge only on green remote CI; integrate AI item 6 before item 8 NLU boundary.
+  Then update the Jev-off smoke gate, tagged v0.6.0 release, authorized real
+  rehearsal and handoff 16 section B. No replicas, CPU or access changes.
 ## 2026-10-01 — AI audit item 6: handoff context and slot clarification
 
 ### Completed (verified)
@@ -23,7 +64,8 @@
 
 ### Done but not verified
 
-- Remote CI and merge are pending. These are **post-v4 fixes, not reflected
+- AI item 6 merged as #113 at 2ee162b3cbc864991d28f7a569325db859626d5a
+  after all four remote checks passed. These are **post-v4 fixes, not reflected
   in v4 numbers**; no held-out suite was opened, rerun or rescored.
 
 ### Next / blocked
@@ -66,7 +108,10 @@
 
 ### Done-not-verified
 
-- Item 5 is a feature candidate, not merged or deployed yet; remote CI pending.
+- Item 5 merged as PR #111 at eaaecd453484f66245e0e82e3d74c718316ba21e.
+  Required checks/Postgres/web/invariants passed at head 42bbf754; 12 live browser
+  checks passed after fixture-only between-test isolation. Within-test cross-login
+  state stays shared. Both B1 harnesses remain **32/32**. Not deployed yet.
 - Refreshed onto main with #105/#107/#108 using a history-preserving merge,
   preserving both progress entries. Combined `make checks`: **1024 passed / 30
   skips**, B1 **32/32**; combined Postgres **42 passed**. Authored replay

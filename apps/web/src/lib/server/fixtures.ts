@@ -237,6 +237,9 @@ function fixtureIdentity(user: Identity): Session {
     username: user.username,
     role: user.role,
     language: user.language,
+    locale: user.locale,
+    bank_clock: BANK_CLOCK,
+    demo_stories: user.demo_stories ?? [],
     ...(user.judge_profiles_enabled
       ? {
           locale: user.locale,

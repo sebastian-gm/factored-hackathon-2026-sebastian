@@ -16,9 +16,7 @@ export function Login({
 }) {
   const t = useTranslations();
   const { config, signedIn, setLocale } = useApp();
-  const choices = config.personas.filter(
-    (p) => !config.fixtures || p.role === role,
-  );
+  const choices = config.personas.filter((p) => p.role === role);
   const [username, setUsername] = useState(
     choices.find((p) => p.username === preferredUsername)?.username ??
       choices[0]?.username ??
@@ -88,27 +86,31 @@ export function Login({
       >
         {!challenge ? (
           <>
-            <label>
-              {t("persona")}
-              <select
-                value={username}
-                disabled={busy}
-                onChange={(e) => {
-                  setUsername(e.target.value);
-                  const p = choices.find((x) => x.username === e.target.value);
-                  if (p) setLocale(p.locale);
-                }}
-              >
-                {choices.map((p) => (
-                  <option key={p.username} value={p.username}>
-                    {personaLabelKey(p.username)
-                      ? t(personaLabelKey(p.username)!)
-                      : t("authorizedAccount")}
-                  </option>
-                ))}
-              </select>
-            </label>
-            {!config.fixtures && (
+            {choices.length > 0 && (
+              <label>
+                {t("persona")}
+                <select
+                  value={username}
+                  disabled={busy}
+                  onChange={(e) => {
+                    setUsername(e.target.value);
+                    const p = choices.find(
+                      (x) => x.username === e.target.value,
+                    );
+                    if (p) setLocale(p.locale);
+                  }}
+                >
+                  {choices.map((p) => (
+                    <option key={p.username} value={p.username}>
+                      {personaLabelKey(p.username)
+                        ? t(personaLabelKey(p.username)!)
+                        : t("authorizedAccount")}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
+            {(!config.fixtures || choices.length === 0) && (
               <label>
                 {t("username")}
                 <input
