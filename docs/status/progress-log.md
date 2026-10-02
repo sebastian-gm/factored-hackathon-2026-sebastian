@@ -4261,6 +4261,10 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
   Conservative allowance math plus otherwise omitted closed-scope exposure:
   **$11.87612498 + $0.10324950 = $11.97937448 ≤ $12**. Historical unknown reserves
   remain charged; no scope, counter or reservation was reset.
+- #121's first remote Python gate caught an unmocked target lookup in the
+  authored latency test (local Azure credentials had masked that omission).
+  The test now supplies its fake origin and explicitly rejects any Azure lookup;
+  **18 focused tests** and Ruff pass. Push the correction for required fresh CI.
 
 ### Done but not verified
 
