@@ -9,16 +9,7 @@ import {
   useSyncExternalStore,
 } from "react";
 import { NextIntlClientProvider, useTranslations } from "next-intl";
-import {
-  ArrowUpRight,
-  CircleHelp,
-  ChartNoAxesCombined,
-  Headphones,
-  LayoutDashboard,
-  LogOut,
-  MessageCircle,
-  ShieldCheck,
-} from "lucide-react";
+import { CircleHelp, ShieldCheck, LogOut } from "lucide-react";
 import type { Config, Locale, Session, Surface } from "@/lib/contracts";
 import { api, ApiError } from "@/lib/client";
 import { date } from "@/lib/format";
@@ -210,10 +201,10 @@ function Shell({
       (workspaceSurface === "chat" ||
         (workspaceSurface === "desk" && session.role === "ops")));
   const nav = [
-    { id: "chat" as const, icon: MessageCircle },
-    { id: "desk" as const, icon: Headphones },
-    { id: "ops" as const, icon: LayoutDashboard },
-    { id: "insights" as const, icon: ChartNoAxesCombined },
+    { id: "chat" as const },
+    { id: "desk" as const },
+    { id: "ops" as const },
+    { id: "insights" as const },
   ];
   async function exit() {
     try {
@@ -240,73 +231,58 @@ function Shell({
         <p className="brand-subtitle">{t("subtitle")}</p>
         <p className="nav-caption">{t("workspace")}</p>
         <nav aria-label={t("workspace")}>
-          {nav.map(({ id, icon: Icon }) => (
+          {nav.map(({ id }) => (
             <button
               key={id}
               className={`nav-item ${surface === id ? "active" : ""}`}
               aria-current={surface === id ? "page" : undefined}
               onClick={() => setSurface(id)}
             >
-              <Icon size={19} />
               <span>{t(id)}</span>
-              {surface === id && <span className="nav-dot" />}
             </button>
           ))}
         </nav>
         <div className="sidebar-bottom">
-          <div className="small-brand-orbit">
-            <ShieldCheck size={23} />
-          </div>
           <p>{t("journeyTitle")}</p>
           <span>{t("journeyBody")}</span>
-          <div className="sidebar-version">
-            ACLARA / LAB 2026 <ArrowUpRight size={14} />
-          </div>
+          <div className="sidebar-version">ACLARA / LAB 2026</div>
         </div>
       </aside>
       <div className="workspace">
-        <div className="synthetic-banner">
-          <ShieldCheck size={13} />
-          <span>{t("demoNotice")}</span>
-        </div>
-        <header className="topbar">
-          <div className="breadcrumb">
-            <span>Aclara</span>
-            <span>/</span>
-            <strong>{t(surface)}</strong>
+        <header className="workspace-header">
+          <div className="synthetic-banner">
+            <span>{t("demoNotice")}</span>
           </div>
-          <div className="topbar-controls">
-            <label className="locale-select">
-              <span className="sr-only">{t("language")}</span>
-              <select
-                value={locale}
-                onChange={(e) => setLocale(e.target.value as Locale)}
-              >
-                <option value="es-MX">ES · México</option>
-                <option value="es-CO">ES · Colombia</option>
-                <option value="es-AR">ES · Argentina</option>
-                <option value="pt-BR">PT · Português brasileiro</option>
-              </select>
-            </label>
-            {session && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => void exit()}
-                aria-label={t("signOut")}
-              >
-                <LogOut size={18} />
-              </Button>
-            )}
-            <span className="avatar" aria-hidden="true">
-              {surface === "chat"
-                ? "C"
-                : surface === "desk"
-                  ? "A"
-                  : surface === "ops"
-                    ? "O"
-                    : "I"}
-            </span>
+          <div className="topbar">
+            <div className="breadcrumb">
+              <span>Aclara</span>
+              <span>/</span>
+              <strong>{t(surface)}</strong>
+            </div>
+            <div className="topbar-controls">
+              <label className="locale-select">
+                <span className="sr-only">{t("language")}</span>
+                <select
+                  value={locale}
+                  onChange={(e) => setLocale(e.target.value as Locale)}
+                >
+                  <option value="es-MX">ES · México</option>
+                  <option value="es-CO">ES · Colombia</option>
+                  <option value="es-AR">ES · Argentina</option>
+                  <option value="pt-BR">PT · Português brasileiro</option>
+                </select>
+              </label>
+              {session && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => void exit()}
+                  aria-label={t("signOut")}
+                >
+                  <LogOut size={18} />
+                </Button>
+              )}
+            </div>
           </div>
         </header>
         <main id="main-content" className="main-content" tabIndex={-1}>

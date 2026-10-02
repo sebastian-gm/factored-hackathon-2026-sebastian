@@ -3458,6 +3458,10 @@ label {
   .surface-chat .conversation-log {
     max-height: 200px;
   }
+  .surface-chat .chat-panel:has(.recognition-actions) .conversation-log,
+  .surface-chat .conversation-log.with-receipt {
+    max-height: min(52vh, 440px);
+  }
   .surface-chat .chat-stages p,
   .surface-chat .login-panel:has(input[autocomplete="one-time-code"]) > p {
     display: none;

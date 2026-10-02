@@ -1,5 +1,4 @@
 "use client";
-import { CreditCard, ArrowUpRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { Transaction } from "@/lib/contracts";
 import { date, money } from "@/lib/format";
@@ -33,16 +32,12 @@ export function TransactionCard({
         </p>
       )}
       <div className="transaction-top">
-        <span className="merchant-icon">
-          <CreditCard size={20} />
-        </span>
         <div>
           <h3>
             {merchant && merchant !== "—" ? merchant : t("merchantMissing")}
           </h3>
           <p>{config.fixtures ? t("demoProduct") : t("productMissing")}</p>
         </div>
-        <ArrowUpRight size={17} className="muted" />
       </div>
       <div className="transaction-money">
         {money(transaction.amount, transaction.currency, locale)}
@@ -67,7 +62,6 @@ export function TransactionCard({
           onClick={onChoose}
         >
           {t("selectCharge")}
-          <ArrowUpRight size={15} />
         </Button>
       )}
     </article>

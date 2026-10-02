@@ -27,6 +27,7 @@ export default defineConfig({
           "**/ux-review.spec.ts",
           "**/insights.spec.ts",
           "**/video-readiness.spec.ts",
+          "**/minimal-design.spec.ts",
         ],
   fullyParallel: false,
   workers: 1,
