@@ -10,7 +10,7 @@ import duckdb
 import psycopg
 import pytest
 
-from aclara.data.serving_load import CUSTOMER_SCOPED, load_serving
+from aclara.data.serving_load import CUSTOMER_SCOPED, _migrate_temporal_column, load_serving
 from aclara.data.snapshot import build_snapshot
 
 
@@ -69,3 +69,39 @@ def test_serving_readback_and_rls(tmp_path: Path) -> None:
         load_serving(lake, dsn)
     with psycopg.connect(dsn) as db:
         assert db.execute("SELECT count(*) FROM bank.transactions").fetchone() == (3,)
+
+
+def test_temporal_migration_rolls_back_with_the_locked_loader_transaction() -> None:
+    dsn = os.environ.get("TEST_DATA_LOAD_DSN")
+    if not dsn:
+        pytest.skip("local Postgres owner DSN required")
+
+    class InjectedLoadFailure(RuntimeError):
+        pass
+
+    class RestoreAuthoredSchema(RuntimeError):
+        pass
+
+    # Outer rollback restores the exact prior test schema and flags.
+    with psycopg.connect(dsn) as db, pytest.raises(RestoreAuthoredSchema), db.transaction():
+        db.execute("SELECT pg_advisory_xact_lock(61928471)")
+        db.execute("ALTER TABLE bank.transactions DROP COLUMN IF EXISTS temporal_quality_reason")
+        existing = db.execute(
+            "SELECT column_name,data_type,is_nullable FROM information_schema.columns "
+            "WHERE table_schema='bank' AND table_name='transactions' ORDER BY ordinal_position"
+        ).fetchall()
+        names = [r[0] for r in existing] + ["temporal_quality_reason"]
+        with pytest.raises(InjectedLoadFailure), db.transaction():
+            _migrate_temporal_column(db, "transactions", names, existing)
+            assert db.execute(
+                "SELECT data_type,is_nullable FROM information_schema.columns "
+                "WHERE table_schema='bank' AND table_name='transactions' "
+                "AND column_name='temporal_quality_reason'"
+            ).fetchone() == ("text", "YES")
+            raise InjectedLoadFailure("authored post-migration load failure")
+        assert db.execute(
+            "SELECT count(*) FROM information_schema.columns WHERE table_schema='bank' "
+            "AND table_name='transactions' AND column_name='temporal_quality_reason'"
+        ).fetchone() == (0,)
+        assert db.execute("SELECT count(*) FROM bank.transactions").fetchone() == (3,)
+        raise RestoreAuthoredSchema

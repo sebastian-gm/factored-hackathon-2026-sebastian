@@ -38,6 +38,28 @@ PG_TYPES = {
 }
 
 
+def _migrate_temporal_column(
+    pg: psycopg.Connection[Any],
+    table: str,
+    names: list[str],
+    existing: list[tuple[str, str, str]],
+) -> list[tuple[str, str, str]]:
+    """One additive migration, inside the loader's locked COPY/readback transaction.
+
+    Never commit an old row's new NULL as a passed check without the fresh gold
+    reload. Unexpected schemas/types still require explicit migration review.
+    """
+    column = "temporal_quality_reason"
+    if table != "transactions" or not names or names[-1] != column:
+        return existing
+    if [item[0] for item in existing] == names[:-1]:
+        pg.execute("ALTER TABLE bank.transactions ADD COLUMN temporal_quality_reason TEXT")
+        return [*existing, (column, "text", "YES")]
+    if existing and existing[-1][0] == column and existing[-1] != (column, "text", "YES"):
+        raise ValueError("Temporal reason must be nullable TEXT; unsupported migration")
+    return existing
+
+
 def _row_bytes(row: tuple[Any, ...]) -> bytes:
     return (
         json.dumps(row, default=str, ensure_ascii=False, separators=(",", ":"), allow_nan=False)
@@ -66,9 +88,10 @@ def _load_table(
         )
     )
     existing = pg.execute(
-        "SELECT column_name FROM information_schema.columns WHERE table_schema='bank' AND table_name=%s ORDER BY ordinal_position",
+        "SELECT column_name,data_type,is_nullable FROM information_schema.columns WHERE table_schema='bank' AND table_name=%s ORDER BY ordinal_position",
         [table],
     ).fetchall()
+    existing = _migrate_temporal_column(pg, table, names, existing)
     if [row[0] for row in existing] != names:
         raise ValueError("serving schema differs from gold contract; lead migration required")
     if table in CUSTOMER_SCOPED:

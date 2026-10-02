@@ -30,6 +30,7 @@ from aclara.bank.serving import persona_views
 from aclara.handoff.context import customer_context, refresh_summary
 from aclara.ops.store import Scope
 from aclara.policy.rules import catalog
+from aclara.policy.temporal import quality_issue
 
 OPERATIONS = ("cases", "card_states", "handoffs", "conversations", "turns", "execution_records")
 
@@ -77,6 +78,18 @@ def complete_packet(
                 packet["actions_taken"].append("create_dispute")
     preferred = conversation.language if conversation else language
     statements = packet.get("customer_statements", [])
+    policy_details = {
+        item["rule_id"]: item for item in packet.get("policy_evaluations", []) if "rule_id" in item
+    }
+    if "DQ-01" in packet["reason_codes"] and "DQ-01" not in policy_details:
+        detail = "not_checked"
+        if conversation and conversation.selected_handle:
+            current = dict(
+                app.state.ledger.for_customer(principal.customer_id, app.state.settings.bank_clock)
+            ).get(conversation.selected_handle)
+            if current is not None:
+                detail = quality_issue(app.state.ledger.context(current)) or "not_checked"
+        policy_details["DQ-01"] = {"detail": detail}
     if conversation_id and not statements:
         # Read only this conversation within the caller's store/RLS scope. The
         # current message has not been written to turns yet; append it explicitly.
@@ -100,7 +113,12 @@ def complete_packet(
             },
             "customer_statements": statements,
             "policy_evaluations": [
-                {"rule_id": reason, "policy_version": catalog()[0], "outcome": "escalate"}
+                {
+                    **policy_details.get(reason, {}),
+                    "rule_id": reason,
+                    "policy_version": catalog()[0],
+                    "outcome": "escalate",
+                }
                 for reason in packet["reason_codes"]
             ],
             "risk_flags": ["fraud_review"] if "FRD-01" in packet["reason_codes"] else [],

@@ -22,6 +22,7 @@ from test_judge_profiles import authenticate, authored_settings, headers, select
 
 from aclara.api.app import create_app
 from aclara.api.judge_access import PROFILE_LOCALES
+from aclara.bank.serving import temporal_column_available
 from aclara.data.serving_load import CUSTOMER_SCOPED, load_serving
 from aclara.data.snapshot import build_snapshot
 from aclara.llm.types import BudgetFailure
@@ -41,6 +42,12 @@ def judge_database(tmp_path: Path, monkeypatch):
     result = load_serving(lake, owner)
     # Copy only project-authored fixture templates. Never load organizer data here.
     with psycopg.connect(owner) as pg:
+        had_temporal_column = temporal_column_available(pg)
+        # Authored profile templates intentionally represent passed checks;
+        # never treat a real older serving load this way.
+        pg.execute(
+            "ALTER TABLE bank.transactions ADD COLUMN IF NOT EXISTS temporal_quality_reason TEXT"
+        )
         pg.execute("GRANT USAGE ON SCHEMA meta,reference TO aclara_api")
         pg.execute("GRANT SELECT ON meta.serving_state TO aclara_api")
         pg.execute(
@@ -60,6 +67,7 @@ def judge_database(tmp_path: Path, monkeypatch):
                     "product_status": "Active",
                 },
                 "transactions": {
+                    "temporal_quality_reason": None,
                     "transaction_id": "judge-transaction-" + key,
                     "customer_id": customer,
                     "product_id": product,
@@ -95,6 +103,9 @@ def judge_database(tmp_path: Path, monkeypatch):
     finally:
         for store in stores:
             store.close()
+        if not had_temporal_column:
+            with psycopg.connect(owner) as pg:
+                pg.execute("ALTER TABLE bank.transactions DROP COLUMN temporal_quality_reason")
 
 
 def test_judge_rls_restart_audit_and_global_budget(judge_database):
