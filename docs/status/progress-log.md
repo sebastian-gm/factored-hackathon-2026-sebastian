@@ -4965,16 +4965,21 @@ later flag-only session for the current contract and activation dependencies.
 - Initial ES demo built and reached healthy Postgres/API/web. Live BFF readback
   verified login/OTP, authored ledger, store quality and revoked logout without
   writing a dispute/handoff. Four isolation/readback unit tests and Ruff passed.
+- Fresh private clone of 9f64c04 passed `make demo` (ES **40.23 s**) and
+  `DEMO_LANGUAGE=pt make demo` (**47.70 s**): live BFF, six authored rows each,
+  authentication/OTP/store quality/revoked logout readbacks. No host dependency,
+  environment, organizer or credential copy; cached Docker layers are disclosed
+  in [clean-clone evidence](../submission/clean-clone-reproduction.md).
 - No model/cloud spend, Azure changes or held-out runs. The demo is post-v4
   development tooling, not reflected in official v4 numbers.
 
 ### Done but not verified
 
-- Fresh-clone one-command run, PT demo, current-head CI and merge are pending.
-  Shared Makefile/Compose overlay changes are explicit in this assignment/PR.
+- Remote current-head CI and merge are pending. Shared Makefile/Compose
+  overlay changes are explicit in this assignment/PR.
 
 ### Next / blocked
 
-- Verify a clean clone, then merge only on green CI. Prepare PNG/SVG slide assets
+- Merge only on green CI. Prepare PNG/SVG slide assets
   from committed v4 aggregates. Controls ablation and staff queue UI await the
   orchestrator's item-5 results and item-6 backend contract; no guessed contract.
