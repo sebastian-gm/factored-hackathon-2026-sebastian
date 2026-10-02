@@ -20,6 +20,7 @@ from decimal import Decimal
 from hashlib import sha256
 from html import unescape
 from importlib import import_module
+from pathlib import Path
 from time import perf_counter
 from typing import Any, TypeVar
 from urllib.request import Request, urlopen
@@ -32,18 +33,18 @@ from aclara.agent.nlu.rules import detect_language_evidence, normalize_text
 from aclara.agent.nlu.structured import ExtractedNlu, postprocess
 from aclara.llm.client import StructuredClient
 from aclara.llm.config import Price, load_fallback_route, load_models, load_prices
-from aclara.llm.dev_latency import retry_analysis
-from aclara.llm.dev_prompt_study import StudyCase, comparison_sample, inventory_hash
-from aclara.llm.dev_robustness import DevBudgetStop, ThresholdGate, save, summarize
-from aclara.llm.dev_robustness_cases import ROOT
 from aclara.llm.types import CallRecord, ModelSpec
+from evals.studies.llm.dev_latency import retry_analysis
+from evals.studies.llm.dev_prompt_study import StudyCase, comparison_sample, inventory_hash
+from evals.studies.llm.dev_robustness import DevBudgetStop, ThresholdGate, save, summarize
+from evals.studies.llm.dev_robustness_cases import ROOT
 
 SCOPE, RUN_ID, CAP = "dev-gate/model-compare", "model-compare", Decimal("1.50")
 OUTPUT = ROOT / "artifacts/dev-model-compare/paired"
 GEMINI, SOL = "google/gemini-3-flash-preview", "openai/gpt-6.1-sol"
 COMPARISON_ATTEMPT_SECONDS, COMPARISON_CALL_SECONDS = 30, 65
 T = TypeVar("T", bound=BaseModel)
-TRUTH = ROOT / "src/aclara/llm/dev_model_compare_slots.json"
+TRUTH = ROOT / "evals/studies/llm/dev_model_compare_slots.json"
 
 
 def candidate_config(candidate: str) -> tuple[dict[str, ModelSpec], dict[str, Price], str | None]:
@@ -227,11 +228,13 @@ def pins(cases: list[StudyCase]) -> dict[str, Any]:
         "evals/bindings.py",
         "evals/observations.py",
         "evals/runner.py",
-        "src/aclara/llm/dev_model_compare_50.manifest.json",
-        "src/aclara/llm/dev_model_compare_slots.json",
-        "src/aclara/llm/dev_model_compare_slots.sha256",
+        "evals/studies/llm/dev_model_compare_50.manifest.json",
+        "evals/studies/llm/dev_model_compare_slots.json",
+        "evals/studies/llm/dev_model_compare_slots.sha256",
     ]
     names += [str(p.relative_to(ROOT)) for p in sorted((ROOT / "src/aclara").rglob("*.py"))]
+    # Retain the relocated study implementation in the same source-pin guard.
+    names += [str(p.relative_to(ROOT)) for p in sorted(Path(__file__).parent.glob("*.py"))]
     return {
         "sample_sha256": inventory_hash(cases),
         "files": {name: sha256((ROOT / name).read_bytes()).hexdigest() for name in names},

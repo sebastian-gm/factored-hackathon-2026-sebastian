@@ -12,7 +12,7 @@ from pathlib import Path
 from random import Random
 from typing import Any
 
-from aclara.llm.round_one import ROOT
+from evals.studies.llm.round_one import ROOT
 
 ARTIFACTS = ROOT / "artifacts/judge"
 SHEET = ARTIFACTS / "human-validation-50.csv"

@@ -20,13 +20,6 @@ import yaml
 from aclara.bank.serving import ServingRepository
 from aclara.handoff.routing import AgentDirectory
 from aclara.llm.config import load_models, load_prices
-from aclara.llm.final_run import (
-    FinalBudgetStop,
-    client_for,
-    journal,
-    open_budget_store,
-    require_start,
-)
 from evals.access import access
 from evals.bindings import ROOT, bind, private_bindings
 from evals.bound_execution import execute_bound
@@ -34,6 +27,13 @@ from evals.heldout_report import comparison, report
 from evals.metrics import score
 from evals.observations import validate_gold
 from evals.serving import open_serving
+from evals.studies.llm.final_run import (
+    FinalBudgetStop,
+    client_for,
+    journal,
+    open_budget_store,
+    require_start,
+)
 from evals.suites.tools.validate_release import check_payloads, verify_manifest
 
 

@@ -147,14 +147,14 @@ remains a timing-only counterfactual with unmeasured duplicate billing.
 ## Frozen protocol, provenance and access
 
 The owner approved a balanced sample under $1.50 instead of full 240-case pairs.
-[Manifest](../../src/aclara/llm/dev_model_compare_50.manifest.json): fifty planned
+[Manifest](../../evals/studies/llm/dev_model_compare_50.manifest.json): fifty planned
 pairs, ten per set, five ES/five PT each, selected using metadata-only stable
 ordering and dialect/category buckets, never saved outcomes. SHA-256:
 `40ef32671ff05617dc3246db38891a756b6d200cec48c368cc6e2483416b634c`.
 Full pool/per-case/code/prompt/scorer/binding hashes were checked. The incomplete
 prefix is balanced but not the whole sample or original 240-case mix.
 
-[Opening-slot annotations](../../src/aclara/llm/dev_model_compare_slots.json) were
+[Opening-slot annotations](../../evals/studies/llm/dev_model_compare_slots.json) were
 authored by **Codex, not a human reviewer**, and frozen before paid calls. The
 immutable JSON's `method` mistakenly says `Human-authored`; this provenance
 correction does not change annotations or their SHA-256:
@@ -186,7 +186,7 @@ calls.jsonl,summary.json}`, plus `stopped-analysis.json` and
 `stopped-scope-readback.json`. Call journal SHA-256:
 `7a48ddd933ab5ac310157584afdf6fe8131a54272a849d394bcf8b22a579bac4`.
 No customer rows, secrets, prose errors or reasoning are published here.
-The [paired driver](../../src/aclara/llm/dev_model_compare.py) has resume/pin and
+The [paired driver](../../evals/studies/llm/dev_model_compare.py) has resume/pin and
 unknown-cost protections; **do not rerun it under this exhausted scope**.
 Local verification: 318 mock/unit/API checks passed with eight disposable-DB
 skips; final focused provider/comparison rerun 28 passed, including concurrent

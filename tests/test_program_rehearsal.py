@@ -9,9 +9,9 @@ import psycopg
 import pytest
 from evals import final_program, program_spec, rehearsal
 from evals.checkpoints import Checkpoints
+from evals.studies.llm.final_run import FinalBudgetStop
 from scripts.final_program import error_metadata
 
-from aclara.llm.final_run import FinalBudgetStop
 from aclara.llm.types import BudgetFailure
 
 
@@ -65,8 +65,7 @@ def cases():
 
 def test_length_failure_is_checkpointed_unpaired_and_not_replayed(spec, tmp_path, monkeypatch):
     from evals.final_report import judge_report
-
-    from aclara.llm import final_run
+    from evals.studies.llm import final_run
 
     monkeypatch.setattr(final_run, "ROOT", tmp_path)
     monkeypatch.setattr(final_program, "budget_receipt", lambda *_: {"cap_usd": 0})
@@ -112,7 +111,7 @@ def test_length_failure_is_checkpointed_unpaired_and_not_replayed(spec, tmp_path
 def test_budget_and_connectivity_errors_stop_without_fabricating_rating(
     spec, tmp_path, monkeypatch, error
 ):
-    from aclara.llm import final_run
+    from evals.studies.llm import final_run
 
     monkeypatch.setattr(final_run, "ROOT", tmp_path)
     monkeypatch.setattr(rehearsal, "score_pair", lambda *_: (_ for _ in ()).throw(error))

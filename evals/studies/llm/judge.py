@@ -17,18 +17,18 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from aclara.agent.nlg.grounding import redact_for_model
 from aclara.llm.client import StructuredClient
-from aclara.llm.final_run import (
+from aclara.llm.prompts import Prompt, data_block, load_prompt
+from aclara.llm.types import BudgetFailure, ModelFailure
+from aclara.ops.store import Store
+from evals.studies.llm.final_run import (
     JUDGE_MAX_OUTPUT_TOKENS,
     client_for,
     journal,
     open_budget_store,
     require_start,
 )
-from aclara.llm.judge_validation import ARTIFACTS, DIMENSIONS, SHEET
-from aclara.llm.prompts import Prompt, data_block, load_prompt
-from aclara.llm.round_one import ROOT, _catalog, _local_key
-from aclara.llm.types import BudgetFailure, ModelFailure
-from aclara.ops.store import Store
+from evals.studies.llm.judge_validation import ARTIFACTS, DIMENSIONS, SHEET
+from evals.studies.llm.round_one import ROOT, _catalog, _local_key
 
 MODEL_ID = "anthropic/claude-sonnet-5"
 PROVIDER_ONLY = ("google-vertex/global",)
@@ -206,7 +206,7 @@ def run(
             budget_usd=remaining,
             daily_budget_usd=remaining,
         )
-    from aclara.llm.dual_judge import jev_judge_adapter, score_pair
+    from evals.studies.llm.dual_judge import jev_judge_adapter, score_pair
 
     adapter_context = nullcontext(None) if smoke else jev_judge_adapter()
     with adapter_context as jev_adapter:

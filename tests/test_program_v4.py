@@ -116,7 +116,7 @@ def test_launcher_forwards_immutable_config_and_refuses_reset_or_endpoint_change
 
 
 def test_v4_client_and_judge_share_the_same_scope_with_1024_cap(monkeypatch):
-    from aclara.llm import final_run
+    from evals.studies.llm import final_run
 
     monkeypatch.setenv("LLM_FINAL_RUN_STARTED", "1")
     monkeypatch.setenv("LLM_REAL_CALLS_APPROVED", "1")

@@ -8,7 +8,7 @@ conversations before running P or fixing language behavior. Gold comes from
 outputs. Neither the inputs nor gold may change after this freeze. No v4 data
 was opened. This is a development study, not a held-out evaluation.
 
-The [manifest](../../src/aclara/llm/dev_robustness_40.manifest.json) freezes
+The [manifest](../../evals/studies/llm/dev_robustness_40.manifest.json) freezes
 the authored YAML, builder and materialized ScenarioV2 hashes. ES has five
 cases each of es-MX, es-CO, es-AR and es-CL; pt-BR has twenty. The shared
 ScenarioV2 and bank-country enums have no Chile entry, so es-CL speech uses a

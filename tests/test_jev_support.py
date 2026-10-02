@@ -11,12 +11,12 @@ from threading import Event
 from typing import Any, cast
 
 import pytest
+from evals.studies.llm import dual_judge, judge
+from evals.studies.llm.dual_judge import agreement_report, calibration_agreement, score_pair
 
 from aclara.agent.nlu import structured
-from aclara.llm import dual_judge, judge
 from aclara.llm.client import StructuredClient
 from aclara.llm.config import Price
-from aclara.llm.dual_judge import agreement_report, calibration_agreement, score_pair
 from aclara.llm.prompts import load_prompt
 from aclara.llm.types import BudgetFailure, ModelSpec, ProviderResponse, SpendGate, TokenUsage
 from aclara.llm.typesafe import ScoreJudgment, TypedJudgments, TypeSafeAdapter
@@ -368,7 +368,8 @@ def test_full_judge_step_checkpoints_both_models_offline(
 
 
 def test_external_judgment_uses_durable_gate_and_journal(monkeypatch):
-    from aclara.llm.final_run import FinalBudgetStop, FinalSpendGate
+    from evals.studies.llm.final_run import FinalBudgetStop, FinalSpendGate
+
     from aclara.llm.types import BudgetFailure
 
     class Gate:

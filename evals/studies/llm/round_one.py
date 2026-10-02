@@ -17,10 +17,10 @@ import yaml  # type: ignore[import-untyped]
 
 from aclara.evals.schema import Scenario, ScenarioSuite
 from aclara.llm.client import StructuredClient
-from aclara.llm.comparison import ComparisonCase, evaluate_model
 from aclara.llm.config import Price
 from aclara.llm.prompts import load_prompt
 from aclara.llm.types import ModelSpec
+from evals.studies.llm.comparison import ComparisonCase, evaluate_model
 
 ROOT = Path(__file__).resolve().parents[3]
 SUITE = ROOT / "evals/dev_scenarios.yaml"

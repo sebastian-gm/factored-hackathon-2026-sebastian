@@ -29,7 +29,7 @@ The 61 original authored tests were written before the fix: **45 failed / 16 pas
 
 ## Saved dev impact, no new conversations
 
-[Replay harness](../../src/aclara/llm/dev_kind_replay.py): first freeze pre-fix slots and MATCH decisions, then change **only** the type slot and replay the same matcher/candidates. Journals align by generation ID with actual non-degraded NLU → MATCH events; repeated `llm_call` events are not extra attempts. Only P repeat 0 is selected from v3. Original files are unchanged; masked reconstruction data and per-case diagnostics remain in ignored `artifacts/nlu-kind-replay/`.
+[Replay harness](../../evals/studies/llm/dev_kind_replay.py): first freeze pre-fix slots and MATCH decisions, then change **only** the type slot and replay the same matcher/candidates. Journals align by generation ID with actual non-degraded NLU → MATCH events; repeated `llm_call` events are not extra attempts. Only P repeat 0 is selected from v3. Original files are unchanged; masked reconstruction data and per-case diagnostics remain in ignored `artifacts/nlu-kind-replay/`.
 
 | Saved dev run | Original pass | Aligned MATCH / baseline action agrees with saved action | Cases with changed type (ES/PT) | Action or target changes | Correct proposals gained / lost | Failed cases with a gain and agreeing baseline action |
 |---|---:|---:|---:|---:|---:|---:|
@@ -47,7 +47,7 @@ Limits: saved snapshots lack `process_date`, so reconstruction uses the transact
 
 Private baseline SHA-256: `f3ab2b76f89d723d7b7fff8df37d3c449b13065b6555acd336f7ec6e2cb3cc73`; source digest: `e24d7c78e80b856958a3f9c8eced0ce0e86bbcc0273aa1118968e9acb7803766`. Pinned unchanged MATCH v2 files: model `9b5c36d4405fc117b1cf31bc37c754aff039f8f17ecb67e475ee5b874bfe3cea`, metadata `f57f9875c951acbe3bdabf842b96a4f5233cf6d91f77e8b000a5b78c697a41ca`, LightGBM `8de9ee586478824860e7c9dc2ef8e8d1fa3e18d0b1e2fea43d835bc15dd9f602`.
 
-Reproduce with `LLM_PROVIDER=mock LLM_REAL_CALLS_APPROVED=0 python -m aclara.llm.dev_kind_replay`: `freeze` takes explicit `--source` retired-dev directories and a new private `--baseline`; `compare --baseline artifacts/nlu-kind-replay/baseline.json --report artifacts/nlu-kind-replay/new-report.json` applies current canonicalization to the original frozen baseline. A newly frozen baseline on fixed code will naturally show no type change. Both phases have no provider or database call path, refuse other source directory names and never overwrite baseline/report data.
+Reproduce with `LLM_PROVIDER=mock LLM_REAL_CALLS_APPROVED=0 python -m evals.studies.llm.dev_kind_replay`: `freeze` takes explicit `--source` retired-dev directories and a new private `--baseline`; `compare --baseline artifacts/nlu-kind-replay/baseline.json --report artifacts/nlu-kind-replay/new-report.json` applies current canonicalization to the original frozen baseline. A newly frozen baseline on fixed code will naturally show no type change. Both phases have no provider or database call path, refuse other source directory names and never overwrite baseline/report data.
 
 **Owner handoff:** AI owns the NLG guard, display-fact localization and type normalization. Lead owns merge, deployment and any later live acceptance check; no new paid run is authorized here. The separate [partial comparison PR #85](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/pull/85) stops on HTTP and provider credit/quota codes, including HTTP-200 `provider_402`; it remains partial, with no further comparison spending.
 

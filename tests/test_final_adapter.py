@@ -3,11 +3,11 @@
 import json
 
 import pytest
+from evals.studies.llm.final_run import FinalBudgetStop, FinalSpendGate, client_for, journal
 from test_llm_budget import Answer
 
 from aclara.llm.client import StructuredClient
 from aclara.llm.config import Price
-from aclara.llm.final_run import FinalBudgetStop, FinalSpendGate, client_for, journal
 from aclara.llm.types import BudgetFailure, ModelFailure, ModelSpec, ProviderResponse, TokenUsage
 from aclara.ops.store import Store
 
@@ -28,7 +28,7 @@ def test_final_start_gate_precedes_frozen_access(monkeypatch):
 def test_fallback_shares_reservations_and_budget_failure_is_fatal(monkeypatch, tmp_path):
     from datetime import date
 
-    from aclara.llm import final_run
+    from evals.studies.llm import final_run
 
     monkeypatch.setenv("LLM_REAL_CALLS_APPROVED", "1")
     monkeypatch.setenv("FIXTURE_KEY", "fixture")
