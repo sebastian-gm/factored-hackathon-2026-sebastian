@@ -1,8 +1,10 @@
 # Submission-day runbook — Sunday, October 4, 2026
 
 **Preparation only. Do not execute activation, publication, spending or deletion
-from this document without the approvals below.** Today no apply, secret creation,
-model call, visibility change, email or teardown was performed. This is a private
+from this document without the approvals below.** Submission-day activation,
+publication, email and teardown remain unexecuted. The October 2 owner-only
+v0.7.0 release and capped smoke are recorded separately in
+[release notes](../evaluation/v0.7-release-notes.md). This is a private
 operator document; current-tree scrub must remove private deployment details before publication. Commands run inside this
 repository, with Git always `git -C`, only `origin`, and Azure explicitly
 **Seb Azure Sandbox**. Never change the CLI default or use `slpnova-azure-main`.
@@ -20,14 +22,16 @@ through **October 16 inclusive**. Proposed closure: **October 17, 00:00 COT =
 | A — warm | **Required:** date/window, both apps min=1, exact plan and monthly estimate; separately approve an estimate above $40 |
 | B — judge | **Required:** public web HTTPS, separate account/four reviewed sources, secret creation/rotation, two secret-scoped role assignments, proposed shared $1/UTC-day cap with a cumulative judging limit, and external access check |
 | C — final release | **Standing OK already granted:** CI-green main image-tag updates and approved smoke binding. Sebastian approved +$3 on October 2: **$15 cumulative including reserves**, for the final smoke and judging window. Record the final SHA; additional resource/access changes still require a new OK |
+| M — owner maintenance | **Required before each pre-video/pre-submission reset:** named persona/owner realm, private verified backup, quiesced owner sessions, temporary reset flags, proposal/confirmation/readback and restoration of flags. No direct database deletion fallback |
 | D — public repo | **Required:** exact original-repo release SHA, full-history/PR/Actions audit and `sebastian-gm/factored-hackathon-2026-sebastian` only. It stays private until this gate |
 | E — send | Sebastian approves the completed email, attachments/links and private credential delivery; the operator does not send on a draft's authority |
 | F — retirement | **Required:** exact closure time, scale-down versus irreversible deletion, backup retention/destination and any extra availability/model allowance |
 
 Execute **preflight → step 3 owner-only release → step 1 warm → step 2 judge →
 step 4 publish → step 5 send → step 6 keep-alive/retire**. Step 2 depends on the
-new backend **and frontend picker/redesign already deployed**. The currently
-deployed pre-picker image cannot consume the new profile-secret format safely.
+new backend **and frontend picker/redesign already deployed**. v0.7.0 includes
+the picker/redesign, but the fresh-per-login judge realm and customer-map reset
+follow-up require the next CI-green image before either mode is enabled.
 An access failure stops publication/submission until resolved and reverified.
 
 ## 0. Preflight, inputs and receipts
@@ -35,7 +39,7 @@ An access failure stops publication/submission until resolved and reverified.
 Frontend picker/redesign PRs must be reviewed, merged and remote CI green. Require
 browser tests for cookie replacement, old-profile responses/tabs, confirmation,
 OTP and cancellation; see [judge API contract](../api/judge-profile-entry.md).
-Do not claim those future UI tests from the backend-only judge release.
+Judge access remains OFF; owner-only UI tests do not prove public judge access.
 
 ```bash
 set -euo pipefail
@@ -148,6 +152,7 @@ Private receipt: `artifacts/submission-prep/plan-summary.json`.
 | Preview | Create | Update | Delete | Expected effect |
 | --- | ---:| ---:| ---:| --- |
 | Current OFF | 0 | 0 | 0 | Owner-only web, internal API, min=0/max=1 |
+| Warm only, v0.7.0 images | 0 | 2 | 0 | Only API/web min=0 → 1; no environment/access/CPU/max changes |
 | Warm + judge ON, same images | 2 | 2 | 0 | Two secret-scoped RBAC grants; API/web min=1/max=1; web IP rule removed; API remains internal HTTPS |
 
 No DB/network/environment/registry/log/state resource or secret **value** is
@@ -155,6 +160,11 @@ created by that plan. The two Key Vault values are a separate approved step.
 Final image-tag changes also update the same two apps; unexpected replacement,
 deletion, extra role scope or public API stops the run. A preview without refresh
 does not establish submission-day drift or readiness.
+
+Warm-only preview was refreshed after v0.7.0: private receipt
+`artifacts/azure/v0.7/gate-a-plan.json`, plan SHA-256
+`e7467400b62ced1ac6a550ce821fd61b14a4c4697f526f334adadf6bc0ce02bb`.
+No apply; price refresh at **2026-10-02 19:42:45 UTC** confirmed the rates below.
 
 Live [East US 2 retail API](https://prices.azure.com/api/retail/prices) checked
 **2026-10-02 02:28:59 UTC**: active CPU $0.000024/vCPU-second, idle CPU
@@ -184,9 +194,10 @@ Azure's CAD billing alerts approximate USD 30/50 and notify rather than stop spe
 
 Sebastian approved **$15 cumulative LLM exposure including reserves** on October 2;
 see the [approval ledger](../status/model-budget-ledger.md). Last verified
-conservative exposure is **$11.97937448**, leaving **$3.02062552**. Earmark at most
-**$0.10** for a fresh final-release smoke and propose **$2.92 lifetime** for judging:
-**$11.97937448 + $0.10 + $2.92 = $14.99937448 ≤ $15**. Refresh this arithmetic
+conservative exposure after v0.7.0 is **$12.00271348**. The existing $0.10 smoke
+purse charged **$0.023339**; its unused capacity is **$0.076661**. Propose
+**$2.92 lifetime** for judging:
+**$12.00271348 + $0.076661 + $2.92 = $14.99937448 ≤ $15**. Refresh this arithmetic
 before preparation; never treat unknown reserves as available money.
 
 Propose **$1 per UTC day**, shared across all profiles/workers/retries/providers,
@@ -218,6 +229,157 @@ PYTHONPATH="$RB_REPO" .venv/bin/python artifacts/submission-prep/read_prices.py
 
 Expected today's outputs: fixed $21.09, testing estimate $34.63, idle/active app
 day $0.3888/$1.296. Recalculate the window rather than approving from these dates.
+
+## Owner demo reset before video and before submission
+
+**Gate M — explicit Sebastian OK each time. OFF now; not exercised live.**
+October 2: backups retained, **no Azure records deleted**, MX receipts verified
+across logins; the filing smoke used CO instead. Preserving existing receipts is
+the default. Reset only the approved persona's **owner** case/card maps and the
+maintenance session's operational workspace; historical workspaces, sessions,
+append-only audit, organizer ledger, bindings and all judge realms remain.
+This is not a general restore tool or a way to erase every old conversation.
+
+Prerequisites: deploy the CI-green customer-map reset follow-up; owner-only
+ingress; judge mode OFF; quiesce **all** owner tabs/sessions for the named persona
+and keep them quiesced until receipt/readback. A saved proposal in an old tab
+must not be confirmed after maintenance. No model call is needed. Do not run the
+old private direct-delete helper. A disabled HTTP reset is a stop, not permission
+to bypass it.
+
+Create the ignored helper below. `backup` is read-only; `apply` additionally
+requires the separately approved flags and `RB_RESET_APPROVED=1`. Both create
+new mode-0600 backups, independently decode/check them and output counts/hashes
+only. Tokens/passwords are never saved. The apply compares current bank maps
+with the reviewed backup before proposal/confirmation.
+
+```bash
+cat > "$RB_OUT/owner-reset.py" <<'PY'
+import hashlib, json, os, sys
+from datetime import UTC, datetime
+from pathlib import Path
+import httpx
+from scripts.azure_dev import ROOT, VAULT, az, private_write
+from scripts.azure_migrate_ops import connection_string
+from scripts.azure_targets import app_url
+from scripts.serving_smoke import check, wait_config
+from scripts.azure_llm_smoke import budget_receipt
+from aclara.bank.serving import ServingRepository
+from aclara.ops.store import Scope, Store
+from aclara.settings import Settings
+
+action=sys.argv[1]; username=os.environ['RB_RESET_PERSONA']
+assert action in {'backup','apply'}
+assert username in {'demo.es.mx','demo.es.co','demo.es.ar','demo.pt.br'}
+folder=ROOT/'artifacts/submission-day'; folder.mkdir(mode=0o700,exist_ok=True)
+prior=None
+if action=='apply':
+    assert os.environ.get('RB_RESET_APPROVED')=='1'
+    path=Path(os.environ['RB_RESET_BACKUP']).resolve()
+    assert path.parent==folder.resolve() and path.stat().st_mode & 0o777==0o600
+    assert hashlib.sha256(path.read_bytes()).hexdigest()==os.environ['RB_RESET_BACKUP_SHA256']
+    prior=json.loads(path.read_text()); assert prior['username']==username and prior['realm']=='owner'
+before=budget_receipt(); store=Store(connection_string('aclara_app'))
+try:
+    ledger=ServingRepository(store,Settings().bank_clock)
+    persona=next(p for p in ledger.personas() if p.username==username)
+    web=app_url('web')
+    password=az('keyvault','secret','show','--vault-name',VAULT,'--name','demo-password')['value']
+    with httpx.Client(base_url=web+'/api/bff/',headers={'Origin':web},timeout=190) as client:
+        wait_config(client)
+        challenge=check(client.post('auth/login',json={'username':username,'password':password}))
+        code=check(client.get('auth/challenges/'+challenge['challenge_id']+'/sms'))['code']
+        check(client.post('auth/otp/verify',json={'challenge_id':challenge['challenge_id'],'code':code}))
+        identity=check(client.get('me')); assert identity['username']==username and identity['role']=='ops'
+        run,sid,_=client.cookies.get('aclara_access').split('.',2)
+        scope=Scope(persona.customer_id,run,sid)
+        cases=store.customer_mapping('customer_cases',dict,lambda _:'owner',legacy='cases')
+        cards=store.customer_mapping('customer_card_states',dict,lambda _:'owner',legacy='card_states')
+        tables=('cases','card_states','handoffs','conversations','turns','execution_records','idempotency_keys')
+        with store.transaction(scope):
+            payload={'username':username,'customer_id':persona.customer_id,'realm':'owner',
+                'run_id':run,'sid':sid,'customer_cases':dict(cases),'customer_card_states':dict(cards),
+                'workspace':{t:{k:store.get(t,k) for k in store.keys(t)} for t in tables},
+                'backed_up_at':datetime.now(UTC).isoformat()}
+        path=folder/('owner-reset-'+action+'-'+datetime.now(UTC).strftime('%Y%m%dT%H%M%S%f')+'.private.json')
+        assert not path.exists(); private_write(path,json.dumps(payload,sort_keys=True)+'\n')
+        assert path.stat().st_mode & 0o777==0o600 and json.loads(path.read_text())==payload
+        report={'backup_file':path.name,'sha256':hashlib.sha256(path.read_bytes()).hexdigest(),
+            'cases':len(payload['customer_cases']),'card_states':len(payload['customer_card_states']),
+            'reset':False}
+        if action=='apply':
+            assert prior['customer_id']==persona.customer_id
+            assert all(prior[k]==payload[k] for k in ('customer_cases','customer_card_states'))
+            transactions=check(client.get('transactions'))
+            challenge=check(client.post('auth/step-up',json={}))
+            code=check(client.get('auth/challenges/'+challenge['challenge_id']+'/sms'))['code']
+            check(client.post('auth/step-up/verify',json={'challenge_id':challenge['challenge_id'],'code':code}))
+            proposal=check(client.post('ops/reset/proposal',json={}))
+            body={'proposal_hash':proposal['proposal_hash'],'confirmed':True}
+            receipt=check(client.post('ops/reset',json=body))
+            assert receipt['reset'] and receipt['verified'] and receipt['remaining_operations']==0
+            assert check(client.get('ops/reset/'+receipt['receipt_id']))==receipt
+            assert check(client.post('ops/reset',json=body))==receipt
+            with store.transaction(scope): assert not cases and not cards
+            assert check(client.get('transactions'))==transactions
+            report.update(reset=True,remaining_bank_records=0,ledger_readback_unchanged=True)
+        check(client.post('auth/logout',json={})); assert client.get('me').status_code==401
+    assert budget_receipt()==before
+    private_write(folder/(path.stem+'-receipt.json'),json.dumps(report)+'\n')
+    print(json.dumps(report))
+finally:
+    store.close()
+PY
+export RB_RESET_PERSONA='demo.es.mx'  # Replace only with Sebastian's named scope.
+PYTHONPATH="$RB_REPO" .venv/bin/python "$RB_OUT/owner-reset.py" backup
+```
+
+Expected: private filename/hash, existing case/card counts, `reset:false`, no
+budget change. Review the **aggregate** receipt, not row values. Record the
+approval plus that file/hash in `RB_RESET_BACKUP` / `RB_RESET_BACKUP_SHA256`.
+Check both app environment snapshots privately and require the reset variables
+to be absent before the following temporary override, so removal restores the
+prior state. **These Azure commands need Gate M; image-tag standing OK does not
+authorize them.** Save prior app descriptions, then install cleanup before enable:
+
+```bash
+az containerapp show --subscription "$RB_SUB" --resource-group "$RB_RG" --name ca-api-aclara-dev-eastus2 -o json > "$RB_OUT/reset-api-before.private.json"
+az containerapp show --subscription "$RB_SUB" --resource-group "$RB_RG" --name ca-web-aclara-dev-eastus2 -o json > "$RB_OUT/reset-web-before.private.json"
+PYTHONPATH="$RB_REPO" .venv/bin/python - <<'PY'
+import json,os
+from pathlib import Path
+for app,key in [('api','ALLOW_DEMO_RESET'),('web','FRONTEND_ALLOW_DEMO_RESET')]:
+    p=Path(os.environ['RB_OUT'])/('reset-'+app+'-before.private.json'); p.chmod(0o600)
+    description=json.loads(p.read_text())
+    assert description['properties']['configuration']['ingress']['external']==(app=='web')
+    assert all(e['name']!=key for c in description['properties']['template']['containers'] for e in c.get('env',[]))
+PY
+restore_reset_flags() {
+  az containerapp update --subscription "$RB_SUB" --resource-group "$RB_RG" --name ca-api-aclara-dev-eastus2 --remove-env-vars ALLOW_DEMO_RESET --output none
+  az containerapp update --subscription "$RB_SUB" --resource-group "$RB_RG" --name ca-web-aclara-dev-eastus2 --remove-env-vars FRONTEND_ALLOW_DEMO_RESET --output none
+}
+trap restore_reset_flags EXIT
+az containerapp update --subscription "$RB_SUB" --resource-group "$RB_RG" --name ca-api-aclara-dev-eastus2 --set-env-vars ALLOW_DEMO_RESET=true --output none
+az containerapp update --subscription "$RB_SUB" --resource-group "$RB_RG" --name ca-web-aclara-dev-eastus2 --set-env-vars FRONTEND_ALLOW_DEMO_RESET=true --output none
+# Require ready revisions for both apps before proceeding. Never retry a write
+# blindly if cold startup/network interrupts it: use the proposal receipt path.
+RB_RESET_APPROVED=1 PYTHONPATH="$RB_REPO" .venv/bin/python "$RB_OUT/owner-reset.py" apply
+restore_reset_flags
+trap - EXIT
+.venv/bin/python -m scripts.azure_verify
+```
+
+Expected: verified reset receipt, independent bank-map count zero, unchanged
+transaction readback, no provider calls; final image/replica/access readback
+unchanged and both reset variables absent. Independently recheck BFF config
+`resetEnabled=false` after ready revisions. Retain backup, hash and audit.
+No other persona/realm is reset; authored memory/Postgres tests prove that boundary.
+**Rollback:** disable both flags even on failure, preserve receipts/backups and
+stop. Deleted case/card state is not restored by flag removal. A separate scoped
+restore needs Sebastian's explicit OK and independent verification; do not
+automatically replay old actions or loosen RLS. A failed cleanup requires owner
+attention before video/submission. This recipe is syntax-checked, not live reset
+evidence; its source workflow passed authored API/Postgres tests.
 
 ## 3. Final release first — owner-only boundary
 
@@ -964,7 +1126,7 @@ plans, state, credentials, bindings, row traces or audit payloads publicly.
 
 Prepared and verified in this session: tracked Terraform fmt/validate, mocked
 plans, fresh no-refresh/no-lock OFF/ON diff and live public price reads. Document
-snippets are syntax-checked only. **Future activation, picker/redesign integration,
-judge-mode external/auth/browser checks, final-main export and encrypted Azure
+snippets are syntax-checked only. **Future activation, customer-map maintenance,
+judge-mode external/auth/browser checks, final-main audit and encrypted Azure
 backup/restore are not claimed as executed.** Missing prerequisites stop the
 affected step; this runbook is not their approval or proof.

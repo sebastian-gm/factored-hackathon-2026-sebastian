@@ -13,6 +13,25 @@ certification. The v0.1.0–v0.5.0 annotated tags and GitHub Releases were creat
 - Post-v4 fixes are disclosed separately and do not change official v4 scores.
 - Every change now uses a feature branch and PR; every Azure release gets a tag.
 - `v1.0.0` is reserved for the exact submission-day Azure release SHA.
+- Follow-up, not deployed in v0.7.0: independent shared-account judge visits get
+  separate case/card realms; approved owner reset clears the durable bank maps
+  as well as its session workspace. Both modes remain OFF on Azure.
+
+## [0.7.0] — 2026-10-02, temporal-quality release (post-v4)
+
+- Deployed `e7c6b552dec0006c4f36e02188764dcf554942e2`, then atomically reloaded
+  source-verified gold: 492,414 transactions retained, 60,920 flagged. Nullable
+  temporal column, promotion fingerprint, TLS and FORCE RLS asserted.
+- DQ-01 allows explanations and blocks automatic disputes on temporal anomalies
+  or unavailable checks. Azure flag rehearsal was **not exercised live: no demo
+  persona owns a flagged transaction**; authored API/Postgres and CI cover it.
+- CO filing/readback/retry, PT ambiguity, fraud handoff, six benign browser
+  phrases, existing MX receipts across logins, basic-mode display and three
+  surfaces verified. No Azure record deletion or persona rebinding.
+- Smoke **$0.023339 / $0.10**, 12 calls, zero unknown smoke costs. Conservative
+  exposure including retained allowances/reserves **$12.00271348 / $15**.
+- Warm-only Gate A plan prepared and OFF; min=0/max=1 and owner-only access
+  unchanged. Official v4 results unchanged. [Evidence](docs/evaluation/v0.7-release-notes.md).
 
 ## [0.6.0] — 2026-10-02, audit hardening (post-v4)
 

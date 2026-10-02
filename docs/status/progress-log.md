@@ -4880,3 +4880,71 @@ later flag-only session for the current contract and activation dependencies.
 
 - Push the reviewed #128 fix and keep the draft/unmerged hold until the lead's
   policy/migration is ready. Preserve the combined image/reload release gate.
+
+## 2026-10-02 — v0.7.0 released; preserve owner cases; isolate judge visits
+
+### Completed (verified)
+
+- Annotated tag/private Release **v0.7.0** targets deployed source
+  `e7c6b552dec0006c4f36e02188764dcf554942e2`. Exact-SHA CI/safety/access runs
+  `37053950811` / `37053950808` / `37055691024` succeeded. API/web SHA images,
+  ACR digests, ready revisions and `scripts.azure_verify` passed; image/binding
+  apply changed two apps only, zero creates/deletes. Replicas, CPU, owner IP and
+  internal API unchanged. Fresh `jev-release.json` has all three flags true.
+- Fresh `aclara.data.cli build --no-reports` and
+  `scripts.load_demo_serving --target azure` passed source-equivalence, atomic
+  six-table load/count/checksum/readback. `scripts.verify_temporal_serving`
+  asserted nullable TEXT `temporal_quality_reason`, current fingerprint,
+  three FORCE RLS tables, zero unscoped rows and TLS/non-owner runtime. All
+  **492,414** transactions retained; **60,920** flagged / **431,494** unflagged.
+  Readiness warning was present before the load and absent after restart.
+- CO normal filing plus lost-confirm receipt retry/readback, PT ambiguous
+  handoff, deterministic fraud and Customer/Desk/Ops browser smoke passed.
+  Six benign real-model ES/PT phrases passed without security/session-end
+  false positives. Existing MX receipts were reused across logins with no new
+  case. Basic-mode ES/PT banner/composer probes passed with zero reservations;
+  temporary smoke breaker restored. Read-only four-login BFF check passed.
+- **12 provider calls / $0.023339** in the fresh **$0.10** SHA-bound production
+  run; zero unknown smoke costs. Key remainder **$5.1618465 → $5.1385075**.
+  Conservative cumulative exposure **$12.00271348 / $15**, retained historical
+  reserves included. No limit increase/top-up. Release notes disclose all
+  stopped attempts and representation-only receipt comparisons.
+- Owner changed the reset decision to preservation: private backups retained,
+  **zero Azure records deleted**. Direct reset was rejected by automatic approval
+  review because HTTP reset was OFF; no bypass followed. CO had an unfiled
+  eligible charge, so MX receipts were preserved and verified instead.
+- Gate A warm-only preview `terraform plan -refresh=false -lock=false`:
+  **0 creates / 2 updates / 0 deletes**, only API/web min=0 → 1. Not applied;
+  price refresh 19:42 UTC gives idle delta **$3.4344** for Oct 4–16 over the
+  100-active-hour baseline, monthly range **$34.28–$46.08** before tax/models.
+- Mock-only follow-up reproduced then fixed independent judge logins sharing
+  profile cases/cards. Each profile now has a controller-bound visit realm;
+  same-visit return preserves state, a separate login starts fresh, restart
+  preserves isolation. Reset workflow now clears/read-verifies customer bank
+  maps as well as its current session workspace; protected judge realm retained.
+- `LLM_PROVIDER=mock LLM_REAL_CALLS_APPROVED=0 make checks`: **1,335 passed /
+  37 DB skips**, Ruff/strict mypy/interfaces/catalog green, **B1 32/32**.
+  `LLM_PROVIDER=mock LLM_REAL_CALLS_APPROVED=0 .venv/bin/python -m
+  scripts.test_postgres`: **79 passed**, including all four judge profiles,
+  independent logins/profile return/restart and scoped reset isolation.
+
+### Done but not verified
+
+- **Not exercised live: no demo persona owns a flagged transaction.** Bindings
+  unchanged per owner. Merged API/Postgres DQ tests and Azure column gate prove
+  their respective paths; no live flagged conversation is claimed.
+- Judge-visit/reset follow-up is source-only, **not in v0.7.0 images**. Judge and
+  reset modes remain OFF. Runbook pre-video/pre-submission maintenance recipe
+  requires explicit scope/backup/temporary-flag approval; no live reset claimed.
+- Follow-up PR/remote CI and main merge pending. Official v4 files unchanged;
+  no paid calls or Azure changes after the release.
+
+### Next / blocked
+
+- Deploy the next CI-green image containing judge-visit/reset fixes before
+  either mode is enabled. Gate A needs explicit window/plan/cost OK because
+  the upper estimate exceeds $40. Gate B public judge access remains separate.
+- Proposed judging allocation: **$1/UTC-day**, **$2.92 lifetime**, current unused
+  smoke allowance **$0.076661**; conservative maximum **$14.99937448 ≤ $15**.
+  Recheck ledger/key before approval/activation; no new paid call authorized by
+  these source fixes. Publication/submission/retirement require their own gates.
