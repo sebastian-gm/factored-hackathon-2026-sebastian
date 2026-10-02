@@ -1,45 +1,43 @@
 # Progress log
 
-## 2026-10-02 UTC — frontend merges and one v4 narrative
+## 2026-10-01 — Submission repository transition (handoff 16 A)
 
-### Completed (verified)
+### Completed-verified
 
-- PR **#104** merged after all four remote gates passed, at
-  **b938c0a12acb906fe04bfd9b1e7c9dee5a93ac72**. PR **#105** was rebased onto
-  that main revision; a history-preserving merge retained its published ancestry
-  for a normal fast-forward push, with no force-push. A tree comparison confirmed
-  that the updated head has identical product files to the prior green picker head.
-- PR #105's fresh CI initially passed checks/Postgres/invariants but timed out
-  clicking the PT login OTP button (136/137 fixtures passed). The exact isolated
-  test passed **3/3** consecutive local fixture runs; only the failed browser job
-  was retried. All four fresh remote gates then passed; PR #105 merged at
-  **7ff7d2a8c3014fdd7b1fe9145c3e11397c1b6054**.
-- Implemented handoff 15 item 9 in Markdown only: README leads with completed
-  v4, both SAR denominators, exact and rounded model cost per evaluated case and
-  allocated cost per safe automated resolution, three limits, Jev's role, PT
-  provenance and one sourced sentence explaining the two unauthorized-action flags.
-  Official failures remain unchanged; post-v4 fixes are not reflected in v4 numbers.
-- Added superseded-by-v4 banners to all six requested historical pages and the
-  stale language card/serving guide linked from the README. Matcher v2's earlier
-  v1-default instruction is superseded; the projection retains its original v3
-  assumptions. The checklist points to complete v4 and owner-only release/access gates.
-- Local source/arithmetic, relative-link, heading-target and Markdown-only checks
-  passed. Strict mypy and staged data/secret/large-file hooks passed. No per-case IDs
-  or organizer values added; no model calls, frozen-suite execution, rescoring or
-  product changes. Model/cloud spend **$0**; CI uses the existing owner-approved cap.
+- Runbook PR #106 merged with checks, postgres, web and invariants green at
+  `587fa1f2b8472618742f973fbcb6443291b2a1e5`.
+- Renamed the old snapshot to
+  `sebastian-gm/factored-hackathon-2026-sebastian-snapshot-archive`, archived it,
+  verified it remains private; nothing deleted. Renamed the original lab to
+  `sebastian-gm/factored-hackathon-2026-sebastian`, verified private.
+- Updated the shared origin; explicit `git -C` fetch succeeded in lead, AI and
+  data/frontend worktrees. Both lane dry-run pushes succeeded without publishing
+  their local branches. Existing PRs remain on the renamed repository.
+- Created annotated semver tags v0.1.0 (`c2111aa`), v0.2.0 (`fd34c7d`), v0.3.0
+  (`e12efc7`), v0.4.0 (`92994d9`), v0.5.0 (`b8c1305`), each explicitly retroactive
+  on 2026-10-01, on main ancestors; corresponding private GitHub Releases
+  created and tag refs verified through the API. The first slice is identified by the actual
+  local verification in progress-log commit `7680288`. No score was rewritten.
+- Added CHANGELOG, MIT license (Sebastian, 2026), CI badge and repository rules;
+  replaced the superseded snapshot-publication commands in the runbook.
+- Main-protection API returned HTTP 403: private plan requires GitHub Pro or
+  public visibility. Prepared `.github/main-protection.json` requiring PRs and
+  invariants/postgres/web, admin enforcement, no force push or deletion, for
+  application immediately after submission-day publication.
 
-### Done but not verified
+### Done-not-verified
 
-- At entry creation, the docs PR's remote CI and merge remain to be read back.
-- New design and judge picker have local/browser and remote-CI evidence, but this
-  session does not deploy or attest to their live release. Judge access stays OFF.
+- Protection is not active. Publication is not approved or performed.
+- Full-current-history/PR/Actions audit and password rotation (section B) remain
+  outstanding; historical scans are not claimed as current evidence.
 
-### Next / blocked
+### Next-blocked
 
-- Open one docs-only PR onto updated main and merge only after all remote gates
-  pass, under Sebastian's standing authorization; retain the CI/merge readback.
-- Lead owns the next release and owner-approved judge-access activation. Keep
-  official v4 evidence fixed; no held-out rerun or new acceptance score is claimed.
+- Merge this transition via a small CI-green PR, then resume audit items
+  5 → 7 → 6 → 8. Item 5 edits are preserved in the named audit-work stash.
+- Section B follows the audit batch, before October 3. Section C waits for
+  Sebastian's explicit submission-day go. No Azure resource shape/access change.
+
 
 ## 2026-10-02 UTC — submission-day runbook, preparation only
 
@@ -1303,7 +1301,7 @@
 - Per-call usage and readback of the ten durable reservations agree at **$0.085928**, below the approved $0.10. Existing shared `dev-gate/post-v3` / `post-v3` scope reads **$0.71924554 exposure** (known $0.68326354; three pre-existing unknowns), below the requested $0.90 stop and unchanged $1 cap. Concurrency one; every call reserved before sending under the scope lock. No key-level delta or final scope was used.
 - `LLM_PROVIDER=mock make checks` passes: six hooks, Ruff, strict mypy, compilation, file policy, **308 passed / 14 database-dependent skips**, B1 **32/32**, interfaces and policy catalog. No product code changed in this PR.
 - Reconciled the updated lead target `6800ffd` into this feature branch after PRs #65/#66 merged, preserving every progress entry. The conflict was documentation only; no product or fixture changes were authored. Local 381-test checks on that combined target passed in this session.
-- Pushed only private origin and opened [PR #69](https://github.com/sebastian-gm/bank-agent-lab/pull/69) against `fix/post-v3-analysis`; read back the exact description, branch SHA, mergeable and open/unmerged state. All four remote CI jobs completed with failure: annotations say the jobs were not started because an Actions budget prevents use. No CI was cancelled.
+- Pushed only private origin and opened [PR #69](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/pull/69) against `fix/post-v3-analysis`; read back the exact description, branch SHA, mergeable and open/unmerged state. All four remote CI jobs completed with failure: annotations say the jobs were not started because an Actions budget prevents use. No CI was cancelled.
 - Prepared a [lead-owned strings-only patch](../ml/copy-review-post-v3-proposed.patch): five PT occurrences use `contestação` consistently, and one ES freeze offer explains OTP as a new verification code plus confirmation. No lead/front-end product folder was edited. All AI templates and changed web messages were kept. Patch applicability, Python compilation, six string-only AST changes, preserved placeholders/numbers and documentation links were verified.
 
 ### Done but not verified
@@ -1317,7 +1315,7 @@
 
 ### Completed (verified)
 
-- Read back [PR #70](https://github.com/sebastian-gm/bank-agent-lab/pull/70) and [PR #69](https://github.com/sebastian-gm/bank-agent-lab/pull/69): both are open, unmerged and mergeable against `fix/post-v3-analysis`. Their descriptions now reflect Sebastian's latest Actions instruction: the $5 budget is unblocked; rigorous local checks are the gate for stacked PRs; green remote CI is required for PRs into `main`.
+- Read back [PR #70](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/pull/70) and [PR #69](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/pull/69): both are open, unmerged and mergeable against `fix/post-v3-analysis`. Their descriptions now reflect Sebastian's latest Actions instruction: the $5 budget is unblocked; rigorous local checks are the gate for stacked PRs; green remote CI is required for PRs into `main`.
 - Reconciled PR #69 with lead target `6800ffd`, preserving both progress histories; its proposed lead-owned copy patch still applies. Documentation PR #70 retains the verified **381 passed / 14 database-dependent skips**, B1 **32/32**, strict mypy and Ruff checks. No additional manual CI rerun, model spend, deployment or v4 access followed the new instruction.
 
 ### Done but not verified
@@ -1353,7 +1351,7 @@
 
 ### Completed (verified)
 
-- Read the lead's review on `fix/preview-startup-review` after opening robustness [PR #65](https://github.com/sebastian-gm/bank-agent-lab/pull/65). Added authored mock regressions before changing behavior; eleven reproduced the assigned defects. No v4 input was opened and no paid call was made.
+- Read the lead's review on `fix/preview-startup-review` after opening robustness [PR #65](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/pull/65). Added authored mock regressions before changing behavior; eleven reproduced the assigned defects. No v4 input was opened and no paid call was made.
 - Preserve code-supplied clarification replies exactly, including bilingual language help; retain the existing recognition guard. Rephrased explanations now receive the actual approved `plan.reply` as `approved_text` and fallback, with DLP/grounding checks retained.
 - Added explicit ES/PT/uncertain language evidence, excluding domains and trusted merchant names. Shared `com`/`sim` tokens cannot decide language; NLG rejects only confident opposite-language evidence. The frozen two-language interface retains its default. [Implementation and evidence](../ml/pr-62-ai-review-fixes.md).
 - `make checks` passes: six hooks, Ruff, strict mypy, compilation, file policy, **329 passed / 14 database-dependent skips**, B1 **32/32**, interfaces and policy catalog. Targeted new and existing API/recognition/grounding regressions: **90 passed**. Merged the lead target advancement `dac3801` into this feature branch, preserving both progress-log entries and leaving PR merges to the lead.
@@ -1364,7 +1362,7 @@
 
 ### Next / blocked
 
-- [PR #66](https://github.com/sebastian-gm/bank-agent-lab/pull/66) is open, unmerged, targeting `fix/post-v3-analysis`. Lead reviews and merges; preserve both additive progress entries when reconciling PRs #65/#66. GitHub Actions requires the owner budget block to be resolved; read back current-head CI before merge. PR #65 retains the paid robustness study and lead-owned guard follow-up. Keep v4 blind and do not deploy.
+- [PR #66](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/pull/66) is open, unmerged, targeting `fix/post-v3-analysis`. Lead reviews and merges; preserve both additive progress entries when reconciling PRs #65/#66. GitHub Actions requires the owner budget block to be resolved; read back current-head CI before merge. PR #65 retains the paid robustness study and lead-owned guard follow-up. Keep v4 blind and do not deploy.
 
 ## AI lane — 2026-09-29 (post-v3 authored robustness study)
 
@@ -1378,11 +1376,11 @@
 ### Done but not verified
 
 - One offer-path failure remains lead-owned: valid model/postprocess unfamiliarity is overridden by `selection.uncertain()` on a charge-origin memory statement; MATCH was confident. Zero-cost reproduction is saved privately and the report describes the lead's narrow regression/fix. No human language validation or independent accuracy claim is made; latency is one before/after observation.
-- [PR #65](https://github.com/sebastian-gm/bank-agent-lab/pull/65) is open against `fix/post-v3-analysis`, unmerged. All four remote checks completed without starting jobs: their annotations report an owner Actions budget block. Local checks are green; remote CI is not green.
+- [PR #65](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/pull/65) is open against `fix/post-v3-analysis`, unmerged. All four remote checks completed without starting jobs: their annotations report an owner Actions budget block. Local checks are green; remote CI is not green.
 
 ### Next / blocked
 
-- Lead reviews/merges PR #65 into `fix/post-v3-analysis` and fixes the remaining deterministic uncertainty guard before release. The lead base advancement `dac3801` is merged into this feature branch with both progress entries preserved. Queued review findings 1 and 3 are complete in independent [PR #66](https://github.com/sebastian-gm/bank-agent-lab/pull/66), with mocks and zero additional spend. Keep v4 blind; this lane does not merge/deploy.
+- Lead reviews/merges PR #65 into `fix/post-v3-analysis` and fixes the remaining deterministic uncertainty guard before release. The lead base advancement `dac3801` is merged into this feature branch with both progress entries preserved. Queued review findings 1 and 3 are complete in independent [PR #66](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/pull/66), with mocks and zero additional spend. Keep v4 blind; this lane does not merge/deploy.
 
 ## 2026-09-29 PDT — Preview diagnosis, code-only startup fix and PR #62 review
 
@@ -1405,7 +1403,7 @@
   single-attempt POSTs, and shows ES/PT startup/retry states. No Azure setting,
   image or access boundary was changed.
 - Pushed the separate candidate to the existing private origin and opened
-  [draft PR #63](https://github.com/sebastian-gm/bank-agent-lab/pull/63), targeting
+  [draft PR #63](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/pull/63), targeting
   `fix/post-v3-analysis` so its startup/doc changes can be reviewed independently
   of #62. No PR or branch was merged.
 - Reviewed every PR #62 commit. Authored, zero-cost mock/ASGI reproductions
@@ -1901,7 +1899,7 @@
 
 ### Next / blocked
 
-- Follow-up PR [#54](https://github.com/sebastian-gm/bank-agent-lab/pull/54) is open for lead review. The initial automation was canceled after a mistaken interpretation of the test-scope instruction; the corrected head requires full Python, Postgres, web and invariant CI before merge. The lead reruns the no-fault gate and merges after review. No paid call or dev-gate call occurred.
+- Follow-up PR [#54](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/pull/54) is open for lead review. The initial automation was canceled after a mistaken interpretation of the test-scope instruction; the corrected head requires full Python, Postgres, web and invariant CI before merge. The lead reruns the no-fault gate and merges after review. No paid call or dev-gate call occurred.
 
 ## 2026-09-27 — Authorized dev-only follow-up in progress
 
@@ -2462,7 +2460,7 @@
 - Real-model/cloud recording of these changes is not performed. Current staff trace drops risk judgments/route and current personas omit story bindings; `apps/web/API-PROPOSAL.md` specifies the additive lead changes. Live reset remains disabled in cloud and cannot clear other personas' workspaces.
 
 ### Next / blocked
-- [PR #37](https://github.com/sebastian-gm/bank-agent-lab/pull/37) is open; keep it and PRs #24/#28 unmerged until Sebastian announces final-run completion. Lead supplies reviewed trace/persona projections and decides any separately authorized bulk reset; UI does not widen RLS or bypass authentication.
+- [PR #37](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/pull/37) is open; keep it and PRs #24/#28 unmerged until Sebastian announces final-run completion. Lead supplies reviewed trace/persona projections and decides any separately authorized bulk reset; UI does not widen RLS or bypass authentication.
 
 
 ## Jev release and final-program preparation — 2026-09-27 UTC (current)
@@ -2539,7 +2537,7 @@ This summary supersedes earlier task lists. Earlier release evidence remains in 
 - Read aggregate JSON and verified quoted headline, matcher and problem-analysis values. Corrected the brief's broad charge/fee automation claim and highest-handling-time claim against pipeline output. Read named implementation/tests and linked local restore/cold-start evidence; no outcome rerun, policy tuning or frozen-suite edit.
 - A local documentation audit passed 241 link/fence/test-ID checks across the eleven documents; all requirement/criterion mappings, six-slide count and aggregate assertions passed. Narration is 297 words before rehearsal. `git diff --check` and the working-tree data/secret/size policy passed. Provider statements cite official sources; account-specific terms remain unverified. No organizer rows, credentials, Azure actions or model calls were used for this assignment.
 
-- Private [PR #24](https://github.com/sebastian-gm/bank-agent-lab/pull/24) was opened and read back with only the assigned documents plus this log. All four CI jobs passed at `a98203a` (`ci` run `36291808092`, `safety` run `36291808097`); mypy and data/secret/size hooks also passed locally. This log-only follow-up records that evidence.
+- Private [PR #24](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/pull/24) was opened and read back with only the assigned documents plus this log. All four CI jobs passed at `a98203a` (`ci` run `36291808092`, `safety` run `36291808097`); mypy and data/secret/size hooks also passed locally. This log-only follow-up records that evidence.
 
 ### Done but not verified
 
@@ -2782,7 +2780,7 @@ The following sections retain the AI lane’s historical reports; later dated de
 - Read handoff 14 in full. Authored a new 100-case v4 release from ADR-0015 and the written conversation contract, with 35/20/20/25 category counts, 48 ES / 48 PT / 4 mixed, and new interaction wording. Kept v3 as retired development data; no old template list, system output or post-v3 failure analysis defined v4 gold.
 - Verified 100 unique test-split customers and owned products with zero overlap against v1, v2, v3, both matcher inventories and all 40 human cards. Reconstructed the archived v1 identity mapping and matched its original private checksum. All charge/case/FX facts are fictional; native organizer identities exist only in ignored mode-0600 bindings.
 - Structural preflight passed schema, vocabulary, references, explicit reactive replies, counts, exclusions and exact wording/template overlap checks. Froze and read back all release hashes. MANIFEST file SHA-256: `309c3aa22c2eab51b3289075b733c52bb7934a879299762c3fb9ba16a3d9bec8`. No B1/P executions, paid provider calls, cloud changes or spend occurred.
-- Added an aggregate-only v4 evaluation protocol and pre-registered the repeat/dual-judge subsets. Lead, AI and fix authors must not open v4 scenario rows, selection IDs or its authoring tool. [PR #64](https://github.com/sebastian-gm/bank-agent-lab/pull/64) was read back as open and unmerged; origin remains private. Ruff, compilation, strict mypy (81 source files), all six commit hooks and the post-commit freeze verification passed.
+- Added an aggregate-only v4 evaluation protocol and pre-registered the repeat/dual-judge subsets. Lead, AI and fix authors must not open v4 scenario rows, selection IDs or its authoring tool. [PR #64](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/pull/64) was read back as open and unmerged; origin remains private. Ruff, compilation, strict mypy (81 source files), all six commit hooks and the post-commit freeze verification passed.
 
 ### Done but not verified
 
@@ -2790,7 +2788,7 @@ The following sections retain the AI lane’s historical reports; later dated de
 
 ### Next / blocked
 
-- Leave PR #64 unmerged until the owner releases it. The later final run requires Sebastian's explicit go and the release owner's gates. Remote CI failed before jobs started; the [check annotation](https://github.com/sebastian-gm/bank-agent-lab/actions/runs/36657943458/job/109706208743) says an Actions budget prevents further use. This is not a green CI claim. Do not tune product behavior on v4 or publish row-level content.
+- Leave PR #64 unmerged until the owner releases it. The later final run requires Sebastian's explicit go and the release owner's gates. Remote CI failed before jobs started; the [check annotation](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/actions/runs/36657943458/job/109706208743) says an Actions budget prevents further use. This is not a green CI claim. Do not tune product behavior on v4 or publish row-level content.
 
 ## Access and continuation
 
@@ -2843,7 +2841,7 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
 
 ### Completed (verified)
 
-- Security fix PR is [#67](https://github.com/sebastian-gm/bank-agent-lab/pull/67),
+- Security fix PR is [#67](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/pull/67),
   head `5720cbe`, targeting `fix/post-v3-analysis`. The second fix branch includes
   it; merge #67 first to reduce the second PR's diff. No main merge or second
   Azure deploy was performed.
@@ -2880,7 +2878,7 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
 
 ### Next / blocked
 
-- Second private feature PR is [#68](https://github.com/sebastian-gm/bank-agent-lab/pull/68),
+- Second private feature PR is [#68](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/pull/68),
   targeting `fix/post-v3-analysis`, with code commits `aa37227` / `f891584`.
   All 59 browser checks passed (46 fixture/startup + 12 live customer + 1 staff).
   Review/merge #67 first, then #68; neither is merged here.
@@ -2934,7 +2932,7 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
 
 ### Next / blocked
 
-- Private [PR #77](https://github.com/sebastian-gm/bank-agent-lab/pull/77) is OPEN
+- Private [PR #77](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/pull/77) is OPEN
   and mergeable into `fix/post-v3-analysis`, head `a1077f2` read back. Main-only CI
   triggered no remote run; lead reviews and merges. No merge performed.
 - Import the confirmed human export and update the agreement report without new
@@ -2998,7 +2996,7 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
 
 ### Next / blocked
 
-- Private [PR #80](https://github.com/sebastian-gm/bank-agent-lab/pull/80) is OPEN
+- Private [PR #80](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/pull/80) is OPEN
   and mergeable into `fix/post-v3-analysis`, code head `36ba3e7` read back; no
   remote CI run under the main-only trigger. Lead reviews/merges. Freeze and mock
   readbacks are complete; no merge performed.
@@ -3248,7 +3246,7 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
 - No further paid call under this scope: exposure denial and account credits
   block completion. Any resumed latency study needs explicit new authorization;
   the queued `dev-gate/model-compare` scope cannot be repurposed for it.
-- Private [PR #85](https://github.com/sebastian-gm/bank-agent-lab/pull/85) is OPEN
+- Private [PR #85](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/pull/85) is OPEN
   and mergeable into `fix/post-v3-analysis`, code head `226bf3e` read back. It
   carries #80's freeze and #77's output guards because both earlier PRs now show
   closed without merges. Integration PRs use rigorous local checks under the
@@ -3549,7 +3547,7 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
 
 ### Next / blocked
 
-- Private [PR #86](https://github.com/sebastian-gm/bank-agent-lab/pull/86) is OPEN
+- Private [PR #86](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/pull/86) is OPEN
   and mergeable to main, initial head `6ff70e1` read back. Safety/checks/Postgres
   passed; web CI still running. No cancellation, rerun or merge by this lane.
   Shared progress-log entry is the only change outside the requested document.
@@ -3774,3 +3772,89 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
   disagreement review in the validation document. V3 is optional only if scored.
 - Changes are on local `fix/v4-human-review`; no deployment or merge. Existing
   PR #93 is untouched. Keep raw ratings, notes and response text out of Git.
+
+
+## 2026-10-01 — AI external-audit fixes, items 1 and 4
+
+### Completed (verified)
+
+- Rebased onto private `origin/main` `6a221a4` before changes. These are
+  **post-v4 fixes, not reflected in v4 numbers**; no official suite rerun/rescore,
+  real-model call or new provider spending.
+- `explain_status` is template-only. Generated blank-plan clarifications reject
+  ES/PT completed-action and invented-cause claims, including all three audit
+  probes, and fall back to the approved template. Action receipts stay in code.
+- Added independent evaluator action/causal checks, with runtime DLP disabled
+  in negative regressions. Verified receipts, proposed actions and absent
+  settlement dates retain their correct meanings.
+- Narrowed third-party guards to access requests, and bare processo/demanda to
+  legal context. Thirty-four authored benign controls pass normally; twelve real
+  attacks stay refused. B1 and regex-only P hits cannot terminate authentication;
+  P needs two non-degraded model-confirmed access strikes. Session-scoped restart,
+  cue retention and pending-action invalidation tests now exercise that contract.
+- Full local mock Python suite: 1004 passed, 25 database-dependent skips. Ruff,
+  strict mypy (95 source files), frozen interfaces and policy catalog passed.
+  B1 standard and reactive dev harnesses both remain 32/32. Authored additional
+  counter tests are checked separately. Generated dev result-page edits restored.
+
+### Done but not verified
+
+- PR #107 Python, Postgres and invariant CI passed. Its browser job exposed
+  a missing plural charge alias and old B1-revocation expectations; fixed the
+  guard and the two browser tests. Remote CI on the corrected head and merge
+  remain pending. No Azure image release.
+- Shared changes are explicitly required by the assignment: policy guards,
+  minimal API refusal wiring, evaluator and tests. No frozen interface change.
+
+### Next / blocked
+
+- Push the private priority PR, require green CI, then merge under standing OK.
+  Implement items 2+3 in a separate PR: budget degradation and trusted country.
+- Lead releases the post-v4 image after the batch. Human v4 CSV export remains
+  pending separately; no human agreement has been invented.
+
+## 2026-10-02 UTC — frontend merges and one v4 narrative
+
+### Completed (verified)
+
+- PR **#104** merged after all four remote gates passed, at
+  **b938c0a12acb906fe04bfd9b1e7c9dee5a93ac72**. PR **#105** was rebased onto
+  that main revision; a history-preserving merge retained its published ancestry
+  for a normal fast-forward push, with no force-push. A tree comparison confirmed
+  that the updated head has identical product files to the prior green picker head.
+- PR #105's fresh CI initially passed checks/Postgres/invariants but timed out
+  clicking the PT login OTP button (136/137 fixtures passed). The exact isolated
+  test passed **3/3** consecutive local fixture runs; only the failed browser job
+  was retried. All four fresh remote gates then passed; PR #105 merged at
+  **7ff7d2a8c3014fdd7b1fe9145c3e11397c1b6054**.
+- Implemented handoff 15 item 9 in Markdown only: README leads with completed
+  v4, both SAR denominators, exact and rounded model cost per evaluated case and
+  allocated cost per safe automated resolution, three limits, Jev's role, PT
+  provenance and one sourced sentence explaining the two unauthorized-action flags.
+  Official failures remain unchanged; post-v4 fixes are not reflected in v4 numbers.
+- Added superseded-by-v4 banners to all six requested historical pages and the
+  stale language card/serving guide linked from the README. Matcher v2's earlier
+  v1-default instruction is superseded; the projection retains its original v3
+  assumptions. The checklist points to complete v4 and owner-only release/access gates.
+- Local source/arithmetic, relative-link, heading-target and Markdown-only checks
+  passed. Strict mypy and staged data/secret/large-file hooks passed. No per-case IDs
+  or organizer values added; no model calls, frozen-suite execution, rescoring or
+  product changes. Model/cloud spend **$0**; CI uses the existing owner-approved cap.
+
+- Docs PR **#109** initially passed all four remote gates at 74eb7a5. Main
+  advanced during CI; GitHub rejected the merge for conflicts. Preserved the
+  repository-transition URLs, language-card banner and both session histories.
+  The updated head requires fresh CI; no force-push or held-out rerun.
+
+### Done but not verified
+
+- At entry creation, the docs PR's remote CI and merge remain to be read back.
+- New design and judge picker have local/browser and remote-CI evidence, but this
+  session does not deploy or attest to their live release. Judge access stays OFF.
+
+### Next / blocked
+
+- Open one docs-only PR onto updated main and merge only after all remote gates
+  pass, under Sebastian's standing authorization; retain the CI/merge readback.
+- Lead owns the next release and owner-approved judge-access activation. Keep
+  official v4 evidence fixed; no held-out rerun or new acceptance score is claimed.

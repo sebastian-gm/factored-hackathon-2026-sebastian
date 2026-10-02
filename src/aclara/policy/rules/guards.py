@@ -99,7 +99,9 @@ def escalations(text: str) -> list[str]:
     value = normalized(text)
     reasons = []
     if re.search(
-        r"\b(condusef|superintendencia financiera|bcra|procon|abogado|advogado|demanda|processo|regulador|regulator)\b",
+        r"\b(condusef|superintendencia financiera|bcra|procon|abogado|advogado|regulador|regulator)\b"
+        r"|\b(?:demanda|processo)\s+judicial\b|\bjudicial\s+(?:demanda|processo)\b"
+        r"|\bentrar com (?:um |o )?processo\b",
         value,
     ):
         reasons.append("ESC-02")
@@ -124,16 +126,42 @@ def escalation(text: str) -> str | None:
 
 
 def cross_customer(text: str) -> bool:
-    value = normalized(text)
-    # Describing an unknown purchase's actor is not a request for their records.
-    value = re.sub(
-        r"\b(?:lo hizo|la hizo|fue|foi|quem fez foi) (?:otra persona|outra pessoa)\b", "", value
+    """Require a request for someone else's records, never a family/ID mention."""
+    access = re.compile(
+        r"\b(?:ver|mostrar|mostre|mostra|muestrame|muestre|muestra|consultar|consulta|"
+        r"consulte|abrir|abre|abra|acceder|accede|acessar|acessa|acesse|revisar|revisa|"
+        r"revise|busca|buscar|exibir|exiba|movimientos|saldo|extrato|datos|dados)\b"
     )
-    return bool(
-        re.search(
-            r"\b(otro cliente|otra persona|outro cliente|outra pessoa|other customer|other account|soy el esposo|soy la esposa|minha esposa|meu marido|cuenta de mi|conta de|minha mae|mi esposa|mi esposo|documento|cedula|cpf|dni)\b",
-            value,
+    person = (
+        r"(?:(?:otro|otra|outro|outra)\s+(?:cliente|persona|pessoa)|"
+        r"(?:(?:mi|mis|minha|meu|minhas|meus)\s+)?"
+        r"(?:espos[oa]|marido|madre|padre|mae|pai|herman[oa]|irma[oa])|el titular|o titular)"
+    )
+    records = (
+        r"(?:cuenta|conta|cargos?|cobros?|cobrancas?|movimientos|saldo|extrato|datos|dados|"
+        r"tarjeta|cartao|cpf|dni|cedula|documento)"
+    )
+    target = re.compile(
+        rf"\b{records}\s+(?:de|del|do|da|dessa|daquela|desse|daquele)\s+{person}\b|"
+        r"\b(?:otra cuenta|conta alheia|cuenta ajena|other account)\b|"
+        # Using a supplied identifier to look up a different account is access;
+        # merely asking which document to bring is not.
+        r"\b(?:cpf|dni|cedula|documento)\s*(?:numero\s*)?[:#]?\s*\d[\d. -]{4,}\b|"
+        rf"\b(?:cuenta|conta)\b.{{0,30}}\b(?:con|com|pelo|por)\b.{{0,12}}"
+        r"\b(?:cpf|dni|cedula|documento)\b"
+    )
+    return any(
+        access.search(clause)
+        and target.search(
+            # An explicitly self-owned record is not a third-party target.
+            re.sub(
+                r"\b(?:mi|mis|minha|meu|minhas|meus)\s+"
+                r"(?:cpf|dni|cedula|documento)\s*(?:numero\s*)?[:#]?\s*\d[\d. -]*",
+                "",
+                clause,
+            )
         )
+        for clause in re.split(r"[.!?;\n]", normalized(text))
     )
 
 

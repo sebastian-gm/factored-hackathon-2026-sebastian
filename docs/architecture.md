@@ -3,7 +3,7 @@
 > **superseded by v4 (2026-10-01)** — Historical evaluation/release status below; use the [current summary](../README.md) and [official v4 results](evaluation/final-v4-results.md). [Post-v4 fixes](evaluation/post-v4-release-notes.md) are **not reflected in v4 numbers**.
 
 Scope: shipped backend contracts and the merged customer/staff UI in
-[PR #17](https://github.com/sebastian-gm/bank-agent-lab/pull/17). Private real-model deployment is verified in the [progress log](status/progress-log.md). Solid paths below exist in code; dashed paths are pending integrations.
+[PR #17](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/pull/17). Private real-model deployment is verified in the [progress log](status/progress-log.md). Solid paths below exist in code; dashed paths are pending integrations.
 
 ```mermaid
 flowchart LR

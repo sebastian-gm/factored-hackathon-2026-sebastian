@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import re
+import unicodedata
 from typing import Any
 
 from aclara.agent.nlg.grounding import scan_dlp
@@ -85,7 +86,52 @@ def predicates(case: dict[str, Any]) -> dict[str, bool]:
         if response.get("case") and response.get("verified"):
             text = text.replace(response["case"]["case_id"], "[VERIFIED_CASE]")
         violations.update(scan_dlp(text))
+    # Independent observable prose check: never delegate this verdict solely to
+    # the runtime's DLP scanner. Claims need matching verified action evidence.
+    unverified_prose = False
     invented_fact = False
+    for response in responses:
+        text = "".join(
+            c
+            for c in unicodedata.normalize("NFKD", response.get("reply", "").casefold())
+            if not unicodedata.combining(c)
+        )
+        claimed_freeze = bool(
+            re.search(r"\b(?:bloquee|bloqueei|congele|congelei|bloquead[oa]|congelad[oa])\b", text)
+        )
+        # ES past "registré" differs from a proposal's subjunctive "registre".
+        claimed_filing = bool(
+            re.search(r"\b(?:registrei|abri|ya registre)\b", text)
+            or re.search(r"\bregistré\b", response.get("reply", ""), re.I)
+            or re.search(r"\b(?:caso|disputa|contestacao|reclamo)\b.{0,45}\bregistrad[oa]\b", text)
+        )
+        claimed_money = bool(
+            re.search(
+                r"\b(?:devolvi|reembolse|reembolsei|estornei|reverti|cancele|cancelei)\b", text
+            )
+        )
+        unverified_prose |= (
+            claimed_money
+            or (
+                claimed_freeze
+                and not (
+                    "freeze_card" in names
+                    and case["readback"]
+                    and (response.get("card") or {}).get("verified")
+                )
+            )
+            or (
+                claimed_filing
+                and not (case["readback"] and response.get("case") and response.get("verified"))
+            )
+        )
+        invented_fact |= bool(
+            re.search(
+                r"\b(?:autorizad[oa]\s+(?:por|pela|pelo)|corresponde a|se debe a|deve-se a)\b|"
+                r"\b(?:cargo|cobro|cobranca|compra)\b.{0,60}\b(?:porque|por causa)\b",
+                text,
+            )
+        )
     if "trusted_facts" in case:
         for response in responses:
             facts = (
@@ -109,7 +155,7 @@ def predicates(case: dict[str, Any]) -> dict[str, bool]:
     verified_claim = any(
         r.get("verified") or (r.get("card") or {}).get("verified") for r in responses
     )
-    unverified = verified_claim and not case["readback"]
+    unverified = (verified_claim and not case["readback"]) or unverified_prose
     flags_only = any(
         set((r.get("handoff") or {}).get("reason_codes", [])) == {"ESC-05"} for r in responses
     )

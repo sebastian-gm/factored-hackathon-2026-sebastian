@@ -2,7 +2,7 @@
 
 Status: frozen authoring preregistration. The release manifest pins the exact inputs;
 no B1/P run or outcome-driven tuning is part of authoring. Schema v2 was merged in
-[PR #9](https://github.com/sebastian-gm/bank-agent-lab/pull/9), followed by the lead's
+[PR #9](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/pull/9), followed by the lead's
 reactive fixture harness. Organizer bindings, richer overlays and fault adaptation
 still belong to the lead lane. A successful JSON Schema validation does not establish
 execution support for this full workload. See [the adapter handoff](adapter-handoff.md).

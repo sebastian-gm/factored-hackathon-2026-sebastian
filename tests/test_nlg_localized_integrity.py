@@ -228,14 +228,13 @@ def test_related_enum_inputs_are_localized_and_source_facts_stay_canonical(langu
         ("Reversed", ("reversada", "estornada")),
     ],
 )
-def test_phrase_receives_utf8_localized_status_and_bad_drafts_fall_back(
+def test_clarify_phrase_receives_utf8_localized_status_and_bad_drafts_fall_back(
     language: str,
     status: str,
     localized: tuple[str, str],
 ) -> None:
     seen: list[dict[str, object]] = []
     labels = localized[0 if language == "es" else 1]
-    approved = f"La operación está {labels}." if language == "es" else f"A transação está {labels}."
     bad = (
         f"La operaci3n figura como {status}."
         if language == "es"
@@ -250,9 +249,7 @@ def test_phrase_receives_utf8_localized_status_and_bad_drafts_fall_back(
         merchant="Studio3D",
         status=status,
     )
-    plan = ResponsePlan(
-        response_type="explain_status", outcome="explained", reply=approved, transaction=txn
-    )
+    plan = ResponsePlan(response_type="clarify", outcome="clarification", reply="", transaction=txn)
 
     def answer(_system, context, _schema):
         raw = context.partition("<response_plan>")[2].partition("</response_plan>")[0]
@@ -264,7 +261,11 @@ def test_phrase_receives_utf8_localized_status_and_bad_drafts_fall_back(
     )
     result = build_reply(plan, language=language, facts=(status_fact(status),), client=client)
     assert seen[0]["facts"] == [{"id": "status", "value": labels}]
-    assert seen[0]["approved_text"] == approved  # proper accents survive JSON/UTF-8 roundtrip
-    assert result.used_template and result.plan.reply == approved
+    assert (
+        "moeda" in seen[0]["approved_text"]
+        if language == "pt"
+        else "moneda" in seen[0]["approved_text"]
+    )
+    assert result.used_template and result.plan.reply == seen[0]["approved_text"]
     assert {"text_corruption", "unlocalized_enum"} <= set(result.violations)
     assert len(client.records) == 2

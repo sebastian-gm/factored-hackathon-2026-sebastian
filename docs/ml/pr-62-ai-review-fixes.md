@@ -1,8 +1,8 @@
 # PR #62 AI review follow-up: approved questions and language evidence
 
 Addresses findings **1 and 3** in the lead's
-[review on `fix/preview-startup-review`](https://github.com/sebastian-gm/bank-agent-lab/blob/fix/preview-startup-review/docs/reviews/pr-62-review.md).
-[PR #66](https://github.com/sebastian-gm/bank-agent-lab/pull/66) targets
+[review on `fix/preview-startup-review`](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/blob/fix/preview-startup-review/docs/reviews/pr-62-review.md).
+[PR #66](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/pull/66) targets
 `fix/post-v3-analysis` and remains unmerged; robustness PR #65 stays
 independently reviewable. All examples are newly authored mocks. No v4 input
 was opened, no paid measurement was made, and no budget scope was modified.
