@@ -226,7 +226,7 @@ failures against their original gold.
 
 ## Lean v5.2 status: prepared, not measured or adopted
 
-[v5.2 candidate](../../prompts/nlu/v5_2.md) removes duplication and shortens examples:
+[Archived v5.2 candidate](../../evals/studies/prompts/nlu/v5_2.md) removes duplication and shortens examples:
 5,117 body characters versus v5.1's 7,427 (31.1% shorter). It retains the schema,
 denial/unfamiliarity/recognition rules, regional expressions, data boundaries and
 code authority. It explicitly distinguishes refusal from recognition and regional
