@@ -1,5 +1,7 @@
 # Limitations
 
+> **superseded by v4 (2026-10-01)** — Historical evaluation/release status below; use the [current summary](../README.md) and [official v4 results](evaluation/final-v4-results.md). [Post-v4 fixes](evaluation/post-v4-release-notes.md) are **not reflected in v4 numbers**.
+
 Aclara is a synthetic development service. Its current frozen mock diagnostic
 **failed acceptance gates**. See the [corrected report](evaluation/heldout-run01.md),
 [B1 aggregate](evaluation/heldout-run01-B1.json) and

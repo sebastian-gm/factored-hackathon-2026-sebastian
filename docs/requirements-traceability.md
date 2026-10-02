@@ -1,5 +1,7 @@
 # Requirements and official judging criteria
 
+> **superseded by v4 (2026-10-01)** — Historical evaluation/release status below; use the [current summary](../README.md) and [official v4 results](evaluation/final-v4-results.md). [Post-v4 fixes](evaluation/post-v4-release-notes.md) are **not reflected in v4 numbers**.
+
 Evidence register for the shipped backend and the merged frontend in
 [PR #17](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/pull/17). A linked test is a
 check that exists, not proof of a final evaluation or deployment. CI and local-run
@@ -31,7 +33,7 @@ failed acceptance gates; later staff/API changes are outside its measured SHA.
 | --- | --- | --- | --- |
 | Architecture | [System and state diagrams](architecture.md), scoped API and AI/rules table. | API contracts, integration/workflow tests, customer read-back in PR #17. | Staff/Ops APIs are current-workspace scoped; private UI deployment is verified; external telemetry export remains pending. |
 | Reliability | [Threat/control matrix](security/threat-model.md), durable state, no blind write retry and fallback. | Security, restart, audit, degraded-mode and fault tests; lead smoke evidence. | No uptime, capacity or disaster-recovery guarantee. |
-| Reproducibility | [Local quickstart](../README.md#local-quickstart), pinned locks, deterministic fixtures, frozen evaluation manifest. | [CI](../.github/workflows/ci.yml), [safety job](../.github/workflows/safety.yml), interface snapshot tests. | Full organizer runs stay local; final tagged comparison pending. |
+| Reproducibility | [Local quickstart](../README.md#run-locally-without-model-spend), pinned locks, deterministic fixtures, frozen evaluation manifest. | [CI](../.github/workflows/ci.yml), [safety job](../.github/workflows/safety.yml), interface snapshot tests. | Full organizer runs stay local; final tagged comparison pending. |
 | Data Quality | [DQ exclusions](data-quality-report.md), contracts, hashes and [lineage](data/dbt-lineage.svg). | Incremental/quarantine and serving checksum/RLS tests; aggregate pipeline outputs. | Generator anomalies are preserved or excluded, not silently repaired. |
 | Business Reasoning | [Demand analysis](problem-analysis.md), narrow charge workflow, [trade-offs](tradeoffs.md). | Pipeline contact/complaint aggregates; projection formulas tie to offline result fields. | Historical operations and projected savings are not measured improvements. |
 | Privacy & Fairness | [Privacy/retention](security/privacy-and-retention.md), [threat model](security/threat-model.md), language/segment protocol. | Scoped access and DLP/privacy-flag tests; subgroup matcher outputs. | Human review and published-use terms remain pending; mock slice disparities have sample/composition caveats. |
