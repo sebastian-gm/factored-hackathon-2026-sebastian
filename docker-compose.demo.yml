@@ -1,0 +1,16 @@
+# Isolated make demo overlay. Provider keys and organizer inputs are never passed.
+services:
+  api:
+    environment:
+      LLM_PROVIDER: mock
+      LLM_REAL_CALLS_APPROVED: "0"
+      LEDGER_BACKEND: fixture
+      ALLOW_DEMO_RESET: "false"
+      JUDGE_ACCESS_ENABLED: "false"
+      BANK_CLOCK: "2026-06-18T06:00:00Z"
+  web:
+    command: ["pnpm", "dev", "--webpack", "--hostname", "0.0.0.0"]
+    environment:
+      FRONTEND_DEMO_MODE: live
+      WEB_APP_ORIGIN: http://localhost:${WEB_HOST_PORT}
+      BANK_CLOCK: "2026-06-18T06:00:00Z"
