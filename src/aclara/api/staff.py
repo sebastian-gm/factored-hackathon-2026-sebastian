@@ -182,8 +182,11 @@ def verify_handoff_commit(
         result["verified"] = True
 
 
-def install_staff(app: FastAPI, principal_dependency: Any) -> None:
+def install_staff(
+    app: FastAPI, principal_dependency: Any, auth_principal_dependency: Any | None = None
+) -> None:
     principal_default = Depends(principal_dependency)
+    logout_default = Depends(auth_principal_dependency or principal_dependency)
     store = app.state.store
     settings = app.state.settings
 
@@ -251,7 +254,11 @@ def install_staff(app: FastAPI, principal_dependency: Any) -> None:
         return persona_views(app.state.personas, app.state.demo_stories)
 
     @app.post("/auth/logout")
-    async def logout(principal: Any = principal_default) -> dict[str, bool]:
+    async def logout(
+        principal: Any = logout_default,
+    ) -> dict[str, bool]:
+        if principal.judge_reference is not None:
+            return dict(app.state.judge_sessions.revoke(principal))
         with store.transaction(scope(principal)):
             store.delete("sessions", principal.capability_digest)
             store.audit({"action": "logout"})
@@ -456,6 +463,8 @@ def install_staff(app: FastAPI, principal_dependency: Any) -> None:
     @app.post("/ops/reset/proposal", response_model=ResetProposal)
     async def reset_proposal(principal: Any = principal_default) -> ResetProposal:
         staff(principal, True)
+        if principal.judge_reference is not None:
+            raise HTTPException(403, "Judge reset disabled")
         fresh(principal)
         if not settings.allow_demo_reset:
             raise HTTPException(403, "Demo reset disabled")
@@ -477,6 +486,8 @@ def install_staff(app: FastAPI, principal_dependency: Any) -> None:
     @app.post("/ops/reset", response_model=ResetReceipt)
     async def reset(body: ResetConfirm, principal: Any = principal_default) -> ResetReceipt:
         staff(principal, True)
+        if principal.judge_reference is not None:
+            raise HTTPException(403, "Judge reset disabled")
         fresh(principal)
         if not settings.allow_demo_reset:
             raise HTTPException(403, "Demo reset disabled")

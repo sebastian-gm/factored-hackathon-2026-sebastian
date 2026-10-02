@@ -1,5 +1,73 @@
 # Progress log
 
+## 2026-10-02 UTC — one judge login, scoped profile backend
+
+### Completed (verified)
+
+- Docs-only evidence PR **#102** merged under standing OK at
+  **3384a0b47a66dbf9512928fab26a2332a6a2ef78**. Its reviewed head 360d4c1
+  passed checks/Postgres/web/invariants; automatic main CI **36951431482** and
+  safety **36951431476** also succeeded. No Azure release was needed for docs.
+- Proposed the API/session design and threat check first in
+  [ADR-0016](../adr/0016-judge-profile-sessions.md), then implemented on
+  `feat/judge-profile-entry`. Existing password/OTP yields a picker-only grant.
+  Fixed profile selection rotates a capability with a trusted customer and fresh
+  run/sid, preserving the login deadline/OTP and clearing action step-up.
+  Locked, durable controller activation has one winner; old tokens cannot replay.
+  Logout revokes the controller; judge reset is forbidden. Credential/binding/
+  dataset changes and the OFF switch invalidate grants. No migration or new scope.
+- `.venv/bin/pytest -q tests/test_judge_access.py tests/test_judge_profiles.py`
+  passed **37** authored checks: four profiles, picker denial, caller claim
+  rejection, OTP/proposal/case/handoff isolation, replay, TTL, restart, concurrent
+  activation, legacy-alias transition denial and fail-closed storage/readback
+  failures. Final review found/fixed a pre-picker alias grant retaining bank
+  authority when changing to the picker format; fresh login is now mandatory.
+  This justified a new CI candidate before merge. No organizer rows used.
+- `.venv/bin/python -m scripts.test_postgres`: **33 passed**, including real
+  forced bank/ops RLS, separate restarted stores, competing replicas, complete
+  token-free switch/logout audit chain and a shared $3 fixture budget that profile
+  rotation cannot replenish. Fixture reservations settled at **$0**, no provider
+  calls. Existing real PostgreSQL tests stayed green.
+- Full local Python checks: pre-commit/data-secret hooks, Ruff, strict mypy
+  (**95 source files**), compile, **857 passed / 25 skipped**, interface/catalog
+  snapshots and staged-file scan. Subsequently added readback-failure and legacy-
+  transition regressions passed in the **37-check** focused run; strict mypy and
+  interfaces passed again after the transition fix. Baseline and reactive B1
+  both **32/32**.
+- `pnpm --dir apps/web typecheck`, `lint`, `build`, `test:e2e`, `test:e2e --live`
+  and `test:e2e --staff`: all passed; **111 fixture + 12 local live-API + 1 staff
+  = 124 browser checks**. These verify existing owner flows, not a future picker.
+- Additive OpenAPI snapshot and
+  [frontend integration contract](../api/judge-profile-entry.md) prepared. New
+  `GET /auth/judge/profiles`, `POST /auth/judge/profile` and optional `/me` metadata
+  do not change the OFF/owner identity response. Source profile roles/hints remain
+  trusted and scoped; no caller customer/role or raw capability appears in metadata.
+- Hash-only integrity check: **855 pinned official v4/release input files,
+  zero mismatches**. Official v4 figures remain unchanged; this is post-v4 work.
+
+### Done but not verified
+
+- Frontend picker/BFF cookie replacement, tab coordination and stale-response
+  clearing are not implemented by the lead. Backend isolation does not establish
+  browser safety. The contract specifies no POST retry and complete state clearing.
+- New judge mode has not been deployed/enabled or rehearsed on Azure. Four actual
+  source bindings and separate Key Vault judge secrets have not been created.
+
+### Next / blocked
+
+- Frontend lane implements the picker against the documented API, with browser
+  regressions for cookie rotation, stale tabs/responses and pending actions.
+- Main merge requires the combined candidate's remote CI green under standing
+  OK. Keep
+  existing Azure judge/warm switches OFF and owner ingress unchanged; submission-
+  day activation, exact four sources, secrets, outside-IP rehearsal and costs
+  still require Sebastian's approval. The existing global `production` **$3 per
+  UTC day** breaker remains shared across profiles; no per-profile purse.
+- Model/Azure spend in this session **$0**. No new resources, secrets, replicas,
+  public access or held-out run. GitHub CI uses the owner's existing capped budget.
+- Continue from docs/status/progress-log.md. Next layer: frontend judge picker
+  and submission-day owner decisions. Same rules.
+
 ## 2026-10-01 UTC — private post-v4 snapshot and clean-clone verified
 
 ### Completed (verified)
