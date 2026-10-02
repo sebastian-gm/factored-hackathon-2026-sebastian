@@ -302,6 +302,7 @@ def terraform(action: str) -> None:
 def seed_database() -> None:
     import psycopg
     from psycopg import sql
+    from scripts.azure_targets import database_host
 
     admin = az("keyvault", "secret", "show", "--vault-name", VAULT, "--name", "postgres-admin")[
         "value"
@@ -310,7 +311,7 @@ def seed_database() -> None:
         "value"
     ]
     with psycopg.connect(
-        host="psql-aclara-dev-eastus2.postgres.database.azure.com",
+        host=database_host(),
         dbname="aclara",
         user="aclara_admin",
         password=admin,

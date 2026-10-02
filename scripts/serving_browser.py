@@ -22,8 +22,9 @@ def main() -> None:
     allowance = nullcontext()
     if args.target == "azure":
         from scripts.azure_dev import VAULT, az, read_variables
+        from scripts.azure_targets import app_url
 
-        url = "https://ca-web-aclara-dev-eastus2.lemonbeach-1b769de0.eastus2.azurecontainerapps.io"
+        url = app_url("web")
         password = az(
             "keyvault", "secret", "show", "--vault-name", VAULT, "--name", "demo-password"
         )["value"]

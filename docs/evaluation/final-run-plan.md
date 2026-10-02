@@ -389,7 +389,7 @@ The single start command already scores the 50 synthetic calibration items along
 **Start, after the explicit go:**
 
 ```bash
-cd /home/megagdev/megagdev/factored-hackathon-2026/bank-agent-lab
+cd $REPO
 LLM_FINAL_RUN_STARTED=1 LLM_REAL_CALLS_APPROVED=1 .venv/bin/python -m scripts.final_program start
 ```
 
@@ -401,14 +401,14 @@ workstation is off. Keep this checkout and its Python environment unchanged.
 **Resume the same program after interruption:**
 
 ```bash
-cd /home/megagdev/megagdev/factored-hackathon-2026/bank-agent-lab
+cd $REPO
 LLM_FINAL_RUN_STARTED=1 LLM_REAL_CALLS_APPROVED=1 .venv/bin/python -m scripts.final_program resume
 ```
 
 **Read aggregate progress without making model calls:**
 
 ```bash
-cd /home/megagdev/megagdev/factored-hackathon-2026/bank-agent-lab
+cd $REPO
 .venv/bin/python -m scripts.final_program status
 ```
 

@@ -17,6 +17,7 @@ import httpx
 import psycopg
 from scripts.azure_dev import ROOT, VAULT, az, private_write, read_variables
 from scripts.azure_migrate_ops import connection_string
+from scripts.azure_targets import app_url
 from scripts.serving_smoke import check, wait_config
 
 from aclara.agent.contracts import DisputeCaseView
@@ -26,7 +27,6 @@ from aclara.ops.store import Scope, Store, open_case
 from aclara.policy.engine import evaluate
 from aclara.settings import Settings
 
-WEB = "https://ca-web-aclara-dev-eastus2.lemonbeach-1b769de0.eastus2.azurecontainerapps.io"
 SMOKE_RUN = os.getenv("AZURE_RELEASE_SMOKE_RUN_ID", "after-v2-release-smoke")
 CHECKPOINT = ROOT / f"artifacts/azure/{SMOKE_RUN}-conversations.json"
 
@@ -116,9 +116,10 @@ def open_transaction_ids(cases: list[dict[str, Any]]) -> set[str]:
 
 
 def exercise(name: str, password: str, ledger: ServingRepository) -> dict[str, Any]:
+    web = app_url("web")
     username = "demo.pt.br" if name == "pt_ambiguous" else "demo.es.mx"
     persona = next(p for p in ledger.personas() if p.username == username)
-    with httpx.Client(base_url=WEB + "/api/bff/", headers={"Origin": WEB}, timeout=190) as client:
+    with httpx.Client(base_url=web + "/api/bff/", headers={"Origin": web}, timeout=190) as client:
         assert not wait_config(client)["fixtures"]
         challenge = check(
             client.post("auth/login", json={"username": username, "password": password})

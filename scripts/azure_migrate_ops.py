@@ -9,6 +9,7 @@ from datetime import UTC, datetime
 import psycopg
 from psycopg.conninfo import make_conninfo
 from scripts.azure_dev import ROOT, VAULT, az
+from scripts.azure_targets import database_host
 
 from aclara.ops.migrate import migrate
 
@@ -17,7 +18,7 @@ def connection_string(role: str) -> str:
     secret = "postgres-admin" if role == "aclara_admin" else "postgres-app"
     password = az("keyvault", "secret", "show", "--vault-name", VAULT, "--name", secret)["value"]
     return make_conninfo(
-        host="psql-aclara-dev-eastus2.postgres.database.azure.com",
+        host=database_host(),
         dbname="aclara",
         user=role,
         password=password,

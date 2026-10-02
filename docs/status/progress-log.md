@@ -3041,7 +3041,7 @@ The following sections retain the AI lane’s historical reports; later dated de
 
 ## Access and continuation
 
-Restricted web: https://ca-web-aclara-dev-eastus2.lemonbeach-1b769de0.eastus2.azurecontainerapps.io/
+Restricted web: <owner-supplied-web-origin>
 Use `demo.es.mx` or `demo.pt.br` for the three-surface workspace; `demo.es.co` and `demo.es.ar` are customer-only. Retrieve `demo-password` from the authenticated Key Vault portal; never paste it into chat, Git or logs. OTP is simulated. Re-login after the identity-source migration; prior fixture sessions do not grant organizer access.
 
 For later sessions, paste: **Continue from docs/status/progress-log.md. Next layer: final evaluation after Sebastian's explicit go. Same rules.**
@@ -4210,3 +4210,75 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
 - Section B: scrub current-tree operational targets, rotate Postgres credentials
   with Key Vault/revision readback, document firewall choice and clone evidence.
   Repo remains private; publication and warm/judge activation require submission-day OK.
+
+## 2026-10-02 — verified audit rehearsal and section-B hardening
+
+### Completed (verified)
+
+- #120 helper-label fix merged at `e30c549` after all four remote checks passed
+  (`36974370052`, `36974370077`). It changes the operator helper/docs only;
+  deployed product image remains `f5e128d`.
+- Owner-IP real rehearsal: all six prescribed benign PT/ES phrases passed without
+  SEC-01/ESC-02, session termination or case write. Duplicate across logins returns
+  verified `status_reported` and the same typed original receipt, zero extra cases.
+  Initial helper compared UTC timestamp strings (`Z` / `+00:00`); independent scoped
+  read confirmed the same instant. Two local helper preflight stops made no model
+  call; completed phrase steps were retained, not rerun. Additional diagnosis stayed
+  within the authorized 10–15-turn rehearsal and same lifetime purse.
+- Disabled only this smoke purse for one budget-denial turn, restored in `finally`:
+  localized degraded HTTP 200, authentication retained, **zero new reservations**.
+  `v0.6-rehearsal-verified.json` records the checks. Total real smoke/rehearsal
+  **$0.02292**, production key **$5.1847665 → $5.1618465**, no key printed.
+- Fresh original-repo clone at `f5e128d`: README-only, **17/17 steps / 724.10 s**,
+  no copied private inputs. 1,121 Python passed / 31 skipped, B1 32/32, Postgres
+  49/49, web type/lint/build, 148 fixture + 12 local live + one staff browser passed.
+  `make down` stopped only its disposable project. Model spend $0.
+- Definitive filename-aware native history Gitleaks: **27** default findings,
+  all triaged metadata/test/secret-NAME false positives; configured scan exits 0.
+  Narrow path/exact-value exceptions retain default rules. Negative controls
+  detect changed values in allowed paths and allowed values in other paths.
+  This supersedes the narrower 19-match patch-stream result above.
+- Both Postgres credentials rotated through existing Terraform generators/server
+  and Key Vault; app SQL role updated from Key Vault, same-image API revision.
+  TLS, non-owner/no-bypass, unscoped zero-row checks passed. BFF `me`, `config`,
+  `transactions`, `ops/snapshot` all 200, bank clock available, logout 401,
+  zero model calls. Secret references normalized; fresh Terraform plan has **no changes**.
+- Retained owner-IP/Azure-services firewall: stable app-only egress is not proven;
+  cross-subscription exposure remains documented. No new resources, replica/CPU,
+  ingress/publication/judge-mode changes. Current-tree operational hosts/home paths
+  replaced with lazy private configuration or portable placeholders; offline target
+  imports/credentialed-URL rejection and Jev-off gates passed 13 focused checks.
+- Mock `make checks` on the readiness candidate: **1,128 passed / 31 skipped**,
+  B1 **32/32**, compilation, hooks/Ruff/mypy and interface/catalog checks passed.
+  Target resolution is lazy for the latency helper too; focused operator tests
+  and Ruff pass after removing its stale import of the previous fixed URL.
+- Publication audit refresh: **120 PRs / 599 available completed log archives**,
+  zero Actions artifacts, zero sensitive-IP/signed-URL signals; default GitHub
+  Gitleaks exits 0. Current credential/private-ID comparison: **seven values,
+  zero matching values** in history or GitHub text. Four negative controls detected.
+- Budget readback: this purse **$0.02292 / $0.10**, 12 calls, zero unknown costs.
+  All-scope known cost **$5.96687034**, retained exposure **$7.69618884**.
+  Conservative allowance math plus otherwise omitted closed-scope exposure:
+  **$11.87612498 + $0.10324950 = $11.97937448 ≤ $12**. Historical unknown reserves
+  remain charged; no scope, counter or reservation was reset.
+- #121's first remote Python gate caught an unmocked target lookup in the
+  authored latency test (local Azure credentials had masked that omission).
+  The test now supplies its fake origin and explicitly rejects any Azure lookup;
+  **18 focused tests** and Ruff pass. Push the correction for required fresh CI.
+
+### Done but not verified
+
+- Current-tree scrub, scanner configuration, reproduction/audit docs and dated
+  progress are on feature `fix/public-readiness`; required remote CI/merge pending.
+- Full Azure browser receipt, `jev-release.json` refresh and `v0.6.0` tag remain
+  pending the requested one additional browser allowance. Earlier attempts completed
+  Chat/Desk but stopped at obsolete Ops selector; counters/reservations were not reset.
+
+### Next / blocked
+
+- Merge readiness PR only on green remote CI; rescan exact committed tree/history
+  and refresh new GitHub run/PR coverage before submission-day publication.
+- On owner browser allowance, run the corrected helper once under the existing
+  $0.10 purse; record all gates/digests/cumulative exposure and tag deployed `f5e128d`.
+- Main protection is prepared but unavailable on the current private plan. Public
+  visibility, warm replicas and judge activation still require explicit Oct-4 OK.

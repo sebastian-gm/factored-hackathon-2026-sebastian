@@ -32,11 +32,11 @@ Merge the deployment support PR only after CI is green. Fetch origin, fast-forwa
 git -C /absolute/path/to/bank-agent-lab fetch origin
 git -C /absolute/path/to/bank-agent-lab switch main
 git -C /absolute/path/to/bank-agent-lab merge --ff-only origin/main
-docker build -f Dockerfile.api -t acraclaradeveastus2.azurecr.io/aclara-api:<main-sha> .
-docker build -f apps/web/Dockerfile.azure -t acraclaradeveastus2.azurecr.io/aclara-web:<main-sha> apps/web
+docker build -f Dockerfile.api -t <registry-login-server>/aclara-api:<main-sha> .
+docker build -f apps/web/Dockerfile.azure -t <registry-login-server>/aclara-web:<main-sha> apps/web
 # Authenticate using az acr login --subscription 'Seb Azure Sandbox' and a private Docker config.
-docker push acraclaradeveastus2.azurecr.io/aclara-api:<main-sha>
-docker push acraclaradeveastus2.azurecr.io/aclara-web:<main-sha>
+docker push <registry-login-server>/aclara-api:<main-sha>
+docker push <registry-login-server>/aclara-web:<main-sha>
 ```
 
 Set the ignored variables `image_tag` to that full SHA and `deploy_apps = true`; run plan/apply again. Never temporarily remove IP restrictions to troubleshoot. The web app retains the owner-only IP rule; the API has internal-only ingress in the same environment. Use `API_BASE_URL` at runtime; the same production image can be reused without embedding a hostname during its build.
@@ -48,7 +48,13 @@ uv run --no-sync python -m scripts.azure_smoke
 uv run --no-sync python -m scripts.azure_verify
 ```
 
-The smoke retrieves the demo password from Key Vault into memory and calls the web BFF. It verifies all four private organizer bindings, ES/PT normal/ambiguous/human paths, dispute/handoff readbacks, Agent Desk claim/resolve, measured Ops, audit chains, customer-role denials and original-session case recovery on a replacement API replica. It emits only aggregates. Control readback checks ingress, replicas, TLS, firewall, budget, identities and SHA. The credential-free `azure-access` workflow requires web HTTP 403 and internal API HTTP 404 from a non-allowlisted runner. Run `gh workflow run azure-access.yml --repo sebastian-gm/bank-agent-lab`; configuration inspection alone is insufficient.
+The smoke retrieves the demo password from Key Vault into memory and calls the web BFF. It verifies all four private organizer bindings, ES/PT normal/ambiguous/human paths, dispute/handoff readbacks, Agent Desk claim/resolve, measured Ops, audit chains, customer-role denials and original-session case recovery on a replacement API replica. It emits only aggregates. Control readback checks ingress, replicas, TLS, firewall, budget, identities and SHA. The credential-free `azure-access` workflow requires web HTTP 403 and internal API HTTP 404 from a non-allowlisted runner. Run `gh workflow run azure-access.yml --repo sebastian-gm/factored-hackathon-2026-sebastian`; configuration inspection alone is insufficient.
+
+Operator targets are resolved lazily from the explicitly approved Azure sandbox.
+Optional private inputs `AZURE_WEB_URL`, `AZURE_API_URL` and `AZURE_POSTGRES_HOST`
+override inventory discovery; imports/local checks do not contact Azure. Configure
+the workflow's repository variables `AZURE_WEB_URL` (web origin) and `AZURE_API_URL`
+(API health URL) privately before dispatch. Concrete hosts are kept out of the tree.
 
 ## Operations and limitations
 
