@@ -1,0 +1,118 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:ns2="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" width="864pt" height="486pt" viewBox="0 0 864 486" version="1.1">
+ <title>v4 latency cost</title><metadata>
+  <rdf:RDF>
+   <ns2:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+    <dc:description>docs/evaluation/final-v4-results.md sha256:7ebe6e0dd84aa0e90a362bc084a211649ffccf54abd9177684e2ed6ef1178f1f</dc:description>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <ns2:Agent>
+      <dc:title>Aclara</dc:title>
+     </ns2:Agent>
+    </dc:creator>
+   </ns2:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 486  L 864 486  L 864 0  L 0 0  z " style="fill: #ffffff" />
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 51.84 330.48  L 414.72 330.48  L 414.72 140.94  L 51.84 140.94  z " style="fill: #ffffff" />
+   </g>
+   <g id="patch_3">
+    <path d="M 51.84 168.927483  L 52.197769 168.927483  L 52.197769 149.555455  L 51.84 149.555455  z " clip-path="url(#p02d5889602)" style="fill: #73837b" />
+   </g>
+   <g id="patch_4">
+    <path d="M 51.84 219.906503  L 52.913307 219.906503  L 52.913307 200.534476  L 51.84 200.534476  z " clip-path="url(#p02d5889602)" style="fill: #73837b" />
+   </g>
+   <g id="patch_5">
+    <path d="M 51.84 270.885524  L 160.448451 270.885524  L 160.448451 251.513497  L 51.84 251.513497  z " clip-path="url(#p02d5889602)" style="fill: #176b56" />
+   </g>
+   <g id="patch_6">
+    <path d="M 51.84 321.864545  L 244.830828 321.864545  L 244.830828 302.492517  L 51.84 302.492517  z " clip-path="url(#p02d5889602)" style="fill: #176b56" />
+   </g>
+   <g id="matplotlib.axis_1">
+    <g id="xtick_1">
+     <g id="line2d_1" />
+     <g id="text_1">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52645d" x="51.84" y="341.577656" transform="rotate(-0 51.84 341.577656)">0</text>
+     </g>
+    </g>
+    <g id="xtick_2">
+     <g id="line2d_2" />
+     <g id="text_2">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52645d" x="154.059718" y="341.577656" transform="rotate(-0 154.059718 341.577656)">2</text>
+     </g>
+    </g>
+    <g id="xtick_3">
+     <g id="line2d_3" />
+     <g id="text_3">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52645d" x="256.279437" y="341.577656" transform="rotate(-0 256.279437 341.577656)">4</text>
+     </g>
+    </g>
+    <g id="text_4">
+     <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52645d" x="233.28" y="355.578437" transform="rotate(-0 233.28 355.578437)">Seconds per turn</text>
+    </g>
+   </g>
+   <g id="matplotlib.axis_2" />
+   <g id="patch_7">
+    <path d="M 51.84 330.48  L 256.279437 330.48  " style="fill: none; stroke: #dce3de; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square" />
+   </g>
+   <g id="text_5">
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="57.308755" y="161.839125" transform="rotate(-0 57.308755 161.839125)">B1 · p50 · 0.007 s</text>
+   </g>
+   <g id="text_6">
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="58.024293" y="212.818146" transform="rotate(-0 58.024293 212.818146)">B1 · p95 · 0.021 s</text>
+   </g>
+   <g id="text_7">
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="165.559437" y="263.797557" transform="rotate(-0 165.559437 263.797557)">P · Gemini + Jev · p50 · 2.125 s</text>
+   </g>
+   <g id="text_8">
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="249.941814" y="314.776578" transform="rotate(-0 249.941814 314.776578)">P · Gemini + Jev · p95 · 3.776 s</text>
+   </g>
+   <g id="text_9">
+    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="51.84" y="134.94" transform="rotate(-0 51.84 134.94)">Turn latency · seconds</text>
+   </g>
+  </g>
+  <g id="text_10">
+   <text style="font-weight: 700; font-size: 24px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="51.84" y="36.45" transform="rotate(-0 51.84 36.45)">Measured latency and model cost stay visible</text>
+  </g>
+  <g id="text_11">
+   <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="65.61" transform="rotate(-0 51.84 65.61)">Historical v4 · local serving plus remote models · includes Jev, excludes Azure browser timing</text>
+  </g>
+  <g id="text_12">
+   <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="501.12" y="155.52" transform="rotate(-0 501.12 155.52)">Model cost per evaluated case</text>
+  </g>
+  <g id="text_13">
+   <text style="font-weight: 700; font-size: 24px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #176b56" x="501.12" y="194.4" transform="rotate(-0 501.12 194.4)">$0.0023</text>
+  </g>
+  <g id="text_14">
+   <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="501.12" y="223.56" transform="rotate(-0 501.12 223.56)">P primary model spend allocated across 100 cases</text>
+  </g>
+  <g id="text_15">
+   <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="501.12" y="272.16" transform="rotate(-0 501.12 272.16)">Allocated cost per safe resolution</text>
+  </g>
+  <g id="text_16">
+   <text style="font-weight: 700; font-size: 24px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #176b56" x="501.12" y="311.04" transform="rotate(-0 501.12 311.04)">$0.0072</text>
+  </g>
+  <g id="text_17">
+   <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="501.12" y="340.2" transform="rotate(-0 501.12 340.2)">P primary model spend allocated across 32 cases</text>
+  </g>
+  <g id="text_18">
+   <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="442.26" transform="rotate(-0 51.84 442.26)">P primary model cost $0.229766056. Excludes repeats, judges and infrastructure; B1 model cost $0.</text>
+  </g>
+  <g id="text_19">
+   <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="461.7" transform="rotate(-0 51.84 461.7)">Source: docs/evaluation/final-v4-results.md · official v4, first pass only</text>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="p02d5889602">
+   <rect x="51.84" y="140.94" width="362.88" height="189.54" />
+  </clipPath>
+ </defs>
+</svg>

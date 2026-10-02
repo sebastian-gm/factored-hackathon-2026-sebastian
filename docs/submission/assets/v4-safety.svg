@@ -1,0 +1,222 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:ns2="http://creativecommons.org/ns#" xmlns:ns4="http://www.w3.org/1999/xlink" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" width="864pt" height="486pt" viewBox="0 0 864 486" version="1.1">
+ <title>v4 safety</title><metadata>
+  <rdf:RDF>
+   <ns2:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+    <dc:description>docs/evaluation/final-v4-results.md sha256:7ebe6e0dd84aa0e90a362bc084a211649ffccf54abd9177684e2ed6ef1178f1f</dc:description>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <ns2:Agent>
+      <dc:title>Aclara</dc:title>
+     </ns2:Agent>
+    </dc:creator>
+   </ns2:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 486  L 864 486  L 864 0  L 0 0  z " style="fill: #ffffff" />
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 51.84 330.48  L 267.84 330.48  L 267.84 150.66  L 51.84 150.66  z " style="fill: #ffffff" />
+   </g>
+   <g id="patch_3">
+    <path d="M 51.84 218.306571  L 112.642252 218.306571  L 112.642252 194.330571  L 51.84 194.330571  z " clip-path="url(#p3abd346c4a)" style="fill: #73837b" />
+   </g>
+   <g id="patch_4">
+    <path d="M 51.84 303.935143  L 111.426207 303.935143  L 111.426207 279.959143  L 51.84 279.959143  z " clip-path="url(#p3abd346c4a)" style="fill: #176b56" />
+   </g>
+   <g id="matplotlib.axis_1">
+    <g id="xtick_1">
+     <g id="line2d_1" />
+     <g id="text_1">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52645d" x="51.84" y="346.077656" transform="rotate(-0 51.84 346.077656)">0%</text>
+     </g>
+    </g>
+    <g id="xtick_2">
+     <g id="line2d_2" />
+     <g id="text_2">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52645d" x="126.322759" y="346.077656" transform="rotate(-0 126.322759 346.077656)">2.5%</text>
+     </g>
+    </g>
+    <g id="xtick_3">
+     <g id="line2d_3" />
+     <g id="text_3">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52645d" x="200.805517" y="346.077656" transform="rotate(-0 200.805517 346.077656)">5%</text>
+     </g>
+    </g>
+    <g id="text_4">
+     <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52645d" x="159.84" y="366.078438" transform="rotate(-0 159.84 366.078438)">Share of stated denominator (%)</text>
+    </g>
+   </g>
+   <g id="matplotlib.axis_2" />
+   <g id="patch_5">
+    <path d="M 51.84 330.48  L 200.805517 330.48  " style="fill: none; stroke: #dce3de; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square" />
+   </g>
+   <g id="text_5">
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="184.911429" transform="rotate(-0 51.84 184.911429)">B1</text>
+   </g>
+   <g id="text_6">
+    <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="116.36639" y="209.95529" transform="rotate(-0 116.36639 209.95529)">2/98 · 2.0%</text>
+   </g>
+   <g id="text_7">
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="270.54" transform="rotate(-0 51.84 270.54)">P · Gemini + Jev</text>
+   </g>
+   <g id="text_8">
+    <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="115.150345" y="295.583862" transform="rotate(-0 115.150345 295.583862)">2/100 · 2.0%</text>
+   </g>
+   <g id="text_9">
+    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="51.84" y="130.66" transform="rotate(-0 51.84 130.66)">Unauthorized action</text>
+   </g>
+  </g>
+  <g id="axes_2">
+   <g id="patch_6">
+    <path d="M 315.36 330.48  L 531.36 330.48  L 531.36 150.66  L 315.36 150.66  z " style="fill: #ffffff" />
+   </g>
+   <g id="patch_7">
+    <path d="M 315.36 218.306571  L 376.162252 218.306571  L 376.162252 194.330571  L 315.36 194.330571  z " clip-path="url(#p5c06b142e2)" style="fill: #73837b" />
+   </g>
+   <g id="patch_8">
+    <path d="M 315.36 303.935143  L 434.532414 303.935143  L 434.532414 279.959143  L 315.36 279.959143  z " clip-path="url(#p5c06b142e2)" style="fill: #176b56" />
+   </g>
+   <g id="matplotlib.axis_3">
+    <g id="xtick_4">
+     <g id="line2d_4" />
+     <g id="text_10">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52645d" x="315.36" y="346.077656" transform="rotate(-0 315.36 346.077656)">0%</text>
+     </g>
+    </g>
+    <g id="xtick_5">
+     <g id="line2d_5" />
+     <g id="text_11">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52645d" x="389.842759" y="346.077656" transform="rotate(-0 389.842759 346.077656)">2.5%</text>
+     </g>
+    </g>
+    <g id="xtick_6">
+     <g id="line2d_6" />
+     <g id="text_12">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52645d" x="464.325517" y="346.077656" transform="rotate(-0 464.325517 346.077656)">5%</text>
+     </g>
+    </g>
+    <g id="text_13">
+     <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52645d" x="423.36" y="366.078438" transform="rotate(-0 423.36 366.078438)">Share of stated denominator (%)</text>
+    </g>
+   </g>
+   <g id="matplotlib.axis_4" />
+   <g id="patch_9">
+    <path d="M 315.36 330.48  L 464.325517 330.48  " style="fill: none; stroke: #dce3de; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square" />
+   </g>
+   <g id="text_14">
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="315.36" y="184.911429" transform="rotate(-0 315.36 184.911429)">B1</text>
+   </g>
+   <g id="text_15">
+    <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="379.88639" y="209.95529" transform="rotate(-0 379.88639 209.95529)">2/98 · 2.0%</text>
+   </g>
+   <g id="text_16">
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="315.36" y="270.54" transform="rotate(-0 315.36 270.54)">P · Gemini + Jev</text>
+   </g>
+   <g id="text_17">
+    <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="438.256552" y="295.583862" transform="rotate(-0 438.256552 295.583862)">4/100 · 4.0%</text>
+   </g>
+   <g id="text_18">
+    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="315.36" y="130.66" transform="rotate(-0 315.36 130.66)">Unverified success claim</text>
+   </g>
+  </g>
+  <g id="axes_3">
+   <g id="patch_10">
+    <path d="M 578.88 330.48  L 794.88 330.48  L 794.88 150.66  L 578.88 150.66  z " style="fill: #ffffff" />
+   </g>
+   <g id="patch_11">
+    <path d="M 578.88 218.306571  L 578.88 218.306571  L 578.88 194.330571  L 578.88 194.330571  z " clip-path="url(#pf61dbb1c65)" style="fill: #73837b" />
+   </g>
+   <g id="patch_12">
+    <path d="M 578.88 303.935143  L 578.88 303.935143  L 578.88 279.959143  L 578.88 279.959143  z " clip-path="url(#pf61dbb1c65)" style="fill: #176b56" />
+   </g>
+   <g id="matplotlib.axis_5">
+    <g id="xtick_7">
+     <g id="line2d_7" />
+     <g id="text_19">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52645d" x="578.88" y="346.077656" transform="rotate(-0 578.88 346.077656)">0%</text>
+     </g>
+    </g>
+    <g id="xtick_8">
+     <g id="line2d_8" />
+     <g id="text_20">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52645d" x="653.362759" y="346.077656" transform="rotate(-0 653.362759 346.077656)">2.5%</text>
+     </g>
+    </g>
+    <g id="xtick_9">
+     <g id="line2d_9" />
+     <g id="text_21">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52645d" x="727.845517" y="346.077656" transform="rotate(-0 727.845517 346.077656)">5%</text>
+     </g>
+    </g>
+    <g id="text_22">
+     <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52645d" x="686.88" y="366.078438" transform="rotate(-0 686.88 366.078438)">Share of stated denominator (%)</text>
+    </g>
+   </g>
+   <g id="matplotlib.axis_6" />
+   <g id="line2d_10">
+    <defs>
+     <path id="m2f2cf76079" d="M 0 2.5  C 0.663008 2.5 1.29895 2.236584 1.767767 1.767767  C 2.236584 1.29895 2.5 0.663008 2.5 0  C 2.5 -0.663008 2.236584 -1.29895 1.767767 -1.767767  C 1.29895 -2.236584 0.663008 -2.5 0 -2.5  C -0.663008 -2.5 -1.29895 -2.236584 -1.767767 -1.767767  C -2.236584 -1.29895 -2.5 -0.663008 -2.5 0  C -2.5 0.663008 -2.236584 1.29895 -1.767767 1.767767  C -1.29895 2.236584 -0.663008 2.5 0 2.5  z " style="stroke: #73837b" />
+    </defs>
+    <g>
+     <use ns4:href="#m2f2cf76079" x="578.88" y="206.318571" style="fill: #73837b; stroke: #73837b" />
+    </g>
+   </g>
+   <g id="line2d_11">
+    <defs>
+     <path id="maea46bd417" d="M 0 2.5  C 0.663008 2.5 1.29895 2.236584 1.767767 1.767767  C 2.236584 1.29895 2.5 0.663008 2.5 0  C 2.5 -0.663008 2.236584 -1.29895 1.767767 -1.767767  C 1.29895 -2.236584 0.663008 -2.5 0 -2.5  C -0.663008 -2.5 -1.29895 -2.236584 -1.767767 -1.767767  C -2.236584 -1.29895 -2.5 -0.663008 -2.5 0  C -2.5 0.663008 -2.236584 1.29895 -1.767767 1.767767  C -1.29895 2.236584 -0.663008 2.5 0 2.5  z " style="stroke: #176b56" />
+    </defs>
+    <g>
+     <use ns4:href="#maea46bd417" x="578.88" y="291.947143" style="fill: #176b56; stroke: #176b56" />
+    </g>
+   </g>
+   <g id="patch_13">
+    <path d="M 578.88 330.48  L 727.845517 330.48  " style="fill: none; stroke: #dce3de; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square" />
+   </g>
+   <g id="text_23">
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="578.88" y="184.911429" transform="rotate(-0 578.88 184.911429)">B1</text>
+   </g>
+   <g id="text_24">
+    <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="582.604138" y="209.95529" transform="rotate(-0 582.604138 209.95529)">0/98 · 0.0%</text>
+   </g>
+   <g id="text_25">
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="578.88" y="270.54" transform="rotate(-0 578.88 270.54)">P · Gemini + Jev</text>
+   </g>
+   <g id="text_26">
+    <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="582.604138" y="295.583862" transform="rotate(-0 582.604138 295.583862)">0/100 · 0.0%</text>
+   </g>
+   <g id="text_27">
+    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="578.88" y="130.66" transform="rotate(-0 578.88 130.66)">Missing confirmation / OTP</text>
+   </g>
+  </g>
+  <g id="text_28">
+   <text style="font-weight: 700; font-size: 24px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="51.84" y="36.45" transform="rotate(-0 51.84 36.45)">Both systems failed the full safety gate</text>
+  </g>
+  <g id="text_29">
+   <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="65.61" transform="rotate(-0 51.84 65.61)">Official observed flags · lower is better · categories overlap</text>
+  </g>
+  <g id="text_30">
+   <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="442.26" transform="rotate(-0 51.84 442.26)">Action flags include frozen-reply/gold conflicts, with no observed authority bypass. Zero flags do not prove zero risk.</text>
+  </g>
+  <g id="text_31">
+   <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="461.7" transform="rotate(-0 51.84 461.7)">Source: docs/evaluation/final-v4-results.md · official v4, first pass only</text>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="p3abd346c4a">
+   <rect x="51.84" y="150.66" width="216" height="179.82" />
+  </clipPath>
+  <clipPath id="p5c06b142e2">
+   <rect x="315.36" y="150.66" width="216" height="179.82" />
+  </clipPath>
+  <clipPath id="pf61dbb1c65">
+   <rect x="578.88" y="150.66" width="216" height="179.82" />
+  </clipPath>
+ </defs>
+</svg>
