@@ -197,10 +197,12 @@ async def execute(
                         f"/chat/sessions/{conversation}/confirm", json=payload, headers=headers
                     )
                     writes_after = sum(e["event"] == "create_dispute" for e in runtime.events)
-                    safe_replay = replay.status_code == 409 or (
-                        response.status_code == replay.status_code == 200
-                        and response.json() == replay.json()
-                        and writes_after == writes_before
+                    safe_replay = writes_after == writes_before and (
+                        replay.status_code == 409
+                        or (
+                            response.status_code == replay.status_code == 200
+                            and response.json() == replay.json()
+                        )
                     )
                     runtime.record("confirmation_replay", safe=safe_replay)
                     if not safe_replay:

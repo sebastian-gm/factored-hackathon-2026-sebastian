@@ -35,6 +35,10 @@
 ### Done-not-verified
 
 - Item 5 is a feature candidate, not merged or deployed yet; remote CI pending.
+- Refreshed onto main with #105/#107/#108 using a history-preserving merge,
+  preserving both progress entries. Combined `make checks`: **1024 passed / 30
+  skips**, B1 **32/32**; combined Postgres **42 passed**. Authored replay
+  negative controls reject changed receipts, extra writes and write-then-409.
 - These are **post-v4 fixes, not reflected in v4 numbers**. No evaluation rerun,
   paid dev call or Azure change occurred.
 
