@@ -95,7 +95,7 @@ test("snapshot regenerates from committed aggregate sources without reading rows
     ["scripts/build-insights-snapshot.mjs", "--check"],
     { stdio: "pipe" },
   );
-  expect(snapshot.sources).toHaveLength(12);
+  expect(snapshot.sources).toHaveLength(13);
   expect(snapshot.azure_latency).toEqual({
     source: "azureLatency",
     status: "partial",
@@ -137,7 +137,7 @@ test("future results require aggregate denominators and provenance; row fields, 
 for (const pt of [false, true])
   for (const width of [1440, 390]) {
     const name = `${pt ? "pt" : "es"}-${width}`;
-    test(`${name}: read-only story, rounded data, citations, honest v3 safety and pending v4; accessible screenshots`, async ({
+    test(`${name}: read-only story, rounded data, citations, official v4 evidence and failed safety gate; accessible screenshots`, async ({
       page,
     }) => {
       await page.setViewportSize({ width, height: width === 390 ? 844 : 1000 });
@@ -170,7 +170,8 @@ for (const pt of [false, true])
       await expect(latency).toContainText(
         pt ? "sem a primeira conversa" : "sin la primera conversación",
       );
-      await expect(latency).toContainText(pt ? "4,12 s" : "4.12 s");
+      await expect(latency).toContainText(pt ? "2,1 s" : "2.1 s");
+      await expect(latency).toContainText(pt ? "3,8 s" : "3.8 s");
       await expect(latency).toContainText(
         pt
           ? "Não houve reinício a frio forçado"
@@ -189,20 +190,20 @@ for (const pt of [false, true])
         pt ? "12.297" : "12,297",
       );
       const comparison = page.getByTestId("insights-comparison");
-      await expect(comparison).toContainText("77 / 100");
-      await expect(comparison).toContainText("52 / 100");
-      await expect(comparison).toContainText("+11 pp");
-      await expect(comparison).toContainText("+5 → +17 pp");
-      await expect(page.locator(".insights-safety")).toContainText("0 / 100");
-      await expect(page.locator(".insights-safety")).toContainText("· v3");
+      await expect(comparison).toContainText("88 / 100");
+      await expect(comparison).toContainText("62 / 100");
+      await expect(comparison).toContainText("+10 pp");
+      await expect(comparison).toContainText("+5 → +16 pp");
+      await expect(page.locator(".insights-safety")).toContainText("2 / 100");
+      await expect(page.locator(".insights-safety")).toContainText("· v4");
       await expect(page.locator(".insights-safety")).toContainText("0 / 30");
       await expect(
         page.locator(".insights-safety .insights-caution"),
-      ).toContainText(pt ? "não passou" : "no pasó");
+      ).toContainText(pt ? "falharam" : "fallaron");
       await expect(page.getByTestId("insights-v4")).toContainText(
-        pt ? "Pendente" : "Pendiente",
+        pt ? "Publicação completa" : "Publicación completa",
       );
-      await expect(page.getByTestId("insights-v4")).not.toContainText("0%");
+      await expect(page.getByTestId("insights-v4")).toContainText("2 / 100");
       await expect(page.locator(".insights-sources li")).toHaveCount(
         snapshot.sources.length,
       );
@@ -283,7 +284,7 @@ for (const pt of [false, true])
       await expect(v4.getByRole("alert")).toBeVisible();
       await expect(v4).not.toContainText("7 / 10");
       await expect(page.getByTestId("insights-comparison")).toContainText(
-        "77 / 100",
+        "88 / 100",
       );
       await capture(page, `${name}-publication-error`);
       state = "invalid";
@@ -353,7 +354,9 @@ test("quickstart opens Insights; direct authenticated Insights does not create a
     if (r.method() === "POST" && r.url().endsWith("/chat/sessions")) created++;
   });
   await open(page);
-  await expect(page.getByTestId("insights-v4")).toContainText("Pendiente");
+  await expect(page.getByTestId("insights-v4")).toContainText(
+    "Publicación completa",
+  );
   await expect(page.locator(".chat-panel")).toHaveCount(0);
   expect(created).toBe(0);
 });
