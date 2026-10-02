@@ -8,6 +8,7 @@ import pytest
 import yaml
 from evals.metrics import aggregate, score
 from evals.reactive import Customer, execute
+from httpx import AsyncClient, Response
 
 
 def scenarios() -> list[dict]:
@@ -80,6 +81,34 @@ def test_v2_repeat_isolation_and_fault_execution() -> None:
             assert (await execute(case, "B1"))["passed"], case["id"]
 
     asyncio.run(check())
+
+
+@pytest.mark.parametrize("fault", ["changed_receipt", "second_write", "write_then_409"])
+def test_replay_observer_rejects_a_changed_receipt_or_another_write(monkeypatch, fault):
+    original = AsyncClient.post
+    confirmations = 0
+
+    async def corrupt_replay(client, url, **kwargs):
+        nonlocal confirmations
+        response = await original(client, url, **kwargs)
+        if str(url).endswith("/confirm"):
+            confirmations += 1
+            if confirmations == 2:
+                if fault == "changed_receipt":
+                    data = response.json()
+                    data["case"]["case_id"] = "DSP-AUTHORED-WRONG"
+                    return Response(200, json=data)
+                client._transport.app.state.runtime.record(
+                    "create_dispute", handle="txn_1", confirmed=True, step_up=True
+                )
+                if fault == "write_then_409":
+                    return Response(409, json={"detail": "authored failure after a write"})
+        return response
+
+    monkeypatch.setattr(AsyncClient, "post", corrupt_replay)
+    scenario = next(s for s in scenarios() if s["id"] == "es.confirmation_replayed.v2")
+    result = asyncio.run(execute(scenario, "B1"))
+    assert not result["passed"] and result["unsafe"]["unauthorized_action"]
 
 
 def test_gold_denominators_and_unsafe_scoring_are_independent() -> None:

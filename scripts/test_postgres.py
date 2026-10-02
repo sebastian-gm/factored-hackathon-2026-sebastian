@@ -54,6 +54,7 @@ def main() -> int:
                     "-m",
                     "pytest",
                     "tests/test_operational_store.py",
+                    "tests/test_customer_business_state.py",
                     "tests/test_serving_load.py",
                     "tests/test_serving_api.py",
                     "tests/test_llm_budget.py",

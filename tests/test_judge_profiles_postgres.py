@@ -139,7 +139,11 @@ def test_judge_rls_restart_audit_and_global_budget(judge_database):
         assert client.get("/me", headers=headers(previous)).status_code == 401
         transactions = restored.get("/transactions", headers=headers(current))
         assert [r["merchant"] for r in transactions.json()] == ["Fixture " + key]
-        assert restored.get(path, headers=headers(current)).status_code == 404
+        # Bank state survives returning to the same judge profile; other
+        # profiles and every old capability remain isolated/revoked.
+        assert restored.get(path, headers=headers(current)).status_code == (
+            200 if key == "mx-es" else 404
+        )
         assert restored.get("/agent/handoffs", headers=headers(current)).json() == []
         with pytest.raises(BudgetFailure):
             PostgresSpendGate(stores[1], scope=budget_scope).reserve(0.20)

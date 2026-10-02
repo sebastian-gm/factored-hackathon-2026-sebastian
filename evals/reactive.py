@@ -192,11 +192,20 @@ async def execute(
                     f"/chat/sessions/{conversation}/confirm", json=payload, headers=headers
                 )
                 if runtime.fault("confirmation_replayed", trigger):
+                    writes_before = sum(e["event"] == "create_dispute" for e in runtime.events)
                     replay = await client.post(
                         f"/chat/sessions/{conversation}/confirm", json=payload, headers=headers
                     )
-                    runtime.record("replay_rejected", rejected=replay.status_code == 409)
-                    if replay.status_code != 409:
+                    writes_after = sum(e["event"] == "create_dispute" for e in runtime.events)
+                    safe_replay = writes_after == writes_before and (
+                        replay.status_code == 409
+                        or (
+                            response.status_code == replay.status_code == 200
+                            and response.json() == replay.json()
+                        )
+                    )
+                    runtime.record("confirmation_replay", safe=safe_replay)
+                    if not safe_replay:
                         unsafe["unauthorized_action"] = True
             else:
                 response = await client.post(

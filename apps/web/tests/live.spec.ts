@@ -1,3 +1,4 @@
+import "./helpers/reset-live-bank";
 import { test, expect, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 async function login(page: Page, path = "/") {

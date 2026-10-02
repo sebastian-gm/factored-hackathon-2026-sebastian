@@ -10,7 +10,7 @@ import re
 import secrets
 from dataclasses import asdict, dataclass, field, replace
 from datetime import UTC, datetime, timedelta
-from typing import Any
+from typing import Any, cast
 from uuid import uuid4
 
 import psycopg
@@ -430,9 +430,21 @@ def create_app(
     )
     app.state.judge_sessions = judge_sessions
     app.state.conversations = operational.mapping("conversations", Conversation)
-    app.state.cases = operational.mapping("cases", dict[str, Any])
+    business_judge_realms = set(judge_realms)
+    if judge_config:
+        business_judge_realms.add(realm(judge_config.alias.username))
+
+    def business_realm(current: Scope) -> str:
+        prefix = current.run_id.partition("_")[0]
+        return "judge:" + prefix if prefix in business_judge_realms else "owner"
+
+    app.state.cases = operational.customer_mapping(
+        "customer_cases", dict[str, Any], business_realm, legacy="cases"
+    )
     app.state.handoffs = operational.mapping("handoffs", dict[str, Any])
-    app.state.card_states = operational.mapping("card_states", dict[str, Any])
+    app.state.card_states = operational.customer_mapping(
+        "customer_card_states", dict[str, Any], business_realm, legacy="card_states"
+    )
     app.state.executions = operational.mapping("execution_records", dict[str, Any])
     app.state.turns = operational.mapping("turns", dict[str, Any])
     app.state.idempotency = operational.mapping("idempotency_keys", dict[str, Any])
@@ -1435,7 +1447,23 @@ def create_app(
         principal: Principal = Depends(get_principal),
     ) -> dict[str, Any]:
         cursor = len(app.state.runtime.events)
+        receipt_key = "confirm-result:" + conversation_id + ":" + body.proposal_hash
         with operational.transaction(scope(principal)):
+            conversation = app.state.conversations.get(conversation_id)
+            if conversation is None or conversation.session_id != principal.session_id:
+                raise HTTPException(404, "Conversation not found")
+            receipt = app.state.idempotency.get(receipt_key)
+            if receipt:
+                if receipt["confirmed"] != body.confirmed:
+                    raise HTTPException(409, "Confirmation differs from the original action")
+                result = receipt["response"]
+                if result.get("case"):
+                    record = app.state.cases.get(result["case"]["case_id"])
+                    if not record or DisputeCaseView.model_validate(
+                        public_case(record)
+                    ) != DisputeCaseView.model_validate(result["case"]):
+                        raise HTTPException(503, "Durable receipt readback failed")
+                return cast(dict[str, Any], result)
             try:
                 result = await process_confirmation(conversation_id, body, principal)
             except InjectedFailure:
@@ -1463,6 +1491,11 @@ def create_app(
                 deterministic=bool(conversation and conversation.degraded),
             )
             execution_id = execution(result, conversation_id, cursor, None)
+            if result.get("case") or result["response_type"] == "cancelled":
+                app.state.idempotency[receipt_key] = {
+                    "confirmed": body.confirmed,
+                    "response": result,
+                }
         # Commit precedes the independent read-back and any success response.
         if result.get("case"):
             verify_committed_case(result, principal, execution_id)

@@ -22,7 +22,7 @@ from scripts.verify_audit_chain import verify
 
 from aclara.api.app import create_app
 from aclara.ops.migrate import migrate
-from aclara.ops.store import TABLES, Scope, Store
+from aclara.ops.store import CUSTOMER_TABLES, TABLES, Scope, Store
 from aclara.settings import Settings
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -90,12 +90,19 @@ async def seed(dsn: str, settings: Settings) -> dict[str, Any]:
 def digest(dsn: str) -> dict[str, Any]:
     result = {}
     with psycopg.connect(dsn) as connection:
-        for table in sorted(TABLES | {"audit_log"}):
+        for table in sorted(TABLES | CUSTOMER_TABLES | {"audit_log"}):
             key = "sequence" if table == "audit_log" else "id"
+            scope_columns = (
+                ("customer_id", "realm")
+                if table in CUSTOMER_TABLES
+                else ("customer_id", "run_id", "sid")
+            )
             rows = connection.execute(
-                sql.SQL(
-                    "SELECT to_jsonb(t)::text FROM ops.{} t ORDER BY customer_id,run_id,sid,{}"
-                ).format(sql.Identifier(table), sql.Identifier(key))
+                sql.SQL("SELECT to_jsonb(t)::text FROM ops.{} t ORDER BY {} ,{}").format(
+                    sql.Identifier(table),
+                    sql.SQL(",").join(map(sql.Identifier, scope_columns)),
+                    sql.Identifier(key),
+                )
             ).fetchall()
             result[table] = {
                 "rows": len(rows),

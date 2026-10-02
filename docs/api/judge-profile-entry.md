@@ -58,9 +58,11 @@ Ordinary owner `/me` responses retain their existing field shape.
    BroadcastChannel). Other tabs clear state and re-fetch `/me`. Never broadcast
    the capability. The server rejects old tokens independently of this UX guard.
 6. Switching even to the same profile creates a new operational workspace. Do not
-   reuse an old conversation, transaction list, proposal, action OTP or receipt.
-   Returning to a profile does not recover prior demo cases. Judge reset routes
-   are forbidden; selection is the safe workspace restart operation.
+   reuse an old conversation, transaction list, proposal or action OTP.
+   Post-v4 audit fix: bank cases/card states persist within the same trusted
+   customer + judge-profile realm across logins and visits. Returning to that
+   profile can read its existing case; another profile or the owner realm cannot.
+   Judge reset routes remain forbidden; selection restarts only the workspace.
 7. Use `identity.locale` and `identity.demo_stories` for the active UI. Normal
    policy, proposal confirmation and action OTP freshness remain enforced;
    switching does not grant fresh write authority or extend the login deadline.
@@ -71,8 +73,10 @@ Ordinary owner `/me` responses retain their existing field shape.
 ## Scope, persistence and budget
 
 The original controller lives in an explicit auth scope, while each selected
-capability has a new customer-specific run/session. Every bank/operational access
-uses that selected trusted customer and forced RLS. Cross-profile object IDs,
+capability has a new customer-specific run/session. Customer business tables
+add a stable server-trusted realm and a unique open-case constraint; conversations,
+handoffs, pending actions and receipts retain run/session isolation. Every access
+uses the selected trusted customer and forced RLS. Cross-profile object IDs,
 proposals and OTP challenges return not-found. A locked controller digest/revision
 has exactly one winner across replicas; unpublished children have no authority.
 Restart checks the persisted controller and credential/binding/dataset fingerprint.
@@ -89,6 +93,7 @@ Owner approval still precedes activation; see
 [infrastructure switches](../submission/infrastructure-switches.md). Supply four
 reviewed, distinct customer bindings with the expected locales through the
 existing `judge-persona` Key Vault secret. Generate a separate random
-`judge-password`; never commit either value. No migration or new Azure resource
-is required by this controller. Frontend cookie/tab handling and a live enabled
+`judge-password`; never commit either value. The controller needs no new Azure
+resource; the post-v4 bank-state fix needs migration 0004 before its image release.
+Frontend cookie/tab handling and a live enabled
 judge rehearsal must be verified before enabling public web ingress.

@@ -226,7 +226,7 @@ def test_failed_independent_status_read_has_no_verification_event(monkeypatch):
 
             def missing_on_independent_read(table, key):
                 nonlocal reads
-                if table == "cases":
+                if table == "customer_cases":
                     reads += 1
                     if reads == 2:
                         return None

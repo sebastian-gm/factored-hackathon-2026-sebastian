@@ -222,7 +222,7 @@ def test_api_session_proposal_case_handoff_and_execution_survive_restart(dsn: st
                         "confirmed": True,
                     },
                 )
-                assert replay.status_code == 409
+                assert replay.status_code == 200 and replay.json() == result.json()
             with fourth.transaction(scope):
                 assert app.state.card_states["card_1"]["status"] == "frozen"
                 assert len(app.state.cases) == 1
@@ -233,7 +233,7 @@ def test_api_session_proposal_case_handoff_and_execution_survive_restart(dsn: st
                 assert len(app.state.turns) == 3
                 assert len(app.state.conversations) == 1
             with fourth.transaction(Scope(scope.customer_id, str(uuid4()), scope.sid)):
-                assert not app.state.cases and not app.state.handoffs
+                assert len(app.state.cases) == 1 and not app.state.handoffs
         finally:
             fourth.close()
 
@@ -607,6 +607,8 @@ def test_wrong_step_up_code_preserves_dispute_and_retry_after_restart(dsn: str) 
 
 def test_post_v4_case_status_verification_survives_new_store(dsn: str) -> None:
     """The status read occurs after commit; its appended trace must also commit."""
+    from dataclasses import replace
+
     from test_api_security import _settings, _sign_in
     from test_dev_acceptance import ledger
     from test_workflow_api import message
@@ -614,7 +616,16 @@ def test_post_v4_case_status_verification_survives_new_store(dsn: str) -> None:
     async def check() -> None:
         first = Store(dsn)
         try:
-            app = create_app(_settings(), ledger(), store=first)
+            settings = replace(_settings(), demo_customer_id="fixture-status-" + uuid4().hex)
+            repository = ledger()
+            from aclara.bank.repository import TransactionRepository
+
+            repository = TransactionRepository(
+                tuple(
+                    replace(row, customer_id=settings.demo_customer_id) for row in repository._rows
+                )
+            )
+            app = create_app(settings, repository, store=first)
             async with AsyncClient(
                 transport=ASGITransport(app=app), base_url="http://test"
             ) as client:

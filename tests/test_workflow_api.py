@@ -89,7 +89,7 @@ def test_freeze_requires_step_up_hash_scope_recheck_and_readback():
             assert again.json() == frozen.json()
             assert (
                 await client.get("/cards/prod_1", headers={"Authorization": f"Bearer {other}"})
-            ).json()["status"] == "Active"
+            ).json()["status"] == "Frozen"
 
     asyncio.run(check())
 

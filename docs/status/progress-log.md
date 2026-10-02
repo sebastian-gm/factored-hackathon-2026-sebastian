@@ -1,5 +1,55 @@
 # Progress log
 
+## 2026-10-01 — Audit item 5: customer bank state and receipt retries
+
+### Completed-verified
+
+- Added customer business maps/tables with forced customer + trusted realm RLS,
+  cross-session advisory locking and a unique canonical open-case index. Owner
+  sessions share cases/card states; each judge profile has a separate stable
+  realm. Conversations, handoffs, OTPs and pending actions remain session-scoped.
+- Migration 0004 retains legacy receipts and canonicalizes duplicate history
+  without deleting it. Logged-out normal serving identities are recovered only
+  from the authoritative persona registry; unknown realms remain isolated.
+  FORCE RLS is restored atomically before migration commit. Runtime stays non-owner.
+- Existing-case policy/status lookup and card/account readback use bank state
+  across logins. Workspace reset does not delete customer bank state. Returning
+  to a judge profile recovers its cases, never another profile's workspace.
+- Lost dispute confirmation returns the exact original receipt after independently
+  reading its case; it performs no second write/model call. Opposite confirmation
+  and another session's hash fail. Freeze receipt retry remains read-only after
+  action OTP expiry; owner/session/proposal provenance still applies.
+- `LLM_PROVIDER=mock ... make checks` passed: **863 passed / 30 database skips**,
+  six hooks, strict mypy, compilation, file policy, B1 **32/32**, interface and
+  policy snapshots. Local disposable `scripts.test_postgres`: **42 passed**,
+  including populated/signed-out backfill, RLS, restart, cross-login duplicate,
+  two-replica race and judge-profile separation. Latest Ruff/strict mypy passed.
+- Reactive B1 initially **30/32** because its replay observer treated HTTP 200 as
+  a second action. It now checks identical receipts and unchanged write counts;
+  rerun **32/32** with unchanged scenario gold. Existing single-use test now
+  asserts one write plus the same receipt. Official v4 files were not touched.
+- Earlier local full checks were interrupted for numerical-library thread
+  oversubscription; final checks bound OMP/OpenBLAS/MKL threads to one. Initial
+  migration quoting and fixture-customer collisions were fixed, then gates rerun.
+
+### Done-not-verified
+
+- Item 5 is a feature candidate, not merged or deployed yet; remote CI pending.
+- Refreshed onto main with #105/#107/#108 using a history-preserving merge,
+  preserving both progress entries. Combined `make checks`: **1024 passed / 30
+  skips**, B1 **32/32**; combined Postgres **42 passed**. Authored replay
+  negative controls reject changed receipts, extra writes and write-then-409.
+- These are **post-v4 fixes, not reflected in v4 numbers**. No evaluation rerun,
+  paid dev call or Azure change occurred.
+
+### Next-blocked
+
+- Refresh onto merged AI wiring before process_message edits. Merge item 5 only
+  on green CI, then item 7 → 6 → 8, one tagged Azure release and authorized real
+  owner-IP rehearsal (~$0.02–$0.05), with prod-key remaining before/after recorded.
+- Section B full-history/PR/Actions audit and password rotation follows the batch;
+  section C remains submission-day only. Main protection is plan-blocked until public.
+
 ## 2026-10-01 — Submission repository transition (handoff 16 A)
 
 ### Completed-verified
