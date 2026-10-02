@@ -13,7 +13,8 @@ from scripts.pre_v4_budget import MODEL_COMPARE_CAP, MODEL_COMPARE_SCOPE, PRIOR_
 from scripts.pre_v4_budget import SCOPE as DEV_SCOPE
 
 CAP = Decimal("0.10")
-CEILING = Decimal("12.00")
+# Sebastian approved +$3 on 2026-10-02; historical evaluation caps stay unchanged.
+CEILING = Decimal("15.00")
 DEV_CAP = Decimal("1.00")
 
 
