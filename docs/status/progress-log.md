@@ -134,7 +134,10 @@
   The updated 7d12154 head also passed all four remote gates, but a concurrent
   AI-lane log append caused a second conflict. Kept both entries and placed this
   record beside the earlier profile-backend section to avoid shared top/end
-  insertions. The resulting head requires fresh CI; no force-push or held-out rerun.
+  insertions. The 3c00619 head again passed all four gates; #112's live-Jev removal
+  then overlapped the README. Preserved that decision, the pending-release caveat,
+  Gemini-only diagram and Gemini-plus-Jev v4 provenance. The resulting head requires
+  fresh CI; no force-push or held-out rerun.
 
 ### Done but not verified
 
@@ -3913,3 +3916,53 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
   unit/API refusal and P-confirmation contracts. No customer data or paid calls.
 - This follow-up is in #110 because #107 had already merged. Remote CI on the new
   head is required; no Azure release or official-v4 metric change is claimed.
+
+## 2026-10-01 — AI item 10: disable live Jev, retain historical evidence
+
+### Completed (verified)
+
+- Sebastian approved live Jev removal. Production config explicitly sets the
+  risk second opinion false; AgentAI loads the boolean flag, and the NLU no longer
+  activates TypeSafe implicitly from a Gemini model ID. Opt-in studies, typed
+  adapter/questions and historical Sonnet/Jev judges remain. Gemini/Grok and
+  deterministic guards retain their roles; no frozen interface changed.
+- Zero-cost saved-call replay verifies 160 P executions: 184 NLU + 184 risk calls
+  (368), plus 15 phrase calls (383 total). One union record changes, representing
+  two provider calls in one pair, on injection_suspected in v4.100. Its saved
+  outcome is refused_security, failed strict handoff language routing; zero
+  cue-to-reason lists change. The observed 88/100 primary pass count stays saved,
+  with no official rerun/rescore or reconstructed score.
+- Verified the evaluated 1ec9c2f cue-to-reason map ignores injection_suspected,
+  consistent with the current replay; direct and merchant guards are independent.
+  Per-call saved Jev risk cost is $0.003823932. No key-level cost delta, fresh
+  provider call, customer wording or reasoning enters this committed evidence.
+- ADR-0017 explains the corrected pair/call denominator, unchanged 9/10 dev
+  injection recall, unlabeled extra distress cues, unverified TypeSafe ZDR and
+  added vendor/call/failure mode. Updated the README, architecture, responsible-AI,
+  privacy flow and language-card notice; official v4 results get a note only.
+- Eleven config/production-path mock regressions and four authored replay tests
+  passed; opt-in risk/judge fixtures still pass (22 focused checks total). Ruff
+  and strict mypy on 96 source files passed. These are **post-v4 fixes, not
+  reflected in v4 numbers**. No latency improvement or new quality score claimed.
+
+### Done but not verified
+
+- Full local mock suite: 1078 passed, 25 database-dependent skips. #110 merged
+  at `72a8600` after all four corrected-head CI jobs passed. Item 10 remote
+  CI/merge remain pending.
+- Shared config, AgentAI flag wiring and evidence-document changes are explicitly
+  requested by item 10. No release/deployment or real-data privacy guarantee.
+
+### Next / blocked
+
+- Items 1–4 are merged via #107 and #110 (including punctuated-ID follow-up).
+  Merge the separate item 10 PR only after all required CI turns green.
+  Lead includes the changes in the next Azure image-tag release; source config
+  is not deployment. Human judge calibration still awaits Sebastian's v4 CSV.
+
+- Release-owner follow-up: `scripts.azure_llm_smoke` still requires at least one
+  Jev call and validates its union; update that gate to require zero TypeSafe
+  calls for the disabled config before releasing. `scripts.azure_verify` also
+  requires the TypeSafe secret binding for a real-provider image; keeping the
+  existing secret does not cause a call, but removing it needs the lead's gate
+  update. These lead-owned release changes are called out in the PR handoff.

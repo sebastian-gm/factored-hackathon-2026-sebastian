@@ -689,9 +689,9 @@ def understand(
             data_block("customer_message", redact_for_model(message)),
         )
     )
-    real_route = client.models["nlu"].provider not in {"mock", "recorded"} and (
-        client.models["nlu"].model_id == "google/gemini-3-flash-preview"
-        or client.risk_second_opinion_enabled
+    real_route = (
+        client.models["nlu"].provider not in {"mock", "recorded"}
+        and client.risk_second_opinion_enabled
     )
     future: Future[TypedJudgments] | None = None
     executor: ThreadPoolExecutor | None = None

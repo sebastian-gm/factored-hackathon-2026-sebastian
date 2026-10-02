@@ -5,6 +5,11 @@
 Scope: shipped backend contracts and the merged customer/staff UI in
 [PR #17](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/pull/17). Private real-model deployment is verified in the [progress log](status/progress-log.md). Solid paths below exist in code; dashed paths are pending integrations.
 
+The current source configuration disables live Jev; the lead's next image release
+is pending. Gemini/Grok calls go through OpenRouter; historical Sonnet/Jev
+evaluation judges remain offline. **Post-v4 fixes, not reflected in v4 numbers.**
+[ADR-0017 and saved-record evidence](adr/0017-drop-jev-from-live-path.md).
+
 ```mermaid
 flowchart LR
   U[Customer: ES or PT] --> W[Next.js customer UI and same-origin BFF]
@@ -12,7 +17,7 @@ flowchart LR
   D[Agent Desk and Ops: trusted role and current workspace] --> W
   A --> O[Orchestration: conversation state and guards]
   O --> N[Structured NLU: validated slots or B1 fallback]
-  N --> L[Gemini default; Grok failure fallback; Jev risk union]
+  N --> L[OpenRouter: Gemini default; Grok failure fallback]
   N --> M[Authorized retrieval and matcher]
   M --> P[Deterministic policy with rule IDs]
   P --> C[Exact proposal and confirmation; fresh OTP]
@@ -53,7 +58,7 @@ stateDiagram-v2
   Authenticate --> Understand: password and simulated OTP
   Understand --> Refuse: security guard
   Refuse --> Understand: session remains valid
-  Refuse --> End: repeated cross-customer request
+  Refuse --> End: two non-degraded P-model-confirmed access strikes
   Understand --> Clarify: missing or ambiguous slots
   Clarify --> Understand: customer reply
   Clarify --> Escalate: clarification or turn guard
@@ -102,11 +107,11 @@ claim a new handoff read-back using its invalid token.
 | Amount, relative date and currency interpretation | Deterministic normalization after extraction, using the bank clock; ambiguous currency asks a question. | Arithmetic and date semantics need repeatable tests. |
 | Candidate retrieval | Authenticated customer scope, business-time window and serving contracts. | A model cannot widen access. |
 | Transaction ranking | Validation-selected LightGBM v2; v1 and rules retained for comparison. | Learned ranking addresses noisy slots; confidence controls proposal/choice/no-match, not eligibility. |
-| Fraud cues | Gemini flags unioned with thresholded Jev risk probabilities; deterministic score/case-burst guards. | No fraud model is trained from the generator's label leakage. Language cues have documented gaps. |
+| Fraud cues | Gemini flags and deterministic score/case-burst guards; live Jev disabled behind its opt-in flag. | No fraud model is trained from the generator's label leakage. Historical v4 included Jev; marginal benefit was unproven. |
 | Eligibility, escalation and routing | Versioned policy engine; active skill/language/load routing and recorded fallbacks. | Auditable rules, independent of model prose and protected characteristics. |
 | Dispute and freeze | Server-issued action hash, scoped authorization, fresh OTP, explicit confirmation, idempotency and read-back. | Code owns side effects. |
 | Critical action/status wording | Deterministic ES/PT templates. | Action claims require evidence; no promise of refund or credit. |
-| Clarification and explanation phrasing | Optional model draft, fact/citation/DLP checks and template fallback. | Narrow language flexibility; checks are not complete semantic verification. |
+| Clarification phrasing | Blank-plan clarifications may use a model draft with fact/citation/DLP and unsupported-action/cause checks. Status explanations and approved state-specific replies are templates. | Narrow language flexibility; checks are not complete semantic verification. |
 | Handoff | Deterministic facts/actions/questions and routing. | The brief's optional model-written summary is not established as a live feature. |
 | Audit and UI explanation | Execution events, rule IDs, sources and verification. | Model thinking is neither an audit artifact nor a UI feature. |
 
