@@ -1,5 +1,39 @@
 # Progress log
 
+## 2026-10-02 — Temporal batch merged; approval and local gold verified
+
+### Completed-verified
+
+- #131 merged **880a4f1**, #132 separately merged **eead273**, and #128 merged
+  **c48dd30**. Final #128 head **0364aab** passed checks, Postgres, web and safety
+  (CI **37050555545**, safety **37050555602**); no budget/runbook diff in #128.
+- Final source tree matches the combined local verification: `make checks`
+  **1330 passed / 32 DB skips**, B1 **32/32**; disposable Postgres **69 passed**.
+- Ran local `aclara.data.cli build --lake artifacts/temporal-release-lake
+  --no-reports` with mock/real-call approval off. Promoted current fingerprint;
+  `validate_temporal_exports` found **0/0/0** customer/product/transaction source
+  mismatches. **492,414** retained, **60,920** flagged, **431,494** unflagged;
+  **4** date warnings. Matches #128; ignored receipt read back at 0600.
+- Sebastian's **$15 cumulative** approval is on main. Proposed $0.10 smoke +
+  $2.92 lifetime judging gives **$14.99937448** against the last verified exposure;
+  proposed **$1/UTC-day** judging cap and the provider key's hard stop are recorded.
+- Official v4 files unchanged; **$0 new model spend**, no Azure changes.
+
+### Done-not-verified
+
+- Azure remains v0.6.0: new image, serving column/reload, demo-profile coverage,
+  fresh key/budget metadata and final paid/browser smokes are not verified live.
+- Judging daily/lifetime configuration is proposed, not activated or proven.
+
+### Next-blocked
+
+- Follow the [coordinated release plan](../evaluation/temporal-quality-release-plan.md):
+  new API fails closed before atomic serving reload, then restart/fingerprint/RLS,
+  coverage and full release gates. Refresh budget/key metadata; keep retained
+  reserves and the production key limit. Stop above the approved $15 ceiling.
+- No warm/public/judge activation until Sebastian's submission-day OK; implement
+  and review the $1/day plus lifetime binding before executing that runbook phase.
+
 ## 2026-10-02 — Paired temporal-policy/data verification
 
 ### Completed-verified
