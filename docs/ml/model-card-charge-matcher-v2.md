@@ -1,8 +1,12 @@
 # Charge matcher v2: offer choices when uncertain
 
-**Lead action: integrate `models/charge_matcher/v2` before the final run.** The
-application still defaults to v1. V2 is a retrained LightGBM artifact with a
-versioned decision policy; it does not grant identity, policy or write authority.
+> **superseded by v4 (2026-10-01)** — Historical evaluation/release status below; use the [current summary](../../README.md) and [official v4 results](../evaluation/final-v4-results.md). [Post-v4 fixes](../evaluation/post-v4-release-notes.md) are **not reflected in v4 numbers**.
+
+**Integration status:** matcher v2 was active in the [official v4 run](../evaluation/final-v4-results.md).
+The earlier v1-default/integration instruction is superseded. V2 is a retrained
+LightGBM artifact with a versioned decision policy; it does not grant identity,
+policy or write authority. The matcher diagnostics below remain historical
+component evidence, separate from v4 conversation results.
 Customers must confirm a transaction before any action, and must be able to
 reject all offered choices. Keep the v1 artifact for comparison and rollback.
 
@@ -124,7 +128,8 @@ establish an NLU fix. Pricing was verified using the
   before/after report, billing and input/output manifests. No card values,
   utterances, credentials or row-level predictions are committed.
 
-Integration requires the new artifact **and** the version-dispatch code in this
-PR. `MatchState(artifact=Path("models/charge_matcher/v2"))` loads it through the
-existing checksum boundary. The lead owns switching the application default and
-verifying scoped choices, confirmation and the final evaluation configuration.
+V4 integrated the v2 artifact **and** its version-dispatch code.
+`MatchState(artifact=Path("models/charge_matcher/v2"))` loads it through the
+existing checksum boundary; v1 remains available for explicit comparison/rollback.
+The lead owns serving configuration and verification of scoped choices and
+confirmation in each later release. Component diagnostics are not rescored v4 outcomes.
