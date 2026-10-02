@@ -17,6 +17,10 @@
 
 ### Done-not-verified
 
+- Live pre-release checks: East US 2 estimate **$34.63/month**, gate passed;
+  OpenRouter account **$9.041** / prod key **$5.185**. All-scope ledger exposure
+  including unknown reserves **$7.67326884**; plus a fresh $0.10 purse gives
+  **$7.77326884 < $12**. Zero inference calls made by these checks.
 - Required remote CI, merge and real release evidence pending. Retained TypeSafe
   Key Vault binding alone does not enable its disabled config. Historical Jev
   evaluation evidence and official v4 files remain unchanged.
