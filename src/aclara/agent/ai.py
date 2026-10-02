@@ -75,13 +75,14 @@ class AgentAI:
         message: str,
         clock: datetime,
         *,
+        country: str | None = None,
         awaiting_recognition: bool = False,
         masked_charge: dict[str, str] | None = None,
     ) -> NluResult:
         outage = self.runtime.fault("llm_outage", "nlu")
         result = understand(
             message,
-            country=self.runtime.country,
+            country=country,
             bank_clock=clock,
             client=None if outage else self.client,
             prompt_path=ROOT / "prompts/nlu/v5.md",
@@ -98,6 +99,7 @@ class AgentAI:
             recognition=result.extracted.recognition,
             unfamiliar_charge=result.extracted.unfamiliar_charge,
             language=result.extracted.language,
+            country_context=country,
             clarification=result.clarification,
         )
         return result

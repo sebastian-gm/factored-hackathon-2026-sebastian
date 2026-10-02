@@ -3812,3 +3812,55 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
   Implement items 2+3 in a separate PR: budget degradation and trusted country.
 - Lead releases the post-v4 image after the batch. Human v4 CSV export remains
   pending separately; no human agreement has been invented.
+
+## 2026-10-01 — AI external-audit fixes, items 2 and 3
+
+### Completed (verified)
+
+- Authored six API-boundary regressions before the fix; all six reproduced the
+  audit failures. Exhausted and already-disabled gates now answer HTTP 200 with
+  localized ES/PT degraded copy and deterministic rules; denied reservations
+  produce no provider call, retry, fallback or fabricated action receipt.
+- Runtime budget denial degrades at the primary or optional typed-risk reserve
+  boundary. Existing paid-study hard-stop wrappers remain hard stops. An already
+  started second opinion is settled without promoting its flags when the
+  primary budget is denied; uncertain settlement retains the reservation.
+- NLU receives country from the authenticated customer's scoped ledger snapshot
+  on each request, including the security confirmation and recognition path.
+  The shared runtime is never mutated; model country/dialect suggestions cannot
+  override this context. Real ASGI mock tests verify CO `2 palos` = 2,000,000 COP
+  and AR `4 lucas` = 4,000 ARS while runtime and model hints say MX.
+- Focused API, integration and guard regressions passed, as did mocked typed-risk
+  budget checks. These are **post-v4 fixes, not reflected in v4 numbers**.
+  Mock providers only; zero provider spend, no official suite rerun/rescore.
+
+### Done but not verified
+
+- Full mock suite: 1015 passed, 25 database-dependent skips; four additional
+  typed-reserve API variants passed afterward (ten focused API cases total).
+  Ruff and strict mypy on 95 source files passed. Required remote CI and merge
+  for this second PR remain pending.
+- Minimal additive shared `api/app.py` wiring is authorized by handoff 15.
+  No persona, identity, NluFrame or frozen interface contract changed.
+
+### Next / blocked
+
+- PR #107 merged at `3604ee5` after checks/web/Postgres/invariants passed.
+  PR #110 contains items 2+3 and the subsequent punctuated-ID correction;
+  require all green CI before merging under standing OK.
+- Complete approved item 10 afterward: verify saved v4 risk-union records and
+  disable live Jev behind its flag with an evidence-linked ADR. Lead releases
+  the image after the batch. Human v4 validation still awaits the scored export.
+
+### Additional verified review correction — punctuated identifiers
+
+- Lead reproduced six third-party-access misses with dotted/dashed CPF, DNI,
+  cédula and RUT identifiers; authored all six plus six benign self-ID and
+  separate-sentence controls before changing the guard. All six misses failed
+  as expected before the fix.
+- Normalize dots only inside a bounded typed identifier before clause splitting.
+  Preserve sentence boundaries and self-ID exemptions, including RUT check
+  digits. Forty benign controls and eighteen actual attacks now run through the
+  unit/API refusal and P-confirmation contracts. No customer data or paid calls.
+- This follow-up is in #110 because #107 had already merged. Remote CI on the new
+  head is required; no Azure release or official-v4 metric change is claimed.

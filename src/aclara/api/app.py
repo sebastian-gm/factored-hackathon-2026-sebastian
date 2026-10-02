@@ -774,6 +774,20 @@ def create_app(
                 conversation.offer_handle = None
                 conversation.unfamiliar_charge = False
                 conversation.terminal_handoff_id = result["handoff"]["handoff_id"]
+            if (
+                conversation
+                and conversation.degraded
+                and conversation.model_failed
+                and not result.get("handoff")
+            ):
+                result["reply"] = (
+                    _localized(
+                        conversation.language,
+                        "Estoy funcionando con capacidad limitada. ",
+                        "Estou funcionando com capacidade limitada. ",
+                    )
+                    + result["reply"]
+                )
             result = ai.reply(
                 result,
                 conversation.language if conversation else "es",
@@ -794,6 +808,16 @@ def create_app(
         if result.get("handoff"):
             verify_handoff_commit(app, result, principal, conversation_id)
         return result
+
+    def trusted_country(principal: Principal) -> str | None:
+        """Read country from the authenticated customer's scoped ledger, never text."""
+        snapshot = (
+            ledger.snapshot(principal.customer_id, active_settings.bank_clock)
+            if isinstance(ledger, ServingRepository)
+            else ledger
+        )
+        customer = snapshot.customers.get(principal.customer_id)
+        return customer.country if customer else None
 
     def safe_failure(
         principal: Principal, language: str, cause: str = "tool_failure"
@@ -886,10 +910,17 @@ def create_app(
             raise HTTPException(status_code=404, detail="Conversation not found")
         if cross_customer(body.message):
             confirmation = (
-                ai.understand(body.message, active_settings.bank_clock)
+                ai.understand(
+                    body.message, active_settings.bank_clock, country=trusted_country(principal)
+                )
                 if app.state.runtime.system == "P"
                 else None
             )
+            if confirmation is not None:
+                conversation.degraded = confirmation.degraded
+                conversation.model_failed |= confirmation.degraded and (
+                    ai.client.models["nlu"].provider != "mock" or ai.client.mock_configured
+                )
             if not (
                 conversation.candidates
                 or conversation.offer_handle
@@ -1033,6 +1064,7 @@ def create_app(
             nlu = ai.understand(
                 body.message,
                 active_settings.bank_clock,
+                country=trusted_country(principal),
                 awaiting_recognition=offered_row is not None,
                 masked_charge={
                     k: str(v)
@@ -1112,7 +1144,7 @@ def create_app(
             if nlu is None:
                 nlu = deterministic_understand(
                     body.message,
-                    country=app.state.runtime.country,
+                    country=trusted_country(principal),
                     bank_clock=active_settings.bank_clock,
                     awaiting_recognition=True,
                 )
