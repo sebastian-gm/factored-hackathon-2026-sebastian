@@ -355,8 +355,10 @@ for app,key in [('api','ALLOW_DEMO_RESET'),('web','FRONTEND_ALLOW_DEMO_RESET')]:
     assert all(e['name']!=key for c in description['properties']['template']['containers'] for e in c.get('env',[]))
 PY
 restore_reset_flags() {
-  az containerapp update --subscription "$RB_SUB" --resource-group "$RB_RG" --name ca-api-aclara-dev-eastus2 --remove-env-vars ALLOW_DEMO_RESET --output none
-  az containerapp update --subscription "$RB_SUB" --resource-group "$RB_RG" --name ca-web-aclara-dev-eastus2 --remove-env-vars FRONTEND_ALLOW_DEMO_RESET --output none
+  local failed=0
+  az containerapp update --subscription "$RB_SUB" --resource-group "$RB_RG" --name ca-api-aclara-dev-eastus2 --remove-env-vars ALLOW_DEMO_RESET --output none || failed=1
+  az containerapp update --subscription "$RB_SUB" --resource-group "$RB_RG" --name ca-web-aclara-dev-eastus2 --remove-env-vars FRONTEND_ALLOW_DEMO_RESET --output none || failed=1
+  return "$failed"  # Attempt both removals even if the first fails under set -e.
 }
 trap restore_reset_flags EXIT
 az containerapp update --subscription "$RB_SUB" --resource-group "$RB_RG" --name ca-api-aclara-dev-eastus2 --set-env-vars ALLOW_DEMO_RESET=true --output none

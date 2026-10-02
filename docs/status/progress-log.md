@@ -4936,8 +4936,12 @@ later flag-only session for the current contract and activation dependencies.
 - Judge-visit/reset follow-up is source-only, **not in v0.7.0 images**. Judge and
   reset modes remain OFF. Runbook pre-video/pre-submission maintenance recipe
   requires explicit scope/backup/temporary-flag approval; no live reset claimed.
-- Follow-up PR/remote CI and main merge pending. Official v4 files unchanged;
-  no paid calls or Azure changes after the release.
+- Follow-up merge requires all four remote gates; exact head/check/merge receipt
+  is tracked in [PR #134](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/pull/134).
+  Official v4 files unchanged; no paid calls or Azure changes after the release.
+- Runbook preparation: **22 Bash blocks parsed / 14 Python heredocs compiled**,
+  no commands executed. Cleanup attempts both reset-switch removals even if one
+  fails; a failed cleanup stops video/submission for owner intervention.
 
 ### Next / blocked
 
