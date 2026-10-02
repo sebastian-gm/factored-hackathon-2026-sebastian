@@ -1,5 +1,13 @@
 # Public-release readiness audit
 
+**2026-10-01 owner decision supersedes the snapshot recommendation below.**
+The original lab is now `factored-hackathon-2026-sebastian`, still private.
+Sebastian accepts historical commit email and Azure hostname disclosure. The
+former snapshot is privately archived as `factored-hackathon-2026-sebastian-snapshot-archive`.
+A fresh full-history, PR/comment and Actions audit plus password rotation is
+required before publication; the historical scan below does not satisfy it.
+
+
 **Decision: the private sandbox is not ready for a public mirror.** No actionable
 credential leak was detected in the inspected Git history, but author/contact
 metadata, deployment-specific locations and local paths need a publication
