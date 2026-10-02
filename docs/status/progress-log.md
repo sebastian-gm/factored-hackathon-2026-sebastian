@@ -36,6 +36,37 @@
 - Merge only on green remote CI; integrate AI item 6 before item 8 NLU boundary.
   Then update the Jev-off smoke gate, tagged v0.6.0 release, authorized real
   rehearsal and handoff 16 section B. No replicas, CPU or access changes.
+## 2026-10-01 — AI audit item 6: handoff context and slot clarification
+
+### Completed (verified)
+
+- Rebased on main after #109 and #111 merged. Kept the app.py change to the
+  NLU clarification branch and one import; cross-lane staff.py/handoff edits are
+  explicitly owner-approved. Frozen interface models are unchanged.
+- Added deterministic ES/PT guidance for DSP-07, ESC-04, TXN-02, FRD-01,
+  ESC-01/02/03 and SEC-01, with combined causes preserved. Summaries include
+  the requested outcome/first safe quote, scoped charge/status facts and only
+  verified actions; offered or failed card blocking stays unverified.
+- Preserved the initial in-scope customer request and up to nine redacted
+  clarification replies/questions, confined to the originating conversation.
+  Terminal retries retain the original context; unsafe access/injection text
+  is excluded. Slot questions ask only for nlu.clarification's missing detail.
+- Mock `make checks`: **1104 passed / 30 database skips**, all hooks, strict
+  mypy, B1 **32/32**, compilation and interface/policy snapshots green.
+- Froze 36 authored messages (18 ES / 18 pt-BR) with a SHA-256 manifest before
+  measurement. They are **post-v4 dev evidence, not held-out**. A free
+  production-key/account balance check passed; no inference spend occurred.
+
+### Done but not verified
+
+- Remote CI and merge are pending. These are **post-v4 fixes, not reflected
+  in v4 numbers**; no held-out suite was opened, rerun or rescored.
+
+### Next / blocked
+
+- Merge item 6 only on green CI. Then replay the same frozen messages against
+  pre-audit 6a221a4/current code using mock truth; run one approved real pass
+  only under its own durable USD 0.10 lifetime scope after fresh key preflight.
 
 ## 2026-10-01 — Audit item 5: customer bank state and receipt retries
 
