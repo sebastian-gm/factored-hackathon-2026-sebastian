@@ -11,6 +11,7 @@ from datetime import UTC, datetime
 import httpx
 from scripts.azure_dev import GROUP, ROOT, VAULT, az, private_write, read_variables
 from scripts.azure_migrate_ops import connection_string
+from scripts.azure_targets import app_url
 from scripts.serving_smoke import check, smoke, wait_config
 
 from aclara.agent.contracts import DisputeCaseView
@@ -24,7 +25,7 @@ def main() -> None:
         raise RuntimeError(
             "Use the capped azure_llm_smoke for the approved real-model conversations"
         )
-    web = "https://ca-web-aclara-dev-eastus2.lemonbeach-1b769de0.eastus2.azurecontainerapps.io"
+    web = app_url("web")
     password = az("keyvault", "secret", "show", "--vault-name", VAULT, "--name", "demo-password")[
         "value"
     ]

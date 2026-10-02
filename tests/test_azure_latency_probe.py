@@ -92,6 +92,13 @@ def test_mock_probe_runs_ten_authenticated_conversations_without_persisting_fact
         lambda *_a, **_k: {"charged_with_reserves_usd": 0.01, "unknown_cost_attempts": 0},
     )
     monkeypatch.setattr(probe, "az", lambda *_: {"value": "authored-password-only"})
+    monkeypatch.setattr(probe, "app_url", lambda _: "https://demo.example.org")
+    from scripts import azure_targets
+
+    def forbid_cloud(*_args):
+        raise AssertionError("The authored probe must not contact Azure")
+
+    monkeypatch.setattr(azure_targets, "az", forbid_cloud)
 
     class FakeStore:
         def transaction(self, scope):

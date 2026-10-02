@@ -17,15 +17,16 @@ import httpx
 import psycopg
 from scripts.azure_dev import ROOT, VAULT, az, private_write, read_variables
 from scripts.azure_migrate_ops import connection_string
+from scripts.azure_targets import app_url
 from scripts.serving_smoke import check, wait_config
 
 from aclara.agent.contracts import DisputeCaseView
 from aclara.bank.serving import ServingRepository
-from aclara.ops.store import Scope, Store
+from aclara.llm.config import load_risk_second_opinion_enabled
+from aclara.ops.store import Scope, Store, open_case
 from aclara.policy.engine import evaluate
 from aclara.settings import Settings
 
-WEB = "https://ca-web-aclara-dev-eastus2.lemonbeach-1b769de0.eastus2.azurecontainerapps.io"
 SMOKE_RUN = os.getenv("AZURE_RELEASE_SMOKE_RUN_ID", "after-v2-release-smoke")
 CHECKPOINT = ROOT / f"artifacts/azure/{SMOKE_RUN}-conversations.json"
 
@@ -84,10 +85,41 @@ def budget_receipt() -> dict[str, Any]:
     }
 
 
+def verify_live_model_calls(
+    nlu: list[dict[str, Any]], calls: list[dict[str, Any]], *, risk_enabled: bool
+) -> int:
+    """Deployment-config gate; a retained secret is never proof of a live call."""
+    assert nlu and all(not e["degraded"] for e in nlu)
+    assert any(e["status"] == "valid" and e["prompt_id"] == "nlu@v5.1" for e in calls)
+    assert all(e["provider"] in {"openai_compat", "typesafe"} for e in calls)
+    jev = [e for e in calls if e["provider"] == "typesafe"]
+    if not risk_enabled:
+        assert not jev, "Disabled live risk second opinion made a TypeSafe call"
+        return 0
+    assert jev and all(e["status"] == "valid" for e in jev)
+    for call in jev:
+        judgments = call["judgments"]
+        assert judgments["degradation"] is None
+        assert all(
+            judgments["union_flags"][cue] == (flag or judgments["jev_threshold_flags"][cue])
+            for cue, flag in judgments["gemini_raw_flags"].items()
+        )
+    return len(jev)
+
+
+def open_transaction_ids(cases: list[dict[str, Any]]) -> set[str]:
+    return {
+        str(case["transaction_id"])
+        for case in cases
+        if open_case(case) and case.get("transaction_id")
+    }
+
+
 def exercise(name: str, password: str, ledger: ServingRepository) -> dict[str, Any]:
+    web = app_url("web")
     username = "demo.pt.br" if name == "pt_ambiguous" else "demo.es.mx"
     persona = next(p for p in ledger.personas() if p.username == username)
-    with httpx.Client(base_url=WEB + "/api/bff/", headers={"Origin": WEB}, timeout=190) as client:
+    with httpx.Client(base_url=web + "/api/bff/", headers={"Origin": web}, timeout=190) as client:
         assert not wait_config(client)["fixtures"]
         challenge = check(
             client.post("auth/login", json={"username": username, "password": password})
@@ -99,6 +131,17 @@ def exercise(name: str, password: str, ledger: ServingRepository) -> dict[str, A
             )
         )
         assert check(client.get("me"))["role"] == "ops"
+        baseline_cases = check(client.get("ops/snapshot"))["metrics"]["cases"]
+        access = client.cookies.get("aclara_access")
+        assert access
+        run_id, sid, _ = access.split(".", 2)
+        with ledger.store.transaction(Scope(persona.customer_id, run_id, sid)):
+            business_cases = list(
+                ledger.store.customer_mapping(
+                    "customer_cases", dict, lambda _: "owner", legacy="cases"
+                ).values()
+            )
+        already_open = open_transaction_ids(business_cases)
         cid = check(client.post("chat/sessions", json={}))["conversation_id"]
         path = "chat/sessions/" + cid
 
@@ -153,7 +196,8 @@ def exercise(name: str, password: str, ledger: ServingRepository) -> dict[str, A
             handle, target = next(
                 (h, r)
                 for h, r in rows
-                if evaluate(r, ledger.bank_clock, True, ledger.context(r)).decision == "eligible"
+                if r.record_id not in already_open
+                and evaluate(r, ledger.bank_clock, True, ledger.context(r)).decision == "eligible"
             )
             description = f"{target.amount:.2f} {target.currency} en {target.merchant_name} el {target.transaction_date.date().isoformat()}"
 
@@ -183,6 +227,18 @@ def exercise(name: str, password: str, ledger: ServingRepository) -> dict[str, A
                     },
                 )
             )
+            # A lost-response retry is a read-only original receipt, not a second intake.
+            retried = check(
+                client.post(
+                    path + "/confirm",
+                    json={
+                        "proposal_hash": proposal["proposal"]["proposal_hash"],
+                        "confirmed": True,
+                    },
+                )
+            )
+            assert retried == result
+            assert sum(e["event"] == "create_dispute" for e in execution_events()) == 1
             assert result["outcome"] == "dispute_filed" and result["verified"]
             assert result["case"]["transaction_handle"] == handle
             assert DisputeCaseView.model_validate(
@@ -241,7 +297,7 @@ def exercise(name: str, password: str, ledger: ServingRepository) -> dict[str, A
         snapshot = check(client.get("ops/snapshot"))
         assert snapshot["source_kind"] == "organizer_serving"
         assert snapshot["metrics"]["sar"] is None
-        assert snapshot["metrics"]["cases"] == (1 if name == "es_normal" else 0)
+        assert snapshot["metrics"]["cases"] == baseline_cases + (1 if name == "es_normal" else 0)
         access = client.cookies.get("aclara_access")
         assert access
         run_id, sid, _ = access.split(".", 2)
@@ -272,18 +328,11 @@ def exercise(name: str, password: str, ledger: ServingRepository) -> dict[str, A
                 "valid_attempts": 0,
                 "fallback_attempts": 0,
             }
-        assert nlu and all(not e["degraded"] for e in nlu)
-        assert any(e["status"] == "valid" and e["prompt_id"] == "nlu@v5.1" for e in calls)
-        assert all(e["provider"] in {"openai_compat", "typesafe"} for e in calls)
-        jev = [e for e in calls if e["provider"] == "typesafe"]
-        assert jev and all(e["status"] == "valid" for e in jev)
-        for call in jev:
-            judgments = call["judgments"]
-            assert judgments["degradation"] is None
-            assert all(
-                judgments["union_flags"][cue] == (flag or judgments["jev_threshold_flags"][cue])
-                for cue, flag in judgments["gemini_raw_flags"].items()
-            )
+        jev_count = verify_live_model_calls(
+            nlu,
+            calls,
+            risk_enabled=load_risk_second_opinion_enabled(ROOT / "config/models.yaml"),
+        )
         assert {e["model_id"] for e in calls} <= {
             "google/gemini-3-flash-preview",
             "x-ai/grok-4.20",
@@ -298,7 +347,10 @@ def exercise(name: str, password: str, ledger: ServingRepository) -> dict[str, A
             "scenario": name,
             "status": "passed",
             "model_attempts": len(calls),
-            "jev_valid_attempts": len(jev),
+            "jev_valid_attempts": jev_count,
+            "risk_second_opinion_enabled": load_risk_second_opinion_enabled(
+                ROOT / "config/models.yaml"
+            ),
             "valid_attempts": sum(e["status"] == "valid" for e in calls),
             "fallback_attempts": sum(e["model_id"] == "x-ai/grok-4.20" for e in calls),
         }

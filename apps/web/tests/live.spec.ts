@@ -1,4 +1,5 @@
 import "./helpers/reset-live-bank";
+import { selectLoginPersona } from "./helpers/login-persona";
 import { test, expect, type Page } from "./helpers/test";
 import AxeBuilder from "@axe-core/playwright";
 async function login(page: Page, path = "/") {
@@ -6,6 +7,7 @@ async function login(page: Page, path = "/") {
   await expect(
     page.getByText("Modo demostración · datos de ejemplo"),
   ).toHaveCount(0);
+  await selectLoginPersona(page, "demo.es.mx");
   await page
     .locator("input[type=password]")
     .fill(process.env.FRONTEND_FIXTURE_PASSWORD!);
@@ -16,6 +18,13 @@ async function login(page: Page, path = "/") {
     .getByRole("textbox", { name: "Código de 6 dígitos" })
     .fill((await sms.textContent())!);
   await page.getByRole("button", { name: "Verificar y entrar" }).click();
+  await expect(page.getByRole("textbox", { name: "Tu mensaje" })).toBeVisible();
+  const access = (await page.context().cookies()).find(
+    (c) => c.name === "aclara_access",
+  );
+  expect(access).toBeDefined();
+  expect(access!.expires - Date.now() / 1000).toBeGreaterThan(34 * 60);
+  expect(access!.expires - Date.now() / 1000).toBeLessThanOrEqual(35 * 60);
   await expect(page.getByRole("textbox", { name: "Tu mensaje" })).toBeVisible();
 }
 test("live ADR-0015: password, OTP, explanation, offer, denial and separate confirmed intake", async ({

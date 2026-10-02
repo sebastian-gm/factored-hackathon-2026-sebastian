@@ -6,15 +6,29 @@ test("BFF timing reports duration on reads and refusals without altering authori
 }) => {
   const config = await request.get("/api/bff/config");
   expect(config.status()).toBe(200);
-  expect(config.headers()["server-timing"]).toMatch(/^aclara_bff;dur=\d+\.\d{2}$/);
+  expect(config.headers()["server-timing"]).toMatch(
+    /^aclara_bff;dur=\d+\.\d{2}$/,
+  );
   expect(config.headers()["cache-control"]).toBe("no-store, private");
+  const publicConfig = await config.json();
+  expect(publicConfig.personas.length).toBeGreaterThan(0);
+  expect(
+    publicConfig.personas.every(
+      (p: { role: string; username: string }) =>
+        p.role === "customer" &&
+        !p.username.startsWith("judge.") &&
+        !["demo.agent", "demo.ops", "demo.judge"].includes(p.username),
+    ),
+  ).toBe(true);
   const refused = await request.post("/api/bff/chat/sessions", {
     headers: { Origin: "https://authored-other.invalid" },
     data: {},
   });
   expect(refused.status()).toBe(403);
   expect(await refused.json()).toEqual({ error: "origin_rejected" });
-  expect(refused.headers()["server-timing"]).toMatch(/^aclara_bff;dur=\d+\.\d{2}$/);
+  expect(refused.headers()["server-timing"]).toMatch(
+    /^aclara_bff;dur=\d+\.\d{2}$/,
+  );
 });
 
 for (const path of ["me", "clock", "transactions", "config", "personas"]) {

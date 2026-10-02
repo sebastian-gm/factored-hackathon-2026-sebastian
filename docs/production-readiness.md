@@ -53,6 +53,17 @@ networking/HA/traffic need fresh pricing and approval.
 
 Release requires independent safety acceptance, verified provider/account terms,
 real identity and recovery evidence, approved costs and green CI for promotion to
-`main`. **V4: TODO(results)**; no v4 case was opened here.
+`main`. [Official v4 completed](evaluation/final-v4-results.md); both systems
+failed its full safety acceptance. Post-v4 repairs do not change those scores.
 [Privacy/fairness](responsible-ai.md), [retention gaps](security/privacy-and-retention.md),
 [release/access gates](submission/checklist.md).
+
+### October 2 credential/firewall review
+
+Rotated Postgres admin/app credentials in the existing Key Vault/server and
+reloaded a same-image API revision. TLS, least-privilege/no-owner/no-bypass checks,
+authenticated scoped BFF reads and logout passed, with zero model calls.
+No resource, replica, CPU, public-ingress or judge-access change.
+The approved owner-IP/Azure-services firewall remains: stable app-only egress is
+not demonstrated. Its cross-subscription exposure remains a known limitation;
+VNet/private access and controlled egress belong in the private-network work above.

@@ -33,7 +33,7 @@
 
 ### Done but not verified
 
-- Monetary DLP follow-up and evidence PR #118 awaits remote CI/merge. Four real
+- Monetary DLP follow-up and evidence PR #118 awaits current-main CI/merge. Four real
   failures and proposed follow-ups are in docs/ml/post-v4-dev-evidence.md;
   no paid baseline exists, so mock/real scores are not a causal model comparison.
 - This is **post-v4 dev evidence, not held-out**; these are **post-v4 fixes,
@@ -42,12 +42,123 @@
 ### Next / blocked
 
 - Merge the follow-up only on green remote CI; the lead owns the tagged release.
-  Owner's new merge hold requires #114 → #116 → #117 and explicit clearance
-  before any further merge; #113 merged before that hold. Keep #118 refreshed.
+  Owner lifted the #114 → #116 → #117 hold on 2026-10-02; refresh #118 on
+  current main and merge only after its new remote gates pass.
   No further inference is authorized by this one-pass task. Portuguese spoken
   cents, false unfamiliarity, vague amounts and status-duration parsing remain
   documented dev gaps; defaults remain unchanged.
 
+## 2026-10-01 — Audit release smoke: Jev disabled and durable bank state
+
+### Completed-verified
+
+- Offline authored smoke regressions **6/6**: production config must make zero
+  TypeSafe calls while retaining valid non-degraded NLU proof. Explicit opt-in
+  study config still validates a correct risk union; invalid unions fail.
+- Real smoke selects an eligible transaction without a canonical open customer
+  case and measures case count relative to authenticated pre-run bank state.
+  It preserves historical/closed cases and does not reset allowances or budgets.
+- Ruff and browser-smoke JavaScript syntax pass. The browser accepts manual
+  staff login, and normal smoke checks one create_dispute event plus an identical
+  lost-response retry. Local privacy/staff login behavior was already verified.
+  Mock/offline only; zero spend and no Azure change so far.
+
+### Done-not-verified
+
+- Live pre-release checks: East US 2 estimate **$34.63/month**, gate passed;
+  OpenRouter account **$9.041** / prod key **$5.185**. All-scope ledger exposure
+  including unknown reserves **$7.67326884**; plus a fresh $0.10 purse gives
+  **$7.77326884 < $12**. Zero inference calls made by these checks.
+- Required remote CI, merge and real release evidence pending. Retained TypeSafe
+  Key Vault binding alone does not enable its disabled config. Historical Jev
+  evaluation evidence and official v4 files remain unchanged.
+
+### Next-blocked
+
+- Merge the audit batch on green CI, then tagged v0.6.0 image release with capped
+  real smoke and approved owner-IP benign/duplicate/budget-degrade rehearsal.
+
+## 2026-10-01 — Audit item 8: NLU outside scoped storage
+
+### Completed-verified
+
+- Integrated reviewed AI item 6 before process_message edits; #113 merged at
+  2ee162b3 after all four remote gates. Read NLU context in a short scoped unit,
+  close it, infer in a thread, then independently re-authenticate and reopen.
+  Reject changed conversation state with 409. Refresh serving snapshots and
+  policy facts after inference; a new case from another login returns its receipt.
+- Shared model adapter/record cursor stays serialized by an async lock acquired
+  before any storage transaction. Request-local event buffers prevent trace/cost
+  mixing. Repeated caller cancellation waits for provider settlement, never
+  retries inference and never commits that cancelled request's actions.
+- Five simultaneous authenticated sessions can read /healthz, /me and their
+  transactions while NLU waits. Authored revocation/expiry, conversation-change,
+  concurrent bank-case and cancellation regressions pass. The NLU stub asserts
+  no operational transaction is open. Fresh local Postgres/RLS **49/49**.
+- Bounded-thread mock `make checks`: **1115 passed / 31 DB skips**, hooks, Ruff,
+  strict mypy, compilation, interface/catalog checks; B1 **32/32**. Reactive B1
+  **32/32**. Combined live API browser **12/12**. Final cancellation regressions
+  **6 passed / 1 DB skip**, Ruff and strict mypy pass after the repeated-cancel guard.
+- Initial PG concurrency test inherited another test's bank case; a unique
+  authored customer fixes isolation without changing within-test login sharing.
+
+### Done-not-verified
+
+- Remote CI and merge remain required. These are **post-v4 fixes, not reflected
+  in v4 numbers**. No official held-out input/run, paid model or Azure change.
+- One worker retained; two-worker memory fit is unmeasured. Model calls remain
+  serialized. The existing optional phrasing boundary is unchanged; this fix
+  specifically removes NLU waiting from the operational transaction.
+
+### Next-blocked
+
+- Main-merge hold secured for #114 → #116 → #117. Inherited the reviewed
+  #115 admission setup and resolved privacy test imports before the main gate.
+- Green CI on refreshed hygiene #114, then this small concurrency PR. Update
+  Jev-off release smoke, tag/release v0.6.0, owner-IP real rehearsal and section B.
+  max_replicas, CPU, access and judge mode remain unchanged.
+
+## 2026-10-01 — Audit item 7: runtime and login hygiene
+
+### Completed-verified
+
+- Refreshed onto merged #109/#111 using history-preserving main updates. API
+  image runs as UID 10001: local Docker build and actual non-root mock import
+  passed. Freeze readback failure raises 503 and rolls back, including under -O.
+- Public personas/BFF config omit staff/judge names. Staff login accepts manual
+  usernames. Authenticated /me supplies only that account's gated story hints;
+  logout discards them. Session/cookie lifetime is 35 minutes, with the cookie
+  deadline taken from the server's grant. Judge profile expiry remains unchanged.
+- One metadata-only JSON line per committed chat/confirmation turn records
+  conversation ID, outcome, rules, model latency/cost and degradation. Unknown
+  model cost remains null; no customer text, facts, credentials or prompts.
+- Bounded-thread mock `make checks`: **1090 passed / 30 database skips**, Ruff,
+  strict mypy, compilation, interfaces/policy snapshots and B1 **32/32**. Reactive
+  B1 also **32/32**. Latest targeted hygiene checks **5 passed** plus Ruff/mypy.
+- Web typecheck/lint/build passed. Privacy/story browser checks **18/18**;
+  `pnpm --dir apps/web test:e2e --live` **12/12**, `--staff` **1/1**. Initial
+  browser expectations enumerated staff names; corrected to authenticated hints.
+  The expiry check initially read cookies before OTP completed; its explicit
+  authenticated-state wait fixed the test race. All verification used mocks.
+
+- Concurrent #115 rate-limit merge required a second history-preserving refresh.
+  Kept the admission fixture and private-login helper. Combined local typecheck,
+  **148 fixture + 12 live API browser checks** pass, real limiter enabled.
+  Explicit optimized Python freeze regression **1 passed** under `python -O`.
+
+### Done-not-verified
+
+- Full fixture browser suite previously had 129 passes and eight obsolete
+  public-persona expectations; corrected target suite passed 18/18. Fresh full
+  remote browser gate and PR merge pending. Nothing in this entry claims Azure.
+- Minimal web/login and staff shared-file edits implement the authorized public
+  enumeration fix. These are **post-v4 fixes, not reflected in v4 numbers**.
+
+### Next-blocked
+
+- Merge only on green remote CI; integrate AI item 6 before item 8 NLU boundary.
+  Then update the Jev-off smoke gate, tagged v0.6.0 release, authorized real
+  rehearsal and handoff 16 section B. No replicas, CPU or access changes.
 ## 2026-10-01 — AI audit item 6: handoff context and slot clarification
 
 ### Completed (verified)
@@ -71,7 +182,8 @@
 
 ### Done but not verified
 
-- Remote CI and merge are pending. These are **post-v4 fixes, not reflected
+- AI item 6 merged as #113 at 2ee162b3cbc864991d28f7a569325db859626d5a
+  after all four remote checks passed. These are **post-v4 fixes, not reflected
   in v4 numbers**; no held-out suite was opened, rerun or rescored.
 
 ### Next / blocked
@@ -114,7 +226,10 @@
 
 ### Done-not-verified
 
-- Item 5 is a feature candidate, not merged or deployed yet; remote CI pending.
+- Item 5 merged as PR #111 at eaaecd453484f66245e0e82e3d74c718316ba21e.
+  Required checks/Postgres/web/invariants passed at head 42bbf754; 12 live browser
+  checks passed after fixture-only between-test isolation. Within-test cross-login
+  state stays shared. Both B1 harnesses remain **32/32**. Not deployed yet.
 - Refreshed onto main with #105/#107/#108 using a history-preserving merge,
   preserving both progress entries. Combined `make checks`: **1024 passed / 30
   skips**, B1 **32/32**; combined Postgres **42 passed**. Authored replay
@@ -2974,7 +3089,7 @@ The following sections retain the AI lane’s historical reports; later dated de
 
 ## Access and continuation
 
-Restricted web: https://ca-web-aclara-dev-eastus2.lemonbeach-1b769de0.eastus2.azurecontainerapps.io/
+Restricted web: <owner-supplied-web-origin>
 Use `demo.es.mx` or `demo.pt.br` for the three-surface workspace; `demo.es.co` and `demo.es.ar` are customer-only. Retrieve `demo-password` from the authenticated Key Vault portal; never paste it into chat, Git or logs. OTP is simulated. Re-login after the identity-source migration; prior fixture sessions do not grant organizer access.
 
 For later sessions, paste: **Continue from docs/status/progress-log.md. Next layer: final evaluation after Sebastian's explicit go. Same rules.**
@@ -4096,3 +4211,122 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
   requires the TypeSafe secret binding for a real-provider image; keeping the
   existing secret does not cause a call, but removing it needs the lead's gate
   update. These lead-owned release changes are called out in the PR handoff.
+
+## 2026-10-02 — audit merge chain and v0.6 release gates
+
+### Completed (verified)
+
+- #114 → #116 → #117 merged in order at `44ad68a`, `ec518a6`, `f5e128d`;
+  each exact PR head passed checks/Postgres/web/invariants. Main CI `36971906103`,
+  safety `36971906076` and outside-owner access `36972964182` passed at
+  `f5e128dd7e544e2378081361f4a8a409af94f221`. Merge hold can lift.
+- Both SHA images built/pushed and registry digests read back. Reviewed Terraform
+  plan/apply: 0 added, 2 updated, 0 destroyed; image/release metadata and approved
+  smoke-run binding only. `scripts.azure_verify` passed unchanged min=0/max=1,
+  CPU/memory, restricted web/internal API, identity, TLS and budget controls.
+- `scripts.azure_migrate_ops` completed migration 0004, TLS/non-owner readback and
+  forced RLS on all five affected tables. Azure's hardened owner lacked TEMP and
+  persona-registry SELECT: initial transactions rolled back; both permissions were
+  loaned only for the owner migration and revoked afterward. No rows printed.
+- `scripts.azure_llm_smoke`: three paths passed, four valid model calls, zero
+  TypeSafe calls/fallbacks/unknown costs, $0.0076885. Original-receipt confirmation
+  retry produced one dispute write. Fresh release/rehearsal purse is $0.10 lifetime,
+  ordinary production breaker remains $3/day; no reservations reset.
+- Browser Chat and Desk completed; Ops navigation failed before an Ops request:
+  helper used obsolete “Evidencia y operaciones”, current button is “Operaciones”.
+  All authenticated requests passed. One-line helper correction passes
+  `node --check apps/web/scripts/serving-browser.mjs`; runtime UI is unchanged.
+- Section-B read-only scan: 547 reachable commits / 2,028 blobs. Default Gitleaks
+  reported 19 matches: seven release-SHA metadata occurrences and twelve authored
+  idempotency literals; no actionable secret detected. 119 PRs, one issue comment,
+  no review comments/bodies, all 591 completed workflow logs inspected; their
+  Gitleaks scan exits 0, no sensitive-IP/signed-URL run or Actions artifact detected.
+  Automatic comparison found no current Key Vault secret/subscription/tenant value;
+  all 18 CSV paths are authored fixtures, no forbidden private file detected.
+
+### Done but not verified
+
+- v0.6 browser gate/tag/final release receipt remain pending; exactly one extra
+  browser allowance requested without resetting counters or replaying model paths.
+- Real benign-phrase/cross-login/budget-degrade rehearsal and fresh README-only
+  clean-clone browser checks are underway; no new held-out score is claimed.
+
+### Next / blocked
+
+- Finish the browser gate after helper CI and owner allowance; record actual
+  rehearsal cost/key readback and tag exact deployed SHA `v0.6.0`.
+- Section B: scrub current-tree operational targets, rotate Postgres credentials
+  with Key Vault/revision readback, document firewall choice and clone evidence.
+  Repo remains private; publication and warm/judge activation require submission-day OK.
+
+## 2026-10-02 — verified audit rehearsal and section-B hardening
+
+### Completed (verified)
+
+- #120 helper-label fix merged at `e30c549` after all four remote checks passed
+  (`36974370052`, `36974370077`). It changes the operator helper/docs only;
+  deployed product image remains `f5e128d`.
+- Owner-IP real rehearsal: all six prescribed benign PT/ES phrases passed without
+  SEC-01/ESC-02, session termination or case write. Duplicate across logins returns
+  verified `status_reported` and the same typed original receipt, zero extra cases.
+  Initial helper compared UTC timestamp strings (`Z` / `+00:00`); independent scoped
+  read confirmed the same instant. Two local helper preflight stops made no model
+  call; completed phrase steps were retained, not rerun. Additional diagnosis stayed
+  within the authorized 10–15-turn rehearsal and same lifetime purse.
+- Disabled only this smoke purse for one budget-denial turn, restored in `finally`:
+  localized degraded HTTP 200, authentication retained, **zero new reservations**.
+  `v0.6-rehearsal-verified.json` records the checks. Total real smoke/rehearsal
+  **$0.02292**, production key **$5.1847665 → $5.1618465**, no key printed.
+- Fresh original-repo clone at `f5e128d`: README-only, **17/17 steps / 724.10 s**,
+  no copied private inputs. 1,121 Python passed / 31 skipped, B1 32/32, Postgres
+  49/49, web type/lint/build, 148 fixture + 12 local live + one staff browser passed.
+  `make down` stopped only its disposable project. Model spend $0.
+- Definitive filename-aware native history Gitleaks: **27** default findings,
+  all triaged metadata/test/secret-NAME false positives; configured scan exits 0.
+  Narrow path/exact-value exceptions retain default rules. Negative controls
+  detect changed values in allowed paths and allowed values in other paths.
+  This supersedes the narrower 19-match patch-stream result above.
+- Both Postgres credentials rotated through existing Terraform generators/server
+  and Key Vault; app SQL role updated from Key Vault, same-image API revision.
+  TLS, non-owner/no-bypass, unscoped zero-row checks passed. BFF `me`, `config`,
+  `transactions`, `ops/snapshot` all 200, bank clock available, logout 401,
+  zero model calls. Secret references normalized; fresh Terraform plan has **no changes**.
+- Retained owner-IP/Azure-services firewall: stable app-only egress is not proven;
+  cross-subscription exposure remains documented. No new resources, replica/CPU,
+  ingress/publication/judge-mode changes. Current-tree operational hosts/home paths
+  replaced with lazy private configuration or portable placeholders; offline target
+  imports/credentialed-URL rejection and Jev-off gates passed 13 focused checks.
+- Mock `make checks` on the readiness candidate: **1,128 passed / 31 skipped**,
+  B1 **32/32**, compilation, hooks/Ruff/mypy and interface/catalog checks passed.
+  Target resolution is lazy for the latency helper too; focused operator tests
+  and Ruff pass after removing its stale import of the previous fixed URL.
+- Publication audit refresh: **120 PRs / 599 available completed log archives**,
+  zero Actions artifacts, zero sensitive-IP/signed-URL signals; default GitHub
+  Gitleaks exits 0. Current credential/private-ID comparison: **seven values,
+  zero matching values** in history or GitHub text. Four negative controls detected.
+- Budget readback: this purse **$0.02292 / $0.10**, 12 calls, zero unknown costs.
+  All-scope known cost **$5.96687034**, retained exposure **$7.69618884**.
+  Conservative allowance math plus otherwise omitted closed-scope exposure:
+  **$11.87612498 + $0.10324950 = $11.97937448 ≤ $12**. Historical unknown reserves
+  remain charged; no scope, counter or reservation was reset.
+- #121's first remote Python gate caught an unmocked target lookup in the
+  authored latency test (local Azure credentials had masked that omission).
+  The test now supplies its fake origin and explicitly rejects any Azure lookup;
+  **18 focused tests** and Ruff pass. Push the correction for required fresh CI.
+
+### Done but not verified
+
+- Current-tree scrub, scanner configuration, reproduction/audit docs and dated
+  progress are on feature `fix/public-readiness`; required remote CI/merge pending.
+- Full Azure browser receipt, `jev-release.json` refresh and `v0.6.0` tag remain
+  pending the requested one additional browser allowance. Earlier attempts completed
+  Chat/Desk but stopped at obsolete Ops selector; counters/reservations were not reset.
+
+### Next / blocked
+
+- Merge readiness PR only on green remote CI; rescan exact committed tree/history
+  and refresh new GitHub run/PR coverage before submission-day publication.
+- On owner browser allowance, run the corrected helper once under the existing
+  $0.10 purse; record all gates/digests/cumulative exposure and tag deployed `f5e128d`.
+- Main protection is prepared but unavailable on the current private plan. Public
+  visibility, warm replicas and judge activation still require explicit Oct-4 OK.

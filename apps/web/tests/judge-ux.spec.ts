@@ -1,3 +1,4 @@
+import { selectLoginPersona } from "./helpers/login-persona";
 import { test, expect, type Page, type Locator } from "./helpers/test";
 import AxeBuilder from "@axe-core/playwright";
 import {
@@ -20,17 +21,16 @@ async function login(page: Page, pt = false, role = "customer") {
       .locator(".sidebar nav button")
       .nth(role === "agent" ? 1 : 2)
       .click();
-  await page
-    .locator(".login-panel select")
-    .selectOption(
-      role === "customer"
-        ? pt
-          ? "demo.pt.br"
-          : "demo.es.mx"
-        : role === "agent"
-          ? "demo.agent"
-          : "demo.ops",
-    );
+  await selectLoginPersona(
+    page,
+    role === "customer"
+      ? pt
+        ? "demo.pt.br"
+        : "demo.es.mx"
+      : role === "agent"
+        ? "demo.agent"
+        : "demo.ops",
+  );
   await locale(page, pt);
   await page
     .locator("input[type=password]")
@@ -669,6 +669,7 @@ test("a signed-in judge alias keeps its eligible story account and only prepares
         role: "customer",
         locale: "es-MX",
         bank_clock: "2026-06-18T06:00:00Z",
+        demo_stories: ["explain"],
       },
     }),
   );

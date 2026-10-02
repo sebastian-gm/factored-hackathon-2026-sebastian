@@ -248,7 +248,14 @@ def install_staff(
 
     @app.get("/personas", response_model=list[PersonaView])
     async def personas() -> list[dict[str, Any]]:
-        return persona_views(app.state.personas, app.state.demo_stories)
+        public = {
+            name: persona
+            for name, persona in app.state.personas.items()
+            if persona.role == "customer"
+            and name != app.state.judge_username
+            and not name.startswith("judge.")
+        }
+        return persona_views(public, app.state.demo_stories)
 
     @app.post("/auth/logout")
     async def logout(

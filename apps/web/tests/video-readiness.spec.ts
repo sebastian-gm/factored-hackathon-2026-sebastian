@@ -38,7 +38,7 @@ async function bootstrap(
   ptHint = false,
 ) {
   await page.route("**/api/bff/config", (r) =>
-    r.fulfill({ json: config(ptHint) }),
+    r.fulfill({ json: { ...config(ptHint), personas: [] } }),
   );
   await page.route("**/api/bff/me", (r) =>
     r.fulfill(
@@ -49,6 +49,9 @@ async function bootstrap(
               role: "ops",
               locale: pt ? "pt-BR" : "es-MX",
               bank_clock: "2026-06-18T06:00:00Z",
+              demo_stories: config(ptHint).personas.find(
+                (p) => p.username === (pt ? "demo.pt.br" : "demo.es.mx"),
+              )!.demo_stories,
             },
           }
         : { status: 401, json: { error: "session_or_credentials_invalid" } },
@@ -108,7 +111,7 @@ async function capture(page: Page, name: string) {
 for (const pt of [false, true]) {
   for (const width of [1440, 390]) {
     const prefix = `${pt ? "pt" : "es"}-${width}`;
-    test(`${prefix}: Ops hints enable ES shortcuts, require authentication, and leave unbound PT disabled`, async ({
+    test(`${prefix}: private Ops stories require login without exposing staff names`, async ({
       page,
     }) => {
       await page.setViewportSize({ width, height: width === 390 ? 844 : 1000 });
@@ -117,8 +120,8 @@ for (const pt of [false, true]) {
         if (r.method() === "POST") posts++;
       });
       await bootstrap(page, pt, false);
-      await expect(page.getByTestId("quickstart-explain")).toBeEnabled();
-      await expect(page.getByTestId("quickstart-fraud")).toBeEnabled();
+      await expect(page.getByTestId("quickstart-explain")).toBeDisabled();
+      await expect(page.getByTestId("quickstart-fraud")).toBeDisabled();
       await expect(page.getByTestId("quickstart-ambiguous")).toBeDisabled();
       const shortcut = page.getByRole("button", {
         name: pt
@@ -135,7 +138,7 @@ for (const pt of [false, true]) {
         name: pt ? "Entender cobrança · ES" : "Entender un cargo · ES",
         exact: true,
       });
-      await expect(explain).toBeEnabled();
+      await expect(explain).toBeDisabled();
       await expect(
         helper.getByRole("button", {
           name: pt ? "Escolher compra · PT" : "Elegir una compra · PT",
@@ -143,9 +146,9 @@ for (const pt of [false, true]) {
         }),
       ).toBeDisabled();
       await capture(page, prefix + "-helper");
-      await explain.click();
-      await expect(page.locator(".login-panel select")).toHaveValue(
-        "demo.es.mx",
+      await expect(page.locator(".login-panel select")).toHaveCount(0);
+      await expect(page.locator('input[autocomplete="username"]')).toHaveValue(
+        "",
       );
       await expect(page.locator("input[type=password]")).toBeVisible();
       await expect(page.locator(".composer")).toHaveCount(0);

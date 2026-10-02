@@ -15,8 +15,8 @@ from typing import Any
 
 import httpx
 from scripts.azure_dev import ROOT, VAULT, az, private_write, read_variables
-from scripts.azure_llm_smoke import WEB
 from scripts.azure_migrate_ops import connection_string
+from scripts.azure_targets import app_url
 from scripts.release_smoke_budget import run_id, verify
 from scripts.serving_smoke import check
 
@@ -99,6 +99,7 @@ def main() -> None:
     variables = read_variables()
     if variables.get("image_tag") != sha or variables.get("llm_budget_run_id") != name:
         raise RuntimeError("Deployed SHA-bound latency purse required")
+    web = app_url("web")
     owner = connection_string("aclara_admin")
     budget = verify(owner, "latency", sha)
     if budget["charged_with_reserves_usd"] >= 0.10 or budget["unknown_cost_attempts"]:
@@ -132,7 +133,7 @@ def main() -> None:
             for i in range(10):
                 pt = i % 2 == 1
                 with httpx.Client(
-                    base_url=WEB + "/api/bff/", headers={"Origin": WEB}, timeout=190
+                    base_url=web + "/api/bff/", headers={"Origin": web}, timeout=190
                 ) as client:
 
                     def call(
