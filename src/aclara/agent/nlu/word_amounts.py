@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+from decimal import Decimal
 
 # Expressions are preserved by NLU. Currency/slang interpretation stays in the
 # existing country-aware normalizer; this parser supplies only the whole number.
@@ -167,4 +168,26 @@ def parse_word_amount(plain: str) -> int | None:
         parsed = _whole(words, pt=pt)
         if parsed is not None:
             return parsed
+    return None
+
+
+def parse_spoken_money(plain: str) -> Decimal | None:
+    """Accept complete ES/PT currency-and-centavos grammar, never partial numbers."""
+    match = re.fullmatch(
+        r"(?:(.+?) (dolares?|dollars?|usd|reais|real|brl|pesos?|mxn|cop|ars) ([ey]) )?"
+        r"(.+?) centavos?",
+        plain.strip(" .,!¿?¡"),
+    )
+    if match is None:
+        return None
+    whole_text, unit, join, cents_text = match.groups()
+    for pt in (False, True):
+        if join and join != ("e" if pt else "y"):
+            continue
+        if unit in {"reais", "real"} and not pt:
+            continue
+        cents = _whole(cents_text.split(), pt=pt)
+        whole = _whole(whole_text.split(), pt=pt) if whole_text else 0
+        if whole is not None and cents is not None and 0 <= cents < 100:
+            return Decimal(whole) + Decimal(cents) / 100
     return None

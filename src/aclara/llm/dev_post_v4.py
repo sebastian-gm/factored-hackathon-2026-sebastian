@@ -333,7 +333,8 @@ async def measure(stage: str, llm: StructuredClient | None = None) -> dict[str, 
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "stage", choices=("before-mock", "after-audits-mock", "after-mock", "after-real")
+        "stage",
+        choices=("before-mock", "after-audits-mock", "after-mock", "triage-mock", "after-real"),
     )
     args = parser.parse_args()
     if args.stage != "after-real":

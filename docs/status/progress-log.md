@@ -1,5 +1,73 @@
 # Progress log
 
+## 2026-10-02 — Lead review of the basic-mode reply contract (#123)
+
+### Completed-verified
+
+- Release evidence #122 merged at `67d19bf` after exact-head CI and safety
+  success. The deployed image and annotated `v0.6.0` remain `f5e128d`.
+- Reviewed every #123 change. Accepted the shared additive contract:
+  `ResponsePlan.degraded` defaults to false, is optional in both OpenAPI
+  schemas, and matches the frontend's optional boolean. The server derives it
+  from NLU fallback state; it supplies no action or authorization authority.
+- Authored mock checks cover budget refusal without provider calls, outage,
+  invalid output, recovery, early handoffs, complete spoken cents, missing
+  amounts and status duration versus purchase dates: **53 passed**.
+- Combined candidate `make checks`: **1195 passed / 31 DB skips**, B1
+  **32/32**, hooks, strict mypy, compilation, staged-file safety, interface
+  snapshots and policy catalog passed. Refreshed on #119/#122 with a
+  history-preserving merge, retaining both progress-log entries; no additional
+  product changes were made during review.
+
+### Done-not-verified
+
+- Fresh remote CI is required for the conflict refresh before #123 merges.
+  Product changes have mock evidence only and are outside the Azure image;
+  official v4 and the earlier real dev score remain unchanged.
+
+### Next-blocked
+
+- Merge #123 only on green remote checks, then stop. No additional model
+  calls or Azure changes: the next paid release smoke needs Sebastian's budget
+  approval at the conservative **$11.97937448 / $12** maximum.
+
+## 2026-10-02 — Live degradation signal and mock-only dev triage
+
+### Completed (verified)
+
+- Owner lifted the merge hold. Refreshed #118 on current main ec076aa, retaining
+  both progress-log entries, and merged at ff3b47a after checks, invariants,
+  Postgres and web all passed. Refresh local mock checks: 1152 passed / 31 DB
+  skips, B1 32/32. No deployment.
+- Added optional/default-false degraded boolean to ResponsePlan and OpenAPI.
+  Minimal app.py response-boundary wiring records NLU budget/model fallback,
+  including early handoffs, and clears the signal after healthy recovery.
+  This is the additive cross-lane contract change requested for w8's #119.
+- Reproduced and fixed three code gaps with authored mock regressions: bounded
+  ES/PT whole-money-plus-centavos parsing; explicit missing-amount clarification
+  even when the model expression is null; pending status-duration clauses kept
+  separate from transaction selection dates. Currency is not inferred for cents
+  alone; ambiguous phrases, valid amounts and actual purchase dates stay guarded.
+- Frozen dev inventory and scorer unchanged: mock truth replay 35/36 → 36/36,
+  ES 18/18 and PT 18/18, observed unsafe/language errors 0. Separate API probes
+  simulate null-amount/status-age extraction; original real NLU was not retained.
+- Follow-up mock make checks: 1195 passed / 31 DB skips, hooks, strict mypy,
+  B1 32/32 and interface/policy snapshots passed. No real models, keys, Azure
+  access or additional inference spend. These are post-v4 fixes, not reflected
+  in v4 numbers; no held-out inputs were opened or rescored.
+
+### Done but not verified
+
+- Follow-up PR/remote CI pending. Product fixes have mock evidence only; the
+  original real pass remains 32/36. No new accuracy or production latency claim.
+
+### Next / blocked
+
+- Merge the follow-up only on green remote CI; the lead owns the image release.
+  The family-assistance false unfamiliarity flag remains a model-quality limit;
+  semantic unfamiliarity must not be erased by family keywords. Future prompt
+  examples need a separately approved model check. No paid calls are authorized.
+
 ## 2026-10-02 — v0.6.0 released; paid work stopped
 
 ### Completed-verified

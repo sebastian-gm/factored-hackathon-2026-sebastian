@@ -32,6 +32,7 @@ exported locally without held-out suites: pre-audit `6a221a4`; audits through
 | Audits through #113, mock | 34/36 | 17/18 | 17/18 | 0 | 0 | 12 |
 | Plus monetary DLP fix, mock | 35/36 | 18/18 | 17/18 | 0 | 0 | 12 |
 | One current Gemini real pass | 32/36 | 15/18 | 17/18 | 0 | 0 | 11 |
+| Mock-only slot triage follow-up | 36/36 | 18/18 | 18/18 | 0 | 0 | 12 |
 
 ¹ Unexpected case writes or DLP leakage in customer replies; verified monetary
 displays are distinguished from identifiers. These single-message cases do not
@@ -47,7 +48,8 @@ regressions in [the item-6 tests](../../tests/test_post_v4_handoff_context.py).
 The paired mock gain is **14 messages**: benign legal-word false handoffs (3),
 self-ID false refusals (2), slot questions (6), bilingual language clarification
 (2), and the newly exposed large-money DLP failure (1). The Portuguese spoken
-cents expression remains unresolved. There was no paid pre-audit arm: comparing
+cents expression was unresolved in the original replay and is fixed in the
+mock-only slot triage below. There was no paid pre-audit arm: comparing
 21/36 mock with 32/36 real would conflate code changes and model behavior.
 
 ## Monetary DLP correction and remaining real failures
@@ -71,12 +73,30 @@ no second real pass was made.
 
 The one real pass left four observable failures; no paid rerun followed:
 
-| Dev ID | Observed behavior | Diagnosis / proposed follow-up |
+| Dev ID | Observed behavior | Zero-cost triage / disposition |
 |---|---|---|
-| es03 | Ordinary own-statement inquiry entered the dispute offer. | Consistent with a false unfamiliarity cue; add family-assistance examples preserving own-account inquiries. This is an inference from the response, not a replay of saved extraction JSON. |
-| pt05 | Asked for the amount instead of explaining. | The bounded whole-number parser rejects a reais-plus-centavos expression; add a complete, bounded fractional grammar with ambiguous-expression controls. |
-| es14 | Asked for merchant or amount instead of only amount. | No normalized NLU clarification reached the missing-slot branch; preserve explicitly vague amount expressions and avoid asking again for an already supplied merchant. Exact extraction was not retained. |
-| es18 | Asked for a date instead of routing the old pending charge. | Consistent with treating vague status age as a selection date; distinguish duration complaints from dates used to identify charges. Exact extraction was not retained. |
+| es03 | Ordinary own-statement inquiry entered the dispute offer. | Model-quality limitation, inferred from the response; exact extraction was not retained. A model `unfamiliar_charge=false` produces the expected inquiry in mock tests. A family mention must not erase valid semantic unfamiliarity. Document future family-assistance prompt examples; leave the semantic flag and prompt unchanged without a measured model check. |
+| pt05 | Asked for the amount instead of explaining. | Confirmed product bug: the whole-number parser returned null for complete reais-plus-centavos expressions. Fixed with a bounded ES/PT fractional grammar, cents 0–99, complete-input validation, no partial integer extraction, and no currency inference for cents alone. Authenticated mock P now explains the charge. |
+| es14 | Asked for merchant or amount instead of only amount. | Reproduced product gap using a simulated null model amount: explicit “no sé el monto” lost the missing-slot signal. Postprocess now asks only for the amount when the customer explicitly reports it missing and no value parsed; valid amounts and unrelated intents are preserved. Authenticated mock P passes. The original extraction is unknown. |
+| es18 | Asked for a date instead of routing the old pending charge. | Reproduced product gap using a simulated duration date expression. Pending-status age in an explicit “ya lleva … días” / “já faz … dias” clause no longer supplies a purchase selection date. Code still reads the actual ledger date for TXN-02; separate purchase dates and unresolved genuine date expressions are preserved. Authenticated mock P passes; the original extraction is unknown. |
+
+The [slot regressions](../../tests/test_post_v4_slot_triage.py) were authored
+before these fixes. The whole frozen inventory, with unchanged authored mock
+truth and scorer, improves **35/36 → 36/36**; only the spoken-cents case changes
+in that replay. Separate API regressions simulate the null-amount and
+status-duration extractions rather than claiming to recover unsaved real output.
+Run `LLM_PROVIDER=mock LLM_REAL_CALLS_APPROVED=0 uv run --no-sync python -m aclara.llm.dev_post_v4 triage-mock`;
+checkpoints use a separate name, keeping earlier paid evidence unchanged.
+**No paid rerun or revised real/held-out score is claimed.**
+
+The chat contract also adds optional/default-false **`degraded: bool`**, so
+the frontend basic-mode notice can reflect budget/model fallback. It is populated
+before reply validation and the execution record, including early risk handoffs;
+healthy NLU recovery returns false. Budget-denial tests still forbid every
+provider call. [Mock API tests](../../tests/test_post_v4_degraded_reply.py) cover
+failure, recovery and the backward-compatible OpenAPI shape. Only this additive
+contract field, its snapshot and minimal response-boundary app wiring are shared
+lane changes; no authority, matcher threshold, prompt or model default changed.
 
 ## Paid receipt and limits
 
