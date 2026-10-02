@@ -1,5 +1,30 @@
 # Progress log
 
+## 2026-10-02 — Explicit staff realm queue (AI lane, handoff 17 item 6)
+
+### Completed (verified)
+
+- Controls ablation #135 merged at `d81922f` after all four remote gates passed;
+  full local checks: 1,344 passed / 37 DB skips; B1 32/32. Dedicated purse read-back
+  $0.0441715 known/charged, 59 calls, zero unknowns; no official v4 changes.
+- Added masked realm publication, short-lived customer invitations, separate
+  authenticated staff membership, audited idempotent claims and read-back.
+- Strict mypy and 25 focused mock regressions pass. Customer/root logout revokes
+  delegated queue access; different judge visits remain isolated.
+
+### Done but not verified
+
+- Full queue checks / remote Postgres integration pending. Local PG14 cannot
+  apply the pre-existing security_invoker baseline; the disposable server stopped.
+- No lead security approval, live migration, queue UI integration or deployment.
+
+### Next / blocked
+
+- Lead reviews the cross-lane staff.py/contracts, handoff backend, additive
+  OpenAPI snapshot, FORCE-RLS migration and Postgres test-runner change.
+- Keep AgentAI/StructuredClient untouched until the concurrency PR lands.
+- Then the approved $0.08 post-v4 dev rerun; human agreement awaits v4 human CSV.
+
 ## 2026-10-02 — Temporal batch merged; approval and local gold verified
 
 ### Completed-verified

@@ -13,6 +13,7 @@ from uuid import uuid4
 from fastapi import Depends, FastAPI, HTTPException
 
 from aclara.agent.contracts import HandoffView
+from aclara.api import staff_queue
 from aclara.api.staff_contracts import (
     DeskPacket,
     OpsView,
@@ -195,6 +196,7 @@ def verify_handoff_commit(
             }
         ).model_dump(mode="json")
         result["verified"] = True
+    staff_queue.publish(app, principal, packet)
 
 
 def install_staff(
@@ -292,6 +294,12 @@ def install_staff(
     @app.get("/agent/handoffs", response_model=list[DeskPacket])
     async def queue(principal: Any = principal_default) -> list[DeskPacket]:
         staff(principal)
+        realm = staff_queue.authorized_realm(app, principal)
+        if realm is not None:
+            return sorted(
+                staff_queue.packets(app, principal, realm),
+                key=lambda p: (p.priority != "high", p.sla_due_at, p.handoff_id),
+            )
         with store.transaction(scope(principal)):
             packets = [desk(key) for key in app.state.handoffs]
         return sorted(packets, key=lambda p: (p.priority != "high", p.sla_due_at, p.handoff_id))
@@ -299,11 +307,22 @@ def install_staff(
     @app.get("/agent/handoffs/{handoff_id}", response_model=DeskPacket)
     async def detail(handoff_id: str, principal: Any = principal_default) -> DeskPacket:
         staff(principal)
+        realm = staff_queue.authorized_realm(app, principal)
+        if realm is not None:
+            packets = staff_queue.packets(app, principal, realm, handoff_id)
+            if not packets:
+                raise HTTPException(404, "Handoff not found")
+            return packets[0]
         with store.transaction(scope(principal)):
             return desk(handoff_id)
 
     async def transition(key: str, body: StaffAction, principal: Any, resolve: bool) -> DeskPacket:
         staff(principal)
+        realm = staff_queue.authorized_realm(app, principal)
+        if realm is not None:
+            if resolve:
+                raise HTTPException(409, "Realm queue supports claim only")
+            return staff_queue.claim(app, principal, realm, key, body)
         action = "resolve" if resolve else "claim"
         fingerprint = hashlib.sha256(body.model_dump_json().encode()).hexdigest()
         cache_key = f"desk-action:{key}:{action}:{body.idempotency_key}"
@@ -354,6 +373,17 @@ def install_staff(
         handoff_id: str, body: StaffAction, principal: Any = principal_default
     ) -> DeskPacket:
         return await transition(handoff_id, body, principal, False)
+
+    @app.post("/handoffs/realm-invitations", response_model=staff_queue.RealmInvitation)
+    async def invitation(principal: Any = principal_default) -> staff_queue.RealmInvitation:
+        return staff_queue.invite(app, principal)
+
+    @app.post("/agent/handoff-realm")
+    async def join_realm(
+        body: staff_queue.RealmJoin, principal: Any = principal_default
+    ) -> dict[str, bool]:
+        staff(principal)
+        return staff_queue.join(app, principal, body)
 
     @app.post("/agent/handoffs/{handoff_id}/resolve", response_model=DeskPacket)
     async def resolve(
