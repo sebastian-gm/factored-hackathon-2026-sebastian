@@ -87,6 +87,35 @@
   retaining their progress entries and refreshing new imports. Archive v5.2 and
   clearly identify live versus historical prompts in a separate small PR.
 
+## 2026-10-02 — Item 7 hygiene completion and conversation state table
+
+### Completed-verified
+
+- Checked all five item-7 points; [evidence and commands](../evaluation/item7-hygiene.md).
+  API image UID **10001** with networking disabled; fixture BFF config **200**,
+  **5 customer entries / 0 staff or judge identities**; live session **35 min**.
+- Replaced nine API/serving/accounting assertions with explicit errors. Authored
+  regressions cover unavailable judge controllers, lost ES/PT recognition targets,
+  absent serving connections, missing budget pools and rollback without writes.
+- Added the missing single JSON log after verified card-freeze responses, including
+  lost-response retries. Chat and dispute confirmation logs were already present;
+  integration coverage verifies one metadata-only line per completed turn.
+- Added a short state-table docstring at the top of `process_message`, with no
+  refactor. Local mock checks **1215 passed / 31 DB skips**, B1 **32/32**,
+  affected API checks **67 passed / 1 skip**, optimized hygiene checks **18 passed**.
+
+### Done-not-verified
+
+- These post-v4 fixes have local/mock evidence only; official v4 remains unchanged.
+  No new Azure release, real-model validation or production concurrency claim.
+
+### Next-blocked
+
+- Merge only on green remote CI. Measure five concurrent authenticated sessions
+  with a one-second mock NLU delay and document queued turn latency honestly.
+- No paid calls or Azure changes; a new paid release smoke requires Sebastian's
+  budget approval at the conservative **$11.97937448 / $12** maximum.
+
 ## 2026-10-02 — Lead review of the basic-mode reply contract (#123)
 
 ### Completed-verified

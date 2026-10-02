@@ -15,6 +15,8 @@ from datetime import datetime, timedelta
 from math import isfinite
 from typing import TYPE_CHECKING, Any
 
+from psycopg import OperationalError
+
 from aclara.bank.repository import Customer, Product, Transaction, TransactionRepository
 from aclara.handoff.routing import AgentDirectory, ServiceAgent
 from aclara.ops.store import Scope, Store
@@ -55,7 +57,8 @@ class ServingRepository(TransactionRepository):
         self.source_kind = "organizer_serving"
         with store.transaction(Scope("", "", "")):
             connection = store._unit().connection
-            assert connection is not None
+            if connection is None:
+                raise OperationalError("Serving connection unavailable")
             connection.execute("SELECT pg_advisory_xact_lock_shared(61928471)")
             row = connection.execute(
                 "SELECT identity,loaded_at FROM meta.serving_state WHERE singleton"
@@ -70,7 +73,8 @@ class ServingRepository(TransactionRepository):
     def personas(self) -> list[Persona]:
         with self.store.transaction(Scope("", "", "")):
             connection = self.store._unit().connection
-            assert connection is not None
+            if connection is None:
+                raise OperationalError("Serving connection unavailable")
             rows = connection.execute(
                 "SELECT username,customer_id,locale,role FROM reference.demo_personas "
                 "WHERE dataset_version=%s ORDER BY username",
@@ -83,7 +87,8 @@ class ServingRepository(TransactionRepository):
     def directory(self) -> AgentDirectory:
         with self.store.transaction(Scope("", "", "")):
             pg = self.store._unit().connection
-            assert pg is not None
+            if pg is None:
+                raise OperationalError("Serving connection unavailable")
             rows = pg.execute(
                 "SELECT agent_id,agent_status,agent_type,languages,specialty,total_monthly_interactions "
                 "FROM bank.service_agents ORDER BY agent_id"
@@ -115,7 +120,8 @@ class ServingRepository(TransactionRepository):
         scope = current.scope if current else Scope(customer_id, "ledger", "ledger")
         with self.store.transaction(scope):
             pg = self.store._unit().connection
-            assert pg is not None
+            if pg is None:
+                raise OperationalError("Serving connection unavailable")
             pg.execute("SELECT pg_advisory_xact_lock_shared(61928471)")
             state = pg.execute("SELECT identity FROM meta.serving_state WHERE singleton").fetchone()
             if state is None or state[0] != self.identity:
