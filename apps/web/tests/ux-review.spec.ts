@@ -1,3 +1,4 @@
+import { selectLoginPersona } from "./helpers/login-persona";
 import { test, expect, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { offerFixture, multiReasonPacket } from "./fixtures/conversation-ui";
@@ -6,11 +7,10 @@ import { offerFixture, multiReasonPacket } from "./fixtures/conversation-ui";
 async function login(page: Page, pt: boolean, agent = false, persona?: string) {
   await page.goto("/");
   if (agent) await page.locator(".sidebar nav button").nth(1).click();
-  await page
-    .locator(".login-panel select")
-    .selectOption(
-      persona ?? (agent ? "demo.agent" : pt ? "demo.pt.br" : "demo.es.mx"),
-    );
+  await selectLoginPersona(
+    page,
+    persona ?? (agent ? "demo.agent" : pt ? "demo.pt.br" : "demo.es.mx"),
+  );
   await page
     .locator(".locale-select select")
     .selectOption(pt ? "pt-BR" : "es-MX");

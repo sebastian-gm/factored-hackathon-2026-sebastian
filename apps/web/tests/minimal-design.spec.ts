@@ -1,3 +1,4 @@
+import { selectLoginPersona } from "./helpers/login-persona";
 import { test, expect, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { chmod, mkdir } from "node:fs/promises";
@@ -85,12 +86,10 @@ async function login(
       .locator(".sidebar nav button")
       .nth(role === "agent" ? 1 : 2)
       .click();
-  await expect(page.locator(".login-panel select")).toBeVisible();
-  await page
-    .locator(".login-panel select")
-    .selectOption(
-      role === "customer" ? (pt ? "demo.pt.br" : "demo.es.mx") : `demo.${role}`,
-    );
+  await selectLoginPersona(
+    page,
+    role === "customer" ? (pt ? "demo.pt.br" : "demo.es.mx") : `demo.${role}`,
+  );
   await page
     .locator(".locale-select select")
     .selectOption(pt ? "pt-BR" : "es-MX");

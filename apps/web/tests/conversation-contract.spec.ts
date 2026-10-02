@@ -1,3 +1,4 @@
+import { selectLoginPersona } from "./helpers/login-persona";
 import { test, expect, type Page } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { planSchema, orderedReasons, type Config } from "../src/lib/contracts";
@@ -13,10 +14,7 @@ async function login(page: Page, persona: string) {
   await page.goto("/");
   if (persona === "demo.agent")
     await page.getByRole("button", { name: "Agent Desk", exact: true }).click();
-  await page
-    .locator("select")
-    .filter({ has: page.locator(`option[value='${persona}']`) })
-    .selectOption(persona);
+  await selectLoginPersona(page, persona);
   await page
     .locator("input[type=password]")
     .fill(process.env.FRONTEND_FIXTURE_PASSWORD!);

@@ -1,3 +1,4 @@
+import { selectLoginPersona } from "./helpers/login-persona";
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import { execFileSync } from "node:child_process";
@@ -19,6 +20,7 @@ test("live workspace: trusted ops role, handoff claim/resolve, measured traces a
     { check: "personas", status: 200, passed: true },
   ]);
   await page.goto("/");
+  await selectLoginPersona(page, "demo.es.mx");
   await page
     .locator("input[type=password]")
     .fill(process.env.FRONTEND_FIXTURE_PASSWORD!);
