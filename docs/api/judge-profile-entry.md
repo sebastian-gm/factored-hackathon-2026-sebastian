@@ -33,6 +33,8 @@ return 403. Superseded, expired or configuration-invalid judge bearers return
 401. A switch returns success only after independent child/controller readback;
 failure can require signing in again. No plaintext bearer is persisted for retry.
 The legacy Key Vault single-alias format remains supported without picker routes.
+Changing that account to the profile format requires a new password/OTP login;
+old single-alias capabilities cannot bypass the picker.
 Ordinary owner `/me` responses retain their existing field shape.
 
 ## Frontend integration contract

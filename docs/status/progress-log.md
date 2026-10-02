@@ -17,9 +17,12 @@
   Logout revokes the controller; judge reset is forbidden. Credential/binding/
   dataset changes and the OFF switch invalidate grants. No migration or new scope.
 - `.venv/bin/pytest -q tests/test_judge_access.py tests/test_judge_profiles.py`
-  passed **36** authored checks: four profiles, picker denial, caller claim
+  passed **37** authored checks: four profiles, picker denial, caller claim
   rejection, OTP/proposal/case/handoff isolation, replay, TTL, restart, concurrent
-  activation and fail-closed storage/readback failures. No organizer rows used.
+  activation, legacy-alias transition denial and fail-closed storage/readback
+  failures. Final review found/fixed a pre-picker alias grant retaining bank
+  authority when changing to the picker format; fresh login is now mandatory.
+  This justified a new CI candidate before merge. No organizer rows used.
 - `.venv/bin/python -m scripts.test_postgres`: **33 passed**, including real
   forced bank/ops RLS, separate restarted stores, competing replicas, complete
   token-free switch/logout audit chain and a shared $3 fixture budget that profile
@@ -27,8 +30,10 @@
   calls. Existing real PostgreSQL tests stayed green.
 - Full local Python checks: pre-commit/data-secret hooks, Ruff, strict mypy
   (**95 source files**), compile, **857 passed / 25 skipped**, interface/catalog
-  snapshots and staged-file scan. The subsequently added readback-failure test
-  passed in the 36-check focused run. Baseline and reactive B1 both **32/32**.
+  snapshots and staged-file scan. Subsequently added readback-failure and legacy-
+  transition regressions passed in the **37-check** focused run; strict mypy and
+  interfaces passed again after the transition fix. Baseline and reactive B1
+  both **32/32**.
 - `pnpm --dir apps/web typecheck`, `lint`, `build`, `test:e2e`, `test:e2e --live`
   and `test:e2e --staff`: all passed; **111 fixture + 12 local live-API + 1 staff
   = 124 browser checks**. These verify existing owner flows, not a future picker.

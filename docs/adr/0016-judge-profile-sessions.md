@@ -43,6 +43,8 @@ change, not reflected in official v4 numbers. No held-out run or paid call is ne
 - All judge authentication checks the live controller, binding fingerprint, expiry
   and active digest. Previous controller/child bearer tokens fail after rotation.
   Configuration/binding changes or turning mode OFF invalidate these grants.
+  Pre-picker single-alias grants are rejected when transitioning to profiles;
+  they have no controller and must not retain their previous bank authority.
   The checks survive API restarts and work across replicas through Postgres.
 - Switching preserves the original login deadline and login OTP timestamp; it
   clears action step-up grants. Ordinary existing action freshness/OTP and separate

@@ -509,6 +509,14 @@ def create_app(
             app.state.sessions.pop(token, None)
             raise HTTPException(status_code=401, detail="Session expired")
         principal = replace(principal, capability_digest=hashlib.sha256(token.encode()).hexdigest())
+        if (
+            judge_sessions is not None
+            and principal.username == judge_sessions.configuration.alias.username
+            and principal.judge_reference is None
+        ):
+            # A pre-picker alias grant must not retain bank authority after
+            # configuration changes to the controller/profile format.
+            raise HTTPException(401, "Judge session unavailable")
         if principal.judge_reference is not None:
             if judge_sessions is None:
                 raise HTTPException(401, "Judge session unavailable")

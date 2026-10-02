@@ -158,6 +158,27 @@ def test_restart_preserves_current_scope_but_never_extends_login(monkeypatch):
     assert restarted.get("/me", headers=headers(token)).status_code == 401
 
 
+def test_legacy_alias_cannot_bypass_picker_after_configuration_transition(monkeypatch):
+    settings = authored_settings()
+    legacy = replace(
+        settings,
+        judge_persona=json.dumps(
+            {"username": "judge.authored", "source_username": "authored.mx-es"}
+        ),
+    )
+    app, _, old_client = application(monkeypatch, settings=legacy)
+    token = authenticate(old_client, legacy)
+    assert old_client.get("/transactions", headers=headers(token)).status_code == 200
+    _, _, picker = application(monkeypatch, store=app.state.store, settings=settings)
+    assert picker.get("/transactions", headers=headers(token)).status_code == 401
+    assert picker.get("/auth/judge/profiles", headers=headers(token)).status_code == 401
+    fresh = authenticate(picker, settings)
+    assert picker.get("/transactions", headers=headers(fresh)).status_code == 403
+    assert (
+        picker.get("/transactions", headers=headers(select(picker, fresh, "pt"))).status_code == 200
+    )
+
+
 def test_capability_cannot_be_rebased_onto_another_profile_realm(monkeypatch):
     app, settings, client = application(monkeypatch)
     token = select(client, authenticate(client, settings), "mx-es")
