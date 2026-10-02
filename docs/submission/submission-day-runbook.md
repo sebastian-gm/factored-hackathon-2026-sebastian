@@ -46,6 +46,8 @@ export RB_OUT="$RB_REPO/artifacts/submission-day"
 export RB_SUB='Seb Azure Sandbox'
 export RB_RG='rg-aclara-dev-eastus2'
 export RB_SUBMISSION='sebastian-gm/factored-hackathon-2026-sebastian'
+export RB_REGISTRY="$(az acr show --subscription "$RB_SUB" --resource-group "$RB_RG" --name acraclaradeveastus2 --query loginServer -o tsv)"
+export AZURE_WEB_URL="$(.venv/bin/python -c 'from scripts.azure_targets import app_url; print(app_url("web"))')"
 test -f "$RB_REPO/AGENTS.md" && test -d "$RB_REPO/infra"
 mkdir -p "$RB_OUT"
 chmod 700 "$RB_OUT"
@@ -203,22 +205,24 @@ digests. Keep warm/judge OFF during release and capped real smoke. Do not rerun
 v4, change official files, run live judges, load new organizer data or reset budgets.
 
 ```bash
-docker build -f Dockerfile.api -t "acraclaradeveastus2.azurecr.io/aclara-api:$RB_SHA" .
-docker build -f apps/web/Dockerfile.azure -t "acraclaradeveastus2.azurecr.io/aclara-web:$RB_SHA" apps/web
+docker build -f Dockerfile.api -t "$RB_REGISTRY/aclara-api:$RB_SHA" .
+docker build -f apps/web/Dockerfile.azure -t "$RB_REGISTRY/aclara-web:$RB_SHA" apps/web
 .venv/bin/python - <<'PY'
 import os, json, subprocess, shutil
 from scripts.azure_dev import ROOT, az, private_write
-sha=os.environ['RB_SHA']; folder=ROOT/'artifacts/submission-day/docker-auth'
+sha=os.environ['RB_SHA']; registry=os.environ['RB_REGISTRY']; folder=ROOT/'artifacts/submission-day/docker-auth'
 folder.mkdir(mode=0o700,parents=True,exist_ok=False)
-env={**os.environ,'DOCKER_CONFIG':str(folder)}
+context=subprocess.check_output(['docker','context','show'],text=True).strip()
+endpoint=json.loads(subprocess.check_output(['docker','context','inspect',context],text=True))[0]['Endpoints']['docker']['Host']
+env={**os.environ,'DOCKER_CONFIG':str(folder),'DOCKER_HOST':endpoint}
 try:
     token=az('acr','login','--name','acraclaradeveastus2','--expose-token')['accessToken']
-    subprocess.run(['docker','login','acraclaradeveastus2.azurecr.io','--username',
+    subprocess.run(['docker','login',registry,'--username',
         '00000000-0000-0000-0000-000000000000','--password-stdin'],input=token,
         text=True,capture_output=True,env=env,check=True)
     images={}
     for name in ['api','web']:
-        image='acraclaradeveastus2.azurecr.io/aclara-'+name+':'+sha
+        image=registry+'/aclara-'+name+':'+sha
         subprocess.run(['docker','push',image],env=env,check=True)
         images[name]={'tag':image,'digest':az('acr','repository','show',
             '--name','acraclaradeveastus2','--image','aclara-'+name+':'+sha)['digest']}
@@ -857,7 +861,8 @@ The bootstrap resource group/state store are outside Terraform's runtime state.
    target=ROOT/'artifacts/submission-day/aclara-final.pgdump.age'
    assert not target.exists()
    assert subprocess.check_output(['pg_dump','--version'],text=True).startswith('pg_dump (PostgreSQL) 16.')
-   environment={**os.environ,'PGHOST':'psql-aclara-dev-eastus2.postgres.database.azure.com',
+   from scripts.azure_targets import database_host
+   environment={**os.environ,'PGHOST':database_host(),
        'PGPORT':'5432','PGDATABASE':'aclara','PGUSER':'aclara_admin','PGSSLMODE':'verify-full',
        'PGSSLROOTCERT':'/etc/ssl/certs/ca-certificates.crt',
        'PGPASSWORD':az('keyvault','secret','show','--vault-name',VAULT,'--name','postgres-admin')['value']}

@@ -1,12 +1,10 @@
+import { selectLoginPersona } from "./helpers/login-persona";
 import { test, expect, type Page } from "./helpers/test";
 import AxeBuilder from "@axe-core/playwright";
 import { mkdir } from "node:fs/promises";
 
 async function login(page: Page, persona = "demo.es.mx") {
-  await page
-    .locator("select")
-    .filter({ has: page.locator(`option[value='${persona}']`) })
-    .selectOption(persona);
+  await selectLoginPersona(page, persona);
   await page
     .locator("input[type=password]")
     .fill(process.env.FRONTEND_FIXTURE_PASSWORD!);
@@ -442,11 +440,8 @@ test("recording helper resets with read-back, selects all personas and reaches t
   await page
     .getByRole("button", { name: "Entrar en operaciones para restablecer" })
     .click();
-  await expect(
-    page
-      .locator("select")
-      .filter({ has: page.locator("option[value='demo.ops']") }),
-  ).toHaveValue("demo.ops");
+  await expect(page.locator('input[autocomplete="username"]')).toBeVisible();
+  await expect(page.locator(".login-panel select")).toHaveCount(0);
   await login(page, "demo.ops");
   await page
     .getByRole("button", { name: "Restablecer demo y abrir ES" })

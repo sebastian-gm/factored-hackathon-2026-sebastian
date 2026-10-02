@@ -418,7 +418,10 @@ def install_workflows(app: FastAPI, principal_dependency: Any) -> None:
                             "freeze_card", handle=handle, confirmed=True, step_up=True
                         )
                         app.state.runtime.checkpoint("read_back")
-                        assert app.state.card_states[product.product_id]["status"] == "Frozen"
+                        if (app.state.card_states.get(product.product_id) or {}).get(
+                            "status"
+                        ) != "Frozen":
+                            raise HTTPException(503, "Freeze readback failed")
                         app.state.runtime.record("verify_readback", handle=handle)
                         outcome = "verified"
                     except InjectedFailure:

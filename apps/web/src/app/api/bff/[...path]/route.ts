@@ -263,9 +263,15 @@ async function handle(
         bankClock: fixtures() ? BANK_CLOCK : (process.env.BANK_CLOCK ?? null),
         resetEnabled:
           fixtures() || process.env.FRONTEND_ALLOW_DEMO_RESET === "true",
-        personas: fixtures()
+        personas: (fixtures()
           ? personas
-          : z.array(personaSchema).parse(await upstream("personas", "GET")),
+          : z.array(personaSchema).parse(await upstream("personas", "GET"))
+        ).filter(
+          (p) =>
+            p.role === "customer" &&
+            !p.username.startsWith("judge.") &&
+            p.username !== "demo.judge",
+        ),
       });
     if (path === "auth/logout" && request.method === "POST") {
       if (fixtures()) fixtureLogout(token);
@@ -329,14 +335,25 @@ async function handle(
       const input = otpSchema.parse(body);
       if (!preauth) throw new HttpError(401, "challenge_expired");
       const auth = z
-        .object({ access_token: z.string() })
+        .object({
+          access_token: z.string(),
+          expires_at: z.iso.datetime({ offset: true }).optional(),
+        })
         .parse(
           fixtures()
             ? fixtureVerify(input.challenge_id, preauth, input.code)
             : await upstream(path, "POST", undefined, input, preauth),
         );
       const reply = response({ authenticated: true });
-      cookie(reply, ACCESS, auth.access_token, 900);
+      if (!auth.expires_at && !fixtures())
+        throw new HttpError(502, "readback_failed");
+      const expires = auth.expires_at ? new Date(auth.expires_at) : undefined;
+      const remaining = expires
+        ? Math.floor((expires.getTime() - Date.now()) / 1000)
+        : 900;
+      if (remaining <= 0 || remaining > 45 * 60)
+        throw new HttpError(502, "readback_failed");
+      cookie(reply, ACCESS, auth.access_token, remaining, expires);
       cookie(reply, PREAUTH, "", 0);
       return reply;
     }

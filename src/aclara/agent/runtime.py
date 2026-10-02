@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterator
+from contextlib import contextmanager
+from contextvars import ContextVar
 from dataclasses import dataclass, field
 from typing import Any
 from uuid import uuid4
@@ -19,9 +22,29 @@ class Runtime:
     faults: list[dict[str, Any]] = field(default_factory=list)
     events: list[dict[str, Any]] = field(default_factory=list)
     fired: set[int] = field(default_factory=set)
+    _turn: ContextVar[list[dict[str, Any]] | None] = field(
+        default_factory=lambda: ContextVar("runtime_turn", default=None), repr=False
+    )
 
     def record(self, event: str, **values: Any) -> None:
-        self.events.append({"event": event, **values})
+        item = {"event": event, **values}
+        self.events.append(item)
+        current = self._turn.get()
+        if current is not None:
+            current.append(item)
+
+    @contextmanager
+    def turn(self) -> Iterator[None]:
+        """Independent HTTP traces; to_thread inherits this request's buffer."""
+        token = self._turn.set([])
+        try:
+            yield
+        finally:
+            self._turn.reset(token)
+
+    def trace(self, cursor: int = 0) -> list[dict[str, Any]]:
+        current = self._turn.get()
+        return list(current if current is not None else self.events[cursor:])
 
     def fault(self, kind: str, trigger: str) -> bool:
         aliases = {

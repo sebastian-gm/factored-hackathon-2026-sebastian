@@ -11,7 +11,7 @@ eligible dispute, or reach a human with verified context, in **Spanish and
 Brazilian Portuguese**. Customer Chat, Agent Desk and Ops show the supporting
 records, rules and readbacks. This is a **synthetic-bank demo**.
 
-**Try the [restricted demo](https://ca-web-aclara-dev-eastus2.lemonbeach-1b769de0.eastus2.azurecontainerapps.io/):**
+**Try the restricted demo at the owner-supplied web link:**
 use owner-supplied credentials and the simulated SMS OTP, then pick a guided
 story. Access is owner-approved; passwords stay outside Git. The new
 [judge profile picker](docs/api/judge-profile-entry.md) stays behind the OFF
@@ -21,7 +21,7 @@ Current main selects **Gemini 3 Flash** for language/risk cues, **Grok 4.20**
 only after Gemini failure, and matcher v2 for scoped ranking. Identity, policy,
 confirmation and writes stay in code; model prose grants no authority.
 **TypeSafe Jev is a risk classifier and offline wording judge; v4 used it, and the post-v4 config disables its live path.**
-The Gemini-only change awaits the next Azure release and has no new held-out score.
+The Gemini-only configuration is deployed in the post-v4 audit release and has no new held-out score.
 [Decision and replay](docs/adr/0017-drop-jev-from-live-path.md) ·
 [Model card](docs/ml/model-card.md) · [Historical Jev evidence and data terms](docs/ml/typesafe-jev-comparison.md).
 
@@ -251,8 +251,9 @@ or `demo.pt.br` persona with your local password. Fixture settings cannot grant
 roles in serving mode. This full-data path was **not** verified in the clean clone;
 no organizer data or private bindings were copied into it.
 
-Frozen evaluation suites/selections, private bindings and human-review sheets are
-withheld. Official scores cannot be reproduced from this export alone; no paid
+Frozen suite definitions/selections are retained as authored evaluation evidence;
+private customer bindings, organizer records and human-review sheets are withheld.
+Official scores cannot be reproduced from this repository alone; no paid
 final program should be started from it. [Serving setup](docs/serving-demo.md) ·
 [Harness](docs/evaluation/harness.md) · [Progress](docs/status/progress-log.md).
 

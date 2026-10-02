@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import hmac
 import json
@@ -57,6 +58,7 @@ from aclara.api.judge_sessions import (
 )
 from aclara.api.staff import complete_packet, install_staff, verify_handoff_commit
 from aclara.api.staff_contracts import IdentityView
+from aclara.api.turn_logging import log_turn
 from aclara.api.workflows import (
     fraud_handoff,
     install_workflows,
@@ -108,14 +110,15 @@ class ActionProposal:
 class SnapshotCacheMiddleware:
     """Scope serving snapshot memoization to exactly one HTTP request."""
 
-    def __init__(self, app: Any) -> None:
+    def __init__(self, app: Any, runtime: Runtime) -> None:
         self.app = app
+        self.runtime = runtime
 
     async def __call__(self, scope: Any, receive: Any, send: Any) -> None:
         if scope["type"] != "http":
             await self.app(scope, receive, send)
             return
-        with request_snapshot_cache():
+        with request_snapshot_cache(), self.runtime.turn():
             await self.app(scope, receive, send)
 
 
@@ -336,7 +339,6 @@ def create_app(
         else TransactionRepository()
     )
     app = FastAPI(title="Aclara demo API", version="0.1.0")
-    app.add_middleware(SnapshotCacheMiddleware)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=[os.getenv("WEB_ORIGIN", "http://localhost:3000")],
@@ -344,6 +346,9 @@ def create_app(
         allow_headers=["Authorization", "Content-Type", "X-Preauth-Token"],
     )
     app.state.runtime = runtime or Runtime(system=active_settings.agent_system)
+    app.add_middleware(SnapshotCacheMiddleware, runtime=app.state.runtime)
+    # AgentAI owns a shared record cursor. Serialize its calls outside storage.
+    ai_turn_lock = asyncio.Lock()
     spend_gate = (
         PostgresSpendGate(operational, run_id=os.getenv("LLM_BUDGET_RUN_ID") or None)
         if active_settings.llm_provider != "mock" and llm_client is None
@@ -374,6 +379,7 @@ def create_app(
     }
     judge_config = judge_configuration(active_settings, app.state.personas)
     judge = judge_config.alias if judge_config else None
+    app.state.judge_username = judge.username if judge else None
     if judge is not None:
         app.state.personas[judge.username] = judge
     app.state.demo_stories = demo_story_mappings(
@@ -457,7 +463,7 @@ def create_app(
         result: dict[str, Any], conversation_id: str, cursor: int, message: str | None = None
     ) -> str:
         record_id = str(uuid4())
-        events = app.state.runtime.events[cursor:]
+        events = app.state.runtime.trace(cursor)
         app.state.executions[record_id] = {
             "conversation_id": conversation_id,
             "created_at": datetime.now(UTC).isoformat(),
@@ -500,7 +506,7 @@ def create_app(
                 # The original execution committed before the read. Persist the
                 # event in its own scoped transaction before returning success.
                 saved = app.state.executions[execution_id]
-                saved["events"].append(app.state.runtime.events[-1])
+                saved["events"].append(app.state.runtime.trace()[-1])
                 app.state.executions[execution_id] = saved
 
     learned_matcher: MatchState | None = None
@@ -691,7 +697,11 @@ def create_app(
             principal = judge_sessions.initialize(principal, session_token)
         app.state.sessions[session_token] = principal
         del app.state.challenges[body.challenge_id]
-        return {"access_token": session_token, "token_type": "bearer"}
+        return {
+            "access_token": session_token,
+            "token_type": "bearer",
+            "expires_at": principal.expires_at.isoformat(),
+        }
 
     def identity(principal: Principal) -> IdentityView:
         profile = (
@@ -712,7 +722,7 @@ def create_app(
                 and principal.judge_profile is None,
                 "demo_stories": app.state.demo_stories.get(profile.username, [])
                 if profile
-                else None,
+                else app.state.demo_stories.get(principal.username, []),
             }
         )
 
@@ -767,15 +777,64 @@ def create_app(
 
     @app.post("/chat/sessions/{conversation_id}/messages", response_model=ResponsePlan)
     async def send_message(
+        request: Request,
         conversation_id: str,
         body: MessageBody,
         principal: Principal = Depends(get_principal),
     ) -> dict[str, Any]:
+        async with ai_turn_lock:
+            authorization = request.headers.get("Authorization")
+            principal = await get_principal(await get_authenticated_principal(authorization))
+            return await send_message_locked(conversation_id, body, principal, authorization)
+
+    async def send_message_locked(
+        conversation_id: str, body: MessageBody, principal: Principal, authorization: str | None
+    ) -> dict[str, Any]:
         cursor = len(app.state.runtime.events)
-        with operational.transaction(scope(principal)):
-            try:
+        failure: str | None = None
+        snapshot: dict[str, Any] | None = None
+        inference: tuple[str, dict[str, Any]] | None = None
+        try:
+            with operational.transaction(scope(principal)):
                 app.state.runtime.checkpoint("MATCH")
-                result = await process_message(conversation_id, body, principal)
+                snapshot, inference = prepare_nlu(conversation_id, body, principal)
+        except InjectedFailure as error:
+            failure = str(error)
+        nlu = None
+        if inference is not None:
+            message, context = inference
+            work = asyncio.create_task(
+                asyncio.to_thread(ai.understand, message, active_settings.bank_clock, **context)
+            )
+            try:
+                nlu = await asyncio.shield(work)
+            except asyncio.CancelledError:
+                # A disconnected caller cannot release the shared client while
+                # its thread is still settling provider records/reservations.
+                while not work.done():
+                    try:
+                        await asyncio.shield(work)
+                    except asyncio.CancelledError:
+                        continue
+                    except Exception:
+                        break
+                # Consume a failed inference without masking caller cancellation.
+                if not work.cancelled():
+                    work.exception()
+                raise
+        # Revoke/expiry/profile rotation can happen while the provider waits.
+        principal = await get_principal(await get_authenticated_principal(authorization))
+        # Discard memoized serving context: policy must read current bank facts.
+        with request_snapshot_cache(), operational.transaction(scope(principal)):
+            current = app.state.conversations.get(conversation_id)
+            if snapshot is not None and (current is None or asdict(current) != snapshot):
+                raise HTTPException(409, "Conversation changed during inference; send a new turn")
+            try:
+                result = (
+                    safe_failure(principal, classify(body.message).language, failure)
+                    if failure is not None
+                    else await process_message(conversation_id, body, principal, nlu)
+                )
             except InjectedFailure as error:
                 result = safe_failure(principal, classify(body.message).language, str(error))
             app.state.runtime.record("response", response_type=result["response_type"])
@@ -820,6 +879,12 @@ def create_app(
             verify_committed_case(result, principal, execution_id)
         if result.get("handoff"):
             verify_handoff_commit(app, result, principal, conversation_id)
+        log_turn(
+            conversation_id,
+            result,
+            app.state.runtime.trace(cursor),
+            degraded=bool(conversation and conversation.degraded),
+        )
         return result
 
     def trusted_country(principal: Principal) -> str | None:
@@ -913,22 +978,72 @@ def create_app(
             app.state.runtime.record("end_session")
         return result
 
+    def prepare_nlu(
+        conversation_id: str, body: MessageBody, principal: Principal
+    ) -> tuple[dict[str, Any], tuple[str, dict[str, Any]] | None]:
+        conversation = app.state.conversations.get(conversation_id)
+        if conversation is None or conversation.session_id != principal.session_id:
+            raise HTTPException(404, "Conversation not found")
+        snapshot = asdict(conversation)
+        if app.state.runtime.system != "P":
+            return snapshot, None
+        if cross_customer(body.message):
+            return snapshot, (body.message, {"country": trusted_country(principal)})
+        if conversation.terminal_handoff_id or (
+            conversation.proposal
+            and (is_confirmation(body.message) or is_cancellation(body.message))
+        ):
+            return snapshot, None
+        message = body.message
+        if injection(message):
+            message = " ".join(part for part in re.split(r"[.;\n]", message) if not injection(part))
+            if not message.strip() or classify(message).intent == Intent.OUT_OF_SCOPE:
+                return snapshot, None
+        frame = classify_request(message)
+        if escalations(message) or frame.intent == Intent.FRAUD or unsupported_language(message):
+            return snapshot, None
+        if (
+            re.search(r"DSP-[A-Za-z0-9-]+", message, re.IGNORECASE)
+            or re.search(
+                r"(estado|status|andamento).{0,30}(caso|disputa|contestacion|contestacao)|(mi caso|minha contestacao)",
+                normalize_text(message),
+            )
+            or conversation.candidates
+        ):
+            return snapshot, None
+        row = None
+        if conversation.offer_handle:
+            row = dict(ledger.for_customer(principal.customer_id, active_settings.bank_clock)).get(
+                conversation.offer_handle
+            )
+            if row is None:
+                return snapshot, None
+        return snapshot, (
+            message,
+            {
+                "country": trusted_country(principal),
+                "awaiting_recognition": row is not None,
+                "masked_charge": {
+                    k: str(v)
+                    for k, v in _masked_transaction(conversation.offer_handle or "", row).items()
+                    if k in {"merchant", "amount", "currency", "transaction_date", "status"}
+                }
+                if row
+                else None,
+            },
+        )
+
     async def process_message(
         conversation_id: str,
         body: MessageBody,
-        principal: Principal = Depends(get_principal),
+        principal: Principal,
+        inferred: NluResult | None,
     ) -> dict[str, Any]:
         conversation: Conversation | None = app.state.conversations.get(conversation_id)
         if conversation is None or conversation.session_id != principal.session_id:
             raise HTTPException(status_code=404, detail="Conversation not found")
         if cross_customer(body.message):
-            confirmation = (
-                ai.understand(
-                    body.message, active_settings.bank_clock, country=trusted_country(principal)
-                )
-                if app.state.runtime.system == "P"
-                else None
-            )
+            confirmation = inferred
             if confirmation is not None:
                 conversation.degraded = confirmation.degraded
                 conversation.model_failed |= confirmation.degraded and (
@@ -1074,21 +1189,9 @@ def create_app(
             and not conversation.candidates
             and not conversation.proposal
         ):
-            nlu = ai.understand(
-                body.message,
-                active_settings.bank_clock,
-                country=trusted_country(principal),
-                awaiting_recognition=offered_row is not None,
-                masked_charge={
-                    k: str(v)
-                    for k, v in _masked_transaction(
-                        conversation.offer_handle or "", offered_row
-                    ).items()
-                    if k in {"merchant", "amount", "currency", "transaction_date", "status"}
-                }
-                if offered_row
-                else None,
-            )
+            if inferred is None:
+                raise HTTPException(503, "NLU context unavailable; no action can be confirmed")
+            nlu = inferred
             if nlu.extracted.other_customer_reference:
                 return refuse_cross_customer(
                     principal,
@@ -1108,7 +1211,7 @@ def create_app(
                 or ai.client.mock_configured
                 or any(
                     e.get("event") == "fault" and e.get("kind") == "llm_outage"
-                    for e in app.state.runtime.events
+                    for e in app.state.runtime.trace()
                 )
             )
             if not nlu.degraded:
@@ -1441,9 +1544,19 @@ def create_app(
 
     @app.post("/chat/sessions/{conversation_id}/confirm", response_model=ResponsePlan)
     async def confirm_action(
+        request: Request,
         conversation_id: str,
         body: ConfirmBody,
         principal: Principal = Depends(get_principal),
+    ) -> dict[str, Any]:
+        async with ai_turn_lock:
+            principal = await get_principal(
+                await get_authenticated_principal(request.headers.get("Authorization"))
+            )
+            return await confirm_action_locked(conversation_id, body, principal)
+
+    async def confirm_action_locked(
+        conversation_id: str, body: ConfirmBody, principal: Principal
     ) -> dict[str, Any]:
         cursor = len(app.state.runtime.events)
         receipt_key = "confirm-result:" + conversation_id + ":" + body.proposal_hash
@@ -1462,6 +1575,7 @@ def create_app(
                         public_case(record)
                     ) != DisputeCaseView.model_validate(result["case"]):
                         raise HTTPException(503, "Durable receipt readback failed")
+                log_turn(conversation_id, result, [], degraded=conversation.degraded)
                 return cast(dict[str, Any], result)
             try:
                 result = await process_confirmation(conversation_id, body, principal)
@@ -1500,6 +1614,12 @@ def create_app(
             verify_committed_case(result, principal, execution_id)
         if result.get("handoff"):
             verify_handoff_commit(app, result, principal, conversation_id)
+        log_turn(
+            conversation_id,
+            result,
+            app.state.runtime.trace(cursor),
+            degraded=bool(conversation and conversation.degraded),
+        )
         return result
 
     async def process_confirmation(

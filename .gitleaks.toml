@@ -1,2 +1,35 @@
 [extend]
 useDefault = true
+
+# Audited metadata/test inputs only. Keep all default secret rules enabled.
+[[rules]]
+id = "hashicorp-tf-password"
+[[rules.allowlists]]
+description = "Judge environment variable refers to a Key Vault secret NAME"
+condition = "AND"
+paths = ['(?:^|/)infra/apps\.tf$']
+regexTarget = "secret"
+regexes = ['^"judge-password"$']
+
+[[rules]]
+id = "generic-api-key"
+[[rules.allowlists]]
+description = "Exact authored durable claim replay key in this test"
+condition = "AND"
+paths = ['(?:^|/)tests/test_operational_store\.py$']
+regexTarget = "secret"
+regexes = ['^durable_claim_01$']
+
+[[rules.allowlists]]
+description = "Exact authored claim/resolve replay keys in this test"
+condition = "AND"
+paths = ['(?:^|/)tests/test_staff_api\.py$']
+regexTarget = "secret"
+regexes = ['^claim_fixture_01$', '^resolve_fixture_01$']
+
+[[rules.allowlists]]
+description = "The fixture evidence's single release-commit SHA field"
+condition = "AND"
+paths = ['(?:^|/)apps/web/fixtures/live-story-evidence\.json$']
+regexTarget = "line"
+regexes = ["^\\s*\"api_release_sha\": \"c32fd6429281a764ee33dd96622f237c7c0289c3\",?\\s*$"]

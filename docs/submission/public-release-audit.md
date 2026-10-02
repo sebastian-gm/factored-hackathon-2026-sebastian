@@ -7,6 +7,85 @@ former snapshot is privately archived as `factored-hackathon-2026-sebastian-snap
 A fresh full-history, PR/comment and Actions audit plus password rotation is
 required before publication; the historical scan below does not satisfy it.
 
+## October 2 original-repository readiness audit
+
+The renamed original repository remains **private**. No visibility change,
+history rewrite, organizer-data upload or new cloud resource was performed.
+Sebastian's submission-day publication approval remains required. Historical
+emails/cloud hosts are owner-accepted; concrete hosts and workstation paths are
+removed from the current operational tree. The public judge link is added only
+on submission day.
+
+### Scope and scans actually run
+
+- Initial frozen inventory: **547 reachable commits, 2,028 blobs, 60,966,843
+  bytes**, largest blob 323,068 bytes. All 18 CSV paths are documented authored
+  fixtures; no `.env`, private bindings, credentials, state/plan/tfvars, raw
+  database or organizer delivery file was found in the reachable path inventory.
+  Refreshed after the operator scrub commit: **550 commits / 2,040 blobs /
+  61,353,588 bytes**, largest blob 326,076 bytes.
+- Checksum-verified **Gitleaks 8.30.1**, default rules, all refs/full history/root
+  and merge-parent differences. A patch-stream pass had 19 matches; the definitive
+  native Git pass had **27** because filename-aware Terraform rules add eight
+  matches. These are **seven release-SHA metadata occurrences, eight Key Vault
+  secret-name mappings, and twelve authored idempotency-key occurrences**.
+  No actionable credential detected. Do not call the default exit 1 a clean scan.
+- `.gitleaks.toml` retains default rules and adds path-plus-exact-value/field
+  exceptions for those inputs only. The configured native history scan exits
+  **0 with zero findings**. Negative controls detect a different key/password
+  in the allowed paths, an allowed test value in a different path and the release
+  SHA in a different JSON field on the same path (four findings as expected).
+- Refreshed **120 PR titles/bodies, one issue comment, zero inline comments/review
+  bodies, all 599 available completed workflow-log archives** inspected automatically.
+  Their separate default-rule Gitleaks scan exits **0**, with no owner/public
+  IPv4 or signed/token URL detected. Repository Actions artifact inventory is
+  **0**. No workflow deletion was necessary; none is claimed.
+- Automatic exact-value comparison found **zero** matches for current Key Vault
+  credentials or private subscription/tenant inputs in history/GitHub text after
+  password rotation (seven values checked).
+  No credential was printed or validated against another service. This is a
+  detection result, not a proof of absence or raw-record equality comparison.
+
+All Git invocations use `git -C`; the native scanner's process-local Git wrapper
+enforces the same repository boundary. Raw scans/log archives stay in ignored
+`artifacts/public-release-audit-2026-10-02/`, mode 0700/0600. No source excerpts,
+keys, IP values, organizer row text, bindings or model thinking enter this report.
+Frozen suite contents were processed by automatic scanners only, never opened
+for semantic inspection or used for tuning. Scan boundaries are dated; new PRs,
+commits or workflow runs must be included in the final submission-day scan.
+
+### Current-tree scrub and operational hardening
+
+Operator scripts resolve targets lazily from the explicitly selected sandbox or
+private configuration. Imports/local fixture checks make no Azure call. The access
+workflow obtains URLs from private repository variables. README/slides/progress
+and evaluation/operator docs use portable paths or owner-supplied target placeholders.
+Original history remains intact; the archived snapshot is retained privately.
+
+Both Postgres passwords were rotated through Terraform's existing password
+generators, Key Vault values and existing server. App SQL password was updated
+from Key Vault without printing it. A same-image API revision loaded the new
+credential; versionless managed references were restored and reconciled. TLS,
+non-superuser/no-RLS-bypass/no-owner-membership and unscoped zero-row checks passed.
+Authenticated BFF `me`, `config`, `transactions`, `ops/snapshot` all returned
+**200**, the bank clock was available, and logout readback returned **401**.
+These read-only checks made **zero model calls**. Resource shape/access is unchanged.
+
+The owner-IP plus Azure-services PG firewall is retained. The consumption app's
+dynamic egress has no demonstrated stable app-only allowlist; narrowing would risk
+availability. The Azure-services sentinel admits other subscriptions and is **not
+private networking**. TLS, strong rotated credentials, least-privilege runtime/RLS
+remain required. VNet/private access remains future work in
+[production readiness](../production-readiness.md).
+
+Fresh README-only reproduction of original release `f5e128d` passed all 17 steps
+in **724.10 s** with mock providers and no organizer data/cloud secrets; see
+[reproduction evidence](clean-clone-reproduction.md#october-2-original-repository-clean-clone).
+Branch protection remains prepared but unavailable on the private plan; apply it
+after the explicit publication go. Publication and warm/judge activation are OFF.
+
+## Historical September 30 audit and recommendations — superseded
+
 
 **Decision: the private sandbox is not ready for a public mirror.** No actionable
 credential leak was detected in the inspected Git history, but author/contact

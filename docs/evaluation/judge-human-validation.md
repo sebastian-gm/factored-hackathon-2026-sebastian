@@ -10,7 +10,7 @@ export is received. This 20-item review is descriptive; it does not satisfy the
 Open `artifacts/human-judge/v4-score.html` in the AI worktree:
 
 ```bash
-xdg-open /home/megagdev/.herdr/worktrees/bank-agent-lab/feat-ai/artifacts/human-judge/v4-score.html
+xdg-open $AI_WORKTREE/artifacts/human-judge/v4-score.html
 ```
 
 The page embeds the lead's unchanged `artifacts/final-program-v4/human-judge-20.csv`
@@ -37,10 +37,10 @@ Once the exported path is confirmed, run the
 
 ```bash
 .venv/bin/python -m aclara.llm.human_review import \
-  --scored /home/megagdev/Downloads/human-judge-20-scored.csv \
-  --source /home/megagdev/megagdev/factored-hackathon-2026/bank-agent-lab/artifacts/final-program-v4/human-judge-20.csv \
-  --judge-inputs /home/megagdev/megagdev/factored-hackathon-2026/bank-agent-lab/artifacts/final-program-v4/judge-inputs.json \
-  --checkpoints /home/megagdev/megagdev/factored-hackathon-2026/bank-agent-lab/artifacts/final-program-v4/checkpoints \
+  --scored "$SCORED_HUMAN_SHEET" \
+  --source $REPO/artifacts/final-program-v4/human-judge-20.csv \
+  --judge-inputs $REPO/artifacts/final-program-v4/judge-inputs.json \
+  --checkpoints $REPO/artifacts/final-program-v4/checkpoints \
   --output artifacts/human-judge/v4-agreement.json
 ```
 

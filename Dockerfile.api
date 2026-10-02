@@ -11,7 +11,9 @@ COPY prompts ./prompts
 COPY models/charge_matcher ./models/charge_matcher
 COPY tests/fixtures/ledger ./tests/fixtures/ledger
 RUN uv sync --locked --no-dev
+RUN groupadd --gid 10001 aclara && useradd --uid 10001 --gid aclara --create-home --shell /usr/sbin/nologin aclara
 ENV PATH="/app/.venv/bin:$PATH"
 ENV PYTHONPATH=/app/src
 EXPOSE 8000
+USER 10001:10001
 CMD ["uvicorn", "aclara.api.app:app", "--host", "0.0.0.0", "--port", "8000"]
