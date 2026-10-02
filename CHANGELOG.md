@@ -14,6 +14,27 @@ certification. The v0.1.0–v0.5.0 annotated tags and GitHub Releases were creat
 - Every change now uses a feature branch and PR; every Azure release gets a tag.
 - `v1.0.0` is reserved for the exact submission-day Azure release SHA.
 
+## [0.6.0] — audit hardening (post-v4)
+
+### Fixed
+
+- Customer-scoped case/card state across logins and read-only original receipts
+  after lost confirmations; separate judge profile business realms.
+- Budget-denied NLU degrades safely, trusted country context and narrower ES/PT
+  access/legal guards. Deterministic explanations block unverified action claims.
+- Reason-specific handoff guidance, redacted request/clarification history and
+  slot-specific questions. NLU runs outside scoped DB storage with revalidation.
+- Private staff/judge login catalogs, 35-minute normal sessions, non-root API,
+  explicit freeze readback errors and per-turn metadata logging.
+
+### Changed
+
+- Live Jev second opinion is off by explicit config; historical dual-judge/study
+  evidence remains. BFF admission limits bound auth/chat attempts.
+- Release smoke checks Jev-off routing, existing bank state and receipt retries.
+- These changes are **not reflected in official v4 numbers**. Deployment evidence
+  and the exact SHA/digests accompany the annotated release tag after its gates.
+
 ## [0.5.0] — post-v4 release (`b8c1305`)
 
 ### Fixed

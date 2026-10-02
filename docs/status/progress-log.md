@@ -1,5 +1,35 @@
 # Progress log
 
+## 2026-10-01 — Audit release smoke: Jev disabled and durable bank state
+
+### Completed-verified
+
+- Offline authored smoke regressions **6/6**: production config must make zero
+  TypeSafe calls while retaining valid non-degraded NLU proof. Explicit opt-in
+  study config still validates a correct risk union; invalid unions fail.
+- Real smoke selects an eligible transaction without a canonical open customer
+  case and measures case count relative to authenticated pre-run bank state.
+  It preserves historical/closed cases and does not reset allowances or budgets.
+- Ruff and browser-smoke JavaScript syntax pass. The browser accepts manual
+  staff login, and normal smoke checks one create_dispute event plus an identical
+  lost-response retry. Local privacy/staff login behavior was already verified.
+  Mock/offline only; zero spend and no Azure change so far.
+
+### Done-not-verified
+
+- Live pre-release checks: East US 2 estimate **$34.63/month**, gate passed;
+  OpenRouter account **$9.041** / prod key **$5.185**. All-scope ledger exposure
+  including unknown reserves **$7.67326884**; plus a fresh $0.10 purse gives
+  **$7.77326884 < $12**. Zero inference calls made by these checks.
+- Required remote CI, merge and real release evidence pending. Retained TypeSafe
+  Key Vault binding alone does not enable its disabled config. Historical Jev
+  evaluation evidence and official v4 files remain unchanged.
+
+### Next-blocked
+
+- Merge the audit batch on green CI, then tagged v0.6.0 image release with capped
+  real smoke and approved owner-IP benign/duplicate/budget-degrade rehearsal.
+
 ## 2026-10-01 — Audit item 8: NLU outside scoped storage
 
 ### Completed-verified
