@@ -3688,7 +3688,7 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
   in negative regressions. Verified receipts, proposed actions and absent
   settlement dates retain their correct meanings.
 - Narrowed third-party guards to access requests, and bare processo/demanda to
-  legal context. Thirty-four authored benign controls pass normally; ten real
+  legal context. Thirty-four authored benign controls pass normally; twelve real
   attacks stay refused. B1 and regex-only P hits cannot terminate authentication;
   P needs two non-degraded model-confirmed access strikes. Session-scoped restart,
   cue retention and pending-action invalidation tests now exercise that contract.
@@ -3699,7 +3699,10 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
 
 ### Done but not verified
 
-- Remote CI and merge for this first PR are pending. No Azure image release.
+- PR #107 Python, Postgres and invariant CI passed. Its browser job exposed
+  a missing plural charge alias and old B1-revocation expectations; fixed the
+  guard and the two browser tests. Remote CI on the corrected head and merge
+  remain pending. No Azure image release.
 - Shared changes are explicitly required by the assignment: policy guards,
   minimal API refusal wiring, evaluator and tests. No frozen interface change.
 

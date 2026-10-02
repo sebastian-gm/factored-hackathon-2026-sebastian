@@ -137,7 +137,10 @@ def cross_customer(text: str) -> bool:
         r"(?:(?:mi|mis|minha|meu|minhas|meus)\s+)?"
         r"(?:espos[oa]|marido|madre|padre|mae|pai|herman[oa]|irma[oa])|el titular|o titular)"
     )
-    records = r"(?:cuenta|conta|movimientos|saldo|extrato|datos|dados|tarjeta|cartao|cpf|dni|cedula|documento)"
+    records = (
+        r"(?:cuenta|conta|cargos?|cobros?|cobrancas?|movimientos|saldo|extrato|datos|dados|"
+        r"tarjeta|cartao|cpf|dni|cedula|documento)"
+    )
     target = re.compile(
         rf"\b{records}\s+(?:de|del|do|da|dessa|daquela|desse|daquele)\s+{person}\b|"
         r"\b(?:otra cuenta|conta alheia|cuenta ajena|other account)\b|"
