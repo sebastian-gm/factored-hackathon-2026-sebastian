@@ -96,9 +96,9 @@ Generated B1 aggregate Markdown was restored after testing.
 ## Remote gate and limits
 
 Published the complete #62 head `00246eb083121d8234c7ef45a076c7fb78801145`
-once. Its automatic [CI run 36672780834](https://github.com/sebastian-gm/bank-agent-lab/actions/runs/36672780834)
+once. Its automatic [CI run 36672780834](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/actions/runs/36672780834)
 passed `checks` and `postgres`, but failed one of 64 fixture browser checks;
-the chained live/staff runs were not reached. [Safety run 36672780958](https://github.com/sebastian-gm/bank-agent-lab/actions/runs/36672780958)
+the chained live/staff runs were not reached. [Safety run 36672780958](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/actions/runs/36672780958)
 passed. All runs are attempt 1; no manual rerun.
 
 The failing authored startup test changed the locale on server-rendered HTML

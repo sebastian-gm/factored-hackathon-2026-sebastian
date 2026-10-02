@@ -234,8 +234,17 @@ test("Agent Desk shows the supplied primary reason first and preserves all contr
   ]);
   await expect(reasons.locator("li").first()).toContainText("Motivo principal");
   await expect(reasons).toContainText(
-    "Las acciones realizadas y sus verificaciones se muestran por separado.",
+    "las acciones verificadas se muestran abajo.",
   );
+  await expect(page.locator(".packet-heading h2")).toHaveText(
+    "Paquete de atención",
+  );
+  await expect(page.locator(".packet-heading .technical-reference")).toHaveText(
+    "HO-UI-MULTI",
+  );
+  await expect(
+    page.locator(".queue-item .row-between > strong").first(),
+  ).toHaveText("Persona de prueba UI");
   await expect(
     page.locator(".queue-item").first().locator(".queue-reasons"),
   ).toHaveText(

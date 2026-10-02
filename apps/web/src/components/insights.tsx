@@ -2,7 +2,8 @@
 
 import Image from "next/image";
 import { useEffect, useState, type ReactNode } from "react";
-import { ArrowRight, Check, Database, ShieldCheck } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import { EvidenceChart } from "./evidence-chart";
 import snapshot from "@/data/insights.json";
 import { insightsEs, insightsPt } from "@/lib/insights-copy";
 import {
@@ -72,32 +73,31 @@ function Metric({
     </div>
   );
 }
-function Bar({
-  label,
-  value,
-  detail,
-  variant = "p",
+function CountsChart({
+  title,
+  values,
 }: {
-  label: string;
-  value: number;
-  detail: string;
-  variant?: "p" | "b1";
+  title: string;
+  values: Record<"B1" | "P", Count>;
 }) {
+  const { c, percent, ratio } = useInsightsFormat();
   return (
-    <div className={`insights-bar ${variant}`}>
-      <div>
-        <span>{label}</span>
-        <strong>{detail}</strong>
-      </div>
-      <div className="insights-bar-track" aria-hidden="true">
-        <span style={{ width: `${value * 100}%` }} />
-      </div>
-    </div>
+    <EvidenceChart
+      title={title}
+      axisLabel={c.percentCases}
+      tick={(n) => percent(n, 0)}
+      rows={(["B1", "P"] as const).map((system) => ({
+        label: system === "P" ? c.p : c.b1,
+        value: values[system].count / values[system].denominator,
+        detail: `${percent(values[system].count / values[system].denominator)} · ${ratio(values[system])}`,
+        variant: system === "P" ? "p" : "b1",
+      }))}
+    />
   );
 }
 function Interval({ delta }: { delta: { estimate: number; ci95: number[] } }) {
   const { c, signed } = useInsightsFormat();
-  const bound = Math.max(20, ...delta.ci95.map(Math.abs)) * 1.2;
+  const bound = Math.max(20, ...delta.ci95.map(Math.abs));
   const x = (n: number) => 30 + ((n + bound) / (2 * bound)) * 340;
   const description = `${c.sarShort}: ${signed(delta.estimate)} ${c.pp}. ${c.ci}: ${signed(delta.ci95[0])} ${c.pp} — ${signed(delta.ci95[1])} ${c.pp}.`;
   return (
@@ -108,7 +108,7 @@ function Interval({ delta }: { delta: { estimate: number; ci95: number[] } }) {
           {signed(delta.estimate)} {c.pp}
         </strong>
       </figcaption>
-      <svg viewBox="0 0 400 68" role="img" aria-label={description}>
+      <svg viewBox="0 0 400 56" role="img" aria-label={description}>
         <line x1="30" x2="370" y1="30" y2="30" className="interval-axis" />
         <line x1={x(0)} x2={x(0)} y1="8" y2="54" className="interval-zero" />
         <line
@@ -118,8 +118,15 @@ function Interval({ delta }: { delta: { estimate: number; ci95: number[] } }) {
           y2="30"
           className="interval-range"
         />
-        <circle cx={x(delta.estimate)} cy="30" r="7" className="interval-dot" />
+        <circle cx={x(delta.estimate)} cy="30" r="4" className="interval-dot" />
       </svg>
+      <div className="evidence-axis" aria-hidden="true">
+        {[-bound, 0, bound].map((value) => (
+          <span key={value}>
+            {signed(value)} {c.pp}
+          </span>
+        ))}
+      </div>
       <p>
         {c.ci}:{" "}
         <strong>
@@ -133,7 +140,7 @@ function Interval({ delta }: { delta: { estimate: number; ci95: number[] } }) {
 export function Insights({ onTry }: { onTry: () => void }) {
   const { locale } = useApp();
   const c = locale === "pt-BR" ? insightsPt : insightsEs;
-  const [version, setVersion] = useState<"v2" | "v3">("v3");
+  const [version, setVersion] = useState<"v2" | "v3" | "v4">("v4");
   const [step, setStep] = useState(0);
   const [workloadIndex, setWorkloadIndex] = useState(1);
   const [publication, setPublication] = useState<InsightsResults | null>(null);
@@ -155,7 +162,7 @@ export function Insights({ onTry }: { onTry: () => void }) {
   const { number, percent, ratio } = useInsightsFormat();
   const problem = snapshot.problem;
   const evaluation = snapshot.evaluations[version];
-  const v3 = snapshot.evaluations.v3;
+  const v4 = snapshot.evaluations.v4;
   const azure = snapshot.azure_latency;
   const matcher = snapshot.matcher;
   const workload = matcher.workloads[workloadIndex];
@@ -163,10 +170,7 @@ export function Insights({ onTry }: { onTry: () => void }) {
     <div className="insights-page">
       <section className="insights-hero" aria-labelledby="insights-hero-title">
         <div>
-          <span className="insights-data-badge">
-            <Database size={14} />
-            {c.dataBadge}
-          </span>
+          <span className="insights-data-badge">{c.dataBadge}</span>
           <h2 id="insights-hero-title">{c.hero}</h2>
           <p>{c.heroBody}</p>
           <div className="insights-hero-actions">
@@ -201,17 +205,27 @@ export function Insights({ onTry }: { onTry: () => void }) {
             <h3>
               {c.complaints} <Source id="demand" />
             </h3>
-            <Bar
-              label={c.volume}
-              value={problem.volume_share}
-              detail={percent(problem.volume_share)}
-              variant="b1"
+            <EvidenceChart
+              title={c.share}
+              axisLabel={c.percentTotal}
+              tick={(n) => percent(n, 0)}
+              rows={[
+                {
+                  label: c.volume,
+                  value: problem.volume_share,
+                  detail: percent(problem.volume_share),
+                  variant: "b1",
+                },
+                {
+                  label: c.handle,
+                  value: problem.handle_time_share,
+                  detail: percent(problem.handle_time_share),
+                },
+              ]}
             />
-            <Bar
-              label={c.handle}
-              value={problem.handle_time_share}
-              detail={percent(problem.handle_time_share)}
-            />
+            <p className="insights-note">
+              {c.problemDenominators} <Source id="demand" />
+            </p>
             <p className="insights-note">
               {c.fcrNote} <Source id="problem" />
             </p>
@@ -285,9 +299,6 @@ export function Insights({ onTry }: { onTry: () => void }) {
                 document.getElementById(`insights-step-${next}`)?.focus();
               }}
             >
-              <span className="insights-step-symbol" aria-hidden="true">
-                {i === 3 ? <Check size={18} /> : ["◎", "◇", "↗", "✓", "↪"][i]}
-              </span>
               <strong>{s.title}</strong>
               <small>{s.english}</small>
             </button>
@@ -300,7 +311,6 @@ export function Insights({ onTry }: { onTry: () => void }) {
           tabIndex={0}
           aria-labelledby={`insights-step-${step}`}
         >
-          <ShieldCheck size={22} />
           <p>
             {c.steps[step].body} <Source id="policy" />
           </p>
@@ -311,7 +321,6 @@ export function Insights({ onTry }: { onTry: () => void }) {
         <div className="insights-autonomy">
           {c.autonomyColumns.map((title, column) => (
             <div className="insights-card" key={title}>
-              <span className="insights-category-dot" aria-hidden="true" />
               <h4>{title}</h4>
               <ul>
                 {c.autonomyRows.map((row) => (
@@ -333,7 +342,12 @@ export function Insights({ onTry }: { onTry: () => void }) {
       >
         <div className="insights-section-heading">
           <p className="eyebrow">{c.comparison}</p>
-          <h2 id="insights-evidence-title">{c.evidence}</h2>
+          <h2 id="insights-evidence-title">
+            {c.evidence
+              .replace("{pass}", number(v4.systems.P.pass.count))
+              .replace("{total}", number(v4.systems.P.pass.denominator))}{" "}
+            <Source id="v4" />
+          </h2>
           <p>{c.evidenceBody}</p>
         </div>
         <ol className="insights-timeline">
@@ -356,7 +370,7 @@ export function Insights({ onTry }: { onTry: () => void }) {
                 publication && publication.status !== "pending"
                   ? c.v4PublishedNote
                   : c.v4Note,
-              source: null,
+              source: "v4",
             },
           ].map((item) => (
             <li key={item.id}>
@@ -373,13 +387,13 @@ export function Insights({ onTry }: { onTry: () => void }) {
           role="group"
           aria-label={c.comparison}
         >
-          {(["v2", "v3"] as const).map((v) => (
+          {(["v2", "v3", "v4"] as const).map((v) => (
             <button
               key={v}
               aria-pressed={version === v}
               onClick={() => setVersion(v)}
             >
-              {v} · {v === "v2" ? c.official : c.fresh}
+              {v} · {v === "v2" ? c.official : v === "v3" ? c.fresh : c.final}
             </button>
           ))}
         </div>
@@ -388,36 +402,23 @@ export function Insights({ onTry }: { onTry: () => void }) {
           data-testid="insights-comparison"
         >
           <div className="insights-card">
-            <h3>
-              {c.pass} <Source id={evaluation.source} />
-            </h3>
-            {(["B1", "P"] as const).map((system) => {
-              const value = evaluation.systems[system].pass;
-              return (
-                <Bar
-                  key={system}
-                  label={system === "P" ? c.p : c.b1}
-                  value={value.count / value.denominator}
-                  variant={system === "P" ? "p" : "b1"}
-                  detail={`${percent(value.count / value.denominator)} · ${ratio(value)}`}
-                />
-              );
-            })}
-            <h3 className="insights-subheading">
-              {c.sar} <Source id={evaluation.source} />
-            </h3>
-            {(["B1", "P"] as const).map((system) => {
-              const value = evaluation.systems[system].sar;
-              return (
-                <Bar
-                  key={system}
-                  label={system === "P" ? c.p : c.b1}
-                  value={value.count / value.denominator}
-                  variant={system === "P" ? "p" : "b1"}
-                  detail={`${percent(value.count / value.denominator)} · ${ratio(value)}`}
-                />
-              );
-            })}
+            <CountsChart
+              title={c.pass}
+              values={{
+                B1: evaluation.systems.B1.pass,
+                P: evaluation.systems.P.pass,
+              }}
+            />
+            <CountsChart
+              title={c.sar}
+              values={{
+                B1: evaluation.systems.B1.sar,
+                P: evaluation.systems.P.sar,
+              }}
+            />
+            <p className="insights-note">
+              {version} · {c.source}: <Source id={evaluation.source} />
+            </p>
           </div>
           <div className="insights-card">
             <Interval delta={evaluation.sar_difference_pp} />
@@ -425,31 +426,91 @@ export function Insights({ onTry }: { onTry: () => void }) {
             <p className="insights-note">{c.notComparable}</p>
           </div>
         </div>
+        <div
+          className="insights-small-multiples"
+          data-testid="insights-progression"
+        >
+          {(["v2", "v3", "v4"] as const).map((v) => (
+            <div key={v}>
+              <h3>
+                {v} <Source id={v} />
+              </h3>
+              <CountsChart
+                title={c.pass}
+                values={{
+                  B1: snapshot.evaluations[v].systems.B1.pass,
+                  P: snapshot.evaluations[v].systems.P.pass,
+                }}
+              />
+              <Interval delta={snapshot.evaluations[v].sar_difference_pp} />
+            </div>
+          ))}
+        </div>
+        <p className="insights-note">{c.notComparable}</p>
+        <div
+          className="insights-small-multiples language-multiples"
+          data-testid="insights-languages"
+        >
+          {(["ES", "PT"] as const).map((language) => (
+            <div key={language}>
+              <h3>
+                {language} · v4 <Source id="v4" />
+              </h3>
+              <CountsChart title={c.pass} values={v4.languages[language]} />
+            </div>
+          ))}
+        </div>
+        <p className="insights-note">
+          {c.mixed}: B1 {ratio(v4.languages.Mixed.B1)} · P{" "}
+          {ratio(v4.languages.Mixed.P)}. {c.languageLimit} <Source id="v4" />
+        </p>
+        <div
+          className="insights-small-multiples operational-multiples"
+          data-testid="insights-escalation"
+        >
+          {(
+            [
+              "strict_escalation",
+              "missed",
+              "unnecessary",
+              "materially_incorrect",
+            ] as const
+          ).map((metric) => (
+            <div key={metric}>
+              <CountsChart title={c[metric]} values={v4.comparisons[metric]} />
+            </div>
+          ))}
+        </div>
+        <p className="insights-note">
+          v4 · {c.escalationDenominators} <Source id="v4" />
+        </p>
         <div className="insights-safety">
-          <div>
-            <ShieldCheck size={24} />
-            <Metric
-              title={`${c.safety} · v3`}
-              value={ratio(v3.unauthorized_actions.P)}
-              source="v3"
-              note={`${c.safetyLimit}: ${number(v3.unauthorized_actions.p_wilson_upper95_percent, 2)}%`}
-            />
-          </div>
-          <div>
-            <Metric
-              title={`${c.flips} · v3`}
-              value={ratio(v3.repeats)}
-              source="v3"
-              note={`${c.ci}: ${v3.repeats.ci95_percent.map((n) => number(n, n === 0 ? 0 : 2)).join("–")}%`}
-            />
-            <p className="insights-note">{c.flipsNote}</p>
-          </div>
           <p className="insights-caution">
-            {c.safetyGate} <Source id="v3" />
+            {c.safetyGate} <Source id="v4" />
+          </p>
+          <div className="insights-small-multiples language-multiples">
+            <CountsChart
+              title={c.safety}
+              values={v4.comparisons.unauthorized_actions}
+            />
+            <CountsChart
+              title={c.unverified}
+              values={v4.comparisons.unverified_reports}
+            />
+          </div>
+          <Metric
+            title={`${c.flips} · v4 · P`}
+            value={ratio(v4.repeats)}
+            source="v4"
+            note={`${c.ci}: ${v4.repeats.ci95_percent.map((n) => number(n, n === 0 ? 0 : 2)).join("–")}%`}
+          />
+          <p className="insights-note">{c.flipsNote}</p>
+          <p className="insights-note">
+            {c.judging} · v4: {number(v4.judging.completed)} /{" "}
+            {number(v4.judging.planned)}. {c.humanPending} <Source id="v4" />
           </p>
           <p className="insights-note">
-            {c.judging} · v3: {number(v3.judging.completed)} /{" "}
-            {number(v3.judging.planned)}. {c.humanPending} <Source id="v3" />
+            {c.postV4} <Source id="v4" />
           </p>
         </div>
         <div className="insights-results-grid">
@@ -486,12 +547,14 @@ export function Insights({ onTry }: { onTry: () => void }) {
             <p className="insights-note">{c.azureLatencyNote}</p>
             <div className="insights-offline-latency">
               <Metric
-                title={`${c.offlineTurn} · P · ${version}`}
-                value={`${number(evaluation.systems.P.turn_seconds[0], 2)} ${c.seconds}`}
+                title={`${version === "v4" ? c.localTurn : c.offlineTurn} · P · ${version}`}
+                value={`${number(evaluation.systems.P.turn_seconds[0], version === "v4" ? 1 : 2)} ${c.seconds}`}
                 source={evaluation.source}
-                note={`${c.median} · ${c.p95}: ${number(evaluation.systems.P.turn_seconds[1], 2)} ${c.seconds}`}
+                note={`${c.median} · ${c.p95}: ${number(evaluation.systems.P.turn_seconds[1], version === "v4" ? 1 : 2)} ${c.seconds}`}
               />
-              <p className="insights-note">{c.latencyNote}</p>
+              <p className="insights-note">
+                {version === "v4" ? c.localLatencyNote : c.latencyNote}
+              </p>
             </div>
           </div>
         </div>
@@ -622,15 +685,17 @@ export function Insights({ onTry }: { onTry: () => void }) {
           </p>
           <div className="insights-results-grid">
             <div>
-              {(["v1", "v2"] as const).map((v) => (
-                <Bar
-                  key={v}
-                  label={`${c.top1} · ${v}`}
-                  value={workload[v].top1}
-                  detail={percent(workload[v].top1, 2)}
-                  variant={v === "v1" ? "b1" : "p"}
-                />
-              ))}
+              <EvidenceChart
+                title={c.top1}
+                axisLabel={c.percentTargets}
+                tick={(n) => percent(n, 0)}
+                rows={(["v1", "v2"] as const).map((v) => ({
+                  label: v,
+                  value: workload[v].top1,
+                  detail: `${percent(workload[v].top1, 2)} · n=${number(workload[v].targets)}`,
+                  variant: v === "v1" ? "b1" : "p",
+                }))}
+              />
             </div>
             <div className="insights-kpis">
               <Metric
@@ -649,7 +714,6 @@ export function Insights({ onTry }: { onTry: () => void }) {
           <p className="insights-caution">{c.matcherTradeoff}</p>
         </div>
         <div className="insights-tracking">
-          <Database size={23} />
           <div>
             <h3>{c.tracking}</h3>
             <p>
@@ -673,7 +737,6 @@ export function Insights({ onTry }: { onTry: () => void }) {
         <ol className="insights-pipeline">
           {c.pipelineSteps.map((s) => (
             <li key={s.title}>
-              <Database size={22} />
               <h3>{s.title}</h3>
               <p>{s.body}</p>
             </li>

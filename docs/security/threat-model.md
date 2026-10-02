@@ -1,7 +1,7 @@
 # Threat model
 
 Scope: the synthetic development service, local data pipeline, evaluation tooling,
-model adapters and [proposed frontend](https://github.com/sebastian-gm/bank-agent-lab/pull/17).
+model adapters and [proposed frontend](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/pull/17).
 This is a control/evidence map, not a security certification. See
 [architecture](../architecture.md) for flows and [readiness](../production-readiness.md)
 for deployment gates. Tests below are named repository tests; final CI/run status is
@@ -35,7 +35,7 @@ privileged host or database owner remains a significant attacker capability.
 | DATA | [test_data_pipeline.py](../../tests/test_data_pipeline.py): `test_incremental_atomic_gate_and_idempotence`, `test_missing_required_schema_is_quarantined` |
 | MODEL | [test_charge_matcher.py](../../tests/test_charge_matcher.py): `test_artifact_roundtrip_and_empty_set`, `test_generated_dataset_leakage_and_noise_holdout` |
 | STAFF | [test_staff_api.py](../../tests/test_staff_api.py): `test_customer_cannot_infer_roles_or_read_staff_data_and_logout_revokes`, `test_staff_claim_resolve_trace_and_current_workspace_isolation`, `test_ops_reset_requires_fresh_bound_confirmation_and_preserves_auth`; PR #17 live staff browser workflow |
-| WEB | [PR #17 browser tests](https://github.com/sebastian-gm/bank-agent-lab/tree/feat/frontend/apps/web/tests): `server blocks cross-origin writes, forged confirmation, and customer staff access`; `proposal replay is idempotent and another authenticated browser cannot confirm it`; live freeze confirmation/cancellation |
+| WEB | [PR #17 browser tests](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/tree/feat/frontend/apps/web/tests): `server blocks cross-origin writes, forged confirmation, and customer staff access`; `proposal replay is idempotent and another authenticated browser cannot confirm it`; live freeze confirmation/cancellation |
 | REPO | [CI safety checks](../../.github/workflows/safety.yml), [tracked-file scanner](../../scripts/check_staged_files.py), frozen lockfiles and interface checks |
 
 ## STRIDE

@@ -70,6 +70,24 @@ export const traceEventSchema = z.object({
 });
 export type TraceEvent = z.infer<typeof traceEventSchema>;
 export type LlmCall = z.infer<typeof llmSchema>;
+export function stageCosts(events: TraceEvent[]) {
+  const unique = [
+    ...new Map(events.map((event) => [event.id, event])).values(),
+  ];
+  return (["Understand", "Decide", "Act", "Verify", "Escalate"] as const)
+    .map((stage) => {
+      const calls = unique
+        .filter((event) => event.stage === stage && event.llm)
+        .map((event) => event.llm!);
+      return {
+        stage,
+        count: calls.length,
+        knownCount: calls.filter((call) => call.cost_usd !== null).length,
+        cost: calls.reduce((sum, call) => sum + (call.cost_usd ?? 0), 0),
+      };
+    })
+    .filter((stage) => stage.knownCount > 0);
+}
 export function callTotals(events: TraceEvent[]) {
   const calls = [...new Map(events.map((e) => [e.id, e])).values()].flatMap(
     (e) => (e.llm ? [e.llm] : []),

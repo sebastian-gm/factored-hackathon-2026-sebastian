@@ -31,7 +31,7 @@ async function login(page: Page, persona = "demo.es.mx") {
 }
 async function switchRole(
   page: Page,
-  surface: "Agent Desk" | "Evidencia y operaciones",
+  surface: "Agent Desk" | "Operaciones",
   persona: string,
 ) {
   await page.getByRole("button", { name: surface, exact: true }).click();
@@ -60,7 +60,7 @@ test("ES normal: password + OTP, grounded explanation and safe why drawer", asyn
 }) => {
   await page.goto("/");
   await expect(
-    page.getByText("Datos de prueba · Banco simulado · No es un servicio real"),
+    page.getByText("Banco simulado · No es un servicio real"),
   ).toBeVisible();
   await expect(page.locator("input[type=password]")).toBeVisible();
   await screenshot(page, "login-desktop");
@@ -207,7 +207,7 @@ test("fraud: customer handoff, agent evidence, claim and resolve, ops trace and 
     .getByRole("button", { name: "Confirmar", exact: true })
     .click();
   await expect(page.getByText("Resuelto · Verificado")).toBeVisible();
-  await switchRole(page, "Evidencia y operaciones", "demo.ops");
+  await switchRole(page, "Operaciones", "demo.ops");
   await expect(
     page.getByText("HANDOFF_CREATED", { exact: false }),
   ).toBeVisible();
@@ -285,7 +285,7 @@ test("phone layouts, keyboard entry and all locales", async ({ page }) => {
   await audit(page);
   for (const [surface, persona, name] of [
     ["Agent Desk", "demo.agent", "phone-desk"],
-    ["Evidencia y operaciones", "demo.ops", "phone-ops"],
+    ["Operaciones", "demo.ops", "phone-ops"],
   ] as const) {
     await switchRole(page, surface, persona);
     await page.waitForLoadState("networkidle");
@@ -650,7 +650,7 @@ test("glass box shows call cost precision, partial totals, fallback and risk uni
     });
     await route.fulfill({ json: data });
   });
-  await switchRole(page, "Evidencia y operaciones", "demo.ops");
+  await switchRole(page, "Operaciones", "demo.ops");
   await page
     .getByRole("combobox", { name: "Tu conversación", exact: true })
     .selectOption({ index: 0 });

@@ -1,4 +1,28 @@
 export const es = {
+  profileTitle: "Elige un perfil",
+  profileUnavailable: "No pudimos cargar los perfiles. Inténtalo de nuevo.",
+  profileReady: "Perfil {profile} listo. Espacio nuevo.",
+  profileBody: "Una cuenta, cuatro experiencias. Puedes cambiar después.",
+  profilePT: "Hablante PT",
+  "profileDescription_mx-es": "México · consulta de cargos en español.",
+  "profileDescription_co-es": "Colombia · consulta de compras en español.",
+  "profileDescription_ar-es": "Argentina · consulta de compras en español.",
+  profileDescription_pt: "Portugués · banca LATAM.",
+  profileFresh:
+    "Cada selección abre un espacio nuevo. No conserva conversaciones ni casos anteriores.",
+  profileLoading: "Preparando un espacio nuevo…",
+  changeProfile: "Cambiar perfil",
+  profileLoginAgain:
+    "No pudimos verificar el cambio de acceso. Vuelve a iniciar sesión.",
+  costByStage: "Costo conocido por etapa",
+  costNotRecorded: "Costo no registrado",
+  qualityNotChecked: "Sin controles registrados",
+  qualityChecks: "Controles aprobados / registrados",
+  costAxis: "Costo de inferencia (USD)",
+  illustrativeCostSource:
+    "Fuente: ejemplo de interfaz, no mediciones del banco ni del modelo.",
+  costChartSource:
+    "Fuente: llamadas de esta traza. Costo conocido en {known}/{total}; las llamadas sin costo registrado se excluyen de las barras.",
   insights: "Insights",
   insightsEyebrow: "DATOS, DECISIONES Y EVIDENCIA",
   insightsTitle: "Una duda cotidiana. Un sistema comprobable.",
@@ -6,8 +30,7 @@ export const es = {
     "Explora el problema, los límites de autonomía y lo que realmente medimos.",
   quickstartInsights: "Conoce los datos detrás de Aclara",
   quickstartTitle: "Prueba Aclara",
-  quickstartPurpose:
-    "Entiende un cargo, decide el siguiente paso y comprueba el resultado.",
+  quickstartPurpose: "Entiende un cargo. Tú decides qué hacer.",
   quickstartSignedIn:
     "Elige una historia o escribe tu consulta. Tú decides cuándo enviar.",
   quickstartStories: "Historias para probar",
@@ -17,7 +40,7 @@ export const es = {
   storyFailed:
     "No pudimos preparar la historia. Vuelve a elegir cuando el servicio responda.",
   finishPending: "Termina la revisión pendiente antes de cambiar de historia.",
-  demoNotice: "Datos de prueba · Banco simulado · No es un servicio real",
+  demoNotice: "Banco simulado · No es un servicio real",
   connecting: "Conectando",
   unavailable: "Servicio no disponible",
   accessNotice: "Contraseña + código de verificación",
@@ -132,14 +155,14 @@ export const es = {
   recognizeChargeMessage: "Sí, la reconozco. Ya me acordé de esta compra.",
   disputeCharge: "No la reconozco, quiero disputarla",
   recognitionHint:
-    "También puedes escribir tu respuesta. Si decides disputarla, revisaremos el caso y te pediremos confirmar la acción por separado.",
+    "O escribe tu respuesta. Una disputa requiere tu confirmación por separado.",
   cancelledTitle: "Acción cancelada",
   cancelledBody: "Puedes seguir escribiendo si necesitas ayuda.",
   handoffReasons: "Motivos de la derivación",
   primaryReason: "Motivo principal",
   primaryReasonMissing: "El servicio no indicó un motivo principal.",
   reasonControls:
-    "Los motivos incluyen requisitos y causas. Las acciones realizadas y sus verificaciones se muestran por separado.",
+    "Motivos y requisitos; las acciones verificadas se muestran abajo.",
   notRecorded: "No registrado",
   flagYes: "Sí",
   flagNo: "No",
@@ -195,9 +218,9 @@ export const es = {
   recordingFailed:
     "No se completó la preparación. Verifica el estado antes de continuar.",
 
-  chat: "Mi conversación",
+  chat: "Mi chat",
   desk: "Agent Desk",
-  ops: "Evidencia y operaciones",
+  ops: "Operaciones",
   workspace: "ESPACIO DE DEMOSTRACIÓN",
   subtitle: "Claridad en cada movimiento.",
   language: "Idioma y región",
@@ -417,6 +440,30 @@ export const es = {
     "Esta vista estará disponible cuando el servicio publique su contrato de agente y operaciones. La conversación de cliente ya está conectada.",
 };
 export const pt: typeof es = {
+  profileTitle: "Escolha um perfil",
+  profileUnavailable: "Não foi possível carregar os perfis. Tente novamente.",
+  profileReady: "Perfil {profile} pronto. Espaço novo.",
+  profileBody: "Uma conta, quatro experiências. Você pode trocar depois.",
+  profilePT: "Falante PT",
+  "profileDescription_mx-es": "México · consulta de cobranças em espanhol.",
+  "profileDescription_co-es": "Colômbia · consulta de compras em espanhol.",
+  "profileDescription_ar-es": "Argentina · consulta de compras em espanhol.",
+  profileDescription_pt: "Português · banco LATAM.",
+  profileFresh:
+    "Cada seleção abre um espaço novo. Conversas e casos anteriores não são mantidos.",
+  profileLoading: "Preparando um espaço novo…",
+  changeProfile: "Trocar perfil",
+  profileLoginAgain:
+    "Não foi possível verificar a troca de acesso. Entre novamente.",
+  costByStage: "Custo conhecido por etapa",
+  costNotRecorded: "Custo não registrado",
+  qualityNotChecked: "Sem verificações registradas",
+  qualityChecks: "Verificações aprovadas / registradas",
+  costAxis: "Custo de inferência (USD)",
+  illustrativeCostSource:
+    "Fonte: exemplo da interface, não medições do banco nem do modelo.",
+  costChartSource:
+    "Fonte: chamadas desta trilha. Custo conhecido em {known}/{total}; chamadas sem custo registrado ficam fora das barras.",
   insights: "Insights",
   insightsEyebrow: "DADOS, DECISÕES E EVIDÊNCIAS",
   insightsTitle: "Uma dúvida cotidiana. Um sistema verificável.",
@@ -424,8 +471,7 @@ export const pt: typeof es = {
     "Explore o problema, os limites de autonomia e o que realmente medimos.",
   quickstartInsights: "Conheça os dados por trás do Aclara",
   quickstartTitle: "Experimente o Aclara",
-  quickstartPurpose:
-    "Entenda uma cobrança, escolha o próximo passo e confira o resultado.",
+  quickstartPurpose: "Entenda a cobrança. Você decide o próximo passo.",
   quickstartSignedIn:
     "Escolha uma história ou escreva sua dúvida. Você decide quando enviar.",
   quickstartStories: "Histórias para experimentar",
@@ -435,7 +481,7 @@ export const pt: typeof es = {
   storyFailed:
     "Não foi possível preparar a história. Escolha novamente quando o serviço responder.",
   finishPending: "Conclua a revisão pendente antes de trocar de história.",
-  demoNotice: "Dados de teste · Banco simulado · Não é um serviço real",
+  demoNotice: "Banco simulado · Não é um serviço real",
   connecting: "Conectando",
   unavailable: "Serviço indisponível",
   accessNotice: "Senha + código de verificação",
@@ -550,14 +596,13 @@ export const pt: typeof es = {
   recognizeChargeMessage: "Sim, reconheço. Agora lembrei dessa compra.",
   disputeCharge: "Não reconheço, quero contestar",
   recognitionHint:
-    "Você também pode escrever sua resposta. Se decidir contestar, vamos revisar o caso e pedir a confirmação da ação separadamente.",
+    "Ou escreva sua resposta. Uma contestação exige sua confirmação separadamente.",
   cancelledTitle: "Ação cancelada",
   cancelledBody: "Você pode continuar escrevendo se precisar de ajuda.",
   handoffReasons: "Motivos do encaminhamento",
   primaryReason: "Motivo principal",
   primaryReasonMissing: "O serviço não informou um motivo principal.",
-  reasonControls:
-    "Os motivos incluem requisitos e causas. As ações realizadas e suas verificações aparecem separadamente.",
+  reasonControls: "Motivos e requisitos; as ações verificadas aparecem abaixo.",
   notRecorded: "Não registrado",
   flagYes: "Sim",
   flagNo: "Não",
@@ -613,9 +658,9 @@ export const pt: typeof es = {
   recordingFailed:
     "A preparação não foi concluída. Confira o estado antes de continuar.",
 
-  chat: "Minha conversa",
+  chat: "Meu chat",
   desk: "Agent Desk",
-  ops: "Evidências e operações",
+  ops: "Operações",
   workspace: "ESPAÇO DE DEMONSTRAÇÃO",
   subtitle: "Clareza em cada movimento.",
   language: "Idioma e região",

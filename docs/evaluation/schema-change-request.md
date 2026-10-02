@@ -2,7 +2,7 @@
 
 The original frozen v1 schema allows only id, es/pt language, scripted turns, and a
 single expected outcome. Sebastian approved an additive v2 in a separate two-file
-PR, preserving v1. [PR #9](https://github.com/sebastian-gm/bank-agent-lab/pull/9)
+PR, preserving v1. [PR #9](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/pull/9)
 contains that schema and its validation test. Sebastian also confirmed that the
 brief's §9 written rule table is the gold-label source; no policy catalog is needed.
 

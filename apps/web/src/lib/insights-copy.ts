@@ -1,16 +1,37 @@
 export const insightsEs = {
+  final: "Final",
+  share: "Peso de las quejas",
+  percentTotal: "Porcentaje del total (%)",
+  percentCases: "Porcentaje de casos (%)",
+  percentTargets: "Porcentaje de objetivos conocidos (%)",
+  problemDenominators:
+    "Volumen: todos los contactos. Atención: minutos totales.",
+  strict_escalation: "Derivación completa",
+  missed: "Derivaciones omitidas",
+  unnecessary: "Derivaciones innecesarias",
+  materially_incorrect: "Resultado materialmente incorrecto",
+  escalationDenominators:
+    "53 casos requieren derivación; 47 permiten automatización. Resultados incorrectos: B1 ejecutó 98 casos, P 100. Las categorías se superponen.",
+  languageLimit:
+    "Cambia la mezcla de reglas: no demuestra equidad ni calidad dialectal.",
+  mixed: "Casos mixtos",
+  unverified: "Resultados comunicados sin verificación",
+  localTurn: "Evaluación v4 · datos servidos localmente",
+  localLatencyNote:
+    "Incluye proveedores remotos. No mide el navegador de Azure ni es comparable directamente con la infraestructura de v2/v3.",
+  postV4:
+    "Las reparaciones posteriores no cambian estas cifras oficiales. Revisión humana y segunda revisión de PT pendientes.",
   v4PublishedNote:
     "Resultados agregados publicados, con denominadores y fuente versionada. Consulta el alcance y la puerta de seguridad abajo.",
   hero: "Los reclamos pesan más de lo que parecen.",
   heroBody:
-    "Aclara empieza por una duda cotidiana: un cargo que no recuerdas. Explica lo que el banco sí sabe, te deja elegir y lleva al equipo humano lo que necesita criterio.",
+    "Aclara explica tus cargos, te deja elegir y lleva al equipo humano lo que requiere criterio.",
   dataBadge: "Datos sintéticos del organizador · solo agregados",
   try: "Probar Aclara",
   explore: "Explorar la evidencia",
   source: "Fuente",
   problem: "El problema, visto en los datos",
-  problemBody:
-    "Las quejas consumen más tiempo del que su volumen sugiere. Resolver bien importa más que cerrar rápido.",
+  problemBody: "Menos volumen. Más tiempo de atención.",
   volume: "Volumen de contactos",
   handle: "Tiempo de atención",
   complaints: "Quejas",
@@ -80,9 +101,9 @@ export const insightsEs = {
   ],
   authorityNote:
     "Ninguna ruta automática promete reembolsos. El matcher encuentra; la política decide; el registro demuestra.",
-  evidence: "La evidencia también cuenta los tropiezos.",
+  evidence: "v4: {pass} de {total} casos cumplen todos los requisitos.",
   evidenceBody:
-    "Conservamos cada resultado y evaluamos de nuevo con datos independientes. El avance entre versiones no es una comparación causal: cambiaron la suite y las reglas.",
+    "Cada versión usa una suite diferente. Conservamos resultados y fallos; esta progresión no mide un efecto causal.",
   abandoned: "Abandonada",
   official: "Resultado oficial",
   fresh: "Después de las correcciones",
@@ -103,18 +124,18 @@ export const insightsEs = {
   pp: "pp",
   ci: "Intervalo de confianza del 95%",
   notComparable:
-    "Estos porcentajes comparan B1 y P dentro de la misma versión, no v2 contra v3.",
-  safety: "Acciones no autorizadas observadas · P",
+    "Compare B1 y P dentro de cada suite. v2 → v3 → v4 muestra historia, no una mejora causal: cambiaron casos, reglas e infraestructura.",
+  safety: "Acciones no autorizadas",
   safetyLimit: "Observar cero no prueba riesgo cero. Cota superior del 95%",
   safetyGate:
-    "La puerta completa de seguridad no pasó: faltaron derivaciones y lecturas de verificación requeridas.",
+    "Ambos sistemas fallaron la puerta de seguridad. Hubo acciones no autorizadas y resultados sin verificar. Cero resultados materialmente incorrectos no significa cero riesgo.",
   flips: "Cambios de resultado en repeticiones · P",
   flipsNote:
     "Repeticiones correlacionadas; una falla estable sigue siendo una falla.",
-  judging: "Evaluación subjetiva parcial",
+  judging: "Evaluación entre modelos",
   humanPending:
     "Revisión humana de idioma pendiente; el acuerdo entre modelos no la sustituye.",
-  cost: "Costo de modelo por conversación",
+  cost: "Costo de modelo por caso",
   turn: "Latencia por turno",
   azureTurn: "Dentro de Azure · servidor web (BFF)",
   offlineTurn: "Evaluación desde una estación de trabajo",
@@ -181,18 +202,39 @@ export const insightsEs = {
 };
 
 export const insightsPt: typeof insightsEs = {
+  final: "Final",
+  share: "Peso das reclamações",
+  percentTotal: "Percentual do total (%)",
+  percentCases: "Percentual de casos (%)",
+  percentTargets: "Percentual de alvos conhecidos (%)",
+  problemDenominators:
+    "Volume: todos os contatos. Atendimento: minutos totais.",
+  strict_escalation: "Encaminhamento completo",
+  missed: "Encaminhamentos omitidos",
+  unnecessary: "Encaminhamentos desnecessários",
+  materially_incorrect: "Resultado materialmente incorreto",
+  escalationDenominators:
+    "53 casos exigem encaminhamento; 47 permitem automação. Resultados incorretos: B1 executou 98 casos, P 100. As categorias se sobrepõem.",
+  languageLimit:
+    "A composição das regras muda: não demonstra equidade nem qualidade de dialeto.",
+  mixed: "Casos mistos",
+  unverified: "Resultados comunicados sem verificação",
+  localTurn: "Avaliação v4 · dados servidos localmente",
+  localLatencyNote:
+    "Inclui provedores remotos. Não mede o navegador do Azure nem é diretamente comparável à infraestrutura de v2/v3.",
+  postV4:
+    "Correções posteriores não mudam estes números oficiais. Revisão humana e segunda revisão de PT pendentes.",
   v4PublishedNote:
     "Resultados agregados publicados, com denominadores e fonte versionada. Consulte o escopo e a validação de segurança abaixo.",
   hero: "As reclamações pesam mais do que parecem.",
   heroBody:
-    "O Aclara começa com uma dúvida cotidiana: uma cobrança que você não lembra. Explica o que o banco sabe, deixa você escolher e leva à equipe humana o que exige análise.",
+    "O Aclara explica suas cobranças, deixa você escolher e leva à equipe humana o que exige análise.",
   dataBadge: "Dados sintéticos do organizador · somente agregados",
   try: "Experimentar o Aclara",
   explore: "Explorar as evidências",
   source: "Fonte",
   problem: "O problema, visto nos dados",
-  problemBody:
-    "As reclamações consomem mais tempo do que seu volume sugere. Resolver bem importa mais do que encerrar rápido.",
+  problemBody: "Menos volume. Mais tempo de atendimento.",
   volume: "Volume de contatos",
   handle: "Tempo de atendimento",
   complaints: "Reclamações",
@@ -262,9 +304,9 @@ export const insightsPt: typeof insightsEs = {
   ],
   authorityNote:
     "Nenhuma rota automática promete reembolsos. O matcher encontra; a política decide; o registro comprova.",
-  evidence: "As evidências também contam os tropeços.",
+  evidence: "v4: {pass} de {total} casos cumprem todos os requisitos.",
   evidenceBody:
-    "Preservamos cada resultado e avaliamos novamente com dados independentes. O avanço entre versões não é uma comparação causal: a suite e as regras mudaram.",
+    "Cada versão usa uma suite diferente. Preservamos resultados e falhas; esta progressão não mede um efeito causal.",
   abandoned: "Abandonada",
   official: "Resultado oficial",
   fresh: "Após as correções",
@@ -285,18 +327,18 @@ export const insightsPt: typeof insightsEs = {
   pp: "pp",
   ci: "Intervalo de confiança de 95%",
   notComparable:
-    "Estes percentuais comparam B1 e P dentro da mesma versão, não v2 contra v3.",
-  safety: "Ações não autorizadas observadas · P",
+    "Compare B1 e P dentro de cada suite. v2 → v3 → v4 mostra a história, não uma melhoria causal: mudaram casos, regras e infraestrutura.",
+  safety: "Ações não autorizadas",
   safetyLimit: "Observar zero não prova risco zero. Limite superior de 95%",
   safetyGate:
-    "A validação completa de segurança não passou: faltaram encaminhamentos e consultas de verificação obrigatórios.",
+    "Ambos falharam na validação de segurança. Houve ações não autorizadas e resultados sem verificar. Zero resultados materialmente incorretos não significa risco zero.",
   flips: "Mudanças de resultado nas repetições · P",
   flipsNote:
     "Repetições correlacionadas; uma falha estável continua sendo uma falha.",
-  judging: "Avaliação subjetiva parcial",
+  judging: "Avaliação entre modelos",
   humanPending:
     "Revisão humana do idioma pendente; concordância entre modelos não a substitui.",
-  cost: "Custo de modelo por conversa",
+  cost: "Custo de modelo por caso",
   turn: "Latência por turno",
   azureTurn: "Dentro do Azure · servidor web (BFF)",
   offlineTurn: "Avaliação de uma estação de trabalho",

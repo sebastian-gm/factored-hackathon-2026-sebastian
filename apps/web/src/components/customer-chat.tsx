@@ -86,7 +86,8 @@ export function CustomerChat({
     return () => cancelAnimationFrame(frame);
   }, [notice, busy]);
   useEffect(() => {
-    if (log.current) log.current.scrollTop = log.current.scrollHeight;
+    if (log.current)
+      log.current.scrollTop = lines.length ? log.current.scrollHeight : 0;
   }, [lines]);
   useEffect(() => {
     if (!proposal) return;

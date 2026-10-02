@@ -1,7 +1,13 @@
 # Private submission snapshot — 2026-09-30
 
+**Historical preparation, superseded 2026-10-01.** The snapshot is now privately
+archived at `sebastian-gm/factored-hackathon-2026-sebastian-snapshot-archive`; no
+further snapshot refresh is planned. The original development repository was
+renamed to the submission name with its real history, PRs and tags retained.
+
+
 The owner-authorized snapshot is **private**, at
-[sebastian-gm/factored-hackathon-2026-sebastian](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian),
+[sebastian-gm/factored-hackathon-2026-sebastian-snapshot-archive](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian-snapshot-archive),
 commit **890110119ee7af2386c766dcf8a82f1a4aafc125**. The personal sandbox
 remains private with only `origin`; no history rewrite or second remote.
 Publication still requires Sebastian's explicit submission-day approval.
