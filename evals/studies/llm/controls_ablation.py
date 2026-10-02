@@ -83,9 +83,8 @@ class FakeTools:
                 transactions=[
                     dict(
                         transaction_id=f"charge_{i}",
-                        merchant="Oficina Prisma"
-                        if self.case["language"] == "pt"
-                        else "Taller Prisma",
+                        merchant=self.case.get("merchant")
+                        or ("Oficina Prisma" if self.case["language"] == "pt" else "Taller Prisma"),
                         amount=self.case["amount"],
                         currency="USD",
                         status="Approved",
@@ -259,6 +258,8 @@ async def protected(case: dict, client: StructuredClient | None = None) -> dict:
     settings, repository, _ = fixtures(fixture)
     settings = replace(settings, demo_role="customer")
     row = repository._rows[0]
+    if case.get("merchant"):
+        row = replace(row, merchant_name=case["merchant"])
     rows = (
         (row, replace(row, record_id="second-authored-charge"))
         if case["kind"] == "ambiguous"
@@ -312,6 +313,11 @@ async def protected(case: dict, client: StructuredClient | None = None) -> dict:
     return dict(
         id=case["id"],
         replies=replies,
+        security_events=[
+            event["category"]
+            for event in app.state.runtime.events
+            if event["event"] == "log_security_event"
+        ],
         **(
             text_metrics
             | dict(
@@ -335,7 +341,7 @@ async def protected(case: dict, client: StructuredClient | None = None) -> dict:
     )
 
 
-def main() -> None:
+def main(*, inventory: Path | None = None) -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--real", action="store_true")
     parser.add_argument("--report", action="store_true")
@@ -344,7 +350,7 @@ def main() -> None:
         report()
         return
     OUT.mkdir(parents=True, exist_ok=True, mode=0o700)
-    source = Path(__file__).with_name("controls_ablation_cases.py")
+    source = inventory or Path(__file__).with_name("controls_ablation_cases.py")
     manifest = json.loads(source.with_suffix(".manifest.json").read_text())
     if sha256(source.read_bytes()).hexdigest() != manifest["sha256"]:
         raise DevBudgetStop("Pre-measurement synthetic inventory changed")
@@ -408,6 +414,7 @@ def main() -> None:
                 results.append(dict(id=case["id"], P=guarded, naive=naive(case, http, key, gate)))
                 save(OUT / "real.json", results)
         finally:
+            save(OUT / "p-calls.json", [asdict(record) for record in client.records])
             cost = receipt(connection, SCOPE, RUN, CAP)
             save(OUT / "budget-after.json", cost)
             print(json.dumps(cost))
