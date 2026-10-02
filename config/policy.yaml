@@ -1,4 +1,4 @@
-version: 1.3.1
+version: 1.4.0
 rules:
 - id: AUTH-01
   es: Exigir una sesión válida.
@@ -58,6 +58,20 @@ rules:
   tests:
   - test_match_state.py::test_exported_thresholds_cover_three_actions_and_reject_other_customer
   - test_policy_workflows.py::test_deterministic_text_guards_and_ownership
+- id: DQ-01
+  es: Explicar movimientos con anomalías temporales; derivar toda disputa automática.
+  pt: Explicar transações com inconsistências temporais; encaminhar qualquer contestação automática.
+  en: Allow explanations of temporal anomalies; block automated dispute intake.
+  parameters: {}
+  status: implemented
+  enforcement:
+  - bank/serving.py:snapshot
+  - policy/engine.py:evaluate
+  - api/app.py:process_confirmation
+  tests:
+  - test_temporal_dispute_policy.py::test_flagged_transaction_can_be_explained_but_not_auto_disputed
+  - test_temporal_dispute_policy.py::test_missing_temporal_check_only_disables_automation_and_passed_null_stays_eligible
+  - test_temporal_dispute_policy.py::test_temporal_quality_change_between_proposal_and_confirmation_prevents_write
 - id: TXN-01
   es: Explicar una retención pendiente reciente sin inventar fechas.
   pt: Explicar uma autorização pendente recente sem inventar datas.

@@ -7,6 +7,7 @@ No source file or fixture fallback exists here. Only the authenticated customer'
 from __future__ import annotations
 
 import hashlib
+import logging
 from collections.abc import Iterator
 from contextlib import contextmanager
 from contextvars import ContextVar
@@ -30,6 +31,16 @@ if TYPE_CHECKING:
 _REQUEST_SNAPSHOTS: ContextVar[dict[tuple[int, str, str], TransactionRepository] | None] = (
     ContextVar("serving_request_snapshots", default=None)
 )
+LOGGER = logging.getLogger(__name__)
+
+
+def temporal_column_available(connection: Any) -> bool:
+    row = connection.execute(
+        "SELECT EXISTS (SELECT 1 FROM information_schema.columns "
+        "WHERE table_schema='bank' AND table_name='transactions' "
+        "AND column_name='temporal_quality_reason' AND data_type='text' AND is_nullable='YES')"
+    ).fetchone()
+    return bool(row == (True,))
 
 
 @contextmanager
@@ -69,6 +80,11 @@ class ServingRepository(TransactionRepository):
                 raise ValueError("Serving bank clock differs from runtime")
             self.dataset_version, self.loaded_at = row[0]["dataset_version"], row[1]
             self.identity: dict[str, str] = row[0]
+            self.temporal_quality_checked = temporal_column_available(connection)
+            if not self.temporal_quality_checked:
+                LOGGER.warning(
+                    "Temporal quality column unavailable; explanations allowed, automatic dispute disabled"
+                )
 
     def personas(self) -> list[Persona]:
         with self.store.transaction(Scope("", "", "")):
@@ -141,8 +157,13 @@ class ServingRepository(TransactionRepository):
             records = pg.execute(
                 "SELECT t.transaction_id,t.customer_id,t.product_id,t.transaction_date,"
                 "t.process_date,t.transaction_type,t.amount,t.currency,t.merchant_name,"
-                "t.transaction_status,t.amount_usd_recomputed,t.fraud_score,t.fx_nearest_prior "
-                "FROM bank.transactions t JOIN bank.products p "
+                "t.transaction_status,t.amount_usd_recomputed,t.fraud_score,t.fx_nearest_prior,"
+                + (
+                    "t.temporal_quality_reason "
+                    if self.temporal_quality_checked
+                    else "NULL::text AS temporal_quality_reason "
+                )
+                + "FROM bank.transactions t JOIN bank.products p "
                 "ON p.product_id=t.product_id AND p.customer_id=t.customer_id "
                 "WHERE t.customer_id=%s AND t.transaction_date >= %s AND t.transaction_date < %s "
                 'ORDER BY t.transaction_id COLLATE "C"',
@@ -158,6 +179,8 @@ class ServingRepository(TransactionRepository):
                 "fraud_score": r[11] or 0,
                 "fx_nearest_prior": r[12],
                 "missing_fields": ("merchant_name",) if not r[8] else (),
+                "temporal_quality_reason": r[13],
+                "temporal_quality_checked": self.temporal_quality_checked,
             }
         snapshot = TransactionRepository(
             tuple(rows),

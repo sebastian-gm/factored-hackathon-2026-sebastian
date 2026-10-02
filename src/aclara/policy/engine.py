@@ -10,6 +10,7 @@ from typing import Any
 from aclara.bank.repository import Transaction
 from aclara.policy.reasons import handoff_reasons
 from aclara.policy.rules import catalog, rule
+from aclara.policy.temporal import quality_issue
 
 
 @dataclass(frozen=True, slots=True)
@@ -26,6 +27,8 @@ class PolicyContext:
     fx_nearest_prior: bool = False
     missing_fields: tuple[str, ...] = ()
     existing_case_id: str | None = None
+    temporal_quality_reason: str | None = None
+    temporal_quality_checked: bool = True
 
     @property
     def card(self) -> bool:
@@ -49,6 +52,7 @@ def evaluate(
     context: PolicyContext | None = None,
 ) -> PolicyDecision:
     facts = context or PolicyContext()
+    temporal = quality_issue(facts)
     age_days = (
         (bank_clock - timedelta(hours=6, microseconds=1)).date() - transaction.process_date
     ).days
@@ -66,6 +70,8 @@ def evaluate(
         "complaints_90_days": facts.complaints_90_days,
         "missing_fields": list(facts.missing_fields),
         "fx_nearest_prior": facts.fx_nearest_prior,
+        "temporal_quality_reason": temporal,
+        "temporal_quality_checked": facts.temporal_quality_checked,
     }
 
     def result(
@@ -75,7 +81,13 @@ def evaluate(
 
     if not facts.product_owned:
         return result("handoff", ("DATA-01",), "product_ownership_unverified")
-    if age_days < 0 or age_days > int(rule("DATA-01").parameters["window_days"]):
+    if temporal and not (
+        bank_clock - timedelta(days=int(rule("DATA-01").parameters["window_days"]))
+        <= transaction.transaction_date
+        < bank_clock
+    ):
+        return result("handoff", ("DATA-01", "DQ-01"), "outside_search_window")
+    if not temporal and (age_days < 0 or age_days > int(rule("DATA-01").parameters["window_days"])):
         return result("handoff", ("DATA-01",), "outside_search_window")
     restricted = facts.customer_status in {"Suspended", "Closed"} or facts.product_status in {
         "Closed",
@@ -83,11 +95,13 @@ def evaluate(
     }
     fraud = fraud_required(facts)
     if restricted:
-        reasons = ["DSP-05", *(["FRD-01"] if fraud else [])]
+        reasons = ["DSP-05", *(["FRD-01"] if fraud else []), *(["DQ-01"] if temporal else [])]
         return result("handoff", handoff_reasons(reasons), "restricted_customer_or_product")
     if fraud:
         return result(
-            "freeze_offer" if facts.card else "handoff", handoff_reasons("FRD-01"), "fraud_review"
+            "freeze_offer" if facts.card else "handoff",
+            handoff_reasons(["FRD-01", *(["DQ-01"] if temporal else [])]),
+            "fraud_review",
         )
     if is_dispute and facts.existing_case_id:
         return result("status", ("DSP-06",), "existing_case")
@@ -112,33 +126,56 @@ def evaluate(
     # Display defects cannot be explained away. On dispute review, retain every
     # other cause whose input is still trustworthy instead of returning early.
     if missing and not is_dispute:
-        return result("handoff", ("BRD-01",), "missing:" + ",".join(sorted(set(missing))))
-    if not missing and transaction.transaction_status == "Pending":
-        if age_days > int(rule("TXN-02").parameters["pending_days"]):
+        return result(
+            "handoff",
+            handoff_reasons(["BRD-01", *(["DQ-01"] if temporal else [])]),
+            "missing:" + ",".join(sorted(set(missing))),
+        )
+    explain_ids = ("DQ-01",) if temporal else ()
+    if (
+        not missing
+        and not (is_dispute and temporal)
+        and transaction.transaction_status == "Pending"
+    ):
+        if not temporal and age_days > int(rule("TXN-02").parameters["pending_days"]):
             return result("handoff", ("TXN-02",), "pending_over_limit")
-        return result("explain", ("TXN-01",), "pending_authorization")
-    if not missing and transaction.transaction_status == "Reversed":
-        return result("explain", ("TXN-03",), "reversed")
-    if not missing and transaction.transaction_status == "Declined":
-        return result("explain", ("TXN-04",), "declined")
+        return result("explain", ("TXN-01", *explain_ids), "pending_authorization")
+    if (
+        not missing
+        and not (is_dispute and temporal)
+        and transaction.transaction_status == "Reversed"
+    ):
+        return result("explain", ("TXN-03", *explain_ids), "reversed")
+    if (
+        not missing
+        and not (is_dispute and temporal)
+        and transaction.transaction_status == "Declined"
+    ):
+        return result("explain", ("TXN-04", *explain_ids), "declined")
     if not is_dispute:
-        return result("explain", ("DATA-01",), "approved_charge")
+        return result("explain", ("DATA-01", *explain_ids), "approved_charge")
 
     # Establish every applicable review cause before selecting routing precedence.
     reasons = ["BRD-01"] if missing else []
     reason = "missing:" + ",".join(sorted(set(missing))) if missing else "eligible"
+    if temporal:
+        reasons.append("DQ-01")
+        if not missing:
+            reason = "temporal_quality:" + temporal
     if type_rule:
         reasons.append(type_rule)
-        if not missing:
+        if not missing and not temporal:
             reason = (
                 "fee_or_adjustment" if type_rule == "DSP-03" else "unsupported_transaction_type"
             )
     invalid_fx = usd is None or not isfinite(usd) or facts.fx_nearest_prior
     if invalid_fx:
         reasons.append("BRD-01")
-        if not type_rule and not missing:
+        if not type_rule and not missing and not temporal:
             reason = "fx_nearest_prior" if facts.fx_nearest_prior else "missing:amount_usd"
-    age_known = not {"date", "process_date", "transaction_date"}.intersection(missing)
+    age_known = not temporal and not {"date", "process_date", "transaction_date"}.intersection(
+        missing
+    )
     if age_known and age_days > int(rule("DSP-01").parameters["intake_days"]):
         reasons.append("DSP-01")
         if not type_rule and not invalid_fx and not missing:

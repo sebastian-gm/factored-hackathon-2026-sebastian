@@ -16,7 +16,7 @@ from psycopg import sql
 
 from aclara.agent.contracts import DisputeCaseView
 from aclara.api.app import create_app
-from aclara.bank.serving import ServingRepository
+from aclara.bank.serving import ServingRepository, temporal_column_available
 from aclara.data.serving_load import CUSTOMER_SCOPED, load_serving
 from aclara.data.snapshot import build_snapshot
 from aclara.ops.store import Scope, Store
@@ -32,6 +32,13 @@ def test_serving_personas_rls_three_surfaces_and_restart(tmp_path: Path) -> None
     build_snapshot(Path("tests/fixtures/incremental/day1"), lake, reports=False)
     result = load_serving(lake, owner)
     with psycopg.connect(owner) as pg:
+        had_temporal_column = temporal_column_available(pg)
+        # Explicit passed-check control for this deliberately normalized,
+        # project-authored ledger. Old-schema refusal is tested separately.
+        pg.execute(
+            "ALTER TABLE bank.transactions ADD COLUMN IF NOT EXISTS temporal_quality_reason TEXT"
+        )
+        pg.execute("UPDATE bank.transactions SET temporal_quality_reason=NULL")
         pg.execute("GRANT USAGE ON SCHEMA meta,reference TO aclara_api")
         pg.execute("GRANT SELECT ON meta.serving_state TO aclara_api")
         pg.execute(
@@ -225,3 +232,6 @@ def test_serving_personas_rls_three_surfaces_and_restart(tmp_path: Path) -> None
     finally:
         client.close()
         store.close()
+        if not had_temporal_column:
+            with psycopg.connect(owner) as pg:
+                pg.execute("ALTER TABLE bank.transactions DROP COLUMN temporal_quality_reason")

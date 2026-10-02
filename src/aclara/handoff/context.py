@@ -8,6 +8,7 @@ from typing import Any
 from aclara.agent.nlg.grounding import redact_for_model, scan_dlp
 from aclara.policy.rules import rule
 from aclara.policy.rules.guards import cross_customer, injection
+from aclara.policy.temporal import quality_guidance
 
 # Each entry is (cause, open question, next step), in ES then pt-BR.
 _GUIDANCE = {
@@ -170,7 +171,23 @@ def customer_context(turns: Iterable[dict[str, Any]]) -> list[dict[str, Any]]:
 
 def refresh_summary(packet: dict[str, Any], intent: str | None = None) -> None:
     pt = packet["route"]["language"] == "pt"
-    causes, questions, steps = guidance("pt" if pt else "es", packet["reason_codes"])
+    other_reasons = [reason for reason in packet["reason_codes"] if reason != "DQ-01"]
+    causes, questions, steps = (
+        guidance("pt" if pt else "es", other_reasons) if other_reasons else ([], [], [])
+    )
+    if "DQ-01" in packet["reason_codes"]:
+        detail = next(
+            (
+                item.get("detail")
+                for item in packet.get("policy_evaluations", [])
+                if item.get("rule_id") == "DQ-01"
+            ),
+            None,
+        )
+        cause, question, step = quality_guidance(detail, "pt" if pt else "es")
+        causes.append(cause)
+        questions.append(question)
+        steps.append(step)
     packet["open_questions"], packet["suggested_next_steps"] = questions, steps
     request = {
         "charge_inquiry": "Explicação da cobrança." if pt else "Explicación del cargo.",

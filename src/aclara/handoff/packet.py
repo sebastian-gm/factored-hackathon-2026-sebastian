@@ -13,11 +13,15 @@ from aclara.policy.reasons import handoff_reasons
 
 
 def create_packet(
-    language: str, reason_code: str | Iterable[str], directory: AgentDirectory | None = None
+    language: str,
+    reason_code: str | Iterable[str],
+    directory: AgentDirectory | None = None,
+    *,
+    quality_reason: str | None = None,
 ) -> dict[str, Any]:
     reasons = handoff_reasons(reason_code)
     primary = reasons[0]
-    packet = {
+    packet: dict[str, Any] = {
         "schema_version": "1.0",
         "handoff_id": f"HO-{secrets.token_hex(4).upper()}",
         "created_at": datetime.now(UTC).isoformat(),
@@ -29,5 +33,7 @@ def create_packet(
         "actions_taken": [],
         "open_questions": [],
     }
+    if "DQ-01" in reasons and quality_reason is not None:
+        packet["policy_evaluations"] = [{"rule_id": "DQ-01", "detail": quality_reason}]
     refresh_summary(packet)
     return packet
