@@ -1,5 +1,7 @@
 # Organizer-backed demo
 
+> **superseded by v4 (2026-10-01)** — Earlier evaluation/release claims on this page are historical; use the [current summary](../README.md) and [official v4 results](evaluation/final-v4-results.md). [Post-v4 fixes](evaluation/post-v4-release-notes.md) are **not reflected in v4 numbers**.
+
 ## Source and runtime boundary
 
 The promoted gold dataset is `b86f445cb468332bde984a788ef24f72f7070952b2d9292e0259e7b8f36397c9`, bank clock `2026-06-18T06:00:00Z`. Its six serving tables contain 150,000 customers, 400,000 products, 492,414 transactions, 13,164 FX rows, 1,200 service agents and 150,000 complaint aggregates. The rebuild matched the pinned dataset; no source-version difference was found.

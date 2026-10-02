@@ -1,12 +1,16 @@
 # Business projection — illustrative capacity, not realized savings
 
+> **superseded by v4 (2026-10-01)** — Historical evaluation/release status below; use the [current summary](../../README.md) and [official v4 results](final-v4-results.md). [Post-v4 fixes](post-v4-release-notes.md) are **not reflected in v4 numbers**.
+
 For **10,000 charge-dispute intake conversations per month**, the base scenario
 projects **3,900 safely automated intake outcomes**, **1,200 fewer unnecessary
 transfers than B1**, **11,621 agent minutes released**, and **$58.77/month in model
 plus infrastructure cost**. These are conditional calculations using the
 assumptions below. They are not measured production benefits: v3 failed the full
 safety gate, and traffic mix, dispute-specific handling time and production
-capacity remain unvalidated. V4 results are pending.
+capacity remain unvalidated. This is a **historical v3-based calculation**, not
+an updated v4 forecast. [V4 results are complete](final-v4-results.md); their
+measured cost and both SAR denominators are in the [current summary](../../README.md).
 
 ## Historical problem and addressable demand
 
@@ -150,17 +154,18 @@ held fixed. Neither mean is a measured charge-dispute handling time. Hours are
 potential capacity, not guaranteed headcount, wage savings or customer-outcome
 improvement. No labor rate or ROI percentage is invented.
 
-## Independent v4 and operational validation
+## V4 evidence and operational validation
 
-| Pending v4 result | Status |
-|---|---|
-| Paired pass/SAR, strict escalation, unnecessary transfers and safety gates | TODO(results): v4 independent aggregate and intervals |
-| Serving cost and system-time latency | TODO(results): v4 per-call attribution and case/turn intervals |
-| Updated sensitivity anchored to the independently frozen result | TODO(results): substitute v4 rates without relabeling v3 dev checks as evaluation |
+[V4 is complete](final-v4-results.md): P SAR was 32/100 in scope and 32/47
+among eligible cases, versus B1 22/100 and 22/47. P model cost was
+$0.002297661 per evaluated case and $0.007180189 allocated per safe automated
+resolution. Both systems failed full safety gates. These observations replace
+pending-result placeholders; the historical v3 sensitivity calculation above
+is retained with its original assumptions, not silently recomputed.
 
 Traffic weighting/deduplication, dispute-specific handling, packet review,
 recontact burden, production capacity and current infrastructure prices still
 need operational measurement. Time-to-verified-intake must separately include
 authentication and customer think time; neither handle time nor historical
 complaint-resolution days supplies that baseline. No paid call, new cloud
-resource or v4 access was required to author this projection.
+resource or evaluation execution was required for this documentation update.

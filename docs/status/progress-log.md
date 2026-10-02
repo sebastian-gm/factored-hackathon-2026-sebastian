@@ -150,6 +150,58 @@
 - Continue from docs/status/progress-log.md. Next layer: frontend picker/redesign
   and submission-day approvals. Same rules.
 
+## 2026-10-02 UTC — frontend merges and one v4 narrative
+
+### Completed (verified)
+
+- PR **#104** merged after all four remote gates passed, at
+  **b938c0a12acb906fe04bfd9b1e7c9dee5a93ac72**. PR **#105** was rebased onto
+  that main revision; a history-preserving merge retained its published ancestry
+  for a normal fast-forward push, with no force-push. A tree comparison confirmed
+  that the updated head has identical product files to the prior green picker head.
+- PR #105's fresh CI initially passed checks/Postgres/invariants but timed out
+  clicking the PT login OTP button (136/137 fixtures passed). The exact isolated
+  test passed **3/3** consecutive local fixture runs; only the failed browser job
+  was retried. All four fresh remote gates then passed; PR #105 merged at
+  **7ff7d2a8c3014fdd7b1fe9145c3e11397c1b6054**.
+- Implemented handoff 15 item 9 in Markdown only: README leads with completed
+  v4, both SAR denominators, exact and rounded model cost per evaluated case and
+  allocated cost per safe automated resolution, three limits, Jev's role, PT
+  provenance and one sourced sentence explaining the two unauthorized-action flags.
+  Official failures remain unchanged; post-v4 fixes are not reflected in v4 numbers.
+- Added superseded-by-v4 banners to all six requested historical pages and the
+  stale language card/serving guide linked from the README. Matcher v2's earlier
+  v1-default instruction is superseded; the projection retains its original v3
+  assumptions. The checklist points to complete v4 and owner-only release/access gates.
+- Local source/arithmetic, relative-link, heading-target and Markdown-only checks
+  passed. Strict mypy and staged data/secret/large-file hooks passed. No per-case IDs
+  or organizer values added; no model calls, frozen-suite execution, rescoring or
+  product changes. Model/cloud spend **$0**; CI uses the existing owner-approved cap.
+
+- Docs PR **#109** initially passed all four remote gates at 74eb7a5. Main
+  advanced during CI; GitHub rejected the merge for conflicts. Preserved the
+  repository-transition URLs, language-card banner and both session histories.
+  The updated 7d12154 head also passed all four remote gates, but a concurrent
+  AI-lane log append caused a second conflict. Kept both entries and placed this
+  record beside the earlier profile-backend section to avoid shared top/end
+  insertions. The 3c00619 head again passed all four gates; #112's live-Jev removal
+  then overlapped the README. Preserved that decision, the pending-release caveat,
+  Gemini-only diagram and Gemini-plus-Jev v4 provenance. The resulting head requires
+  fresh CI; no force-push or held-out rerun.
+
+### Done but not verified
+
+- At entry creation, the docs PR's remote CI and merge remain to be read back.
+- New design and judge picker have local/browser and remote-CI evidence, but this
+  session does not deploy or attest to their live release. Judge access stays OFF.
+
+### Next / blocked
+
+- Open one docs-only PR onto updated main and merge only after all remote gates
+  pass, under Sebastian's standing authorization; retain the CI/merge readback.
+- Lead owns the next release and owner-approved judge-access activation. Keep
+  official v4 evidence fixed; no held-out rerun or new acceptance score is claimed.
+
 ## 2026-10-02 UTC — one judge login, scoped profile backend
 
 ### Completed (verified)

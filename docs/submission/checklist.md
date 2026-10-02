@@ -1,21 +1,28 @@
 # Submission checklist — owner and release team
 
+> **superseded by v4 (2026-10-01)** — Historical evaluation/release status below; use the [current summary](../../README.md) and [official v4 results](../evaluation/final-v4-results.md). [Post-v4 fixes](../evaluation/post-v4-release-notes.md) are **not reflected in v4 numbers**.
+
 Working checklist, not a record of completed release actions. This pitch pass does
 not authorize model spending, infrastructure changes, an email send or publication.
 Keep access codes, passwords, private reports and recordings in approved private
 storage outside Git. The judge-facing content is in [slides](slides.md) and the
 [video script](video-script.md).
 
-## Current release gate
+## Current release gate — v4 complete; later fixes disclosed
 
-- [ ] Review and resolve PR #62 before release. Main's evaluated v3 SHA is
-  `e12efc73be64f8355aa9f177f08a04337593616c`; Azure currently runs an owner-approved
-  **branch preview** of `dac3801`, including the authorized startup fix, not a new
-  main release. Actions is unblocked under Sebastian's hard $5 cap. Require green
-  remote CI on the complete #62 head; stacked PRs use rigorous local checks.
-  V4 remains unstarted. [Review](../reviews/pr-62-review.md),
-  [startup diagnosis](../evaluation/preview-startup-diagnosis.md),
-  [v3 results and disclosures](../evaluation/final-v3-results.md).
+- [ ] Use the completed [official v4 results](../evaluation/final-v4-results.md)
+  at `1ec9c2f3a2307f8a5e26fcdc8fefd36ae48a019b`, with product frozen at
+  `92994d9`. Preserve the failed safety gates and
+  [post-hoc explanations](../evaluation/final-v4-safety-analysis.md).
+  V4 is complete; no new held-out run or rescoring is authorized by this checklist.
+- [ ] Select the post-v4 release candidate only after green remote CI, within the
+  owner's existing GitHub Actions cap. Record its actual deployed/recording SHA
+  separately from the evaluated SHA. Later backend, design and judge-picker
+  work is **not reflected in v4 numbers**. [Release notes](../evaluation/post-v4-release-notes.md).
+- [ ] Keep the judge-access flag OFF until the owner's approved activation.
+  The [judge profile contract](../api/judge-profile-entry.md) describes password
+  plus simulated OTP once, four scoped profiles and rotated capabilities;
+  implementation and local checks are not proof of live enablement or access.
 
 ## Timing and submission owner
 
@@ -35,21 +42,29 @@ storage outside Git. The judge-facing content is in [slides](slides.md) and the
   digest, suite manifest, dataset/policy/matcher/prompt versions and actual provider
   model IDs in the release record. Preserve prior test-access history and diagnostic
   failures; do not silently replace them with later results.
-- [ ] Run only the owner-approved final evaluation and model comparison. Populate
-  slide 5 from aggregate exports, with safety counts/denominators, uncertainty,
-  latency and measured cost per attempted conversation. Include failures, retries
-  and fallbacks in cost accounting. Link the exact result files after they exist.
+- [ ] Populate slide 5 from the [official v4 aggregates](../evaluation/final-v4-results.md),
+  with safety counts/denominators and the in-scope SAR interval. Show SAR with both
+  denominators (P 32/100 and 32/47; B1 22/100 and 22/47), model cost per evaluated
+  case ($0.002297661) and allocated cost per safe automated resolution
+  ($0.007180189). State that repeats, judges and infrastructure are excluded from
+  those primary-cost allocations. Keep local case/turn timing separate from live
+  browser timing. Do not rerun v4 or replace official failures with repair checks.
 - [ ] Preserve the selected roles: Gemini 3 Flash default, Grok 4.20 failure fallback,
   Jev risk second opinion and second subjective judge, Claude Sonnet 5 frontier
   comparator. [Measured development comparison](../ml/model-comparison.md),
   [Jev evidence](../ml/typesafe-jev-comparison.md). Development NLU cost per case
-  cannot be relabeled conversation cost. Keep `TODO(results)` only for final-run
-  measurements. The AI lane's live latency, phrasing ablation and PT model review
-  are separate development follow-ups, not final-suite result placeholders.
-- [ ] Check every pitch number against its linked aggregate. If final evidence is
-  still missing, submit an explicitly unfinished result; do not fill placeholders
-  with mock results, list prices or estimates. Review language with human ES/PT
-  reviewers and retain any pending-review limitation.
+  cannot be relabeled conversation cost. Final v4 measurements are complete;
+  the partial model comparison, live latency, phrasing ablation and PT model review
+  retain their separate development scope. V4 used Gemini plus Jev; Sonnet frontier
+  was OFF. Jev is TypeSafe's second risk classifier and subjective judge, never
+  an authority for policy or writes.
+- [ ] Check every pitch number against its linked aggregate and copy the
+  [README's current evidence and three limits](../../README.md#final-v4-evidence--2026-10-01).
+  Disclose that the two unauthorized-action flags reflect contradictory frozen
+  choice/confirmation replies versus no-filing gold; the official counts remain.
+  PT support uses multilingual models and authored templates; v4 PT text is
+  model-generated by Codex, with human and second-vendor language review pending.
+  Do not substitute older PT cross-checks or machine judges for human validation.
 
 ## Prepare judge access and rehearse the deployed product
 
@@ -174,7 +189,7 @@ The public-flip task below applies only to the explicitly approved submission ta
 | Confirmed organizer cutoff and source | TODO(release): owner confirmation |
 | Approved public submission target | TODO(release): repository URL and authorization |
 | Release / deployed / recording SHA | TODO(release): exact hashes and read-back |
-| Final evaluation and model comparison | TODO(results): aggregate result paths |
+| Final evaluation and model comparison | [Complete v4](../evaluation/final-v4-results.md); [partial development model comparison](../ml/model-comparison.md), separate scope |
 | Gitleaks full-history scan and data review | TODO(release): private report reference and outcome |
 | Judge access rehearsal | TODO(release): private verification reference |
 | Final slide/video URLs and measured duration | TODO(release): exported artifacts |
