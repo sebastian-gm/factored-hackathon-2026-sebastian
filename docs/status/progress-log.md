@@ -1,5 +1,45 @@
 # Progress log
 
+## 2026-10-01 — Audit item 8: NLU outside scoped storage
+
+### Completed-verified
+
+- Integrated reviewed AI item 6 before process_message edits; #113 merged at
+  2ee162b3 after all four remote gates. Read NLU context in a short scoped unit,
+  close it, infer in a thread, then independently re-authenticate and reopen.
+  Reject changed conversation state with 409. Refresh serving snapshots and
+  policy facts after inference; a new case from another login returns its receipt.
+- Shared model adapter/record cursor stays serialized by an async lock acquired
+  before any storage transaction. Request-local event buffers prevent trace/cost
+  mixing. Repeated caller cancellation waits for provider settlement, never
+  retries inference and never commits that cancelled request's actions.
+- Five simultaneous authenticated sessions can read /healthz, /me and their
+  transactions while NLU waits. Authored revocation/expiry, conversation-change,
+  concurrent bank-case and cancellation regressions pass. The NLU stub asserts
+  no operational transaction is open. Fresh local Postgres/RLS **49/49**.
+- Bounded-thread mock `make checks`: **1115 passed / 31 DB skips**, hooks, Ruff,
+  strict mypy, compilation, interface/catalog checks; B1 **32/32**. Reactive B1
+  **32/32**. Combined live API browser **12/12**. Final cancellation regressions
+  **6 passed / 1 DB skip**, Ruff and strict mypy pass after the repeated-cancel guard.
+- Initial PG concurrency test inherited another test's bank case; a unique
+  authored customer fixes isolation without changing within-test login sharing.
+
+### Done-not-verified
+
+- Remote CI and merge remain required. These are **post-v4 fixes, not reflected
+  in v4 numbers**. No official held-out input/run, paid model or Azure change.
+- One worker retained; two-worker memory fit is unmeasured. Model calls remain
+  serialized. The existing optional phrasing boundary is unchanged; this fix
+  specifically removes NLU waiting from the operational transaction.
+
+### Next-blocked
+
+- Main-merge hold secured for #114 → #116 → #117. Inherited the reviewed
+  #115 admission setup and resolved privacy test imports before the main gate.
+- Green CI on refreshed hygiene #114, then this small concurrency PR. Update
+  Jev-off release smoke, tag/release v0.6.0, owner-IP real rehearsal and section B.
+  max_replicas, CPU, access and judge mode remain unchanged.
+
 ## 2026-10-01 — Audit item 7: runtime and login hygiene
 
 ### Completed-verified
