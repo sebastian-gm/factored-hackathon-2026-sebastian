@@ -7,6 +7,7 @@ from collections.abc import Iterable
 from datetime import UTC, datetime
 from typing import Any
 
+from aclara.handoff.context import refresh_summary
 from aclara.handoff.routing import AgentDirectory
 from aclara.policy.reasons import handoff_reasons
 
@@ -16,8 +17,7 @@ def create_packet(
 ) -> dict[str, Any]:
     reasons = handoff_reasons(reason_code)
     primary = reasons[0]
-    spanish = language == "es"
-    return {
+    packet = {
         "schema_version": "1.0",
         "handoff_id": f"HO-{secrets.token_hex(4).upper()}",
         "created_at": datetime.now(UTC).isoformat(),
@@ -25,14 +25,9 @@ def create_packet(
         "primary_reason": primary,
         "priority": "high" if {"FRD-01", "ESC-02"}.intersection(reasons) else "normal",
         "route": (directory or AgentDirectory()).route(language, primary),
-        "request_summary": {
-            "text": "Solicitud derivada para revisión humana."
-            if spanish
-            else "Solicitação encaminhada para análise humana.",
-            "generated_by": {"model": "rules", "prompt": "none"},
-            "label": "rule_based_summary",
-        },
         "verified_facts": [],
         "actions_taken": [],
         "open_questions": [],
     }
+    refresh_summary(packet)
+    return packet
