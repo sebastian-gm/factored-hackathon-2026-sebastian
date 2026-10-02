@@ -127,6 +127,14 @@ def escalation(text: str) -> str | None:
 
 def cross_customer(text: str) -> bool:
     """Require a request for someone else's records, never a family/ID mention."""
+    # Identifier dots are formatting, not clause boundaries. Normalize only the
+    # bounded CPF/DNI/cédula/RUT span; keep actual sentence punctuation intact.
+    value = re.sub(
+        r"\b(?:cpf|dni|cedula|rut|documento)\s*(?:numero\s*)?[:#]?\s*"
+        r"\d[\d. -]*[\dk]\b",
+        lambda match: match.group(0).replace(".", ""),
+        normalized(text),
+    )
     access = re.compile(
         r"\b(?:ver|mostrar|mostre|mostra|muestrame|muestre|muestra|consultar|consulta|"
         r"consulte|abrir|abre|abra|acceder|accede|acessar|acessa|acesse|revisar|revisa|"
@@ -139,16 +147,16 @@ def cross_customer(text: str) -> bool:
     )
     records = (
         r"(?:cuenta|conta|cargos?|cobros?|cobrancas?|movimientos|saldo|extrato|datos|dados|"
-        r"tarjeta|cartao|cpf|dni|cedula|documento)"
+        r"tarjeta|cartao|cpf|dni|cedula|rut|documento)"
     )
     target = re.compile(
         rf"\b{records}\s+(?:de|del|do|da|dessa|daquela|desse|daquele)\s+{person}\b|"
         r"\b(?:otra cuenta|conta alheia|cuenta ajena|other account)\b|"
         # Using a supplied identifier to look up a different account is access;
         # merely asking which document to bring is not.
-        r"\b(?:cpf|dni|cedula|documento)\s*(?:numero\s*)?[:#]?\s*\d[\d. -]{4,}\b|"
+        r"\b(?:cpf|dni|cedula|rut|documento)\s*(?:numero\s*)?[:#]?\s*\d[\d. -]{4,}k?\b|"
         rf"\b(?:cuenta|conta)\b.{{0,30}}\b(?:con|com|pelo|por)\b.{{0,12}}"
-        r"\b(?:cpf|dni|cedula|documento)\b"
+        r"\b(?:cpf|dni|cedula|rut|documento)\b"
     )
     return any(
         access.search(clause)
@@ -156,12 +164,12 @@ def cross_customer(text: str) -> bool:
             # An explicitly self-owned record is not a third-party target.
             re.sub(
                 r"\b(?:mi|mis|minha|meu|minhas|meus)\s+"
-                r"(?:cpf|dni|cedula|documento)\s*(?:numero\s*)?[:#]?\s*\d[\d. -]*",
+                r"(?:cpf|dni|cedula|rut|documento)\s*(?:numero\s*)?[:#]?\s*\d[\d. -]*k?",
                 "",
                 clause,
             )
         )
-        for clause in re.split(r"[.!?;\n]", normalized(text))
+        for clause in re.split(r"[.!?;\n]", value)
     )
 
 

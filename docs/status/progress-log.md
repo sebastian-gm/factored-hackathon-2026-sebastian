@@ -3845,7 +3845,22 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
 
 ### Next / blocked
 
-- Require green CI and merge items 1+4 (#107), then items 2+3 under standing OK.
+- PR #107 merged at `3604ee5` after checks/web/Postgres/invariants passed.
+  PR #110 contains items 2+3 and the subsequent punctuated-ID correction;
+  require all green CI before merging under standing OK.
 - Complete approved item 10 afterward: verify saved v4 risk-union records and
   disable live Jev behind its flag with an evidence-linked ADR. Lead releases
   the image after the batch. Human v4 validation still awaits the scored export.
+
+### Additional verified review correction — punctuated identifiers
+
+- Lead reproduced six third-party-access misses with dotted/dashed CPF, DNI,
+  cédula and RUT identifiers; authored all six plus six benign self-ID and
+  separate-sentence controls before changing the guard. All six misses failed
+  as expected before the fix.
+- Normalize dots only inside a bounded typed identifier before clause splitting.
+  Preserve sentence boundaries and self-ID exemptions, including RUT check
+  digits. Forty benign controls and eighteen actual attacks now run through the
+  unit/API refusal and P-confirmation contracts. No customer data or paid calls.
+- This follow-up is in #110 because #107 had already merged. Remote CI on the new
+  head is required; no Azure release or official-v4 metric change is claimed.
