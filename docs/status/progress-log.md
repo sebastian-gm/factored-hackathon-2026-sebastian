@@ -60,6 +60,8 @@
 
 ### Next-blocked
 
+- Main-merge hold secured for #114 → #116 → #117. Inherited the reviewed
+  #115 admission setup and resolved privacy test imports before the main gate.
 - Green CI on refreshed hygiene #114, then this small concurrency PR. Update
   Jev-off release smoke, tag/release v0.6.0, owner-IP real rehearsal and section B.
   max_replicas, CPU, access and judge mode remain unchanged.
