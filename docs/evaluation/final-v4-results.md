@@ -10,6 +10,11 @@ frozen suite and private bindings remain unchanged.
 Owner-approved [post-v4 repairs](post-v4-release-notes.md) are **not reflected in
 these numbers**. They are checked on authored dev data and release smokes only.
 
+[ADR-0017](../adr/0017-drop-jev-from-live-path.md) disables live Jev in the
+post-v4 source config (next image release pending). **V4 was measured with Jev**;
+its historical offline judges/studies and all scores below remain unchanged.
+The zero-cost saved-flag replay is explanatory evidence, not a rerun or rescore.
+
 Sources: ignored `artifacts/final-program-v4/results.json`, `results.md`,
 `COMPLETE.json` and the durable budget receipt. Suite manifest SHA-256:
 `309c3aa22c2eab51b3289075b733c52bb7934a879299762c3fb9ba16a3d9bec8`.

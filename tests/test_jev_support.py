@@ -56,7 +56,11 @@ def _client(
     )
     price = Price(0.5, 3.0, 0.5, 0.5, date(2026, 9, 27), "fixture")
     client = StructuredClient(
-        {"nlu": spec}, {"fixture": price}, budget_usd=budget_usd, spend_gate=spend_gate
+        {"nlu": spec},
+        {"fixture": price},
+        budget_usd=budget_usd,
+        spend_gate=spend_gate,
+        risk_second_opinion_enabled=True,  # Historical supporting-role study opts in.
     )
     client._adapters["openai_compat"] = cast(Any, _GeminiFixture(started, injection=injection))
     return client

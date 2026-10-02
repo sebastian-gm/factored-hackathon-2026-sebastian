@@ -14,7 +14,12 @@ from aclara.agent.nlg.grounding import AllowedFact, scan_dlp
 from aclara.agent.nlu.structured import NluResult, understand
 from aclara.agent.runtime import Runtime
 from aclara.llm.client import StructuredClient
-from aclara.llm.config import load_fallback_route, load_models, load_prices
+from aclara.llm.config import (
+    load_fallback_route,
+    load_models,
+    load_prices,
+    load_risk_second_opinion_enabled,
+)
 from aclara.llm.types import SpendGate
 from aclara.settings import Settings
 
@@ -57,6 +62,7 @@ class AgentAI:
                 load_prices(ROOT / "config/pricing.yaml"),
                 budget_usd=None if spend_gate else float(os.getenv("LLM_RUN_BUDGET_USD", "0")),
                 spend_gate=spend_gate,
+                risk_second_opinion_enabled=load_risk_second_opinion_enabled(model_path),
                 call_timeout_seconds=45 if spend_gate else None,
                 fallback_routes={"nlu": fallback_route, "phrase": fallback_route}
                 if fallback_route is not None

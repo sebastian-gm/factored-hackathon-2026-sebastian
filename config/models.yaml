@@ -1,6 +1,7 @@
 # Sebastian-selected NLU/phrasing route. LLM_PROVIDER=mock still uses the mock
 # nlu/phrase entries; a lead-enabled openai_compat deployment uses `default`.
 routing:
+  risk_second_opinion_enabled: false  # Post-v4: live Jev disabled; studies opt in explicitly.
   fallback_route: fallback_grok_4_20  # Only after the selected Gemini route fails.
 models:
   nlu: {provider: mock, model_id: deterministic-b1}

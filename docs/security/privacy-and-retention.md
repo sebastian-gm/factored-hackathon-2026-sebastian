@@ -4,7 +4,15 @@ Draft reviewed 2026-09-27 UTC. Aclara is synthetic, but data is handled as priva
 The [provenance register](../data-provenance.md) identifies input classes. Organizer
 published data-use terms still need owner confirmation before any organizer-derived
 field values are sent to an external model. This document grants no new permission.
-The local default is `LLM_PROVIDER=mock`. The private release uses Gemini via OpenRouter, Grok failure fallback, and TypeSafe Jev risk support; see the [release record](../status/progress-log.md). Jev also serves as a second evaluation judge. Its standard-account ZDR is unverified; synthetic-fixture approval is not permission to send real customer data. [Jev limits](../ml/typesafe-jev-comparison.md).
+The local default is `LLM_PROVIDER=mock`. Current production config uses Gemini
+via OpenRouter and Grok failure fallback, with **live TypeSafe Jev disabled**.
+The lead's next Azure image release is pending. The live external-model data flow
+is OpenRouter only. [ADR-0017](../adr/0017-drop-jev-from-live-path.md).
+These are **post-v4 fixes, not reflected in v4 numbers**: v4 included Jev risk
+support and offline Jev judging. Historical evaluation/study code and judge
+evidence remain; they are separate from live traffic. TypeSafe standard-account
+ZDR remains unverified; synthetic approval is not permission for real data.
+[Jev limits](../ml/typesafe-jev-comparison.md), [release record](../status/progress-log.md).
 
 The frozen workload's Portuguese authoring already used approved, project-generated
 text through OpenRouter and a second model vendor. Its
@@ -19,10 +27,10 @@ flowchart LR
   B --> R[Pattern redaction and escaped data block]
   R --> N[NLU: text and fixed schema]
   F[Authorized facts: scoped handles and allowed fields] --> P[Response plan projection]
-  P --> G[Optional explanation or clarification phrasing]
+  P --> G[Optional blank-plan clarification phrasing]
   N --> V[Validate slots; deterministic policy and actions]
   G --> D[Fact and citation checks; DLP; template fallback]
-  N -. Approved provider only .-> X[External provider or gateway]
+  N -. Approved routes only .-> X[OpenRouter: Gemini or Grok on failure]
   G -. Approved provider only .-> X
   B --> T[Private redacted turns and structured response records]
   V --> E[Execution events and audit metadata]
