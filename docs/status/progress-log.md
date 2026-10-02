@@ -4952,3 +4952,31 @@ later flag-only session for the current contract and activation dependencies.
   smoke allowance **$0.076661**; conservative maximum **$14.99937448 ≤ $15**.
   Recheck ledger/key before approval/activation; no new paid call authorized by
   these source fixes. Publication/submission/retirement require their own gates.
+
+
+## 2026-10-02 — Final improvements w8: aggregate slide assets
+
+### Completed (verified)
+
+- Exported five PNG/SVG pairs under `docs/submission/assets/`: official v4 pass,
+  SAR on both denominators, strict/missed/unnecessary escalation, observed safety
+  flags, historical latency/cost and current architecture. Captions link committed
+  sources; the deterministic exporter reads only those aggregate documents.
+- All five 1920×1080 images visually reviewed. SVGs retain editable text and
+  accessible titles; every file is below 512 KiB. A second export was byte-identical.
+  Missing source rows or denominators fail rather than fabricate numbers.
+- Both official safety gates remain failed and the 2/98 versus 2/100 action flags
+  remain unchanged. Historical Gemini+Jev latency/cost and current post-v4 design
+  are distinct. No deck, organizer rows, model calls, Azure or frozen-suite changes.
+  Model spend **$0**; current source changes are **not reflected in v4**.
+
+### Done but not verified
+
+- Current-head remote CI/merge pending. Controls-ablation chart awaits item-5
+  committed dev results; no chart or claim is invented before those arrive.
+
+### Next / blocked
+
+- Merge this asset pack and demo PR only on green CI. Add the controls-ablation
+  asset when relayed; implement the real ES/PT staff queue after the orchestrator
+  relays the item-6 reviewed backend contract. No endpoint guessed in advance.
