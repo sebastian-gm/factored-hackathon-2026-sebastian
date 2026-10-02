@@ -29,6 +29,7 @@ export default defineConfig({
           "**/video-readiness.spec.ts",
           "**/minimal-design.spec.ts",
           "**/judge-profiles.spec.ts",
+          "**/admission.spec.ts",
         ],
   fullyParallel: false,
   workers: 1,
@@ -75,6 +76,8 @@ export default defineConfig({
         FRONTEND_FIXTURE_PASSWORD: secret,
         FRONTEND_FIXTURE_JUDGE_ACCESS: live ? "false" : "true",
         NEXT_TELEMETRY_DISABLED: "1",
+        // Exercise ACA header parsing with a test-owned simulated ingress.
+        CONTAINER_APP_NAME: "aclara-browser-fixture",
         API_BASE_URL: `http://127.0.0.1:${apiPort}`,
         BANK_CLOCK: "2026-06-18T06:00:00Z",
       },

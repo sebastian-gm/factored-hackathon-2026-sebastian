@@ -23,6 +23,7 @@ import {
 } from "@/lib/staff-contracts";
 import { BANK_CLOCK, personas } from "@/lib/server/fixture-data";
 import { upstreamFetch } from "@/lib/server/upstream-fetch";
+import { admit, admissionMessage, carryAdmission } from "@/lib/server/admission";
 import {
   fixtureLogin,
   fixtureLogout,
@@ -244,6 +245,18 @@ async function handle(
     }
     const token = request.cookies.get(ACCESS)?.value ?? "";
     const preauth = request.cookies.get(PREAUTH)?.value ?? "";
+    if (request.method === "POST") {
+      const wait = admit(path, token, request.headers);
+      if (wait !== null) {
+        const reply = response({
+          error: "admission_limited",
+          message: admissionMessage(request.headers.get("accept-language"), wait),
+          retry_after_seconds: wait,
+        }, 429);
+        reply.headers.set("Retry-After", String(wait));
+        return reply;
+      }
+    }
     if (path === "config" && request.method === "GET")
       return response({
         fixtures: fixtures(),
@@ -378,6 +391,7 @@ async function handle(
         identity: actual,
         expires_at: auth.expires_at,
       });
+      carryAdmission(token, auth.access_token);
       cookie(reply, ACCESS, auth.access_token, remaining, expires);
       cookie(reply, PREAUTH, "", 0);
       return reply;

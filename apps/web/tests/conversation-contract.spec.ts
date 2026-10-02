@@ -1,4 +1,4 @@
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect, type Page } from "./helpers/test";
 import AxeBuilder from "@axe-core/playwright";
 import { planSchema, orderedReasons, type Config } from "../src/lib/contracts";
 import { deskSchema } from "../src/lib/staff-contracts";
