@@ -5070,6 +5070,9 @@ later flag-only session for the current contract and activation dependencies.
 
 ### Completed (verified)
 
+- Concurrency #137 merged at `0d2f0edcbc08adea527d9152500ef2ac5a865a45`:
+  remote checks/Postgres/web/invariants green (CI `37074259582`, safety
+  `37074259583`). AI-owned client/cursor files are free for the AI lane again.
 - OFF-default API burst option, 13/13 mocked Terraform plans, real preview
   0 create / 2 update / 0 delete, no apply. Two-worker mock cgroup peak 234.23 MiB;
   keep workers 1 because 3 × 2 × 9 connections exceeds Postgres's live limit 50.
@@ -5087,4 +5090,5 @@ later flag-only session for the current contract and activation dependencies.
 
 - Separate Gate A plan/window/cost approval before activation. Owner confirms
   judge OFF for v0.8.0: local/CI realm tests now, live realm gate after submission
-  Gate B approval. Concurrency remote checks/release remain in progress.
+  Gate B approval. Scaling PR #140 remote checks/release remain in progress;
+  staff-queue #138 security review follows #140 per owner.
