@@ -25,7 +25,7 @@ Cross-session events use customer, exact timestamp, type, channel, action and pr
 
 The [per-column report](data-quality-report.md#per-column-null-rates) covers **203 columns in ten contracted tables**, excluding lineage metadata. SQL NULLs total **157,483,584 / 538,022,507 cells = 29.27%**, or **157,483,584 / 340,935,630 nullable cells = 46.19%**. Required-column NULLs, non-null blank strings and contract-invalid rows are all zero. Cast failures are invalid inputs, not imputations. The three additional tables are outside this contracted null denominator.
 
-Optional fields often encode applicability, not damage: complaint origin links are null in **67,095/67,095** rows; event value in **14,826,484/15,620,994** events and event product in **14,180,656/15,620,994** events. Unknown optional facts remain unknown. Required missing/type-invalid facts block promotion; unavailable facts needed for authority are subject to the written policy's missing-field checks. We neither reproduce nor force the organizer's unspecified 5% target by imputation.
+Optional fields often encode applicability, not damage: complaint origin links are null in **67,095/67,095** rows; event value in **14,826,484/15,620,994** events and event product in **14,180,656/15,620,994** events. Event platform and IP-address missingness are each approximately **5.00%**, compatible with field-level null injection layered onto conditional missingness; the mechanism is unverified. Unknown optional facts remain unknown. Required missing/type-invalid facts block promotion; unavailable facts needed for authority are subject to the written policy's missing-field checks. We neither reproduce nor force an overall 5% target by imputation.
 
 ## Relationships: existence is different from ownership
 
@@ -39,7 +39,7 @@ The extended scanner checks **24 relationships**. Operational customer/product/a
 | Complaint affected product → products | 44,570 | 0 | 44,570 |
 | Complaint origin interaction → interactions | 0 | 0 | — |
 
-Trimming/lowercasing does not repair the branch gaps. Digital ownership mismatches count non-null customers only. An all-null origin link makes its zero-orphan result vacuous. Registration/assigned branch fields, digital product links, and complaint product links/text are excluded from serving projections; they must not authorize lookup, routing or disputes. Analytical app-error association uses only the customer link. No broken ID is guessed or repaired.
+Trimming/lowercasing does not repair the branch gaps. A generator key-domain/seed mismatch or intentional orphan injection is plausible, but the mechanism is unverified. Digital ownership mismatches count non-null customers only. An all-null origin link makes its zero-orphan result vacuous. Registration/assigned branch fields, digital product links, and complaint product links/text are excluded from serving projections; they must not authorize lookup, routing or disputes. Analytical app-error association uses only the customer link. No broken ID is guessed or repaired.
 
 ## Volumes: delivery differences, not pipeline loss
 
@@ -53,4 +53,4 @@ Transactions and digital events each have **1,097 daily files and all 1,097 busi
 
 ## Reproduce without disclosure
 
-With local `LOCAL_RAW_DIR` and timezone-aware `BANK_CLOCK` configured, run `LLM_PROVIDER=mock uv run --extra data-ml python analysis/reconcile_data_quality.py`. It hashes every input, verifies unchanged source stats, scans aggregates with bounded DuckDB memory, and writes only to ignored `artifacts/dq-reconciliation/` with private permissions. The normal quality code also emits every column's null numerator/row denominator. Tests use authored fixtures only. All temporal comparisons use UTC and the fixed clock `2026-06-18T06:00:00Z`; see the follow-up operational temporal guard for automation treatment.
+With local `LOCAL_RAW_DIR` and timezone-aware `BANK_CLOCK` configured, run `LLM_PROVIDER=mock uv run --extra data-ml python analysis/reconcile_data_quality.py`. It hashes every input, verifies unchanged source stats, scans aggregates with bounded DuckDB memory, and writes only to ignored `artifacts/dq-reconciliation/` with private permissions. The normal quality code also emits every column's null numerator/row denominator. Tests use authored fixtures only. All temporal comparisons use UTC and the fixed clock `2026-06-18T06:00:00Z`; see the [operational temporal guard](data-temporal-guard.md) for automation treatment.

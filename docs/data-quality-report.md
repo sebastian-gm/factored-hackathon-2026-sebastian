@@ -319,6 +319,21 @@ See [delivery reconciliation](data-quality-reconciliation.md) for the direct-sou
 
 ## Known anomalies
 
+### Temporal automation boundary
+
+| window_rows | flagged_transaction_rows | unflagged_transaction_rows | window_business_date_mismatch_warning |
+|---|---|---|---|
+| 492414 | 60920 | 431494 | 4 |
+
+| reason | overlapping_findings | primary_reason_rows |
+|---|---|---|
+| before_product_open | 10241 | 10241 |
+| after_bank_clock | 0 | 0 |
+| product_updated_after_clock | 30983 | 21852 |
+| customer_updated_after_clock | 30800 | 28827 |
+
+Temporal anomalies warn and remain visible. Serving transactions gain a nullable temporal_quality_reason; the lead-owned policy must hand off flagged disputes. Business-date mismatches remain warnings. The loader verifies complete exported row sets, authority fields and flags before any bank connection. Activation requires the policy image, nullable TEXT column and serving reload together; these post-v4 changes do not alter official evaluation numbers.
+
 ### Complaint ownership
 
 | joinable | owned | mismatched |

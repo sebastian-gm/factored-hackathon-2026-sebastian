@@ -1,5 +1,34 @@
 # Progress log
 
+## 2026-10-02 — Paired temporal-policy/data verification
+
+### Completed-verified
+
+- Reviewed corrected #128 at **5dd696e**: source-equivalent non-lineage fields
+  for customers/products/transactions, FX recomputed from silver rates, and
+  **17 independent field mutations** rejected before any Postgres connection.
+  Other serving tables and lineage metadata are explicitly outside that check.
+- DQ-01 companion #131 merged at **880a4f1**; checks, Postgres, web and safety
+  all green at **fe7971f** (CI **37048430192**, safety **37048430208**).
+- Combined authored mock `make checks`: **1330 passed / 32 DB skips**,
+  hooks/mypy/compilation/snapshots current, B1 **32/32**. Disposable Postgres
+  suite **69 passed**, including source mutation rejection, locked schema/data
+  rollback, FORCE RLS and operational state. Zero model spend/Azure changes.
+- Refreshed #128 onto the migration with history preserved, retaining both
+  test sets in the single import/append conflict; no authority-field change.
+
+### Done-not-verified
+
+- Fresh #128 remote CI/merge pending. New organizer gold and Azure serving
+  column/reload/image/smoke have not been executed; official v4 stays unchanged.
+
+### Next-blocked
+
+- Merge the exact refreshed #128 head only on green remote gates. The approved
+  **$15** ceiling covers the final smoke; follow the coordinated release plan
+  and refresh conservative budget/key metadata before spending. Public/judge
+  access and warm replicas still require separate submission-day approval.
+
 ## 2026-10-02 — Sebastian approved the final smoke/judging extension
 
 ### Completed-verified
@@ -18,10 +47,13 @@
   evaluation caps and the $0.10 smoke cap stay unchanged.
 - Private approval receipt read back at **0600**; includes authorization,
   conservative arithmetic and zero new model calls, without resetting history.
+- #132 merged separately at **eead273**, all four remote gates green at
+  **b3e2505** (CI **37048944033**, safety **37048944015**). Data #128 contains
+  no budget/runbook diff after refreshing from that merged main.
 
 ### Done-not-verified
 
-- Approval PR gates and fresh live budget/key readback pending. The last
+- Fresh live budget/key readback pending. The last
   verified exposure above is not a new balance measurement.
 - Judging lifetime/daily binding is a proposal, not activated or proven live.
 
@@ -4696,7 +4728,7 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
 
 - Reconciliation/null-profile PR awaits remote CI and review. The organizer's
   approximate quality/volume targets have no verifiable upstream explanation.
-- Temporal findings require operational exclusions: future dimension statuses
+- Temporal findings require a runtime quality gate: future dimension statuses
   currently can affect dispute eligibility. Existing serving data is unchanged.
 
 ### Next / blocked
@@ -4704,3 +4736,113 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
 - Add and verify data-owned temporal serving guards, with authored boundary
   tests. Lead must rebuild/reload serving data before claiming live protection.
   These are post-v4 fixes; frozen suites and official results remain unchanged.
+
+## 2026-10-02 — Temporal exclusion proposal (superseded, never merged)
+
+Owner review replaced the exclusion proposal below with retained transactions and
+nullable reasons. Its recorded checks describe that earlier proposal; see the
+later flag-only session for the current contract and activation dependencies.
+
+### Completed (verified)
+
+- Data-side source review found that dispute eligibility consumes status/date
+  facts affected by future customer/product snapshots and pre-opening charges.
+  Added conservative operational exclusions, UTC/business-date invariants and
+  a loader preflight on actual exported Parquets before any bank connection.
+- Private LOCAL_RAW_DIR-derived aggregates: 60,924/492,414 recent transactions
+  blocked (union); 431,490 remain eligible. Historical silver/matcher rows stay
+  intact. Per-reason flags and the coverage cost are committed as aggregates.
+- Full mock pytest on main's merged #124 refactor: **1,217 passed / 31 DB
+  skips**, including eleven new
+  clock/date/altered-export checks and existing data/CLI tests. Ruff and strict
+  mypy pass. The sandbox's local async thread-wakeup restriction was reproduced
+  independently; the mock suite passed outside it. No model/cloud calls.
+- Reconciliation PR #125 initially passed all four gates at `56b0946`; refreshed
+  on current main and appended session notes to avoid parallel header conflicts.
+  All four gates passed again at `e995c8bf30c800117efdbff39496dae89c65958a`.
+  Temporal guard PR #128 is stacked on #125 and awaits lead review. Source diagnostics
+  are ignored/private; no organizer rows or backend/policy code changed.
+
+### Done but not verified
+
+- Stacked temporal guard PR needs lead review and main-target remote CI.
+  Full organizer gold rebuild, serving load/readback and Azure activation are
+  pending; existing live data is unchanged. These are post-v4 fixes.
+
+### Next / blocked
+
+- Merge reconciliation first, then review guard availability and scoped demo
+  bindings before rebuilding/reloading. Frozen suites and results remain
+  unchanged; no model or held-out evaluation work is authorized by this task.
+
+
+## 2026-10-02 — Reconciliation merged; temporal rows retained with exact flags
+
+### Completed (verified)
+
+- #125 merged as `969c304b2ec7ec73cf26b766028f6492f3b5c311` after all four
+  remote gates passed at `e995c8bf30c800117efdbff39496dae89c65958a`;
+  API readback confirmed merged/closed. No deployment or serving reload.
+- Reworked #128 to preserve the existing half-open 120-day window and all
+  customer/product projections. Added exactly `temporal_quality_reason TEXT NULL`
+  with the four approved enum values and enum-order precedence. Standalone
+  business-date mismatches remain DQ warnings, as directed by the owner.
+- Private source-derived aggregate readback: all **492,414** serving-window
+  transactions remain visible, **60,920** flagged and **431,494** unflagged.
+  Four mismatches remain warnings. No organizer rows committed or printed.
+- Authored regressions independently check retained original fields/row sets,
+  exact reasons and precedence, clock/business-date boundaries, warning-only
+  mismatches, old/missing/tampered flags and pre-bank rejection: **29 passed,
+  1 local-Postgres skip**. Ruff and strict mypy (73 source files) passed.
+  Model/cloud spend USD 0; no frozen suite or official result changed or run.
+- Refreshed the feature branch on main including #129 without rewriting
+  published history. Final full mock suite: **1,243 passed / 31 DB skips**;
+  repository-wide Ruff passed. Actual Postgres/live activation remains pending.
+
+### Done but not verified
+
+- Draft #128 needs current-head remote CI and lead integration review.
+  Postgres migration/load/readback and live policy handling are not activated.
+  Correct flags alone do not prove that runtime disputes reject anomalous facts.
+
+### Next / blocked
+
+- Keep #128 unmerged until the lead's policy/migration PR is ready. Older serving
+  loads missing the column must close automation only, retain explanations and
+  warn readiness. Flagged disputes require a data-quality handoff and an
+  open_question naming the anomaly. Ship image and serving reload together;
+  the lead's release gate must assert the nullable TEXT column exists.
+
+
+## 2026-10-02 — #128 review: source-equivalent authority fields
+
+### Completed (verified)
+
+- Extended the pre-bank export check to every non-lineage field in the customer,
+  product and transaction projections, including transaction status/type/amount/
+  currency, supplied USD amount, fraud score and product type. FX-derived amount,
+  date, prior-rate flag and foreign-country flag are recomputed from silver facts
+  and rates; cached gold values are not the source of equivalence.
+- Seventeen independent field mutations fail before any bank connection;
+  valid exact/prior/USD FX projections pass. Missing FX rates still block
+  promotion. New serving regression run: **19 passed / 1 local-Postgres skip**.
+- Diagnosed prior CI checks failure: snapshot tests assumed optional dbt was
+  installed in the fast Python gate. Added explicit dependency skips there and
+  located the new mutation cases in the existing Postgres/data gate's test file.
+- Combined data regressions: **48 passed / 1 local-Postgres skip**. Strict mypy
+  (73 source files), repository-wide Ruff and Python compilation passed.
+- No backend, NLU, policy, serving schema, source aggregates, frozen suite or
+  official result changed. No organizer reads, model calls, serving reload or
+  Azure changes. Model/cloud spend USD 0.
+
+### Done but not verified
+
+- Current-head remote CI and lead integration review are pending. Actual
+  Postgres/live activation remains pending. The preflight excludes five lineage
+  columns and other serving tables; its source-equivalence claim is scoped to
+  customer/product/transaction payloads, with no reviewed authority field omitted.
+
+### Next / blocked
+
+- Push the reviewed #128 fix and keep the draft/unmerged hold until the lead's
+  policy/migration is ready. Preserve the combined image/reload release gate.

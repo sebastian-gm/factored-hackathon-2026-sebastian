@@ -1,4 +1,4 @@
-contract_version: 1.0.0
+contract_version: 1.1.0
 table: transactions
 layer: gold
 primary_key:
@@ -141,3 +141,17 @@ columns:
     nullable: true
     pii: sensitive
     llm_exposure: never
+  temporal_quality_reason:
+    type: string
+    nullable: true
+    enum:
+    - before_product_open
+    - after_bank_clock
+    - product_updated_after_clock
+    - customer_updated_after_clock
+    pii: none
+    llm_exposure: never
+    description: >-
+      Postgres TEXT NULL. NULL passes the four temporal checks only. Non-null
+      preserves visibility and explanation but requires a data-quality handoff
+      instead of an automated dispute. Multiple findings use enum-order precedence.

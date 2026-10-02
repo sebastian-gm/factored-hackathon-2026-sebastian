@@ -1,0 +1,22 @@
+{
+  "bank_clock": "2026-06-18T06:00:00+00:00",
+  "dataset_version": "b86f445cb468332bde984a788ef24f72f7070952b2d9292e0259e7b8f36397c9",
+  "version": 2,
+  "window_rows": 492414,
+  "flagged_transaction_rows": 60920,
+  "unflagged_transaction_rows": 431494,
+  "findings": {
+    "before_product_open": 10241,
+    "after_bank_clock": 0,
+    "product_updated_after_clock": 30983,
+    "customer_updated_after_clock": 30800
+  },
+  "primary_reason_counts": {
+    "before_product_open": 10241,
+    "after_bank_clock": 0,
+    "product_updated_after_clock": 21852,
+    "customer_updated_after_clock": 28827
+  },
+  "window_business_date_mismatch_warning": 4,
+  "treatment": "retain all serving-window rows; flags require lead-owned automation handoff"
+}

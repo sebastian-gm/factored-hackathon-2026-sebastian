@@ -9,6 +9,7 @@ import duckdb
 
 from aclara.data.pipeline import _fetchone, _read_contract, _sql_identifier
 from aclara.data.profiling import column_null_profile, duplicate_profile
+from aclara.data.temporal import temporal_profile
 
 DOCUMENTED = {
     "customers": 150_000,
@@ -266,6 +267,7 @@ def quality_report(
         "WITH events AS (SELECT customer_id,event_date,event_type='Error' AS is_error FROM silver.digital_events,analysis_clock WHERE customer_id IS NOT NULL AND channel IN ('Android App','iOS App') AND action IN ('view_transactions','initiate_transfer','initiate_payment') AND event_date<=as_of-INTERVAL 48 HOUR), joined AS (SELECT e.*, i.interaction_date FROM events e ASOF LEFT JOIN silver.call_center_interactions i ON e.customer_id=i.customer_id AND e.event_date<=i.interaction_date) SELECT is_error,count(*) AS events,count(*) FILTER (WHERE interaction_date<event_date+INTERVAL 48 HOUR) AS followed_by_contact, avg(CASE WHEN interaction_date<event_date+INTERVAL 48 HOUR THEN 1.0 ELSE 0.0 END) AS contact_rate FROM joined GROUP BY is_error ORDER BY is_error",
     )
     return {
+        "temporal_automation": temporal_profile(db, clock),
         "dataset_version": version,
         "bank_clock": clock,
         "tables": tables,

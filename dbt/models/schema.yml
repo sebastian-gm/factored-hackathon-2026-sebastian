@@ -479,6 +479,12 @@ models:
     - type: not_null
   - name: fraud_score
     data_type: double
+  - name: temporal_quality_reason
+    data_type: varchar
+    data_tests:
+    - accepted_values:
+        arguments:
+          values: ['before_product_open', 'after_bank_clock', 'product_updated_after_clock', 'customer_updated_after_clock']
 - name: complaint_history_agg
   config:
     contract:
