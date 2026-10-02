@@ -1,5 +1,22 @@
 # Frontend integration and remaining API requests
 
+## Basic-mode reply signal (2026-10-02 UTC)
+
+The frontend accepts optional `degraded: boolean` on each chat message/confirmation
+plan. `true` shows a neutral localized **Modo básico** status; `false` or omission
+shows no notice. This display flag grants no authority and changes no action,
+readback, confirmation or OTP check. ES/PT authored browser fixtures cover it.
+
+**Lead-owned addition needed:** current main keeps `Conversation.degraded` in
+`src/aclara/api/app.py` and NLU/phrasing failures in traces, but does not expose a
+reply-level signal. Add `degraded` to the public plan response, true when this
+turn uses deterministic fallback because budget/model availability failed. A
+successful alternate model or a normal policy template should not imply basic
+mode. Set it for messages and confirmations; preserve it on idempotent readback.
+Only a boolean is needed—no budget balance, diagnostic text or provider failure
+details. The BFF and chat allowlist already retain this optional field. The UI
+does not infer degradation from customer-facing wording or extra trace calls.
+
 ## Live video readiness triage (2026-09-30 PDT)
 
 GET-only Azure check at **2026-10-01 01:18:03 UTC**, web/API release

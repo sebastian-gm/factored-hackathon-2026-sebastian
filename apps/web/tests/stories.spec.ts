@@ -425,9 +425,11 @@ test("OTP is required; failed challenge locks after five attempts and can restar
   const locked = page.waitForResponse((r) => r.url().endsWith("/otp/verify"));
   await page.getByRole("button", { name: "Verificar y entrar" }).click();
   expect((await locked).status()).toBe(401);
-  await page
-    .getByRole("button", { name: "Usar otra cuenta", exact: true })
-    .click();
+  await expect(page.getByTestId("sms-code")).toHaveCount(0);
+  await expect(page.locator("input[type=password]")).toHaveValue("");
+  await expect(
+    page.getByRole("alert").filter({ hasText: "El código venció" }),
+  ).toBeVisible();
   await login(page);
   await expect(page.getByRole("textbox", { name: "Tu mensaje" })).toBeVisible();
 });

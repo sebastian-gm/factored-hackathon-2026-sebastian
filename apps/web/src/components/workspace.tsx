@@ -59,6 +59,7 @@ type AppContext = {
   pickerOpen: boolean;
   profileBusy: boolean;
   profileError: boolean;
+  sessionExpired: boolean;
   preparedStory: DemoStory | null;
   chooseProfile: (id: ProfileId, story?: DemoStory) => Promise<void>;
   openProfiles: () => Promise<void>;
@@ -90,6 +91,7 @@ export default function Workspace({
   const [pickerOpen, setPickerOpen] = useState(false);
   const [profileBusy, setProfileBusy] = useState(false);
   const [profileError, setProfileError] = useState(false);
+  const [sessionExpired, setSessionExpired] = useState(false);
   const [preparedStory, setPreparedStory] = useState<DemoStory | null>(null);
   const judgeMode = useRef(false);
   const selectionLock = useRef(false);
@@ -113,6 +115,7 @@ export default function Workspace({
     judgeMode.current = isJudge;
     setProfileFlow(isJudge);
     setProfileError(false);
+    setSessionExpired(false);
     if (isJudge) {
       pickerVisible.current = true;
       setPickerOpen(true);
@@ -127,7 +130,11 @@ export default function Workspace({
       setProfiles(null);
       deadline.current = null;
     }
-    configureWorkspace(isJudge, current?.profile_selection_required === true);
+    configureWorkspace(
+      isJudge,
+      current?.profile_selection_required === true,
+      !!current,
+    );
     setSession(current);
     setPickerOpen(current?.profile_selection_required === true);
     pickerVisible.current = current?.profile_selection_required === true;
@@ -149,7 +156,9 @@ export default function Workspace({
       setProfiles(null);
       setProfileFlow(false);
       setProfileBusy(false);
-      setProfileError(true);
+      const expired = error instanceof ApiError && error.status === 401;
+      setSessionExpired(expired);
+      setProfileError(!expired);
     }
   }, [installSession]);
   async function signedIn() {
@@ -191,6 +200,7 @@ export default function Workspace({
       setProfileFlow(false);
       setProfileBusy(false);
       setProfileError(false);
+      setSessionExpired(false);
     } catch (error) {
       if (isJudge) {
         configureWorkspace(false, true);
@@ -249,7 +259,7 @@ export default function Workspace({
           throw new Error("Invalid selection");
         await installSession(result.identity);
         setPreparedStory(story ?? null);
-      } catch {
+      } catch (error) {
         // Activation may have happened. Do not recover or replay an old write.
         configureWorkspace(false, true);
         judgeMode.current = false;
@@ -257,7 +267,9 @@ export default function Workspace({
         setProfiles(null);
         setProfileFlow(false);
         setProfileBusy(false);
-        setProfileError(true);
+        const expired = error instanceof ApiError && error.status === 401;
+        setSessionExpired(expired);
+        setProfileError(!expired);
       } finally {
         notifyProfileChange("settled");
       }
@@ -305,7 +317,8 @@ export default function Workspace({
       judgeMode.current = false;
       setProfileFlow(false);
       setProfileBusy(false);
-      setProfileError(true);
+      setProfileError(false);
+      setSessionExpired(true);
       notifyProfileChange("settled");
     };
     const unsubscribe = listenProfileChanges((kind) => {
@@ -372,6 +385,7 @@ export default function Workspace({
           pickerOpen,
           profileBusy,
           profileError,
+          sessionExpired,
           preparedStory,
           chooseProfile,
           openProfiles,
@@ -417,6 +431,7 @@ function Shell({
     pickerOpen,
     profileBusy,
     profileError,
+    sessionExpired,
     preparedStory,
     chooseProfile,
     openProfiles,
@@ -679,14 +694,16 @@ function Shell({
               )}
             </p>
           </div>
-          {(authError || profileError) && (
+          {(authError || profileError || sessionExpired) && (
             <p className="error" role="alert">
               {t(
-                profileError
-                  ? profileFlow
-                    ? "profileUnavailable"
-                    : "profileLoginAgain"
-                  : "error",
+                sessionExpired
+                  ? "sessionExpired"
+                  : profileError
+                    ? profileFlow
+                      ? "profileUnavailable"
+                      : "profileLoginAgain"
+                    : "error",
               )}
             </p>
           )}
