@@ -1,52 +1,67 @@
-# Temporal facts: analysis versus automation
+# Temporal quality flags and the dispute gate
 
-This is a **post-v4 data fix, not reflected in official v4 numbers**. The committed implementation protects newly built operational exports. It does not modify an existing Azure database: the lead must rebuild, review availability and reload before claiming live protection.
+This is a **post-v4 data change, not reflected in official v4 numbers**. Transactions remain visible and explainable. A temporal flag requires the lead-owned policy to hand off an attempted dispute instead of automating it. This data PR alone does not activate the policy or change the live database. The earlier exclusion proposal was never merged or deployed and is superseded by this contract.
 
-## Measured exposure
+## Exact serving contract
 
-The [direct-source reconciliation](data-quality-reconciliation.md) uses only local `LOCAL_RAW_DIR` inputs, dataset `b86f445cb468332bde984a788ef24f72f7070952b2d9292e0259e7b8f36397c9`, and `BANK_CLOCK=2026-06-18T06:00:00Z`. [Aggregate evidence](data/temporal-guard-aggregates.json) was computed with the new [eligibility profiler](../src/aclara/data/temporal.py), with private readback and no model/system evaluation runs.
+[gold_transactions.yaml](../contracts/gold_transactions.yaml) adds one field, `temporal_quality_reason`, exported as nullable VARCHAR and loaded as **Postgres `TEXT NULL`**. No other serving column changes. `NULL` means the transaction passed these four temporal checks; it does not establish dispute eligibility or resolve other DQ warnings.
 
-| Anomaly | Full history | In the 492,414-row 120-day window |
-|---|---:|---:|
-| UTC transaction date before product opening | 827,610 | 10,193 |
-| UTC or bank business date before opening (union) | — | 10,241 |
-| Supplied business date differs from timestamp − 6 hours | 51 | 4 |
-| Transaction linked to post-clock customer snapshot | 276,618 | 30,800 |
-| Transaction linked to post-clock product snapshot | 277,363 | 30,983 |
-| Any temporal blocker (union, not summed reasons) | — | **60,924** |
+| Enum reason | Predicate | Meaning |
+|---|---|---|
+| `before_product_open` | Transaction UTC calendar date **or supplied bank business date** is before the product opening date | The charge cannot be given automated authority from the delivered product timeline. |
+| `after_bank_clock` | Transaction timestamp is at or after `BANK_CLOCK` | The charge is outside the completed clock interval. |
+| `product_updated_after_clock` | Linked product `last_updated` is at or after `BANK_CLOCK` | The delivered product status may contain post-clock information. |
+| `customer_updated_after_clock` | Linked customer `last_updated` is at or after `BANK_CLOCK` | The delivered customer status may contain post-clock information. |
 
-There are **9,301/150,000 customer snapshots** and **25,079/400,000 product snapshots** updated at or after the clock. These are dimension counts, distinct from linked transaction counts. The stricter business-date definition finds **827,989** pre-opening transactions over full history. Reader sessions explicitly set UTC, so local workstation timezones cannot reinterpret naive source timestamps.
+For overlapping findings, store the first applicable reason in the table's order. Each non-null value has the same automation restriction, so choosing a primary reason does not remove that restriction. Aggregate diagnostics retain all overlapping findings; the single serving field is not a complete list of anomalies. Timestamps are interpreted in UTC, including in a reader session whose local timezone differs.
 
-The prospective eligible window is **431,490 / 492,414 (87.63%)**, excluding **60,924 (12.37%)** once each. This is a coverage cost, not an accuracy improvement or a rerun of any held-out suite.
+**Preserve the existing half-open serving window** `[BANK_CLOCK − 120 days, BANK_CLOCK)`, as directed by the owner. No new temporal filter removes a transaction inside that window. Full customer/product projections also remain unchanged. The `after_bank_clock` predicate is defined and tested, but cannot occur inside this window; the fixed delivered source also contains zero such transactions over full history. It is not a request to expand the serving window.
+
+The supplied business date is compared with `(transaction_timestamp − 6 hours).date` for DQ warnings. A mismatch alone has no reason in the approved four-value enum and remains a warning; it is flagged only if one of the four predicates also applies. No date is silently repaired. ADR-0015's last completed business-date anchor is `(BANK_CLOCK − 6 hours − 1 microsecond).date`; the lead's dispute window remains a separate policy check.
+
+## Aggregate exposure and retained coverage
+
+The [direct-source reconciliation](data-quality-reconciliation.md) reads only local `LOCAL_RAW_DIR`, dataset `b86f445cb468332bde984a788ef24f72f7070952b2d9292e0259e7b8f36397c9`, at `BANK_CLOCK=2026-06-18T06:00:00Z`. [Aggregate evidence](data/temporal-guard-aggregates.json) comes from the private source-derived warehouse and the [temporal profiler](../src/aclara/data/temporal.py), without model calls or system evaluation runs.
+
+| Finding | Full history | In the 492,414-row serving window | Primary reason rows |
+|---|---:|---:|---:|
+| UTC transaction date before product opening | 827,610 | 10,193 | — |
+| UTC or supplied bank business date before opening (union) | — | 10,241 | 10,241 |
+| Transaction at/after bank clock | 0 | 0 | 0 |
+| Transaction linked to post-clock product snapshot | 277,363 | 30,983 | 21,852 |
+| Transaction linked to post-clock customer snapshot | 276,618 | 30,800 | 28,827 |
+| Any of the four reasons (union) | — | **60,920** | **60,920** |
+| Business-date/timestamp mismatch (warning only) | 51 | 4 | — |
+
+**All 492,414 transactions remain visible**: 60,920 flagged and 431,494 unflagged. The union counts each transaction once; overlapping findings must not be summed. All 150,000 customers and 400,000 products retain their existing projections. The source has 9,301 post-clock customer snapshots and 25,079 post-clock product snapshots. The stricter supplied business-date check finds 827,989 pre-opening transactions over full history. These are data-quality measurements, not runtime handoff counts or evidence of improved evaluation accuracy.
 
 ## Operational treatment
 
-| Finding | Historical analysis | Automation |
+| Finding | Data treatment | Runtime dependency |
 |---|---|---|
-| Required missing/invalid facts, PK duplication, required FK/ownership break | Quarantine / block snapshot promotion | No new snapshot or load |
-| Pre-opening transaction or inconsistent business date | Warn; preserve in silver and historical matcher ledger | Exclude transaction from operational gold |
-| Customer or product snapshot updated at/after clock | Warn; preserve delivered snapshot | Exclude untrusted customer/product and their operational transactions |
-| Product opening after last completed bank business date | Preserve source | Exclude product and its operational transactions |
-| Broken branch references, unsafe complaint/digital product links | Report aggregates without following unsafe links | Fields excluded from serving projections |
-| Optional nulls, volume mismatch, nonidentical natural-key collision | Warn with explicit denominator; no guessed repair | No authority inferred from missing facts or a collision |
+| Required missing/invalid facts, PK duplication, required FK/ownership break | Quarantine / block snapshot promotion | No new snapshot or serving load |
+| Any of the four temporal reasons | Preserve original facts; add the nullable reason | Explain allowed; automated dispute blocked; handoff with a data-quality reason and an `open_question` naming the anomaly |
+| Business-date mismatch without a listed reason | Preserve original date; report warning | No additional automation block is claimed by this four-reason contract |
+| Broken branch references, unsafe complaint/digital product links | Report aggregates; exclude unsafe fields from serving projections | Never follow an excluded link |
+| Optional nulls, volume mismatch, nonidentical natural-key collision | Warn with denominators; no guessed repair or deduplication | Missing facts or collisions grant no authority |
 
-The bank business anchor follows ADR-0015: `(BANK_CLOCK − 6 hours − 1 microsecond).date`. Updates must be strictly earlier than the clock; operational transaction timestamps use `[BANK_CLOCK − 120 days, BANK_CLOCK)`. Both UTC and business transaction dates must be on/after product opening. An earlier trusted dimension version is unavailable, so we cannot reconstruct a historical status or assume a post-clock edit left it unchanged. Excluding the entity is conservative and may reduce service availability; it does not delete organizer history.
+Read-only dispute-path inspection found that eligibility uses customer status, product status and transaction business date. Although it does not directly use `last_updated` or `opening_date`, its facts can derive from anomalous snapshots. Preserving those rows requires the explicit policy gate; the data export alone cannot prove that disputes avoid anomalous authority. Earlier trusted dimension versions are unavailable, so a historical status cannot be reconstructed safely.
 
-## Dispute-path review and proof
+## Export proof and loader checks
 
-Read-only inspection of the serving adapter found that dispute eligibility reads **customer status, product status and transaction business date**. It does not directly read `last_updated` or `opening_date`, but those statuses/dates can derive from anomalous snapshots. Therefore the previous blanket claim that temporal anomalies could not affect disputes was unjustified.
+[dbt](../dbt/models/transactions.sql) appends the reason without changing existing transaction fields. [dbt invariants](../dbt/tests/temporal_serving.sql) verify complete source-equivalent customer/product/window transaction row sets and correct nullable flags. Historical silver, `transaction_facts` and `matcher_ledger` remain unchanged. The gold contract enforces the four-value enum.
 
-[dbt macros](../dbt/macros/temporal_guard.sql) now filter operational customers, products and transactions, without changing bank/interface columns. Full-history `transaction_facts` and `matcher_ledger` stay analytical, with their source ownership test preserved. The [dbt temporal invariant](../dbt/tests/temporal_serving.sql) tests the resulting operational tables. No source date is silently repaired.
+The [serving loader](../src/aclara/data/serving_load.py) rejects stale build fingerprints and checks actual exported Parquets against the private silver snapshot **before connecting to Postgres**. Missing or incorrect flags, removed/duplicated rows and altered authority fields fail preflight. Correctly flagged rows pass. Existing atomic COPY, checksums, forced RLS and durable-commit readback remain. A fresh serving table uses nullable TEXT; an existing table missing the column, using another type or imposing NOT NULL requires a lead migration before load.
 
-The [serving loader](../src/aclara/data/serving_load.py) rejects stale build fingerprints, reads the actual exported Parquets against the private silver snapshot, and rejects unsafe or changed statuses/dates **before connecting to Postgres**. Existing atomic load/readback/RLS and durable-commit checks remain. A same-version reload also executes the preflight. Authored [regressions](../tests/test_data_temporal.py) cover pre-opening/business-date boundaries, update-at-clock and just-before-clock, future product opening, timezone-independent reads, retained analytical history, altered exports and no-bank-connection rejection.
+[Authored regressions](../tests/test_data_temporal.py) independently specify retained row counts, exact reasons and precedence, both sides of the six-hour business-date boundary, update-at-clock/just-before-clock, warning-only mismatches, timezone-independent reads, the unchanged serving window and original transaction fields, and tampered/old exports rejected before any bank connection. Database readback/type tests require the disposable local Postgres gate; no organizer rows enter fixtures or CI.
 
-After the lead rebuilds and loads with this code, the checked temporal fields cannot enter the dispute path through these operational exports. This guarantee depends on loading through this preflight; it does not cover unrelated external writers. Absence from the operational candidate set means insufficient trusted evidence, not proof that no charge exists. Offer a human review rather than inventing eligibility or repairing a date; the lead owns any additional runtime/UX handling.
+## Coordinated release — hold #128
 
-## Activation and verification
+Do not merge #128 until the lead's rule PR is ready. The lead owns the bank migration, serving adapter, runtime policy, readiness warning and release gate. Required behavior:
 
-1. Lead builds a new local snapshot from `LOCAL_RAW_DIR` with the same explicit clock; source transformations are reusable, gold rebuilds because its fingerprint changed.
-2. Review excluded customer/product coverage and scoped demo/judge bindings before release. Analytical datasets and frozen evaluation suites are not rewritten.
-3. Use the existing explicit serving-load command. Require zero temporal preflight failures plus full Postgres readback/RLS verification, and retain the old snapshot for rollback.
-4. Recheck a scoped dispute with authored safe facts. Do not publish a changed accuracy/safety figure without a separately authorized evaluation.
+1. An older serving load without this column fails closed **for automation only**. Explanations remain available, and readiness reports a warning; absence must never be treated as `NULL`/passed.
+2. A non-null reason permits explanation but blocks automatic dispute creation. Create a data-quality handoff with an `open_question` naming the anomaly; read back the handoff before success.
+3. The final release ships the policy-capable image and the flagged serving reload together. Its release gate asserts `bank.transactions.temporal_quality_reason` exists as nullable TEXT, verifies enum/flag coverage and serving readback, and exercises flagged and missing-column paths using authored cases.
+4. Rebuild from local `LOCAL_RAW_DIR` using this data head, apply the lead migration, then perform the atomic serving load and readback. Check scoped demo/profile availability before releasing; all original window transactions should remain available.
 
-Local guard/tests and source aggregates are verified; **a full organizer gold rebuild, Postgres load and Azure activation are pending lead review**. No cloud or paid model work was performed.
+No full organizer gold rebuild, serving reload or Azure deployment was performed here. No backend, NLU, policy, frozen suite or official result was changed or run. Model/cloud spend: USD 0.

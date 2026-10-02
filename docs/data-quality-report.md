@@ -321,11 +321,18 @@ See [delivery reconciliation](data-quality-reconciliation.md) for the direct-sou
 
 ### Temporal automation boundary
 
-| version | window_rows | blocked_transaction_rows | eligible_transaction_rows | window_before_open | window_business_date_mismatch | window_untrusted_customer_state | window_untrusted_product_state | treatment |
-|---|---|---|---|---|---|---|---|---|
-| 1 | 492414 | 60924 | 431490 | 10241 | 4 | 30800 | 30983 | exclude from operational gold; retain silver and historical matcher ledger |
+| window_rows | flagged_transaction_rows | unflagged_transaction_rows | window_business_date_mismatch_warning |
+|---|---|---|---|
+| 492414 | 60920 | 431494 | 4 |
 
-Analytical anomalies warn; operational gold excludes untrusted dimension states, pre-opening transactions and inconsistent business dates. The serving loader reads back exported temporal authority fields before any bank connection. Existing serving data requires a rebuild/reload; these post-v4 changes do not alter official evaluation numbers.
+| reason | overlapping_findings | primary_reason_rows |
+|---|---|---|
+| before_product_open | 10241 | 10241 |
+| after_bank_clock | 0 | 0 |
+| product_updated_after_clock | 30983 | 21852 |
+| customer_updated_after_clock | 30800 | 28827 |
+
+Temporal anomalies warn and remain visible. Serving transactions gain a nullable temporal_quality_reason; the lead-owned policy must hand off flagged disputes. Business-date mismatches remain warnings. The loader verifies complete exported row sets, authority fields and flags before any bank connection. Activation requires the policy image, nullable TEXT column and serving reload together; these post-v4 changes do not alter official evaluation numbers.
 
 ### Complaint ownership
 

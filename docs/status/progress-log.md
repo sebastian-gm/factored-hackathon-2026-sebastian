@@ -4576,7 +4576,11 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
   tests. Lead must rebuild/reload serving data before claiming live protection.
   These are post-v4 fixes; frozen suites and official results remain unchanged.
 
-## 2026-10-02 — Temporal facts excluded from operational gold
+## 2026-10-02 — Temporal exclusion proposal (superseded, never merged)
+
+Owner review replaced the exclusion proposal below with retained transactions and
+nullable reasons. Its recorded checks describe that earlier proposal; see the
+later flag-only session for the current contract and activation dependencies.
 
 ### Completed (verified)
 
@@ -4609,3 +4613,38 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
 - Merge reconciliation first, then review guard availability and scoped demo
   bindings before rebuilding/reloading. Frozen suites and results remain
   unchanged; no model or held-out evaluation work is authorized by this task.
+
+
+## 2026-10-02 — Reconciliation merged; temporal rows retained with exact flags
+
+### Completed (verified)
+
+- #125 merged as `969c304b2ec7ec73cf26b766028f6492f3b5c311` after all four
+  remote gates passed at `e995c8bf30c800117efdbff39496dae89c65958a`;
+  API readback confirmed merged/closed. No deployment or serving reload.
+- Reworked #128 to preserve the existing half-open 120-day window and all
+  customer/product projections. Added exactly `temporal_quality_reason TEXT NULL`
+  with the four approved enum values and enum-order precedence. Standalone
+  business-date mismatches remain DQ warnings, as directed by the owner.
+- Private source-derived aggregate readback: all **492,414** serving-window
+  transactions remain visible, **60,920** flagged and **431,494** unflagged.
+  Four mismatches remain warnings. No organizer rows committed or printed.
+- Authored regressions independently check retained original fields/row sets,
+  exact reasons and precedence, clock/business-date boundaries, warning-only
+  mismatches, old/missing/tampered flags and pre-bank rejection: **29 passed,
+  1 local-Postgres skip**. Ruff and strict mypy (73 source files) passed.
+  Model/cloud spend USD 0; no frozen suite or official result changed or run.
+
+### Done but not verified
+
+- Full mock suite against refreshed main and the final data head remains pending.
+  Postgres migration/load/readback and live policy handling are not activated.
+  Correct flags alone do not prove that runtime disputes reject anomalous facts.
+
+### Next / blocked
+
+- Keep #128 unmerged until the lead's policy/migration PR is ready. Older serving
+  loads missing the column must close automation only, retain explanations and
+  warn readiness. Flagged disputes require a data-quality handoff and an
+  open_question naming the anomaly. Ship image and serving reload together;
+  the lead's release gate must assert the nullable TEXT column exists.

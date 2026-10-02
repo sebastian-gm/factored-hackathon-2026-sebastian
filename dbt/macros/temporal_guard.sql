@@ -1,17 +1,14 @@
-{% macro trusted_customer(c) -%}
-{{ c }}.last_updated < cast('{{ env_var("BANK_CLOCK") }}' as timestamptz)
-{%- endmacro %}
-
-{% macro trusted_product(p) -%}
-{{ p }}.last_updated < cast('{{ env_var("BANK_CLOCK") }}' as timestamptz)
-and {{ p }}.opening_date <= (
-  cast('{{ env_var("BANK_CLOCK") }}' as timestamptz)-interval 6 hour-interval 1 microsecond
-)::date
-{%- endmacro %}
-
-{% macro trusted_transaction(t, p) -%}
-{{ t }}.customer_id={{ p }}.customer_id
-and {{ t }}.transaction_date::date >= {{ p }}.opening_date
-and {{ t }}.process_date >= {{ p }}.opening_date
-and {{ t }}.process_date=({{ t }}.transaction_date-interval 6 hour)::date
+{% macro temporal_quality_reason(t, p, c) -%}
+-- One primary reason in contract order; no serving row is removed by a flag.
+case
+  when {{ t }}.transaction_date::date < {{ p }}.opening_date
+    or {{ t }}.process_date < {{ p }}.opening_date then 'before_product_open'
+  when {{ t }}.transaction_date >= cast('{{ env_var("BANK_CLOCK") }}' as timestamptz)
+    then 'after_bank_clock'
+  when {{ p }}.last_updated >= cast('{{ env_var("BANK_CLOCK") }}' as timestamptz)
+    then 'product_updated_after_clock'
+  when {{ c }}.last_updated >= cast('{{ env_var("BANK_CLOCK") }}' as timestamptz)
+    then 'customer_updated_after_clock'
+  else null::varchar
+end
 {%- endmacro %}

@@ -67,11 +67,13 @@ def _load_table(
         )
     )
     existing = pg.execute(
-        "SELECT column_name FROM information_schema.columns WHERE table_schema='bank' AND table_name=%s ORDER BY ordinal_position",
+        "SELECT column_name,data_type,is_nullable FROM information_schema.columns WHERE table_schema='bank' AND table_name=%s ORDER BY ordinal_position",
         [table],
     ).fetchall()
     if [row[0] for row in existing] != names:
         raise ValueError("serving schema differs from gold contract; lead migration required")
+    if table == "transactions" and existing[-1] != ("temporal_quality_reason", "text", "YES"):
+        raise ValueError("temporal reason must be nullable TEXT; lead migration required")
     if table in CUSTOMER_SCOPED:
         pg.execute(sql.SQL("ALTER TABLE {} ENABLE ROW LEVEL SECURITY").format(relation))
         # Azure's database owner is not a superuser. Its COPY/readback must run

@@ -25,6 +25,12 @@ def test_serving_readback_and_rls(tmp_path: Path) -> None:
     assert result["tables"]["transactions"]["rows"] == 3
     assert load_serving(lake, dsn)["same_version_reload"]
     with psycopg.connect(dsn, autocommit=True) as db:
+        assert db.execute(
+            "SELECT data_type,is_nullable FROM information_schema.columns WHERE table_schema='bank' AND table_name='transactions' AND column_name='temporal_quality_reason'"
+        ).fetchone() == ("text", "YES")
+        assert db.execute(
+            "SELECT count(*) FROM bank.transactions WHERE temporal_quality_reason IS NOT NULL"
+        ).fetchone() == (0,)
         db.execute(
             "CREATE OR REPLACE VIEW bank.fixture_transaction_view WITH (security_invoker=true) AS SELECT * FROM bank.transactions"
         )

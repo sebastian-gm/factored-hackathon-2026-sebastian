@@ -1,4 +1,4 @@
-"""Fail closed on operational temporal facts; retain analytical history."""
+"""Preserve serving facts and mark temporal uncertainty for the policy gate."""
 
 # ruff: noqa: S608 -- all predicates and identifiers are repository-defined.
 from __future__ import annotations
@@ -10,13 +10,28 @@ import duckdb
 
 from aclara.data.pipeline import _fetchone, _sql_identifier, _sql_string
 
-CUSTOMER_SAFE = "c.last_updated < as_of"
-PRODUCT_SAFE = """p.last_updated < as_of AND
-p.opening_date <= (as_of-INTERVAL 6 HOUR-INTERVAL 1 MICROSECOND)::DATE"""
-TRANSACTION_SAFE = """t.customer_id=p.customer_id AND
-t.transaction_date::DATE>=p.opening_date AND t.process_date>=p.opening_date AND
-t.process_date=(t.transaction_date-INTERVAL 6 HOUR)::DATE"""
 WINDOW = "t.transaction_date>=as_of-INTERVAL 120 DAY AND t.transaction_date<as_of"
+TEMPORAL_REASONS = (
+    "before_product_open",
+    "after_bank_clock",
+    "product_updated_after_clock",
+    "customer_updated_after_clock",
+)
+TEMPORAL_PREDICATES = (
+    "t.transaction_date::DATE<p.opening_date OR t.process_date<p.opening_date",
+    "t.transaction_date>=as_of",
+    "p.last_updated>=as_of",
+    "c.last_updated>=as_of",
+)
+
+
+def temporal_reason_sql() -> str:
+    """First applicable reason in contract order; NULL passes these four checks."""
+    clauses = " ".join(
+        f"WHEN {predicate} THEN '{reason}'"
+        for reason, predicate in zip(TEMPORAL_REASONS, TEMPORAL_PREDICATES, strict=True)
+    )
+    return f"CASE {clauses} ELSE NULL::VARCHAR END"
 
 
 def register_temporal_exports(db: duckdb.DuckDBPyConnection, gold: Path) -> None:
@@ -28,59 +43,61 @@ def register_temporal_exports(db: duckdb.DuckDBPyConnection, gold: Path) -> None
 
 
 def temporal_profile(db: duckdb.DuckDBPyConnection, clock: str) -> dict[str, Any]:
-    """Aggregate eligibility flags, counting the union once per transaction."""
+    """Count flags and overlapping findings; never remove analytical/serving rows."""
     db.execute("SET TimeZone='UTC'")
     db.execute(
         "CREATE OR REPLACE TEMP TABLE temporal_clock AS SELECT ?::TIMESTAMPTZ as_of", [clock]
     )
-    safe = f"({CUSTOMER_SAFE}) AND ({PRODUCT_SAFE}) AND ({TRANSACTION_SAFE})"
-    total, blocked, before_open, bad_date, customer_future, product_future = _fetchone(
+    counts = _fetchone(
         db,
-        f"""SELECT count(*),count(*) FILTER (WHERE NOT ({safe})),
-        count(*) FILTER (WHERE t.transaction_date::DATE<p.opening_date OR t.process_date<p.opening_date),
-        count(*) FILTER (WHERE t.process_date<>(t.transaction_date-INTERVAL 6 HOUR)::DATE),
-        count(*) FILTER (WHERE NOT ({CUSTOMER_SAFE})),
-        count(*) FILTER (WHERE NOT ({PRODUCT_SAFE}))
+        f"""SELECT count(*),count(*) FILTER (WHERE ({temporal_reason_sql()}) IS NOT NULL),
+        {",".join(f"count(*) FILTER (WHERE {predicate})" for predicate in TEMPORAL_PREDICATES)},
+        count(*) FILTER (WHERE t.process_date<>(t.transaction_date-INTERVAL 6 HOUR)::DATE)
         FROM silver.transactions t JOIN silver.products p USING(product_id)
         JOIN silver.customers c ON t.customer_id=c.customer_id CROSS JOIN temporal_clock
         WHERE {WINDOW}""",
     )
+    primary_counts = _fetchone(
+        db,
+        f"""SELECT {",".join(f"count(*) FILTER (WHERE reason='{reason}')" for reason in TEMPORAL_REASONS)}
+        FROM (SELECT {temporal_reason_sql()} reason
+        FROM silver.transactions t JOIN silver.products p USING(product_id)
+        JOIN silver.customers c ON t.customer_id=c.customer_id CROSS JOIN temporal_clock
+        WHERE {WINDOW})""",
+    )
     return {
-        "version": 1,
-        "window_rows": total,
-        "blocked_transaction_rows": blocked,
-        "eligible_transaction_rows": total - blocked,
-        "window_before_open": before_open,
-        "window_business_date_mismatch": bad_date,
-        "window_untrusted_customer_state": customer_future,
-        "window_untrusted_product_state": product_future,
-        "treatment": "exclude from operational gold; retain silver and historical matcher ledger",
+        "version": 2,
+        "window_rows": counts[0],
+        "flagged_transaction_rows": counts[1],
+        "unflagged_transaction_rows": counts[0] - counts[1],
+        "findings": dict(zip(TEMPORAL_REASONS, counts[2:6], strict=True)),
+        "primary_reason_counts": dict(zip(TEMPORAL_REASONS, primary_counts, strict=True)),
+        "window_business_date_mismatch_warning": counts[6],
+        "treatment": "retain all serving-window rows; flags require lead-owned automation handoff",
     }
 
 
 def validate_temporal_exports(db: duckdb.DuckDBPyConnection, clock: str) -> dict[str, int]:
-    """Read actual served_* Parquets against silver before any bank connection.
+    """Verify complete row sets, authority fields and flags before a bank connection.
 
-    The caller registers served_customers/products/transactions. Authority fields
-    must match eligible source facts; checking IDs alone would miss altered dates
-    and statuses. Return counts only, never offending records or keys.
+    Flagged facts remain valid serving data. Missing/cleared/incorrect flags and
+    removed, duplicated or altered facts fail the load. Return aggregates only.
     """
     db.execute("SET TimeZone='UTC'")
     db.execute(
         "CREATE OR REPLACE TEMP TABLE temporal_clock AS SELECT ?::TIMESTAMPTZ as_of", [clock]
     )
+    columns = {row[0]: row[1] for row in db.execute("DESCRIBE served_transactions").fetchall()}
+    if columns.get("temporal_quality_reason") != "VARCHAR":
+        raise ValueError("temporal serving preflight failed; nullable text reason column required")
     queries = {
-        "customers": f"""SELECT count(*) FROM served_customers g
-            LEFT JOIN silver.customers c USING(customer_id) CROSS JOIN temporal_clock
-            WHERE c.customer_id IS NULL OR NOT ({CUSTOMER_SAFE})
+        "customers": """SELECT count(*) FROM served_customers g
+            LEFT JOIN silver.customers c USING(customer_id)
+            WHERE c.customer_id IS NULL
             OR g.customer_status IS DISTINCT FROM c.customer_status""",
-        "products": f"""SELECT count(*) FROM served_products g
+        "products": """SELECT count(*) FROM served_products g
             LEFT JOIN silver.products p USING(product_id)
-            LEFT JOIN silver.customers c ON p.customer_id=c.customer_id
-            LEFT JOIN served_customers gc ON g.customer_id=gc.customer_id
-            CROSS JOIN temporal_clock
-            WHERE p.product_id IS NULL OR c.customer_id IS NULL OR gc.customer_id IS NULL
-            OR NOT (({CUSTOMER_SAFE}) AND ({PRODUCT_SAFE}))
+            WHERE p.product_id IS NULL
             OR g.customer_id IS DISTINCT FROM p.customer_id
             OR g.product_status IS DISTINCT FROM p.product_status
             OR g.opening_date IS DISTINCT FROM p.opening_date""",
@@ -88,18 +105,35 @@ def validate_temporal_exports(db: duckdb.DuckDBPyConnection, clock: str) -> dict
             LEFT JOIN silver.transactions t USING(transaction_id)
             LEFT JOIN silver.products p ON t.product_id=p.product_id
             LEFT JOIN silver.customers c ON t.customer_id=c.customer_id
-            LEFT JOIN served_customers gc ON g.customer_id=gc.customer_id
-            LEFT JOIN served_products gp ON g.product_id=gp.product_id
             CROSS JOIN temporal_clock
             WHERE t.transaction_id IS NULL OR p.product_id IS NULL OR c.customer_id IS NULL
-            OR gc.customer_id IS NULL OR gp.product_id IS NULL
-            OR NOT (({CUSTOMER_SAFE}) AND ({PRODUCT_SAFE}) AND ({TRANSACTION_SAFE}) AND ({WINDOW}))
+            OR NOT ({WINDOW})
             OR g.customer_id IS DISTINCT FROM t.customer_id
             OR g.product_id IS DISTINCT FROM t.product_id
             OR g.transaction_date IS DISTINCT FROM t.transaction_date
-            OR g.process_date IS DISTINCT FROM t.process_date""",
+            OR g.process_date IS DISTINCT FROM t.process_date
+            OR g.temporal_quality_reason IS DISTINCT FROM ({temporal_reason_sql()})""",
     }
     counts = {table: int(_fetchone(db, query)[0]) for table, query in queries.items()}
+    for table, key in (
+        ("customers", "customer_id"),
+        ("products", "product_id"),
+        ("transactions", "transaction_id"),
+    ):
+        expected = (
+            f"SELECT {key} FROM silver.transactions t CROSS JOIN temporal_clock WHERE {WINDOW}"
+            if table == "transactions"
+            else f"SELECT {key} FROM silver.{table}"
+        )
+        actual = f"SELECT {key} FROM served_{table}"
+        counts[table] += int(
+            _fetchone(
+                db,
+                f"SELECT count(*) FROM (({actual} EXCEPT ALL {expected}) UNION ALL ({expected} EXCEPT ALL {actual}))",
+            )[0]
+        )
     if any(counts.values()):
-        raise ValueError("temporal serving preflight failed; rebuild eligible operational gold")
+        raise ValueError(
+            "temporal serving preflight failed; rebuild complete, correctly flagged gold"
+        )
     return counts
