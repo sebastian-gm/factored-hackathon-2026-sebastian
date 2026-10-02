@@ -84,6 +84,11 @@
   The expiry check initially read cookies before OTP completed; its explicit
   authenticated-state wait fixed the test race. All verification used mocks.
 
+- Concurrent #115 rate-limit merge required a second history-preserving refresh.
+  Kept the admission fixture and private-login helper. Combined local typecheck,
+  **148 fixture + 12 live API browser checks** pass, real limiter enabled.
+  Explicit optimized Python freeze regression **1 passed** under `python -O`.
+
 ### Done-not-verified
 
 - Full fixture browser suite previously had 129 passes and eight obsolete
