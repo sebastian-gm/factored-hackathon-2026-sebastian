@@ -77,11 +77,22 @@ def temporal_profile(db: duckdb.DuckDBPyConnection, clock: str) -> dict[str, Any
     }
 
 
+def _different_fields(expressions: dict[str, str]) -> str:
+    """Null-safe comparison with repository-defined source expressions."""
+    return " OR ".join(
+        f"g.{_sql_identifier(field)} IS DISTINCT FROM ({expression})"
+        for field, expression in expressions.items()
+    )
+
+
 def validate_temporal_exports(db: duckdb.DuckDBPyConnection, clock: str) -> dict[str, int]:
     """Verify complete row sets, authority fields and flags before a bank connection.
 
     Flagged facts remain valid serving data. Missing/cleared/incorrect flags and
-    removed, duplicated or altered facts fail the load. Return aggregates only.
+    removed, duplicated or changed non-lineage projection fields fail the load.
+    Source-equivalence covers customers/products/transactions; other serving
+    tables and the five underscore-prefixed lineage fields are outside this
+    preflight. Return aggregates only.
     """
     db.execute("SET TimeZone='UTC'")
     db.execute(
@@ -90,29 +101,60 @@ def validate_temporal_exports(db: duckdb.DuckDBPyConnection, clock: str) -> dict
     columns = {row[0]: row[1] for row in db.execute("DESCRIBE served_transactions").fetchall()}
     if columns.get("temporal_quality_reason") != "VARCHAR":
         raise ValueError("temporal serving preflight failed; nullable text reason column required")
+    # Every non-lineage field in these three serving projections is compared.
+    # FX expressions deliberately read silver rates, never gold/cached FX values.
+    customer_fields = {field: f"c.{field}" for field in ("country", "segment", "customer_status")}
+    product_fields = {
+        field: f"p.{field}"
+        for field in ("customer_id", "product_type", "currency", "product_status", "opening_date")
+    }
+    transaction_fields = {
+        field: f"t.{field}"
+        for field in (
+            "customer_id",
+            "product_id",
+            "transaction_date",
+            "process_date",
+            "transaction_type",
+            "transaction_category",
+            "amount",
+            "currency",
+            "amount_usd",
+            "channel",
+            "merchant_name",
+            "merchant_category",
+            "transaction_country",
+            "transaction_status",
+            "fraud_score",
+        )
+    }
+    transaction_fields.update(
+        {
+            "customer_country": "c.country",
+            "product_status": "p.product_status",
+            "amount_usd_recomputed": "CASE WHEN t.currency='USD' THEN t.amount ELSE t.amount*f.exchange_rate END::DOUBLE",
+            "fx_date": "CASE WHEN t.currency='USD' THEN t.process_date ELSE f.date END::DATE",
+            "fx_nearest_prior": "coalesce(t.currency<>'USD' AND f.date<t.process_date,false)::BOOLEAN",
+            "foreign_transaction": "(t.transaction_country<>c.country)::BOOLEAN",
+            "temporal_quality_reason": temporal_reason_sql(),
+        }
+    )
     queries = {
-        "customers": """SELECT count(*) FROM served_customers g
+        "customers": f"""SELECT count(*) FROM served_customers g
             LEFT JOIN silver.customers c USING(customer_id)
-            WHERE c.customer_id IS NULL
-            OR g.customer_status IS DISTINCT FROM c.customer_status""",
-        "products": """SELECT count(*) FROM served_products g
+            WHERE c.customer_id IS NULL OR {_different_fields(customer_fields)}""",
+        "products": f"""SELECT count(*) FROM served_products g
             LEFT JOIN silver.products p USING(product_id)
-            WHERE p.product_id IS NULL
-            OR g.customer_id IS DISTINCT FROM p.customer_id
-            OR g.product_status IS DISTINCT FROM p.product_status
-            OR g.opening_date IS DISTINCT FROM p.opening_date""",
+            WHERE p.product_id IS NULL OR {_different_fields(product_fields)}""",
         "transactions": f"""SELECT count(*) FROM served_transactions g
             LEFT JOIN silver.transactions t USING(transaction_id)
             LEFT JOIN silver.products p ON t.product_id=p.product_id
             LEFT JOIN silver.customers c ON t.customer_id=c.customer_id
+            ASOF LEFT JOIN (SELECT * FROM silver.daily_exchange_rates WHERE target_currency='USD') f
+              ON t.currency=f.source_currency AND t.process_date>=f.date
             CROSS JOIN temporal_clock
             WHERE t.transaction_id IS NULL OR p.product_id IS NULL OR c.customer_id IS NULL
-            OR NOT ({WINDOW})
-            OR g.customer_id IS DISTINCT FROM t.customer_id
-            OR g.product_id IS DISTINCT FROM t.product_id
-            OR g.transaction_date IS DISTINCT FROM t.transaction_date
-            OR g.process_date IS DISTINCT FROM t.process_date
-            OR g.temporal_quality_reason IS DISTINCT FROM ({temporal_reason_sql()})""",
+            OR NOT ({WINDOW}) OR {_different_fields(transaction_fields)}""",
     }
     counts = {table: int(_fetchone(db, query)[0]) for table, query in queries.items()}
     for table, key in (

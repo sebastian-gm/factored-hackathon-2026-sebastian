@@ -27,6 +27,11 @@ FIXTURE = Path(__file__).parent / "fixtures/incremental/day1"
 CLOCK = "2026-06-18T06:00:00Z"
 
 
+@pytest.fixture(scope="module")
+def dbt_available() -> None:
+    pytest.importorskip("dbt.cli.main")
+
+
 def edit_fixture(path: Path, fields: dict[str, str]) -> None:
     with path.open(newline="") as file:
         reader = csv.DictReader(file)
@@ -56,6 +61,7 @@ def edit_fixture(path: Path, fields: dict[str, str]) -> None:
         ("customers.csv", {"last_updated": "2026-06-18T05:59:59.999999Z"}, None, 0, 0),
     ],
 )
+@pytest.mark.usefixtures("dbt_available")
 def test_temporal_flags_preserve_original_projections(
     tmp_path: Path,
     file: str,
@@ -112,6 +118,7 @@ def test_temporal_flags_preserve_original_projections(
         ).fetchone() == (0,)
 
 
+@pytest.mark.usefixtures("dbt_available")
 def test_business_boundary_flags_without_removing_charge(tmp_path: Path) -> None:
     source, lake = tmp_path / "source", tmp_path / "lake"
     shutil.copytree(FIXTURE, source)
@@ -132,6 +139,7 @@ def test_business_boundary_flags_without_removing_charge(tmp_path: Path) -> None
             ).fetchone() == (expected,)
 
 
+@pytest.mark.usefixtures("dbt_available")
 def test_multiple_findings_use_contract_precedence(tmp_path: Path) -> None:
     source, lake = tmp_path / "source", tmp_path / "lake"
     shutil.copytree(FIXTURE, source)
@@ -149,6 +157,7 @@ def test_multiple_findings_use_contract_precedence(tmp_path: Path) -> None:
         assert sum(flags["primary_reason_counts"].values()) == 3
 
 
+@pytest.mark.usefixtures("dbt_available")
 def test_after_clock_reason_does_not_expand_serving_window(tmp_path: Path) -> None:
     source, lake = tmp_path / "source", tmp_path / "lake"
     shutil.copytree(FIXTURE, source)
@@ -201,6 +210,7 @@ def test_nullable_text_contract_matches_exact_enum() -> None:
         "dropped_product",
     ],
 )
+@pytest.mark.usefixtures("dbt_available")
 def test_load_preflight_rejects_bad_artifacts_before_bank_connection(
     tmp_path: Path, altered_field: str
 ) -> None:

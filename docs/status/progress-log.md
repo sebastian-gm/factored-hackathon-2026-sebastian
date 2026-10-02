@@ -4717,3 +4717,37 @@ later flag-only session for the current contract and activation dependencies.
   warn readiness. Flagged disputes require a data-quality handoff and an
   open_question naming the anomaly. Ship image and serving reload together;
   the lead's release gate must assert the nullable TEXT column exists.
+
+
+## 2026-10-02 — #128 review: source-equivalent authority fields
+
+### Completed (verified)
+
+- Extended the pre-bank export check to every non-lineage field in the customer,
+  product and transaction projections, including transaction status/type/amount/
+  currency, supplied USD amount, fraud score and product type. FX-derived amount,
+  date, prior-rate flag and foreign-country flag are recomputed from silver facts
+  and rates; cached gold values are not the source of equivalence.
+- Seventeen independent field mutations fail before any bank connection;
+  valid exact/prior/USD FX projections pass. Missing FX rates still block
+  promotion. New serving regression run: **19 passed / 1 local-Postgres skip**.
+- Diagnosed prior CI checks failure: snapshot tests assumed optional dbt was
+  installed in the fast Python gate. Added explicit dependency skips there and
+  located the new mutation cases in the existing Postgres/data gate's test file.
+- Combined data regressions: **48 passed / 1 local-Postgres skip**. Strict mypy
+  (73 source files), repository-wide Ruff and Python compilation passed.
+- No backend, NLU, policy, serving schema, source aggregates, frozen suite or
+  official result changed. No organizer reads, model calls, serving reload or
+  Azure changes. Model/cloud spend USD 0.
+
+### Done but not verified
+
+- Current-head remote CI and lead integration review are pending. Actual
+  Postgres/live activation remains pending. The preflight excludes five lineage
+  columns and other serving tables; its source-equivalence claim is scoped to
+  customer/product/transaction payloads, with no reviewed authority field omitted.
+
+### Next / blocked
+
+- Push the reviewed #128 fix and keep the draft/unmerged hold until the lead's
+  policy/migration is ready. Preserve the combined image/reload release gate.
