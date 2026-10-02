@@ -1,5 +1,30 @@
 # Progress log
 
+## 2026-10-02 — Prompt version index and unadopted candidate archive
+
+### Completed (verified)
+
+- Moved the unused v5.2 candidate to evals/studies/prompts/nlu/v5_2.md and
+  updated the development driver and evidence link. All nine original prompt
+  files retain their exact bytes and hashes; live NLU v5.1 and phrase v2.1 stay
+  selected by the same runtime paths.
+- Added prompts/README.md identifying live defaults, historical versions,
+  offline-only judging and the unadopted candidate. No route/default change.
+- Archive/import checks: 12 mock tests passed, including candidate hash,
+  runtime-prompt selection, offline CLI imports and fresh API isolation.
+  Full mock checks: 1160 passed / 31 DB skips, strict mypy, hooks, snapshots and
+  B1 32/32. No paid calls, cloud/key access or held-out inputs.
+
+### Done but not verified
+
+- Current-main refresh and lead-reviewed PR pending. Relocation PR #124 is
+  open; refresh it on newly merged main before relying on remote CI.
+
+### Next / blocked
+
+- Keep prompt cleanup stacked on #124 for a small review, then retarget to main
+  after the lead merges the relocation. Remote CI is required before main merge.
+
 ## 2026-10-02 — Offline language studies outside the runtime package
 
 ### Completed (verified)
