@@ -177,7 +177,7 @@ def injection(text: str) -> bool:
     value = normalized(text)
     return bool(
         re.search(
-            r"(ignora|ignore|ignorar|olvida|forget|desconsidera).{0,50}(instru|regla|rule|policy|sistema)|system\s*prompt|prompt\s*(del|do|de)\s*sistema|instrucciones internas|instrucoes internas|developer message|system:|<\|.*?\|>|revela.{0,30}(prompt|secreto)|reveal.{0,30}(prompt|secret)|actua como administrador|aja como administrador",
+            r"(ignora|ignore|ignorar|olvida|forget|desconsider[ae]).{0,50}(instru|regla|regra|rule|policy|politica|sistema)|system\s*prompt|prompt\s*(del|do|de)\s*sistema|instrucciones internas|instrucoes internas|developer message|system:|<\|.*?\|>|revela.{0,30}(prompt|secreto)|reveal.{0,30}(prompt|secret)|actua como administrador|aja como administrador",
             value,
         )
     )
