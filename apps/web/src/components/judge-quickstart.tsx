@@ -1,7 +1,12 @@
 "use client";
 import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { demoStories, storyPersona, type DemoStory } from "@/lib/demo-stories";
+import {
+  demoStories,
+  storyPersona,
+  storyProfile,
+  type DemoStory,
+} from "@/lib/demo-stories";
 import { useApp } from "./workspace";
 import { Button } from "./ui/button";
 
@@ -19,7 +24,15 @@ export function JudgeQuickstart({
   onRecording?: () => void;
 }) {
   const t = useTranslations();
-  const { config, session } = useApp();
+  const { config, session, profiles, profileFlow } = useApp();
+  const available = (story: DemoStory) =>
+    profileFlow
+      ? !!storyProfile(
+          profiles?.profiles ?? [],
+          story,
+          session?.judge_profile_id,
+        )
+      : !!storyPersona(config, story, session?.username);
   const [busy, setBusy] = useState(false),
     [failed, setFailed] = useState(false);
   const lock = useRef(false);
@@ -64,9 +77,7 @@ export function JudgeQuickstart({
             variant="secondary"
             data-testid={`quickstart-${story.id}`}
             aria-pressed={selected?.id === story.id}
-            disabled={
-              busy || locked || !storyPersona(config, story, session?.username)
-            }
+            disabled={busy || locked || !available(story)}
             onClick={() => void prepare(story)}
           >
             {t(`story_${story.id}`)}
@@ -76,9 +87,9 @@ export function JudgeQuickstart({
           </Button>
         ))}
       </div>
-      {demoStories.some(
-        (story) => !storyPersona(config, story, session?.username),
-      ) && <p className="caption">{t("recordingUnavailable")}</p>}
+      {demoStories.some((story) => !available(story)) && (
+        <p className="caption">{t("recordingUnavailable")}</p>
+      )}
       {failed && (
         <p className="error" role="alert">
           {t("storyFailed")}

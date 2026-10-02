@@ -1,9 +1,9 @@
 import { z } from "zod";
 import { traceEventSchema } from "./trace";
-import { handoffSchema } from "./contracts";
+import { handoffSchema, profileIdSchema } from "./contracts";
 
 export const personaSchema = z.object({
-  demo_stories: z.array(z.enum(["explain", "ambiguous", "fraud"])).optional(),
+  demo_stories: z.array(z.enum(["explain", "ambiguous", "fraud"])).nullish(),
   username: z.string(),
   label: z.string(),
   role: z.enum(["customer", "agent", "ops"]),
@@ -12,6 +12,9 @@ export const personaSchema = z.object({
 export const identitySchema = personaSchema.omit({ label: true }).extend({
   language: z.enum(["es", "pt"]),
   bank_clock: z.string(),
+  judge_profiles_enabled: z.boolean().optional(),
+  profile_selection_required: z.boolean().optional(),
+  judge_profile_id: profileIdSchema.nullish(),
 });
 export const deskSchema = handoffSchema
   .extend({
