@@ -67,6 +67,14 @@ def generate_reports(profile: dict[str, Any], docs: Path) -> None:
         "",
         "## Known anomalies",
         "",
+        "### Temporal automation boundary",
+        "",
+        _table([profile["temporal_automation"]])
+        if "temporal_automation" in profile
+        else "See the [operational temporal guard](data-temporal-guard.md).",
+        "",
+        "Analytical anomalies warn; operational gold excludes untrusted dimension states, pre-opening transactions and inconsistent business dates. The serving loader reads back exported temporal authority fields before any bank connection. Existing serving data requires a rebuild/reload; these post-v4 changes do not alter official evaluation numbers.",
+        "",
         "### Complaint ownership",
         "",
         _table([profile["complaint_ownership"]]),

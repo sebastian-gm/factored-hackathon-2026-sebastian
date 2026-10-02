@@ -58,14 +58,14 @@ def test_serving_readback_and_rls(tmp_path: Path) -> None:
         assert all(enabled and forced for _, enabled, forced in flags)
         db.execute("RESET ROLE")
         db.execute("DROP VIEW bank.fixture_transaction_view")
-    # A changed artifact that fails contract constraints must roll back the whole load.
+    # A changed artifact must be rejected before any bank write.
     marker = json.loads((lake / "_meta/current.json").read_text())
     file = Path(marker["gold_dir"]) / "transactions.parquet"
     with duckdb.connect() as db:
         db.execute("CREATE TABLE bad AS SELECT * FROM read_parquet(?)", [str(file)])
         db.execute("UPDATE bad SET transaction_id=NULL")
         db.execute("COPY bad TO ? (FORMAT PARQUET)", [str(file)])
-    with pytest.raises(psycopg.errors.NotNullViolation):
+    with pytest.raises(ValueError, match="temporal serving preflight"):
         load_serving(lake, dsn)
     with psycopg.connect(dsn) as db:
         assert db.execute("SELECT count(*) FROM bank.transactions").fetchone() == (3,)

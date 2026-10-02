@@ -1,5 +1,36 @@
 # Progress log
 
+## 2026-10-02 — Temporal facts excluded from operational gold
+
+### Completed (verified)
+
+- Data-side source review found that dispute eligibility consumes status/date
+  facts affected by future customer/product snapshots and pre-opening charges.
+  Added conservative operational exclusions, UTC/business-date invariants and
+  a loader preflight on actual exported Parquets before any bank connection.
+- Private LOCAL_RAW_DIR-derived aggregates: 60,924/492,414 recent transactions
+  blocked (union); 431,490 remain eligible. Historical silver/matcher rows stay
+  intact. Per-reason flags and the coverage cost are committed as aggregates.
+- Full mock pytest: **1,210 passed / 31 DB skips**, including eleven new
+  clock/date/altered-export checks and existing data/CLI tests. Ruff and strict
+  mypy pass. The sandbox's local async thread-wakeup restriction was reproduced
+  independently; the mock suite passed outside it. No model/cloud calls.
+- Reconciliation PR #125 is green across checks, invariants, Postgres and web
+  on exact head `56b0946bcda9cbf083016e3a21296e6ec39f86ec`. Source diagnostics
+  are ignored/private; no organizer rows or backend/policy code changed.
+
+### Done but not verified
+
+- Stacked temporal guard PR needs lead review and main-target remote CI.
+  Full organizer gold rebuild, serving load/readback and Azure activation are
+  pending; existing live data is unchanged. These are post-v4 fixes.
+
+### Next / blocked
+
+- Merge reconciliation first, then review guard availability and scoped demo
+  bindings before rebuilding/reloading. Frozen suites and results remain
+  unchanged; no model or held-out evaluation work is authorized by this task.
+
 ## 2026-10-02 — Frontend merge and delivered-data quality reconciliation
 
 ### Completed (verified)

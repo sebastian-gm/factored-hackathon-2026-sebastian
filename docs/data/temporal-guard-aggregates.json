@@ -1,0 +1,13 @@
+{
+  "bank_clock": "2026-06-18T06:00:00+00:00",
+  "blocked_transaction_rows": 60924,
+  "dataset_version": "b86f445cb468332bde984a788ef24f72f7070952b2d9292e0259e7b8f36397c9",
+  "eligible_transaction_rows": 431490,
+  "treatment": "exclude from operational gold; retain silver and historical matcher ledger",
+  "version": 1,
+  "window_before_open": 10241,
+  "window_business_date_mismatch": 4,
+  "window_rows": 492414,
+  "window_untrusted_customer_state": 30800,
+  "window_untrusted_product_state": 30983
+}

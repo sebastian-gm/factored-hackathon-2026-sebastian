@@ -16,7 +16,8 @@ import yaml  # type: ignore[import-untyped]
 from psycopg import sql
 
 from aclara.data.pipeline import _sql_identifier, _sql_string
-from aclara.data.snapshot import ROOT, write_json
+from aclara.data.snapshot import ROOT, fingerprint, write_json
+from aclara.data.temporal import register_temporal_exports, validate_temporal_exports
 
 LOGGER = logging.getLogger(__name__)
 TABLES = (
@@ -147,6 +148,13 @@ def load_serving(lake: Path, dsn: str) -> dict[str, Any]:
     profile = json.loads(Path(marker["profile_path"]).read_text())
     if any(check["blocks_promotion"] for check in profile["checks"]):
         raise ValueError("cannot load a failed snapshot")
+    if marker["build_fingerprint"] != fingerprint():
+        raise ValueError("outdated data build; rebuild before loading operational gold")
+    # Validate the actual exported artifacts, not merely a profile/stamp. This
+    # happens before connecting to Postgres, including for same-version reloads.
+    with duckdb.connect(marker["database"], read_only=True) as db:
+        register_temporal_exports(db, Path(marker["gold_dir"]))
+        temporal_preflight = validate_temporal_exports(db, marker["bank_clock"])
     identity = {key: marker[key] for key in ("dataset_version", "bank_clock", "build_fingerprint")}
     with psycopg.connect(dsn) as pg:
         pg.execute("SELECT pg_advisory_xact_lock(61928471)")
@@ -205,6 +213,7 @@ def load_serving(lake: Path, dsn: str) -> dict[str, Any]:
     output = {
         **identity,
         "tables": results,
+        "temporal_preflight": temporal_preflight,
         "same_version_reload": previous is not None and previous[0] == identity,
         "verified_at": datetime.now(UTC).isoformat(),
     }

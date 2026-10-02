@@ -319,6 +319,14 @@ See [delivery reconciliation](data-quality-reconciliation.md) for the direct-sou
 
 ## Known anomalies
 
+### Temporal automation boundary
+
+| version | window_rows | blocked_transaction_rows | eligible_transaction_rows | window_before_open | window_business_date_mismatch | window_untrusted_customer_state | window_untrusted_product_state | treatment |
+|---|---|---|---|---|---|---|---|---|
+| 1 | 492414 | 60924 | 431490 | 10241 | 4 | 30800 | 30983 | exclude from operational gold; retain silver and historical matcher ledger |
+
+Analytical anomalies warn; operational gold excludes untrusted dimension states, pre-opening transactions and inconsistent business dates. The serving loader reads back exported temporal authority fields before any bank connection. Existing serving data requires a rebuild/reload; these post-v4 changes do not alter official evaluation numbers.
+
 ### Complaint ownership
 
 | joinable | owned | mismatched |
