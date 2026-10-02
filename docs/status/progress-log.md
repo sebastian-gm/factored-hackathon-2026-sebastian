@@ -1,5 +1,40 @@
 # Progress log
 
+## 2026-10-02 — Saved-v4 confidence and contract-family intervals
+
+### Completed (verified)
+
+- Merged approved #124 at 2700d299 after all four remote gates; retargeted #126
+  to main, integrated the same source tree and merged at 426ad511 after its own
+  checks, invariants, Postgres and web all passed. No image/cloud release.
+- Read only existing v4 results/call metadata. All 114 primary validated NLU
+  confidence values match the saved Gemini judgment field; 82 conversations
+  have scores. Independent per-turn intent gold is absent, so true intent ECE
+  is unavailable. Clearly labelled first-score outcome-proxy ECE is 0.114;
+  no score tests the <0.6 region. No policy/default/prompt threshold changed.
+- Paired primary contract-family-proxy bootstrap (51 clusters, 10,000 draws,
+  seed 20261001): SAR +10 pp [3.0,18.4], pass +26 pp [15.2,38.0]. Official
+  case SAR +10 pp [5,16] reproduces exactly; new case-pass interval is [18,35].
+  Family IDs were not exported; the proxy uses predeclared contract rationale,
+  never observed outcomes, and its limitations are explicit in the new doc.
+- All 844 original official artifact files retain their hashes. Private
+  aggregate report is 0600; the valid, visually inspected SVG contains only
+  aggregates. Fifteen authored statistical/privacy/serialization tests pass.
+  Zero inference, key/cloud access, suite-row access or official rerun/rescore.
+- Final mock make checks: 1235 passed / 31 DB skips, hooks, strict mypy,
+  compilation, interface/policy snapshots and B1 32/32. Current main verified.
+
+### Done but not verified
+
+- Supplementary documentation PR/remote CI pending.
+  Neither true intent calibration nor an exact author-family mapping is claimed.
+
+### Next / blocked
+
+- Open one aggregate-only evidence PR for review; keep official v4 numbers
+  untouched. Threshold selection needs independent contextual intent labels
+  and a separately authorized dev study, not tuning against these saved cases.
+
 ## 2026-10-02 — Approved cleanup merges and supplementary v4 analyses
 
 ### Completed (verified)
