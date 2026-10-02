@@ -4163,3 +4163,50 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
   requires the TypeSafe secret binding for a real-provider image; keeping the
   existing secret does not cause a call, but removing it needs the lead's gate
   update. These lead-owned release changes are called out in the PR handoff.
+
+## 2026-10-02 — audit merge chain and v0.6 release gates
+
+### Completed (verified)
+
+- #114 → #116 → #117 merged in order at `44ad68a`, `ec518a6`, `f5e128d`;
+  each exact PR head passed checks/Postgres/web/invariants. Main CI `36971906103`,
+  safety `36971906076` and outside-owner access `36972964182` passed at
+  `f5e128dd7e544e2378081361f4a8a409af94f221`. Merge hold can lift.
+- Both SHA images built/pushed and registry digests read back. Reviewed Terraform
+  plan/apply: 0 added, 2 updated, 0 destroyed; image/release metadata and approved
+  smoke-run binding only. `scripts.azure_verify` passed unchanged min=0/max=1,
+  CPU/memory, restricted web/internal API, identity, TLS and budget controls.
+- `scripts.azure_migrate_ops` completed migration 0004, TLS/non-owner readback and
+  forced RLS on all five affected tables. Azure's hardened owner lacked TEMP and
+  persona-registry SELECT: initial transactions rolled back; both permissions were
+  loaned only for the owner migration and revoked afterward. No rows printed.
+- `scripts.azure_llm_smoke`: three paths passed, four valid model calls, zero
+  TypeSafe calls/fallbacks/unknown costs, $0.0076885. Original-receipt confirmation
+  retry produced one dispute write. Fresh release/rehearsal purse is $0.10 lifetime,
+  ordinary production breaker remains $3/day; no reservations reset.
+- Browser Chat and Desk completed; Ops navigation failed before an Ops request:
+  helper used obsolete “Evidencia y operaciones”, current button is “Operaciones”.
+  All authenticated requests passed. One-line helper correction passes
+  `node --check apps/web/scripts/serving-browser.mjs`; runtime UI is unchanged.
+- Section-B read-only scan: 547 reachable commits / 2,028 blobs. Default Gitleaks
+  reported 19 matches: seven release-SHA metadata occurrences and twelve authored
+  idempotency literals; no actionable secret detected. 119 PRs, one issue comment,
+  no review comments/bodies, all 591 completed workflow logs inspected; their
+  Gitleaks scan exits 0, no sensitive-IP/signed-URL run or Actions artifact detected.
+  Automatic comparison found no current Key Vault secret/subscription/tenant value;
+  all 18 CSV paths are authored fixtures, no forbidden private file detected.
+
+### Done but not verified
+
+- v0.6 browser gate/tag/final release receipt remain pending; exactly one extra
+  browser allowance requested without resetting counters or replaying model paths.
+- Real benign-phrase/cross-login/budget-degrade rehearsal and fresh README-only
+  clean-clone browser checks are underway; no new held-out score is claimed.
+
+### Next / blocked
+
+- Finish the browser gate after helper CI and owner allowance; record actual
+  rehearsal cost/key readback and tag exact deployed SHA `v0.6.0`.
+- Section B: scrub current-tree operational targets, rotate Postgres credentials
+  with Key Vault/revision readback, document firewall choice and clone evidence.
+  Repo remains private; publication and warm/judge activation require submission-day OK.
