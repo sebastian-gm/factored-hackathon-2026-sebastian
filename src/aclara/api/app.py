@@ -83,6 +83,7 @@ from aclara.ops.store import Scope, Store
 from aclara.policy.engine import PolicyDecision, evaluate
 from aclara.policy.rules import catalog, rule
 from aclara.policy.rules.guards import cross_customer, escalations, injection, unsupported_language
+from aclara.policy.temporal import quality_guidance, quality_issue
 from aclara.settings import Settings
 
 
@@ -241,6 +242,10 @@ def _explanation(language: str, row: Transaction, reason: str) -> str:
 
 
 def _review_reason(decision: PolicyDecision, language: str) -> str:
+    if "DQ-01" in decision.rule_ids:
+        return quality_guidance(decision.inputs_snapshot.get("temporal_quality_reason"), language)[
+            0
+        ]
     reasons = {
         "pending_over_limit": (
             "La autorización lleva más de 14 días pendiente.",
@@ -591,7 +596,10 @@ def create_app(
                 ) from None
         if isinstance(ledger, ServingRepository) and not ledger.ready():
             raise HTTPException(503, "Serving version changed")
-        return {"status": "ready", "database": "ok"}
+        ready = {"status": "ready", "database": "ok"}
+        if isinstance(ledger, ServingRepository) and not ledger.temporal_quality_checked:
+            ready["warning"] = "Temporal quality unavailable; automatic dispute disabled"
+        return ready
 
     @app.post("/auth/login", status_code=status.HTTP_200_OK)
     async def login(body: LoginBody) -> dict[str, str]:
@@ -1708,6 +1716,17 @@ def create_app(
             }
         if decision.decision != "eligible":
             conversation.proposal = None
+            if "DQ-01" in decision.rule_ids:
+                return _decide_for_transaction(
+                    app,
+                    conversation,
+                    principal,
+                    proposal.language,
+                    Intent.DISPUTE_CHARGE,
+                    proposal.transaction_handle,
+                    current,
+                    active_settings,
+                )
             raise HTTPException(status_code=409, detail="Policy no longer permits this action")
 
         previous = app.state.idempotency.get(proposal.action_hash)
@@ -1850,7 +1869,12 @@ def _decide_for_transaction(
             "policy_rules": ["DSP-06"],
         }
     if decision.decision == "handoff":
-        packet = create_packet(language, decision.rule_ids, app.state.agent_directory)
+        packet = create_packet(
+            language,
+            decision.rule_ids,
+            app.state.agent_directory,
+            quality_reason=quality_issue(context),
+        )
         if not decision.reason.startswith("missing:"):
             packet["verified_facts"] = [_masked_transaction(handle, row)]
         app.state.handoffs[packet["handoff_id"]] = {

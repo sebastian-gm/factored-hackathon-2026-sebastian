@@ -8,6 +8,7 @@ ROUTING_PRECEDENCE = (
     "ESC-02",
     "ESC-03",
     "DSP-05",
+    "DQ-01",
     "DSP-03",
     "DSP-04",
     "DATA-01",

@@ -1,5 +1,34 @@
 # Progress log
 
+## 2026-10-02 — Paired temporal-policy/data verification
+
+### Completed-verified
+
+- Reviewed corrected #128 at **5dd696e**: source-equivalent non-lineage fields
+  for customers/products/transactions, FX recomputed from silver rates, and
+  **17 independent field mutations** rejected before any Postgres connection.
+  Other serving tables and lineage metadata are explicitly outside that check.
+- DQ-01 companion #131 merged at **880a4f1**; checks, Postgres, web and safety
+  all green at **fe7971f** (CI **37048430192**, safety **37048430208**).
+- Combined authored mock `make checks`: **1330 passed / 32 DB skips**,
+  hooks/mypy/compilation/snapshots current, B1 **32/32**. Disposable Postgres
+  suite **69 passed**, including source mutation rejection, locked schema/data
+  rollback, FORCE RLS and operational state. Zero model spend/Azure changes.
+- Refreshed #128 onto the migration with history preserved, retaining both
+  test sets in the single import/append conflict; no authority-field change.
+
+### Done-not-verified
+
+- Fresh #128 remote CI/merge pending. New organizer gold and Azure serving
+  column/reload/image/smoke have not been executed; official v4 stays unchanged.
+
+### Next-blocked
+
+- Merge the exact refreshed #128 head only on green remote gates. The approved
+  **$15** ceiling covers the final smoke; follow the coordinated release plan
+  and refresh conservative budget/key metadata before spending. Public/judge
+  access and warm replicas still require separate submission-day approval.
+
 ## 2026-10-02 — Saved-v4 confidence and contract-family intervals
 
 ### Completed (verified)
@@ -122,6 +151,35 @@
   retaining their progress entries and refreshing new imports. Archive v5.2 and
   clearly identify live versus historical prompts in a separate small PR.
 
+## 2026-10-02 — Temporal dispute gate and coordinated reload preparation
+
+### Completed-verified
+
+- Added DQ-01 (policy v1.4.0): flagged/unavailable checks permit explanations
+  but block automatic dispute proposals/writes, including a confirmation-time
+  flag change. Localized anomaly questions survive handoff refresh/readback.
+- Older serving schemas read safely and warn in readiness; the read-only
+  release gate requires nullable TEXT plus the rebuilt promotion fingerprint.
+- One exact additive column migration is coupled to locked COPY/readback;
+  authored rollback leaves the prior column/data state intact.
+- Local mock `make checks`: **1273 passed / 32 DB skips**, B1 **32/32**;
+  disposable Postgres suite **50 passed**, hooks, strict mypy and snapshots pass.
+  No Azure, key access, paid models, organizer rebuild or held-out rerun.
+
+### Done-not-verified
+
+- Companion PR/combined #128 CI and merge pending. Full organizer reload and
+  final Azure image/smoke remain unverified; official v4 files unchanged.
+
+### Next-blocked
+
+- Finish #128's source-equivalence review and merge the paired changes only on
+  green CI. [Coordinated release plan](../evaluation/temporal-quality-release-plan.md)
+  includes fresh gold, atomic schema/data reload and the required column gate.
+- October 2: Sebastian approved the final smoke within the new **$15** cumulative
+  ceiling, including reserves. Azure reload remains unexecuted; first finish
+  both green-CI merges and the coordinated release gates.
+
 ## 2026-10-02 — Five-session local mock concurrency measurement
 
 ### Completed-verified
@@ -140,6 +198,8 @@
   storage and the order/cache limitation. No production SLO or throughput gain.
 - Full local mock `make checks`: **1216 passed / 31 DB skips**, B1 **32/32**,
   hooks, strict mypy, compilation and interface/policy snapshots passed.
+- #129 merged at **6272438**, all four remote gates green at **edb0bce**;
+  CI **37042451617**, safety **37042451448**.
 
 ### Done-not-verified
 
@@ -148,8 +208,7 @@
 
 ### Next-blocked
 
-- Merge the small performance follow-up on green remote CI after the hygiene
-  PR. Future parallel chat inference requires adapter/session design work.
+- Future parallel chat inference requires adapter/session design work.
 - No paid calls or Azure changes; the next paid release smoke still requires
   Sebastian's budget approval. CPU, replicas and worker count are unchanged.
 
@@ -169,16 +228,17 @@
 - Added a short state-table docstring at the top of `process_message`, with no
   refactor. Local mock checks **1215 passed / 31 DB skips**, B1 **32/32**,
   affected API checks **67 passed / 1 skip**, optimized hygiene checks **18 passed**.
+- #127 merged at **9de89d6**, all four remote gates green at **c686916**;
+  CI **37040731841**, safety **37040731806**.
 
 ### Done-not-verified
 
-- These post-v4 fixes have local/mock evidence only; official v4 remains unchanged.
+- These post-v4 fixes have local/mock and remote CI evidence; official v4 remains unchanged.
   No new Azure release, real-model validation or production concurrency claim.
 
 ### Next-blocked
 
-- Merge only on green remote CI. Measure five concurrent authenticated sessions
-  with a one-second mock NLU delay and document queued turn latency honestly.
+- Five-session measurement and both green-CI merges are complete; see above.
 - No paid calls or Azure changes; a new paid release smoke requires Sebastian's
   budget approval at the conservative **$11.97937448 / $12** maximum.
 
