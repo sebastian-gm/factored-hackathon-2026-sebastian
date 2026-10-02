@@ -5,7 +5,9 @@ from __future__ import annotations
 import hashlib
 import json
 import secrets
+from collections.abc import Iterator
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import contextmanager
 from dataclasses import replace
 from datetime import UTC, datetime, timedelta
 from threading import Barrier
@@ -19,6 +21,7 @@ from aclara.api.judge_access import PROFILE_LOCALES, judge_configuration
 from aclara.bank.repository import Customer, TransactionRepository
 from aclara.bank.serving import Persona
 from aclara.handoff.routing import AgentDirectory
+from aclara.ops.store import Scope, Store
 from aclara.settings import Settings
 
 
@@ -346,6 +349,34 @@ def test_switch_storage_failure_leaves_old_session_live_and_orphan_inactive(monk
         client.post("/auth/judge/profile", headers=headers(token), json={"profile_id": "pt"})
     assert client.get("/me", headers=headers(token)).status_code == 200
     assert len([k for _, table, k in app.state.store.memory if table == "sessions"]) == 1
+
+
+def test_missing_activation_readback_cannot_report_success(monkeypatch):
+    class LostChild(Store):
+        lost = False
+
+        @contextmanager
+        def transaction(self, scope: Scope) -> Iterator[None]:
+            nested = self.current.get() is not None
+            with super().transaction(scope):
+                yield
+            if not nested and not self.lost:
+                for key, payload in list(self.memory.items()):
+                    if key[0] == scope and key[1] == "sessions" and payload.get("judge_profile"):
+                        del self.memory[key]
+                        self.lost = True
+
+    app, settings, client = application(monkeypatch, store=LostChild())
+    root = authenticate(client, settings)
+    response = client.post("/auth/judge/profile", headers=headers(root), json={"profile_id": "pt"})
+    assert response.status_code == 503 and "access_token" not in response.json()
+    assert client.get("/me", headers=headers(root)).status_code == 401
+    # A lost activation response has no plaintext token recovery. Re-login works.
+    recovered = authenticate(client, settings)
+    assert (
+        client.get("/transactions", headers=headers(select(client, recovered, "pt"))).status_code
+        == 200
+    )
 
 
 def test_competing_switches_have_one_winner_and_replay_is_denied(monkeypatch):
