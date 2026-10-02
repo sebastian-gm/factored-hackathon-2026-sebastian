@@ -1,0 +1,15 @@
+{
+  "label": "post-v4 dev evidence, not held-out",
+  "n": 36,
+  "locale_counts": {
+    "es-AR": 4,
+    "es-CO": 3,
+    "es-MX": 11,
+    "pt-BR": 18
+  },
+  "cases_sha256": "5d714ce611a7f31f6505af03974d113a2c06038963ddbcd4cdd16d903612d048",
+  "frozen_at": "2026-10-02T04:55:01.471098+00:00",
+  "baseline": "6a221a4",
+  "provenance": "Team-authored synthetic messages and ledger fixtures; no organizer or held-out rows",
+  "protocol": "Freeze before measurement. Same inputs, mock NLU truth and scorer on baseline/current; one current real pass only; separate durable lifetime cap USD 0.10. No output-informed gold edits."
+}
