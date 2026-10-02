@@ -87,6 +87,37 @@
   retaining their progress entries and refreshing new imports. Archive v5.2 and
   clearly identify live versus historical prompts in a separate small PR.
 
+## 2026-10-02 — Five-session local mock concurrency measurement
+
+### Completed-verified
+
+- Ran `.venv/bin/python -m scripts.local_mock_concurrency` with explicit mock,
+  fixture and in-memory settings: five sessions **5.026 s wall**, turn
+  **p50 3.017 s / p95 4.823 s**; three sessions **3.836 s wall**, compared
+  with the external audit's **3.780 s / three turns**. Chat remains serialized.
+- **5/5** mock NLU calls outside storage transactions; **15/15** concurrent
+  authenticated/health reads 200, max **0.910 ms**; one scoped execution/NLU
+  event per session; **0 case writes / $0 model cost**. Five independent
+  logins use one authored customer in one API app.
+- Authored smoke regression passes with the paid provider forbidden and
+  contrary ambient real-provider variables. [Method and commands](../evaluation/local-mock-concurrency.md)
+  disclose small samples, inclusive percentiles, ASGI transport, in-memory
+  storage and the order/cache limitation. No production SLO or throughput gain.
+- Full local mock `make checks`: **1216 passed / 31 DB skips**, B1 **32/32**,
+  hooks, strict mypy, compilation and interface/policy snapshots passed.
+
+### Done-not-verified
+
+- No cloud concurrency, real-provider latency or load acceptance claim; no
+  new Azure image. Official v4 results were not opened, rerun or changed.
+
+### Next-blocked
+
+- Merge the small performance follow-up on green remote CI after the hygiene
+  PR. Future parallel chat inference requires adapter/session design work.
+- No paid calls or Azure changes; the next paid release smoke still requires
+  Sebastian's budget approval. CPU, replicas and worker count are unchanged.
+
 ## 2026-10-02 — Item 7 hygiene completion and conversation state table
 
 ### Completed-verified
