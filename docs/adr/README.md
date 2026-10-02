@@ -17,5 +17,6 @@
 | [0013](0013-durable-operations.md) | Durable operations, RLS and audit chains | Accepted |
 | [0014](0014-durable-model-budget.md) | Durable daily and smoke-run model budgets | Accepted for restricted demo |
 | [0015](0015-post-v2-conversation-and-policy-contract.md) | Explain/offer/dispute, reason sets and independent gold contract | Accepted specification; implementation pending |
+| [0016](0016-judge-profile-sessions.md) | One judge login, rotated customer-scoped sessions | Accepted for implementation; Azure OFF |
 
 Copy [the ADR template](template.md) for each new decision.
