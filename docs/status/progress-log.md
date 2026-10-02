@@ -12,13 +12,15 @@
   offline-only judging and the unadopted candidate. No route/default change.
 - Archive/import checks: 12 mock tests passed, including candidate hash,
   runtime-prompt selection, offline CLI imports and fresh API isolation.
-  Full mock checks: 1160 passed / 31 DB skips, strict mypy, hooks, snapshots and
-  B1 32/32. No paid calls, cloud/key access or held-out inputs.
+  Final current-main mock checks: 1203 passed / 31 DB skips, strict mypy,
+  hooks, snapshots and B1 32/32. No paid calls, cloud/key access or held-out inputs.
+- Refreshed on #124's history-preserving main merge. Rebuilt the final wheel
+  offline: eight runtime LLM files, no studies/data. All prompt hashes unchanged.
 
 ### Done but not verified
 
-- Current-main refresh and lead-reviewed PR pending. Relocation PR #124 is
-  open; refresh it on newly merged main before relying on remote CI.
+- Lead-reviewed stacked PR pending. Relocation PR #124 has current-main
+  checks, Postgres and safety green; web is still running at this readback.
 
 ### Next / blocked
 
