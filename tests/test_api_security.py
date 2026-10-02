@@ -197,7 +197,7 @@ def test_transactions_are_customer_scoped_and_mask_internal_identifiers() -> Non
     asyncio.run(check())
 
 
-def test_action_proposal_is_session_bound_and_single_use() -> None:
+def test_action_proposal_is_session_bound_with_single_write_and_replayable_receipt() -> None:
     async def check() -> None:
         app = create_app(_settings())
         async with AsyncClient(
@@ -242,7 +242,7 @@ def test_action_proposal_is_session_bound_and_single_use() -> None:
         assert confirmation.json()["verified"] is True
         assert "customer_id" not in confirmation.text
         assert "transaction_id" not in confirmation.text
-        assert replay.status_code == 409
+        assert replay.status_code == 200 and replay.json() == confirmation.json()
         assert readback.status_code == 200
         assert readback.json()["status"] == "received"
         assert len(app.state.cases) == 1

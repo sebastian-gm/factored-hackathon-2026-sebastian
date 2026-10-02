@@ -30,6 +30,15 @@ TABLES = frozenset(
         "demo_identities",
     }
 )
+CUSTOMER_TABLES = frozenset({"customer_cases", "customer_card_states"})
+CLOSED_CASE_STATUSES = frozenset({"closed", "resolved", "cancelled", "rejected"})
+
+
+def open_case(payload: dict[str, Any]) -> bool:
+    return (
+        payload.get("_canonical", True)
+        and payload.get("status", "received") not in CLOSED_CASE_STATUSES
+    )
 
 
 @dataclass(frozen=True)
@@ -44,6 +53,7 @@ class Unit:
     scope: Scope
     connection: Connection[Any] | None = None
     cache: dict[tuple[str, str], tuple[Any, Any, Any]] = field(default_factory=dict)
+    customer_realm: str | None = None
 
 
 class Store:
@@ -115,10 +125,31 @@ class Store:
             if payload != original:
                 self.put(table, key, payload)
 
+    def customer_context(self, realm: str) -> None:
+        unit = self._unit()
+        if not realm or (unit.customer_realm is not None and unit.customer_realm != realm):
+            raise PermissionError("Invalid customer realm")
+        if unit.customer_realm is None:
+            unit.customer_realm = realm
+            if unit.connection is not None:
+                unit.connection.execute("SELECT set_config('app.customer_realm',%s,true)", (realm,))
+                unit.connection.execute(
+                    "SELECT pg_advisory_xact_lock(hashtextextended(%s,0))",
+                    (json.dumps(["customer", unit.scope.customer_id, realm]),),
+                )
+
+    def _storage_scope(self, table: str) -> Scope:
+        unit = self._unit()
+        if table in CUSTOMER_TABLES:
+            if unit.customer_realm is None:
+                raise PermissionError("Customer business access requires a trusted realm")
+            return Scope(unit.scope.customer_id, unit.customer_realm, "customer")
+        return unit.scope
+
     def get(self, table: str, key: str) -> Any:
         unit = self._unit()
         if unit.connection is None:
-            value = self.memory.get((unit.scope, table, key))
+            value = self.memory.get((self._storage_scope(table), table, key))
             return json.loads(json.dumps(value)) if value is not None else None
         row = unit.connection.execute(
             sql.SQL("SELECT payload FROM ops.{} WHERE id=%s").format(sql.Identifier(table)), (key,)
@@ -128,15 +159,37 @@ class Store:
     def put(self, table: str, key: str, payload: Any) -> None:
         unit = self._unit()
         if unit.connection is None:
-            self.memory[(unit.scope, table, key)] = json.loads(json.dumps(payload))
+            storage_scope = self._storage_scope(table)
+            if table == "customer_cases" and open_case(payload):
+                for (stored_scope, stored_table, stored_key), stored in self.memory.items():
+                    if (
+                        stored_scope == storage_scope
+                        and stored_table == table
+                        and stored_key != key
+                        and stored.get("transaction_id") == payload.get("transaction_id", key)
+                        and open_case(stored)
+                    ):
+                        raise ValueError(
+                            "An open case already exists for this customer transaction"
+                        )
+            self.memory[(storage_scope, table, key)] = json.loads(json.dumps(payload))
         else:
             scope = unit.scope
-            unit.connection.execute(
-                sql.SQL(
-                    "INSERT INTO ops.{} (customer_id,run_id,sid,id,payload) VALUES (%s,%s,%s,%s,%s) ON CONFLICT(customer_id,run_id,sid,id) DO UPDATE SET payload=excluded.payload,updated_at=clock_timestamp()"
-                ).format(sql.Identifier(table)),
-                (scope.customer_id, scope.run_id, scope.sid, key, Jsonb(payload)),
-            )
+            if table in CUSTOMER_TABLES:
+                self._storage_scope(table)
+                unit.connection.execute(
+                    sql.SQL(
+                        "INSERT INTO ops.{} (customer_id,realm,id,payload) VALUES (%s,%s,%s,%s) ON CONFLICT(customer_id,realm,id) DO UPDATE SET payload=excluded.payload,updated_at=clock_timestamp()"
+                    ).format(sql.Identifier(table)),
+                    (scope.customer_id, unit.customer_realm, key, Jsonb(payload)),
+                )
+            else:
+                unit.connection.execute(
+                    sql.SQL(
+                        "INSERT INTO ops.{} (customer_id,run_id,sid,id,payload) VALUES (%s,%s,%s,%s,%s) ON CONFLICT(customer_id,run_id,sid,id) DO UPDATE SET payload=excluded.payload,updated_at=clock_timestamp()"
+                    ).format(sql.Identifier(table)),
+                    (scope.customer_id, scope.run_id, scope.sid, key, Jsonb(payload)),
+                )
             if table not in {"otp_challenges", "sessions", "demo_identities"}:
                 self.audit({"action": "write", "table": table, "record_id": key})
 
@@ -144,7 +197,7 @@ class Store:
         unit = self._unit()
         unit.cache.pop((table, key), None)
         if unit.connection is None:
-            self.memory.pop((unit.scope, table, key), None)
+            self.memory.pop((self._storage_scope(table), table, key), None)
         else:
             unit.connection.execute(
                 sql.SQL("DELETE FROM ops.{} WHERE id=%s").format(sql.Identifier(table)), (key,)
@@ -153,7 +206,8 @@ class Store:
     def keys(self, table: str) -> list[str]:
         unit = self._unit()
         if unit.connection is None:
-            return [key for scope, t, key in self.memory if scope == unit.scope and t == table]
+            storage_scope = self._storage_scope(table)
+            return [key for scope, t, key in self.memory if scope == storage_scope and t == table]
         return [
             row[0]
             for row in unit.connection.execute(
@@ -181,6 +235,13 @@ class Store:
         if table not in TABLES:
             raise ValueError("Unknown operational table")
         return RecordMap(self, table, kind, auth_scope, auth_customer)
+
+    def customer_mapping(
+        self, table: str, kind: Any, realm: Callable[[Scope], str], *, legacy: str
+    ) -> CustomerRecordMap[Any]:
+        if table not in CUSTOMER_TABLES or legacy not in {"cases", "card_states"}:
+            raise ValueError("Unknown customer business table")
+        return CustomerRecordMap(self, table, kind, realm, legacy)
 
 
 class RecordMap[T](MutableMapping[str, T]):
@@ -253,3 +314,41 @@ class RecordMap[T](MutableMapping[str, T]):
         if self.store.current.get() is None and not self.auth_scope and self.store.pool is None:
             return sum(table == self.table for _, table, _ in self.store.memory)
         return len(list(iter(self)))
+
+
+class CustomerRecordMap[T](RecordMap[T]):
+    """Bank state persists across logins; workspace state remains session-scoped.
+
+    The realm resolver uses server-trusted identity metadata. Legacy reads are
+    restricted to the current session and copied lazily for safe upgrades.
+    """
+
+    def __init__(
+        self, store: Store, table: str, kind: Any, realm: Callable[[Scope], str], legacy: str
+    ):
+        super().__init__(store, table, kind, None)
+        self.realm = realm
+        self.legacy = legacy
+
+    @contextmanager
+    def _context(self, key: str = "") -> Iterator[None]:
+        self.store.customer_context(self.realm(self.store._unit().scope))
+        yield
+
+    def __getitem__(self, key: str) -> T:
+        try:
+            return super().__getitem__(key)
+        except KeyError:
+            with self._context():
+                legacy = self.store.get(self.legacy, key)
+                if legacy is None:
+                    raise
+                value = self.adapter.validate_python(legacy)
+                self[key] = value
+                return value
+
+    def __iter__(self) -> Iterator[str]:
+        with self._context():
+            return iter(
+                sorted(set(self.store.keys(self.table)) | set(self.store.keys(self.legacy)))
+            )

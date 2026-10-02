@@ -301,7 +301,7 @@ def test_old_conversation_case_handoff_proposal_and_otp_cannot_cross_profiles(mo
     returned = select(client, co, "mx-es")
     assert (
         client.get(f"/disputes/{case['case']['case_id']}", headers=headers(returned)).status_code
-        == 404
+        == 200
     )
     assert client.get("/agent/handoffs", headers=headers(returned)).json() == []
     assert (

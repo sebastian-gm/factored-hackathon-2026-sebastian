@@ -7,6 +7,7 @@ import os
 from collections.abc import Iterator
 from contextlib import contextmanager
 from dataclasses import replace
+from uuid import uuid4
 
 import pytest
 from httpx import ASGITransport, AsyncClient
@@ -16,6 +17,7 @@ from test_workflow_api import message
 
 from aclara.agent.runtime import Runtime
 from aclara.api.app import _explanation, create_app
+from aclara.bank.repository import TransactionRepository
 from aclara.ops.store import Scope, Store
 
 
@@ -35,8 +37,13 @@ def test_packet_contains_only_identified_conversation_facts_and_completed_action
 
     async def check():
         store = Store(dsn if backend == "postgres" else None)
-        settings = replace(_settings(), demo_role="ops")
+        settings = replace(
+            _settings(), demo_role="ops", demo_customer_id="fixture-packet-" + uuid4().hex
+        )
         repo = ledger(two=True)
+        repo = TransactionRepository(
+            tuple(replace(row, customer_id=settings.demo_customer_id) for row in repo._rows)
+        )
         # Serving data can contain blank merchants; their existence does not
         # authorize treating them as a selected movement in a generic handoff.
         repo._rows = (repo._rows[0], replace(repo._rows[1], merchant_name=""))

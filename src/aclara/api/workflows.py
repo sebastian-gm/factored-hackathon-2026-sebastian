@@ -18,7 +18,7 @@ from aclara.agent.contracts import InterfaceModel, ProductView, ResponsePlan
 from aclara.api.staff import complete_packet, verify_handoff_commit
 from aclara.bank.repository import Transaction
 from aclara.handoff.packet import create_packet
-from aclara.ops.store import Scope
+from aclara.ops.store import Scope, open_case
 from aclara.policy.engine import PolicyContext
 from aclara.policy.rules import rule
 from aclara.policy.rules.guards import injection
@@ -41,14 +41,17 @@ def public_case(record: dict[str, Any]) -> dict[str, Any]:
 
 def policy_context(app: FastAPI, principal: Any, row: Transaction) -> PolicyContext:
     clock = app.state.settings.bank_clock
-    cases = list(app.state.cases.values())
+    cases = [c for c in app.state.cases.values() if c.get("_canonical", True)]
     recent = sum(
         clock - timedelta(days=7)
         <= datetime.fromisoformat(c.get("bank_created_at", c["created_at"]))
         <= clock
         for c in cases
     )
-    existing = next((c["case_id"] for c in cases if c.get("transaction_id") == row.record_id), None)
+    existing = next(
+        (c["case_id"] for c in cases if c.get("transaction_id") == row.record_id and open_case(c)),
+        None,
+    )
     return cast(
         PolicyContext, app.state.ledger.context(row, cases_7_days=recent, existing_case_id=existing)
     )
@@ -222,10 +225,17 @@ def install_workflows(app: FastAPI, principal_dependency: Any) -> None:
 
     @app.get("/accounts", response_model=list[ProductView])
     async def accounts(principal: Any = principal_default) -> list[dict[str, Any]]:
-        return [
-            {"handle": handle, "product_type": p.product_type, "status": p.status}
-            for handle, p in app.state.ledger.products_for_customer(principal.customer_id)
-        ]
+        with store.transaction(scope(principal)):
+            return [
+                {
+                    "handle": handle,
+                    "product_type": p.product_type,
+                    "status": (app.state.card_states.get(p.product_id) or {}).get(
+                        "status", p.status
+                    ),
+                }
+                for handle, p in app.state.ledger.products_for_customer(principal.customer_id)
+            ]
 
     @app.post("/auth/step-up")
     async def step_up(principal: Any = principal_default) -> dict[str, str]:
@@ -371,7 +381,6 @@ def install_workflows(app: FastAPI, principal_dependency: Any) -> None:
                 or proposal["sid"] != principal.session_id
                 or proposal["run_id"] != principal.run_id
                 or not proposal.get("handoff_id")
-                or datetime.fromisoformat(proposal["expires_at"]) <= datetime.now(UTC)
                 or not hmac.compare_digest(freeze_hash(proposal), body.proposal_hash)
             ):
                 raise HTTPException(409, "Action proposal expired or changed")
@@ -381,17 +390,22 @@ def install_workflows(app: FastAPI, principal_dependency: Any) -> None:
                 or proposal["reason_codes"] != origin["reason_codes"]
             ):
                 raise HTTPException(409, "Action proposal expired or changed")
-            if (
-                principal.step_up_at is None
-                or datetime.now(UTC) - principal.step_up_at
-                > timedelta(minutes=int(rule("AUTH-02").parameters["otp_minutes"]))
-                or principal.step_up_at.isoformat() != proposal["step_up_at"]
-            ):
-                raise HTTPException(401, "Step-up verification required")
             previous = app.state.idempotency.get("freeze-result:" + body.proposal_hash)
             if previous:
+                originally_confirmed = previous["handoff"].get("freeze_outcome") != "declined"
+                if originally_confirmed != body.confirmed:
+                    raise HTTPException(409, "Confirmation differs from the original action")
                 result = previous
             else:
+                if datetime.fromisoformat(proposal["expires_at"]) <= datetime.now(UTC):
+                    raise HTTPException(409, "Action proposal expired or changed")
+                if (
+                    principal.step_up_at is None
+                    or datetime.now(UTC) - principal.step_up_at
+                    > timedelta(minutes=int(rule("AUTH-02").parameters["otp_minutes"]))
+                    or principal.step_up_at.isoformat() != proposal["step_up_at"]
+                ):
+                    raise HTTPException(401, "Step-up verification required")
                 outcome = "declined"
                 if body.confirmed:
                     try:
