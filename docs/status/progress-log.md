@@ -1,30 +1,5 @@
 # Progress log
 
-## 2026-10-02 — Separate post-v4 dev rerun preparation (AI lane)
-
-### Completed (verified)
-
-- Controls ablation #135 merged on four green gates; $0.0441715 durable cost,
-  20 paired synthetic dev cases; no official v4 changes.
-- Staff queue #138 is open for lead security review, not merged. Corrected full
-  local checks: 1,348 passed / 38 DB skips, B1 32/32. Its remote RLS/claim test
-  passed; the old-schema disposable fixture was corrected and fresh CI is pending.
-- Rerun driver defaults to mock, preserves the frozen 36-case inventory/scorer,
-  and selects only `dev-gate/post-v4-rerun` / `post-v4-rerun`, $0.08 lifetime cap.
-- Mock pass completed 36/36; no paid rerun has started yet.
-
-### Done but not verified
-
-- Approved real rerun, exact scope creation/readback and fresh production-key
-  preflight pending. Estimate about $0.06, serial one-attempt calls, no Jev/retry.
-
-### Next / blocked
-
-- One approved real pass, report against 32/36 as supplementary dev evidence.
-  It is not held-out and is not reflected in official v4.
-- Staff queue requires lead approval and all remote gates; no live migration.
-- Human agreement awaits Sebastian's exported v4 CSV.
-
 ## 2026-10-02 — Controls ablation authored before inference (AI lane)
 
 ### Completed (verified)
