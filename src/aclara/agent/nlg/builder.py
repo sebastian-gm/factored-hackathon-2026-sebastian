@@ -221,7 +221,7 @@ def build_reply(
     if (
         client is None
         or (client.models["phrase"].provider == "mock" and not client.mock_configured)
-        or plan.response_type not in {"clarify", "explain_status"}
+        or plan.response_type != "clarify"
         # Code-supplied clarifications carry state-specific questions, including
         # bilingual language help and recognition. Generic safe prose is not a
         # substitute. Keep the existing API recognition guard as well.

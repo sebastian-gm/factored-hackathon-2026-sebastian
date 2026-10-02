@@ -132,7 +132,7 @@ def test_uncertain_short_draft_does_not_default_to_opposite_language() -> None:
     assert len(seen) == 1
 
 
-def test_rephrasing_context_contains_actual_approved_reply() -> None:
+def test_status_explanation_preserves_actual_approved_reply_without_rephrasing() -> None:
     seen: list[str] = []
     transaction = TransactionView(
         handle="fixture-txn-001",
@@ -150,9 +150,8 @@ def test_rephrasing_context_contains_actual_approved_reply() -> None:
         reply=approved,
         transaction=transaction,
     )
-    build_reply(plan, language="es", client=phrase_client(approved, seen))
-    context = json.loads(seen[0].partition("<response_plan>")[2].partition("</response_plan>")[0])
-    assert context["approved_text"] == approved
+    built = build_reply(plan, language="es", client=phrase_client(approved, seen))
+    assert built.used_template and built.plan.reply == approved and not seen
 
 
 @pytest.mark.parametrize(
@@ -185,9 +184,9 @@ def test_known_merchant_name_is_not_language_evidence() -> None:
         status="Approved",
     )
     plan = ResponsePlan(
-        response_type="explain_status",
-        outcome="explained",
-        reply="El comercio confirmó la operación.",
+        response_type="clarify",
+        outcome="clarification",
+        reply="",
         transaction=transaction,
     )
     fact = AllowedFact("merchant", merchant, "scoped_transaction_read")
@@ -196,7 +195,7 @@ def test_known_merchant_name_is_not_language_evidence() -> None:
         seen.append(user)
         return json.dumps(
             {
-                "text": "El cargo de Quero Agora corresponde a una compra.",
+                "text": "¿Puedes indicar el monto del cargo de Quero Agora?",
                 "cited_fact_ids": ["merchant"],
             }
         )
