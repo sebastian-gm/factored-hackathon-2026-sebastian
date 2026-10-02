@@ -633,6 +633,22 @@ def _record_risk_opinion(
     return extracted.model_copy(update=union)
 
 
+def _rules_result(
+    message: str,
+    *,
+    country: str | None,
+    bank_clock: datetime,
+    awaiting_recognition: bool,
+) -> NluResult:
+    return postprocess(
+        _fallback_extract(message, awaiting_recognition=awaiting_recognition),
+        country=country,
+        bank_clock=bank_clock,
+        awaiting_recognition=awaiting_recognition,
+        message=message,
+    ).model_copy(update={"degraded": True})
+
+
 def understand(
     message: str,
     *,
@@ -644,13 +660,12 @@ def understand(
     masked_charge: dict[str, str] | None = None,
 ) -> NluResult:
     if client is None or (client.models["nlu"].provider == "mock" and not client.mock_configured):
-        return postprocess(
-            _fallback_extract(message, awaiting_recognition=awaiting_recognition),
+        return _rules_result(
+            message,
             country=country,
             bank_clock=bank_clock,
             awaiting_recognition=awaiting_recognition,
-            message=message,
-        ).model_copy(update={"degraded": True})
+        )
     prompt = load_prompt(prompt_path or Path("prompts/nlu/v5.md"))
     allowed_charge: dict[str, str] = {}
     if awaiting_recognition:
@@ -695,6 +710,16 @@ def understand(
                 reserve_usd = JEV_RESERVE_USD
                 executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix="jev-risk")
                 future = executor.submit(_ask_jev_risks, message, key)
+            except BudgetFailure:
+                # Denied/disabled shared budgets forbid both the second opinion
+                # and the primary request. No retry or vendor fallback follows.
+                LOGGER.warning("NLU degraded: shared model budget unavailable or disabled")
+                return _rules_result(
+                    message,
+                    country=country,
+                    bank_clock=bank_clock,
+                    awaiting_recognition=awaiting_recognition,
+                )
             except ModelFailure:
                 if client.spend_gate is not None:
                     raise
@@ -713,10 +738,10 @@ def understand(
             prompt_hash=prompt.content_hash,
         )
         primary_failed = False
-    except BudgetFailure as exc:
+    except BudgetFailure:
         extracted = _fallback_extract(message, awaiting_recognition=awaiting_recognition)
         primary_failed = True
-        primary_error = exc
+        LOGGER.warning("NLU degraded: primary model budget unavailable or disabled")
     except ModelFailure:
         extracted = _fallback_extract(message, awaiting_recognition=awaiting_recognition)
         primary_failed = True
@@ -736,16 +761,23 @@ def understand(
             finally:
                 assert executor is not None
                 executor.shutdown(wait=False, cancel_futures=True)
-        extracted = _record_risk_opinion(
-            client,
-            extracted,
-            result,
-            degradation=degradation,
-            reserve_usd=reserve_usd,
-            reservation=reservation,
-            latency_ms=(perf_counter() - started) * 1000 if future is not None else 0.0,
-            primary_failed=primary_failed,
-        )
+        try:
+            extracted = _record_risk_opinion(
+                client,
+                extracted,
+                result,
+                degradation=degradation,
+                reserve_usd=reserve_usd,
+                reservation=reservation,
+                latency_ms=(perf_counter() - started) * 1000 if future is not None else 0.0,
+                primary_failed=primary_failed,
+            )
+        except BudgetFailure:
+            # The durable reservation stays retained. Never try another model
+            # or turn a settlement failure into customer-facing authority.
+            extracted = _fallback_extract(message, awaiting_recognition=awaiting_recognition)
+            primary_failed = True
+            LOGGER.warning("NLU degraded: typed judgment cost settlement unavailable")
     if primary_error is not None:
         raise primary_error
     if _explicit_human_request(message):

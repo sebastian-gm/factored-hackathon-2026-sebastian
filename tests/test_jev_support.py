@@ -178,13 +178,13 @@ def test_jev_risk_call_uses_shared_durable_reservation(
             raise BudgetFailure("synthetic durable stop")
 
     denied = _client(Event(), spend_gate=DeniedGate())
-    with pytest.raises(BudgetFailure, match="durable stop"):
-        structured.understand(
-            "Revisa el cargo",
-            country="CL",
-            bank_clock=datetime(2026, 9, 27, tzinfo=UTC),
-            client=denied,
-        )
+    assert structured.understand(
+        "Revisa el cargo",
+        country="CL",
+        bank_clock=datetime(2026, 9, 27, tzinfo=UTC),
+        client=denied,
+    ).degraded
+    assert not denied.records  # No primary or typed call follows denied reservation.
 
     class PrimaryDeniedGate(Gate):
         def reserve(self, amount_usd: float) -> str:
@@ -194,13 +194,13 @@ def test_jev_risk_call_uses_shared_durable_reservation(
 
     primary_gate = PrimaryDeniedGate()
     primary_denied = _client(Event(), spend_gate=primary_gate)
-    with pytest.raises(BudgetFailure, match="primary stop"):
-        structured.understand(
-            "Revisa el cargo",
-            country="CL",
-            bank_clock=datetime(2026, 9, 27, tzinfo=UTC),
-            client=primary_denied,
-        )
+    result = structured.understand(
+        "Revisa el cargo",
+        country="CL",
+        bank_clock=datetime(2026, 9, 27, tzinfo=UTC),
+        client=primary_denied,
+    )
+    assert result.degraded and not result.extracted.injection_suspected
     assert primary_denied.records[-1].provider == "typesafe"
     assert primary_gate.settled == [("r0", pytest.approx(0.000042))]
 
