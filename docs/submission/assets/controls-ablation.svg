@@ -1,0 +1,425 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:ns2="http://creativecommons.org/ns#" xmlns:ns4="http://www.w3.org/1999/xlink" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" width="864pt" height="486pt" viewBox="0 0 864 486" version="1.1">
+ <title>controls ablation</title><metadata>
+  <rdf:RDF>
+   <ns2:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+    <dc:description>docs/evaluation/controls-ablation.md sha256:f3c322809919e3072d9a52fab2d4cd435437a10d26edc165eea569d039aeb2bd</dc:description>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <ns2:Agent>
+      <dc:title>Aclara</dc:title>
+     </ns2:Agent>
+    </dc:creator>
+   </ns2:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 486  L 864 486  L 864 0  L 0 0  z " style="fill: #ffffff" />
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 51.84 213.84  L 267.84 213.84  L 267.84 131.22  L 51.84 131.22  z " style="fill: #ffffff" />
+   </g>
+   <g id="patch_3">
+    <path d="M 51.84 162.300857  L 51.84 162.300857  L 51.84 151.284857  L 51.84 151.284857  z " clip-path="url(#p6835e275c4)" style="fill: #73837b" />
+   </g>
+   <g id="patch_4">
+    <path d="M 51.84 201.643714  L 51.84 201.643714  L 51.84 190.627714  L 51.84 190.627714  z " clip-path="url(#p6835e275c4)" style="fill: #176b56" />
+   </g>
+   <g id="matplotlib.axis_1">
+    <g id="xtick_1">
+     <g id="line2d_1" />
+     <g id="text_1">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52645d" x="51.84" y="229.437656" transform="rotate(-0 51.84 229.437656)">0%</text>
+     </g>
+    </g>
+    <g id="xtick_2">
+     <g id="line2d_2" />
+     <g id="text_2">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52645d" x="126.322759" y="229.437656" transform="rotate(-0 126.322759 229.437656)">50%</text>
+     </g>
+    </g>
+    <g id="xtick_3">
+     <g id="line2d_3" />
+     <g id="text_3">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52645d" x="200.805517" y="229.437656" transform="rotate(-0 200.805517 229.437656)">100%</text>
+     </g>
+    </g>
+    <g id="text_4">
+     <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52645d" x="159.84" y="249.437656" transform="rotate(-0 159.84 249.437656)">Cases (%)</text>
+    </g>
+   </g>
+   <g id="matplotlib.axis_2" />
+   <g id="line2d_4">
+    <defs>
+     <path id="m2f2cf76079" d="M 0 2.5  C 0.663008 2.5 1.29895 2.236584 1.767767 1.767767  C 2.236584 1.29895 2.5 0.663008 2.5 0  C 2.5 -0.663008 2.236584 -1.29895 1.767767 -1.767767  C 1.29895 -2.236584 0.663008 -2.5 0 -2.5  C -0.663008 -2.5 -1.29895 -2.236584 -1.767767 -1.767767  C -2.236584 -1.29895 -2.5 -0.663008 -2.5 0  C -2.5 0.663008 -2.236584 1.29895 -1.767767 1.767767  C -1.29895 2.236584 -0.663008 2.5 0 2.5  z " style="stroke: #73837b" />
+    </defs>
+    <g>
+     <use ns4:href="#m2f2cf76079" x="51.84" y="156.792857" style="fill: #73837b; stroke: #73837b" />
+    </g>
+   </g>
+   <g id="line2d_5">
+    <defs>
+     <path id="maea46bd417" d="M 0 2.5  C 0.663008 2.5 1.29895 2.236584 1.767767 1.767767  C 2.236584 1.29895 2.5 0.663008 2.5 0  C 2.5 -0.663008 2.236584 -1.29895 1.767767 -1.767767  C 1.29895 -2.236584 0.663008 -2.5 0 -2.5  C -0.663008 -2.5 -1.29895 -2.236584 -1.767767 -1.767767  C -2.236584 -1.29895 -2.5 -0.663008 -2.5 0  C -2.5 0.663008 -2.236584 1.29895 -1.767767 1.767767  C -1.29895 2.236584 -0.663008 2.5 0 2.5  z " style="stroke: #176b56" />
+    </defs>
+    <g>
+     <use ns4:href="#maea46bd417" x="51.84" y="196.135714" style="fill: #176b56; stroke: #176b56" />
+    </g>
+   </g>
+   <g id="patch_5">
+    <path d="M 51.84 213.84  L 200.805517 213.84  " style="fill: none; stroke: #dce3de; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square" />
+   </g>
+   <g id="text_5">
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="146.957143" transform="rotate(-0 51.84 146.957143)">Naive tool agent</text>
+   </g>
+   <g id="text_6">
+    <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="55.564138" y="159.910045" transform="rotate(-0 55.564138 159.910045)">0/20 · 0.0%</text>
+   </g>
+   <g id="text_7">
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="186.3" transform="rotate(-0 51.84 186.3)">P · code controls</text>
+   </g>
+   <g id="text_8">
+    <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="55.564138" y="199.252902" transform="rotate(-0 55.564138 199.252902)">0/20 · 0.0%</text>
+   </g>
+   <g id="text_9">
+    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="51.84" y="111.22" transform="rotate(-0 51.84 111.22)">Ineligible writes</text>
+   </g>
+  </g>
+  <g id="axes_2">
+   <g id="patch_6">
+    <path d="M 315.36 213.84  L 531.36 213.84  L 531.36 131.22  L 315.36 131.22  z " style="fill: #ffffff" />
+   </g>
+   <g id="patch_7">
+    <path d="M 315.36 162.300857  L 315.36 162.300857  L 315.36 151.284857  L 315.36 151.284857  z " clip-path="url(#p772ea0e897)" style="fill: #73837b" />
+   </g>
+   <g id="patch_8">
+    <path d="M 315.36 201.643714  L 315.36 201.643714  L 315.36 190.627714  L 315.36 190.627714  z " clip-path="url(#p772ea0e897)" style="fill: #176b56" />
+   </g>
+   <g id="matplotlib.axis_3">
+    <g id="xtick_4">
+     <g id="line2d_6" />
+     <g id="text_10">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52645d" x="315.36" y="229.437656" transform="rotate(-0 315.36 229.437656)">0%</text>
+     </g>
+    </g>
+    <g id="xtick_5">
+     <g id="line2d_7" />
+     <g id="text_11">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52645d" x="389.842759" y="229.437656" transform="rotate(-0 389.842759 229.437656)">50%</text>
+     </g>
+    </g>
+    <g id="xtick_6">
+     <g id="line2d_8" />
+     <g id="text_12">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52645d" x="464.325517" y="229.437656" transform="rotate(-0 464.325517 229.437656)">100%</text>
+     </g>
+    </g>
+    <g id="text_13">
+     <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52645d" x="423.36" y="249.437656" transform="rotate(-0 423.36 249.437656)">Cases (%)</text>
+    </g>
+   </g>
+   <g id="matplotlib.axis_4" />
+   <g id="line2d_9">
+    <g>
+     <use ns4:href="#m2f2cf76079" x="315.36" y="156.792857" style="fill: #73837b; stroke: #73837b" />
+    </g>
+   </g>
+   <g id="line2d_10">
+    <g>
+     <use ns4:href="#maea46bd417" x="315.36" y="196.135714" style="fill: #176b56; stroke: #176b56" />
+    </g>
+   </g>
+   <g id="patch_9">
+    <path d="M 315.36 213.84  L 464.325517 213.84  " style="fill: none; stroke: #dce3de; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square" />
+   </g>
+   <g id="text_14">
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="315.36" y="146.957143" transform="rotate(-0 315.36 146.957143)">Naive tool agent</text>
+   </g>
+   <g id="text_15">
+    <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="319.084138" y="159.910045" transform="rotate(-0 319.084138 159.910045)">0/20 · 0.0%</text>
+   </g>
+   <g id="text_16">
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="315.36" y="186.3" transform="rotate(-0 315.36 186.3)">P · code controls</text>
+   </g>
+   <g id="text_17">
+    <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="319.084138" y="199.252902" transform="rotate(-0 319.084138 199.252902)">0/20 · 0.0%</text>
+   </g>
+   <g id="text_18">
+    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="315.36" y="111.22" transform="rotate(-0 315.36 111.22)">No confirmation</text>
+   </g>
+  </g>
+  <g id="axes_3">
+   <g id="patch_10">
+    <path d="M 578.88 213.84  L 794.88 213.84  L 794.88 131.22  L 578.88 131.22  z " style="fill: #ffffff" />
+   </g>
+   <g id="patch_11">
+    <path d="M 578.88 162.300857  L 593.776552 162.300857  L 593.776552 151.284857  L 578.88 151.284857  z " clip-path="url(#p5a009ec3ee)" style="fill: #73837b" />
+   </g>
+   <g id="patch_12">
+    <path d="M 578.88 201.643714  L 578.88 201.643714  L 578.88 190.627714  L 578.88 190.627714  z " clip-path="url(#p5a009ec3ee)" style="fill: #176b56" />
+   </g>
+   <g id="matplotlib.axis_5">
+    <g id="xtick_7">
+     <g id="line2d_11" />
+     <g id="text_19">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52645d" x="578.88" y="229.437656" transform="rotate(-0 578.88 229.437656)">0%</text>
+     </g>
+    </g>
+    <g id="xtick_8">
+     <g id="line2d_12" />
+     <g id="text_20">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52645d" x="653.362759" y="229.437656" transform="rotate(-0 653.362759 229.437656)">50%</text>
+     </g>
+    </g>
+    <g id="xtick_9">
+     <g id="line2d_13" />
+     <g id="text_21">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52645d" x="727.845517" y="229.437656" transform="rotate(-0 727.845517 229.437656)">100%</text>
+     </g>
+    </g>
+    <g id="text_22">
+     <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52645d" x="686.88" y="249.437656" transform="rotate(-0 686.88 249.437656)">Cases (%)</text>
+    </g>
+   </g>
+   <g id="matplotlib.axis_6" />
+   <g id="line2d_14">
+    <g>
+     <use ns4:href="#maea46bd417" x="578.88" y="196.135714" style="fill: #176b56; stroke: #176b56" />
+    </g>
+   </g>
+   <g id="patch_13">
+    <path d="M 578.88 213.84  L 727.845517 213.84  " style="fill: none; stroke: #dce3de; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square" />
+   </g>
+   <g id="text_23">
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="578.88" y="146.957143" transform="rotate(-0 578.88 146.957143)">Naive tool agent</text>
+   </g>
+   <g id="text_24">
+    <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="597.50069" y="159.910045" transform="rotate(-0 597.50069 159.910045)">2/20 · 10.0%</text>
+   </g>
+   <g id="text_25">
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="578.88" y="186.3" transform="rotate(-0 578.88 186.3)">P · code controls</text>
+   </g>
+   <g id="text_26">
+    <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="582.604138" y="199.252902" transform="rotate(-0 582.604138 199.252902)">0/20 · 0.0%</text>
+   </g>
+   <g id="text_27">
+    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="578.88" y="111.22" transform="rotate(-0 578.88 111.22)">Unverified write success</text>
+   </g>
+  </g>
+  <g id="axes_4">
+   <g id="patch_14">
+    <path d="M 51.84 374.22  L 267.84 374.22  L 267.84 291.6  L 51.84 291.6  z " style="fill: #ffffff" />
+   </g>
+   <g id="patch_15">
+    <path d="M 51.84 322.680857  L 51.84 322.680857  L 51.84 311.664857  L 51.84 311.664857  z " clip-path="url(#pf0b3d6705d)" style="fill: #73837b" />
+   </g>
+   <g id="patch_16">
+    <path d="M 51.84 362.023714  L 51.84 362.023714  L 51.84 351.007714  L 51.84 351.007714  z " clip-path="url(#pf0b3d6705d)" style="fill: #176b56" />
+   </g>
+   <g id="matplotlib.axis_7">
+    <g id="xtick_10">
+     <g id="line2d_15" />
+     <g id="text_28">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52645d" x="51.84" y="389.817656" transform="rotate(-0 51.84 389.817656)">0%</text>
+     </g>
+    </g>
+    <g id="xtick_11">
+     <g id="line2d_16" />
+     <g id="text_29">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52645d" x="126.322759" y="389.817656" transform="rotate(-0 126.322759 389.817656)">50%</text>
+     </g>
+    </g>
+    <g id="xtick_12">
+     <g id="line2d_17" />
+     <g id="text_30">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52645d" x="200.805517" y="389.817656" transform="rotate(-0 200.805517 389.817656)">100%</text>
+     </g>
+    </g>
+    <g id="text_31">
+     <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52645d" x="159.84" y="409.817656" transform="rotate(-0 159.84 409.817656)">Cases (%)</text>
+    </g>
+   </g>
+   <g id="matplotlib.axis_8" />
+   <g id="line2d_18">
+    <g>
+     <use ns4:href="#m2f2cf76079" x="51.84" y="317.172857" style="fill: #73837b; stroke: #73837b" />
+    </g>
+   </g>
+   <g id="line2d_19">
+    <g>
+     <use ns4:href="#maea46bd417" x="51.84" y="356.515714" style="fill: #176b56; stroke: #176b56" />
+    </g>
+   </g>
+   <g id="patch_17">
+    <path d="M 51.84 374.22  L 200.805517 374.22  " style="fill: none; stroke: #dce3de; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square" />
+   </g>
+   <g id="text_32">
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="307.337143" transform="rotate(-0 51.84 307.337143)">Naive tool agent</text>
+   </g>
+   <g id="text_33">
+    <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="55.564138" y="320.290045" transform="rotate(-0 55.564138 320.290045)">0/20 · 0.0%</text>
+   </g>
+   <g id="text_34">
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="346.68" transform="rotate(-0 51.84 346.68)">P · code controls</text>
+   </g>
+   <g id="text_35">
+    <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="55.564138" y="359.632902" transform="rotate(-0 55.564138 359.632902)">0/20 · 0.0%</text>
+   </g>
+   <g id="text_36">
+    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="51.84" y="271.6" transform="rotate(-0 51.84 271.6)">Refund promises</text>
+   </g>
+  </g>
+  <g id="axes_5">
+   <g id="patch_18">
+    <path d="M 315.36 374.22  L 531.36 374.22  L 531.36 291.6  L 315.36 291.6  z " style="fill: #ffffff" />
+   </g>
+   <g id="patch_19">
+    <path d="M 315.36 322.680857  L 315.36 322.680857  L 315.36 311.664857  L 315.36 311.664857  z " clip-path="url(#p12f7314a48)" style="fill: #73837b" />
+   </g>
+   <g id="patch_20">
+    <path d="M 315.36 362.023714  L 315.36 362.023714  L 315.36 351.007714  L 315.36 351.007714  z " clip-path="url(#p12f7314a48)" style="fill: #176b56" />
+   </g>
+   <g id="matplotlib.axis_9">
+    <g id="xtick_13">
+     <g id="line2d_20" />
+     <g id="text_37">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52645d" x="315.36" y="389.817656" transform="rotate(-0 315.36 389.817656)">0%</text>
+     </g>
+    </g>
+    <g id="xtick_14">
+     <g id="line2d_21" />
+     <g id="text_38">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52645d" x="389.842759" y="389.817656" transform="rotate(-0 389.842759 389.817656)">50%</text>
+     </g>
+    </g>
+    <g id="xtick_15">
+     <g id="line2d_22" />
+     <g id="text_39">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52645d" x="464.325517" y="389.817656" transform="rotate(-0 464.325517 389.817656)">100%</text>
+     </g>
+    </g>
+    <g id="text_40">
+     <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52645d" x="423.36" y="409.817656" transform="rotate(-0 423.36 409.817656)">Cases (%)</text>
+    </g>
+   </g>
+   <g id="matplotlib.axis_10" />
+   <g id="line2d_23">
+    <g>
+     <use ns4:href="#m2f2cf76079" x="315.36" y="317.172857" style="fill: #73837b; stroke: #73837b" />
+    </g>
+   </g>
+   <g id="line2d_24">
+    <g>
+     <use ns4:href="#maea46bd417" x="315.36" y="356.515714" style="fill: #176b56; stroke: #176b56" />
+    </g>
+   </g>
+   <g id="patch_21">
+    <path d="M 315.36 374.22  L 464.325517 374.22  " style="fill: none; stroke: #dce3de; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square" />
+   </g>
+   <g id="text_41">
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="315.36" y="307.337143" transform="rotate(-0 315.36 307.337143)">Naive tool agent</text>
+   </g>
+   <g id="text_42">
+    <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="319.084138" y="320.290045" transform="rotate(-0 319.084138 320.290045)">0/20 · 0.0%</text>
+   </g>
+   <g id="text_43">
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="315.36" y="346.68" transform="rotate(-0 315.36 346.68)">P · code controls</text>
+   </g>
+   <g id="text_44">
+    <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="319.084138" y="359.632902" transform="rotate(-0 319.084138 359.632902)">0/20 · 0.0%</text>
+   </g>
+   <g id="text_45">
+    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="315.36" y="271.6" transform="rotate(-0 315.36 271.6)">Cross-customer access</text>
+   </g>
+  </g>
+  <g id="axes_6">
+   <g id="patch_22">
+    <path d="M 578.88 374.22  L 794.88 374.22  L 794.88 291.6  L 578.88 291.6  z " style="fill: #ffffff" />
+   </g>
+   <g id="patch_23">
+    <path d="M 578.88 322.680857  L 727.845517 322.680857  L 727.845517 311.664857  L 578.88 311.664857  z " clip-path="url(#pc6ae352145)" style="fill: #73837b" />
+   </g>
+   <g id="patch_24">
+    <path d="M 578.88 362.023714  L 727.845517 362.023714  L 727.845517 351.007714  L 578.88 351.007714  z " clip-path="url(#pc6ae352145)" style="fill: #176b56" />
+   </g>
+   <g id="matplotlib.axis_11">
+    <g id="xtick_16">
+     <g id="line2d_25" />
+     <g id="text_46">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52645d" x="578.88" y="389.817656" transform="rotate(-0 578.88 389.817656)">0%</text>
+     </g>
+    </g>
+    <g id="xtick_17">
+     <g id="line2d_26" />
+     <g id="text_47">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52645d" x="653.362759" y="389.817656" transform="rotate(-0 653.362759 389.817656)">50%</text>
+     </g>
+    </g>
+    <g id="xtick_18">
+     <g id="line2d_27" />
+     <g id="text_48">
+      <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52645d" x="727.845517" y="389.817656" transform="rotate(-0 727.845517 389.817656)">100%</text>
+     </g>
+    </g>
+    <g id="text_49">
+     <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52645d" x="686.88" y="409.817656" transform="rotate(-0 686.88 409.817656)">Cases (%)</text>
+    </g>
+   </g>
+   <g id="matplotlib.axis_12" />
+   <g id="patch_25">
+    <path d="M 578.88 374.22  L 727.845517 374.22  " style="fill: none; stroke: #dce3de; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square" />
+   </g>
+   <g id="text_50">
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="578.88" y="307.337143" transform="rotate(-0 578.88 307.337143)">Naive tool agent</text>
+   </g>
+   <g id="text_51">
+    <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="731.569655" y="320.290045" transform="rotate(-0 731.569655 320.290045)">6/6 · 100.0%</text>
+   </g>
+   <g id="text_52">
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="578.88" y="346.68" transform="rotate(-0 578.88 346.68)">P · code controls</text>
+   </g>
+   <g id="text_53">
+    <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="731.569655" y="359.632902" transform="rotate(-0 731.569655 359.632902)">6/6 · 100.0%</text>
+   </g>
+   <g id="text_54">
+    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="578.88" y="271.6" transform="rotate(-0 578.88 271.6)">Correct escalation</text>
+   </g>
+  </g>
+  <g id="text_55">
+   <text style="font-weight: 700; font-size: 24px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="51.84" y="36.45" transform="rotate(-0 51.84 36.45)">Two unverified write claims in the naive arm</text>
+  </g>
+  <g id="text_56">
+   <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="65.61" transform="rotate(-0 51.84 65.61)">Paired dev study · same Gemini · 20 synthetic cases per arm · post-v4, not held-out</text>
+  </g>
+  <g id="text_57">
+   <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="442.26" transform="rotate(-0 51.84 442.26)">Missing readback is not proof of failed writes. Bundle ablation; small sample; zeros do not establish safety.</text>
+  </g>
+  <g id="text_58">
+   <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="461.7" transform="rotate(-0 51.84 461.7)">Source: docs/evaluation/controls-ablation.md · authored dev data only · not reflected in v4</text>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="p6835e275c4">
+   <rect x="51.84" y="131.22" width="216" height="82.62" />
+  </clipPath>
+  <clipPath id="p772ea0e897">
+   <rect x="315.36" y="131.22" width="216" height="82.62" />
+  </clipPath>
+  <clipPath id="p5a009ec3ee">
+   <rect x="578.88" y="131.22" width="216" height="82.62" />
+  </clipPath>
+  <clipPath id="pf0b3d6705d">
+   <rect x="51.84" y="291.6" width="216" height="82.62" />
+  </clipPath>
+  <clipPath id="p12f7314a48">
+   <rect x="315.36" y="291.6" width="216" height="82.62" />
+  </clipPath>
+  <clipPath id="pc6ae352145">
+   <rect x="578.88" y="291.6" width="216" height="82.62" />
+  </clipPath>
+ </defs>
+</svg>

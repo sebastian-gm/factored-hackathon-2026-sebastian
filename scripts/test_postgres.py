@@ -56,6 +56,8 @@ def main() -> int:
                     "tests/test_operational_store.py",
                     "tests/test_customer_business_state.py",
                     "tests/test_nlu_transaction_boundary.py",
+                    "tests/test_session_turns.py",
+                    "tests/test_request_scoped_telemetry.py",
                     "tests/test_serving_load.py",
                     "tests/test_serving_api.py",
                     "tests/test_llm_budget.py",

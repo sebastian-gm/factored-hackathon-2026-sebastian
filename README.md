@@ -1,5 +1,22 @@
 # Aclara
 
+**Run the local demo with one command:**
+
+```sh
+make demo
+```
+
+Requires Git, `make`, Python 3.12 and local Docker Engine with Compose v2;
+Python/web dependencies are built inside the images. The command starts isolated
+localhost Postgres, a mock-model API with authored fixtures and the live web BFF,
+verifies login/OTP/ledger/store/logout, then prints the URL and persona hint.
+Passwords stay in ignored mode-0600 `artifacts/demo/es/.env`; the command never
+reads or changes your worktree `.env`. No organizer data, cloud account or model
+key is required. Try `DEMO_LANGUAGE=pt make demo` for a separate Portuguese demo.
+`make demo-check` verifies readbacks again; `make demo-stop` stops only this demo
+and preserves its volume. [Clean-clone verification](docs/submission/clean-clone-reproduction.md).
+These post-v4 local-demo changes are **not reflected in v4 numbers**.
+
 [![ci](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/actions/workflows/ci.yml/badge.svg)](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/actions/workflows/ci.yml)
 
 This is Sebastian's Factored Hackathon 2026 submission repository, renamed from

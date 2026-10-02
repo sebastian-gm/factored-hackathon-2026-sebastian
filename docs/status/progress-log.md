@@ -4978,3 +4978,90 @@ later flag-only session for the current contract and activation dependencies.
   smoke allowance **$0.076661**; conservative maximum **$14.99937448 ≤ $15**.
   Recheck ledger/key before approval/activation; no new paid call authorized by
   these source fixes. Publication/submission/retirement require their own gates.
+
+
+## 2026-10-02 — Final improvements w8: one-command local demo
+
+### Completed (verified)
+
+- Added `make demo`, `demo-check` and `demo-stop`: isolated localhost Compose
+  project/ports per checkout and ES/PT choice; fresh ignored 0600 credentials.
+  Existing worktree .env is neither read nor overwritten. Provider keys and
+  organizer inputs are not passed; mock/fixture settings are enforced.
+- Initial ES demo built and reached healthy Postgres/API/web. Live BFF readback
+  verified login/OTP, authored ledger, store quality and revoked logout without
+  writing a dispute/handoff. Four isolation/readback unit tests and Ruff passed.
+- Fresh private clone of 9f64c04 passed `make demo` (ES **40.23 s**) and
+  `DEMO_LANGUAGE=pt make demo` (**47.70 s**): live BFF, six authored rows each,
+  authentication/OTP/store quality/revoked logout readbacks. No host dependency,
+  environment, organizer or credential copy; cached Docker layers are disclosed
+  in [clean-clone evidence](../submission/clean-clone-reproduction.md).
+- No model/cloud spend, Azure changes or held-out runs. The demo is post-v4
+  development tooling, not reflected in official v4 numbers.
+
+### Done but not verified
+
+- None for the local demo: [PR #136](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/pull/136)
+  passed checks/invariants/Postgres/web and merged at ca646f6. Shared Makefile/Compose
+  overlay additions are explicit in this assignment/PR. No Azure release performed.
+
+### Next / blocked
+
+- Complete the PNG/SVG slide assets from committed aggregates. Staff queue UI
+  awaits the orchestrator's item-6 backend contract; no guessed contract.
+
+## 2026-10-02 — Final improvements w8: aggregate slide assets
+
+### Completed (verified)
+
+- Exported six PNG/SVG pairs under `docs/submission/assets/`: official v4 pass,
+  SAR on both denominators, strict/missed/unnecessary escalation, observed safety
+  flags, historical latency/cost, current architecture and controls ablation.
+  Item-5 dev aggregates landed in main during demo CI; no additional model calls.
+  Captions link committed
+  sources; the deterministic exporter reads only those aggregate documents.
+- All six 1920×1080 images visually reviewed. SVGs retain editable text and
+  accessible titles; every file is below 512 KiB. A second export was byte-identical.
+  Missing source rows or denominators fail rather than fabricate numbers.
+- Both official safety gates remain failed and the 2/98 versus 2/100 action flags
+  remain unchanged. Historical Gemini+Jev latency/cost and current post-v4 design
+  are distinct. No deck, organizer rows, model calls, Azure or frozen-suite changes.
+  Model spend **$0**; current source changes are **not reflected in v4**.
+
+### Done but not verified
+
+- Current-head remote CI/merge pending. Ablation is a 20-case-per-arm bundle
+  study, not held-out evidence: P 0/20 versus naive 2/20 unverified write claims,
+  no proven write failures; other observed failure counts were zero. Small sample
+  does not establish safety. The official v4 source files remain unchanged.
+
+### Next / blocked
+
+- Merge this asset pack only on green CI. Demo #136 is already merged.
+  Implement the real ES/PT staff queue after the orchestrator
+  relays the item-6 reviewed backend contract. No endpoint guessed in advance.
+
+- Merge only on green CI. Prepare PNG/SVG slide assets
+  from committed v4 aggregates. Controls ablation and staff queue UI await the
+  orchestrator's item-5 results and item-6 backend contract; no guessed contract.
+
+## 2026-10-02 — Handoff 17, request-scoped concurrency
+
+### Completed (verified)
+
+- Candidate `ad54866`: request event/call/cursor isolation, concurrent provider
+  waits, bounded admission, full-turn per-session advisory locks. Local checks
+  1340 passed / 38 skips, B1 32/32; subsequent disposable Postgres 86/86 includes
+  cancellation and cross-instance ordering. No official v4 files changed.
+- Existing mock harness: five warm sessions **1.026 s**, turn p50/p95
+  **1.020/1.022 s** (first cold three-session batch 1.832 s), $0.
+  [Evidence and limits](../evaluation/request-scoped-concurrency.md).
+
+### Done but not verified
+
+- Azure still runs v0.7.0; concurrent live turns and two judge realms not tested.
+
+### Next / blocked
+
+- Green remote concurrency PR, plan-only Gate A, v0.8.0 capped release, then
+  staff-queue security review. Warm/public judge access remains separately gated.
