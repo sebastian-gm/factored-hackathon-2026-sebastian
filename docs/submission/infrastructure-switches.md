@@ -27,18 +27,27 @@ After approval only, store two separate secrets in `kv-aclara-dev-eastus2`:
 
 - `judge-password`: independently generated random password (at least 32
   characters), distinct from the owner demo password.
-- `judge-persona`: a JSON object with exactly `username` and `source_username`.
-  The username uses the `judge.` prefix; source must be an existing reviewed
-  serving persona. Values are supplied privately, not through Terraform/Git.
+- `judge-persona`: for the single-login picker, a JSON object with exactly
+  `username` and `profiles`. `profiles` maps `mx-es`, `co-es`, `ar-es`, `pt` to
+  existing reviewed serving persona usernames, with respective locales `es-MX`,
+  `es-CO`, `es-AR`, `pt-BR` and **four distinct customers**. The username uses the
+  `judge.` prefix. Values are supplied privately, not through Terraform/Git.
+  The earlier `username` / `source_username` single-alias format remains
+  compatible, without picker endpoints.
 
-The app aliases the trusted source's customer, locale, role and already-gated
+The app inherits the selected trusted source's customer, locale, role and already-gated
 guided-story hints; the secret cannot
 supply a role, customer ID, nonexistent source or collision with an existing login.
-Sebastian must choose/review that source on submission day. Selecting an Ops
+Sebastian must choose/review all four sources on submission day. Selecting an Ops
 source enables its existing workspace-scoped Desk/Ops access; a customer source
 retains customer-only permissions. No implicit new privilege is created. Only
-one alias is configured here; switching languages/customer accounts is not
-implemented as an unrestricted public registration flow.
+one judge account is configured. Password/OTP yields a picker-only grant;
+server-side profile selection rotates the capability and independently verifies
+activation. No unrestricted registration or arbitrary-customer lookup exists.
+See [judge API](../api/judge-profile-entry.md) and
+[ADR-0016](../adr/0016-judge-profile-sessions.md) for replay, multi-tab, reset and
+restart boundaries. Each selection starts a fresh workspace; reset is forbidden
+for judge sessions. Logout revokes all of that login's selected capabilities.
 
 Terraform references the two versionless secret URIs and grants API managed
 identity access at **only those secret scopes**. No secret data source, literal
@@ -107,7 +116,7 @@ start/end dates and daily model allowance before enabling public web ingress.
 
 ## Submission-day approval and verification
 
-1. Review a green main release and approved source persona; create secrets
+1. Review a green main release and four approved source personas; create secrets
    privately in the named sandbox using explicit subscription selection.
 2. Inspect global production budget disabled status/cap and disable any smoke
    run override. Choose public-judge/warm toggles and exact end date privately.
