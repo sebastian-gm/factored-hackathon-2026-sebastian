@@ -195,5 +195,5 @@ Jev settlement. Ruff, format, strict mypy and interface snapshots passed. All
 The separate v5.2 full-dev adoption gate remains unmeasured/unadopted.
 Recommendation: keep the existing Gemini default; no model-choice conclusion
 from this partial, fallback-contaminated comparison. Disparity evidence is in
-[PR #86](https://github.com/sebastian-gm/bank-agent-lab/pull/86), green and awaiting
+[PR #86](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/pull/86), green and awaiting
 the lead's merge. No v4 or final run by this lane.

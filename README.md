@@ -1,5 +1,11 @@
 # Aclara
 
+[![ci](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/actions/workflows/ci.yml/badge.svg)](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/actions/workflows/ci.yml)
+
+This is Sebastian's Factored Hackathon 2026 submission repository, renamed from
+`bank-agent-lab` with its original PR and evaluation history retained. It remains
+private until submission-day approval. [Changelog](CHANGELOG.md).
+
 Aclara helps a signed-in customer understand an unfamiliar charge, confirm an
 eligible dispute, or reach a human with verified context, in **Spanish and
 Brazilian Portuguese**. Customer Chat, Agent Desk and Ops show supporting records,
