@@ -79,18 +79,234 @@ Every check records its owner, threshold and scope. Snapshot-scoped FAIL checks 
 
 ## Source volumes
 
-| table | files | rebuilt_objects | invalid_rows | missing_required_files | unknown_column_files | rows | documented_rows | duplicate_primary_keys |
+| table | documented_rows | duplicate_primary_keys | files | invalid_rows | missing_required_files | rebuilt_objects | rows | unknown_column_files |
 |---|---|---|---|---|---|---|---|---|
-| customers | 1 | 0 | 0 | 0 | 0 | 150000 | 150000 | 0 |
-| products | 1 | 0 | 0 | 0 | 0 | 400000 | 400000 | 0 |
-| transactions | 1097 | 0 | 0 | 0 | 0 | 4425008 | 5000000 | 0 |
-| daily_exchange_rates | 1 | 0 | 0 | 0 | 0 | 13164 | 3000 | 0 |
-| service_agents | 1 | 0 | 0 | 0 | 0 | 1200 | 1200 | 0 |
-| complaints | 1097 | 0 | 0 | 0 | 0 | 67095 | 80000 | 0 |
-| call_center_interactions | 1097 | 0 | 0 | 0 | 0 | 686296 | 800000 | 0 |
-| satisfaction_surveys | 1097 | 0 | 0 | 0 | 0 | 212759 | 250000 | 0 |
-| call_transcripts | 1097 | 0 | 0 | 0 | 0 | 171321 | 200000 | 0 |
-| digital_events | 1097 | 0 | 0 | 0 | 0 | 15620994 | 10000000 | 0 |
+| customers | 150000 | 0 | 1 | 0 | 0 | 0 | 150000 | 0 |
+| products | 400000 | 0 | 1 | 0 | 0 | 0 | 400000 | 0 |
+| transactions | 5000000 | 0 | 1097 | 0 | 0 | 0 | 4425008 | 0 |
+| daily_exchange_rates | 3000 | 0 | 1 | 0 | 0 | 0 | 13164 | 0 |
+| service_agents | 1200 | 0 | 1 | 0 | 0 | 0 | 1200 | 0 |
+| complaints | 80000 | 0 | 1097 | 0 | 0 | 0 | 67095 | 0 |
+| call_center_interactions | 800000 | 0 | 1097 | 0 | 0 | 0 | 686296 | 0 |
+| satisfaction_surveys | 250000 | 0 | 1097 | 0 | 0 | 0 | 212759 | 0 |
+| call_transcripts | 200000 | 0 | 1097 | 0 | 0 | 0 | 171321 | 0 |
+| digital_events | 10000000 | 0 | 1097 | 0 | 0 | 0 | 15620994 | 0 |
+
+## Per-column null rates
+
+SQL NULL counts after contract conversion; `null_rate` is nulls/rows (0–1). Nullable does not mean defective: many fields are conditional. Blank non-null strings are counted separately. Provenance columns are excluded. Cast failures remain invalid-row failures, not missing-value imputation.
+
+| table | column | rows | nullable | nulls | null_rate | blank_nonnull |
+|---|---|---|---|---|---|---|
+| customers | customer_id | 150000 | False | 0 | 0.000000 | 0 |
+| customers | document_number | 150000 | False | 0 | 0.000000 | 0 |
+| customers | document_type | 150000 | False | 0 | 0.000000 | 0 |
+| customers | first_name | 150000 | False | 0 | 0.000000 | 0 |
+| customers | last_name | 150000 | False | 0 | 0.000000 | 0 |
+| customers | date_of_birth | 150000 | False | 0 | 0.000000 | 0 |
+| customers | gender | 150000 | True | 0 | 0.000000 | 0 |
+| customers | email | 150000 | True | 2984 | 0.019893 | 0 |
+| customers | mobile_phone | 150000 | True | 4707 | 0.031380 | 0 |
+| customers | landline_phone | 150000 | True | 75053 | 0.500353 | 0 |
+| customers | address | 150000 | True | 7370 | 0.049133 | 0 |
+| customers | city | 150000 | False | 0 | 0.000000 | 0 |
+| customers | state | 150000 | False | 0 | 0.000000 | 0 |
+| customers | country | 150000 | False | 0 | 0.000000 | 0 |
+| customers | postal_code | 150000 | True | 15044 | 0.100293 | 0 |
+| customers | detected_accent | 150000 | True | 44817 | 0.298780 | 0 |
+| customers | segment | 150000 | False | 0 | 0.000000 | 0 |
+| customers | credit_score | 150000 | True | 22492 | 0.149947 | 0 |
+| customers | estimated_monthly_income | 150000 | True | 30033 | 0.200220 | 0 |
+| customers | occupation | 150000 | True | 15039 | 0.100260 | 0 |
+| customers | marital_status | 150000 | True | 11955 | 0.079700 | 0 |
+| customers | education_level | 150000 | True | 17952 | 0.119680 | 0 |
+| customers | registration_date | 150000 | False | 0 | 0.000000 | 0 |
+| customers | registration_branch_id | 150000 | False | 0 | 0.000000 | 0 |
+| customers | customer_status | 150000 | False | 0 | 0.000000 | 0 |
+| customers | last_updated | 150000 | False | 0 | 0.000000 | 0 |
+| customers | accepts_marketing | 150000 | False | 0 | 0.000000 | 0 |
+| products | product_id | 400000 | False | 0 | 0.000000 | 0 |
+| products | customer_id | 400000 | False | 0 | 0.000000 | 0 |
+| products | product_type | 400000 | False | 0 | 0.000000 | 0 |
+| products | product_number | 400000 | False | 0 | 0.000000 | 0 |
+| products | currency | 400000 | False | 0 | 0.000000 | 0 |
+| products | current_balance | 400000 | False | 0 | 0.000000 | 0 |
+| products | credit_limit | 400000 | True | 274683 | 0.686708 | 0 |
+| products | interest_rate | 400000 | True | 40066 | 0.100165 | 0 |
+| products | opening_date | 400000 | False | 0 | 0.000000 | 0 |
+| products | expiration_date | 400000 | True | 266839 | 0.667098 | 0 |
+| products | opening_branch_id | 400000 | False | 0 | 0.000000 | 0 |
+| products | product_status | 400000 | False | 0 | 0.000000 | 0 |
+| products | opening_channel | 400000 | False | 0 | 0.000000 | 0 |
+| products | has_linked_app | 400000 | False | 0 | 0.000000 | 0 |
+| products | days_past_due | 400000 | True | 274650 | 0.686625 | 0 |
+| products | last_transaction_date | 400000 | True | 94277 | 0.235692 | 0 |
+| products | last_updated | 400000 | False | 0 | 0.000000 | 0 |
+| transactions | transaction_id | 4425008 | False | 0 | 0.000000 | 0 |
+| transactions | transaction_date | 4425008 | False | 0 | 0.000000 | 0 |
+| transactions | process_date | 4425008 | False | 0 | 0.000000 | 0 |
+| transactions | product_id | 4425008 | False | 0 | 0.000000 | 0 |
+| transactions | customer_id | 4425008 | False | 0 | 0.000000 | 0 |
+| transactions | transaction_type | 4425008 | False | 0 | 0.000000 | 0 |
+| transactions | transaction_category | 4425008 | True | 2693520 | 0.608704 | 0 |
+| transactions | amount | 4425008 | False | 0 | 0.000000 | 0 |
+| transactions | currency | 4425008 | False | 0 | 0.000000 | 0 |
+| transactions | amount_usd | 4425008 | True | 2537456 | 0.573435 | 0 |
+| transactions | channel | 4425008 | False | 0 | 0.000000 | 0 |
+| transactions | branch_id | 4425008 | True | 3037076 | 0.686344 | 0 |
+| transactions | merchant_name | 4425008 | True | 3395774 | 0.767405 | 0 |
+| transactions | merchant_category | 4425008 | True | 3396215 | 0.767505 | 0 |
+| transactions | transaction_country | 4425008 | False | 0 | 0.000000 | 0 |
+| transactions | transaction_city | 4425008 | True | 442611 | 0.100025 | 0 |
+| transactions | transaction_status | 4425008 | False | 0 | 0.000000 | 0 |
+| transactions | response_code | 4425008 | True | 221033 | 0.049951 | 0 |
+| transactions | is_fraud | 4425008 | False | 0 | 0.000000 | 0 |
+| transactions | fraud_score | 4425008 | True | 885157 | 0.200035 | 0 |
+| transactions | latitude | 4425008 | True | 3567680 | 0.806254 | 0 |
+| transactions | longitude | 4425008 | True | 3567715 | 0.806262 | 0 |
+| daily_exchange_rates | date | 13164 | False | 0 | 0.000000 | 0 |
+| daily_exchange_rates | source_currency | 13164 | False | 0 | 0.000000 | 0 |
+| daily_exchange_rates | target_currency | 13164 | False | 0 | 0.000000 | 0 |
+| daily_exchange_rates | exchange_rate | 13164 | False | 0 | 0.000000 | 0 |
+| daily_exchange_rates | buy_rate | 13164 | True | 0 | 0.000000 | 0 |
+| daily_exchange_rates | sell_rate | 13164 | True | 0 | 0.000000 | 0 |
+| daily_exchange_rates | source | 13164 | True | 0 | 0.000000 | 0 |
+| service_agents | agent_id | 1200 | False | 0 | 0.000000 | 0 |
+| service_agents | employee_code | 1200 | False | 0 | 0.000000 | 0 |
+| service_agents | first_name | 1200 | False | 0 | 0.000000 | 0 |
+| service_agents | last_name | 1200 | False | 0 | 0.000000 | 0 |
+| service_agents | email | 1200 | False | 0 | 0.000000 | 0 |
+| service_agents | phone | 1200 | True | 69 | 0.057500 | 0 |
+| service_agents | native_accent | 1200 | False | 0 | 0.000000 | 0 |
+| service_agents | country_of_origin | 1200 | False | 0 | 0.000000 | 0 |
+| service_agents | assigned_branch_id | 1200 | True | 367 | 0.305833 | 0 |
+| service_agents | agent_type | 1200 | False | 0 | 0.000000 | 0 |
+| service_agents | experience_level | 1200 | False | 0 | 0.000000 | 0 |
+| service_agents | languages | 1200 | False | 0 | 0.000000 | 0 |
+| service_agents | specialty | 1200 | True | 476 | 0.396667 | 0 |
+| service_agents | hire_date | 1200 | False | 0 | 0.000000 | 0 |
+| service_agents | avg_csat | 1200 | True | 134 | 0.111667 | 0 |
+| service_agents | total_monthly_interactions | 1200 | True | 111 | 0.092500 | 0 |
+| service_agents | agent_status | 1200 | False | 0 | 0.000000 | 0 |
+| service_agents | work_shift | 1200 | False | 0 | 0.000000 | 0 |
+| complaints | complaint_id | 67095 | False | 0 | 0.000000 | 0 |
+| complaints | creation_date | 67095 | False | 0 | 0.000000 | 0 |
+| complaints | process_date | 67095 | False | 0 | 0.000000 | 0 |
+| complaints | customer_id | 67095 | False | 0 | 0.000000 | 0 |
+| complaints | case_type | 67095 | False | 0 | 0.000000 | 0 |
+| complaints | category | 67095 | False | 0 | 0.000000 | 0 |
+| complaints | subcategory | 67095 | True | 6698 | 0.099829 | 0 |
+| complaints | reception_channel | 67095 | False | 0 | 0.000000 | 0 |
+| complaints | affected_product_id | 67095 | True | 22525 | 0.335718 | 0 |
+| complaints | related_branch_id | 67095 | True | 47917 | 0.714166 | 0 |
+| complaints | origin_interaction_id | 67095 | True | 67095 | 1.000000 | 0 |
+| complaints | description | 67095 | False | 0 | 0.000000 | 0 |
+| complaints | claimed_amount | 67095 | True | 45344 | 0.675818 | 0 |
+| complaints | currency | 67095 | True | 45319 | 0.675445 | 0 |
+| complaints | priority | 67095 | False | 0 | 0.000000 | 0 |
+| complaints | status | 67095 | False | 0 | 0.000000 | 0 |
+| complaints | assigned_agent_id | 67095 | True | 23115 | 0.344512 | 0 |
+| complaints | assignment_date | 67095 | True | 23128 | 0.344705 | 0 |
+| complaints | first_response_date | 67095 | True | 26242 | 0.391117 | 0 |
+| complaints | resolution_date | 67095 | True | 51746 | 0.771235 | 0 |
+| complaints | closing_date | 67095 | True | 64614 | 0.963023 | 0 |
+| complaints | sla_breached | 67095 | False | 0 | 0.000000 | 0 |
+| complaints | resolution_days | 67095 | True | 51732 | 0.771026 | 0 |
+| complaints | resolution | 67095 | True | 51785 | 0.771816 | 0 |
+| complaints | compensation_granted | 67095 | True | 62454 | 0.930829 | 0 |
+| complaints | resolution_satisfaction | 67095 | True | 64611 | 0.962978 | 0 |
+| complaints | is_repeat_complainer | 67095 | False | 0 | 0.000000 | 0 |
+| call_center_interactions | interaction_id | 686296 | False | 0 | 0.000000 | 0 |
+| call_center_interactions | interaction_date | 686296 | False | 0 | 0.000000 | 0 |
+| call_center_interactions | process_date | 686296 | False | 0 | 0.000000 | 0 |
+| call_center_interactions | customer_id | 686296 | False | 0 | 0.000000 | 0 |
+| call_center_interactions | agent_id | 686296 | True | 0 | 0.000000 | 0 |
+| call_center_interactions | interaction_type | 686296 | False | 0 | 0.000000 | 0 |
+| call_center_interactions | channel | 686296 | False | 0 | 0.000000 | 0 |
+| call_center_interactions | contact_reason | 686296 | False | 0 | 0.000000 | 0 |
+| call_center_interactions | reason_category | 686296 | False | 0 | 0.000000 | 0 |
+| call_center_interactions | duration_seconds | 686296 | True | 96234 | 0.140222 | 0 |
+| call_center_interactions | wait_time_seconds | 686296 | True | 205618 | 0.299605 | 0 |
+| call_center_interactions | was_resolved | 686296 | True | 0 | 0.000000 | 0 |
+| call_center_interactions | requires_followup | 686296 | False | 0 | 0.000000 | 0 |
+| call_center_interactions | detected_sentiment | 686296 | True | 0 | 0.000000 | 0 |
+| call_center_interactions | sentiment_score | 686296 | True | 0 | 0.000000 | 0 |
+| call_center_interactions | customer_detected_accent | 686296 | True | 204750 | 0.298341 | 0 |
+| call_center_interactions | agent_used_accent | 686296 | True | 204750 | 0.298341 | 0 |
+| call_center_interactions | was_escalated | 686296 | False | 0 | 0.000000 | 0 |
+| call_center_interactions | mentioned_products | 686296 | True | 411955 | 0.600258 | 0 |
+| call_center_interactions | has_transcript | 686296 | False | 0 | 0.000000 | 0 |
+| call_center_interactions | has_recording | 686296 | False | 0 | 0.000000 | 0 |
+| satisfaction_surveys | survey_id | 212759 | False | 0 | 0.000000 | 0 |
+| satisfaction_surveys | survey_date | 212759 | False | 0 | 0.000000 | 0 |
+| satisfaction_surveys | process_date | 212759 | False | 0 | 0.000000 | 0 |
+| satisfaction_surveys | interaction_id | 212759 | True | 0 | 0.000000 | 0 |
+| satisfaction_surveys | customer_id | 212759 | False | 0 | 0.000000 | 0 |
+| satisfaction_surveys | agent_id | 212759 | True | 0 | 0.000000 | 0 |
+| satisfaction_surveys | survey_type | 212759 | False | 0 | 0.000000 | 0 |
+| satisfaction_surveys | send_channel | 212759 | False | 0 | 0.000000 | 0 |
+| satisfaction_surveys | main_score | 212759 | False | 0 | 0.000000 | 0 |
+| satisfaction_surveys | nps_category | 212759 | True | 152365 | 0.716139 | 0 |
+| satisfaction_surveys | question_1_text | 212759 | True | 91456 | 0.429857 | 0 |
+| satisfaction_surveys | question_1_response | 212759 | True | 91389 | 0.429542 | 0 |
+| satisfaction_surveys | question_2_text | 212759 | True | 131388 | 0.617544 | 0 |
+| satisfaction_surveys | question_2_response | 212759 | True | 131263 | 0.616956 | 0 |
+| satisfaction_surveys | question_3_text | 212759 | True | 172615 | 0.811317 | 0 |
+| satisfaction_surveys | question_3_response | 212759 | True | 172656 | 0.811510 | 0 |
+| satisfaction_surveys | open_comments | 212759 | True | 111563 | 0.524363 | 0 |
+| satisfaction_surveys | comment_sentiment | 212759 | True | 111502 | 0.524077 | 0 |
+| satisfaction_surveys | response_time_hours | 212759 | True | 0 | 0.000000 | 0 |
+| satisfaction_surveys | campaign_response_rate | 212759 | True | 32037 | 0.150579 | 0 |
+| call_transcripts | transcript_id | 171321 | False | 0 | 0.000000 | 0 |
+| call_transcripts | interaction_id | 171321 | False | 0 | 0.000000 | 0 |
+| call_transcripts | process_date | 171321 | False | 0 | 0.000000 | 0 |
+| call_transcripts | customer_id | 171321 | False | 0 | 0.000000 | 0 |
+| call_transcripts | agent_id | 171321 | False | 0 | 0.000000 | 0 |
+| call_transcripts | full_text | 171321 | False | 0 | 0.000000 | 0 |
+| call_transcripts | customer_text | 171321 | True | 0 | 0.000000 | 0 |
+| call_transcripts | agent_text | 171321 | True | 0 | 0.000000 | 0 |
+| call_transcripts | detected_language | 171321 | False | 0 | 0.000000 | 0 |
+| call_transcripts | detected_accent | 171321 | True | 63083 | 0.368215 | 0 |
+| call_transcripts | accent_confidence | 171321 | True | 17141 | 0.100052 | 0 |
+| call_transcripts | detected_keywords | 171321 | True | 8797 | 0.051348 | 0 |
+| call_transcripts | mentioned_entities | 171321 | True | 17164 | 0.100186 | 0 |
+| call_transcripts | detected_intents | 171321 | True | 8457 | 0.049363 | 0 |
+| call_transcripts | main_topics | 171321 | True | 0 | 0.000000 | 0 |
+| call_transcripts | transcription_model | 171321 | False | 0 | 0.000000 | 0 |
+| call_transcripts | audio_quality | 171321 | True | 8638 | 0.050420 | 0 |
+| call_transcripts | duration_seconds | 171321 | True | 24029 | 0.140257 | 0 |
+| digital_events | event_id | 15620994 | False | 0 | 0.000000 | 0 |
+| digital_events | event_date | 15620994 | False | 0 | 0.000000 | 0 |
+| digital_events | process_date | 15620994 | False | 0 | 0.000000 | 0 |
+| digital_events | customer_id | 15620994 | True | 3745446 | 0.239770 | 0 |
+| digital_events | session_id | 15620994 | False | 0 | 0.000000 | 0 |
+| digital_events | event_type | 15620994 | False | 0 | 0.000000 | 0 |
+| digital_events | event_category | 15620994 | False | 0 | 0.000000 | 0 |
+| digital_events | channel | 15620994 | False | 0 | 0.000000 | 0 |
+| digital_events | platform | 15620994 | True | 780527 | 0.049967 | 0 |
+| digital_events | browser | 15620994 | True | 9687736 | 0.620174 | 0 |
+| digital_events | app_version | 15620994 | True | 6714416 | 0.429833 | 0 |
+| digital_events | page_url | 15620994 | True | 780394 | 0.049958 | 0 |
+| digital_events | page_title | 15620994 | True | 779824 | 0.049922 | 0 |
+| digital_events | action | 15620994 | True | 1561432 | 0.099957 | 0 |
+| digital_events | element_id | 15620994 | True | 2343244 | 0.150006 | 0 |
+| digital_events | product_id | 15620994 | True | 14180656 | 0.907795 | 0 |
+| digital_events | event_value | 15620994 | True | 14826484 | 0.949138 | 0 |
+| digital_events | duration_seconds | 15620994 | True | 9946209 | 0.636721 | 0 |
+| digital_events | ip_address | 15620994 | True | 780855 | 0.049988 | 0 |
+| digital_events | ip_country | 15620994 | True | 0 | 0.000000 | 0 |
+| digital_events | ip_city | 15620994 | True | 4370476 | 0.279782 | 0 |
+| digital_events | is_mobile | 15620994 | False | 0 | 0.000000 | 0 |
+| digital_events | referrer | 15620994 | True | 14573469 | 0.932941 | 0 |
+| digital_events | utm_source | 15620994 | True | 14781949 | 0.946287 | 0 |
+| digital_events | utm_medium | 15620994 | True | 14781860 | 0.946282 | 0 |
+| digital_events | utm_campaign | 15620994 | True | 14782077 | 0.946296 | 0 |
+
+## Duplicate reconciliation
+
+Exact records include their source primary key. Payload fingerprints omit the ID and partition date to detect replay with regenerated IDs. Business/event fingerprints are candidate collisions, not proof of duplicate activity; no records are collapsed. Counts report excess rows beyond the first member of each group. Unique PKs logically imply zero exact full-row duplicates.
+
+See [delivery reconciliation](data-quality-reconciliation.md) for the direct-source scan, full 13-table scope, fingerprint keys, null denominators, additional relationships and volume explanations.
 
 ## Definitions
 

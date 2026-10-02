@@ -8,6 +8,7 @@ from typing import Any
 import duckdb
 
 from aclara.data.pipeline import _fetchone, _read_contract, _sql_identifier
+from aclara.data.profiling import column_null_profile, duplicate_profile
 
 DOCUMENTED = {
     "customers": 150_000,
@@ -32,6 +33,7 @@ def records(db: duckdb.DuckDBPyConnection, sql: str) -> list[dict[str, Any]]:
 def quality_report(
     db: duckdb.DuckDBPyConnection, version: str, clock: str, ingest: dict[str, Any]
 ) -> dict[str, Any]:
+    db.execute("SET TimeZone='UTC'")
     checks: list[dict[str, Any]] = []
 
     def scalar(query: str) -> int:
@@ -64,6 +66,8 @@ def quality_report(
         "CREATE OR REPLACE TEMP TABLE analysis_clock AS SELECT ?::TIMESTAMPTZ AS as_of", [clock]
     )
     tables = {}
+    null_rates: list[dict[str, Any]] = []
+    duplicate_fingerprints: dict[str, Any] = {}
     for table, stats in ingest.items():
         relation = "silver." + _sql_identifier(table)
         keys = ",".join(_sql_identifier(key) for key in _read_contract(table)["primary_key"])
@@ -81,6 +85,11 @@ def quality_report(
         check(f"STRUCT-{table}-pk", "fail", duplicates)
         check(f"SCHEMA-{table}-extra", "warn", stats["unknown_column_files"])
         check(f"VOLUME-{table}", "warn", abs(rows - DOCUMENTED[table]))
+        null_rates.extend(column_null_profile(db, table))
+        contract = _read_contract(table)
+        duplicate_fingerprints[table] = duplicate_profile(
+            db, table, list(contract["columns"]), contract["primary_key"]
+        )
         if table not in {"customers", "daily_exchange_rates", "service_agents"}:
             orphan = scalar(
                 f"SELECT count(*) FROM {relation} t LEFT JOIN silver.customers c USING(customer_id) WHERE t.customer_id IS NOT NULL AND c.customer_id IS NULL"
@@ -260,6 +269,8 @@ def quality_report(
         "dataset_version": version,
         "bank_clock": clock,
         "tables": tables,
+        "column_null_rates": null_rates,
+        "duplicate_fingerprints": duplicate_fingerprints,
         "checks": checks,
         "contact_reasons": contacts,
         "complaint_mix": complaints,

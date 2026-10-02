@@ -4544,3 +4544,34 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
   $0.10 purse; record all gates/digests/cumulative exposure and tag deployed `f5e128d`.
 - Main protection is prepared but unavailable on the current private plan. Public
   visibility, warm replicas and judge activation still require explicit Oct-4 OK.
+
+## 2026-10-02 — Frontend merge and delivered-data quality reconciliation
+
+### Completed (verified)
+
+- Merged #119 at `25954cdc4f1f9337296d1d0bc426d4b208ae3d77` after all four
+  remote gates passed on the exact head, refreshed against current main. Merge
+  and source readbacks verified; no deployment or model calls.
+- Scanned all thirteen local organizer tables directly from `LOCAL_RAW_DIR`:
+  23,495,188 records, zero PK/exact/payload replays, six product-number and
+  thirteen employee-code collision groups. Extended 24 relationship checks
+  found broken registration/assigned branch links and digital product ownership
+  gaps; those fields do not enter serving projections.
+- Profiled all 203 contracted columns with explicit row denominators. Direct
+  source counts reproduce the existing dataset hash and silver volumes;
+  complete daily partitions do not explain the transaction/event volume deltas.
+- Authored data/CLI regressions: eight passed; Ruff and strict mypy pass.
+  Aggregate-only documentation; private diagnostics ignored. Spend USD 0.
+
+### Done but not verified
+
+- Reconciliation/null-profile PR awaits remote CI and review. The organizer's
+  approximate quality/volume targets have no verifiable upstream explanation.
+- Temporal findings require operational exclusions: future dimension statuses
+  currently can affect dispute eligibility. Existing serving data is unchanged.
+
+### Next / blocked
+
+- Add and verify data-owned temporal serving guards, with authored boundary
+  tests. Lead must rebuild/reload serving data before claiming live protection.
+  These are post-v4 fixes; frozen suites and official results remain unchanged.
