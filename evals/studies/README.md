@@ -14,6 +14,11 @@ No move grants permission to run paid studies or open held-out inputs. Existing
 approval, durable-budget, data-access and private-output checks remain in place.
 Historical real results are unchanged.
 
+The unadopted NLU v5.2 prompt is archived in `prompts/nlu/v5_2.md` under this
+directory. Its study driver resolves that path explicitly; the serving prompt
+remains [v5.1](../../prompts/nlu/v5.md). See the
+[prompt status index](../../prompts/README.md) for retained historical versions.
+
 The installed runtime package keeps only the structured client, configuration,
 providers, prompts, types and optional TypeSafe adapter/questions. The API image
 copies `src/`, not this tree; `.dockerignore` also excludes these studies from the
