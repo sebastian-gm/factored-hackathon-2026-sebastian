@@ -3,6 +3,7 @@ export class ApiError extends Error {
   constructor(
     public status: number,
     public code: string,
+    public retryAfter = 60,
   ) {
     super(code);
   }
@@ -18,7 +19,10 @@ export async function api<T>(
       method: body === undefined ? "GET" : "POST",
       credentials: "same-origin",
       cache: "no-store",
-      headers: body === undefined ? {} : { "Content-Type": "application/json" },
+      headers: {
+        "Accept-Language": document.documentElement.lang,
+        ...(body === undefined ? {} : { "Content-Type": "application/json" }),
+      },
       body: body === undefined ? undefined : JSON.stringify(body),
       signal: request.signal,
     });
@@ -32,7 +36,14 @@ export async function api<T>(
     )
       invalidateJudgeSession();
     if (!response.ok)
-      throw new ApiError(response.status, data.error ?? "request_failed");
+      throw new ApiError(
+        response.status,
+        data.error ?? "request_failed",
+        Math.max(
+          1,
+          Math.min(86400, Number(response.headers.get("Retry-After")) || 60),
+        ),
+      );
     return data as T;
   } finally {
     request.release();

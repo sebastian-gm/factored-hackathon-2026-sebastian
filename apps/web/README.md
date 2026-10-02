@@ -179,3 +179,30 @@ cloud reset is disabled, and live story shortcuts need trusted persona bindings.
 See [the accepted API proposal](API-PROPOSAL.md#handoff-11-recording-glass-box-accepted-by-pr-51).
 No frontend fallback fabricates those fields or widens access. PRs stay open during
 the final-run merge freeze; no real model calls are needed to test these features.
+
+## BFF admission limits
+
+Before any upstream call, the BFF reserves a turn in rolling windows:
+20/minute and 300/24 hours per authenticated capability, shared across chat
+conversations and confirmations. Verified judge profile rotations carry the
+counter forward. Login attempts share 10/minute and 100/24 hours per IP;
+OTP verification and step-up requests share 20/minute and 200/24 hours per IP.
+Failed attempts count; blocked attempts make no upstream call. A 429 carries
+`Retry-After`, a localized ES/PT message and `Cache-Control: no-store`.
+The UI retains an unsent draft or exact proposal and never retries automatically.
+
+On Azure Container Apps (`CONTAINER_APP_NAME`), only the rightmost
+`X-Forwarded-For` address is trusted, following the
+[ingress contract](https://learn.microsoft.com/en-us/azure/container-apps/ingress-overview#http-headers).
+Other hosts and invalid/missing headers share a conservative unresolved-peer
+bucket. IPv6 and IPv4-mapped aliases are normalized. Counters use keyed hashes,
+expire after 24 hours and are bounded; no IP, token, password or message is logged.
+They are process-local: restarts reset them, and multiple web workers/replicas
+would need a shared limiter. The current single-replica demo still relies on the
+API's independent authorization, OTP checks and model purse.
+
+Playwright simulates one trusted ingress address per test, so real limit checks
+remain enabled without unrelated fixture tests sharing a login bucket. Coverage
+includes actual BFF login/OTP/chat 429s, cross-conversation limits, proposal
+retention, rolling-day expiry, profile-counter rotation, IP normalization and
+bounded-store saturation. Tests use authored fixtures and mock models only.
