@@ -40,6 +40,7 @@ from aclara.agent.nlu import (
     is_confirmation,
     normalize_text,
 )
+from aclara.agent.nlu.clarification import clarification_question
 from aclara.agent.nlu.structured import NluResult, NormalizedSlots
 from aclara.agent.nlu.structured import understand as deterministic_understand
 from aclara.agent.runtime import InjectedFailure, Runtime
@@ -1146,10 +1147,8 @@ def create_app(
                     return {
                         "response_type": "clarify",
                         "outcome": "clarification",
-                        "reply": _localized(
-                            conversation.language,
-                            "¿Puedes aclarar el idioma, monto, moneda o fecha?",
-                            "Pode esclarecer o idioma, valor, moeda ou data?",
+                        "reply": clarification_question(
+                            nlu.clarification or "language", conversation.language
                         ),
                     }
         if offered_row is not None:
