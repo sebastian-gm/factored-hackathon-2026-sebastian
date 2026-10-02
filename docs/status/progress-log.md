@@ -1,5 +1,38 @@
 # Progress log
 
+## 2026-10-02 — Offline language studies outside the runtime package
+
+### Completed (verified)
+
+- Moved 29 study/tool modules and 15 project-generated dev data/manifest files
+  to evals/studies/llm. Updated eval/script/test imports and documentation links;
+  no serving algorithm, route, prompt, model default or authority change.
+- All 15 data/manifest files and both frozen robustness builders retain their
+  original bytes and hashes. A development-only legacy import alias preserves
+  the round-two source freeze; comparison source pins still cover the studies.
+- Built the wheel offline and inspected it: exactly eight runtime LLM files,
+  no study modules or datasets. Fresh API import succeeds with study imports
+  explicitly forbidden; all 29 study imports and three CLI help commands work.
+- Shared edits are limited to import/path changes in three scripts and four
+  eval modules, plus an evals/studies build-context exclusion in .dockerignore.
+  Dockerfile.api already copies only src for Python code; no Dockerfile edit.
+- Final mock full checks: 1159 passed / 31 DB skips, strict mypy, hooks,
+  snapshots and B1 32/32. Packaging regressions: 7 passed. No paid calls,
+  key access, Azure changes or v4 input.
+- Confirmed the old model-id-gated Jev branch is already removed. The optional
+  adapter/questions remain behind explicit configuration, disabled by default.
+
+### Done but not verified
+
+- Private-origin cleanup PR CI pending. An API image build was not run; the
+  actual wheel and image COPY boundaries were checked.
+
+### Next / blocked
+
+- Leave the relocation PR for lead review. PR #123 is separate and still awaits
+  review; refresh imports on its merge. Archive the unadopted v5.2 candidate and
+  clearly identify live versus historical prompts in a separate small PR.
+
 ## 2026-10-01 — Post-v4 dev evidence and verified-money DLP
 
 ### Completed (verified)
@@ -2342,7 +2375,7 @@
 
 ### Completed (verified)
 
-- Read handoff 13 and authored the 20-case synthetic [explain/offer confirmation set](../../src/aclara/llm/dev_explain_offer_20.yaml) before any v5 prompt, NLG, or scenario implementation change. Its separate first commit `0692881` freezes the file and [SHA-256 manifest](../../src/aclara/llm/dev_explain_offer_20.sha256). Structural validation passed: 20 unique cases, 10 ES/10 pt-BR, 10 denial/10 recognition follow-ups, and no verbatim opening overlap with dev-v2.
+- Read handoff 13 and authored the 20-case synthetic [explain/offer confirmation set](../../evals/studies/llm/dev_explain_offer_20.yaml) before any v5 prompt, NLG, or scenario implementation change. Its separate first commit `0692881` freezes the file and [SHA-256 manifest](../../evals/studies/llm/dev_explain_offer_20.sha256). Structural validation passed: 20 unique cases, 10 ES/10 pt-BR, 10 denial/10 recognition follow-ups, and no verbatim opening overlap with dev-v2.
 - Read merged ADR-0015 at `ab07bfe` and aligned [NLU v5 and grounded ES/PT offer templates](../ml/dev-explain-offer-v5.md) to `offer_dispute` / `awaiting_dispute_decision` and the internal recognition signal. The scenario adapter reads the frozen hash and supplies explicit offer, choice and confirmation replies. `make checks` passed: 186 tests / 13 skips, B1 dev 32/32, Ruff and strict mypy. No paid call or suite-v3 row access occurred.
 - Addressed the lead's PR #49 review: `ExtractedNlu.unfamiliar_charge` now distinguishes bare unfamiliarity from ordinary status questions in ES and pt-BR, including degraded fallback and model postprocessing. The AI execution record includes the signal. Full mock `make checks` passed after the change: 204 tests / 13 skips, B1 dev 32/32, Ruff, formatting, strict mypy, interface and policy checks. The shared `dev-gate/after-v2` scope and `after-v2` run ID are confirmed at $0 before any AI paid call.
 
@@ -3041,7 +3074,7 @@ The following sections retain the AI lane’s historical reports; later dated de
 
 - Added risk-only Jev `Noul` second opinion in the NLU lane for selected Gemini 3 Flash calls. It runs concurrently, unions each cue at `>=0.5`, and records Gemini raw booleans, unavailable Gemini per-cue probabilities as `null`, Jev raw probabilities/flags, the union, usage/cost and degradation in the existing execution-record path. Ordinary Jev failure, timeout or missing key leaves Gemini flags intact; a durable final-budget denial aborts the program. No orchestrator or `NluFrame` interface changed. Mock and Sonnet frontier routes do not invoke Jev.
 - Replayed the 150 saved paired development cases without new paid calls: Gemini injection **9/10**, Jev **6/10**, union **9/10**, all **0/140 false flags**. Jev adds two distress flags without independent distress gold. The paired max-of-two latency **proxy** is 1.897 s median / 2.224 s p95, unchanged from Gemini; live parallel latency is not measured. [Aggregate report](../ml/typesafe-jev-comparison.md).
-- Integrated a gated [dual subjective judge helper](../../src/aclara/llm/dual_judge.py) into the full 50-item Sonnet judge command. It scores both on the same items, reserves Jev against the lead's merged durable Postgres gate, checkpoints raw Jev distributions, and supports Jev–Sonnet plus separate judge–human weighted κ once all human ratings exist. Its offline tests made no final or new judge paid calls. [Final plan](../evaluation/final-run-plan.md) prices 410 Jev risk calls and 150 Jev judge calls at $0.02583 and $0.01260 before rounding, for an illustrative **$4.730** total below the existing $12 ceiling. The final start is still withheld.
+- Integrated a gated [dual subjective judge helper](../../evals/studies/llm/dual_judge.py) into the full 50-item Sonnet judge command. It scores both on the same items, reserves Jev against the lead's merged durable Postgres gate, checkpoints raw Jev distributions, and supports Jev–Sonnet plus separate judge–human weighted κ once all human ratings exist. Its offline tests made no final or new judge paid calls. [Final plan](../evaluation/final-run-plan.md) prices 410 Jev risk calls and 150 Jev judge calls at $0.02583 and $0.01260 before rounding, for an illustrative **$4.730** total below the existing $12 ceiling. The final start is still withheld.
 - After reconciling the lead's current final-route and durable-budget changes, `make checks` passed six hooks, strict mypy, staged-file policy, compilation, **159 tests passed / 12 database-dependent skips**, B1 dev harness **32/32** with 12 readbacks, interfaces and policy catalog. The merged tests cover Jev reservation/settlement in the shared journal and budget store. No organizer rows, credentials, model thinking or paid-call artifacts were staged.
 
 ### Done but not verified
@@ -3196,7 +3229,7 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
   wording and quoted multiline notes; zero network requests/browser errors. Test
   ratings are private fixtures, not Sebastian's ratings. HTML contains blank source
   ratings and no judge scores; generated data remains ignored under a private dir.
-- Added `aclara.llm.human_review`: reproducible offline generator and strict import
+- Added `evals.studies.llm.human_review`: reproducible offline generator and strict import
   of all applicable human ratings. Checks twenty IDs, exact columns, unchanged
   source wording/locale and saved judge inputs; intersects successful saved scores
   with the human sheet. Exact/within-one/quadratic-kappa metrics by dimension and
@@ -3247,7 +3280,7 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
   Its offline HTML remains at the exact AI-worktree path already sent to the
   orchestrator. Original human CSV/outputs remain private and unchanged; export
   path confirmation and human agreement are pending. No paid calls/remote CI.
-- Authored and froze `src/aclara/llm/dev_robustness_round2_60.yaml` with its new
+- Authored and froze `evals/studies/llm/dev_robustness_round2_60.yaml` with its new
   builder and immutable hash manifest before any round-two P/B1 execution or
   robustness repair. Sixty project-generated conversations: 30 ES (ten each
   CO/AR/CL) / 30 PT, ten story families x six correlated variants. Forty-two

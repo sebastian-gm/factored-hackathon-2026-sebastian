@@ -14,14 +14,14 @@ from typing import Any, cast
 from uuid import uuid4
 
 import pytest
+from evals.studies.llm import dev_model_compare as study
+from evals.studies.llm.dev_latency import retry_analysis
+from evals.studies.llm.dev_prompt_study import comparison_sample
+from evals.studies.llm.dev_robustness import DevBudgetStop, ThresholdGate
 
 from aclara.agent.nlu import structured
-from aclara.llm import dev_model_compare as study
 from aclara.llm import providers
 from aclara.llm.client import StructuredClient
-from aclara.llm.dev_latency import retry_analysis
-from aclara.llm.dev_prompt_study import comparison_sample
-from aclara.llm.dev_robustness import DevBudgetStop, ThresholdGate
 from aclara.llm.types import (
     CallRecord,
     ModelFailure,

@@ -5,8 +5,8 @@ reflected in official v4 numbers. No v4 rows were opened, rerun or rescored.
 
 ## Freeze and method
 
-The [36-message inventory](../../src/aclara/llm/dev_post_v4_36.json) and
-[SHA-256 manifest](../../src/aclara/llm/dev_post_v4_36.manifest.json) were committed
+The [36-message inventory](../../evals/studies/llm/dev_post_v4_36.json) and
+[SHA-256 manifest](../../evals/studies/llm/dev_post_v4_36.manifest.json) were committed
 before measurement in [#113](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/pull/113).
 There are 18 ES messages (MX/CO/AR) and 18 pt-BR messages: benign trigger words,
 family/self-ID mentions, code-switching, regional slang/amounts, ordinary
@@ -16,7 +16,7 @@ Gold was not edited after viewing outputs. The initial scorer falsely counted
 the approved bilingual language-help question as an opposite-language error;
 that check was corrected and all mock arms rescored identically.
 
-The [harness](../../src/aclara/llm/dev_post_v4.py) uses authenticated local ASGI
+The [harness](../../evals/studies/llm/dev_post_v4.py) uses authenticated local ASGI
 P requests, the unchanged matcher/policy, scoped synthetic ledger facts and
 one fixed scorer. Mock NLU responses supply authored extraction truth to isolate
 code behavior; mock phrasing supplies a generic ES/PT question. Mock results

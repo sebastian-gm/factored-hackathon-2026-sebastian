@@ -97,7 +97,7 @@ def test_denial_and_uncertainty_route_conservatively_in_waiting_context() -> Non
 
 
 def test_frozen_followups_have_safe_deterministic_degradation() -> None:
-    cases = yaml.safe_load(Path("src/aclara/llm/dev_explain_offer_20.yaml").read_text())["cases"]
+    cases = yaml.safe_load(Path("evals/studies/llm/dev_explain_offer_20.yaml").read_text())["cases"]
     for case in cases:
         result = understand(
             case["after_offer"],

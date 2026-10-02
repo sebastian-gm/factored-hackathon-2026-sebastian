@@ -18,7 +18,6 @@ from psycopg.conninfo import conninfo_to_dict, make_conninfo
 from pydantic import BaseModel
 
 from aclara.llm.client import StructuredClient
-from aclara.llm.judge import MODEL_ID, _score
 from aclara.llm.prompts import load_prompt
 from aclara.llm.providers import Mock
 from aclara.llm.types import BudgetFailure, ModelSpec, ProviderResponse, TokenUsage
@@ -27,6 +26,7 @@ from aclara.ops.migrate import migrate
 from aclara.ops.store import Store
 from evals.checkpoints import save
 from evals.program_spec import ROOT, ProgramSpec, digest, serving_pin
+from evals.studies.llm.judge import MODEL_ID, _score
 
 
 def guard(spec: ProgramSpec) -> None:
@@ -237,7 +237,7 @@ def client(
     path: Path, spec: ProgramSpec, *, has_handoff: bool, truncate: bool = False
 ) -> StructuredClient:
     guard(spec)
-    from aclara.llm.final_run import journal
+    from evals.studies.llm.final_run import journal
 
     def response(_system: str, user: str, _schema: type[BaseModel]) -> str:
         return json.dumps(

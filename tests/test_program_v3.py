@@ -92,7 +92,8 @@ def test_generic_manifest_rejects_changed_payload_before_parse(tmp_path):
 
 
 def test_v3_frontier_cannot_be_enabled_through_final_client(monkeypatch):
-    from aclara.llm.final_run import client_for
+    from evals.studies.llm.final_run import client_for
+
     from aclara.ops.store import Store
 
     monkeypatch.setenv("LLM_FINAL_RUN_STARTED", "1")

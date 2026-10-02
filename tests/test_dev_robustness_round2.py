@@ -3,9 +3,8 @@
 import asyncio
 
 import pytest
-
-from aclara.llm import dev_robustness_round2
-from aclara.llm.dev_robustness_round2_cases import materialize, validate
+from evals.studies.llm import dev_robustness_round2
+from evals.studies.llm.dev_robustness_round2_cases import materialize, validate
 
 
 def test_round_two_freeze_and_independent_bound_gold_are_valid() -> None:

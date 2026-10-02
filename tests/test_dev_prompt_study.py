@@ -5,9 +5,14 @@ from dataclasses import replace
 from pathlib import Path
 
 import pytest
+from evals.studies.llm.dev_prompt_study import (
+    PromptStudyClient,
+    comparison_sample,
+    inputs,
+    inventory_hash,
+)
 from pydantic import BaseModel
 
-from aclara.llm.dev_prompt_study import PromptStudyClient, comparison_sample, inputs, inventory_hash
 from aclara.llm.prompts import load_prompt
 from aclara.llm.types import ModelSpec
 

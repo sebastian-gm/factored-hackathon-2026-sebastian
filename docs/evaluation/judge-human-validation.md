@@ -33,10 +33,10 @@ remain private and outside Git. Source SHA-256:
 ## Import the human export
 
 Once the exported path is confirmed, run the
-[importer](../../src/aclara/llm/human_review.py) from the AI worktree:
+[importer](../../evals/studies/llm/human_review.py) from the AI worktree:
 
 ```bash
-.venv/bin/python -m aclara.llm.human_review import \
+.venv/bin/python -m evals.studies.llm.human_review import \
   --scored "$SCORED_HUMAN_SHEET" \
   --source $REPO/artifacts/final-program-v4/human-judge-20.csv \
   --judge-inputs $REPO/artifacts/final-program-v4/judge-inputs.json \

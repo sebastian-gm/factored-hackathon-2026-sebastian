@@ -11,8 +11,8 @@ from importlib import import_module
 from pathlib import Path
 from typing import Any
 
-from aclara.llm.dev_robustness_cases import ROOT
-from aclara.llm.dev_robustness_round2_cases import identity, materialize, validate
+from evals.studies.llm.dev_robustness_cases import ROOT
+from evals.studies.llm.dev_robustness_round2_cases import identity, materialize, validate
 
 
 def save(path: Path, value: dict[str, Any]) -> None:

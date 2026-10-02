@@ -23,10 +23,10 @@ from typing import Any, cast
 from aclara.agent.nlg.grounding import redact_for_model
 from aclara.agent.nlu.structured import ExtractedNlu, postprocess
 from aclara.llm.client import StructuredClient
-from aclara.llm.comparison import _percentile, _slot_pairs
 from aclara.llm.prompts import data_block, load_prompt
-from aclara.llm.round_one import CAP_USD, MODEL_IDS, ROOT, _cases, _catalog, _local_key
 from aclara.llm.types import ModelFailure
+from evals.studies.llm.comparison import _percentile, _slot_pairs
+from evals.studies.llm.round_one import CAP_USD, MODEL_IDS, ROOT, _cases, _catalog, _local_key
 
 LOGGER = logging.getLogger(__name__)
 ARTIFACTS = ROOT / "artifacts/ai-round-one"

@@ -7,10 +7,10 @@ from collections import Counter
 from statistics import median
 from typing import Any, cast
 
-from aclara.llm.judge import SMOKE_OUTPUT
-from aclara.llm.judge_validation import DIMENSIONS, quadratic_weighted_kappa
-from aclara.llm.typesafe_eval import CHECKPOINTS, exposure
 from aclara.llm.typesafe_questions import RISK_CUES
+from evals.studies.llm.judge import SMOKE_OUTPUT
+from evals.studies.llm.judge_validation import DIMENSIONS, quadratic_weighted_kappa
+from evals.studies.llm.typesafe_eval import CHECKPOINTS, exposure
 
 
 def expected_calibration_error(pairs: list[tuple[float, bool]], *, bins: int = 10) -> float | None:

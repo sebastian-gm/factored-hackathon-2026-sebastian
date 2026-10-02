@@ -27,14 +27,14 @@ from pydantic import BaseModel
 
 from aclara.llm.client import StructuredClient
 from aclara.llm.config import load_fallback_route, load_models, load_prices
-from aclara.llm.dev_offer_scenarios import load_offer_scenarios
-from aclara.llm.dev_robustness import STOP, DevBudgetStop, ThresholdGate, save, summarize
-from aclara.llm.dev_robustness_cases import ROOT, identity, materialize, validate
-from aclara.llm.dev_robustness_round2_cases import identity as round_two_identity
-from aclara.llm.dev_robustness_round2_cases import materialize as round_two_materialize
-from aclara.llm.dev_robustness_round2_cases import validate as round_two_validate
 from aclara.llm.prompts import Prompt, load_prompt
 from aclara.llm.types import CallRecord
+from evals.studies.llm.dev_offer_scenarios import load_offer_scenarios
+from evals.studies.llm.dev_robustness import STOP, DevBudgetStop, ThresholdGate, save, summarize
+from evals.studies.llm.dev_robustness_cases import ROOT, identity, materialize, validate
+from evals.studies.llm.dev_robustness_round2_cases import identity as round_two_identity
+from evals.studies.llm.dev_robustness_round2_cases import materialize as round_two_materialize
+from evals.studies.llm.dev_robustness_round2_cases import validate as round_two_validate
 
 SCOPE, RUN_ID = "dev-gate/pre-v4", "pre-v4"
 T = TypeVar("T", bound=BaseModel)
@@ -132,7 +132,9 @@ def inventory_hash(cases: list[StudyCase]) -> str:
 def comparison_sample(pool: list[StudyCase] | None = None) -> list[StudyCase]:
     """Load the separately approved frozen paired sample; never change lean-study coverage."""
     cases = inputs() if pool is None else pool
-    manifest = json.loads((ROOT / "src/aclara/llm/dev_model_compare_50.manifest.json").read_text())
+    manifest = json.loads(
+        (ROOT / "evals/studies/llm/dev_model_compare_50.manifest.json").read_text()
+    )
     if inventory_hash(cases) != manifest["inventory_sha256"]:
         raise ValueError("Comparison development inventory changed after sample freeze")
     by_id = {c.scenario["id"]: c for c in cases}
