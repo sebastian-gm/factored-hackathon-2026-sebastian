@@ -1,4 +1,4 @@
-import { invalidateJudgeSession, workspaceRequest } from "./profile-workspace";
+import { invalidateSession, workspaceRequest } from "./profile-workspace";
 export class ApiError extends Error {
   constructor(
     public status: number,
@@ -29,12 +29,17 @@ export async function api<T>(
     const data = await response.json();
     if (!request.current())
       throw new DOMException("Retired workspace", "AbortError");
+    const actionAuth =
+      path === "auth/step-up" || path === "auth/step-up/verify";
     if (
       response.status === 401 &&
-      !path.startsWith("auth/") &&
-      data.error !== "step_up_required"
+      (!path.startsWith("auth/") || actionAuth) &&
+      !["step_up_required", "invalid_otp_code", "challenge_expired"].includes(
+        data.error,
+      )
     )
-      invalidateJudgeSession();
+      invalidateSession();
+    if (response.ok && data.session_ended === true) invalidateSession();
     if (!response.ok)
       throw new ApiError(
         response.status,

@@ -306,6 +306,11 @@ export function CustomerChat({
         </span>
       </header>
       <ChatStages plan={latest} />
+      {latest?.degraded === true && (
+        <p className="caption muted" role="status" data-testid="basic-mode">
+          {t("basicMode")}
+        </p>
+      )}
       <div
         ref={log}
         className={`conversation-log ${latest?.verified && (latest.case || latest.handoff) ? "with-receipt" : ""}`}

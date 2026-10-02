@@ -2,9 +2,9 @@
 // generation; retired responses are discarded even if the server finished them.
 let generation = 0;
 let blocked = false;
-let judge = false;
+let authenticated = false;
 const requests = new Set<AbortController>();
-export const SESSION_EVENT = "aclara:judge-session-invalid";
+export const SESSION_EVENT = "aclara:session-invalid";
 const channelName = "aclara-profile-generation";
 const notificationKey = "aclara.profile-generation";
 const source = crypto.randomUUID();
@@ -17,8 +17,12 @@ export function retireWorkspace(stop = true) {
   requests.clear();
   return generation;
 }
-export function configureWorkspace(enabled: boolean, stop: boolean) {
-  judge = enabled;
+export function configureWorkspace(
+  enabled: boolean,
+  stop: boolean,
+  hasSession = enabled,
+) {
+  authenticated = hasSession;
   blocked = stop;
 }
 export function workspaceRequest(path: string, signal?: AbortSignal) {
@@ -41,9 +45,9 @@ export function workspaceRequest(path: string, signal?: AbortSignal) {
     },
   };
 }
-export function invalidateJudgeSession() {
-  if (!judge) return;
-  judge = false;
+export function invalidateSession() {
+  if (!authenticated) return;
+  authenticated = false;
   retireWorkspace();
   window.dispatchEvent(new Event(SESSION_EVENT));
 }

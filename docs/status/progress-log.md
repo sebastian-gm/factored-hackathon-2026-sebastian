@@ -1,5 +1,36 @@
 # Progress log
 
+## 2026-10-02 — Lead review of the basic-mode reply contract (#123)
+
+### Completed-verified
+
+- Release evidence #122 merged at `67d19bf` after exact-head CI and safety
+  success. The deployed image and annotated `v0.6.0` remain `f5e128d`.
+- Reviewed every #123 change. Accepted the shared additive contract:
+  `ResponsePlan.degraded` defaults to false, is optional in both OpenAPI
+  schemas, and matches the frontend's optional boolean. The server derives it
+  from NLU fallback state; it supplies no action or authorization authority.
+- Authored mock checks cover budget refusal without provider calls, outage,
+  invalid output, recovery, early handoffs, complete spoken cents, missing
+  amounts and status duration versus purchase dates: **53 passed**.
+- Combined candidate `make checks`: **1195 passed / 31 DB skips**, B1
+  **32/32**, hooks, strict mypy, compilation, staged-file safety, interface
+  snapshots and policy catalog passed. Refreshed on #119/#122 with a
+  history-preserving merge, retaining both progress-log entries; no additional
+  product changes were made during review.
+
+### Done-not-verified
+
+- Fresh remote CI is required for the conflict refresh before #123 merges.
+  Product changes have mock evidence only and are outside the Azure image;
+  official v4 and the earlier real dev score remain unchanged.
+
+### Next-blocked
+
+- Merge #123 only on green remote checks, then stop. No additional model
+  calls or Azure changes: the next paid release smoke needs Sebastian's budget
+  approval at the conservative **$11.97937448 / $12** maximum.
+
 ## 2026-10-02 — Live degradation signal and mock-only dev triage
 
 ### Completed (verified)
@@ -36,6 +67,36 @@
   The family-assistance false unfamiliarity flag remains a model-quality limit;
   semantic unfamiliarity must not be erased by family keywords. Future prompt
   examples need a separately approved model check. No paid calls are authorized.
+
+## 2026-10-02 — v0.6.0 released; paid work stopped
+
+### Completed-verified
+
+- Annotated `v0.6.0` and private GitHub Release verified at deployed
+  `f5e128dd7e544e2378081361f4a8a409af94f221`; API/web tags, registry digests and ready revisions read back.
+- Exactly one owner-approved extra `scripts.serving_browser --target azure`
+  attempt passed all three surfaces: Chat, Desk, Ops; one handoff resolved and
+  verified. Counter **6**, no reset; ledger stayed **12 calls / $0.02292**,
+  **zero new paid calls / $0** from this attempt.
+- Fresh `scripts.azure_verify` passed. Exact deployed-source CI/safety/access
+  and operator main CI/safety all success. `jev-release.json` has all three
+  acceptance flags true; the annotated tag and Release were read back from origin.
+- [Full evidence](../evaluation/v0.6-release-notes.md) records the SHA, digests,
+  commands, run IDs and limits. Post-v4 fixes do not change official v4 numbers.
+
+### Done-not-verified
+
+- No new held-out safety/performance score is claimed for this release.
+  Submission-day public/warm/judge activation remains OFF and unverified.
+
+### Next-blocked
+
+- **Stop paid calls.** Conservative cumulative maximum **$11.97937448 / $12**.
+  The next release smoke needs Sebastian's explicit budget OK; do not create a
+  fresh purse, replay the consumed browser allowance or reset reservations.
+- Other lanes' main merge hold is lifted; #118/#119 are outside the tagged image
+  and need a separate approved release. Publication/warm/judge changes still need
+  submission-day go. Main protection remains prepared for the supported plan.
 
 ## 2026-10-01 — Post-v4 dev evidence and verified-money DLP
 

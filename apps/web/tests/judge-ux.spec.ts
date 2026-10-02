@@ -160,7 +160,7 @@ test("failed Desk and Ops reads cannot masquerade as empty success; retries are 
     "No sabemos si hay solicitudes pendientes",
   );
   await expect(page.locator(".queue-panel")).not.toContainText(
-    "La cola está al día",
+    "Sin derivaciones pendientes",
   );
   await expect(page.locator(".count-badge")).toHaveText("—");
   await expect(page.locator(".queue-panel [role=status]")).toHaveCount(0);
@@ -168,7 +168,7 @@ test("failed Desk and Ops reads cannot masquerade as empty success; retries are 
   await page.locator(".queue-panel [role=alert] button").click();
   await expect(page.locator(".queue-panel [role=alert]")).toHaveCount(0);
   await expect(page.locator(".queue-panel")).toContainText(
-    "La cola está al día",
+    "Sin derivaciones pendientes",
   );
   await page
     .getByRole("button", { name: "Cerrar sesión", exact: true })
@@ -442,7 +442,7 @@ test("wrong renewal code keeps the same challenge and proposal for a single expl
     { challenge_id: "UI-RENEWAL", code: "123456" },
   ]);
 });
-test("an ended session offers sign-in again and never silently creates a write", async ({
+test("an expired session clears the chat and offers fresh login without replay", async ({
   page,
 }) => {
   await page.route("**/chat/sessions/*/messages", (r) =>
@@ -450,14 +450,10 @@ test("an ended session offers sign-in again and never silently creates a write",
   );
   await login(page);
   await send(page);
-  await expect(page.locator(".composer textarea")).toBeDisabled();
-  await expect(page.locator(".chat-header .secure-pill")).toHaveText(
-    "Volver a acceder",
-  );
-  await expect(page.locator(".chat-header .dot")).toHaveClass(/paused/);
-  await page
-    .getByRole("button", { name: "Volver a acceder", exact: true })
-    .click();
+  await expect(page.locator(".composer textarea")).toHaveCount(0);
+  await expect(
+    page.getByRole("alert").filter({ hasText: "Tu sesión venció" }),
+  ).toBeVisible();
   await expect(page.locator("input[type=password]")).toBeVisible();
 });
 
