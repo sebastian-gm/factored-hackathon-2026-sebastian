@@ -1,5 +1,26 @@
 # Progress log
 
+## 2026-10-02 — Controls ablation authored before inference (AI lane)
+
+### Completed (verified)
+
+- Read handoff 17 and refreshed to main `1f8b838`. Authored/froze 20 synthetic
+  ES/PT dev cases before viewing model outputs; tools exist only in an in-memory fake.
+- All 20 local mock P cases completed; seven isolation/billing/confirmation
+  regressions pass. Free production-key credit preflight passed without key persistence.
+- No edit to the lead's concurrent `AgentAI` / `StructuredClient` work.
+
+### Done but not verified
+
+- The owner-approved $0.15 real ablation and its dedicated durable scope are pending.
+
+### Next / blocked
+
+- Measure once within `dev-gate/controls-ablation`, report aggregates and a chart;
+  then implement the realm-scoped staff queue for lead review, then the approved
+  $0.08 post-v4 dev rerun. These changes are not reflected in official v4.
+- Human agreement awaits Sebastian's exported v4 CSV.
+
 ## 2026-10-02 — Temporal batch merged; approval and local gold verified
 
 ### Completed-verified
