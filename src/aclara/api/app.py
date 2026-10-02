@@ -860,6 +860,9 @@ def create_app(
                     )
                     + result["reply"]
                 )
+            result["degraded"] = bool(
+                nlu.degraded if nlu is not None else conversation and conversation.degraded
+            )
             result = ai.reply(
                 result,
                 conversation.language if conversation else "es",
@@ -883,7 +886,7 @@ def create_app(
             conversation_id,
             result,
             app.state.runtime.trace(cursor),
-            degraded=bool(conversation and conversation.degraded),
+            degraded=result["degraded"],
         )
         return result
 

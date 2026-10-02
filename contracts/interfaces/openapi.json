@@ -565,6 +565,11 @@
               }
             ]
           },
+          "degraded": {
+            "default": false,
+            "title": "Degraded",
+            "type": "boolean"
+          },
           "freeze_offer": {
             "anyOf": [
               {
@@ -1716,6 +1721,11 @@
                 "type": "null"
               }
             ]
+          },
+          "degraded": {
+            "default": false,
+            "title": "Degraded",
+            "type": "boolean"
           },
           "freeze_offer": {
             "anyOf": [
