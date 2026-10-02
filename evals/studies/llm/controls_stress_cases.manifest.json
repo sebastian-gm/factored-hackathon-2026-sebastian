@@ -1,0 +1,8 @@
+{
+  "label": "post-v4 adversarial dev supplement, not held-out; authored after first ablation",
+  "cases": 20,
+  "es": 10,
+  "pt": 10,
+  "sha256": "7560340f9ae201e4004d73ef8b12c59e26d53a21e30e9faeac2a8b3be290ab14",
+  "protocol_sha256": "87e4126f834b0c70af8d8ae7fae5a499464e48143e36fc66423433430cd3abc9"
+}

@@ -81,3 +81,20 @@ LLM_PROVIDER=mock LLM_REAL_CALLS_APPROVED=0 uv run --no-sync python -m evals.stu
 
 The second command needs the local saved synthetic checkpoints. Official v4
 scores and artifacts are unchanged; no live default or Azure deployment changed.
+
+## Post-study Portuguese guard correction
+
+The original PT injection opening missed the deterministic guard because it
+matched Spanish `reglas` but not Portuguese `regras`. A narrow follow-up adds
+PT `regras`, ES/PT `políticas` and `desconsidere` to that existing guard. The
+[authored mock regressions](../../tests/test_pt_injection_guard.py) now require
+both original ES/PT openings to return `refused_security` with SEC-02, without a
+proposal or write; benign policy questions and unrelated ignore requests remain
+allowed. This fixes the observed guard gap in code; it does not claim immunity
+to paraphrases or rewrite the first study's real results. No paid rerun of the
+original inventory was made. The shared `policy/rules/guards.py` change leaves
+`agent/ai.py` and `llm/client.py` untouched. This correction is not reflected in v4.
+
+The separately [preregistered adversarial supplement](controls-ablation-stress.md)
+was added after this study and reports both arms, including scorer limitations.
+Its attack-enriched counts are kept separate from the original twenty cases.

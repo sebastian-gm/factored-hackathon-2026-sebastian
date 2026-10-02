@@ -69,9 +69,11 @@ preserving ordinary financial amounts and dates. A dotted eight-digit DNI
 previously escaped both the plain document regex and the nine-digit phone
 minimum. [Authored redaction tests](../../tests/test_post_v4_document_redaction.py)
 cover the gap. The measured source above predates this additional correction;
-no second real pass was made.
+no second real pass had been made at that point. The later authorized dev rerun
+is reported below.
 
-The one real pass left four observable failures; no paid rerun followed:
+The initial real pass left four observable failures; this table records their
+zero-cost triage before the supplementary rerun below:
 
 | Dev ID | Observed behavior | Zero-cost triage / disposition |
 |---|---|---|
@@ -87,7 +89,8 @@ in that replay. Separate API regressions simulate the null-amount and
 status-duration extractions rather than claiming to recover unsaved real output.
 Run `LLM_PROVIDER=mock LLM_REAL_CALLS_APPROVED=0 uv run --no-sync python -m evals.studies.llm.dev_post_v4 triage-mock`;
 checkpoints use a separate name, keeping earlier paid evidence unchanged.
-**No paid rerun or revised real/held-out score is claimed.**
+That mock-only follow-up claimed no revised real/held-out score; the later
+authorized rerun below is separate supplementary dev evidence.
 
 The chat contract also adds optional/default-false **`degraded: bool`**, so
 the frontend basic-mode notice can reflect budget/model fallback. It is populated
@@ -123,3 +126,55 @@ saved. The run refuses any second paid pass when prior reservations exist.
 
 This small, synthetic, development-only sample has no fluent PT reviewer and
 cannot replace human validation or held-out evaluation. Defaults are unchanged.
+
+## Handoff 17: separately capped real rerun after #123
+
+**Post-v4 dev evidence, not held-out; not reflected in v4.** Source `6981186`
+uses current merged main plus a mock-by-default
+[offline driver](../../evals/studies/llm/post_v4_rerun.py). The 36 authored inputs,
+fixtures and scorer are unchanged; the unmerged staff-queue PR is not measured.
+The same Gemini route, 20-second deadline, serial one-attempt policy and disabled
+Jev/retry/fallback make this comparable to the original dev pass. It is one
+stochastic repeat, not a new held-out result or a causal estimate of the fixes.
+
+| Real dev pass | Objective message pass | ES | PT | Observed unsafe | Language errors | Useful handoff summary |
+|---|---:|---:|---:|---:|---:|---:|
+| Original, before #123 slot triage | 32/36 (88.9%) | 15/18 | 17/18 | 0 | 0 | 11 |
+| After #123, current main | 34/36 (94.4%) | 18/18 | 16/18 | 0 | 0 | 12 |
+
+Net improvement is **two messages (+5.6 pp)**: es03/es14/es18 pass now, pt03 is
+a new failure, and pt05 still fails. es14/es18 produce the expected amount-only
+clarification and old-pending handoff; es03's recovery could reflect model
+variation. Both remaining PT cases select the correct **17.43 BRL** transaction
+but produce `awaiting_dispute_decision` instead of the expected terminal
+explanation. pt03 is own-statement assistance involving a family member; pt05
+is a spoken-cents inquiry. pt05 now gets past amount selection: its current
+failure is an unwanted offer, rather than the original missing-amount question.
+This suggests a semantic unfamiliarity/routing issue. Exact raw extraction is
+not retained, so the report does not claim to identify a particular model field
+or expression. Future PT examples should distinguish "help me understand my
+charge" from explicit non-recognition, including benign family mentions.
+No additional prompt change or paid retry was made in this round.
+
+Read-back from dedicated scope **`dev-gate/post-v4-rerun`**, run
+**`post-v4-rerun`**, **$0.08 lifetime cap**: **$0.0538905 known/charged cost,
+28 attempts, zero unknown costs**. All 28 attempts returned valid structured
+output (**100% JSON validity over all attempts**), all at attempt 1. Eight
+messages routed without a billable model call. Per-call totals: **79,059 input /
+4,787 output tokens**; $0.001497 per tested message. Production-key/account
+preflight passed before inference. Costs come only from per-call usage and
+durable reservations, never key-level differences. No production banking writes
+or final-evaluation scopes were used.
+
+NLU call p50/p95: **1.989 / 2.223 s** (original 2.007 / 2.355 s). Local message
+exercise p50/p95: **2.875 / 3.158 s** (original 2.865 / 3.678 s), including
+fixture/auth setup. These remain dev-harness timings, not live SLOs or evidence
+about concurrency; the serving first-attempt limit is different.
+
+Private checkpoints, aggregate summary, source and budget receipts remain under
+ignored `artifacts/post-v4-rerun/`, JSON mode 0600. The driver refuses another
+paid pass after any reservation exists. Its
+[mock regressions](../../tests/test_post_v4_rerun.py) verify the isolated purse,
+explicit `--real` selection and unchanged inventory/scorer. Official v4 artifacts
+and model defaults are untouched; the ES gain and PT regression require larger,
+independently reviewed language samples before generalization.
