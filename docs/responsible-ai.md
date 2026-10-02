@@ -15,18 +15,25 @@ need owner confirmation.
 [Actual payload/storage boundaries](security/privacy-and-retention.md#what-crosses-each-boundary).
 
 OpenRouter requests `zdr=true`/`data_collection=deny`; verify endpoint/account
-behavior. **Jev's standard-account ZDR is unverified.** Call metadata omits
+behavior. The current source config disables live Jev; the next Azure release
+is pending. The live model-data flow is OpenRouter only. **Jev's standard-account
+ZDR remains unverified**, including for historical offline judging/studies.
+V4 was measured with Jev; this removal is a **post-v4 fix, not reflected in v4
+numbers**. [Decision and replay](adr/0017-drop-jev-from-live-path.md). Call metadata omits
 prompts/completions/thinking, but private turns/execution records contain redacted
 messages/responses. Expiry is not deletion; automated purge remains unverified.
 [Terms/provenance](data-provenance.md),
 [retention](security/privacy-and-retention.md#retention-target-policy-versus-enforcement).
 
 Untrusted text is escaped/bounded; injection/cross-customer guards and merchant
-sanitization precede interpretation. Gemini/Jev cues are unioned; Jev failure logs
-degradation and keeps Gemini flags. Strict schemas, DLP and
+sanitization precede interpretation. Gemini risk cues and deterministic guards
+remain; Grok is used only after Gemini failure. Jev union code is retained behind
+explicit opt-in for studies. Strict schemas, DLP and
 grounding checks reject unsupported facts/citations, sensitive identifiers and
 prohibited promises; invalid drafts fall back to approved text. State-specific
-clarifications stay deterministic; confident opposite-language drafts are rejected.
+clarifications and status explanations stay deterministic; generated clarification
+drafts also reject unsupported ES/PT action/causal claims. Confident
+opposite-language drafts are rejected.
 These are bounded defenses, not semantic/injection guarantees.
 [NLU](../src/aclara/agent/nlu/structured.py), [grounding](../src/aclara/agent/nlg/grounding.py),
 [phrasing](../src/aclara/agent/nlg/builder.py), [regressions](ml/pr-62-ai-review-fixes.md).
@@ -64,11 +71,14 @@ Zero observed events are not zero risk.
 Human es-CL checking: **n=9**, one author/annotator, older pipeline;
 there is **no fluent-human PT reviewer**. Synthetic/model-authored wording and
 model copy review do not substitute for native review. Judge–human agreement is
-unmeasured; v3 judging completed only 28/60 pairs.
+unmeasured; v3 judging completed only 28/60 pairs, and v4 completed 60/60 machine
+pairs. Machine agreement does not establish human validation.
 [Human limits](ml/result-review.md#human-spot-check-n9-es-cl), [PT review](ml/pt-review.md).
 
-**V4: TODO(results)** — report language/dialect SAR, correct/missed/unnecessary
-transfers and unsafe rates with counts, 95% intervals and policy mix; no v4 opened.
+The [completed official v4 report](evaluation/final-v4-results.md) includes ES/PT,
+segment and safety slices: P pass ES **43/48**, PT **41/48**. Both systems failed
+full safety gates. Its figures include live Jev and remain unchanged; the saved
+flag replay is not a new population fairness or model quality comparison.
 
 ## Report an issue
 

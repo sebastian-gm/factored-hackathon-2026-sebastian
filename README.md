@@ -11,8 +11,10 @@ eligible dispute, or reach a human with verified context, in **Spanish and
 Brazilian Portuguese**. Customer Chat, Agent Desk and Ops show supporting records,
 policy rules and readbacks. This is a **synthetic-bank demo**, not a real bank.
 
-P uses **Gemini 3 Flash** for language, **Jev** for risk-cue union, **Grok 4.20** on
-Gemini failure, and matcher v2 for scoped ranking. B1 uses deterministic language
+P uses **Gemini 3 Flash** for language/risk cues, **Grok 4.20** on
+Gemini failure, and matcher v2 for scoped ranking. Live Jev is disabled in the
+post-v4 config; its offline judge/study evidence is retained.
+[Decision and replay](docs/adr/0017-drop-jev-from-live-path.md). B1 uses deterministic language
 rules. **Identity, policy and writes stay in code; model prose grants no authority.**
 [Architecture](docs/architecture.md) · [Model card](docs/ml/model-card.md).
 
@@ -37,7 +39,7 @@ Staff views remain in the authenticated workspace; cloud reset is disabled.
 flowchart LR
   UI[Chat / Agent Desk / Ops] --> BFF[Next.js BFF]
   BFF --> API[FastAPI: authentication and scope]
-  API --> NLU[Gemini + Jev risk union\nGrok on failure]
+  API --> NLU[Gemini language and risk cues\nGrok on failure; deterministic guards]
   NLU --> MATCH[Scoped retrieval + matcher v2]
   MATCH --> RULES[Code: policy and routing]
   RULES --> CONFIRM[Proposal + confirmation + fresh OTP]
@@ -54,7 +56,7 @@ flowchart LR
 
 ## Evaluation and limits
 
-Code grades objective outcomes; Sonnet and Jev judge subjective wording only.
+Code grades objective outcomes; historical Sonnet and Jev judges score subjective wording only.
 V3 used a fresh suite after v2-informed fixes; it does not revise v2.
 
 | Evaluation | B1 pass | P-Gemini pass | B1 / P in-scope SAR |
@@ -74,7 +76,8 @@ flags, four reported-unverified flags, fraud/regulator recall 7/8 and required
 readbacks 77/80; judging completed 60/60 pairs. See the
 [post-hoc safety analysis](docs/evaluation/final-v4-safety-analysis.md).
 The [post-v4 fixes](docs/evaluation/post-v4-release-notes.md) are **not reflected
-in official v4 numbers**. No held-out rerun or corrected score is claimed. Synthetic data, nine human es-CL cases, no fluent-human PT review and unscored
+in official v4 numbers**, including live Jev removal (next Azure release pending).
+V4 was measured with Jev. No held-out rerun or corrected score is claimed. Synthetic data, nine human es-CL cases, no fluent-human PT review and unscored
 human judge calibration limit generalization. Simulated OTP is not independent
 MFA. Real banking/identity integration, load/recovery and privacy controls remain
 [production work](docs/production-readiness.md).

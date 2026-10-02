@@ -1,6 +1,14 @@
 # Language-layer model card
 
-Status: **post-v3 development candidate**, including AI PRs [#65](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/pull/65) and [#66](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/pull/66). This card describes their behavior; it does not attest to a deployed release. The official v3 result remains pinned to `e12efc73be64f8355aa9f177f08a04337593616c`. V3 has since become dev data; v4 remains unopened and unrun by this lane. [Official v3 report](../evaluation/final-v3-results.md), [post-v3 development analysis](../evaluation/post-v3-fixes.md).
+**Post-v4 update:** live Jev risk union is disabled in production config; Gemini
+risk cues and deterministic guards remain. The next Azure release is pending.
+Historical Jev study/judge evidence below is retained; v4 was measured with Jev.
+[ADR-0017](../adr/0017-drop-jev-from-live-path.md). Status explanations are now
+template-only; blank-plan clarifications retain guarded generation. These are
+**post-v4 fixes, not reflected in v4 numbers**. The older dev measurements below
+describe their pinned releases, not the current source configuration.
+
+Historical dev status: **post-v3 development candidate**, including AI PRs [#65](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/pull/65) and [#66](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/pull/66). This card describes their behavior; it does not attest to a deployed release. The official v3 result remains pinned to `e12efc73be64f8355aa9f177f08a04337593616c`. V3 has since become dev data; this older study preceded v4. Current official v4 scores remain unchanged by the post-v4 note above. [Official v3 report](../evaluation/final-v3-results.md), [post-v3 development analysis](../evaluation/post-v3-fixes.md).
 
 ## Intended use and authority
 
@@ -13,7 +21,7 @@ The language layer interprets authenticated customers' charge questions and opti
 | Role | Exact model and route | Boundary |
 |---|---|---|
 | Main NLU and eligible phrasing | `google/gemini-3-flash-preview`, OpenRouter `google-vertex/global` | Strict-schema `ExtractedNlu` and grounded `ReplyDraft`; mock remains the default activation mode. |
-| Parallel risk second opinion | TypeSafe `jev-1.13.0` | Six `Noul` probabilities: lost/stolen, regulator, legal, distress, injection suspicion, human request. Each flag is Gemini OR Jev ≥0.5. Raw flags/probabilities and degradation are recorded; Jev failure/timeout preserves Gemini-only flags. No production Jev slot, arithmetic, intent or phrasing route. |
+| Historical risk second opinion; disabled live | TypeSafe `jev-1.13.0` | Retained opt-in study code uses six `Noul` questions and Gemini OR Jev ≥0.5. It is no longer enabled by the production config or implicitly by the Gemini model ID. Historical records retain flags/probabilities and degradation. |
 | Failure-only fallback | `x-ai/grok-4.20`, OpenRouter `xai/zdr` | Same schema/grounding boundary, only after Gemini exhausts bounded attempts. |
 | Subjective judges | `anthropic/claude-sonnet-5`, OpenRouter `google-vertex/global`, plus `jev-1.13.0` | Language/register, clarity, empathy and applicable handoff-summary usefulness, each 1–5. Jev uses one `Score` per dimension. Blinded redacted wording only; objective gold and authorization are excluded. |
 
