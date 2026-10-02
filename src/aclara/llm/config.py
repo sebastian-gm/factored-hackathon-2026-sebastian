@@ -68,3 +68,15 @@ def load_prices(path: Path) -> dict[str, Price]:
         )
         for name, fields in data["prices"].items()
     }
+
+
+def load_risk_second_opinion_enabled(path: Path) -> bool:
+    """Opt-in only; a model ID must never implicitly enable a third vendor."""
+    data = yaml.safe_load(path.read_text(encoding="utf-8"))
+    routing = data.get("routing", {})
+    if not isinstance(routing, dict):
+        raise ValueError("Model routing configuration must be a mapping")
+    enabled = routing.get("risk_second_opinion_enabled", False)
+    if type(enabled) is not bool:
+        raise ValueError("risk_second_opinion_enabled must be a boolean")
+    return enabled

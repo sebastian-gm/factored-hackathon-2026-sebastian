@@ -3862,3 +3862,105 @@ For later sessions, paste: **Continue from docs/status/progress-log.md. Next lay
   Implement items 2+3 in a separate PR: budget degradation and trusted country.
 - Lead releases the post-v4 image after the batch. Human v4 CSV export remains
   pending separately; no human agreement has been invented.
+
+## 2026-10-01 — AI external-audit fixes, items 2 and 3
+
+### Completed (verified)
+
+- Authored six API-boundary regressions before the fix; all six reproduced the
+  audit failures. Exhausted and already-disabled gates now answer HTTP 200 with
+  localized ES/PT degraded copy and deterministic rules; denied reservations
+  produce no provider call, retry, fallback or fabricated action receipt.
+- Runtime budget denial degrades at the primary or optional typed-risk reserve
+  boundary. Existing paid-study hard-stop wrappers remain hard stops. An already
+  started second opinion is settled without promoting its flags when the
+  primary budget is denied; uncertain settlement retains the reservation.
+- NLU receives country from the authenticated customer's scoped ledger snapshot
+  on each request, including the security confirmation and recognition path.
+  The shared runtime is never mutated; model country/dialect suggestions cannot
+  override this context. Real ASGI mock tests verify CO `2 palos` = 2,000,000 COP
+  and AR `4 lucas` = 4,000 ARS while runtime and model hints say MX.
+- Focused API, integration and guard regressions passed, as did mocked typed-risk
+  budget checks. These are **post-v4 fixes, not reflected in v4 numbers**.
+  Mock providers only; zero provider spend, no official suite rerun/rescore.
+
+### Done but not verified
+
+- Full mock suite: 1015 passed, 25 database-dependent skips; four additional
+  typed-reserve API variants passed afterward (ten focused API cases total).
+  Ruff and strict mypy on 95 source files passed. Required remote CI and merge
+  for this second PR remain pending.
+- Minimal additive shared `api/app.py` wiring is authorized by handoff 15.
+  No persona, identity, NluFrame or frozen interface contract changed.
+
+### Next / blocked
+
+- PR #107 merged at `3604ee5` after checks/web/Postgres/invariants passed.
+  PR #110 contains items 2+3 and the subsequent punctuated-ID correction;
+  require all green CI before merging under standing OK.
+- Complete approved item 10 afterward: verify saved v4 risk-union records and
+  disable live Jev behind its flag with an evidence-linked ADR. Lead releases
+  the image after the batch. Human v4 validation still awaits the scored export.
+
+### Additional verified review correction — punctuated identifiers
+
+- Lead reproduced six third-party-access misses with dotted/dashed CPF, DNI,
+  cédula and RUT identifiers; authored all six plus six benign self-ID and
+  separate-sentence controls before changing the guard. All six misses failed
+  as expected before the fix.
+- Normalize dots only inside a bounded typed identifier before clause splitting.
+  Preserve sentence boundaries and self-ID exemptions, including RUT check
+  digits. Forty benign controls and eighteen actual attacks now run through the
+  unit/API refusal and P-confirmation contracts. No customer data or paid calls.
+- This follow-up is in #110 because #107 had already merged. Remote CI on the new
+  head is required; no Azure release or official-v4 metric change is claimed.
+
+## 2026-10-01 — AI item 10: disable live Jev, retain historical evidence
+
+### Completed (verified)
+
+- Sebastian approved live Jev removal. Production config explicitly sets the
+  risk second opinion false; AgentAI loads the boolean flag, and the NLU no longer
+  activates TypeSafe implicitly from a Gemini model ID. Opt-in studies, typed
+  adapter/questions and historical Sonnet/Jev judges remain. Gemini/Grok and
+  deterministic guards retain their roles; no frozen interface changed.
+- Zero-cost saved-call replay verifies 160 P executions: 184 NLU + 184 risk calls
+  (368), plus 15 phrase calls (383 total). One union record changes, representing
+  two provider calls in one pair, on injection_suspected in v4.100. Its saved
+  outcome is refused_security, failed strict handoff language routing; zero
+  cue-to-reason lists change. The observed 88/100 primary pass count stays saved,
+  with no official rerun/rescore or reconstructed score.
+- Verified the evaluated 1ec9c2f cue-to-reason map ignores injection_suspected,
+  consistent with the current replay; direct and merchant guards are independent.
+  Per-call saved Jev risk cost is $0.003823932. No key-level cost delta, fresh
+  provider call, customer wording or reasoning enters this committed evidence.
+- ADR-0017 explains the corrected pair/call denominator, unchanged 9/10 dev
+  injection recall, unlabeled extra distress cues, unverified TypeSafe ZDR and
+  added vendor/call/failure mode. Updated the README, architecture, responsible-AI,
+  privacy flow and language-card notice; official v4 results get a note only.
+- Eleven config/production-path mock regressions and four authored replay tests
+  passed; opt-in risk/judge fixtures still pass (22 focused checks total). Ruff
+  and strict mypy on 96 source files passed. These are **post-v4 fixes, not
+  reflected in v4 numbers**. No latency improvement or new quality score claimed.
+
+### Done but not verified
+
+- Full local mock suite: 1078 passed, 25 database-dependent skips. #110 merged
+  at `72a8600` after all four corrected-head CI jobs passed. Item 10 remote
+  CI/merge remain pending.
+- Shared config, AgentAI flag wiring and evidence-document changes are explicitly
+  requested by item 10. No release/deployment or real-data privacy guarantee.
+
+### Next / blocked
+
+- Items 1–4 are merged via #107 and #110 (including punctuated-ID follow-up).
+  Merge the separate item 10 PR only after all required CI turns green.
+  Lead includes the changes in the next Azure image-tag release; source config
+  is not deployment. Human judge calibration still awaits Sebastian's v4 CSV.
+
+- Release-owner follow-up: `scripts.azure_llm_smoke` still requires at least one
+  Jev call and validates its union; update that gate to require zero TypeSafe
+  calls for the disabled config before releasing. `scripts.azure_verify` also
+  requires the TypeSafe secret binding for a real-provider image; keeping the
+  existing secret does not cause a call, but removing it needs the lead's gate
+  update. These lead-owned release changes are called out in the PR handoff.

@@ -23,7 +23,6 @@ from aclara.llm.dev_latency import retry_analysis
 from aclara.llm.dev_prompt_study import comparison_sample
 from aclara.llm.dev_robustness import DevBudgetStop, ThresholdGate
 from aclara.llm.types import (
-    BudgetFailure,
     CallRecord,
     ModelFailure,
     ProviderFailure,
@@ -291,7 +290,7 @@ def test_first_unknown_bill_stops_before_retry_or_fallback_and_keeps_reserve(
     monkeypatch.setenv("LLM_REAL_CALLS_APPROVED", "1")
     monkeypatch.setenv("OPENROUTER_API_KEY", "unit-fixture")
     if known_cost is None:
-        with pytest.raises(BudgetFailure, match="Unknown provider cost"):
+        with pytest.raises(DevBudgetStop, match="Unknown provider cost"):
             client.generate("nlu", "system", "synthetic", structured.ExtractedNlu, prompt_id="test")
         assert client.records[0].stop_reason == "timeout"
     else:
@@ -337,7 +336,7 @@ def test_external_unknown_bill_settles_before_stop_callback(
         "provider_error",
         1,
     )
-    with pytest.raises(BudgetFailure):
+    with pytest.raises(DevBudgetStop):
         client.finish_external_judgment(record, reserve_usd=0.001, reservation="typed-reservation")
     assert settlements == [("typed-reservation", None)]
 
@@ -381,7 +380,7 @@ def test_unknown_primary_bill_still_finishes_parallel_jev_accounting(
     for name in ("OPENROUTER_API_KEY", "TYPESAFE_API_KEY"):
         monkeypatch.setenv(name, "unit-fixture")
     monkeypatch.setenv("LLM_REAL_CALLS_APPROVED", "1")
-    with pytest.raises(BudgetFailure):
+    with pytest.raises(DevBudgetStop):
         structured.understand(
             "Não reconheço",
             country="BR",
@@ -423,13 +422,13 @@ def test_known_bill_on_http_200_credit_or_quota_error_never_retries(
     client._adapters["openai_compat"] = cast(Any, Adapter())
     monkeypatch.setenv("LLM_REAL_CALLS_APPROVED", "1")
     monkeypatch.setenv("OPENROUTER_API_KEY", "unit-fixture")
-    with pytest.raises(BudgetFailure, match="credit or quota"):
+    with pytest.raises(DevBudgetStop, match="credit or quota"):
         client.generate("nlu", "system", "synthetic", structured.ExtractedNlu, prompt_id="test")
     assert attempts == [study.SOL]
     assert client.records[0].stop_reason == f"provider_{code}"
     assert client.records[0].cost_usd == bill
     study.guard_attempt(replace(client.records[0], status="valid", stop_reason="stop"))
-    with pytest.raises(BudgetFailure):
+    with pytest.raises(DevBudgetStop):
         study.guard_attempt(replace(client.records[0], stop_reason=f"http_{code}"))
 
 
