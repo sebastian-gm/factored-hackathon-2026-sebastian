@@ -321,6 +321,8 @@ def test_populated_legacy_backfill_retains_receipts_and_separates_judge_realms()
             migrate(target)
             with psycopg.connect(target) as db:
                 # Reconstruct the pre-0004 schema in this disposable DB only.
+                db.execute("DROP FUNCTION ops.publish_handoff_queue(jsonb)")
+                db.execute("DROP TABLE ops.realm_handoffs")
                 db.execute("DROP TABLE ops.customer_cases,ops.customer_card_states")
                 db.execute("UPDATE alembic_version SET version_num='0003_llm_budget'")
                 db.execute("CREATE TABLE reference.demo_personas(username text,customer_id text)")
