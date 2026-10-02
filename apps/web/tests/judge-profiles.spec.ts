@@ -1,4 +1,4 @@
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect, type Page } from "./helpers/test";
 import AxeBuilder from "@axe-core/playwright";
 import { mkdir, chmod } from "node:fs/promises";
 import { judgeProfilesSchema, type ProfileId } from "../src/lib/contracts";

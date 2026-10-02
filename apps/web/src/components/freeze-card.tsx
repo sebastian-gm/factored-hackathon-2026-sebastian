@@ -59,6 +59,11 @@ export function FreezeCard({
     try {
       await action();
     } catch (caught) {
+      if (caught instanceof ApiError && caught.code === "admission_limited") {
+        setCode("");
+        setError(t("rateLimited", { seconds: caught.retryAfter }));
+        return;
+      }
       if (mutation) {
         setProposal(null);
         setUncertain(true);

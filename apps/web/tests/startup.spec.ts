@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./helpers/test";
 import { upstreamFetch } from "../src/lib/server/upstream-fetch";
 
 test("BFF timing reports duration on reads and refusals without altering authority", async ({

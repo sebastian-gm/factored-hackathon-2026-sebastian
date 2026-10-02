@@ -98,6 +98,11 @@ export function CustomerChat({
     return () => clearInterval(timer);
   }, [proposal]);
   function failed(caught: unknown, mutation = false) {
+    if (caught instanceof ApiError && caught.code === "admission_limited") {
+      setUncertain(false);
+      setError(t("rateLimited", { seconds: caught.retryAfter }));
+      return;
+    }
     setUncertain(mutation);
     if (caught instanceof ApiError && caught.status === 401) {
       setRenew(true);
@@ -143,6 +148,8 @@ export function CustomerChat({
       );
     } catch (caught) {
       setDraft(text);
+      if (caught instanceof ApiError && caught.code === "admission_limited")
+        setLines((current) => current.slice(0, -1));
       failed(caught);
     } finally {
       lock.current = false;
@@ -192,7 +199,10 @@ export function CustomerChat({
         ),
       );
     } catch (caught) {
-      if (
+      if (caught instanceof ApiError && caught.code === "admission_limited") {
+        keepOpen = true;
+        failed(caught);
+      } else if (
         confirmed &&
         caught instanceof ApiError &&
         caught.status === 401 &&
@@ -207,8 +217,16 @@ export function CustomerChat({
           setError(t("stepUpRequired"));
           keepOpen = true;
         } catch (renewal) {
-          setLatest(null);
-          failed(renewal, true);
+          if (
+            renewal instanceof ApiError &&
+            renewal.code === "admission_limited"
+          ) {
+            keepOpen = true;
+            failed(renewal);
+          } else {
+            setLatest(null);
+            failed(renewal, true);
+          }
         }
       } else {
         setLatest(null);
@@ -232,6 +250,11 @@ export function CustomerChat({
     } catch (caught) {
       lock.current = false;
       setBusy(false);
+      if (caught instanceof ApiError && caught.code === "admission_limited") {
+        setOtp("");
+        failed(caught);
+        return;
+      }
       if (
         caught instanceof ApiError &&
         caught.status === 401 &&
@@ -504,7 +527,7 @@ export function CustomerChat({
           {notice}
         </p>
       )}
-      {error && !(stepUp && confirmOpen) && (
+      {error && !confirmOpen && (
         <div className="error" role="alert">
           {error}
           {renew && (
@@ -584,6 +607,11 @@ export function CustomerChat({
             {expired
               ? t("expired")
               : `${t("expires")}: ${date(proposal.expires_at, locale, true)} UTC`}
+          </p>
+        )}
+        {error && !stepUp && (
+          <p className="error" role="alert">
+            {error}
           </p>
         )}
         {expired ? (
