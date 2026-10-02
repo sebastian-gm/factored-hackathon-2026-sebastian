@@ -1,5 +1,27 @@
 # Progress log
 
+## 2026-10-02 — Approved cleanup merges and supplementary v4 analyses
+
+### Completed (verified)
+
+- Owner approved #124 and #126 merges. Read back #124's four green gates and
+  merged its exact head 7f4a964; private main merge is 2700d299.
+- Retargeted #126 to main and integrated 2700d299 without a source-tree change.
+  Its existing final mock evidence remains 1203 passed / 31 DB skips, B1 32/32.
+- Supplementary work is restricted to existing v4 artifacts and aggregates:
+  confidence/correctness calibration and family-clustered paired bootstrap.
+  No new model call, official rescore, release or cloud/key access is authorized.
+
+### Done but not verified
+
+- Fresh main-target #126 remote CI and merge pending. Saved-artifact analyses
+  and their separate documentation PR are not yet complete.
+
+### Next / blocked
+
+- Merge #126 only on its exact green head. Preserve all official v4 bytes;
+  report limitations of confidence labels and the family grouping explicitly.
+
 ## 2026-10-02 — Prompt version index and unadopted candidate archive
 
 ### Completed (verified)
