@@ -226,6 +226,18 @@ def exercise(name: str, password: str, ledger: ServingRepository) -> dict[str, A
                     },
                 )
             )
+            # A lost-response retry is a read-only original receipt, not a second intake.
+            retried = check(
+                client.post(
+                    path + "/confirm",
+                    json={
+                        "proposal_hash": proposal["proposal"]["proposal_hash"],
+                        "confirmed": True,
+                    },
+                )
+            )
+            assert retried == result
+            assert sum(e["event"] == "create_dispute" for e in execution_events()) == 1
             assert result["outcome"] == "dispute_filed" and result["verified"]
             assert result["case"]["transaction_handle"] == handle
             assert DisputeCaseView.model_validate(

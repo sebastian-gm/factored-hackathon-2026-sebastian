@@ -10,7 +10,10 @@
 - Real smoke selects an eligible transaction without a canonical open customer
   case and measures case count relative to authenticated pre-run bank state.
   It preserves historical/closed cases and does not reset allowances or budgets.
-- Ruff passes. Mock/offline only; zero spend and no Azure change so far.
+- Ruff and browser-smoke JavaScript syntax pass. The browser accepts manual
+  staff login, and normal smoke checks one create_dispute event plus an identical
+  lost-response retry. Local privacy/staff login behavior was already verified.
+  Mock/offline only; zero spend and no Azure change so far.
 
 ### Done-not-verified
 

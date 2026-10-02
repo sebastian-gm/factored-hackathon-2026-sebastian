@@ -14,7 +14,11 @@ try {
   page.setDefaultTimeout(190_000);
   await page.goto(url);
   stage = "login_form";
-  await page.locator("form select").selectOption("demo.es.mx");
+  const username = page.locator('input[autocomplete="username"]');
+  const choices = page.locator("form select");
+  await username.or(choices).first().waitFor();
+  if (await username.count()) await username.fill("demo.es.mx");
+  else await choices.selectOption("demo.es.mx");
   await page.locator("input[type=password]").fill(password);
   stage = "login_submit";
   await page.getByRole("button", { name: "Continuar", exact: true }).click();
