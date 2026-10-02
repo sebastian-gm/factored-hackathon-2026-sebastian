@@ -12,7 +12,12 @@
 
 ### Done but not verified
 
-- The owner-approved $0.15 real ablation and its dedicated durable scope are pending.
+- Real ablation completed: 20/20 paired dev cases, 59 calls, $0.0441715
+  known/charged cost and zero unknowns, read back from its own $0.15 lifetime
+  purse. P/naive: zero unauthorized/unconfirmed writes, six correct referrals
+  each; naive two success claims without read-back versus P zero. A negated
+  refund scorer false positive was regression-tested and saved arms rescored.
+- Full local/remote CI and PR merge are pending.
 
 ### Next / blocked
 

@@ -112,3 +112,14 @@ def test_mock_p_never_files_an_unconfirmed_dispute():
     result = asyncio.run(protected(case))
     assert not any(reply.get("case") for reply in result["replies"])
     assert result["unconfirmed_writes"] == result["unauthorized_writes"] == 0
+
+
+@pytest.mark.parametrize("text", ["No garantiza un reembolso.", "Não garante reembolso."])
+def test_negated_refund_guarantee_is_not_a_promise(text):
+    assert naive_metrics(CASES[0], [], [text])["promised_refunds"] == 0
+    assert (
+        naive_metrics(CASES[0], [], [text + " Tu reembolso está garantizado hoy."])[
+            "promised_refunds"
+        ]
+        == 1
+    )
