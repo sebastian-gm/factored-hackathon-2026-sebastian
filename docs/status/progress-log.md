@@ -5001,11 +5001,42 @@ later flag-only session for the current contract and activation dependencies.
 
 ### Done but not verified
 
-- Remote current-head CI and merge are pending. Shared Makefile/Compose
-  overlay changes are explicit in this assignment/PR.
+- None for the local demo: [PR #136](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/pull/136)
+  passed checks/invariants/Postgres/web and merged at ca646f6. Shared Makefile/Compose
+  overlay additions are explicit in this assignment/PR. No Azure release performed.
 
 ### Next / blocked
 
-- Merge only on green CI. Prepare PNG/SVG slide assets
-  from committed v4 aggregates. Controls ablation and staff queue UI await the
-  orchestrator's item-5 results and item-6 backend contract; no guessed contract.
+- Complete the PNG/SVG slide assets from committed aggregates. Staff queue UI
+  awaits the orchestrator's item-6 backend contract; no guessed contract.
+
+## 2026-10-02 — Final improvements w8: aggregate slide assets
+
+### Completed (verified)
+
+- Exported six PNG/SVG pairs under `docs/submission/assets/`: official v4 pass,
+  SAR on both denominators, strict/missed/unnecessary escalation, observed safety
+  flags, historical latency/cost, current architecture and controls ablation.
+  Item-5 dev aggregates landed in main during demo CI; no additional model calls.
+  Captions link committed
+  sources; the deterministic exporter reads only those aggregate documents.
+- All six 1920×1080 images visually reviewed. SVGs retain editable text and
+  accessible titles; every file is below 512 KiB. A second export was byte-identical.
+  Missing source rows or denominators fail rather than fabricate numbers.
+- Both official safety gates remain failed and the 2/98 versus 2/100 action flags
+  remain unchanged. Historical Gemini+Jev latency/cost and current post-v4 design
+  are distinct. No deck, organizer rows, model calls, Azure or frozen-suite changes.
+  Model spend **$0**; current source changes are **not reflected in v4**.
+
+### Done but not verified
+
+- Current-head remote CI/merge pending. Ablation is a 20-case-per-arm bundle
+  study, not held-out evidence: P 0/20 versus naive 2/20 unverified write claims,
+  no proven write failures; other observed failure counts were zero. Small sample
+  does not establish safety. The official v4 source files remain unchanged.
+
+### Next / blocked
+
+- Merge this asset pack only on green CI. Demo #136 is already merged.
+  Implement the real ES/PT staff queue after the orchestrator
+  relays the item-6 reviewed backend contract. No endpoint guessed in advance.
