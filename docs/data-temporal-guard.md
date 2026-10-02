@@ -69,4 +69,9 @@ and serving reload. Required behavior:
 3. The final release ships the policy-capable image and the flagged serving reload together. Its release gate asserts `bank.transactions.temporal_quality_reason` exists as nullable TEXT, verifies enum/flag coverage and serving readback, and exercises flagged and missing-column paths using authored cases.
 4. Rebuild from local `LOCAL_RAW_DIR` using the final merged data head. Migration and serving COPY/readback commit atomically; do not commit a new NULL column on old unchecked rows. Check scoped demo/profile availability before releasing; all original window transactions should remain available.
 
-No full organizer gold rebuild, serving reload or Azure deployment was performed here. No backend, NLU, policy, frozen suite or official result was changed or run. Model/cloud spend: USD 0.
+The data lane did not perform an organizer rebuild or Azure load. After the
+paired integration, the lead rebuilt local organizer gold and verified zero
+source-equivalence mismatches; counts match this report. See the
+[local evidence and release plan](evaluation/temporal-quality-release-plan.md).
+Azure serving reload/deployment remains unexecuted. This data PR adds no NLU,
+frozen-suite or official-result change. New model spend: USD 0.

@@ -2,8 +2,24 @@
 
 **Post-v4 change; official v4 results unchanged. No held-out rerun or new safety
 rate claim. Sebastian approved the final smoke budget on October 2 within the
-new $15 cumulative LLM ceiling (including reserves). Azure remains on v0.6.0;
-the commands below are prepared, not executed evidence.**
+new $15 cumulative LLM ceiling (including reserves). Azure remains on v0.6.0.
+Local rebuild/preflight is verified below; Azure commands are prepared only.**
+
+## Local verification — October 2
+
+- #131 (DQ-01/migration), #132 (budget) and refreshed #128 (data) merged on
+  green remote gates. Combined authored `make checks`: **1330 passed / 32 DB
+  skips**, B1 **32/32**; disposable Postgres **69 passed**.
+- Ran the step-1 build command below with `--no-reports`, then
+  `register_temporal_exports` / `validate_temporal_exports` on promoted local
+  gold. Current fingerprint, no promotion-blocking checks, **zero source
+  mismatches** for customers/products/transactions. Outputs remain ignored.
+- **492,414** window rows retained; **60,920** flagged and **431,494** unflagged.
+  Primary reasons: before product open **10,241**, product updated after clock
+  **21,852**, customer updated after clock **28,827**, after bank clock **0**.
+  **4** business-date mismatches remain warnings. Matches #128's aggregates.
+- No Azure load/restart, model calls, key-limit change or held-out rerun.
+  Private receipt: `artifacts/azure/temporal-organizer-preflight.json` (0600).
 
 ## Contract
 
@@ -45,8 +61,12 @@ without the fresh gold reload. Unexpected schemas/types still fail.
 
    Require promotion, contracts/DQ and #128's source-equivalence preflight;
    stale gold/fingerprints are insufficient. Commit no rows or DSNs.
-2. **Budget OK received; after both green-CI merges**, refresh the price gate
-   and atomically load during the coordinated release:
+2. **Budget OK received; paired merges complete.** Prepare/push final SHA
+   images first. In the coordinated maintenance window, deploy the new API
+   before loading: an old missing-column schema must disable automated disputes
+   and show the readiness warning. Verify that read-only state; keep paid smoke
+   until both image and data are ready. An old API cannot enforce DQ-01 merely
+   because the column has been added. Refresh prices and atomically load:
 
    ```bash
    .venv/bin/python -m scripts.azure_prices
@@ -68,8 +88,8 @@ without the fresh gold reload. Unexpected schemas/types still fail.
 
    Require both boolean checks true: correctly typed column and matching fresh
    promotion fingerprint. Missing columns/stale identity block release.
-4. Build/push SHA images; image-tag-only plan/apply and restart into the new
-   serving identity. Run `azure_smoke`, `azure_verify`, the newly approved capped
+4. Restart the new image into the new serving identity, keeping all resource
+   shape/access settings unchanged. Run `azure_smoke`, `azure_verify`, the newly approved capped
    `azure_llm_smoke`, owner-IP browser, `azure-access` and Jev-OFF release receipt.
    Readiness must have no temporal warning. Record SHA, spend, tag and Release.
 
