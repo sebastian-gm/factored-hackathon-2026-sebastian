@@ -47,10 +47,13 @@
   evaluation caps and the $0.10 smoke cap stay unchanged.
 - Private approval receipt read back at **0600**; includes authorization,
   conservative arithmetic and zero new model calls, without resetting history.
+- #132 merged separately at **eead273**, all four remote gates green at
+  **b3e2505** (CI **37048944033**, safety **37048944015**). Data #128 contains
+  no budget/runbook diff after refreshing from that merged main.
 
 ### Done-not-verified
 
-- Approval PR gates and fresh live budget/key readback pending. The last
+- Fresh live budget/key readback pending. The last
   verified exposure above is not a new balance measurement.
 - Judging lifetime/daily binding is a proposal, not activated or proven live.
 
