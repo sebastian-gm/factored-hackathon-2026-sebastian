@@ -4,8 +4,10 @@ from __future__ import annotations
 
 import json
 import os
-from collections.abc import Callable
-from dataclasses import replace
+from collections.abc import Callable, Iterator
+from contextlib import contextmanager
+from contextvars import ContextVar
+from dataclasses import dataclass, field, replace
 from datetime import UTC, date, datetime
 from hashlib import sha256
 from threading import RLock
@@ -29,6 +31,12 @@ from aclara.llm.types import (
 )
 
 T = TypeVar("T", bound=BaseModel)
+
+
+@dataclass
+class RequestRecords:
+    records: list[CallRecord] = field(default_factory=list)
+    capture_history: bool = False
 
 
 def provider_failure_code(error: BaseException) -> str:
@@ -75,7 +83,8 @@ class StructuredClient:
         # challenger. The application-selected Gemini behavior is unchanged.
         self.risk_second_opinion_enabled = risk_second_opinion_enabled
         self.call_timeout_seconds = call_timeout_seconds
-        self._deadline: float | None = None
+        self._deadline: ContextVar[float | None] = ContextVar("model_deadline", default=None)
+        self._external_day: ContextVar[date | None] = ContextVar("judgment_day", default=None)
         self._lock = RLock()
         self.models = models
         self.fallback_routes = fallback_routes or {}
@@ -84,7 +93,8 @@ class StructuredClient:
                 raise ValueError("Fallback must name a distinct configured route")
         self.prices = prices
         self.mock_configured = mock_response is not None
-        self.records: list[CallRecord] = []
+        self._history: list[CallRecord] = []
+        self._request: ContextVar[RequestRecords | None] = ContextVar("call_records", default=None)
         self._record = record
         self._response_record = response_record
         self.budget_usd = budget_usd
@@ -103,6 +113,26 @@ class StructuredClient:
             "mock": Mock(mock_response or (lambda _s, _u, _t: "{}")),
             "recorded": Recorded(cassettes or {}),
         }
+
+    @property
+    def records(self) -> list[CallRecord]:
+        current = self._request.get()
+        return current.records if current is not None else self._history
+
+    @contextmanager
+    def request_records(self, *, capture_history: bool = False) -> Iterator[None]:
+        token = self._request.set(RequestRecords(capture_history=capture_history))
+        try:
+            yield
+        finally:
+            self._request.reset(token)
+
+    def _append(self, record: CallRecord) -> None:
+        current = self._request.get()
+        if current is not None:
+            current.records.append(record)
+        if current is None or current.capture_history:
+            self._history.append(record)
 
     @property
     def valid_json_rate(self) -> float | None:
@@ -139,6 +169,7 @@ class StructuredClient:
             reservation = self.spend_gate.reserve(reserve_usd) if self.spend_gate else None
             self.spent_usd += reserve_usd
             self._daily_spend_usd += reserve_usd
+            self._external_day.set(today)
             return reservation
 
     def finish_external_judgment(
@@ -153,8 +184,10 @@ class StructuredClient:
             if record.cost_usd is not None:
                 adjustment = record.cost_usd - reserve_usd
                 self.spent_usd += adjustment
-                self._daily_spend_usd += adjustment
-            self.records.append(record)
+                if self._external_day.get() == self._daily_date:
+                    self._daily_spend_usd += adjustment
+            self._external_day.set(None)
+            self._append(record)
             if reservation is not None and self.spend_gate:
                 self.spend_gate.settle(reservation, record.cost_usd)
             if self._record:
@@ -172,27 +205,25 @@ class StructuredClient:
         prompt_id: str,
         prompt_hash: str | None = None,
     ) -> T:
-        # Reserve/retry accounting is serialized for this application instance.
-        with self._lock:
-            self._deadline = (
-                perf_counter() + self.call_timeout_seconds if self.call_timeout_seconds else None
+        deadline = self._deadline.set(
+            perf_counter() + self.call_timeout_seconds if self.call_timeout_seconds else None
+        )
+        first_record = len(self.records)
+        try:
+            return self._generate(
+                route, system, user, schema, prompt_id=prompt_id, prompt_hash=prompt_hash
             )
-            first_record = len(self.records)
-            try:
-                return self._generate(
-                    route, system, user, schema, prompt_id=prompt_id, prompt_hash=prompt_hash
-                )
-            except BudgetFailure:
+        except BudgetFailure:
+            raise
+        except ModelFailure:
+            alternate = self.fallback_routes.get(route)
+            if alternate is None or len(self.records) == first_record:
                 raise
-            except ModelFailure:
-                alternate = self.fallback_routes.get(route)
-                if alternate is None or len(self.records) == first_record:
-                    raise
-                return self._generate(
-                    alternate, system, user, schema, prompt_id=prompt_id, prompt_hash=prompt_hash
-                )
-            finally:
-                self._deadline = None
+            return self._generate(
+                alternate, system, user, schema, prompt_id=prompt_id, prompt_hash=prompt_hash
+            )
+        finally:
+            self._deadline.reset(deadline)
 
     def _generate(
         self,
@@ -207,9 +238,6 @@ class StructuredClient:
         spec = self.models[route]
         reserve = 0.0
         if spec.provider not in {"mock", "recorded"}:
-            today = datetime.now(UTC).date()
-            if today != self._daily_date:
-                self._daily_date, self._daily_spend_usd = today, 0.0
             if os.getenv("LLM_REAL_CALLS_APPROVED") != "1":
                 raise ModelFailure("Real model calls are disabled until owner approval")
             if not spec.key_env or not os.getenv(spec.key_env):
@@ -220,36 +248,39 @@ class StructuredClient:
                 raise ModelFailure("No verified price for selected model")
             price = self.prices[spec.price_id]
             spec = replace(spec, price_ceiling=(price.input_per_million, price.output_per_million))
-            if (self.budget_usd is not None and self.spent_usd >= self.budget_usd) or (
-                self._daily_spend_usd >= self.daily_budget_usd
-            ):
-                raise ModelFailure("LLM budget reached")
             estimated_input = len(system.encode("utf-8")) + len(user.encode("utf-8"))
             estimated_input += len(json.dumps(schema.model_json_schema()).encode("utf-8"))
             estimated_input += 1024  # Conservative chat/schema framing allowance.
             reserve = price.cost(
                 TokenUsage(input_tokens=estimated_input, output_tokens=spec.max_output_tokens)
             )
-            if (self.budget_usd is not None and self.spent_usd + reserve > self.budget_usd) or (
-                self._daily_spend_usd + reserve > self.daily_budget_usd
-            ):
-                raise ModelFailure("Insufficient LLM budget for a bounded call")
         key = os.getenv(spec.key_env, "") if spec.key_env else ""
         digest = prompt_hash or sha256(system.encode("utf-8")).hexdigest()
         for attempt in (1, 2):
-            if self._deadline is not None:
-                remaining = self._deadline - perf_counter()
+            deadline = self._deadline.get()
+            if deadline is not None:
+                remaining = deadline - perf_counter()
                 if remaining <= 0:
                     raise ModelFailure("Model call deadline reached")
                 spec = replace(
                     spec, timeout_seconds=max(1, min(spec.timeout_seconds, int(remaining)))
                 )
-            if reserve and (
-                (self.budget_usd is not None and self.spent_usd + reserve > self.budget_usd)
-                or self._daily_spend_usd + reserve > self.daily_budget_usd
-            ):
-                raise ModelFailure("Insufficient LLM budget for another bounded attempt")
-            reservation = self.spend_gate.reserve(reserve) if reserve and self.spend_gate else None
+            with self._lock:
+                charged_day = datetime.now(UTC).date()
+                if charged_day != self._daily_date:
+                    self._daily_date, self._daily_spend_usd = charged_day, 0.0
+                if reserve and (
+                    (self.budget_usd is not None and self.spent_usd + reserve > self.budget_usd)
+                    or self._daily_spend_usd + reserve > self.daily_budget_usd
+                ):
+                    raise ModelFailure("Insufficient LLM budget for another bounded attempt")
+                reservation = (
+                    self.spend_gate.reserve(reserve) if reserve and self.spend_gate else None
+                )
+                # Charge before network I/O so overlapping requests cannot spend
+                # the same local allowance. Unknown usage keeps this reserve.
+                self.spent_usd += reserve
+                self._daily_spend_usd += reserve
             started = perf_counter()
             response: ProviderResponse | None = None
             parsed: T | None = None
@@ -287,15 +318,6 @@ class StructuredClient:
                     raise
             finally:
                 cost = self._cost(spec, response)
-                if cost is None and reserve:
-                    # Charge the conservative reserve to the budget, but do not report it
-                    # as a billed per-call cost when the provider returned no usage.
-                    self.spent_usd += reserve
-                    self._daily_spend_usd += reserve
-                if cost is not None:
-                    self.spent_usd += cost
-                    if spec.provider not in {"mock", "recorded"}:
-                        self._daily_spend_usd += cost
                 usage = response.usage if response else None
                 call = CallRecord(
                     route=route,
@@ -318,7 +340,13 @@ class StructuredClient:
                     attempt=attempt,
                     generation_id=response.generation_id if response else None,
                 )
-                self.records.append(call)
+                with self._lock:
+                    if cost is not None:
+                        adjustment = cost - reserve
+                        self.spent_usd += adjustment
+                        if charged_day == self._daily_date:
+                            self._daily_spend_usd += adjustment
+                    self._append(call)
                 # Accounting must finish even when an audit callback stops a
                 # study after an unknown bill. None retains the reservation.
                 if reservation is not None and self.spend_gate:

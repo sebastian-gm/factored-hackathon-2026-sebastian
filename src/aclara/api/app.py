@@ -80,6 +80,7 @@ from aclara.handoff.routing import AgentDirectory
 from aclara.llm.client import StructuredClient
 from aclara.ops.budget import PostgresSpendGate
 from aclara.ops.store import Scope, Store
+from aclara.ops.turns import SessionTurns
 from aclara.policy.engine import PolicyDecision, evaluate
 from aclara.policy.rules import catalog, rule
 from aclara.policy.rules.guards import cross_customer, escalations, injection, unsupported_language
@@ -111,15 +112,15 @@ class ActionProposal:
 class SnapshotCacheMiddleware:
     """Scope serving snapshot memoization to exactly one HTTP request."""
 
-    def __init__(self, app: Any, runtime: Runtime) -> None:
+    def __init__(self, app: Any, ai: AgentAI) -> None:
         self.app = app
-        self.runtime = runtime
+        self.ai = ai
 
     async def __call__(self, scope: Any, receive: Any, send: Any) -> None:
         if scope["type"] != "http":
             await self.app(scope, receive, send)
             return
-        with request_snapshot_cache(), self.runtime.turn():
+        with request_snapshot_cache(), self.ai.turn():
             await self.app(scope, receive, send)
 
 
@@ -350,10 +351,12 @@ def create_app(
         allow_methods=["GET", "POST"],
         allow_headers=["Authorization", "Content-Type", "X-Preauth-Token"],
     )
-    app.state.runtime = runtime or Runtime(system=active_settings.agent_system)
-    app.add_middleware(SnapshotCacheMiddleware, runtime=app.state.runtime)
-    # AgentAI owns a shared record cursor. Serialize its calls outside storage.
-    ai_turn_lock = asyncio.Lock()
+    app.state.runtime = runtime or Runtime(
+        system=active_settings.agent_system,
+        capture_history=active_settings.ledger_backend == "fixture",
+    )
+    turns = SessionTurns(operational)
+    app.state.session_turns = turns
     spend_gate = (
         PostgresSpendGate(operational, run_id=os.getenv("LLM_BUDGET_RUN_ID") or None)
         if active_settings.llm_provider != "mock" and llm_client is None
@@ -361,6 +364,7 @@ def create_app(
     )
     ai = AgentAI(active_settings, app.state.runtime, llm_client, spend_gate=spend_gate)
     app.state.ai = ai
+    app.add_middleware(SnapshotCacheMiddleware, ai=ai)
     app.state.instance_id = str(uuid4())
     app.state.settings = active_settings
     app.state.ledger = ledger
@@ -801,7 +805,7 @@ def create_app(
         body: MessageBody,
         principal: Principal = Depends(get_principal),
     ) -> dict[str, Any]:
-        async with ai_turn_lock:
+        async with turns.hold(scope(principal)):
             authorization = request.headers.get("Authorization")
             principal = await get_principal(await get_authenticated_principal(authorization))
             return await send_message_locked(conversation_id, body, principal, authorization)
@@ -828,7 +832,7 @@ def create_app(
             try:
                 nlu = await asyncio.shield(work)
             except asyncio.CancelledError:
-                # A disconnected caller cannot release the shared client while
+                # A disconnected caller cannot release its session turn while
                 # its thread is still settling provider records/reservations.
                 while not work.done():
                     try:
@@ -1586,7 +1590,7 @@ def create_app(
         body: ConfirmBody,
         principal: Principal = Depends(get_principal),
     ) -> dict[str, Any]:
-        async with ai_turn_lock:
+        async with turns.hold(scope(principal)):
             principal = await get_principal(
                 await get_authenticated_principal(request.headers.get("Authorization"))
             )

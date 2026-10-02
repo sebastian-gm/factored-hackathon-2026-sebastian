@@ -3,7 +3,10 @@
 from __future__ import annotations
 
 import os
-from dataclasses import asdict
+from collections.abc import Iterator
+from contextlib import contextmanager
+from contextvars import ContextVar
+from dataclasses import asdict, dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -24,6 +27,11 @@ from aclara.llm.types import SpendGate
 from aclara.settings import Settings
 
 ROOT = Path(__file__).resolve().parents[3]
+
+
+@dataclass
+class CallCursor:
+    position: int = 0
 
 
 class AgentAI:
@@ -69,7 +77,30 @@ class AgentAI:
                 else None,
             )
         self.client = client
-        self.cursor = 0
+        self._cursor: ContextVar[CallCursor | None] = ContextVar("ai_call_cursor", default=None)
+        self._offline_cursor = CallCursor()
+
+    @property
+    def cursor(self) -> int:
+        return (self._cursor.get() or self._offline_cursor).position
+
+    @cursor.setter
+    def cursor(self, value: int) -> None:
+        (self._cursor.get() or self._offline_cursor).position = value
+
+    @contextmanager
+    def turn(self) -> Iterator[None]:
+        # Mutable cursor and record buffer are inherited by asyncio.to_thread.
+        # A plain integer ContextVar update in the worker would not reach its caller.
+        token = self._cursor.set(CallCursor())
+        try:
+            with (
+                self.runtime.turn(),
+                self.client.request_records(capture_history=self.runtime.capture_history),
+            ):
+                yield
+        finally:
+            self._cursor.reset(token)
 
     def records(self) -> None:
         for record in self.client.records[self.cursor :]:

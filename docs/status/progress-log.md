@@ -5040,3 +5040,28 @@ later flag-only session for the current contract and activation dependencies.
 - Merge this asset pack only on green CI. Demo #136 is already merged.
   Implement the real ES/PT staff queue after the orchestrator
   relays the item-6 reviewed backend contract. No endpoint guessed in advance.
+
+- Merge only on green CI. Prepare PNG/SVG slide assets
+  from committed v4 aggregates. Controls ablation and staff queue UI await the
+  orchestrator's item-5 results and item-6 backend contract; no guessed contract.
+
+## 2026-10-02 — Handoff 17, request-scoped concurrency
+
+### Completed (verified)
+
+- Candidate `ad54866`: request event/call/cursor isolation, concurrent provider
+  waits, bounded admission, full-turn per-session advisory locks. Local checks
+  1340 passed / 38 skips, B1 32/32; subsequent disposable Postgres 86/86 includes
+  cancellation and cross-instance ordering. No official v4 files changed.
+- Existing mock harness: five warm sessions **1.026 s**, turn p50/p95
+  **1.020/1.022 s** (first cold three-session batch 1.832 s), $0.
+  [Evidence and limits](../evaluation/request-scoped-concurrency.md).
+
+### Done but not verified
+
+- Azure still runs v0.7.0; concurrent live turns and two judge realms not tested.
+
+### Next / blocked
+
+- Green remote concurrency PR, plan-only Gate A, v0.8.0 capped release, then
+  staff-queue security review. Warm/public judge access remains separately gated.

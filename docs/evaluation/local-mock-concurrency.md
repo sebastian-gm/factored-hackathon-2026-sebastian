@@ -3,6 +3,9 @@
 2026-10-02. **Local/mock, zero model spend. Not an Azure or production SLO
 measurement.** No organizer inputs, frozen-suite runs or infrastructure changes.
 
+This is historical evidence before request isolation. See the
+[post-v4 concurrency check](request-scoped-concurrency.md) for the later fix.
+
 ## Result
 
 | Measurement | Concurrent sessions | Wall time | Turn p50 | Turn p95 |

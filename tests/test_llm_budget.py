@@ -4,7 +4,10 @@ from __future__ import annotations
 
 import os
 from concurrent.futures import ThreadPoolExecutor
+from datetime import UTC, date, datetime
 from decimal import Decimal
+from threading import Event, Lock
+from time import monotonic, sleep
 from uuid import uuid4
 
 import psycopg
@@ -12,7 +15,7 @@ import pytest
 from pydantic import BaseModel
 
 from aclara.llm.client import StructuredClient
-from aclara.llm.config import load_prices
+from aclara.llm.config import Price, load_prices
 from aclara.llm.types import BudgetFailure, ModelFailure, ModelSpec, ProviderResponse, TokenUsage
 from aclara.ops.budget import PostgresSpendGate
 from aclara.ops.store import Scope, Store
@@ -141,6 +144,121 @@ def test_v3_preparation_closes_prior_scopes_and_never_resets_breaker(budget_stor
 
 class Answer(BaseModel):
     value: str
+
+
+def test_one_client_reserves_before_parallel_network_and_keeps_exact_records(monkeypatch):
+    """Simulated paid adapter only: no network, two in-flight reserves fill the cap."""
+    release, two_entered, lock = Event(), Event(), Lock()
+    calls = []
+
+    class Adapter:
+        def complete(self, spec, system, user, schema, key):
+            with lock:
+                calls.append(user)
+                if len(calls) == 2:
+                    two_entered.set()
+            assert release.wait(5)
+            return ProviderResponse(
+                '{"value":"ok"}', "authored", TokenUsage(), billed_cost_usd=0.005
+            )
+
+    monkeypatch.setenv("LLM_REAL_CALLS_APPROVED", "1")
+    monkeypatch.setenv("FIXTURE_MODEL_KEY", "fixture-only")
+    client = StructuredClient(
+        {
+            "nlu": ModelSpec(
+                "openai_compat",
+                "authored",
+                key_env="FIXTURE_MODEL_KEY",
+                price_id="authored",
+                max_output_tokens=10,
+            )
+        },
+        {"authored": Price(0, 1000, 0, 0, date(2026, 10, 2), "authored")},
+        budget_usd=0.02,
+    )
+    client._adapters["openai_compat"] = Adapter()
+
+    def request(i):
+        with client.request_records(capture_history=True):
+            try:
+                client.generate("nlu", "system", str(i), Answer, prompt_id=f"authored-{i}")
+                assert len(client.records) == 1 and client.records[0].prompt_id == f"authored-{i}"
+                return True
+            except ModelFailure:
+                assert not client.records
+                return False
+
+    with ThreadPoolExecutor(max_workers=10) as workers:
+        futures = [workers.submit(request, i) for i in range(10)]
+        try:
+            assert two_entered.wait(3)
+            deadline = monotonic() + 2
+            while sum(f.done() for f in futures) < 8 and monotonic() < deadline:
+                sleep(0.01)
+            assert sum(f.done() for f in futures) == 8 and len(calls) == 2
+            assert client.spent_usd == pytest.approx(0.02)
+        finally:
+            release.set()
+        assert sum(f.result() for f in futures) == 2
+    assert client.spent_usd == pytest.approx(0.01) and len(client.records) == 2
+
+
+def test_previous_day_settlement_cannot_refund_a_new_days_pending_reserve(monkeypatch):
+    import aclara.llm.client as module
+
+    now = [datetime(2026, 10, 2, 23, 59, tzinfo=UTC)]
+
+    class Clock:
+        @staticmethod
+        def now(tz):
+            return now[0]
+
+    entered = {key: Event() for key in ("old", "new")}
+    release = {key: Event() for key in ("old", "new")}
+
+    class Adapter:
+        def complete(self, spec, system, user, schema, key):
+            entered[user].set()
+            assert release[user].wait(5)
+            return ProviderResponse(
+                '{"value":"ok"}', "authored", TokenUsage(), billed_cost_usd=0.005
+            )
+
+    monkeypatch.setattr(module, "datetime", Clock)
+    monkeypatch.setenv("LLM_REAL_CALLS_APPROVED", "1")
+    monkeypatch.setenv("FIXTURE_MODEL_KEY", "fixture-only")
+    client = StructuredClient(
+        {
+            "nlu": ModelSpec(
+                "openai_compat",
+                "authored",
+                key_env="FIXTURE_MODEL_KEY",
+                price_id="authored",
+                max_output_tokens=10,
+            )
+        },
+        {"authored": Price(0, 1000, 0, 0, date(2026, 10, 2), "authored")},
+        budget_usd=0.02,
+        daily_budget_usd=0.01,
+    )
+    client._adapters["openai_compat"] = Adapter()
+    with ThreadPoolExecutor(max_workers=2) as workers:
+        old = workers.submit(client.generate, "nlu", "system", "old", Answer, prompt_id="old")
+        try:
+            assert entered["old"].wait(2)
+            now[0] = datetime(2026, 10, 3, tzinfo=UTC)
+            new = workers.submit(client.generate, "nlu", "system", "new", Answer, prompt_id="new")
+            assert entered["new"].wait(2)
+            release["old"].set()
+            old.result()
+            with pytest.raises(ModelFailure):
+                client.generate("nlu", "system", "blocked", Answer, prompt_id="blocked")
+        finally:
+            for event in release.values():
+                event.set()
+        new.result()
+    assert client.spent_usd == pytest.approx(0.01)
 
 
 def test_every_paid_attempt_reserves_before_call_and_settles(monkeypatch):

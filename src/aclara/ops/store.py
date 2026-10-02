@@ -58,6 +58,7 @@ class Unit:
 
 class Store:
     def __init__(self, dsn: str | None = None):
+        self.dsn = dsn
         self.pool: ConnectionPool[Connection[Any]] | None = None
         if dsn is not None:
             self.pool = ConnectionPool(
