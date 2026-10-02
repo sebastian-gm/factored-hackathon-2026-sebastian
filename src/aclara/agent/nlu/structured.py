@@ -21,7 +21,7 @@ from aclara.agent.contracts import Intent, NluFrame
 from aclara.agent.nlg.grounding import redact_for_model, scan_dlp
 from aclara.agent.nlu.rules import classify_nlu, normalize_text
 from aclara.agent.nlu.transaction_types import normalize_transaction_type
-from aclara.agent.nlu.word_amounts import parse_word_amount
+from aclara.agent.nlu.word_amounts import parse_spoken_money, parse_word_amount
 from aclara.llm.client import StructuredClient
 from aclara.llm.prompts import data_block, load_prompt
 from aclara.llm.types import BudgetFailure, CallRecord, ModelFailure
@@ -118,6 +118,10 @@ def parse_amount(expression: str | None, country: str | None = None) -> Decimal 
     if not expression:
         return None
     plain = normalize_text(expression)
+    if re.search(r"\bcentavos?\b", plain):
+        # A fractional expression must parse completely, including its units;
+        # falling through would silently take just its first integer.
+        return parse_spoken_money(plain)
     match = re.search(r"(?<!\w)(\d[\d.,]*\d|\d)(?!\w)", plain)
     if match:
         raw = match.group(1)
@@ -349,7 +353,7 @@ _DECLINED_OFFER = re.compile(
     r"(?:(?:una|la|uma|a) )?(?:disputa|reclamo|reclamacion|contestacao)\b"
 )
 _SPOKEN_UNIT = re.compile(
-    r"\b(?:lucas?|palos?|contos?|pila|varos?|lana|pesos?|reais|dolares?|usd|brl|cop|ars|mxn)\b"
+    r"\b(?:lucas?|palos?|contos?|pila|varos?|lana|pesos?|reais|dolares?|centavos?|usd|brl|cop|ars|mxn)\b"
 )
 _CHARGE_TERM = r"(?:cargo|cobro|cobranza|cobranca|consumo|compra|lancamento|debito|transacao)"
 _CHARGE_ARTICLE = r"(?:(?:este|esta|ese|esa|el|la|los|las|un|una|o|a|os|as|um|uma|esse|essa) )?"
@@ -446,6 +450,29 @@ def _explicit_human_request(message: str) -> bool:
     )
 
 
+_UNAVAILABLE_AMOUNT = re.compile(
+    r"\b(?:no (?:se|recuerdo|conozco)|nao (?:sei|lembro|recordo)) "
+    r"(?:(?:el|o|qual e o) )?(?:monto|importe|valor)(?: exacto| exato)?\b"
+)
+_STATUS_DURATION = re.compile(
+    r"\b(?:ya llevan?|ja faz|(?:esta|continua) ha) "
+    r"(?P<duration>[^.;?!]+?\b(?:dias?|semanas?)\b)"
+)
+
+
+def _is_status_duration(expression: str | None, message: str | None, intent: str) -> bool:
+    if not expression or not message or intent != "charge_inquiry":
+        return False
+    plain = normalize_text(message)
+    if not re.search(r"\b(?:pendiente|pendente)\b", plain):
+        return False
+    value = normalize_text(expression).strip(" .,!¿?¡")
+    return any(
+        value in {match.group(0), match.group("duration")}
+        for match in _STATUS_DURATION.finditer(plain)
+    )
+
+
 def postprocess(
     extracted: ExtractedNlu,
     *,
@@ -518,7 +545,12 @@ def postprocess(
         # Reuse only units present in the extracted spoken amount. Do not infer
         # a currency from the country, merchant, or an unqualified number.
         currency, ambiguous = resolve_currency(extracted.amount_expr, country)
-    dates = parse_relative_date(extracted.date_expr, bank_clock)
+    date_expr = (
+        None
+        if _is_status_duration(extracted.date_expr, message, extracted.intent)
+        else extracted.date_expr
+    )
+    dates = parse_relative_date(date_expr, bank_clock)
     # MATCH compares exact ledger enums. Preserve the raw expression for audit,
     # but only pass a canonical kind or missing evidence into its unchanged model.
     transaction_type = normalize_transaction_type(extracted.type_expr)
@@ -538,9 +570,18 @@ def postprocess(
         clarification = "language"
     elif ambiguous:
         clarification = "currency"
-    elif extracted.amount_expr and slots.amount_value is None:
+    elif (
+        extracted.amount_expr
+        and slots.amount_value is None
+        or (
+            slots.amount_value is None
+            and message is not None
+            and intent in {Intent.CHARGE_INQUIRY, Intent.DISPUTE_CHARGE}
+            and _UNAVAILABLE_AMOUNT.search(normalize_text(message))
+        )
+    ):
         clarification = "amount"
-    elif extracted.date_expr and dates is None:
+    elif date_expr and dates is None:
         clarification = "date"
     return NluResult(
         frame=NluFrame(language=public_language, intent=intent, confidence=confidence),

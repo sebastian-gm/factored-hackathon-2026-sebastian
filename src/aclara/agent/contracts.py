@@ -142,6 +142,7 @@ class ResponsePlan(InterfaceModel):
     policy_rules: list[str] | None = None
     freeze_offer: list[ProductView] | None = None
     session_ended: bool = False
+    degraded: bool = False
 
     @model_validator(mode="after")
     def validate_response_shape(self) -> ResponsePlan:

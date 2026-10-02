@@ -84,6 +84,7 @@ def test_denied_budget_returns_localized_degraded_200_without_any_model_call(
             headers = {"Authorization": f"Bearer {token}"}
             for _ in range(2):
                 result, _ = await message(client, headers, text)
+                assert result["degraded"] is True
                 assert localized in result["reply"]
                 assert not result.get("case") and not result.get("proposal")
             assert (await client.get("/me", headers=headers)).status_code == 200

@@ -16,22 +16,123 @@
 - Shared edits are limited to import/path changes in three scripts and four
   eval modules, plus an evals/studies build-context exclusion in .dockerignore.
   Dockerfile.api already copies only src for Python code; no Dockerfile edit.
-- Final mock full checks: 1159 passed / 31 DB skips, strict mypy, hooks,
+- Final current-main mock checks: 1202 passed / 31 DB skips, strict mypy, hooks,
   snapshots and B1 32/32. Packaging regressions: 7 passed. No paid calls,
   key access, Azure changes or v4 input.
 - Confirmed the old model-id-gated Jev branch is already removed. The optional
   adapter/questions remain behind explicit configuration, disabled by default.
+- Integrated merged #122/#123 and retained their progress entries. Every
+  remaining runtime Python file matches origin/main byte-for-byte; #123's new
+  study import and CLI reference now use the relocated namespace.
 
 ### Done but not verified
 
-- Private-origin cleanup PR CI pending. An API image build was not run; the
+- Private-origin cleanup PR #124 CI pending. An API image build was not run; the
   actual wheel and image COPY boundaries were checked.
 
 ### Next / blocked
 
-- Leave the relocation PR for lead review. PR #123 is separate and still awaits
-  review; refresh imports on its merge. Archive the unadopted v5.2 candidate and
+- Leave the relocation PR for lead review. Integrated merged #122/#123 while
+  retaining their progress entries and refreshing new imports. Archive v5.2 and
   clearly identify live versus historical prompts in a separate small PR.
+
+## 2026-10-02 — Lead review of the basic-mode reply contract (#123)
+
+### Completed-verified
+
+- Release evidence #122 merged at `67d19bf` after exact-head CI and safety
+  success. The deployed image and annotated `v0.6.0` remain `f5e128d`.
+- Reviewed every #123 change. Accepted the shared additive contract:
+  `ResponsePlan.degraded` defaults to false, is optional in both OpenAPI
+  schemas, and matches the frontend's optional boolean. The server derives it
+  from NLU fallback state; it supplies no action or authorization authority.
+- Authored mock checks cover budget refusal without provider calls, outage,
+  invalid output, recovery, early handoffs, complete spoken cents, missing
+  amounts and status duration versus purchase dates: **53 passed**.
+- Combined candidate `make checks`: **1195 passed / 31 DB skips**, B1
+  **32/32**, hooks, strict mypy, compilation, staged-file safety, interface
+  snapshots and policy catalog passed. Refreshed on #119/#122 with a
+  history-preserving merge, retaining both progress-log entries; no additional
+  product changes were made during review.
+
+### Done-not-verified
+
+- Fresh remote CI is required for the conflict refresh before #123 merges.
+  Product changes have mock evidence only and are outside the Azure image;
+  official v4 and the earlier real dev score remain unchanged.
+
+### Next-blocked
+
+- Merge #123 only on green remote checks, then stop. No additional model
+  calls or Azure changes: the next paid release smoke needs Sebastian's budget
+  approval at the conservative **$11.97937448 / $12** maximum.
+
+## 2026-10-02 — Live degradation signal and mock-only dev triage
+
+### Completed (verified)
+
+- Owner lifted the merge hold. Refreshed #118 on current main ec076aa, retaining
+  both progress-log entries, and merged at ff3b47a after checks, invariants,
+  Postgres and web all passed. Refresh local mock checks: 1152 passed / 31 DB
+  skips, B1 32/32. No deployment.
+- Added optional/default-false degraded boolean to ResponsePlan and OpenAPI.
+  Minimal app.py response-boundary wiring records NLU budget/model fallback,
+  including early handoffs, and clears the signal after healthy recovery.
+  This is the additive cross-lane contract change requested for w8's #119.
+- Reproduced and fixed three code gaps with authored mock regressions: bounded
+  ES/PT whole-money-plus-centavos parsing; explicit missing-amount clarification
+  even when the model expression is null; pending status-duration clauses kept
+  separate from transaction selection dates. Currency is not inferred for cents
+  alone; ambiguous phrases, valid amounts and actual purchase dates stay guarded.
+- Frozen dev inventory and scorer unchanged: mock truth replay 35/36 → 36/36,
+  ES 18/18 and PT 18/18, observed unsafe/language errors 0. Separate API probes
+  simulate null-amount/status-age extraction; original real NLU was not retained.
+- Follow-up mock make checks: 1195 passed / 31 DB skips, hooks, strict mypy,
+  B1 32/32 and interface/policy snapshots passed. No real models, keys, Azure
+  access or additional inference spend. These are post-v4 fixes, not reflected
+  in v4 numbers; no held-out inputs were opened or rescored.
+
+### Done but not verified
+
+- Follow-up PR/remote CI pending. Product fixes have mock evidence only; the
+  original real pass remains 32/36. No new accuracy or production latency claim.
+
+### Next / blocked
+
+- Merge the follow-up only on green remote CI; the lead owns the image release.
+  The family-assistance false unfamiliarity flag remains a model-quality limit;
+  semantic unfamiliarity must not be erased by family keywords. Future prompt
+  examples need a separately approved model check. No paid calls are authorized.
+
+## 2026-10-02 — v0.6.0 released; paid work stopped
+
+### Completed-verified
+
+- Annotated `v0.6.0` and private GitHub Release verified at deployed
+  `f5e128dd7e544e2378081361f4a8a409af94f221`; API/web tags, registry digests and ready revisions read back.
+- Exactly one owner-approved extra `scripts.serving_browser --target azure`
+  attempt passed all three surfaces: Chat, Desk, Ops; one handoff resolved and
+  verified. Counter **6**, no reset; ledger stayed **12 calls / $0.02292**,
+  **zero new paid calls / $0** from this attempt.
+- Fresh `scripts.azure_verify` passed. Exact deployed-source CI/safety/access
+  and operator main CI/safety all success. `jev-release.json` has all three
+  acceptance flags true; the annotated tag and Release were read back from origin.
+- [Full evidence](../evaluation/v0.6-release-notes.md) records the SHA, digests,
+  commands, run IDs and limits. Post-v4 fixes do not change official v4 numbers.
+
+### Done-not-verified
+
+- No new held-out safety/performance score is claimed for this release.
+  Submission-day public/warm/judge activation remains OFF and unverified.
+
+### Next-blocked
+
+- **Stop paid calls.** Conservative cumulative maximum **$11.97937448 / $12**.
+  The next release smoke needs Sebastian's explicit budget OK; do not create a
+  fresh purse, replay the consumed browser allowance or reset reservations.
+- Other lanes' main merge hold is lifted; #118/#119 are outside the tagged image
+  and need a separate approved release. Publication/warm/judge changes still need
+  submission-day go. Main protection remains prepared for the supported plan.
 
 ## 2026-10-01 — Post-v4 dev evidence and verified-money DLP
 
