@@ -7,11 +7,11 @@ from pathlib import Path
 from typing import cast
 
 import pytest
+from evals.studies.llm.typesafe_report import expected_calibration_error
 from typesafe_sdk import SystemOneResponse, TypeSafeClient
 
 from aclara.llm.typesafe import TypeSafeAdapter, _normalize
 from aclara.llm.typesafe_questions import INTENT_LABELS, RISK_CUES, judge_questions, nlu_questions
-from aclara.llm.typesafe_report import expected_calibration_error
 
 
 def test_typesafe_adapter_accepts_typed_answers_and_usage_only() -> None:
@@ -73,7 +73,7 @@ def test_typesafe_questions_match_reviewed_intents_and_subjective_rubric() -> No
 def test_ece_and_cross_vendor_cap_are_deterministic(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    from aclara.llm import typesafe_eval
+    from evals.studies.llm import typesafe_eval
 
     assert expected_calibration_error([(0.9, True), (0.9, False)]) == pytest.approx(0.4)
     paths = {name: tmp_path / f"{name}.json" for name in typesafe_eval.CHECKPOINTS}

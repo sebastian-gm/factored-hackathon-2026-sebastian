@@ -6,8 +6,8 @@ import json
 from statistics import median
 from typing import Any
 
-from aclara.llm.typesafe_eval import CHECKPOINTS
 from aclara.llm.typesafe_questions import RISK_CUES
+from evals.studies.llm.typesafe_eval import CHECKPOINTS
 
 
 def _percentile(values: list[float], proportion: float) -> float:

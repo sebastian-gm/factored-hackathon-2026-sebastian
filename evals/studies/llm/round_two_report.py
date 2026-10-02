@@ -13,8 +13,14 @@ from typing import Any
 
 from aclara.agent.nlu.rules import classify
 from aclara.agent.nlu.structured import understand
-from aclara.llm.comparison import _percentile, _slot_pairs
-from aclara.llm.round_two import ARTIFACTS, MODEL_IDS, SCORED_SLOTS, cumulative_cost, load_cases
+from evals.studies.llm.comparison import _percentile, _slot_pairs
+from evals.studies.llm.round_two import (
+    ARTIFACTS,
+    MODEL_IDS,
+    SCORED_SLOTS,
+    cumulative_cost,
+    load_cases,
+)
 
 INTENTS = (
     "charge_inquiry",

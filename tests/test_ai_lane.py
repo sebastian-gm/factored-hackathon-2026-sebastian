@@ -11,6 +11,8 @@ from typing import cast
 import pytest
 import yaml
 from evals.reactive import fixture
+from evals.studies.llm.comparison import ComparisonCase, evaluate_model, markdown_table
+from evals.studies.llm.round_one import _cases
 from pydantic import BaseModel, ConfigDict
 
 from aclara.agent.ai import AgentAI
@@ -28,11 +30,9 @@ from aclara.agent.nlu.structured import (
 )
 from aclara.agent.runtime import Runtime
 from aclara.llm.client import StructuredClient
-from aclara.llm.comparison import ComparisonCase, evaluate_model, markdown_table
 from aclara.llm.config import Price, load_fallback_route, load_models, load_prices
 from aclara.llm.prompts import Prompt
 from aclara.llm.providers import OpenAICompat
-from aclara.llm.round_one import _cases
 from aclara.llm.types import ModelFailure, ModelSpec, ProviderResponse, TokenUsage
 from aclara.settings import Settings
 
@@ -133,8 +133,9 @@ def test_round_one_uses_all_current_synthetic_dev_scenarios() -> None:
 def test_sebastian_recognition_rule_and_independent_hard_dev_suite() -> None:
     from collections import Counter
 
+    from evals.studies.llm.round_two import load_cases, sample_for
+
     from aclara.agent.nlu.rules import classify_nlu
-    from aclara.llm.round_two import load_cases, sample_for
 
     assert classify_nlu("No reconozco esta compra").intent.value == "charge_inquiry"
     assert classify_nlu("No fui yo quien compró esto").intent.value == "dispute_charge"
@@ -165,7 +166,7 @@ def test_sebastian_recognition_rule_and_independent_hard_dev_suite() -> None:
 
 
 def test_denial_v4_suite_is_synthetic_balanced_and_distinct_from_spotcheck() -> None:
-    from aclara.llm.denial_v4_check import load_cases
+    from evals.studies.llm.denial_v4_check import load_cases
 
     cases, suite_hash = load_cases()
     messages = {case["message"].casefold() for case in cases}
@@ -209,7 +210,7 @@ def test_default_structured_nlu_uses_v5_1_prompt() -> None:
 
 
 def test_round_two_wilson_interval_handles_zero_and_perfect_success() -> None:
-    from aclara.llm.round_two_report import wilson
+    from evals.studies.llm.round_two_report import wilson
 
     assert wilson(0, 150)[0] == 0
     assert 0 < wilson(0, 150)[1] < 0.03

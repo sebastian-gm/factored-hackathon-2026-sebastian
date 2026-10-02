@@ -18,14 +18,14 @@ from aclara.agent.nlg.grounding import redact_for_model
 from aclara.agent.nlu.structured import ExtractedNlu
 from aclara.llm.client import StructuredClient
 from aclara.llm.prompts import data_block, load_prompt
-from aclara.llm.round_one import ROOT, _catalog, _local_key
 from aclara.llm.types import ModelFailure
+from evals.studies.llm.round_one import ROOT, _catalog, _local_key
 
 MODEL_ID = "google/gemini-3-flash-preview"
 PROVIDER_ONLY = ("google-vertex/global",)
-SUITE = ROOT / "src/aclara/llm/dev_denial_v4.yaml"
+SUITE = ROOT / "evals/studies/llm/dev_denial_v4.yaml"
 OUTPUT = ROOT / "artifacts/ai-denial-v4/check.json"
-CHALLENGE_SUITE = ROOT / "src/aclara/llm/dev_denial_v4_challenge.yaml"
+CHALLENGE_SUITE = ROOT / "evals/studies/llm/dev_denial_v4_challenge.yaml"
 CHALLENGE_OUTPUT = ROOT / "artifacts/ai-denial-v4/challenge.json"
 PROMPTS = (ROOT / "prompts/nlu/v3.md", ROOT / "prompts/nlu/v4.md")
 CAP_USD = 0.49

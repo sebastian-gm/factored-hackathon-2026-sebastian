@@ -9,16 +9,16 @@ from random import Random
 from statistics import median
 from typing import Any
 
-from aclara.llm.comparison import _percentile
-from aclara.llm.round_three import (
+from evals.studies.llm.comparison import _percentile
+from evals.studies.llm.round_three import (
     ARTIFACTS,
     MODEL_IDS,
     cumulative_cost,
     load_cases,
     unknown_attempts,
 )
-from aclara.llm.round_two import ARTIFACTS as ROUND_TWO_ARTIFACTS
-from aclara.llm.round_two_report import (
+from evals.studies.llm.round_two import ARTIFACTS as ROUND_TWO_ARTIFACTS
+from evals.studies.llm.round_two_report import (
     case_latency,
     interval,
     macro_f1,

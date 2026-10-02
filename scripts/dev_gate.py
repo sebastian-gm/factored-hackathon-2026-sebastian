@@ -33,7 +33,7 @@ from aclara.ops.store import Store
 
 ROOT = Path(__file__).resolve().parents[1]
 DEV = ROOT / "evals/dev_scenarios_v2.yaml"
-CONFIRMATION = ROOT / "src/aclara/llm/dev_confirmation_20.yaml"
+CONFIRMATION = ROOT / "evals/studies/llm/dev_confirmation_20.yaml"
 OUTPUT = ROOT / "artifacts/option-a-dev"
 SCOPE = "dev-gate/option-a"
 RUN_ID = "option-a"
@@ -292,7 +292,7 @@ async def run(mode: str, *, profile: str = "option-a", attempt: int = 1) -> dict
     hashes = {"dev": hashlib.sha256(DEV.read_bytes()).hexdigest()}
     if real:
         if profile in {"after-v2", "post-v3", "pre-v4"}:
-            from aclara.llm.dev_offer_scenarios import CASES, load_offer_scenarios
+            from evals.studies.llm.dev_offer_scenarios import CASES, load_offer_scenarios
 
             confirmation = load_offer_scenarios()
             confirmation_path = CASES

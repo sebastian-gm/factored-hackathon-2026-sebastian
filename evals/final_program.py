@@ -16,15 +16,6 @@ from pathlib import Path
 import yaml
 
 from aclara.llm.config import load_models, load_prices
-from aclara.llm.dual_judge import jev_judge_adapter, score_pair
-from aclara.llm.final_run import (
-    FinalBudgetStop,
-    client_for,
-    journal,
-    open_budget_store,
-    require_start,
-)
-from aclara.llm.judge_validation import DIMENSIONS
 from aclara.llm.prompts import load_prompt
 from aclara.llm.types import BudgetFailure, ModelFailure
 from aclara.ops.store import Store
@@ -43,6 +34,15 @@ from evals.program_spec import (
     verify_envelope,
 )
 from evals.serving import open_serving
+from evals.studies.llm.dual_judge import jev_judge_adapter, score_pair
+from evals.studies.llm.final_run import (
+    FinalBudgetStop,
+    client_for,
+    journal,
+    open_budget_store,
+    require_start,
+)
+from evals.studies.llm.judge_validation import DIMENSIONS
 
 V3 = specification("test-v3")
 

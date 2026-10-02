@@ -1,4 +1,4 @@
-"""Checkpointed, metadata-only round-two NLU comparison on synthetic dev cases."""
+"""Checkpointed, metadata-only cheap-challenger NLU comparison."""
 
 from __future__ import annotations
 
@@ -20,63 +20,28 @@ import yaml  # type: ignore[import-untyped]
 from aclara.agent.nlg.grounding import redact_for_model
 from aclara.agent.nlu.structured import ExtractedNlu, postprocess
 from aclara.llm.client import StructuredClient
-from aclara.llm.comparison import ComparisonCase, _slot_pairs
 from aclara.llm.prompts import data_block, load_prompt
-from aclara.llm.round_one import ROOT, _catalog, _local_key
-from aclara.llm.round_one_followup import cumulative_cost as round_one_cost
 from aclara.llm.types import ModelFailure
+from evals.studies.llm.comparison import ComparisonCase, _slot_pairs
+from evals.studies.llm.round_one import ROOT, _catalog, _local_key
+from evals.studies.llm.round_two import cumulative_cost as prior_cost
 
 LOGGER = logging.getLogger(__name__)
-SUITE = ROOT / "src/aclara/llm/dev_150.yaml"
+SUITE = ROOT / "evals/studies/llm/dev_150.yaml"
 PROMPT = ROOT / "prompts/nlu/v3.md"
-ARTIFACTS = ROOT / "artifacts/ai-round-two"
+ARTIFACTS = ROOT / "artifacts/ai-round-three"
 CAP_USD = 10.0
 SAFETY_RESERVE_USD = 0.30
 MODEL_IDS = (
-    "google/gemini-2.5-flash-lite",
-    "google/gemini-3.5-flash-lite",
-    "google/gemini-3-flash-preview",
-    "x-ai/grok-4.3",
-    "anthropic/claude-haiku-4.5",
-    "anthropic/claude-sonnet-5",
-    "anthropic/claude-opus-5",
-)
-OPUS_SAMPLE_IDS = frozenset(
-    {
-        "mx.03",
-        "mx.04",
-        "mx.15",
-        "mx.22",
-        "mx.24",
-        "mx.27",
-        "co.01",
-        "co.08",
-        "co.17",
-        "co.19",
-        "co.20",
-        "co.23",
-        "ar.07",
-        "ar.12",
-        "ar.16",
-        "ar.18",
-        "ar.21",
-        "ar.25",
-        "br.10",
-        "br.13",
-        "br.14",
-        "br.15",
-        "br.24",
-        "br.30",
-        "mix.05",
-        "mix.08",
-        "mix.17",
-        "mix.20",
-        "mix.21",
-        "mix.26",
-    }
+    "openai/gpt-5-nano",
+    "openai/gpt-5-mini",
+    "x-ai/grok-4.20",
+    "qwen/qwen3-next-80b-a3b-instruct",
+    "deepseek/deepseek-v4-flash-0731",
+    "mistralai/mistral-small-2603",
 )
 SCORED_SLOTS = ("amount_value", "currency", "merchant_expr", "date_expr")
-MODEL_BUDGETS_USD = (0.25, 0.50, 0.60, 1.00, 1.00, 2.00, 1.50)
+MODEL_BUDGETS_USD = (0.25, 0.50, 1.00, 0.75, 0.50, 0.75)
 
 
 def load_cases() -> tuple[list[ComparisonCase], dict[str, dict[str, Any]], str]:
@@ -86,7 +51,7 @@ def load_cases() -> tuple[list[ComparisonCase], dict[str, dict[str, Any]], str]:
         raise ValueError("Unexpected NLU dev suite version")
     entries = suite["cases"]
     if not isinstance(entries, list) or len(entries) != 150:
-        raise ValueError("Round-two NLU dev suite must have exactly 150 cases")
+        raise ValueError("Frozen NLU dev suite must have exactly 150 cases")
     cases: list[ComparisonCase] = []
     metadata: dict[str, dict[str, Any]] = {}
     for item in entries:
@@ -120,9 +85,7 @@ def load_cases() -> tuple[list[ComparisonCase], dict[str, dict[str, Any]], str]:
 
 
 def sample_for(model_id: str, cases: list[ComparisonCase]) -> list[ComparisonCase]:
-    if model_id != "anthropic/claude-opus-5":
-        return cases
-    return [case for case in cases if case.case_id in OPUS_SAMPLE_IDS]
+    return cases
 
 
 def _read(path: Path) -> dict[str, Any] | None:
@@ -140,13 +103,45 @@ def _write(path: Path, data: dict[str, Any]) -> None:
 def _cost(data: dict[str, Any] | None) -> float:
     if data is None:
         return 0.0
-    return sum(float(a["cost_usd"]) for o in data["observations"] for a in o["attempts"])
+    return sum(
+        float(a["cost_usd"])
+        for o in data["observations"]
+        for a in o["attempts"]
+        if a["cost_usd"] is not None
+    )
+
+
+def unknown_attempts() -> int:
+    initial = _read(ARTIFACTS / "initial-preflight-errors.json")
+    probe = _read(ARTIFACTS / "provider-probes.json")
+    return (
+        sum(int(row["attempts"]) for row in (initial or {}).get("errors", []))
+        + sum(
+            a["cost_usd"] is None
+            for o in (probe or {}).get("observations", [])
+            for a in o["attempts"]
+        )
+        + sum(
+            a["cost_usd"] is None
+            for name in ("pilot.json", "full.json")
+            for o in (_read(ARTIFACTS / name) or {}).get("observations", [])
+            for a in o["attempts"]
+        )
+    )
 
 
 def cumulative_cost() -> float:
-    return round_one_cost() + sum(
-        _cost(_read(ARTIFACTS / name))
-        for name in ("pilot.json", "haiku-first-pass.json", "full.json")
+    probe = _read(ARTIFACTS / "provider-probes.json")
+    probe_cost = sum(
+        float(a["cost_usd"])
+        for o in (probe or {}).get("observations", [])
+        for a in o["attempts"]
+        if a["cost_usd"] is not None
+    )
+    return (
+        prior_cost()
+        + probe_cost
+        + sum(_cost(_read(ARTIFACTS / name)) for name in ("pilot.json", "full.json"))
     )
 
 
@@ -162,19 +157,24 @@ def main() -> int:
     models, prices = _catalog(MODEL_IDS)
     for model_id in MODEL_IDS:
         models[model_id] = replace(models[model_id], max_output_tokens=2048)
-    haiku = "anthropic/claude-haiku-4.5"
-    models[haiku] = replace(
-        models[haiku], provider_only=("amazon-bedrock/global",), timeout_seconds=60
+    for model_id in ("openai/gpt-5-nano", "openai/gpt-5-mini"):
+        models[model_id] = replace(models[model_id], reasoning_effort="minimal")
+    deepseek = "deepseek/deepseek-v4-flash-0731"
+    models[deepseek] = replace(
+        models[deepseek],
+        provider_only=("wafer/fast",),
+        reasoning_effort="none",
+        timeout_seconds=45,
     )
+    mistral = "mistralai/mistral-small-2603"
+    models[mistral] = replace(models[mistral], provider_only=("mistral/us",))
     if args.dry_run:
         LOGGER.info(
             "Unreviewed 150-case suite SHA-256 %s; prompt SHA-256 %s",
             suite_hash,
             prompt.content_hash,
         )
-        LOGGER.info(
-            "Prior per-call spend $%.6f; hard cumulative cap $%.2f", round_one_cost(), CAP_USD
-        )
+        LOGGER.info("Prior per-call spend $%.6f; hard cumulative cap $%.2f", prior_cost(), CAP_USD)
         for model_id in MODEL_IDS:
             price = prices[model_id]
             LOGGER.info(
@@ -197,9 +197,11 @@ def main() -> int:
             "prompt_hash": prompt.content_hash,
             "prompt_version": prompt.version,
             "models": list(MODEL_IDS),
-            "opus_sample_ids": sorted(OPUS_SAMPLE_IDS),
             "max_output_tokens": 2048,
-            "haiku_provider_only": ["amazon-bedrock/global"],
+            "deepseek_provider_only": ["wafer/fast"],
+            "deepseek_reasoning_effort": "none",
+            "openai_reasoning_effort": "minimal",
+            "mistral_provider_only": ["mistral/us"],
             "cap_usd": CAP_USD,
             "model_choice": None,
             "observations": [],
@@ -208,7 +210,7 @@ def main() -> int:
         raise RuntimeError("Suite or prompt changed during checkpointed evaluation")
     observations = data["observations"]
     done = {(o["model_id"], o["case_id"]) for o in observations}
-    remaining = CAP_USD - cumulative_cost() - SAFETY_RESERVE_USD
+    remaining = CAP_USD - cumulative_cost() - SAFETY_RESERVE_USD - 0.02 * unknown_attempts()
     selected_models = [
         (model_id, budget)
         for model_id, budget in zip(MODEL_IDS, MODEL_BUDGETS_USD, strict=True)
@@ -280,8 +282,6 @@ def main() -> int:
                 }
                 for record in client.records[prior:]
             ]
-            if any(attempt["cost_usd"] is None for attempt in attempts):
-                raise RuntimeError("Per-call cost missing; stop rather than infer key-level usage")
             gold_slots = _slot_pairs(case.gold_slots, SCORED_SLOTS)
             with lock:
                 observations.append(
@@ -302,7 +302,7 @@ def main() -> int:
                 )
                 data["updated_at_utc"] = datetime.now(UTC).isoformat()
                 _write(path, data)
-                if cumulative_cost() >= CAP_USD:
+                if cumulative_cost() + 0.02 * unknown_attempts() + SAFETY_RESERVE_USD >= CAP_USD:
                     raise RuntimeError("Approved $10 cumulative cap reached")
                 if index % 20 == 0 or args.pilot:
                     LOGGER.info(
@@ -312,8 +312,8 @@ def main() -> int:
                         len(selected),
                         cumulative_cost(),
                     )
-            if model_id == "anthropic/claude-haiku-4.5":
-                sleep(3)  # Keep the pinned ZDR route well below likely provider rate limits.
+            if model_id == deepseek:
+                sleep(0.1)
 
     with ThreadPoolExecutor(max_workers=len(selected_models)) as executor:
         futures = [

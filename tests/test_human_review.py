@@ -7,9 +7,8 @@ import json
 from pathlib import Path
 
 import pytest
-
-from aclara.llm import human_review
-from aclara.llm.human_review import DIMENSIONS, FIELDS, build_page, import_ratings, metric
+from evals.studies.llm import human_review
+from evals.studies.llm.human_review import DIMENSIONS, FIELDS, build_page, import_ratings, metric
 
 
 def sheet(path: Path, *, scored: bool = False) -> list[dict[str, str]]:

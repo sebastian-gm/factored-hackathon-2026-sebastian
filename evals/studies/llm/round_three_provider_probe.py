@@ -12,9 +12,16 @@ from aclara.agent.nlg.grounding import redact_for_model
 from aclara.agent.nlu.structured import ExtractedNlu
 from aclara.llm.client import StructuredClient
 from aclara.llm.prompts import data_block, load_prompt
-from aclara.llm.round_one import _catalog, _local_key
-from aclara.llm.round_three import ARTIFACTS, CAP_USD, PROMPT, _write, cumulative_cost, load_cases
 from aclara.llm.types import ModelFailure
+from evals.studies.llm.round_one import _catalog, _local_key
+from evals.studies.llm.round_three import (
+    ARTIFACTS,
+    CAP_USD,
+    PROMPT,
+    _write,
+    cumulative_cost,
+    load_cases,
+)
 
 MODEL_ID = "deepseek/deepseek-v4-flash-0731"
 PROVIDERS = ("wafer/fast", "deepinfra/fp8", "open-inference/fp8")
