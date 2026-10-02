@@ -27,6 +27,9 @@
   dotted/dashed CPF/DNI/RUT/cédula in model inputs and staff quotes. The earlier
   dotted DNI escaped the plain document and phone patterns. Targeted context,
   money and redaction checks: **39 passed**; paid metrics predate this patch.
+- Full mock checks after the privacy correction: **1128 passed / 30 DB skips**,
+  B1 **32/32**, hooks, strict mypy and frozen snapshots green. Refreshed the
+  published branch with a history-preserving merge of current origin/main.
 
 ### Done but not verified
 
