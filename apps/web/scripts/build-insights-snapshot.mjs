@@ -36,6 +36,11 @@ const sources = [
     "Primary results; Safety and readbacks; Repeats and judges; Latency and cost",
   ],
   [
+    "v4",
+    "docs/evaluation/final-v4-results.md",
+    "Primary B1 versus P-Gemini; Safety gates; ES/PT and segments; Repeats; Cost and latency; Limitations",
+  ],
+  [
     "matcher",
     "docs/ml/model-card-charge-matcher-v2.md",
     "Training and freeze; Reused synthetic test diagnostics; Human spot-check; Limits",
@@ -151,7 +156,12 @@ function evaluation(source) {
     source,
     source === "v2" ? "Case latency p50 / p95" : "Case p50 / p95",
   );
-  const cost = row(source, "Model cost / workload case");
+  const cost = row(
+    source,
+    source === "v4"
+      ? "Cost / evaluated workload case"
+      : "Model cost / workload case",
+  );
   return {
     source,
     systems: Object.fromEntries(
@@ -177,7 +187,8 @@ const charge = demand.complaint_mix.find(
   (item) => item.subcategory === "Cargo no reconocido",
 );
 const v2 = evaluation("v2"),
-  v3 = evaluation("v3");
+  v3 = evaluation("v3"),
+  v4 = evaluation("v4");
 const v2Delta = contents.v2.match(
   /SAR difference: \*\*([−-][\d.]+) percentage points\*\*,\s*95% paired interval \*\*([−-][\d.]+) to ([+][\d.]+)/,
 );
@@ -223,6 +234,63 @@ v3.repeats = {
 v3.judging = { completed: 28, planned: 60 };
 if (!contents.v3.includes("28/60 paired"))
   throw new Error("Judge coverage source changed");
+const v4Delta = contents.v4.match(
+  /SAR difference is \+([\d.]+) percentage points,\s*95% interval \+([\d.]+) to \+([\d.]+)/,
+);
+const v4Repeats = contents.v4.match(
+  /each \*\*(\d+)\/(\d+) preselected cases\*\*[\s\S]*?interval \*\*([\d.]+)–([\d.]+)%\*\*/,
+);
+if (
+  !v4Delta ||
+  !v4Repeats ||
+  !contents.v4.includes("Both systems failed the full safety gate") ||
+  !contents.v4.includes("All 60 blinded conversation/system items")
+)
+  throw new Error("V4 aggregate source wording changed; review the export.");
+v4.sar_difference_pp = {
+  estimate: Number(v4Delta[1]),
+  ci95: [Number(v4Delta[2]), Number(v4Delta[3])],
+};
+v4.safety_gate = "failed";
+v4.repeats = {
+  count: Number(v4Repeats[1]),
+  denominator: Number(v4Repeats[2]),
+  ci95_percent: [Number(v4Repeats[3]), Number(v4Repeats[4])],
+};
+v4.judging = { completed: 60, planned: 60 };
+v4.comparisons = Object.fromEntries(
+  [
+    ["strict_escalation", "Strict escalation recall"],
+    ["missed", "Missed transfers"],
+    ["unnecessary", "Unnecessary transfers"],
+    ["materially_incorrect", "Materially incorrect outcome"],
+    ["unauthorized_actions", "Unauthorized action"],
+    ["unverified_reports", "Reported without verification"],
+  ].map(([key, label]) => [
+    key,
+    Object.fromEntries(
+      ["B1", "P"].map((system, index) => [
+        system,
+        count(row("v4", label)[index]),
+      ]),
+    ),
+  ]),
+);
+v4.languages = Object.fromEntries(
+  ["ES", "PT", "Mixed"].map((language) => [
+    language,
+    Object.fromEntries(
+      ["B1", "P"].map((system) => {
+        const label = system === "P" ? "P-Gemini" : "B1";
+        const line = contents.v4
+          .split("\n")
+          .find((line) => line.startsWith(`| ${label} | ${language} |`));
+        if (!line) throw new Error("Missing v4 language aggregate");
+        return [system, count(line.split("|")[3])];
+      }),
+    ),
+  ]),
+);
 const azureBff = contents.azureLatency.match(
   /In-Azure BFF p50\/p95 \*\*([\d.]+)s \/ ([\d.]+)s\*\*/,
 );
@@ -259,7 +327,12 @@ const snapshot = {
     mean_resolution_calendar_days: charge.mean_resolution_calendar_days,
     resolution_days_n: charge.resolution_days_n,
   },
-  evaluations: { v1: { status: "abandoned", source: "disclosure" }, v2, v3 },
+  evaluations: {
+    v1: { status: "abandoned", source: "disclosure" },
+    v2,
+    v3,
+    v4,
+  },
   azure_latency: {
     source: "azureLatency",
     status: "partial",
@@ -303,6 +376,30 @@ const snapshot = {
   },
 };
 const target = path.join(repo, "apps/web/src/data/insights.json");
+const publicationTarget = path.join(
+  repo,
+  "apps/web/public/insights-results.json",
+);
+const v4Source = provenance.find((source) => source.id === "v4");
+const publication = {
+  schema_version: 1,
+  version: "v4",
+  status: "complete",
+  source: {
+    path: v4Source.path,
+    commit: v4Source.commit,
+    sha256: v4Source.sha256,
+  },
+  systems: Object.fromEntries(
+    ["B1", "P"].map((system) => [
+      system,
+      { pass: v4.systems[system].pass, sar: v4.systems[system].sar },
+    ]),
+  ),
+  sar_difference_pp: v4.sar_difference_pp,
+  unauthorized_actions: v4.comparisons.unauthorized_actions.P,
+  safety_gate: v4.safety_gate,
+};
 const serialized = JSON.stringify(snapshot, null, 2) + "\n";
 if (process.argv.includes("--check")) {
   const saved = JSON.parse(await readFile(target, "utf8"));
@@ -344,9 +441,23 @@ if (process.argv.includes("--check")) {
   void currentSources;
   if (JSON.stringify(savedMeasurements) !== JSON.stringify(currentMeasurements))
     throw new Error("Aggregate snapshot differs from committed sources");
+  const published = JSON.parse(await readFile(publicationTarget, "utf8"));
+  // Publication and chart data must identify the same pinned official source.
+  const pin = saved.sources.find((source) => source.id === "v4");
+  publication.source = {
+    path: pin.path,
+    commit: pin.commit,
+    sha256: pin.sha256,
+  };
+  if (JSON.stringify(published) !== JSON.stringify(publication))
+    throw new Error("V4 publication differs from committed aggregate snapshot");
 } else {
   await mkdir(path.dirname(target), { recursive: true });
   await writeFile(target, serialized);
+  await writeFile(
+    publicationTarget,
+    JSON.stringify(publication, null, 2) + "\n",
+  );
 }
 console.log(
   JSON.stringify({

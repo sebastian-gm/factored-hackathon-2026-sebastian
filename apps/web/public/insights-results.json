@@ -1,5 +1,44 @@
 {
   "schema_version": 1,
   "version": "v4",
-  "status": "pending"
+  "status": "complete",
+  "source": {
+    "path": "docs/evaluation/final-v4-results.md",
+    "commit": "71bca79b200fa2786dc20dfd49625c8654370242",
+    "sha256": "8d0533ec745df295c23b43c079572db99158bf1e30dbd399e66beb1831dd80db"
+  },
+  "systems": {
+    "B1": {
+      "pass": {
+        "count": 62,
+        "denominator": 100
+      },
+      "sar": {
+        "count": 22,
+        "denominator": 100
+      }
+    },
+    "P": {
+      "pass": {
+        "count": 88,
+        "denominator": 100
+      },
+      "sar": {
+        "count": 32,
+        "denominator": 100
+      }
+    }
+  },
+  "sar_difference_pp": {
+    "estimate": 10,
+    "ci95": [
+      5,
+      16
+    ]
+  },
+  "unauthorized_actions": {
+    "count": 2,
+    "denominator": 100
+  },
+  "safety_gate": "failed"
 }

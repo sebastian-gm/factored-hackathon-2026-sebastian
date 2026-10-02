@@ -275,11 +275,11 @@ test("customer copy explains rule families and hides internal IDs", async ({
   );
   await page.keyboard.press("Escape");
   await expect(page.locator(".synthetic-banner")).toHaveText(
-    "Datos de prueba · Banco simulado · No es un servicio real",
+    "Banco simulado · No es un servicio real",
   );
   await locale(page, true);
   await expect(page.locator(".synthetic-banner")).toHaveText(
-    "Dados de teste · Banco simulado · Não é um serviço real",
+    "Banco simulado · Não é um serviço real",
   );
   await expect(page.locator(".sidebar nav")).toContainText("Agent Desk");
   await expect(page.locator(".chat-stages")).toContainText(

@@ -2,16 +2,10 @@
 import Image from "next/image";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import {
-  Activity,
-  CheckCheck,
-  Database,
-  RefreshCcw,
-  ShieldCheck,
-  CircleAlert,
-} from "lucide-react";
+import { Activity, CheckCheck, RefreshCcw, CircleAlert } from "lucide-react";
 import { CallDetails } from "./call-details";
-import { callTotals, usd } from "@/lib/trace";
+import { callTotals, stageCosts, usd } from "@/lib/trace";
+import { EvidenceChart } from "./evidence-chart";
 import { LiveReset } from "./live-reset";
 import type { LiveOps, Trace } from "@/lib/staff-contracts";
 import type { OpsSnapshot } from "@/lib/contracts";
@@ -109,6 +103,11 @@ export function Ops() {
     data?.conversations.find((c) => c.id === selected) ??
     data?.conversations.at(-1);
   const totals = callTotals(conversation?.events ?? []);
+  const costs = stageCosts(conversation?.events ?? []);
+  const costMax = costs.length
+    ? Math.max(...costs.map((stage) => stage.cost))
+    : 0;
+  const costAxisMax = costMax > 0 ? Math.ceil(costMax * 1e6) / 1e6 : 0.000001;
   const hasRisk = conversation?.events.some((event) => event.llm?.judgments);
   return (
     <>
@@ -143,31 +142,23 @@ export function Ops() {
         <>
           <div className="metric-grid">
             <div className="metric">
-              <span>
-                <Database size={17} />
-                {t("quality")}
-              </span>
+              <span>{t("quality")}</span>
               <strong>
-                {data.quality.filter((q) => q.passed).length}/
-                {data.quality.length}
+                {data.quality.length
+                  ? `${data.quality.filter((q) => q.passed).length}/${data.quality.length}`
+                  : t("qualityNotChecked")}
               </strong>
-              <small>{t("schema")}</small>
+              <small>{t("qualityChecks")}</small>
             </div>
             <div className="metric">
-              <span>
-                <RefreshCcw size={17} />
-                {t("freshness")}
-              </span>
+              <span>{t("freshness")}</span>
               <strong className="text-metric">
                 {t(data.freshness.status)}
               </strong>
               <small>{date(data.freshness.built_at, locale, true)} UTC</small>
             </div>
             <div className="metric">
-              <span>
-                <ShieldCheck size={17} />
-                {t("dataset")}
-              </span>
+              <span>{t("dataset")}</span>
               <strong className="text-metric mono">
                 {data.dataset_version}
               </strong>
@@ -182,10 +173,7 @@ export function Ops() {
           </div>
           <section className="panel trace-panel">
             <header className="panel-heading">
-              <h2>
-                <Activity size={19} />
-                {t("trace")}
-              </h2>
+              <h2>{t("trace")}</h2>
               {data.conversations.length > 0 && (
                 <label>
                   <span className="sr-only">{t("conversation")}</span>
@@ -231,7 +219,9 @@ export function Ops() {
                   <h3>{t("conversationCost")}</h3>
                   <strong>
                     {totals.count
-                      ? usd(totals.known, locale)
+                      ? totals.count === totals.unknown
+                        ? t("costNotRecorded")
+                        : usd(totals.known, locale)
                       : t("noModelCallsRecorded")}
                   </strong>
                   <p>
@@ -247,6 +237,27 @@ export function Ops() {
                           : "recordedCostOnly",
                     )}
                   </p>
+                  {costs.length > 0 && (
+                    <>
+                      <EvidenceChart
+                        title={t("costByStage")}
+                        max={costAxisMax}
+                        axisLabel={t("costAxis")}
+                        tick={(n) => usd(n, locale)}
+                        rows={costs.map((stage) => ({
+                          label: t(`stage_${stage.stage.toLowerCase()}`),
+                          value: stage.cost,
+                          detail: `${usd(stage.cost, locale)} · ${stage.knownCount}/${stage.count}`,
+                        }))}
+                      />
+                      <p className="caption">
+                        {t("costChartSource", {
+                          known: totals.count - totals.unknown,
+                          total: totals.count,
+                        })}
+                      </p>
+                    </>
+                  )}
                   {totals.grok > 0 && (
                     <p className="badge amber">
                       {t(totals.fallback ? "grokFallback" : "grokObserved")}
@@ -265,7 +276,7 @@ export function Ops() {
                       <div>
                         <div className="row-between">
                           <strong>
-                            {event.stage}{" "}
+                            {t(`stage_${event.stage.toLowerCase()}`)}{" "}
                             <span className="caption">/ {event.state}</span>
                           </strong>
                           {event.verified && (
@@ -318,6 +329,9 @@ export function Ops() {
                   </span>
                 </div>
               ))}
+              {!data.quality.length && (
+                <p className="caption">{t("qualityNotChecked")}</p>
+              )}
               <dl className="metadata-list compact">
                 <dt>{t("built")}</dt>
                 <dd>{date(data.freshness.built_at, locale, true)}</dd>
@@ -370,15 +384,23 @@ export function Ops() {
                   <p className="caption">
                     {data.results.source} · {t("humanPending")}
                   </p>
-                  <h3>{t("daily")}</h3>
-                  <div className="cost-table">
-                    {data.daily_cost.map((day) => (
-                      <div key={day.date}>
-                        <span>{date(day.date, locale)}</span>
-                        <strong>{money(day.usd, "USD", locale)}</strong>
-                      </div>
-                    ))}
-                  </div>
+                  {data.daily_cost.length > 0 && (
+                    <EvidenceChart
+                      title={t("daily")}
+                      max={Math.max(
+                        0.01,
+                        ...data.daily_cost.map((day) => day.usd),
+                      )}
+                      axisLabel={t("costAxis")}
+                      tick={(n) => usd(n, locale)}
+                      rows={data.daily_cost.map((day) => ({
+                        label: date(day.date, locale),
+                        value: day.usd,
+                        detail: usd(day.usd, locale),
+                      }))}
+                    />
+                  )}
+                  <p className="caption">{t("illustrativeCostSource")}</p>
                   <p className="caption">{t("zeroCost")}</p>
                 </>
               ) : (

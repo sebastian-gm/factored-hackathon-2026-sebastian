@@ -57,7 +57,9 @@ test("live workspace: trusted ops role, handoff claim/resolve, measured traces a
   const sla = page.locator(".queue-item .caption").filter({ hasText: "SLA" });
   await expect(sla).toHaveText(/Tiempo para SLA: (?:14d 23h \d+m|15d 0h 0m)/);
   await expect(
-    page.getByText("El paquete no incluye movimientos verificados.", { exact: false }),
+    page.getByText("El paquete no incluye movimientos verificados.", {
+      exact: false,
+    }),
   ).toBeVisible();
   await expect(page.locator(".action-timeline li")).toHaveCount(1);
   expect(packet.actions).toEqual([
@@ -82,9 +84,7 @@ test("live workspace: trusted ops role, handoff claim/resolve, measured traces a
         .analyze()
     ).violations,
   ).toEqual([]);
-  await page
-    .getByRole("button", { name: "Evidencia y operaciones", exact: true })
-    .click();
+  await page.getByRole("button", { name: "Operaciones", exact: true }).click();
   await expect(
     page.getByRole("heading", { name: "Actividad de este espacio" }),
   ).toBeVisible();

@@ -7,7 +7,6 @@ import {
   ClipboardCheck,
   Clock3,
   FileSearch,
-  Headphones,
   CircleAlert,
 } from "lucide-react";
 import { orderedReasons, type DeskPacket } from "@/lib/contracts";
@@ -163,7 +162,7 @@ export function AgentDesk() {
                   aria-pressed={current?.handoff_id === p.handoff_id}
                 >
                   <span className="row-between">
-                    <strong>{p.handoff_id}</strong>
+                    <strong>{p.customer_display || t("packet")}</strong>
                     <span
                       className={`badge ${p.priority === "high" ? "red" : ""}`}
                     >
@@ -176,7 +175,7 @@ export function AgentDesk() {
                       {p.route.language.toUpperCase()}
                     </span>
                   </span>
-                  <span className="caption">{p.customer_display}</span>
+                  <span className="technical-reference">{p.handoff_id}</span>
                   <span className="row-between">
                     <span className="queue-reasons">
                       {orderedReasons(p)
@@ -204,16 +203,13 @@ export function AgentDesk() {
             <>
               <header className="packet-heading">
                 <div>
-                  <p className="eyebrow">{t("packet")}</p>
-                  <h2>{current.handoff_id}</h2>
+                  <h2>{t("packet")}</h2>
+                  <p className="technical-reference">{current.handoff_id}</p>
                   <p>
                     {current.route.queue} ·{" "}
                     {current.route.language.toUpperCase()} · {t(current.status)}
                   </p>
                 </div>
-                <span className="hero-icon">
-                  <Headphones />
-                </span>
               </header>
               <p className="routing-note">
                 {t(current.route.fallback_used ? "fallback" : "noFallback")}
