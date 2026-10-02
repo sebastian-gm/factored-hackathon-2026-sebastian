@@ -18,7 +18,10 @@ with Python optimization enabled. A short state table documents
 
 ## Commands and results
 
-- `LLM_PROVIDER=mock LLM_REAL_CALLS_APPROVED=0 make checks`: **1208 passed /
+Refreshed on merged #124; its seven packaging regressions explain the increase
+from the initially verified 1208 tests to 1215.
+
+- `LLM_PROVIDER=mock LLM_REAL_CALLS_APPROVED=0 make checks`: **1215 passed /
   31 DB skips**, hooks, strict mypy, compilation, staged-file policy, B1
   **32/32**, interface and policy snapshots passed.
 - `LLM_PROVIDER=mock .venv/bin/python -m pytest -q tests/test_audit_hygiene.py tests/test_nlu_transaction_boundary.py tests/test_judge_access.py tests/test_judge_profiles.py tests/test_workflow_api.py`:

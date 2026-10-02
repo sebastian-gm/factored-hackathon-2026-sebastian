@@ -29,7 +29,7 @@ def test_atomic_resume_skips_completed_and_preserves_interrupted_journal(
     scenarios = [
         dict(authored(), id=f"authored-{i}", persona={"customer_ref": "fixture"}) for i in range(2)
     ]
-    from aclara.llm import final_run
+    from evals.studies.llm import final_run
 
     monkeypatch.setattr(final_run, "ROOT", tmp_path)
     checkpoint_root = tmp_path / "artifacts" / "fixture"
@@ -85,9 +85,8 @@ def test_final_start_gate_precedes_any_frozen_access(monkeypatch, tmp_path):
 
 def test_v3_uses_separate_paths_and_conservative_cumulative_cap():
     from evals.program_spec import specification
+    from evals.studies.llm.final_run import RUN_ID, SCOPE
     from scripts.final_budget import CAP, check_exposure
-
-    from aclara.llm.final_run import RUN_ID, SCOPE
 
     assert specification("test-v3").output.name == RUN_ID == "final-program-v3"
     assert SCOPE == "final-evaluation-v3"

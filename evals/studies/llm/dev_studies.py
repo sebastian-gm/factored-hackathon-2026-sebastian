@@ -29,13 +29,13 @@ from aclara.agent.nlg.builder import build_reply
 from aclara.agent.nlg.grounding import AllowedFact, redact_for_model
 from aclara.llm.client import StructuredClient
 from aclara.llm.config import load_fallback_route, load_models, load_prices
-from aclara.llm.judge import _score
 from aclara.llm.prompts import load_prompt
 from aclara.llm.providers import Provider
 from aclara.llm.types import ModelFailure, ModelSpec, ProviderResponse
 from aclara.llm.typesafe import MODEL_ID as JEV_MODEL_ID
 from aclara.llm.typesafe import TypeSafeAdapter
 from aclara.llm.typesafe_questions import judge_questions
+from evals.studies.llm.judge import _score
 
 ROOT = Path(__file__).resolve().parents[3]
 DEV = ROOT / "evals/dev_scenarios_v2.yaml"

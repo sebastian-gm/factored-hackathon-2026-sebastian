@@ -8,9 +8,8 @@ from collections.abc import Iterator
 from pathlib import Path
 
 import pytest
-
-from aclara.llm import dev_kind_replay
-from aclara.llm.dev_kind_replay import _matched_outputs, _source_kind, freeze
+from evals.studies.llm import dev_kind_replay
+from evals.studies.llm.dev_kind_replay import _matched_outputs, _source_kind, freeze
 
 
 @pytest.fixture
@@ -35,7 +34,7 @@ def test_frozen_baseline_is_created_owner_only(tmp_path: Path) -> None:
 @pytest.mark.usefixtures("permissive_umask")
 def test_cli_report_is_created_owner_only(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     # Exercise the actual CLI writer with an authored comparison; no dev data.
-    package_file = tmp_path / "src/aclara/llm/dev_kind_replay.py"
+    package_file = tmp_path / "evals/studies/llm/dev_kind_replay.py"
     monkeypatch.setattr(dev_kind_replay, "__file__", str(package_file))
     monkeypatch.setattr(
         dev_kind_replay, "compare", lambda _path: {"cost_usd": 0, "private_details": []}

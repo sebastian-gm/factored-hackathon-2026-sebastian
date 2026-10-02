@@ -3,8 +3,8 @@
 from copy import deepcopy
 
 import pytest
+from evals.studies.llm.jev_live_replay import replay
 
-from aclara.llm.jev_live_replay import replay
 from aclara.llm.typesafe_questions import RISK_CUES
 
 

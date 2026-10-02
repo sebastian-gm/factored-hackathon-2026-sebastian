@@ -22,8 +22,7 @@ from evals.program_spec import (
     specification,
     verify_envelope,
 )
-
-from aclara.llm.final_run import require_start
+from evals.studies.llm.final_run import require_start
 
 ROOT = Path(__file__).resolve().parents[1]
 

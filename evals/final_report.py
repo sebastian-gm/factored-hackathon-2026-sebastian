@@ -7,11 +7,11 @@ from pathlib import Path
 
 import numpy as np
 
-from aclara.llm.dual_judge import agreement_report
-from aclara.llm.judge_validation import quadratic_weighted_kappa
 from evals.checkpoints import atomic_write, save
 from evals.heldout_report import DRAWS, SEED, comparison, report
 from evals.metrics import aggregate, proportion
+from evals.studies.llm.dual_judge import agreement_report
+from evals.studies.llm.judge_validation import quadratic_weighted_kappa
 
 
 def mean_interval(values: list[float]) -> dict:

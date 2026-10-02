@@ -8,6 +8,7 @@ from datetime import UTC, datetime
 from decimal import Decimal
 
 import pytest
+from evals.studies.llm.dev_post_v4 import fixtures, inventory, score
 from httpx import ASGITransport, AsyncClient
 from test_api_security import _settings, _sign_in
 from test_workflow_api import message
@@ -17,7 +18,6 @@ from aclara.agent.nlu.structured import ExtractedNlu, parse_amount, postprocess
 from aclara.agent.runtime import Runtime
 from aclara.api.app import create_app
 from aclara.llm.client import StructuredClient
-from aclara.llm.dev_post_v4 import fixtures, inventory, score
 from aclara.llm.types import ModelSpec
 
 CLOCK = datetime(2026, 6, 18, 6, tzinfo=UTC)
