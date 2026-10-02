@@ -165,12 +165,48 @@ export function orderedReasons(
 export type Role = "customer" | "agent" | "ops";
 export type Locale = "es-MX" | "es-CO" | "es-AR" | "pt-BR";
 export type Surface = "chat" | "desk" | "ops" | "insights";
+export const profileIdSchema = z.enum(["mx-es", "co-es", "ar-es", "pt"]);
+export type ProfileId = z.infer<typeof profileIdSchema>;
+export const judgeProfileSchema = z
+  .object({
+    profile_id: profileIdSchema,
+    label: z.string(),
+    locale: z.enum(["es-MX", "es-CO", "es-AR", "pt-BR"]),
+    language: z.enum(["es", "pt"]),
+    demo_stories: z.array(z.enum(["explain", "ambiguous", "fraud"])),
+  })
+  .refine(
+    (profile) =>
+      profile.locale ===
+        { "mx-es": "es-MX", "co-es": "es-CO", "ar-es": "es-AR", pt: "pt-BR" }[
+          profile.profile_id
+        ] && profile.language === (profile.profile_id === "pt" ? "pt" : "es"),
+    "Profile language/locale must match its fixed ID",
+  );
+export const judgeProfilesSchema = z
+  .object({
+    profiles: z.array(judgeProfileSchema),
+    active_profile_id: profileIdSchema.nullable(),
+    expires_at: z.iso.datetime({ offset: true }),
+  })
+  .refine(
+    (value) =>
+      new Set(value.profiles.map((p) => p.profile_id)).size === 4 &&
+      value.profiles.length === 4,
+    "Four distinct profiles required",
+  );
+export type JudgeProfile = z.infer<typeof judgeProfileSchema>;
+export type JudgeProfiles = z.infer<typeof judgeProfilesSchema>;
 export type Session = {
   username: string;
   role: Role;
   language: "es" | "pt";
   locale?: Locale;
   bank_clock?: string;
+  demo_stories?: ("explain" | "ambiguous" | "fraud")[] | null;
+  judge_profiles_enabled?: boolean;
+  profile_selection_required?: boolean;
+  judge_profile_id?: ProfileId | null;
 };
 export type Config = {
   fixtures: boolean;

@@ -8,6 +8,8 @@ import {
   handoffSchema,
   planSchema,
   transactionSchema,
+  judgeProfilesSchema,
+  profileIdSchema,
 } from "@/lib/contracts";
 import {
   deskSchema,
@@ -27,6 +29,8 @@ import {
   fixtureRequest,
   fixtureSms,
   fixtureVerify,
+  fixtureJudgeProfiles,
+  fixtureJudgeSelect,
   HttpError,
   workspace,
 } from "@/lib/server/fixtures";
@@ -71,6 +75,7 @@ function cookie(
   name: string,
   value: string,
   maxAge: number,
+  expires?: Date,
 ) {
   reply.cookies.set(name, value, {
     httpOnly: true,
@@ -78,6 +83,7 @@ function cookie(
     sameSite: "strict",
     path: "/",
     maxAge,
+    ...(expires ? { expires } : {}),
   });
 }
 async function upstream(
@@ -211,6 +217,7 @@ async function handle(
   request: NextRequest,
   params: Promise<{ path: string[] }>,
 ) {
+  let switching = false;
   try {
     const path = (await params).path.join("/");
     if (request.method === "POST") {
@@ -321,6 +328,60 @@ async function handle(
       return reply;
     }
     if (!token) throw new HttpError(401, "session_expired");
+    if (path === "auth/judge/profiles" && request.method === "GET")
+      return response(
+        judgeProfilesSchema.parse(
+          fixtures()
+            ? fixtureJudgeProfiles(token)
+            : await upstream(path, "GET", token),
+        ),
+      );
+    if (path === "auth/judge/profile" && request.method === "POST") {
+      const input = z
+        .object({ profile_id: profileIdSchema })
+        .strict()
+        .safeParse(body);
+      if (!input.success) throw new HttpError(422, "invalid_profile_request");
+      switching = true;
+      // Never retry. A timeout/invalid readback after activation requires login.
+      const auth = z
+        .object({
+          access_token: z.string().min(1),
+          token_type: z.literal("bearer"),
+          verified: z.literal(true),
+          identity: identitySchema,
+          expires_at: z.iso.datetime({ offset: true }),
+        })
+        .parse(
+          fixtures()
+            ? fixtureJudgeSelect(token, input.data.profile_id)
+            : await upstream(path, "POST", token, input.data),
+        );
+      const actual = identitySchema.parse(
+        fixtures()
+          ? fixtureRequest("me", "GET", auth.access_token, {})
+          : await upstream("me", "GET", auth.access_token),
+      );
+      const expires = new Date(auth.expires_at);
+      const remaining = Math.floor((expires.getTime() - Date.now()) / 1000);
+      if (
+        !actual.judge_profiles_enabled ||
+        actual.profile_selection_required ||
+        actual.judge_profile_id !== input.data.profile_id ||
+        actual.role !== "customer" ||
+        remaining <= 0 ||
+        JSON.stringify(actual) !== JSON.stringify(auth.identity)
+      )
+        throw new HttpError(502, "readback_failed");
+      const reply = response({
+        verified: true,
+        identity: actual,
+        expires_at: auth.expires_at,
+      });
+      cookie(reply, ACCESS, auth.access_token, remaining, expires);
+      cookie(reply, PREAUTH, "", 0);
+      return reply;
+    }
     if (path === "auth/step-up" && request.method === "POST") {
       if (fixtures()) throw new HttpError(501, "contract_pending");
       z.object({}).strict().parse(body);
@@ -427,7 +488,8 @@ async function handle(
     }
     if (path === "me") {
       return response(
-        fixtures()
+        fixtures() &&
+          !(data as { judge_profiles_enabled?: boolean }).judge_profiles_enabled
           ? z
               .object({
                 username: z.string(),
@@ -491,13 +553,12 @@ async function handle(
       known ? error.status : 502,
     );
     // Do not send upstream bodies, validation input, tokens or internal errors to the browser.
-    if (
-      known &&
-      error.status === 401 &&
-      error.code !== "step_up_required" &&
-      !request.nextUrl.pathname.includes("/auth/")
-    )
-      cookie(reply, ACCESS, "", 0);
+    // An old tab's delayed 401 must not delete the freshly rotated shared cookie.
+    // The browser clears its retired state; revoked bearers have no authority.
+    // Only explicit login/logout, activation failure or session-ended replies
+    // change the cookie, rather than an arbitrary read's authentication error.
+    if (switching) cookie(reply, ACCESS, "", 0);
+    if (switching) cookie(reply, PREAUTH, "", 0);
     return reply;
   }
 }

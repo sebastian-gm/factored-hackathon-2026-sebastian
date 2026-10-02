@@ -61,6 +61,24 @@ _NEGATED_STATUS = re.compile(
     r"aprobad[ao]|aprovad[ao])\b",
     re.I,
 )
+# Generated clarifications cannot establish actions or explain their cause.
+# Actual status explanations, offers and write receipts are rendered by code.
+_ACTION_CLAIM = re.compile(
+    r"\b(?:bloquee|bloqueei|bloqueamos|bloquead[oa]|congele|congelei|congelamos|"
+    r"congelad[oa]|reembolse|reembolsei|reembolsamos|reembolsad[oa]|"
+    r"devolvi|devolvimos|devolvemos|devolveremos|estornei|estornamos|"
+    r"reverti|reverse|revertimos|cancele|cancelei|cancelamos|cancelad[oa]|anule|anulei|"
+    r"registrei|registre|registramos|registrad[oa]|presente|apresentei|protocolei|abri|abrimos)\b|"
+    r"\b(?:ya|ja)\s+(?:esta|foi|fue)\s+(?:bloquead[oa]|congelad[oa]|cancelad[oa])\b|"
+    r"\b(?:voy a|vamos a|vou|vamos)\s+(?:bloquear|congelar|reembolsar|devolver|"
+    r"estornar|cancelar|registrar)\b"
+)
+_CAUSAL_CLAIM = re.compile(
+    r"\b(?:autorizad[oa]s?\s+(?:por|pela|pelo)|corresponde(?:m)?\s+a|"
+    r"se debe a|deve-se a|se trata de|trata-se de|debido a|devido a|causad[oa] por)\b|"
+    r"\b(?:cargo|cobro|cobranca|compra|transaccion|transacao)\b.{0,60}"
+    r"\b(?:porque|por causa|a causa)\b"
+)
 
 
 def _fold(text: str) -> str:
@@ -190,6 +208,10 @@ def verify_draft(
         if fact_id in allowed_by_id and allowed_by_id[fact_id].source
     )
     prose = _customer_prose(text, cited_facts)
+    if _ACTION_CLAIM.search(_fold(prose)):
+        violations.append("unsupported_action_claim")
+    if _CAUSAL_CLAIM.search(_fold(prose)):
+        violations.append("unsupported_causal_claim")
     if _WORD_DIGIT.search(prose):
         violations.append("text_corruption")
     if _RAW_ENUM.search(prose) or _MACHINE_IDENTIFIER.search(prose):

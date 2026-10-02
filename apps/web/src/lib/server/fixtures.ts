@@ -12,6 +12,8 @@ import type {
   Session,
   TraceEvent,
   Transaction,
+  ProfileId,
+  JudgeProfile,
 } from "../contracts";
 import results from "../../../fixtures/results.json";
 import {
@@ -29,7 +31,13 @@ export class HttpError extends Error {
     super(code);
   }
 }
-type Identity = Session & { workspace: string; expires: number; otpAt: number };
+type Identity = Session & {
+  workspace: string;
+  expires: number;
+  otpAt: number;
+  controller?: string;
+  fixturePersona?: string;
+};
 type Conversation = {
   token: string;
   id: string;
@@ -46,6 +54,7 @@ type Workspace = {
   created: number;
 };
 type Store = {
+  controllers: Map<string, { active: string; expires: number }>;
   workspaces: Map<string, Workspace>;
   sessions: Map<string, Identity>;
   challenges: Map<
@@ -66,7 +75,46 @@ const store: Store = (scope.aclaraFrontendFixtures ??= {
   workspaces: new Map(),
   sessions: new Map(),
   challenges: new Map(),
+  controllers: new Map(),
 });
+// Authored picker fixture, OFF unless an isolated browser test enables it.
+const judgeEnabled = () => process.env.FRONTEND_FIXTURE_JUDGE_ACCESS === "true";
+const profilePersonas: Record<ProfileId, string> = {
+  "mx-es": "demo.es.mx",
+  "co-es": "demo.es.co",
+  "ar-es": "demo.es.ar",
+  pt: "demo.pt.br",
+};
+const fixtureProfiles: JudgeProfile[] = [
+  {
+    profile_id: "mx-es",
+    label: "MX · ES",
+    locale: "es-MX",
+    language: "es",
+    demo_stories: ["explain", "fraud"],
+  },
+  {
+    profile_id: "co-es",
+    label: "CO · ES",
+    locale: "es-CO",
+    language: "es",
+    demo_stories: [],
+  },
+  {
+    profile_id: "ar-es",
+    label: "AR · ES",
+    locale: "es-AR",
+    language: "es",
+    demo_stories: [],
+  },
+  {
+    profile_id: "pt",
+    label: "PT",
+    locale: "pt-BR",
+    language: "pt",
+    demo_stories: ["ambiguous"],
+  },
+];
 const random = () => randomBytes(24).toString("hex");
 const equal = (a: string, b: string) =>
   timingSafeEqual(
@@ -79,6 +127,8 @@ export function workspace(existing?: string): string {
     if (Date.now() - value.created > 3600000) store.workspaces.delete(id);
   for (const [id, value] of store.sessions)
     if (value.expires <= Date.now()) store.sessions.delete(id);
+  for (const [id, value] of store.controllers)
+    if (value.expires <= Date.now()) store.controllers.delete(id);
   for (const [id, value] of store.challenges)
     if (value.expires <= Date.now()) store.challenges.delete(id);
   if (existing && store.workspaces.has(existing)) return existing;
@@ -97,7 +147,10 @@ export function fixtureLogin(
 ) {
   const secret = process.env.FRONTEND_FIXTURE_PASSWORD;
   if (!secret) throw new HttpError(503, "fixtures_unconfigured");
-  const persona = personas.find((p) => p.username === username);
+  const isJudge = judgeEnabled() && username === "demo.judge";
+  const persona = personas.find(
+    (p) => p.username === (isJudge ? "demo.es.mx" : username),
+  );
   if (!equal(secret, password) || !persona)
     throw new HttpError(401, "invalid_login");
   const id = random(),
@@ -114,6 +167,13 @@ export function fixtureLogin(
       workspace: space,
       expires: 0,
       otpAt: 0,
+      ...(isJudge
+        ? {
+            judge_profiles_enabled: true,
+            profile_selection_required: true,
+            locale: "es-MX" as const,
+          }
+        : {}),
     },
   });
   return { challenge_id: id, preauth_token: token };
@@ -137,23 +197,92 @@ export function fixtureVerify(id: string, token: string, code: string) {
   item.attempts++;
   if (!equal(code, item.code)) throw new HttpError(401, "invalid_otp");
   const access = random();
+  const controller = item.identity.judge_profiles_enabled
+    ? random()
+    : undefined;
+  if (controller)
+    store.controllers.set(controller, {
+      active: access,
+      expires: Date.now() + 900000,
+    });
   store.sessions.set(access, {
     ...item.identity,
     expires: Date.now() + 900000,
     otpAt: Date.now(),
+    controller,
   });
   store.challenges.delete(id);
   return { access_token: access };
 }
 export function fixtureLogout(token: string) {
+  const controller = store.sessions.get(token)?.controller;
+  if (controller) store.controllers.delete(controller);
   store.sessions.delete(token);
 }
 function principal(token: string, role?: Session["role"]): Identity {
   const identity = store.sessions.get(token);
-  if (!identity || identity.expires <= Date.now())
+  if (
+    !identity ||
+    identity.expires <= Date.now() ||
+    (identity.controller &&
+      (!judgeEnabled() ||
+        store.controllers.get(identity.controller)?.active !== token))
+  )
     throw new HttpError(401, "session_expired");
   if (role && identity.role !== role) throw new HttpError(403, "role_required");
   return identity;
+}
+function fixtureIdentity(user: Identity): Session {
+  return {
+    username: user.username,
+    role: user.role,
+    language: user.language,
+    ...(user.judge_profiles_enabled
+      ? {
+          locale: user.locale,
+          bank_clock: BANK_CLOCK,
+          judge_profiles_enabled: true,
+          profile_selection_required: !user.judge_profile_id,
+          judge_profile_id: user.judge_profile_id,
+          demo_stories: user.demo_stories,
+        }
+      : {}),
+  };
+}
+export function fixtureJudgeProfiles(token: string) {
+  if (!judgeEnabled()) throw new HttpError(404, "not_found");
+  const user = principal(token);
+  if (!user.controller) throw new HttpError(403, "judge_required");
+  return {
+    profiles: fixtureProfiles,
+    active_profile_id: user.judge_profile_id ?? null,
+    expires_at: new Date(user.expires).toISOString(),
+  };
+}
+export function fixtureJudgeSelect(token: string, profile: ProfileId) {
+  fixtureJudgeProfiles(token);
+  const user = principal(token);
+  const view = fixtureProfiles.find((p) => p.profile_id === profile)!;
+  const access = random();
+  const selected: Identity = {
+    ...user,
+    workspace: workspace(),
+    fixturePersona: profilePersonas[profile],
+    judge_profile_id: profile,
+    profile_selection_required: false,
+    locale: view.locale,
+    language: view.language,
+    demo_stories: view.demo_stories,
+  };
+  store.sessions.set(access, selected);
+  store.controllers.get(user.controller!)!.active = access;
+  return {
+    access_token: access,
+    token_type: "bearer",
+    verified: true,
+    identity: fixtureIdentity(selected),
+    expires_at: new Date(user.expires).toISOString(),
+  };
 }
 function add(
   c: Conversation,
@@ -190,15 +319,16 @@ export function fixtureRequest(
   body: Record<string, unknown>,
 ): unknown {
   const user = principal(token);
-  const transactions = transactionsForPersona(user.username);
+  const transactions = transactionsForPersona(
+    user.fixturePersona ?? user.username,
+  );
   const space = store.workspaces.get(user.workspace);
   if (!space) throw new HttpError(401, "session_expired");
-  if (path === "me")
-    return {
-      username: user.username,
-      role: user.role,
-      language: user.language,
-    };
+  if (path === "me") return fixtureIdentity(user);
+  if (user.profile_selection_required)
+    throw new HttpError(403, "profile_required");
+  if (user.controller && (path.startsWith("ops/") || path.startsWith("agent/")))
+    throw new HttpError(403, "role_required");
   if (path.startsWith("agent/")) {
     principal(token, "agent");
     if (path === "agent/handoffs" && method === "GET") return space.packets;

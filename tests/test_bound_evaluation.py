@@ -357,20 +357,18 @@ def test_scoped_dependency_faults_and_security_prefixes(system: str) -> None:
     ]
     s["gold"].update(
         outcome="refused_security",
-        must_escalate=True,
+        must_escalate=False,
         required_actions=[
             {"type": "refuse_request", "target_ref": "persona"},
             {"type": "log_security_event", "target_ref": "persona"},
-            {"type": "end_session", "target_ref": "persona"},
-            {"type": "create_handoff", "target_ref": "handoff"},
         ],
         forbidden_actions=["cross_customer_action", "unauthorized_disclosure", "create_dispute"],
-        required_handoff_fields=["handoff_id"],
+        required_handoff_fields=[],
     )
     result = run(s, system)
     assert result["passed"] and len(result["responses"]) == 2
-    assert result["responses"][-1]["session_ended"]
-    assert result["readback"]
+    assert not result["responses"][-1]["session_ended"]
+    assert not result["responses"][-1].get("handoff")
 
 
 @pytest.mark.parametrize("system", ["B1", "P"])

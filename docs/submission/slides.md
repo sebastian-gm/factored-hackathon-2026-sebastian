@@ -55,7 +55,7 @@ language or specialty fallback. Rehearse the actual deployed paths before record
 
 Sources: [judge scenarios](../../README.md#judge-quickstart--submission-draft),
 [API contract](../../contracts/interfaces/openapi.json),
-[frontend integration](https://github.com/sebastian-gm/bank-agent-lab/pull/17).
+[frontend integration](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/pull/17).
 Access and deployment tasks belong in the [checklist](checklist.md).
 
 </details>

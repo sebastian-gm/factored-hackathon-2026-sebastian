@@ -3,7 +3,7 @@
 **Preparation only. Do not execute activation, publication, spending or deletion
 from this document without the approvals below.** Today no apply, secret creation,
 model call, visibility change, email or teardown was performed. This is a private
-operator document; exclude it from the public snapshot. Commands run inside this
+operator document; current-tree scrub must remove private deployment details before publication. Commands run inside this
 repository, with Git always `git -C`, only `origin`, and Azure explicitly
 **Seb Azure Sandbox**. Never change the CLI default or use `slpnova-azure-main`.
 
@@ -20,7 +20,7 @@ through **October 16 inclusive**. Proposed closure: **October 17, 00:00 COT =
 | A — warm | **Required:** date/window, both apps min=1, exact plan and monthly estimate; separately approve an estimate above $40 |
 | B — judge | **Required:** public web HTTPS, separate account/four reviewed sources, secret creation/rotation, two secret-scoped role assignments, global $3/UTC-day model exposure and external access check |
 | C — final release | **Standing OK already granted:** CI-green main image-tag updates and approved smoke binding within the $12 cumulative ceiling. Record the final picker/redesign SHA; no repeat permission needed within that scope. Additional spend/resource/access changes require a new OK |
-| D — public repo | **Required:** exact sanitized snapshot SHA, audited refs/assets/logs and `sebastian-gm/factored-hackathon-2026-sebastian` only. The sandbox stays PRIVATE |
+| D — public repo | **Required:** exact original-repo release SHA, full-history/PR/Actions audit and `sebastian-gm/factored-hackathon-2026-sebastian` only. It stays private until this gate |
 | E — send | Sebastian approves the completed email, attachments/links and private credential delivery; the operator does not send on a draft's authority |
 | F — retirement | **Required:** exact closure time, scale-down versus irreversible deletion, backup retention/destination and any extra availability/model allowance |
 
@@ -69,7 +69,7 @@ assert current_ip==v['owner_ipv4'], 'Public IPv4 changed: stop for firewall/conn
 assert not v.get('enable_judge_access') and not v.get('enable_submission_warm')
 assert v.get('min_replicas',0)==0
 runs=json.loads(subprocess.check_output(['gh','api',
-    'repos/sebastian-gm/bank-agent-lab/actions/runs?head_sha='+os.environ['RB_SHA']+'&per_page=50']))['workflow_runs']
+    'repos/sebastian-gm/factored-hackathon-2026-sebastian/actions/runs?head_sha='+os.environ['RB_SHA']+'&per_page=50']))['workflow_runs']
 assert all(any(r['name']==n and r['conclusion']=='success' for r in runs) for n in ['ci','safety'])
 private_write(ROOT/'artifacts/submission-day/prior.json',json.dumps({
     'image_tag':v['image_tag'],'llm_budget_run_id':v.get('llm_budget_run_id',''),
@@ -288,7 +288,7 @@ PY
 After the owner-only access run succeeds, record the release from actual receipts:
 
 ```bash
-gh workflow run azure-access.yml --repo sebastian-gm/bank-agent-lab --ref main
+gh workflow run azure-access.yml --repo sebastian-gm/factored-hackathon-2026-sebastian --ref main
 gh run list --limit 10 --json databaseId,name,headSha,status,conclusion
 # Wait for this exact access run to complete successfully before the recorder.
 .venv/bin/python -m scripts.release_smoke_budget release --sha "$RB_SHA"
@@ -333,7 +333,7 @@ assert extra>=0 and total<=12
 maximum=Decimal(str(budget['conservative_maximum_cumulative_usd']))+extra
 assert maximum<=12
 runs=json.loads(subprocess.check_output(['gh','api',
-    'repos/sebastian-gm/bank-agent-lab/actions/runs?head_sha='+sha+'&per_page=50']))['workflow_runs']
+    'repos/sebastian-gm/factored-hackathon-2026-sebastian/actions/runs?head_sha='+sha+'&per_page=50']))['workflow_runs']
 checks={}
 for name in ['ci','safety','azure-access']:
     r=max((r for r in runs if r['name']==name and r['head_branch']=='main'),key=lambda r:r['run_number'])
@@ -620,7 +620,7 @@ urls={n:'https://'+az('containerapp','show','--resource-group',GROUP,
       '--name','ca-'+n+'-aclara-dev-eastus2')['properties']['configuration']['ingress']['fqdn'] for n in ['web','api']}
 payload={'ref':os.environ['RB_PROBE_BRANCH'],'inputs':{
     'web_url':urls['web'],'api_url':urls['api'],'owner_ipv4':read_variables()['owner_ipv4']}}
-subprocess.run(['gh','api','repos/sebastian-gm/bank-agent-lab/actions/workflows/azure-access.yml/dispatches',
+subprocess.run(['gh','api','repos/sebastian-gm/factored-hackathon-2026-sebastian/actions/workflows/azure-access.yml/dispatches',
     '--method','POST','--input','-'],input=json.dumps(payload),text=True,check=True)
 PY
 git -C "$RB_REPO" switch main
@@ -644,323 +644,62 @@ kv-aclara-dev-eastus2 --name <judge-secret> --enabled false --query attributes.e
 -o tsv` (each secret, no value output); expected false. Re-enable only by explicit OK.
 Retain counters/audit. Secrets must be enabled again before a reviewed reactivation.
 
-## 4. Refresh the PRIVATE snapshot; publish only after Gate D
+## 4. Audit the original history; publish only after Gate D
 
-Use a fresh clone **inside ignored artifacts**. Preserve the clean snapshot's
-history and fictional author/committer; never mirror private sandbox history,
-force-push or add a second remote. The snapshot's Git SHA differs from evaluated
-and deployed main; retain the full v1→v4 chronology, both v4 attempts, safety
-failures, partial judging, post-v4 repairs and **0/30** repeats.
+**Supersedes the former snapshot-export procedure (owner decision 2026-10-01).**
+The original lab has been renamed to `factored-hackathon-2026-sebastian`, retaining
+PRs, commits, releases and CI history. The old snapshot is privately archived as
+`factored-hackathon-2026-sebastian-snapshot-archive`; never delete or refresh it.
+Sebastian accepts historical email/hostname disclosure. No history rewrite or
+second remote is permitted. Current-tree scrub, full-history gitleaks,
+PR/comment and Actions-log/artifact audit, password rotation and reproduction
+must finish per [public audit](public-release-audit.md) before Gate D.
 
 ```bash
-export RB_EXPORT="$RB_OUT/submission-snapshot"
-test ! -e "$RB_EXPORT"
+export RB_SUBMISSION=sebastian-gm/factored-hackathon-2026-sebastian
 test "$(gh api "repos/$RB_SUBMISSION" --jq .private)" = true
-git -C "$RB_REPO" clone "git@github.com:$RB_SUBMISSION.git" "$RB_EXPORT"
-chmod 700 "$RB_EXPORT"
-git -C "$RB_EXPORT" config user.name 'Submission Snapshot'
-git -C "$RB_EXPORT" config user.email snapshot@example.invalid
-git -C "$RB_EXPORT" config core.hooksPath /dev/null
-gh api "repos/$RB_SUBMISSION/actions/permissions" --jq .enabled
+test "$RB_SHA" = "$(gh api "repos/$RB_SUBMISSION/commits/main" --jq .sha)"
+git -C "$RB_REPO" status --porcelain
+gitleaks git "$RB_REPO" --log-opts='--all' --redact --report-format json --report-path "$RB_OUT/full-history-secrets.json"
 ```
 
-Expected PRIVATE, Actions **false**, complete clean history (not a shallow clone).
-Use the checked export procedure in
-[snapshot preparation](private-snapshot-preparation.md#2026-10-01--post-v4-final-refresh).
-The current local `artifacts/post-v4/refresh_snapshot.py` is historical: its old
-date/deployed-claim and missing-validator/export-skip corrections must be reviewed
-before use. **Do not blindly run that helper on final main.** Exact export boundary:
+Expected: private, exact released main SHA, clean worktree, gitleaks exits 0.
+This scan does not audit PR bodies or Actions logs; require their fresh evidence
+in the public audit too. Run the README-only clean-clone reproduction with mock
+fixtures, no organizer rows or provider keys, recording commands, time and skips.
 
-1. Enumerate `git -C "$RB_REPO" ls-tree -r --name-only "$RB_SHA"` without opening
-   withheld rows. Exclude `evals/suites/test/`, `test-v3/`, `test-v4/`, all suite
-   authoring tools except generic `validate_release.py`, this private runbook,
-   ignored artifacts/lake/raw data, .env, bindings/sheets/provider traces and
-   tfvars/backend/state/plan files. `git archive` **only that explicit allowed list**.
-2. Scrub content emails (keep explicitly fictional ones), private-repo links,
-   URL literals containing operational locations, Azure hostnames and workstation
-   paths. Keep genuine public documentation/source links. Parameterize deployment
-   endpoints; no signed/query-token URL. Keep each product/prompt/config file byte-
-   identical to approved main or stop for a source portability fix and a new release.
-3. Retain the reviewed five exact `.gitleaks.toml` exceptions and export-only
-   missing-seen-v3 test skips. Preserve the generic validator. Review every new
-   change; no broad test/data exclusions or skipping new failures. Update portable
-   `snapshot-provenance.md` with actual source/deployment/SHA/digests, exclusions
-   and limits. Do not copy any private evaluation artifacts for reproduction.
-
-The following export command implements that boundary. It reads only the allowed
-tree, fails if a scrub would change product behavior, retains the existing exact
-allowlist and adds only the five previously disclosed export skips. Future source
-changes can make its explicit portability replacements fail: stop and review,
-rather than silently widening the export. It is syntax-checked here; **the final
-picker/redesign export and its clean clone have not yet been run**.
-
-```bash
-.venv/bin/python - <<'PY'
-import io,json,os,re,subprocess,tarfile,tomllib
-from collections import Counter
-from datetime import UTC,datetime
-from pathlib import Path
-from scripts.azure_dev import ROOT,private_write
-sha=os.environ['RB_SHA']; dest=Path(os.environ['RB_EXPORT']); out=Path(os.environ['RB_OUT'])
-def git(repo,*args):
-    return subprocess.check_output(['git','-C',str(repo),*args])
-assert dest.resolve().is_relative_to((ROOT/'artifacts').resolve())
-assert git(ROOT,'rev-parse','HEAD').decode().strip()==sha
-assert git(ROOT,'rev-parse','origin/main').decode().strip()==sha
-assert not git(ROOT,'status','--porcelain') and not git(dest,'status','--porcelain')
-assert json.loads(subprocess.check_output(['gh','api','repos/'+os.environ['RB_SUBMISSION']]))['private']
-release=json.loads((out/'jev-release.json').read_text())
-assert release['implementation_sha']==sha and all(release[k] for k in ['controls_verified','real_smoke_verified','ci_verified'])
-previous=git(dest,'rev-parse','HEAD').decode().strip()
-allowlist=(dest/'.gitleaks.toml').read_bytes(); parsed=tomllib.loads(allowlist.decode())
-assert parsed['extend']['useDefault'] and 'allowlist' not in parsed and 'allowlists' not in parsed
-assert sum(len(a['regexes']) for r in parsed['rules'] for a in r['allowlists'])==5
-source=git(ROOT,'ls-tree','-r','--name-only',sha).decode().splitlines()
-def excluded(p):
-    return (p.startswith(('evals/suites/test/','evals/suites/test-v3/','evals/suites/test-v4/',
-                         'artifacts/','lake/')) or
-            (p.startswith('evals/suites/tools/') and p!='evals/suites/tools/validate_release.py') or
-            p=='docs/submission/submission-day-runbook.md' or p=='.env' or
-            p.endswith(('.tfvars','.tfvars.json','.tfplan','.tfstate','.backend.hcl','.parquet','.duckdb')) or
-            (p.endswith('.csv') and not p.startswith('tests/fixtures/')))
-allowed=[p for p in source if not excluded(p)]
-assert 'evals/suites/tools/validate_release.py' in allowed
-for p in git(dest,'ls-files').decode().splitlines():
-    assert not Path(p).is_absolute() and '..' not in Path(p).parts
-    f=dest/p
-    if f.is_file() or f.is_symlink(): f.unlink()
-with tarfile.open(fileobj=io.BytesIO(git(ROOT,'archive',sha,'--',*allowed)),mode='r:') as archive:
-    archive.extractall(dest,filter='data')
-counts=Counter()
-patterns=[('private_links',r'\[([^\]]+)\]\(https://github\.com/sebastian-gm/bank-agent-lab(?:/[^)]+)?\)',r'\1 (private-source review)'),
-    ('private_urls',r'https://github\.com/sebastian-gm/bank-agent-lab(?:/[^\s)\]<>"\x27`]*)?','[private-source reference]'),
-    ('clone_urls',r'git@github\.com:sebastian-gm/bank-agent-lab(?:\.git)?','git@github.com:sebastian-gm/factored-hackathon-2026-sebastian.git'),
-    ('cloud_hosts',r'(?<![\w-])[\w][\w.-]*\.(?:azurecontainerapps\.io|azurecr\.io|postgres\.database\.azure\.com|vault\.azure\.net|blob\.core\.windows\.net)(?::[0-9]+)?','deployment.example.invalid'),
-    ('workstation_paths',r'(?:/home/megagdev|~/\.herdr)(?:/[^\s)\]<>"\x27`]*)?','/path/to/local-workspace')]
-email=re.compile(r'(?<![\w.-])[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}')
-def scrub_email(m):
-    domain=m.group().split('@')[-1]
-    if domain in {'example.com','example.org','example.net'} or domain.endswith(('.invalid','.test')): return m.group()
-    counts['contacts']+=1; return 'contact@example.invalid'
-for p in allowed:
-    f=dest/p
-    if f.is_symlink():
-        assert f.resolve().is_relative_to(dest.resolve()); continue
-    original=f.read_bytes(); assert b'\x00' not in original
-    text=original.decode()
-    for name,pattern,replacement in patterns:
-        text,n=re.subn(pattern,replacement,text); counts[name]+=n
-    text=email.sub(scrub_email,text)
-    if p.startswith(('src/aclara/','prompts/','config/')): assert text.encode()==original, 'Product scrub requires source review/release'
-    f.write_text(text)
-replacements={
-    'scripts/azure_llm_smoke.py':[('WEB = "https://deployment.example.invalid"','WEB = os.getenv("AZURE_WEB_URL", "https://example.invalid")')],
-    'scripts/serving_browser.py':[('url = "https://deployment.example.invalid"','url = os.getenv("AZURE_WEB_URL", "https://example.invalid")')],
-    'scripts/azure_smoke.py':[('import json\n','import json\nimport os\n'),('web = "https://deployment.example.invalid"','web = os.getenv("AZURE_WEB_URL", "https://example.invalid")')],
-    'scripts/azure_migrate_ops.py':[('import json\n','import json\nimport os\n'),('host="deployment.example.invalid",','host=os.environ["AZURE_POSTGRES_HOST"],')],
-    '.github/workflows/azure-access.yml':[('API_URL: https://deployment.example.invalid/healthz','API_URL: ${{ vars.AZURE_API_HEALTH_URL }}'),('WEB_URL: https://deployment.example.invalid/','WEB_URL: ${{ vars.AZURE_WEB_URL }}')],
-}
-for p,pairs in replacements.items():
-    f=dest/p; text=f.read_text()
-    for before,after in pairs:
-        assert text.count(before)==1, 'Review changed deployment-script portability interface'
-        text=text.replace(before,after)
-    f.write_text(text)
-f=dest/'scripts/azure_dev.py'
-text,n=re.subn(r'([\x22\x27])deployment\.example\.invalid\1','os.environ["AZURE_POSTGRES_HOST"]',f.read_text())
-assert n>=1; f.write_text(text)
-(dest/'.gitleaks.toml').write_bytes(allowlist)
-skips={
-    'tests/test_dev_prompt_study.py':['test_inventory_covers_all_five_sets_without_any_held_out_access',
-        'test_approved_paired_sample_is_frozen_balanced_and_covers_round_two_families',
-        'test_comparison_refuses_changed_inventory_before_any_provider_call'],
-    'tests/test_dev_model_compare.py':['test_opening_annotations_are_independent_and_do_not_use_final_corrected_amount',
-        'test_resume_never_repeats_completed_or_interrupted_conversations']}
-for p,names in skips.items():
-    f=dest/p; text=f.read_text(); assert 'import pytest' in text
-    for name in names:
-        needle='def '+name+'('; assert text.count(needle)==1
-        decorator='@pytest.mark.skipif(not (Path(__file__).resolve().parents[1] / "evals/suites/test-v3").is_dir(), reason="Private seen-v3 development input withheld from submission snapshot")\n'
-        text=text.replace(needle,decorator+needle)
-    f.write_text(text)
-product=[p for p in allowed if p.startswith(('src/aclara/','prompts/','config/'))]
-assert all((dest/p).read_bytes()==git(ROOT,'show',sha+':'+p) for p in product)
-assert not any((dest/'evals/suites'/p).exists() for p in ['test','test-v3','test-v4'])
-assert {p.name for p in (dest/'evals/suites/tools').iterdir() if p.is_file()}=={'validate_release.py'}
-# Use the full historical chronology from the existing clean snapshot, not private artifacts.
-provenance=git(dest,'show',previous+':docs/submission/snapshot-provenance.md').decode()
-header='# Final submission refresh\n\nPrepared '+datetime.now(UTC).isoformat()+'; source/deployed main **'+sha+'**.\n'
-header+='Previous clean snapshot **'+previous+'**; product files byte-identical: '+str(len(product))+'.\n'
-header+='Image digests: '+json.dumps({k:v['digest'] for k,v in release['application_images'].items()})+'.\n'
-header+='Picker/redesign and post-v4 repairs are NOT reflected in official v4 scores. Official v4 remains unchanged; flips are 0/30.\n'
-header+='Private operator runbook, frozen rows/selections/authoring tools and local private inputs are withheld. Generic validator remains.\n'
-header+='Five exact scan exceptions and five conditional export-only missing-seen-v3 test skips are retained. No new score or full-data reproduction is claimed.\n'
-header+='Visibility PRIVATE and Actions OFF until explicit publication approval. Historical sections below describe earlier snapshots only.\n\n'
-(dest/'docs/submission/snapshot-provenance.md').write_text(header+provenance)
-f=dest/'README.md'; f.write_text(f.read_text().replace('# Aclara\n','# Aclara\n\nSee [snapshot source mapping and exclusions](docs/submission/snapshot-provenance.md).\n',1))
-receipt={'source_sha':sha,'previous_snapshot_sha':previous,'allowed_files':len(allowed),
-    'excluded_files':len(source)-len(allowed),'identical_product_files':len(product),
-    'scrub_counts':dict(counts),'export_only_test_skips':5,'scan_exception_values':5}
-private_write(out/'export-preparation.json',json.dumps(receipt,indent=2)+'\n')
-print(json.dumps(receipt))
-PY
-```
-
-Expected all assertions pass, current main/deployed SHA and actual product-file
-count recorded, excluded suites/tools absent and no product/prompt/config diff.
-This command does not commit, push or publish. It is destructive **only to the
-fresh disposable snapshot clone's tracked tree**; on failure discard that clone
-and diagnose the allowed source/scripts, never relax the exclusions. Historical
-clean-clone success is not the final snapshot's proof.
-
-After export, execute these exact gates (reports/logs remain private):
-
-```bash
-export RB_GITLEAKS="$RB_REPO/artifacts/tools/gitleaks-8.30.1/gitleaks"
-test "$(sha256sum "$RB_GITLEAKS" | cut -d ' ' -f 1)" = 88f91962aa2f93ac6ab281d553b9e125f5197bbbce38f9f2437f7299c32e5509
-touch "$RB_OUT/empty.ignore"
-"$RB_GITLEAKS" dir "$RB_EXPORT" --config "$RB_EXPORT/.gitleaks.toml" --gitleaks-ignore-path "$RB_OUT/empty.ignore" --ignore-gitleaks-allow --redact=100 --max-decode-depth 5 --max-archive-depth 3 --report-format json --report-path "$RB_OUT/gitleaks-tree.json"
-git -C "$RB_EXPORT" add --all
-GIT_AUTHOR_NAME='Submission Snapshot' GIT_AUTHOR_EMAIL=snapshot@example.invalid GIT_COMMITTER_NAME='Submission Snapshot' GIT_COMMITTER_EMAIL=snapshot@example.invalid git -C "$RB_EXPORT" commit -m 'chore(submission): refresh sanitized final release snapshot'
-"$RB_GITLEAKS" git "$RB_EXPORT" --config "$RB_EXPORT/.gitleaks.toml" --gitleaks-ignore-path "$RB_OUT/empty.ignore" --ignore-gitleaks-allow --redact=100 --max-decode-depth 5 --max-archive-depth 3 --log-opts='--all --full-history --root --diff-merges=first-parent' --report-format json --report-path "$RB_OUT/gitleaks-history.json"
-git -C "$RB_EXPORT" push origin main
-export RB_SNAPSHOT_SHA="$(git -C "$RB_EXPORT" rev-parse HEAD)"
-test "$RB_SNAPSHOT_SHA" = "$(gh api "repos/$RB_SUBMISSION/commits/main" --jq .sha)"
-```
-
-Expected both scanner exits **0**, zero findings, GitHub matches sanitized SHA,
-visibility still PRIVATE and Actions still OFF. Rerun scans on the exact pushed
-tree/history; run path/value negative controls for every allowlist. Inventory all
-remote refs, issues/PRs, releases, Actions logs/artifacts and attachments before
-publication; secret scanning alone does not establish absence of organizer data.
-No true finding is allowed through by adding a broad exception.
-
-Exact allowlist controls and metadata inventory (no key or row output):
-
-```bash
-.venv/bin/python - <<'PY'
-import json,os,secrets,subprocess
-from pathlib import Path
-from scripts.azure_dev import private_write
-out=Path(os.environ['RB_OUT']); export=Path(os.environ['RB_EXPORT'])
-controls=out/'scan-negative-controls'; controls.mkdir(mode=0o700,exist_ok=False)
-paths=['tests/test_operational_store.py','tests/test_staff_api.py',
-       'apps/web/fixtures/live-story-evidence.json','infra/apps.tf','other.py']
-for name in paths:
-    path=controls/name; path.parent.mkdir(parents=True,exist_ok=True)
-    if name.endswith('.json'): value=json.dumps({'api_key':secrets.token_urlsafe(36)})
-    elif name.endswith('.tf'): value='password = '+json.dumps(secrets.token_urlsafe(36))+'\n'
-    elif name=='other.py': value='api_key = '+json.dumps('resolve'+'_fixture_01')+'\n'
-    else: value='api_key = '+json.dumps(secrets.token_urlsafe(36))+'\n'
-    private_write(path,value)
-report=out/'gitleaks-controls.json'
-p=subprocess.run([os.environ['RB_GITLEAKS'],'dir',str(controls),'--config',str(export/'.gitleaks.toml'),
-    '--gitleaks-ignore-path',str(out/'empty.ignore'),'--ignore-gitleaks-allow','--redact=100',
-    '--report-format','json','--report-path',str(report)],capture_output=True,text=True)
-private_write(out/'gitleaks-controls.log',p.stdout+p.stderr); report.chmod(0o600)
-found={str(Path(r['File']).relative_to(controls)) for r in json.loads(report.read_text())}
-assert p.returncode==1 and found==set(paths)
-emails=subprocess.check_output(['git','-C',str(export),'log','--all','--format=%ae%n%ce'],text=True).splitlines()
-assert set(emails)=={'snapshot@example.invalid'}
-repo=os.environ['RB_SUBMISSION']
-def api(path): return json.loads(subprocess.check_output(['gh','api','repos/'+repo+'/'+path]))
-assert api('actions/permissions')['enabled'] is False
-assert api('actions/runs?per_page=100')['total_count']==0
-for name,path in [('refs','git/matching-refs/'),('issues','issues?state=all&per_page=100'),
-                  ('releases','releases?per_page=100'),('artifacts','actions/artifacts?per_page=100')]:
-    data=api(path); private_write(out/('snapshot-'+name+'.json'),json.dumps(data)+'\n')
-    if name=='refs': assert [r['ref'] for r in data]==['refs/heads/main']
-    elif name=='artifacts': assert data['total_count']==0
-    else: assert data==[]
-print('Five credential/path controls detected; fictional history; main-only refs; no issue/release/Actions assets')
-PY
-```
-
-Expected negative-control scan exit **1 by design**, five detected files; privacy
-inventory assertions pass. A newly added ref/asset blocks publication pending
-review; do not delete it blindly. Reuse neither the negative-control directory nor
-a failed candidate as if it were a clean scan.
-
-Fresh README-only clone and reproduction, without keys/organizer data:
-
-```bash
-export RB_CLONE="$RB_OUT/clean-clone"
-git -C "$RB_REPO" clone "git@github.com:$RB_SUBMISSION.git" "$RB_CLONE"
-test "$RB_SNAPSHOT_SHA" = "$(git -C "$RB_CLONE" rev-parse HEAD)"
-cd "$RB_CLONE"
-export UV_CACHE_DIR="$PWD/artifacts/uv-cache"
-export PRE_COMMIT_HOME="$PWD/artifacts/precommit-cache"
-export npm_config_store_dir="$PWD/artifacts/pnpm-store"
-export PLAYWRIGHT_BROWSERS_PATH="$PWD/artifacts/chromium"
-# Clear inherited provider/DB/test/judge/serving configuration in this operator
-# shell; preserve the RB_* receipt variables. Never copy the owner's .env.
-for RB_CLEAR_VAR in ${!TEST_@} ${!PG@} ${!POSTGRES_@} ${!COMPOSE_@} ${!DEMO_@} ${!JUDGE_@} ${!LLM_@} ${!EVAL_@} ${!LEDGER_@} ${!OPS_@} ${!BANK_@} ${!AZURE_@} ${!OPENROUTER_@} ${!OPENAI_@} ${!ANTHROPIC_@} ${!GEMINI_@} ${!TYPESAFE_@} ${!GROQ_@} ${!FOUNDRY_@}; do
-  unset "$RB_CLEAR_VAR"
-done
-unset DATABASE_URL LOCAL_RAW_DIR LAKE_DIR
-uv sync --extra dev --extra data-ml
-pnpm --dir apps/web install --frozen-lockfile
-test ! -e .env
-cp .env.example .env
-uv run --no-sync python - <<'PY_SETUP'
-import secrets,socket
-from pathlib import Path
-from dotenv import set_key
-for port in [16571,18171,13171,3212,8212]:
-    with socket.socket() as s: s.bind(('127.0.0.1',port))
-path=Path('.env')
-values={'COMPOSE_PROJECT_NAME':'aclara-fixture-'+secrets.token_hex(3),
-    'POSTGRES_HOST_PORT':'16571','API_HOST_PORT':'18171','WEB_HOST_PORT':'13171',
-    'POSTGRES_PASSWORD':secrets.token_urlsafe(32),'DEMO_PASSWORD':secrets.token_urlsafe(32),
-    'LEDGER_BACKEND':'fixture','DEMO_ROLE':'ops','LLM_PROVIDER':'mock',
-    'LLM_REAL_CALLS_APPROVED':'0','LAKE_DIR':'./lake'}
-for key,value in values.items(): set_key(path,key,value)
-path.chmod(0o600)
-PY_SETUP
-export LLM_PROVIDER=mock LLM_REAL_CALLS_APPROVED=0
-make up
-uv run --no-sync python -m scripts.fixture_smoke
-make checks
-uv run --no-sync python -m evals.runner --system B1
-uv run --no-sync python -m scripts.test_postgres
-pnpm --dir apps/web typecheck
-pnpm --dir apps/web lint
-pnpm --dir apps/web build
-pnpm --dir apps/web exec playwright install chromium
-pnpm --dir apps/web test:e2e
-pnpm --dir apps/web test:e2e --live
-pnpm --dir apps/web test:e2e --staff
-make down
-cd "$RB_REPO"
-```
-
-Expected fixture smoke passed, B1 **32/32**, every required test/build/contract
-gate green; record **actual** current Python/Postgres/browser counts/skips/time.
-No-data mock reproduction is not organizer-backed score reproduction. Failures
-or undocumented prerequisites must be corrected and the exact candidate retested
-before publication. Do not claim cached-image success as a cold OS installation.
-
-**Only after explicit Gate D for the exact audited SHA:**
+**Only after Sebastian's explicit submission-day Gate D for this exact SHA:**
 
 ```bash
 gh api "repos/$RB_SUBMISSION" --method PATCH -F private=false --jq '{name:.full_name,private:.private}'
 test "$(gh api "repos/$RB_SUBMISSION" --jq .private)" = false
-test "$RB_SNAPSHOT_SHA" = "$(gh api "repos/$RB_SUBMISSION/commits/main" --jq .sha)"
-test "$(gh api repos/sebastian-gm/bank-agent-lab --jq .private)" = true
+gh api "repos/$RB_SUBMISSION/branches/main/protection" --method PUT --input .github/main-protection.json --jq '{pr:.required_pull_request_reviews,checks:.required_status_checks.contexts,force:.allow_force_pushes.enabled,delete:.allow_deletions.enabled}'
 curl -fsS -o /dev/null "https://github.com/$RB_SUBMISSION"
-gh api "repos/$RB_SUBMISSION/actions/permissions" --jq .enabled
 ```
 
-Expected public submission page accessible signed out, matching snapshot SHA,
-private sandbox unchanged, submission Actions still OFF (no approved CI change).
-Check attachments/slides/video signed out too; public code does not publish a
-password. [GitHub visibility consequences](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/managing-repository-settings/setting-repository-visibility).
+Expected: public repo accessible signed out; main protection requires PR and
+`invariants`, `postgres`, `web`, disallows force pushes/deletion, enforces admins.
+The private plan previously returned HTTP 403; apply protection immediately on
+publication. Verify README, PRs, releases and tags from a logged-out browser;
+no secrets, private credentials or bindings. Keep archived snapshot private.
 
-**Rollback D:** explicit owner incident instruction:
-`gh api "repos/$RB_SUBMISSION" --method PATCH -F private=true --jq .private`;
+Tag **v1.0.0 on the exact released SHA** only on submission day, after verification:
+
+```bash
+git -C "$RB_REPO" tag -a v1.0.0 "$RB_SHA" -m 'Aclara final submission release'
+git -C "$RB_REPO" push origin refs/tags/v1.0.0
+gh api "repos/$RB_SUBMISSION/git/ref/tags/v1.0.0" --jq .ref
+gh release create v1.0.0 --repo "$RB_SUBMISSION" --title 'Aclara v1.0.0' --notes-file "$RB_OUT/submission-release-notes.md"
+```
+
+Prepare/review factual notes first, including post-v4 changes and official v4
+limitations. If tag exists, verify its commit instead of overwriting. Expected:
+release tag resolves to the exact image tag and deployed SHA.
+
+**Rollback D:** only on explicit owner incident instruction, make repo private;
 expect true, inform Sebastian, rotate any exposed credential and remediate/audit.
-Making a repo private cannot retract clones/downloads; it is containment, not
-proof of erasure. Preserve honest result chronology when fixing export defects.
+Privacy cannot retract downloads. Never delete the archived snapshot or rewrite
+historical evidence. Publication failure stops submission until resolved.
 
 ## 5. Submission email — owner sends after Gate E
 
@@ -969,7 +708,7 @@ proof of erasure. Preserve honest result chronology when fixing export defects.
 - [ ] Subject/team: `Factored Hackathon 2026 — Sebastian — Aclara`; solo entrant
   name and approved reply contact. No fictitious teammates or second/team repo.
 - [ ] Public repo: `https://github.com/sebastian-gm/factored-hackathon-2026-sebastian`,
-  exact sanitized release SHA, reproducible fixture/mock README and exclusions.
+  exact tagged release SHA, reproducible fixture/mock README and exclusions.
 - [ ] Deployed **web** URL obtained from the verified web ingress. No internal
   API/DB/Key Vault/provider URL or token is supplied as a judge endpoint.
 - [ ] Six-slide exported deck/PDF and accessible video link, **≤3 minutes**;
@@ -1054,7 +793,7 @@ PYTHONPATH="$RB_REPO" .venv/bin/python "$RB_OUT/tf.py" inputs retire
 PYTHONPATH="$RB_REPO" .venv/bin/python "$RB_OUT/tf.py" plan retire
 RB_APPLY_APPROVED=1 PYTHONPATH="$RB_REPO" .venv/bin/python "$RB_OUT/tf.py" apply retire
 .venv/bin/python -m scripts.azure_verify
-gh workflow run azure-access.yml --repo sebastian-gm/bank-agent-lab --ref main
+gh workflow run azure-access.yml --repo sebastian-gm/factored-hackathon-2026-sebastian --ref main
 ```
 
 Expected judge RBAC grants removed, both apps min=0/max=1, web owner rule restored,
@@ -1190,7 +929,7 @@ soft-deleted/retained resources may still have costs. Confirm billing readback.
 
 Keep an ignored mode-0600 receipt per step: approval reference/date/window, source
 SHA and image digests, private plan hash/diff/apply outcome, control and network
-run IDs, budget/cost metadata, four-profile API/browser checks, sanitized snapshot
+run IDs, budget/cost metadata, four-profile API/browser checks, audited original history
 SHA/ref inventory/Gitleaks config/hash/zero findings/negative controls, clean-clone
 commands/counts/timings, send receipt and closure verification. Never attach raw
 plans, state, credentials, bindings, row traces or audit payloads publicly.

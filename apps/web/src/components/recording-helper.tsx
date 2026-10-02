@@ -3,7 +3,12 @@ import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { api } from "@/lib/client";
 import type { OpsSnapshot } from "@/lib/contracts";
-import { demoStories, storyPersona, type DemoStory } from "@/lib/demo-stories";
+import {
+  demoStories,
+  storyPersona,
+  storyProfile,
+  type DemoStory,
+} from "@/lib/demo-stories";
 import { useApp } from "./workspace";
 import { Button } from "./ui/button";
 import { LiveReset } from "./live-reset";
@@ -18,7 +23,15 @@ export function RecordingHelper({
   onLiveReset: () => Promise<void>;
 }) {
   const t = useTranslations();
-  const { config, session } = useApp();
+  const { config, session, profiles, profileFlow } = useApp();
+  const available = (story: DemoStory) =>
+    profileFlow
+      ? !!storyProfile(
+          profiles?.profiles ?? [],
+          story,
+          session?.judge_profile_id,
+        )
+      : !!storyPersona(config, story, session?.username);
   const [busy, setBusy] = useState(false),
     [error, setError] = useState(false),
     [verified, setVerified] = useState(false);
@@ -52,7 +65,7 @@ export function RecordingHelper({
     <details id="recording-helper" className="panel recording-helper">
       <summary>{t("recordingHelper")}</summary>
       <p>{t(config.fixtures ? "recordingBody" : "recordingLive")}</p>
-      {config.fixtures ? (
+      {config.fixtures && !profileFlow ? (
         <>
           <div className="recording-actions">
             {session?.role === "ops" ? (
@@ -95,17 +108,15 @@ export function RecordingHelper({
         </>
       ) : (
         <>
-          {demoStories.some(
-            (story) => !storyPersona(config, story, session?.username),
-          ) && <p className="caption">{t("recordingUnavailable")}</p>}
+          {demoStories.some((story) => !available(story)) && (
+            <p className="caption">{t("recordingUnavailable")}</p>
+          )}
           <div className="recording-actions">
             {demoStories.map((story) => (
               <Button
                 key={story.id}
                 variant="secondary"
-                disabled={
-                  busy || !storyPersona(config, story, session?.username)
-                }
+                disabled={busy || !available(story)}
                 onClick={() => void run(() => onStory(story))}
               >
                 {t(`story_${story.id}`)} ·{" "}
@@ -122,7 +133,9 @@ export function RecordingHelper({
               </Button>
             )}
           </div>
-          {session?.role === "ops" ? (
+          {profileFlow ? (
+            <p className="caption">{t("profileFresh")}</p>
+          ) : session?.role === "ops" ? (
             <LiveReset
               enabled={config.resetEnabled === true}
               onReset={async () => {

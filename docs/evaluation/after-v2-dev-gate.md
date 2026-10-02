@@ -42,8 +42,8 @@ Semantic unfamiliarity, unrelated denial, explicit purchase denial and a separat
 unfamiliarity clause also passed the review regressions.
 
 The reviewed head passed all four checks
-([Python/Postgres/web](https://github.com/sebastian-gm/bank-agent-lab/actions/runs/36364430240),
-[invariants](https://github.com/sebastian-gm/bank-agent-lab/actions/runs/36364430297)).
+([Python/Postgres/web](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/actions/runs/36364430240),
+[invariants](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/actions/runs/36364430297)).
 `git diff --exit-code c28c7479d87d922440949791bf5d6d559fbbfe22 HEAD` on the
 merged candidate verified identical trees. The squash body inherited a CI-skip
 marker from branch history, so this merge did not trigger a main push run;
@@ -87,8 +87,8 @@ lacks fluent-human review.
 
 Candidate: **`2c8679cbe9b0dd93a55fc85f0b15d17a8e662ab3`**, merged PR #51,
 including frontend #52 and the reviewed AI #49 changes. Main CI and safety passed
-at this SHA ([CI](https://github.com/sebastian-gm/bank-agent-lab/actions/runs/36360383303),
-[safety](https://github.com/sebastian-gm/bank-agent-lab/actions/runs/36360383319)).
+at this SHA ([CI](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/actions/runs/36360383303),
+[safety](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/actions/runs/36360383319)).
 
 | Real P dev group | Passed / total | ES | PT | Requirement |
 | --- | --- | --- | --- | --- |

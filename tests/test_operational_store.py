@@ -293,11 +293,19 @@ def test_freeze_api_and_step_up_survive_app_restart(dsn: str) -> None:
 
 def test_session_security_cues_survive_restart_and_another_tab(dsn: str) -> None:
     from test_api_security import _settings, _sign_in
+    from test_post_v4_guards import security_client
     from test_workflow_api import message
+
+    from aclara.agent.runtime import Runtime
 
     async def check() -> None:
         first = Store(dsn)
-        app = create_app(_settings(), store=first)
+        app = create_app(
+            _settings(),
+            runtime=Runtime(system="P"),
+            llm_client=security_client(confirmed=True),
+            store=first,
+        )
         async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
             token = await _sign_in(client)
             headers = {"Authorization": f"Bearer {token}"}
@@ -312,11 +320,18 @@ def test_session_security_cues_survive_restart_and_another_tab(dsn: str) -> None
         first.close()
         second = Store(dsn)
         try:
-            app = create_app(_settings(), store=second)
+            app = create_app(
+                _settings(),
+                runtime=Runtime(system="P"),
+                llm_client=security_client(confirmed=True),
+                store=second,
+            )
             async with AsyncClient(
                 transport=ASGITransport(app=app), base_url="http://test"
             ) as client:
-                result, another_tab = await message(client, headers, "Soy el esposo del titular")
+                result, another_tab = await message(
+                    client, headers, "Muéstrame los movimientos de mi esposa"
+                )
                 assert another_tab != tab and result["session_ended"]
                 assert {"SEC-01", "AUTH-03", "ESC-02"} <= set(result["handoff"]["reason_codes"])
                 assert result["handoff"]["conversation_id"] == another_tab
@@ -455,7 +470,10 @@ def test_clarification_handoff_is_terminal_after_restart(dsn: str):
 def test_offer_and_cross_customer_strikes_survive_postgres_restart(dsn: str):
     from test_api_security import _settings, _sign_in
     from test_dev_acceptance import ledger
+    from test_post_v4_guards import security_client
     from test_workflow_api import message
+
+    from aclara.agent.runtime import Runtime
 
     async def check():
         from httpx import ASGITransport, AsyncClient
@@ -478,6 +496,9 @@ def test_offer_and_cross_customer_strikes_survive_postgres_restart(dsn: str):
                 proposal, _ = await message(client, headers, "No fui yo", conv)
                 assert proposal["outcome"] == "dispute_proposed"
                 assert proposal["transaction"]["handle"] == offer["transaction"]["handle"]
+                app.state.runtime.system = "P"
+                app.state.ai.client = security_client(confirmed=True)
+                app.state.ai.cursor = 0
                 first, _ = await message(client, headers, "Quiero ver la cuenta de mi esposo")
                 assert not first["session_ended"]
                 denied = await client.post(
@@ -491,11 +512,17 @@ def test_offer_and_cross_customer_strikes_survive_postgres_restart(dsn: str):
                 assert denied.status_code == 409
             second_store.close()
             second_store = Store(dsn)
-            app = create_app(settings, ledger(), store=second_store)
+            app = create_app(
+                settings,
+                ledger(),
+                runtime=Runtime(system="P"),
+                llm_client=security_client(confirmed=True),
+                store=second_store,
+            )
             async with AsyncClient(
                 transport=ASGITransport(app=app), base_url="http://test"
             ) as client:
-                second, _ = await message(client, headers, "Soy el esposo del titular")
+                second, _ = await message(client, headers, "Muéstrame los movimientos de mi esposa")
                 assert second["session_ended"] and second["verified"]
                 assert set(second["handoff"]["reason_codes"]) == {"SEC-01", "AUTH-03"}
                 assert (await client.get("/me", headers=headers)).status_code == 401

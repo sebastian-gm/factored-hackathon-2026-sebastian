@@ -1,7 +1,7 @@
 # Repository working rules
 
 - Work only in this repository. Run every Git command as `git -C <repo>` with this repository path.
-- Keep the private sandbox private. Configure and push only `origin`.
+- This is the submission repository, `sebastian-gm/factored-hackathon-2026-sebastian` (formerly `bank-agent-lab`). Keep it private until Sebastian's explicit submission-day publication approval. Configure and push only `origin`.
 - Never add organizer rows, credentials, keys, passwords, connection strings, or local secrets to Git.
 - Read organizer records only from a local `LOCAL_RAW_DIR`; write generated data only under ignored `lake/` or `artifacts/`.
 - Commit aggregates, schemas, contracts, and project-generated fixtures only. Do not put row-level data in logs, docs, or CI artifacts.
@@ -11,6 +11,7 @@
 - Verify every action by reading it back before reporting success.
 - Update `docs/status/progress-log.md` each session under Completed (verified), Done but not verified, and Next / blocked.
 - Use small conventional commits on a feature branch. Do not force-push.
+- Every change goes through a small PR (aim below 800 lines). Require green remote CI before merging. Tag every Azure release with an annotated semver tag; reserve `v1.0.0` for the exact submission-day release SHA.
 - Python style: typed functions, timezone-aware datetimes, Ruff, and strict mypy on `src/aclara`.
 - Do not persist or display model thinking. Store only inputs needed for execution records and explain decisions from facts and rules.
 
