@@ -1,4 +1,19 @@
 export const es = {
+  profileTitle: "Elige un perfil",
+  profileUnavailable: "No pudimos cargar los perfiles. Inténtalo de nuevo.",
+  profileReady: "Perfil {profile} listo. Espacio nuevo.",
+  profileBody: "Una cuenta, cuatro experiencias. Puedes cambiar después.",
+  profilePT: "Hablante PT",
+  "profileDescription_mx-es": "México · consulta de cargos en español.",
+  "profileDescription_co-es": "Colombia · consulta de compras en español.",
+  "profileDescription_ar-es": "Argentina · consulta de compras en español.",
+  profileDescription_pt: "Portugués · banca LATAM.",
+  profileFresh:
+    "Cada selección abre un espacio nuevo. No conserva conversaciones ni casos anteriores.",
+  profileLoading: "Preparando un espacio nuevo…",
+  changeProfile: "Cambiar perfil",
+  profileLoginAgain:
+    "No pudimos verificar el cambio de acceso. Vuelve a iniciar sesión.",
   costByStage: "Costo conocido por etapa",
   costNotRecorded: "Costo no registrado",
   qualityNotChecked: "Sin controles registrados",
@@ -425,6 +440,21 @@ export const es = {
     "Esta vista estará disponible cuando el servicio publique su contrato de agente y operaciones. La conversación de cliente ya está conectada.",
 };
 export const pt: typeof es = {
+  profileTitle: "Escolha um perfil",
+  profileUnavailable: "Não foi possível carregar os perfis. Tente novamente.",
+  profileReady: "Perfil {profile} pronto. Espaço novo.",
+  profileBody: "Uma conta, quatro experiências. Você pode trocar depois.",
+  profilePT: "Falante PT",
+  "profileDescription_mx-es": "México · consulta de cobranças em espanhol.",
+  "profileDescription_co-es": "Colômbia · consulta de compras em espanhol.",
+  "profileDescription_ar-es": "Argentina · consulta de compras em espanhol.",
+  profileDescription_pt: "Português · banco LATAM.",
+  profileFresh:
+    "Cada seleção abre um espaço novo. Conversas e casos anteriores não são mantidos.",
+  profileLoading: "Preparando um espaço novo…",
+  changeProfile: "Trocar perfil",
+  profileLoginAgain:
+    "Não foi possível verificar a troca de acesso. Entre novamente.",
   costByStage: "Custo conhecido por etapa",
   costNotRecorded: "Custo não registrado",
   qualityNotChecked: "Sem verificações registradas",
