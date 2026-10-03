@@ -19,6 +19,7 @@ from typesafe_sdk import RetryPolicy, TypeSafeClient
 
 from aclara.agent.contracts import Intent, NluFrame
 from aclara.agent.nlg.grounding import redact_for_model, scan_dlp
+from aclara.agent.nlu.money import inspect_money
 from aclara.agent.nlu.rules import classify_nlu, normalize_text
 from aclara.agent.nlu.transaction_types import normalize_transaction_type
 from aclara.agent.nlu.word_amounts import parse_spoken_money, parse_word_amount
@@ -143,9 +144,19 @@ def parse_amount(expression: str | None, country: str | None = None) -> Decimal 
     except InvalidOperation:
         return None
     country_upper = (country or "").upper()
-    if "palo" in plain and country_upper == "CO":
+    numeric_scale = (
+        re.match(r"\s*(mil millones|millon(?:es)?|milhao|milhoes|mil)\b", plain[match.end() :])
+        if match
+        else None
+    )
+    if numeric_scale:
+        scale = numeric_scale[1]
+        value *= (
+            1_000_000_000 if scale == "mil millones" else 1_000 if scale == "mil" else 1_000_000
+        )
+    elif "palo" in plain and country_upper in {"CO", "CL"}:
         value *= 1_000_000
-    elif ("luca" in plain and country_upper == "AR") or (
+    elif ("luca" in plain and country_upper in {"AR", "CL", "CO"}) or (
         "conto" in plain and country_upper == "BR"
     ):
         value *= 1_000
@@ -400,10 +411,9 @@ def _fallback_extract(message: str, *, awaiting_recognition: bool = False) -> Ex
         elif frame.intent == Intent.OUT_OF_SCOPE and _bare_unfamiliarity(message):
             frame = frame.model_copy(update={"intent": Intent.CHARGE_INQUIRY, "confidence": 0.82})
     amount = re.search(
-        r"\b\d+(?:[.,]\d+)?\s*(?:pesos?|dolares?|reais|lucas?|palos?|contos?|varos?|pila)?",
-        normalize_text(message),
+        r"\b\d+(?:[.,]\d+)*\s*(?:pesos?|dolares?|reais|lucas?|palos?|contos?|varos?|pila)?",
+        normalize_text(redact_for_model(message)),
     )
-
     currency = re.search(
         r"\b(?:pesos?|dolares?|reais|usd|cop|ars|mxn|brl|varos?|lana)\b", normalize_text(message)
     )
@@ -481,6 +491,21 @@ def postprocess(
     awaiting_recognition: bool = False,
     message: str | None = None,
 ) -> NluResult:
+    money_needs_clarification = False
+    if message is not None:
+        raw_money = inspect_money(message)
+        money_needs_clarification = raw_money.needs_clarification
+        # Merge only unambiguous local evidence after the provider call. Reject
+        # model amount guesses when raw text contains identifiers/competing values.
+        if (
+            raw_money.expression is not None
+            and normalize_text(raw_money.expression)
+            not in normalize_text(extracted.merchant_expr or "")
+            and parse_amount(raw_money.expression, country) is not None
+        ):
+            extracted = extracted.model_copy(update={"amount_expr": raw_money.expression})
+        elif money_needs_clarification:
+            extracted = extracted.model_copy(update={"amount_expr": None})
     # Declining an offer is not a claim that the customer made the purchase.
     # Cancellation itself remains the state machine's responsibility. Preserve
     # actual recollection when the same message also declines filing.
@@ -568,6 +593,8 @@ def postprocess(
     clarification: Literal["currency", "amount", "date", "language"] | None = None
     if language in {"mixed", "other"}:
         clarification = "language"
+    elif money_needs_clarification:
+        clarification = "amount"
     elif ambiguous:
         clarification = "currency"
     elif (

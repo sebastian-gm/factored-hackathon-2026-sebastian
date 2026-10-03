@@ -25,7 +25,13 @@ export const deskSchema = handoffSchema
     claimed_by: z.string().nullable(),
     version: z.number().int().positive(),
     verified: z.literal(true),
-    scope: z.literal("current_workspace"),
+    scope: z.enum(["current_workspace", "current_realm"]),
+    request_summary: z
+      .record(
+        z.string(),
+        z.union([z.string(), z.record(z.string(), z.string())]),
+      )
+      .optional(),
     evidence: z.array(
       z.object({
         id: z.string(),
@@ -54,6 +60,15 @@ export const deskSchema = handoffSchema
       path: ["primary_reason"],
     },
   );
+export const realmInvitationSchema = z.object({
+  invitation: z.string().min(20).max(160),
+  expires_at: z.iso.datetime({ offset: true }),
+  verified: z.literal(true),
+});
+export const realmJoinSchema = z.object({
+  joined: z.literal(true),
+  verified: z.literal(true),
+});
 export const traceSchema = z.object({
   conversation_id: z.string(),
   policy_version: z.string(),

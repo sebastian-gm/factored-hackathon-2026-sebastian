@@ -20,6 +20,7 @@ import { Modal } from "./ui/dialog";
 import { TransactionCard } from "./transaction-card";
 import { FreezeCard } from "./freeze-card";
 import { ChatStages, responseStage } from "./chat-stages";
+import { JudgeTryPanel } from "./judge-try-panel";
 import { queueLabelKey, ruleLabelKey } from "@/lib/ui-copy";
 
 type Line = {
@@ -289,6 +290,16 @@ export function CustomerChat({
       : locale === "pt-BR"
         ? ["ambiguousPrompt", "fraudPrompt"]
         : ["normalPrompt", "fraudPrompt"];
+  const judgeProfile =
+    session?.judge_profiles_enabled === true && !!session.judge_profile_id;
+  const judgeDraftLocked =
+    busy || !!proposal || renew || uncertain || freezePending;
+  const whyRules =
+    why?.policy_rules ??
+    why?.proposal?.policy_rules ??
+    why?.case?.policy_rules ??
+    why?.handoff?.reason_codes ??
+    [];
   return (
     <section className="panel chat-panel" aria-labelledby="conversation-title">
       <header className="chat-header">
@@ -326,7 +337,7 @@ export function CustomerChat({
             </div>
             <h3>{t("greeting")}</h3>
             <p>{t("chatIntro")}</p>
-            {config.fixtures && (
+            {config.fixtures && !judgeProfile && (
               <div className="suggestions" aria-label={t("example")}>
                 {examples.map((key) => (
                   <button
@@ -561,6 +572,14 @@ export function CustomerChat({
           )}
         </div>
       )}
+      {judgeProfile && (
+        <JudgeTryPanel
+          disabled={judgeDraftLocked}
+          onChoose={(text) => {
+            if (!lock.current && !judgeDraftLocked) prepareQuery(text);
+          }}
+        />
+      )}
       <form className="composer" onSubmit={submit}>
         <label className="sr-only" htmlFor="message">
           {t("message")}
@@ -705,13 +724,7 @@ export function CustomerChat({
         <div className="drawer-section">
           <h3>{t("rules")}</h3>
           <div className="rule-list">
-            {(
-              why?.policy_rules ??
-              why?.proposal?.policy_rules ??
-              why?.case?.policy_rules ??
-              why?.handoff?.reason_codes ??
-              []
-            )
+            {whyRules
               .map(ruleLabelKey)
               .filter((key, index, keys) => keys.indexOf(key) === index)
               .map((rule) => (
@@ -720,6 +733,18 @@ export function CustomerChat({
                 </span>
               ))}
           </div>
+          {judgeProfile && whyRules.length > 0 && (
+            <details className="judge-rule-references">
+              <summary>{t("judgeRuleReferences")}</summary>
+              <ul>
+                {[...new Set(whyRules)].map((rule) => (
+                  <li key={rule}>
+                    <code>{rule}</code>
+                  </li>
+                ))}
+              </ul>
+            </details>
+          )}
           {!(
             why?.policy_rules?.length ||
             why?.proposal ||

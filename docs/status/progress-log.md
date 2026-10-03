@@ -5275,3 +5275,112 @@ later flag-only session for the current contract and activation dependencies.
 - Separate Gate A exact-plan/window/cost OK: $34.28–$62.93/month sharing window
   exceeds $40 at its upper bound. Judge/public activation and live realm checks
   stay behind Sebastian's submission-day Gate B decision.
+
+## 2026-10-02 COT — v0.8.1 integration security review (not released)
+
+### Completed (verified)
+
+- v0.8.0 evidence #148 merged as `369591a` after four green remote gates
+  (CI `37084616416`, safety `37084616447`). Docs-only; Azure remains at the
+  annotated v0.8.0 tag `2573e1d`.
+- Corrected staff queue #138 `aeeb452` and judge guide #147 `4b7d69b` locally
+  integrated. Catalog conflict resolved by retaining both ES/PT catalogs.
+  Lead source/security review and authored tests confirm judge OFF/rotation,
+  expiry/logout and cached-claim revocation, valid same-visit switching,
+  cross-realm/customer denial, masked packets, FORCE RLS and one-winner claims.
+  Guide buttons only draft; confirmation/OTP/readback remain separate.
+- Root-run `LLM_PROVIDER=mock LLM_REAL_CALLS_APPROVED=0 make checks`:
+  **1395 passed / 41 skipped**, B1 **32/32**, hooks/strict typing/interfaces
+  passed. `python -m scripts.test_postgres`: **101 passed** on disposable
+  Postgres. Frontend typecheck/lint/build and production browser checks:
+  **171 fixtures + 12 live mock customer + 13 staff = 196 passed**.
+- [Security review and release prerequisites](../evaluation/v0.8.1-security-review.md).
+  Folded the three completed staff/backend/guide fragments here; original notes
+  remain in Git history. No paid calls, Azure changes or official v4 changes.
+- Fresh read-only key/budget check at October 3 01:25 UTC: key **$4.9819735**,
+  account **$8.838208454**, known **$6.14674334**, retained **$7.87606184**,
+  conservative **$12.39795698**; 64 legacy unknown reservations preserved.
+  Proposed new smoke $0.10 plus OFF judging $2.30 and both prior unused
+  purses gives **$14.96326498 <= $15**. No scope or limit changed.
+
+### Done but not verified
+
+- Combined candidate is local; final remote CI, merge, additive queue migration
+  and Azure release remain pending. Judge realms stay local/CI only until Gate B.
+
+### Next / blocked
+
+- Hold #149 until AI corrects the two confirmed authored review failures:
+  unqualified grouped phone numbers escape masking/become money, and shared-unit
+  two-amount text overwrites a model-selected amount with the final value.
+  Orchestrator relayed both. Retain the exact two-decimal/ISO formatter fix.
+- Corrected monetary integration and final local/remote gates, then approved
+  release procedure. Real-smoke estimated cost/go and a fresh final-SHA budget
+  readback are prerequisites; unused capacity does not authorize calls.
+- Judge/public/warm/burst/CPU settings remain unchanged and OFF. No state
+  deletion, organizer reload, persona rebind or held-out rerun.
+
+## 2026-10-02 COT — v0.8.1 monetary security re-review
+
+### Completed (verified)
+
+- Read #149 corrected `436627d` and its four green remote gates. Zero-cost
+  authored replay confirms the earlier grouped-contact and shared-unit findings
+  are corrected, and the exact two-decimal/ISO formatter is recognized locally.
+- Further authored ES/PT replay found ordinary personal-phone wording with a
+  currency suffix, and `DNI termina por`, still sent unmasked and accepted as
+  amount evidence. Lead withheld security approval; orchestrator relayed it.
+- Customer-scoped zero-call preflight found **one unfiled eligible large-COP
+  target** for the existing CO demo persona. Saved only private operator
+  references at 0600; no row values printed, reset or persona rebind.
+- Live official East US 2 retail-price gate refreshed October 3 02:08 UTC:
+  existing min-zero deployment estimate **$34.63/month**, gate passed. Prepared
+  private release/queue-migration operators; syntax checks passed only.
+
+### Done but not verified
+
+- New owner-approved release is prepared, not deployed. Existing v0.8.0 and
+  all original receipts/counters remain untouched; no new model calls.
+- Planned smoke: COP dispute + PT ambiguity, fraud, independently authenticated
+  staff invitation/claim/revocation and browser; at most five conversation
+  attempts. Estimate **$0.02–$0.04**, owner-approved fresh **$0.10** hard purse.
+  No budget run has been created and no Azure setting/migration changed yet.
+
+### Next / blocked
+
+- AI owner will restore privacy-first digit redaction and keep raw money recovery
+  local. Identifier cues or multiple amounts leave the slot unresolved. Review
+  the new head, run final integration gates and release v0.8.1 within a fresh
+  $0.10 purse including the large-COP case. Judge activation remains OFF.
+
+## 2026-10-02 COT — v0.8.1 privacy-first integration
+
+### Completed (verified)
+
+- Re-reviewed #149 `806f4cd`: all monetary redaction exemptions removed; raw
+  amounts recovered locally after NLU. Identifier context or competing amounts
+  clears model guesses and requests clarification. Lead-run provider-payload
+  regressions passed for every reported leak, regional formats and shared units.
+- Combined #138/#147/#149 mock `make checks`: **1,608 passed / 41 skipped**,
+  B1 **32/32**, hooks, Ruff, strict mypy and interfaces passed. Disposable
+  Postgres **101 passed**; reactive B1 v2 **32/32**; live mock customer **12**
+  and staff **13** browser checks passed. Cost $0.
+- Folded the monetary lane's two fragments. Earlier exemption-based versions
+  were rejected by lead review; their regressions and history are preserved.
+
+### Done but not verified
+
+- Source #149 browser CI failed one mobile choice viewport assertion after
+  162 fixture passes. The combined frontend's remote gate is still required;
+  no failed source workflow is described as green.
+  Lead repeated the exact mobile test on the combined production build:
+  **3/3 passed**, with no code or assertion change.
+- Integration accepted locally; main merge, queue migration, new-SHA purse and
+  Azure v0.8.1 release remain pending. Existing receipts/counters unchanged.
+
+### Next / blocked
+
+- Complete combined remote CI, merge and run the approved image release and
+  bounded real smoke ($0.02–$0.04 estimated, fresh $0.10 cap, cumulative $15).
+- Judge OFF; live judge realms deferred to submission Gate B. No public,
+  scaling/CPU, organizer reload, persona rebinding or state deletion changes.

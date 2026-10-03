@@ -13,6 +13,9 @@ certification. The v0.1.0–v0.5.0 annotated tags and GitHub Releases were creat
 - Post-v4 fixes are disclosed separately and do not change official v4 scores.
 - Every change now uses a feature branch and PR; every Azure release gets a tag.
 - `v1.0.0` is reserved for the exact submission-day Azure release SHA.
+- v0.8.1 candidate: validated, realm-scoped staff queue with independently
+  verified claims; draft-only judge guide; privacy-first monetary recovery local
+  to NLU. No monetary provider-redaction exemptions. Official v4 unchanged.
 
 ## [0.8.0] — 2026-10-02 COT, concurrent chat (post-v4)
 

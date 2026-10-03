@@ -55,7 +55,7 @@ class DeskPacket(HandoffView):
     evidence: list[Evidence]
     actions: list[ActionEvidence]
     verified: bool = True
-    scope: Literal["current_workspace"] = "current_workspace"
+    scope: Literal["current_workspace", "current_realm"] = "current_workspace"
 
 
 class StaffAction(InterfaceModel):

@@ -16,7 +16,7 @@ if (
 export default defineConfig({
   testDir: "./tests",
   testMatch: staff
-    ? "**/staff.spec.ts"
+    ? ["**/staff.spec.ts", "**/staff-realm.spec.ts"]
     : live
       ? "**/live.spec.ts"
       : [
@@ -29,6 +29,7 @@ export default defineConfig({
           "**/video-readiness.spec.ts",
           "**/minimal-design.spec.ts",
           "**/judge-profiles.spec.ts",
+          "**/judge-guide.spec.ts",
           "**/admission.spec.ts",
           "**/resilience-ux.spec.ts",
         ],

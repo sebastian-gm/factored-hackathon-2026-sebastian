@@ -261,8 +261,11 @@
             "type": "string"
           },
           "scope": {
-            "const": "current_workspace",
             "default": "current_workspace",
+            "enum": [
+              "current_workspace",
+              "current_realm"
+            ],
             "title": "Scope",
             "type": "string"
           },
@@ -1608,6 +1611,47 @@
         "title": "QualityCheck",
         "type": "object"
       },
+      "RealmInvitation": {
+        "additionalProperties": false,
+        "properties": {
+          "expires_at": {
+            "format": "date-time",
+            "title": "Expires At",
+            "type": "string"
+          },
+          "invitation": {
+            "title": "Invitation",
+            "type": "string"
+          },
+          "verified": {
+            "default": true,
+            "title": "Verified",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "invitation",
+          "expires_at"
+        ],
+        "title": "RealmInvitation",
+        "type": "object"
+      },
+      "RealmJoin": {
+        "additionalProperties": false,
+        "properties": {
+          "invitation": {
+            "maxLength": 160,
+            "minLength": 20,
+            "title": "Invitation",
+            "type": "string"
+          }
+        },
+        "required": [
+          "invitation"
+        ],
+        "title": "RealmJoin",
+        "type": "object"
+      },
       "ResetConfirm": {
         "additionalProperties": false,
         "properties": {
@@ -2261,6 +2305,66 @@
           }
         },
         "summary": "Transcript Reference"
+      }
+    },
+    "/agent/handoff-realm": {
+      "post": {
+        "operationId": "join_realm_agent_handoff_realm_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RealmJoin"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "boolean"
+                  },
+                  "title": "Response Join Realm Agent Handoff Realm Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Join Realm"
       }
     },
     "/agent/handoffs": {
@@ -3420,6 +3524,52 @@
           }
         },
         "summary": "Read Dispute"
+      }
+    },
+    "/handoffs/realm-invitations": {
+      "post": {
+        "operationId": "invitation_handoffs_realm_invitations_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RealmInvitation"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Invitation"
       }
     },
     "/handoffs/{handoff_id}": {

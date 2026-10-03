@@ -30,6 +30,13 @@ _LABELLED_DOCUMENT = re.compile(
     r"([0-9][0-9.\s-]{5,16}[0-9kK])(?=\b|$)",
     re.I,
 )
+# Also mask punctuated documents after descriptive text/currency markers. This
+# only adds masking; it cannot exempt any match of the original DLP patterns.
+_MODEL_DOCUMENT = re.compile(
+    r"(\b(?:CPF|DNI|RUT|c[eé]dula)\b[^\d\n;!?]{0,60})"
+    r"([0-9][0-9.\s-]{5,16}[0-9kK])(?=\b|$)",
+    re.I,
+)
 _HANDLE = re.compile(r"\b(?:txn|card|prod|cust)_\d+\b", re.I)
 # UTF-8 decoded as Latin-1/Windows-1252, replacement characters, and a narrow
 # word-internal ASCII corruption signature. Ordinary ES/PT accents remain valid.
@@ -150,9 +157,10 @@ def scan_dlp(text: str, *, other_customer_names: tuple[str, ...] = ()) -> tuple[
 
 def redact_for_model(text: str) -> str:
     """Strip direct identifiers before any customer text or fact reaches a provider."""
-    # Preserve the label but remove dotted/dashed national identifiers, which
-    # are shorter than the phone pattern once separators split the digit runs.
+    # Currency or amount wording must never exempt a digit run. Local amount
+    # recovery happens after the provider call and cannot weaken this boundary.
     redacted = _LABELLED_DOCUMENT.sub(lambda match: match[1] + "[REDACTED]", text)
+    redacted = _MODEL_DOCUMENT.sub(lambda match: match[1] + "[REDACTED]", redacted)
     for pattern in (_EMAIL, _CARD, _PHONE, _DOCUMENT):
         redacted = pattern.sub("[REDACTED]", redacted)
     return redacted
