@@ -194,11 +194,12 @@ Azure's CAD billing alerts approximate USD 30/50 and notify rather than stop spe
 
 Sebastian approved **$15 cumulative LLM exposure including reserves** on October 2;
 see the [approval ledger](../status/model-budget-ledger.md). Read-only check at
-October 3 01:25 UTC still finds conservative exposure **$12.39795698**. The original v0.8 smoke
+The verified v0.8.1 readback on October 3 finds conservative exposure
+**$12.40571698**. The original v0.8 smoke
 purse retains **$0.088647** unused capacity; the prior v0.7 purse retains
 **$0.076661**. Propose **$2.30 lifetime** for judging (supersedes $2.40),
-reserving another **$0.10** for the proposed v0.8.1 release smoke:
-**$12.39795698 + $0.088647 + $0.076661 + $0.10 + $2.30 = $14.96326498 <= $15**.
+retaining the v0.8.1 smoke purse's **$0.092240** after its $0.00776 charge:
+**$12.40571698 + $0.088647 + $0.076661 + $0.092240 + $2.30 = $14.96326498 <= $15**.
 All failed conversation attempts and reservations are preserved. Refresh this
 arithmetic before preparation; never treat unknown reserves as available money.
 

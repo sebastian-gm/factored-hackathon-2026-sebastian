@@ -5384,3 +5384,43 @@ later flag-only session for the current contract and activation dependencies.
   bounded real smoke ($0.02–$0.04 estimated, fresh $0.10 cap, cumulative $15).
 - Judge OFF; live judge realms deferred to submission Gate B. No public,
   scaling/CPU, organizer reload, persona rebinding or state deletion changes.
+
+## 2026-10-02 COT — v0.8.1 deployed and tagged
+
+### Completed (verified)
+
+- #150 green combined remote CI merged as `3bc06d0db1c9b38233c04558f8093ce956258ab2`; #138/#147/#149 all marked
+  merged. Exact-SHA CI/safety/access: `37090431440` / `37090431291` /
+  `37091431653` success. Annotated v0.8.1 tag/private Release.
+- Image build/push and restricted two-app Terraform update; only image/release
+  metadata plus owner-approved fresh smoke binding. `scripts.azure_verify`,
+  TLS/non-owner/FORCE-RLS temporal gate and authenticated read-only BFF passed.
+- Additive queue migration/readback passed; no reset/deletion, reload or rebinding.
+- Approved real smoke: large-COP explanation→offer→denial→dispute, receipt and
+  original-confirm retry; concurrent PT ambiguity and fraud. Separate staff OTP,
+  invitation isolation, verified claim/retry and source-logout revocation passed.
+  `scripts.serving_browser --target azure`: all three surfaces passed.
+- $0.00776, 4 calls, 6 attempts; zero unknown smoke costs.
+  Key $4.9742135; cost reconciliation difference
+  $0.0. Conservative $12.40571698; maximum allocation
+  including remaining smoke caps/OFF judging $14.96326498 <= $15.
+- First staff attempt stopped on a private checker KeyError because the BFF
+  omits null optional transcript/trace fields. Owner-approved extra deterministic
+  staff attempt passed at $0; original attempts/charges retained, no paid replay.
+- [Release evidence](../evaluation/v0.8.1-release-notes.md); original v0.8 receipts,
+  counters and all legacy unknown reserves retained. Official v4 unchanged.
+
+### Done but not verified
+
+- Judge OFF: live independent-visit realm proof deferred to submission Gate B.
+  Local/CI revocation, switching and restart proofs passed.
+- Azure flagged path not exercised live: no demo persona owns a flagged charge.
+  Merged API/Postgres and deployed column/fingerprint gates passed.
+
+### Next / blocked
+
+- Main release merge hold lifted after this release report. No further paid calls
+  authorized by unused purse capacity. Refresh accounting before any new run.
+- Submission Gate A/B/C activation/publication still requires Sebastian's explicit
+  exact-plan go. OFF judging proposal $2.30 lifetime and $1/UTC-day, subject to
+  fresh key/all-scope readback; no settings activated here.
