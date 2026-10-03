@@ -1,5 +1,12 @@
 # Privacy, Fairness and Safety
 
+**What this shows:** How privacy, language differences and safety are handled.<br>
+**Result:** Code controls access and actions; Spanish and Portuguese outcomes are reported separately.<br>
+**Limits:** Small synthetic samples, no fluent-human Portuguese reviewer and pending human judge validation limit the conclusions.
+
+<details>
+<summary>Technical details and evidence</summary>
+
 **Synthetic-bank evidence does not establish population fairness or real-data
 readiness.** Code grades objective outcomes; Sonnet/Jev wording scores cannot
 establish authorization, correctness or human satisfaction.
@@ -87,3 +94,5 @@ approved channel: execution ID, version, language, redacted summary; no public
 credentials/OTPs/customer rows. Proposed response: owner triage, private evidence,
 synthetic reproduction and reviewed rollback/fix. No staffed 24/7 SLA is claimed.
 [Handoff boundary](handoff-routing.md), [release review](submission/checklist.md).
+
+</details>

@@ -110,9 +110,9 @@ clarifications to zero, while retaining all four mixed-language clarifications.
 cancellation with no write, but misses its required offer. The raw model flag
 and postprocessed flag are both true and intent is `charge_inquiry`. MATCH
 proposes the owned target at probability 0.9649. Then
-[`selection.uncertain`](../../src/aclara/agent/selection.py:25) treats charge-origin
+[`selection.uncertain`](../../src/aclara/agent/selection.py#L25) treats charge-origin
 non-recognition as transaction-selection uncertainty and clears the match in
-[`app.py`](../../src/aclara/api/app.py:1173). The authored customer's subsequent
+[`app.py`](../../src/aclara/api/app.py#L1173). The authored customer's subsequent
 clarification explicitly denies the purchase, so code proposes a dispute and
 the customer cancels, bypassing the offer. A separate zero-cost replay reproduces
 the guard returning true while NLU's unfamiliarity flag stays true.

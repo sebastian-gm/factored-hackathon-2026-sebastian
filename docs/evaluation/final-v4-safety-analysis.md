@@ -1,5 +1,12 @@
 # Final v4 safety analysis — POST-HOC, zero spend
 
+**What this shows:** Why the final evaluation recorded safety failures.<br>
+**Result:** The review separates test-setup problems from missing workflow or transfer behavior.<br>
+**Limits:** Official counts remain unchanged. This review is not a new evaluation or proof of safety.
+
+<details>
+<summary>Technical details and evidence</summary>
+
 **2026-10-01 UTC.** Owner-authorized read-only analysis after COMPLETE at
 `1ec9c2f3a2307f8a5e26fcdc8fefd36ae48a019b`. The [official results](final-v4-results.md)
 remain unchanged. No case was executed again, no paid call or rescoring was
@@ -237,3 +244,5 @@ claim would require independently specified validation and owner authorization.
   analysis are ignored under `artifacts/posthoc-v4/`; no v1 artifact was accessed.
 - Only documentation changes are proposed in this branch. Product release
   1ec9c2f and all official metrics remain unchanged; implementation awaits go.
+
+</details>
