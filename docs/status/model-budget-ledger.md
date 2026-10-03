@@ -72,6 +72,23 @@ smoke binding; no Azure setting or Postgres limit changed to record this approva
   proposal as needed without releasing unknown reserves.
 - [Release evidence](../evaluation/v0.8-release-notes.md).
 
+## Prepared v0.8.1 allocation — no new calls yet
+
+Read-only check at October 3 01:25 UTC: account remaining **$8.838208454**,
+production key remaining **$4.9819735**, known cost **$6.14674334**, retained
+exposure **$7.87606184**, conservative maximum **$12.39795698**. All 64 legacy
+unknown reservations remain intact; they are not counted as free capacity.
+
+Propose a new **$0.10** SHA-bound release purse, and reduce the OFF judging
+lifetime proposal from $2.40 to **$2.30**. Retain both older unused smoke
+capacities and all other conservative allowances:
+
+**$12.39795698 + $0.088647 + $0.076661 + $0.10 + $2.30 = $14.96326498 <= $15**.
+
+No new scope, live cap, key limit or Azure setting was changed by this readback.
+The real-smoke estimate and owner go remain prerequisites. Refresh again on
+the final candidate; the shared **$1/UTC-day** judging breaker remains OFF.
+
 ## Execution gates
 
 Refresh all-scope conservative accounting (including retained reserves and
