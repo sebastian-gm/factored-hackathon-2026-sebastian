@@ -193,7 +193,7 @@ Azure's CAD billing alerts approximate USD 30/50 and notify rather than stop spe
 ### Proposed judging model cap — OFF pending Gate B
 
 Sebastian approved **$15 cumulative LLM exposure including reserves** on October 2;
-see the [approval ledger](../status/model-budget-ledger.md). Read-only check at
+see the [approval ledger](../status/model-budget-ledger.md).
 The verified v0.8.1 readback on October 3 finds conservative exposure
 **$12.40571698**. The original v0.8 smoke
 purse retains **$0.088647** unused capacity; the prior v0.7 purse retains
