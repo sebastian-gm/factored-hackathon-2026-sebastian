@@ -5214,3 +5214,64 @@ later flag-only session for the current contract and activation dependencies.
   judge OFF for v0.8.0: local/CI realm tests now, live realm gate after submission
   Gate B approval. Scaling PR #140 remote checks/release remain in progress;
   staff-queue #138 security review follows #140 per owner.
+
+## 2026-10-02 COT — Handoff 17, v0.8.0 release complete
+
+### Completed (verified)
+
+- #140 merged on four green remote gates. #146 merged after four green gates
+  (one failed-job retry for the known mobile viewport flake, code unchanged).
+  The environment-only DSN regression failed before and passed after its
+  one-condition guard fix: disposable Postgres **87/87**. Current local
+  `LLM_PROVIDER=mock LLM_REAL_CALLS_APPROVED=0 make checks`: **1378 passed /
+  40 skipped**, B1 **32/32**, hooks/Ruff/strict mypy/interfaces passed.
+- v0.8.0 deployed, annotated tag and private Release at
+  `2573e1d8367de20574935fce8f7624eb7dae33a9`. Exact-SHA CI `37081945722`, safety
+  `37081945738`, external access `37083071336` succeeded. Images/digests/ready
+  revisions, `scripts.azure_verify`, authenticated four-persona reads, temporal
+  column/fingerprint/TLS/FORCE RLS/unscoped-zero and logout verified.
+- Approved live concurrent ES/PT smoke: first turns **5.527 / 5.572 seconds**,
+  **5.526 seconds overlap**, disjoint provider IDs and correct NLU languages.
+  ES filing/readback/original-confirmation retry, PT ambiguity and deterministic
+  fraud passed. Customer/Desk/Ops browser passed on the one approved extra
+  attempt. Fresh `artifacts/azure/jev-release.json`: all three flags true.
+- Original $0.10 purse retained across the DSN re-pin. Eight attempted
+  conversations retained: two rejected before NLU ($0), two exposing amount
+  masking ($0.003815), approved extra pair, fraud, one extra browser. Final
+  **6 model calls / $0.011353**, zero unknown smoke costs. Key remaining
+  **$4.9819735**, decrease exactly matching spend. No reset, deletion, organizer
+  reload, persona rebind, access/CPU/replica change or official v4 change.
+- All-scope known cost **$6.14674334**; actual exposure including retained
+  reservations **$7.87606184**; conservative cumulative **$12.39795698 / $15**.
+  Current/prior unused smoke capacities **$0.088647 / $0.076661** remain included.
+  Revised OFF judging proposal $2.40 lifetime + $1/UTC-day gives maximum
+  **$14.96326498**; supersedes $2.92, requires fresh Gate B approval/readback.
+- First #138 security review confirmed delegated access surviving judge OFF
+  and password/config rotation (customer401, queue200, verified claim200).
+  Withheld it from v0.8.0. Owner relayed corrected `aeeb452` plus judge guide
+  #147 `4b7d69b` for security re-review and a later v0.8.1.
+- [Release evidence, failed attempts and limits](../evaluation/v0.8-release-notes.md).
+  Owner's v0.8.0 merge hold may lift now.
+
+### Done but not verified
+
+- Judge OFF: independent two-visit/profile filing, restart and cross-visit
+  denial proved locally/CI, not live. Live realm proof is submission-day Gate B.
+- Flagged transaction not exercised live: no demo persona owns a flagged row;
+  authored API/Postgres tests and deployed readiness column are the evidence.
+- Gate A burst/warm plan is prepared, not applied; production load/RSS not proven.
+
+### Next / blocked
+
+- Confirmed **pre-existing product defect**: DLP phone/document patterns mask
+  large monetary inputs before NLU. The smoke's exact format is fixed two-decimal
+  dot plus ISO currency; authored `1000000.00 COP` reproduces masking. The failed
+  operator did not save its target, so automatic approval review rejected
+  printing an unproven current row value. AI fix is queued for v0.8.1; no product
+  change was made to finish v0.8.0.
+- Security-review #138 corrected head, critically review #147 and the amount
+  fix, then one combined remote CI and v0.8.1 release. Fresh cumulative/key and
+  smoke allocation required; no extra calls authorized by unused capacity.
+- Separate Gate A exact-plan/window/cost OK: $34.28–$62.93/month sharing window
+  exceeds $40 at its upper bound. Judge/public activation and live realm checks
+  stay behind Sebastian's submission-day Gate B decision.
