@@ -10,7 +10,7 @@ for spend and includes outstanding/unknown-cost reservations.
 | Before October 2, 2026 | Previous cumulative approval | Development, final evaluations and approved release smokes | $12.00 |
 | October 2, 2026 | Sebastian approved **+$3.00** in this session | Final release smoke and judging window | **$15.00 cumulative**, including reserves |
 
-## October 2 allocation proposal
+## Historical pre-v0.7 allocation proposal — superseded
 
 The last verified v0.6.0 conservative exposure was **$11.97937448**, comprising
 $11.87612498 in conservative allowances/accounting plus $0.10324950 otherwise
@@ -20,7 +20,7 @@ current live balance. See the executed smoke below.
 - Remaining against the new ceiling: **$3.02062552**.
 - Fresh final-release smoke: retain the existing **$0.10 lifetime** purse and
   its conversation guard. Never reset earlier smoke counters or reservations.
-- Proposed judging lifetime allowance: **at most $2.92**, reduced if the fresh
+- Historical proposed judging lifetime allowance: **at most $2.92**, reduced if the fresh
   conservative readback or provider key remaining limit requires it.
 - Proposed shared production breaker during judging: **$1 per UTC day** across
   all profiles, workers, retries and providers. This is awaiting approval and
@@ -47,6 +47,30 @@ smoke binding; no Azure setting or Postgres limit changed to record this approva
   worst allocation **$14.99937448**. Proposed global $1/UTC-day judging cap is OFF.
 - Scope/model/key breakers remain independent. New tests/follow-up use mock
   only. [Release evidence and limitations](../evaluation/v0.7-release-notes.md).
+
+
+## Executed v0.8.0 smoke and revised judging proposal
+
+- Deployed `2573e1d8367de20574935fce8f7624eb7dae33a9`; the corrected image retains the original
+  `pre-v4-release-a8d9993eecf9895a6ca220e03cdce3df4f34b593` **$0.10 lifetime** purse. Two rejected pre-NLU chats
+  cost $0; all eight conversation attempts (including the explicitly approved
+  deterministic browser retry), counters and reservations are retained.
+- **6 calls / $0.011353**, zero unknown
+  smoke costs. Production key remaining **$4.9819735**; key
+  decrease **$0.011353**, independently recorded versus the
+  durable charge. No key-limit increase or account top-up.
+- All-scope known cost **$6.14674334**; actual exposure with
+  retained reservations **$7.87606184**.
+- Conservative cumulative maximum **$12.39795698**, including unused dev/round
+  allowances and the closed-scope exposure omitted by the legacy helper.
+- Current smoke remaining **$0.088647** and prior v0.7 remaining **$0.076661**
+  stay included; unused capacity is not permission for further model calls.
+- Revised judging lifetime proposal **$2.40**, superseding $2.92:
+  **$12.39795698 + $0.088647 + $0.076661 + $2.40 = $14.96326498 <= $15**.
+  Shared **$1/UTC-day** breaker and judge activation remain OFF, pending Gate B.
+  Refresh the math before another release or activation; reduce the lifetime
+  proposal as needed without releasing unknown reserves.
+- [Release evidence](../evaluation/v0.8-release-notes.md).
 
 ## Execution gates
 
