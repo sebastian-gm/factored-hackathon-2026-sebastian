@@ -58,13 +58,13 @@
     <path d="M 51.84 340.2  L 200.805517 340.2  " style="fill: none; stroke: #dce3de; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square" />
    </g>
    <g id="text_5">
-    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="186.762857" transform="rotate(-0 51.84 186.762857)">B1</text>
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="186.762857" transform="rotate(-0 51.84 186.762857)">Rules-only baseline</text>
    </g>
    <g id="text_6">
     <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="162.369603" y="212.963862" transform="rotate(-0 162.369603 212.963862)">38/53 · 71.7%</text>
    </g>
    <g id="text_7">
-    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="277.02" transform="rotate(-0 51.84 277.02)">P · Gemini + Jev</text>
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="277.02" transform="rotate(-0 51.84 277.02)">Aclara</text>
    </g>
    <g id="text_8">
     <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="193.286975" y="303.221004" transform="rotate(-0 193.286975 303.221004)">49/53 · 92.5%</text>
@@ -111,13 +111,13 @@
     <path d="M 315.36 340.2  L 464.325517 340.2  " style="fill: none; stroke: #dce3de; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square" />
    </g>
    <g id="text_14">
-    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="315.36" y="186.762857" transform="rotate(-0 315.36 186.762857)">B1</text>
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="315.36" y="186.762857" transform="rotate(-0 315.36 186.762857)">Rules-only baseline</text>
    </g>
    <g id="text_15">
     <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="361.24419" y="212.963862" transform="rotate(-0 361.24419 212.963862)">15/53 · 28.3%</text>
    </g>
    <g id="text_16">
-    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="315.36" y="277.02" transform="rotate(-0 315.36 277.02)">P · Gemini + Jev</text>
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="315.36" y="277.02" transform="rotate(-0 315.36 277.02)">Aclara</text>
    </g>
    <g id="text_17">
     <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="330.326818" y="303.221004" transform="rotate(-0 330.326818 303.221004)">4/53 · 7.5%</text>
@@ -164,13 +164,13 @@
     <path d="M 578.88 340.2  L 727.845517 340.2  " style="fill: none; stroke: #dce3de; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square" />
    </g>
    <g id="text_23">
-    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="578.88" y="186.762857" transform="rotate(-0 578.88 186.762857)">B1</text>
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="578.88" y="186.762857" transform="rotate(-0 578.88 186.762857)">Rules-only baseline</text>
    </g>
    <g id="text_24">
     <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="617.468408" y="212.963862" transform="rotate(-0 617.468408 212.963862)">11/47 · 23.4%</text>
    </g>
    <g id="text_25">
-    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="578.88" y="277.02" transform="rotate(-0 578.88 277.02)">P · Gemini + Jev</text>
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="578.88" y="277.02" transform="rotate(-0 578.88 277.02)">Aclara</text>
    </g>
    <g id="text_26">
     <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="588.943096" y="303.221004" transform="rotate(-0 588.943096 303.221004)">2/47 · 4.3%</text>
@@ -180,16 +180,13 @@
    </g>
   </g>
   <g id="text_28">
-   <text style="font-weight: 700; font-size: 24px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="51.84" y="36.45" transform="rotate(-0 51.84 36.45)">Correct escalation reaches 49 of 53 cases</text>
+   <text style="font-weight: 700; font-size: 24px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="51.84" y="36.45" transform="rotate(-0 51.84 36.45)">Correct human transfers: 49 of 53 cases</text>
   </g>
   <g id="text_29">
-   <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="65.61" transform="rotate(-0 51.84 65.61)">Strict escalation requires the correct packet, reasons, route and readback</text>
+   <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="65.61" transform="rotate(-0 51.84 65.61)">Final evaluation (v4) · complete, correct and verified transfers</text>
   </g>
   <g id="text_30">
-   <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="442.26" transform="rotate(-0 51.84 442.26)">53 cases required a human; 47 were automation eligible. Handoff presence alone is insufficient.</text>
-  </g>
-  <g id="text_31">
-   <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="461.7" transform="rotate(-0 51.84 461.7)">Source: docs/evaluation/final-v4-results.md · official v4, first pass only</text>
+   <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="451.98" transform="rotate(-0 51.84 451.98)">53 cases required a human; 47 allowed automation. Details and limits are in the captions.</text>
   </g>
  </g>
  <defs>

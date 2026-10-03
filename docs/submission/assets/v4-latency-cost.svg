@@ -56,7 +56,7 @@
      </g>
     </g>
     <g id="text_4">
-     <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52645d" x="233.28" y="355.578437" transform="rotate(-0 233.28 355.578437)">Seconds per turn</text>
+     <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52645d" x="233.28" y="355.578437" transform="rotate(-0 233.28 355.578437)">Seconds per reply</text>
     </g>
    </g>
    <g id="matplotlib.axis_2" />
@@ -64,50 +64,47 @@
     <path d="M 51.84 330.48  L 256.279437 330.48  " style="fill: none; stroke: #dce3de; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square" />
    </g>
    <g id="text_5">
-    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="57.308755" y="161.839125" transform="rotate(-0 57.308755 161.839125)">B1 · p50 · 0.007 s</text>
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="57.308755" y="161.839515" transform="rotate(-0 57.308755 161.839515)">Rules-only baseline · p50 · 0.007 s</text>
    </g>
    <g id="text_6">
-    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="58.024293" y="212.818146" transform="rotate(-0 58.024293 212.818146)">B1 · p95 · 0.021 s</text>
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="58.024293" y="212.818536" transform="rotate(-0 58.024293 212.818536)">Rules-only baseline · p95 · 0.021 s</text>
    </g>
    <g id="text_7">
-    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="165.559437" y="263.797557" transform="rotate(-0 165.559437 263.797557)">P · Gemini + Jev · p50 · 2.125 s</text>
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="165.559437" y="263.797557" transform="rotate(-0 165.559437 263.797557)">Aclara · p50 · 2.125 s</text>
    </g>
    <g id="text_8">
-    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="249.941814" y="314.776578" transform="rotate(-0 249.941814 314.776578)">P · Gemini + Jev · p95 · 3.776 s</text>
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="249.941814" y="314.776578" transform="rotate(-0 249.941814 314.776578)">Aclara · p95 · 3.776 s</text>
    </g>
    <g id="text_9">
-    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="51.84" y="134.94" transform="rotate(-0 51.84 134.94)">Turn latency · seconds</text>
+    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="51.84" y="134.94" transform="rotate(-0 51.84 134.94)">Response time · seconds</text>
    </g>
   </g>
   <g id="text_10">
-   <text style="font-weight: 700; font-size: 24px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="51.84" y="36.45" transform="rotate(-0 51.84 36.45)">Measured latency and model cost stay visible</text>
+   <text style="font-weight: 700; font-size: 24px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="51.84" y="36.45" transform="rotate(-0 51.84 36.45)">Response times and model costs</text>
   </g>
   <g id="text_11">
-   <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="65.61" transform="rotate(-0 51.84 65.61)">Historical v4 · local serving plus remote models · includes Jev, excludes Azure browser timing</text>
+   <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="65.61" transform="rotate(-0 51.84 65.61)">Final evaluation (v4) · local server, remote models</text>
   </g>
   <g id="text_12">
-   <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="501.12" y="155.52" transform="rotate(-0 501.12 155.52)">Model cost per evaluated case</text>
+   <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="501.12" y="155.52" transform="rotate(-0 501.12 155.52)">Model cost per case</text>
   </g>
   <g id="text_13">
    <text style="font-weight: 700; font-size: 24px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #176b56" x="501.12" y="194.4" transform="rotate(-0 501.12 194.4)">$0.0023</text>
   </g>
   <g id="text_14">
-   <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="501.12" y="223.56" transform="rotate(-0 501.12 223.56)">P primary model spend allocated across 100 cases</text>
+   <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="501.12" y="223.56" transform="rotate(-0 501.12 223.56)">Aclara model spend divided by 100 cases</text>
   </g>
   <g id="text_15">
-   <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="501.12" y="272.16" transform="rotate(-0 501.12 272.16)">Allocated cost per safe resolution</text>
+   <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="501.12" y="272.16" transform="rotate(-0 501.12 272.16)">Cost per safe resolution</text>
   </g>
   <g id="text_16">
    <text style="font-weight: 700; font-size: 24px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #176b56" x="501.12" y="311.04" transform="rotate(-0 501.12 311.04)">$0.0072</text>
   </g>
   <g id="text_17">
-   <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="501.12" y="340.2" transform="rotate(-0 501.12 340.2)">P primary model spend allocated across 32 cases</text>
+   <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="501.12" y="340.2" transform="rotate(-0 501.12 340.2)">Aclara model spend divided by 32 cases</text>
   </g>
   <g id="text_18">
-   <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="442.26" transform="rotate(-0 51.84 442.26)">P primary model cost $0.229766056. Excludes repeats, judges and infrastructure; B1 model cost $0.</text>
-  </g>
-  <g id="text_19">
-   <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="461.7" transform="rotate(-0 51.84 461.7)">Source: docs/evaluation/final-v4-results.md · official v4, first pass only</text>
+   <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="451.98" transform="rotate(-0 51.84 451.98)">Model cost excludes infrastructure, repeats and judges. Rules-only baseline model cost: $0.</text>
   </g>
  </g>
  <defs>
