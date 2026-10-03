@@ -36,6 +36,7 @@ import { Button } from "./ui/button";
 import { Login } from "./login";
 import { CustomerChat } from "./customer-chat";
 import { AgentDesk } from "./agent-desk";
+import { StaffInvitation } from "./staff-realm-access";
 import { RecordingHelper } from "./recording-helper";
 import {
   storyPersona,
@@ -142,6 +143,7 @@ export default function Workspace({
       !!current,
     );
     setSession(current);
+    if (current?.role === "agent") setRevision((n) => n + 1);
     setPickerOpen(current?.profile_selection_required === true);
     pickerVisible.current = current?.profile_selection_required === true;
     setProfileBusy(false);
@@ -427,7 +429,13 @@ export default function Workspace({
           key={revision}
           ready={ready}
           failed={failed}
-          initialSurface={profileFlow ? "chat" : initialSurface}
+          initialSurface={
+            profileFlow
+              ? "chat"
+              : session?.role === "agent" && initialSurface !== "insights"
+                ? "desk"
+                : initialSurface
+          }
         />
       </Context.Provider>
     </NextIntlClientProvider>
@@ -783,7 +791,12 @@ function Shell({
               ) : !allowed ? (
                 <div className="customer-grid">
                   <section className="panel login-panel">
-                    {session ? (
+                    {!config.fixtures &&
+                    session &&
+                    workspaceSurface === "desk" &&
+                    (session.role === "customer" || profileFlow) ? (
+                      <StaffInvitation />
+                    ) : session ? (
                       <>
                         <div className="hero-icon">
                           <ShieldCheck />

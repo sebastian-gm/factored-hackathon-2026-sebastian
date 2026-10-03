@@ -82,8 +82,24 @@ export function Login({
       <div className="hero-icon">
         <LockKeyhole size={25} />
       </div>
-      <h2>{t(challenge ? "otpTitle" : "loginTitle")}</h2>
-      <p className="muted">{t(challenge ? "otpIntro" : "loginBody")}</p>
+      <h2>
+        {t(
+          challenge
+            ? "otpTitle"
+            : role === "agent"
+              ? "staffLoginTitle"
+              : "loginTitle",
+        )}
+      </h2>
+      <p className="muted">
+        {t(
+          challenge
+            ? "otpIntro"
+            : role === "agent"
+              ? "staffLoginBody"
+              : "loginBody",
+        )}
+      </p>
       <form
         ref={form}
         onSubmit={submit}

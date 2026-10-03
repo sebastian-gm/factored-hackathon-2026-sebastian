@@ -3720,3 +3720,32 @@ label {
     flex-wrap: nowrap;
   }
 }
+
+/* Invitation stays in form memory; never in history or persistent storage. */
+.staff-realm-access {
+  margin: 16px 0 24px;
+  font-size: var(--type-small);
+}
+.staff-realm-access summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+.staff-realm-access > p {
+  margin: 16px 0;
+}
+.staff-realm-form {
+  display: flex;
+  gap: 16px;
+  align-items: end;
+  flex-wrap: wrap;
+}
+.staff-realm-form label {
+  display: grid;
+  gap: 8px;
+  flex: 1;
+  min-width: 160px;
+}
+.staff-realm-form input {
+  width: 100%;
+  min-width: 0;
+}
