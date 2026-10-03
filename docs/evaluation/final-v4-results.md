@@ -1,5 +1,12 @@
 # Final v4 results — after fixes, fresh suite; COMPLETE
 
+**What this shows:** The final evaluation (v4) compares Aclara with the rules-only baseline.<br>
+**Result:** Aclara passed 88/100 cases versus 62/100; resolved safely without a human: 32/100 versus 22/100.<br>
+**Limits:** Both failed the full safety checks. Repairs measured after the final evaluation do not change these scores.
+
+<details>
+<summary>Technical details and evidence</summary>
+
 **Official v4 result, completed 2026-10-01 UTC.** Evaluated release:
 `1ec9c2f3a2307f8a5e26fcdc8fefd36ae48a019b`. Product behavior was frozen and
 deployed at `92994d933e7e4d4cddbbf988fb4cc748d3cd5db1`; subsequent suite,
@@ -294,3 +301,5 @@ separate; the contemporaneous monthly estimate was $34.63 before tax.
 - Runtime operational state was isolated in memory; local serving latency excludes
   the Azure serving hop. Durable production, browser UX, infrastructure cost and
   cold starts have separate evidence and are not proven by this evaluation.
+
+</details>

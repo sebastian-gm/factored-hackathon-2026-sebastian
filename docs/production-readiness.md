@@ -1,5 +1,12 @@
 # Production Thinking
 
+**What this shows:** What runs today and what a real banking service would still need.<br>
+**Result:** A restricted cloud demo has saved state, spending limits and verified receipts.<br>
+**Limits:** Real identity, private networking and staffed operations still need work; effort and cost estimates are assumptions.
+
+<details>
+<summary>Technical details and evidence</summary>
+
 **A restricted synthetic-bank demo runs; a production bank service does not.**
 Official [v2](evaluation/final-v2-error-analysis.md) and
 [v3](evaluation/final-v3-results.md) failed full safety gates. This summarizes
@@ -67,3 +74,5 @@ No resource, replica, CPU, public-ingress or judge-access change.
 The approved owner-IP/Azure-services firewall remains: stable app-only egress is
 not demonstrated. Its cross-subscription exposure remains a known limitation;
 VNet/private access and controlled egress belong in the private-network work above.
+
+</details>

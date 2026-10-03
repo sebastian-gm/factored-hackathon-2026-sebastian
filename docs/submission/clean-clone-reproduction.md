@@ -1,5 +1,12 @@
 # Clean-clone reproduction
 
+**What this shows:** Whether the local demo works from a fresh checkout.<br>
+**Result:** Spanish and Portuguese demos ran without organizer data or paid-model credentials.<br>
+**Limits:** Tools and images were cached; this does not verify bare-machine setup or reproduce final evaluation scores.
+
+<details>
+<summary>Technical details and evidence</summary>
+
 ## October 2 one-command mock demo
 
 A fresh authenticated clone of the private original repository at
@@ -215,3 +222,5 @@ clarifications only. The tested setup and product tree remain unchanged. Full-da
 README B, frozen-suite reproduction, cold OS provisioning, human rating agreement
 and public/submission-day access are **not verified** here. Actions stay OFF and
 visibility PRIVATE; publication needs separate owner approval.
+
+</details>

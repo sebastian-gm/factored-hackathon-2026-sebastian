@@ -205,9 +205,7 @@ for (const pt of [false, true]) {
       await expect(countdown).toContainText("15d 0h 0m");
       await expect(page.locator(".packet-empty")).toHaveCount(3);
       await expect(page.locator(".packet-empty").nth(1)).toContainText(
-        pt
-          ? "O pacote não inclui ações verificadas"
-          : "El paquete no incluye acciones verificadas",
+        pt ? "Sem ações verificadas" : "Sin acciones verificadas",
       );
       await expect(page.locator(".timeline-check")).toHaveCount(0);
       await expect(page.locator(".packet-risks p")).toHaveText(
@@ -293,13 +291,13 @@ for (const pt of [false, true]) {
       );
       await expect(cost).toContainText(
         pt
-          ? "Este registro não mede um custo de modelo"
-          : "Esta traza no mide un costo de modelo",
+          ? "Esta conversa não mede o custo do modelo"
+          : "Esta conversación no mide el costo del modelo",
       );
       await expect(cost).toContainText(
         pt
-          ? "Este registro não inclui julgamentos de risco do modelo"
-          : "Esta traza no incluye juicios de riesgo del modelo",
+          ? "Não há sinais de risco do modelo registrados aqui"
+          : "No hay señales de riesgo del modelo registradas aquí",
       );
       await expect(cost).not.toContainText("USD");
       await expect(page.locator(".execution-list .badge")).toContainText(

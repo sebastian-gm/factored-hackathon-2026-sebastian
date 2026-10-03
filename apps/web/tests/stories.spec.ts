@@ -180,15 +180,16 @@ test("fraud: customer handoff, agent evidence, claim and resolve, ops trace and 
     "Derivar",
   );
   await switchRole(page, "Agent Desk", "demo.agent");
-  await expect(
-    page
-      .getByRole("region", { name: "Motivos de la derivación" })
-      .getByText("FRD-01", { exact: true }),
-  ).toBeVisible();
+  const reasons = page.getByRole("region", {
+    name: "Motivos de la derivación",
+  });
+  await expect(reasons.getByText("FRD-01", { exact: true })).toBeHidden();
+  await reasons.locator("summary").first().click();
+  await expect(reasons.getByText("FRD-01", { exact: true })).toBeVisible();
   await expect(
     page.getByRole("heading", { name: "Hechos verificados" }),
   ).toBeVisible();
-  await page.getByRole("button", { name: /Evidencia del registro/ }).click();
+  await page.getByRole("button", { name: /Ver el registro/ }).click();
   await expect(page.getByRole("dialog")).toContainText("get_transaction");
   await page.keyboard.press("Escape");
   await page
@@ -206,6 +207,11 @@ test("fraud: customer handoff, agent evidence, claim and resolve, ops trace and 
     .click();
   await expect(page.getByText("Resuelto · Verificado")).toBeVisible();
   await switchRole(page, "Operaciones", "demo.ops");
+  for (const detail of await page
+    .locator(".execution-list > li details")
+    .all()) {
+    await detail.locator(":scope > summary").click();
+  }
   await expect(
     page.getByText("HANDOFF_CREATED", { exact: false }),
   ).toBeVisible();
@@ -213,12 +219,12 @@ test("fraud: customer handoff, agent evidence, claim and resolve, ops trace and 
     page.getByText("scripted-frontend-fixture", { exact: false }),
   ).toBeVisible();
   await expect(
-    page.getByRole("img", { name: /Linaje del manifiesto/ }),
+    page.getByRole("img", { name: /Mapa de preparación/ }),
   ).toBeVisible();
   await screenshot(page, "ops-desktop");
   await audit(page);
   await page
-    .getByRole("button", { name: "Restablecer personas demo", exact: true })
+    .getByRole("button", { name: "Restablecer demo", exact: true })
     .click();
   await page
     .getByRole("dialog")
@@ -506,11 +512,12 @@ test("recording helper resets with read-back, selects all personas and reaches t
     .getByRole("button", { name: "Abrir Agent Desk", exact: true })
     .click();
   await login(page, "demo.agent");
-  await expect(
-    page
-      .getByRole("region", { name: "Motivos de la derivación" })
-      .getByText("FRD-01", { exact: true }),
-  ).toBeVisible();
+  const reasons = page.getByRole("region", {
+    name: "Motivos de la derivación",
+  });
+  await expect(reasons.getByText("FRD-01", { exact: true })).toBeHidden();
+  await reasons.locator("summary").first().click();
+  await expect(reasons.getByText("FRD-01", { exact: true })).toBeVisible();
 });
 
 test("recording helper never opens a story when reset read-back fails", async ({
@@ -648,15 +655,22 @@ test("glass box shows call cost precision, partial totals, fallback and risk uni
     await route.fulfill({ json: data });
   });
   await switchRole(page, "Operaciones", "demo.ops");
+
   await page
     .getByRole("combobox", { name: "Tu conversación", exact: true })
     .selectOption({ index: 0 });
+  await expect(page.locator(".execution-list > li").first()).toBeVisible();
+  for (const detail of await page
+    .locator(".execution-list > li details")
+    .all()) {
+    await detail.locator(":scope > summary").click();
+  }
   const cost = page.getByLabel("Costo de esta conversación");
   await expect(cost).toContainText("0.0010032");
   await expect(cost).toContainText("3 llamadas registradas");
   await expect(cost).toContainText("1 costo desconocido");
   await expect(cost).toContainText("Subtotal conocido");
-  await expect(cost).toContainText("Ruta alternativa Grok registrada");
+  await expect(cost).toContainText("Modelo alternativo registrado");
   await expect(
     page.locator(".llm-metadata").filter({ hasText: "x-ai/grok-4.20" }),
   ).toContainText("fallback_grok_4_20");
@@ -695,6 +709,12 @@ test("glass box shows call cost precision, partial totals, fallback and risk uni
   await page
     .getByRole("combobox", { name: "Tu conversación", exact: true })
     .selectOption("degraded-authored");
+  await expect(page.locator(".execution-list > li").first()).toBeVisible();
+  for (const detail of await page
+    .locator(".execution-list > li details")
+    .all()) {
+    await detail.locator(":scope > summary").click();
+  }
   await expect(
     page.getByRole("status").filter({ hasText: "Segunda opinión degradada" }),
   ).toContainText("timeout");
