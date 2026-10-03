@@ -461,7 +461,7 @@ export function Insights({ onTry }: { onTry: () => void }) {
           ))}
         </div>
         <p className="insights-note">
-          {c.mixed}: B1 {ratio(v4.languages.Mixed.B1)} · P{" "}
+          {c.mixed}: {c.b1} {ratio(v4.languages.Mixed.B1)} · {c.p}{" "}
           {ratio(v4.languages.Mixed.P)}. {c.languageLimit} <Source id="v4" />
         </p>
         <div
@@ -499,7 +499,7 @@ export function Insights({ onTry }: { onTry: () => void }) {
             />
           </div>
           <Metric
-            title={`${c.flips} · v4 · P`}
+            title={`${c.flips} · v4 · ${c.p}`}
             value={ratio(v4.repeats)}
             source="v4"
             note={`${c.ci}: ${v4.repeats.ci95_percent.map((n) => number(n, n === 0 ? 0 : 2)).join("–")}%`}
@@ -516,7 +516,7 @@ export function Insights({ onTry }: { onTry: () => void }) {
         <div className="insights-results-grid">
           <div className="insights-card">
             <Metric
-              title={`${c.cost} · P · ${version}`}
+              title={`${c.cost} · ${c.p} · ${version}`}
               value={`US$ ${number(evaluation.systems.P.model_cost_per_conversation_usd, 4)}`}
               source={evaluation.source}
               note={c.costNote}
@@ -547,7 +547,7 @@ export function Insights({ onTry }: { onTry: () => void }) {
             <p className="insights-note">{c.azureLatencyNote}</p>
             <div className="insights-offline-latency">
               <Metric
-                title={`${version === "v4" ? c.localTurn : c.offlineTurn} · P · ${version}`}
+                title={`${version === "v4" ? c.localTurn : c.offlineTurn} · ${c.p} · ${version}`}
                 value={`${number(evaluation.systems.P.turn_seconds[0], version === "v4" ? 1 : 2)} ${c.seconds}`}
                 source={evaluation.source}
                 note={`${c.median} · ${c.p95}: ${number(evaluation.systems.P.turn_seconds[1], version === "v4" ? 1 : 2)} ${c.seconds}`}
@@ -641,7 +641,7 @@ export function Insights({ onTry }: { onTry: () => void }) {
 
       <section className="insights-section" aria-labelledby="insights-ml-title">
         <div className="insights-section-heading">
-          <p className="eyebrow">Charge matcher v2</p>
+          <p className="eyebrow">{c.matcherAria}</p>
           <h2 id="insights-ml-title">{c.ml}</h2>
           <p>
             {c.mlBody} <Source id="matcher" />
@@ -713,15 +713,13 @@ export function Insights({ onTry }: { onTry: () => void }) {
           <p className="insights-note">{c.matcherLimit}</p>
           <p className="insights-caution">{c.matcherTradeoff}</p>
         </div>
-        <div className="insights-tracking">
-          <div>
-            <h3>{c.tracking}</h3>
-            <p>
-              {c.trackingBody} <Source id="tracking" />
-              <Source id="matcher" />
-            </p>
-          </div>
-        </div>
+        <details className="insights-tracking">
+          <summary>{c.tracking}</summary>
+          <p>
+            {c.trackingBody} <Source id="tracking" />
+            <Source id="matcher" />
+          </p>
+        </details>
       </section>
 
       <section
@@ -729,7 +727,7 @@ export function Insights({ onTry }: { onTry: () => void }) {
         aria-labelledby="insights-pipeline-title"
       >
         <div className="insights-section-heading">
-          <p className="eyebrow">dbt · {c.pipeline}</p>
+          <p className="eyebrow">{c.pipeline}</p>
           <h2 id="insights-pipeline-title">
             {c.pipelineBody} <Source id="pipeline" />
           </h2>

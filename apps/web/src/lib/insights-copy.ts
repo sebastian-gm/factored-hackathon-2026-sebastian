@@ -6,27 +6,27 @@ export const insightsEs = {
   percentTargets: "Porcentaje de objetivos conocidos (%)",
   problemDenominators:
     "Volumen: todos los contactos. Atención: minutos totales.",
-  strict_escalation: "Derivación completa",
-  missed: "Derivaciones omitidas",
-  unnecessary: "Derivaciones innecesarias",
-  materially_incorrect: "Resultado materialmente incorrecto",
+  strict_escalation: "Transferencias completas y correctas",
+  missed: "Transferencias omitidas",
+  unnecessary: "Transferencias innecesarias",
+  materially_incorrect: "Errores importantes",
   escalationDenominators:
-    "53 casos requieren derivación; 47 permiten automatización. Resultados incorrectos: B1 ejecutó 98 casos, P 100. Las categorías se superponen.",
+    "53 casos requieren una persona; 47 permiten automatización. Errores: solo reglas ejecutó 98 casos, Aclara 100. Las categorías se superponen.",
   languageLimit:
     "Cambia la mezcla de reglas: no demuestra equidad ni calidad dialectal.",
   mixed: "Casos mixtos",
   unverified: "Resultados comunicados sin verificación",
-  localTurn: "Evaluación v4 · datos servidos localmente",
+  localTurn: "Evaluación v4 · servidor local",
   localLatencyNote:
     "Incluye proveedores remotos. No mide el navegador de Azure ni es comparable directamente con la infraestructura de v2/v3.",
   postV4:
-    "Las reparaciones posteriores no cambian estas cifras oficiales. Revisión humana y segunda revisión de PT pendientes.",
+    "Las mejoras medidas después de la evaluación final no cambian v4. Revisión humana y segunda revisión de PT pendientes.",
   v4PublishedNote:
-    "Resultados agregados publicados, con denominadores y fuente versionada. Consulta el alcance y la puerta de seguridad abajo.",
+    "Resultados publicados. Los límites de seguridad siguen vigentes.",
   hero: "Los reclamos pesan más de lo que parecen.",
   heroBody:
     "Aclara explica tus cargos, te deja elegir y lleva al equipo humano lo que requiere criterio.",
-  dataBadge: "Datos sintéticos del organizador · solo agregados",
+  dataBadge: "Banco sintético · datos resumidos",
   try: "Probar Aclara",
   explore: "Explorar la evidencia",
   source: "Fuente",
@@ -37,7 +37,7 @@ export const insightsEs = {
   complaints: "Quejas",
   fcr: "de las quejas se resuelven en el primer contacto",
   fcrNote:
-    "FCR de contactos por quejas; se promedian respuestas no nulas. No es una mejora medida de Aclara.",
+    "Promedio de respuestas disponibles. No es una mejora medida de Aclara.",
   unrecognized: "Reclamos por cargo no reconocido",
   sla: "Fuera del plazo de servicio",
   resolution: "Días hasta resolver",
@@ -46,14 +46,14 @@ export const insightsEs = {
   records: "registros",
   decide: "El modelo entiende. El código autoriza.",
   decideBody:
-    "Un cargo poco familiar recibe una explicación y una oferta de disputa. Tu respuesta decide el siguiente paso; una oferta nunca confirma una escritura.",
+    "Primero explicamos el cargo. Tú eliges si lo reconoces o quieres disputarlo; disputar requiere otra confirmación.",
   loop: "Cómo decide Aclara",
   loopAria: "Etapas del proceso de Aclara",
   steps: [
     {
       title: "Entender",
       english: "Understand",
-      body: "El modelo interpreta intención, idioma y datos recordados. El matcher ordena movimientos ya autorizados; ninguno concede acceso.",
+      body: "Entendemos tu consulta y buscamos solo entre tus movimientos.",
     },
     {
       title: "Decidir",
@@ -68,7 +68,7 @@ export const insightsEs = {
     {
       title: "Verificar",
       english: "Verify",
-      body: "El sistema consulta de nuevo el registro persistido. Solo comunica un resultado que pudo comprobar; un fallo no se presenta como éxito.",
+      body: "Consultamos de nuevo el registro. Solo mostramos un resultado que pudimos comprobar.",
     },
     {
       title: "Derivar",
@@ -78,8 +78,8 @@ export const insightsEs = {
   ],
   autonomy: "Autonomía con límites claros",
   autonomyColumns: [
-    "Por sí sola, tras autenticarte",
-    "Con tu confirmación y verificación",
+    "Tras iniciar sesión",
+    "Con confirmación y código",
     "Solo el equipo humano",
   ],
   autonomyRows: [
@@ -95,41 +95,42 @@ export const insightsEs = {
     ],
     [
       "Consultar y comprobar un caso existente",
-      "Revalidar las reglas antes de escribir",
+      "Comprobar las reglas de nuevo",
       "Revisar comisiones, transferencias, datos faltantes y límites cercanos",
     ],
   ],
   authorityNote:
-    "Ninguna ruta automática promete reembolsos. El matcher encuentra; la política decide; el registro demuestra.",
-  evidence: "v4: {pass} de {total} casos cumplen todos los requisitos.",
+    "No prometemos reembolsos. Encontrar un cargo no autoriza una disputa.",
+  evidence:
+    "Evaluación final (v4): {pass} de {total} casos cumplen todos los requisitos.",
   evidenceBody:
-    "Cada versión usa una suite diferente. Conservamos resultados y fallos; esta progresión no mide un efecto causal.",
+    "Cada versión usa casos distintos. La comparación muestra la historia, no una mejora causal.",
   abandoned: "Abandonada",
   official: "Resultado oficial",
   fresh: "Después de las correcciones",
   pending: "Pendiente",
   v1Note:
-    "Primer intento detenido y descartado. Sus resultados no se consultaron ni se reutilizan aquí.",
-  v2Note: "P no superó a B1. Mayor contención no significó mayor éxito.",
+    "Intento descartado. Sus resultados no se consultaron ni se reutilizan.",
+  v2Note:
+    "Aclara no superó a solo reglas. Menos transferencias no significó más éxito.",
   v3Note:
-    "Nueva suite independiente. Se conserva su resultado original; hoy v3 es dato de desarrollo.",
-  v4Note:
-    "La próxima suite independiente aún no tiene resultados publicados. Este espacio leerá su JSON agregado cuando esté aprobado.",
-  comparison: "Comparar sistemas en la misma suite",
-  b1: "B1 · reglas",
-  p: "P · Gemini 3 Flash",
-  pass: "Casos que pasan todos los requisitos",
-  sar: "Automatización correcta sin derivación",
-  sarShort: "Diferencia de SAR · P − B1",
+    "Casos independientes. El resultado original se conserva; hoy se usan para desarrollo.",
+  v4Note: "Los resultados se mostrarán cuando estén publicados.",
+  comparison: "Comparar en los mismos casos",
+  b1: "Solo reglas",
+  p: "Aclara",
+  pass: "Casos que cumplen todos los requisitos",
+  sar: "Resueltos de forma segura sin una persona",
+  sarShort: "Diferencia al resolver sin una persona",
   pp: "pp",
   ci: "Intervalo de confianza del 95%",
   notComparable:
-    "Compare B1 y P dentro de cada suite. v2 → v3 → v4 muestra historia, no una mejora causal: cambiaron casos, reglas e infraestructura.",
+    "Compare los sistemas dentro de cada versión. Entre v2, v3 y v4 cambian los casos, las reglas y la infraestructura.",
   safety: "Acciones no autorizadas",
   safetyLimit: "Observar cero no prueba riesgo cero. Cota superior del 95%",
   safetyGate:
-    "Ambos sistemas fallaron la puerta de seguridad. Hubo acciones no autorizadas y resultados sin verificar. Cero resultados materialmente incorrectos no significa cero riesgo.",
-  flips: "Cambios de resultado en repeticiones · P",
+    "Ambos fallaron los controles de seguridad. Hubo acciones no autorizadas y resultados sin verificar. Cero errores importantes no significa riesgo cero.",
+  flips: "Cambios de resultado al repetir",
   flipsNote:
     "Repeticiones correlacionadas; una falla estable sigue siendo una falla.",
   judging: "Evaluación entre modelos",
@@ -137,9 +138,9 @@ export const insightsEs = {
     "Revisión humana de idioma pendiente; el acuerdo entre modelos no la sustituye.",
   cost: "Costo de modelo por caso",
   turn: "Latencia por turno",
-  azureTurn: "Dentro de Azure · servidor web (BFF)",
+  azureTurn: "Servidor web en Azure",
   offlineTurn: "Evaluación desde una estación de trabajo",
-  azurePartial: "PARCIAL · muestra pequeña",
+  azurePartial: "Muestra parcial pequeña",
   conversations: "conversaciones",
   turns: "turnos",
   startupExcluded: "Inicio excluido · sin la primera conversación",
@@ -158,47 +159,45 @@ export const insightsEs = {
   retry: "Volver a consultar",
   partial: "Publicación parcial",
   complete: "Publicación completa",
-  gatePassed: "Puerta de seguridad aprobada",
-  gateFailed: "Puerta de seguridad no aprobada",
-  ml: "ML para encontrar. Reglas para proteger.",
+  gatePassed: "Controles de seguridad aprobados",
+  gateFailed: "Controles de seguridad no aprobados",
+  ml: "Encontrar el cargo correcto",
   mlBody:
-    "Charge matcher v2 usa LightGBM, calibración y una política que ofrece opciones cuando hay incertidumbre. Trabaja sobre candidatos del cliente autenticado; nunca autoriza una disputa.",
+    "Ordenamos solo tus movimientos. Si faltan datos, ofrecemos opciones; eso no autoriza una disputa.",
   train: "Consultas de entrenamiento",
   validation: "Consultas de validación",
   original: "Consultas originales",
   sparse: "Lenguaje incompleto",
-  matcherAria: "Diagnóstico del matcher",
-  diagnostic:
-    "Diagnóstico sintético reutilizado · no es una prueba ciega nueva",
-  top1: "Objetivo en primer lugar",
-  recall3: "Objetivo entre las primeras opciones",
+  matcherAria: "Prueba de búsqueda de cargos",
+  diagnostic: "Prueba sintética reutilizada · no es una evaluación nueva",
+  top1: "Cargo correcto en primer lugar",
+  recall3: "Cargo correcto entre las tres opciones",
   wrong: "Propuestas equivocadas / propuestas",
   queries: "consultas",
   targets: "con objetivo conocido",
   matcherLimit:
-    "Top-1 y recall usan solo objetivos conocidos. Las variantes imitan fechas ausentes, importes aproximados y errores de escritura; no miden la comprensión de un modelo real ni prueban seguridad en producción.",
+    "Solo cargos con objetivo conocido. Imitamos fechas ausentes, importes aproximados y errores de escritura; no medimos un modelo de lenguaje real ni seguridad en producción.",
   matcherTradeoff:
-    "Más cobertura también introduce propuestas equivocadas. Elegir un movimiento sigue siendo independiente de confirmar una acción.",
-  tracking: "Experimentos que se pueden reconstruir",
+    "Encontrar más cargos también puede dar propuestas equivocadas. Elegir uno no confirma una acción.",
+  tracking: "Cómo comprobamos la búsqueda",
   trackingBody:
     "El experimento original v1 documenta MLflow en un almacén local privado. v2 conserva parámetros, calibradores, métricas y hashes versionados; la selección usa entrenamiento y validación, sin ajustar a la prueba humana.",
-  pipeline: "Del dato al hecho verificable",
-  pipelineBody:
-    "Bronze → silver → gold en dbt: contratos explícitos, pruebas de calidad y linaje versionado antes de servir datos al agente.",
+  pipeline: "Datos comprobados antes de responder",
+  pipelineBody: "Recibimos, revisamos y preparamos los datos antes de usarlos.",
   pipelineSteps: [
-    { title: "Bronze", body: "Fuente privada y manifest de entrada" },
-    { title: "Silver", body: "Tipos, normalización y controles de calidad" },
-    { title: "Gold", body: "Proyecciones con contratos y alcance de servicio" },
+    { title: "Entrada", body: "Fuente privada y archivo de control" },
+    { title: "Revisión", body: "Tipos, normalización y controles de calidad" },
+    { title: "Datos listos", body: "Datos preparados para el servicio" },
   ],
-  lineage: "Ver el linaje dbt",
+  lineage: "Ver cómo se preparan los datos",
   lineageAlt: "Linaje dbt del manifest comprometido: fuentes, silver y gold",
-  lineageNote: "Snapshot del linaje; no es el estado en vivo del banco.",
-  sources: "Fuentes y trazabilidad",
+  lineageNote: "Mapa del proyecto, no del banco en tiempo real.",
+  sources: "Fuentes",
   sourcesBody:
-    "Cada cifra enlaza a su fuente comprometida. Las proporciones se redondean al mostrarlas; los denominadores y la precisión original se conservan en el snapshot agregado.",
-  viewSource: "Abrir archivo fuente",
-  hash: "SHA-256 del archivo",
-  sourceCommit: "Commit de la fuente",
+    "Cada cifra enlaza a su fuente. Los porcentajes mostrados están redondeados.",
+  viewSource: "Ver la fuente",
+  hash: "Huella del archivo",
+  sourceCommit: "Versión de la fuente",
 };
 
 export const insightsPt: typeof insightsEs = {
@@ -209,27 +208,27 @@ export const insightsPt: typeof insightsEs = {
   percentTargets: "Percentual de alvos conhecidos (%)",
   problemDenominators:
     "Volume: todos os contatos. Atendimento: minutos totais.",
-  strict_escalation: "Encaminhamento completo",
+  strict_escalation: "Encaminhamentos completos e corretos",
   missed: "Encaminhamentos omitidos",
   unnecessary: "Encaminhamentos desnecessários",
-  materially_incorrect: "Resultado materialmente incorreto",
+  materially_incorrect: "Erros importantes",
   escalationDenominators:
-    "53 casos exigem encaminhamento; 47 permitem automação. Resultados incorretos: B1 executou 98 casos, P 100. As categorias se sobrepõem.",
+    "53 casos exigem uma pessoa; 47 permitem automação. Erros: só regras executou 98 casos, Aclara 100. As categorias se sobrepõem.",
   languageLimit:
     "A composição das regras muda: não demonstra equidade nem qualidade de dialeto.",
   mixed: "Casos mistos",
   unverified: "Resultados comunicados sem verificação",
-  localTurn: "Avaliação v4 · dados servidos localmente",
+  localTurn: "Avaliação v4 · servidor local",
   localLatencyNote:
     "Inclui provedores remotos. Não mede o navegador do Azure nem é diretamente comparável à infraestrutura de v2/v3.",
   postV4:
-    "Correções posteriores não mudam estes números oficiais. Revisão humana e segunda revisão de PT pendentes.",
+    "Melhorias medidas após a avaliação final não mudam v4. Revisão humana e segunda revisão de PT pendentes.",
   v4PublishedNote:
-    "Resultados agregados publicados, com denominadores e fonte versionada. Consulte o escopo e a validação de segurança abaixo.",
+    "Resultados publicados. Os limites de segurança continuam válidos.",
   hero: "As reclamações pesam mais do que parecem.",
   heroBody:
     "O Aclara explica suas cobranças, deixa você escolher e leva à equipe humana o que exige análise.",
-  dataBadge: "Dados sintéticos do organizador · somente agregados",
+  dataBadge: "Banco sintético · dados resumidos",
   try: "Experimentar o Aclara",
   explore: "Explorar as evidências",
   source: "Fonte",
@@ -240,7 +239,7 @@ export const insightsPt: typeof insightsEs = {
   complaints: "Reclamações",
   fcr: "das reclamações são resolvidas no primeiro contato",
   fcrNote:
-    "FCR de contatos por reclamações; média de respostas não nulas. Não é uma melhoria medida do Aclara.",
+    "Média de respostas disponíveis. Não é uma melhoria medida do Aclara.",
   unrecognized: "Reclamações por cobrança não reconhecida",
   sla: "Fora do prazo de atendimento",
   resolution: "Dias até a resolução",
@@ -249,14 +248,14 @@ export const insightsPt: typeof insightsEs = {
   records: "registros",
   decide: "O modelo entende. O código autoriza.",
   decideBody:
-    "Uma cobrança pouco familiar recebe uma explicação e uma oferta de contestação. Sua resposta define o próximo passo; uma oferta nunca confirma uma gravação.",
+    "Primeiro explicamos a cobrança. Você escolhe se reconhece ou quer contestar; contestar exige outra confirmação.",
   loop: "Como o Aclara decide",
   loopAria: "Etapas do processo do Aclara",
   steps: [
     {
       title: "Entender",
       english: "Understand",
-      body: "O modelo interpreta intenção, idioma e dados lembrados. O matcher ordena movimentos já autorizados; nenhum deles concede acesso.",
+      body: "Entendemos sua pergunta e buscamos somente nos seus movimentos.",
     },
     {
       title: "Decidir",
@@ -271,7 +270,7 @@ export const insightsPt: typeof insightsEs = {
     {
       title: "Verificar",
       english: "Verify",
-      body: "O sistema consulta novamente o registro persistido. Só comunica um resultado que conseguiu conferir; uma falha não aparece como sucesso.",
+      body: "Consultamos novamente o registro. Só mostramos um resultado que conseguimos conferir.",
     },
     {
       title: "Encaminhar",
@@ -281,8 +280,8 @@ export const insightsPt: typeof insightsEs = {
   ],
   autonomy: "Autonomia com limites claros",
   autonomyColumns: [
-    "Por conta própria, após autenticar você",
-    "Com sua confirmação e verificação",
+    "Após entrar",
+    "Com confirmação e código",
     "Somente a equipe humana",
   ],
   autonomyRows: [
@@ -298,41 +297,42 @@ export const insightsPt: typeof insightsEs = {
     ],
     [
       "Consultar e conferir um caso existente",
-      "Revalidar as regras antes de gravar",
+      "Conferir as regras novamente",
       "Analisar tarifas, transferências, dados ausentes e limites próximos",
     ],
   ],
   authorityNote:
-    "Nenhuma rota automática promete reembolsos. O matcher encontra; a política decide; o registro comprova.",
-  evidence: "v4: {pass} de {total} casos cumprem todos os requisitos.",
+    "Não prometemos reembolsos. Encontrar uma cobrança não autoriza uma contestação.",
+  evidence:
+    "Avaliação final (v4): {pass} de {total} casos cumprem todos os requisitos.",
   evidenceBody:
-    "Cada versão usa uma suite diferente. Preservamos resultados e falhas; esta progressão não mede um efeito causal.",
+    "Cada versão usa casos diferentes. A comparação mostra a história, não uma melhoria causal.",
   abandoned: "Abandonada",
   official: "Resultado oficial",
   fresh: "Após as correções",
   pending: "Pendente",
   v1Note:
-    "Primeira tentativa interrompida e descartada. Seus resultados não foram consultados nem são reutilizados aqui.",
-  v2Note: "P não superou B1. Maior contenção não significou maior sucesso.",
+    "Tentativa descartada. Seus resultados não foram consultados nem reutilizados.",
+  v2Note:
+    "Aclara não superou só regras. Menos encaminhamentos não significou mais sucesso.",
   v3Note:
-    "Nova suite independente. Preservamos seu resultado original; hoje v3 é dado de desenvolvimento.",
-  v4Note:
-    "A próxima suite independente ainda não tem resultados publicados. Este espaço lerá seu JSON agregado quando for aprovado.",
-  comparison: "Comparar sistemas na mesma suite",
-  b1: "B1 · regras",
-  p: "P · Gemini 3 Flash",
-  pass: "Casos que passam todos os requisitos",
-  sar: "Automação correta sem encaminhamento",
-  sarShort: "Diferença de SAR · P − B1",
+    "Casos independentes. O resultado original foi preservado; hoje são usados para desenvolvimento.",
+  v4Note: "Os resultados aparecerão quando forem publicados.",
+  comparison: "Comparar nos mesmos casos",
+  b1: "Só regras",
+  p: "Aclara",
+  pass: "Casos que cumprem todos os requisitos",
+  sar: "Resolvidos com segurança sem uma pessoa",
+  sarShort: "Diferença ao resolver sem uma pessoa",
   pp: "pp",
   ci: "Intervalo de confiança de 95%",
   notComparable:
-    "Compare B1 e P dentro de cada suite. v2 → v3 → v4 mostra a história, não uma melhoria causal: mudaram casos, regras e infraestrutura.",
+    "Compare os sistemas dentro de cada versão. Entre v2, v3 e v4 mudam os casos, as regras e a infraestrutura.",
   safety: "Ações não autorizadas",
   safetyLimit: "Observar zero não prova risco zero. Limite superior de 95%",
   safetyGate:
-    "Ambos falharam na validação de segurança. Houve ações não autorizadas e resultados sem verificar. Zero resultados materialmente incorretos não significa risco zero.",
-  flips: "Mudanças de resultado nas repetições · P",
+    "Ambos falharam nos controles de segurança. Houve ações não autorizadas e resultados sem verificar. Zero erros importantes não significa risco zero.",
+  flips: "Mudanças de resultado ao repetir",
   flipsNote:
     "Repetições correlacionadas; uma falha estável continua sendo uma falha.",
   judging: "Avaliação entre modelos",
@@ -340,9 +340,9 @@ export const insightsPt: typeof insightsEs = {
     "Revisão humana do idioma pendente; concordância entre modelos não a substitui.",
   cost: "Custo de modelo por caso",
   turn: "Latência por turno",
-  azureTurn: "Dentro do Azure · servidor web (BFF)",
+  azureTurn: "Servidor web no Azure",
   offlineTurn: "Avaliação de uma estação de trabalho",
-  azurePartial: "PARCIAL · amostra pequena",
+  azurePartial: "Amostra parcial pequena",
   conversations: "conversas",
   turns: "turnos",
   startupExcluded: "Início excluído · sem a primeira conversa",
@@ -361,44 +361,46 @@ export const insightsPt: typeof insightsEs = {
   retry: "Consultar novamente",
   partial: "Publicação parcial",
   complete: "Publicação completa",
-  gatePassed: "Validação de segurança aprovada",
-  gateFailed: "Validação de segurança não aprovada",
-  ml: "ML para encontrar. Regras para proteger.",
+  gatePassed: "Controles de segurança aprovados",
+  gateFailed: "Controles de segurança não aprovados",
+  ml: "Encontrar a cobrança certa",
   mlBody:
-    "Charge matcher v2 usa LightGBM, calibração e uma política que oferece opções quando há incerteza. Trabalha sobre candidatos do cliente autenticado; nunca autoriza uma contestação.",
+    "Ordenamos somente seus movimentos. Se faltam dados, oferecemos opções; isso não autoriza uma contestação.",
   train: "Consultas de treinamento",
   validation: "Consultas de validação",
   original: "Consultas originais",
   sparse: "Linguagem incompleta",
-  matcherAria: "Diagnóstico do matcher",
-  diagnostic: "Diagnóstico sintético reutilizado · não é uma nova prova cega",
-  top1: "Alvo em primeiro lugar",
-  recall3: "Alvo entre as primeiras opções",
+  matcherAria: "Teste de busca de cobranças",
+  diagnostic: "Teste sintético reutilizado · não é uma avaliação nova",
+  top1: "Cobrança certa em primeiro lugar",
+  recall3: "Cobrança certa entre as três opções",
   wrong: "Propostas erradas / propostas",
   queries: "consultas",
   targets: "com alvo conhecido",
   matcherLimit:
-    "Top-1 e recall usam somente alvos conhecidos. As variantes imitam datas ausentes, valores aproximados e erros de escrita; não medem a compreensão de um modelo real nem comprovam segurança em produção.",
+    "Somente cobranças com alvo conhecido. Simulamos datas ausentes, valores aproximados e erros de escrita; não medimos um modelo de linguagem real nem segurança em produção.",
   matcherTradeoff:
-    "Maior cobertura também introduz propostas erradas. Escolher um movimento continua sendo independente de confirmar uma ação.",
-  tracking: "Experimentos que podem ser reconstruídos",
+    "Encontrar mais cobranças também pode dar propostas erradas. Escolher uma não confirma uma ação.",
+  tracking: "Como verificamos a busca",
   trackingBody:
     "O experimento original v1 documenta MLflow em um armazenamento local privado. v2 preserva parâmetros, calibradores, métricas e hashes versionados; a seleção usa treinamento e validação, sem ajuste à prova humana.",
-  pipeline: "Do dado ao fato verificável",
-  pipelineBody:
-    "Bronze → silver → gold em dbt: contratos explícitos, testes de qualidade e linhagem versionada antes de servir dados ao agente.",
+  pipeline: "Dados conferidos antes de responder",
+  pipelineBody: "Recebemos, revisamos e preparamos os dados antes de usá-los.",
   pipelineSteps: [
-    { title: "Bronze", body: "Fonte privada e manifest de entrada" },
-    { title: "Silver", body: "Tipos, normalização e controles de qualidade" },
-    { title: "Gold", body: "Projeções com contratos e escopo de serviço" },
+    { title: "Entrada", body: "Fonte privada e arquivo de controle" },
+    { title: "Revisão", body: "Tipos, normalização e controles de qualidade" },
+    {
+      title: "Dados prontos",
+      body: "Dados preparados para o serviço",
+    },
   ],
-  lineage: "Ver a linhagem dbt",
+  lineage: "Ver como os dados são preparados",
   lineageAlt: "Linhagem dbt do manifest versionado: fontes, silver e gold",
-  lineageNote: "Snapshot da linhagem; não é o estado do banco em tempo real.",
-  sources: "Fontes e rastreabilidade",
+  lineageNote: "Mapa do projeto, não do banco em tempo real.",
+  sources: "Fontes",
   sourcesBody:
-    "Cada valor aponta para sua fonte versionada. As proporções são arredondadas na exibição; denominadores e precisão original são preservados no snapshot agregado.",
-  viewSource: "Abrir arquivo fonte",
-  hash: "SHA-256 do arquivo",
-  sourceCommit: "Commit da fonte",
+    "Cada número leva à sua fonte. Os percentuais exibidos são arredondados.",
+  viewSource: "Ver a fonte",
+  hash: "Identificador do arquivo",
+  sourceCommit: "Versão da fonte",
 };

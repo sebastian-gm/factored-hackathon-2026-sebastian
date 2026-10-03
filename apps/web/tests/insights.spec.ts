@@ -159,8 +159,8 @@ for (const pt of [false, true])
       const latency = page.getByTestId("insights-latency");
       await expect(latency).toContainText(
         pt
-          ? "PARCIAL · amostra pequena: 5 / 10 conversas"
-          : "PARCIAL · muestra pequeña: 5 / 10 conversaciones",
+          ? "Amostra parcial pequena: 5 / 10 conversas"
+          : "Muestra parcial pequeña: 5 / 10 conversaciones",
       );
       await expect(latency).toContainText(pt ? "1,30 s" : "1.30 s");
       await expect(latency).toContainText(pt ? "8,19 s" : "8.19 s");
@@ -192,6 +192,11 @@ for (const pt of [false, true])
       const comparison = page.getByTestId("insights-comparison");
       await expect(comparison).toContainText("88 / 100");
       await expect(comparison).toContainText("62 / 100");
+      await expect(comparison).toContainText(pt ? "Só regras" : "Solo reglas");
+      await expect(comparison).toContainText("Aclara");
+      await expect(comparison).toContainText("32 / 100");
+      await expect(comparison).toContainText("22 / 100");
+      expect(await comparison.innerText()).not.toMatch(/\b(?:B1|SAR|P)\b/);
       await expect(comparison).toContainText("+10 pp");
       await expect(comparison).toContainText("+5 → +16 pp");
       await expect(page.locator(".insights-safety")).toContainText("2 / 100");
@@ -297,7 +302,7 @@ for (const pt of [false, true])
       await expect(v4).toContainText(
         pt ? "Publicação parcial" : "Publicación parcial",
       );
-      await expect(v4).toContainText(pt ? "não aprovada" : "no aprobada");
+      await expect(v4).toContainText(pt ? "não aprovados" : "no aprobados");
       await capture(page, `${name}-publication-example`);
     });
   }
