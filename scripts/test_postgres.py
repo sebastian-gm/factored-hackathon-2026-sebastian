@@ -64,6 +64,7 @@ def main() -> int:
                     "tests/test_live_rehearsal_regressions.py",
                     "tests/test_judge_profiles_postgres.py",
                     "tests/test_staff_realm_queue_postgres.py",
+                    "tests/test_staff_realm_revocation.py",
                     "--tb=short",
                 ],
                 env=environment,

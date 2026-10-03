@@ -3,16 +3,18 @@
 from __future__ import annotations
 
 import hashlib
+import re
 import secrets
-from dataclasses import asdict
+from dataclasses import asdict, replace
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from fastapi import HTTPException
-from pydantic import Field
+from pydantic import Field, TypeAdapter, ValidationError
 
 from aclara.agent.contracts import InterfaceModel
 from aclara.agent.nlg.grounding import redact_for_model
+from aclara.api.auth_models import Principal
 from aclara.api.staff_contracts import DeskPacket, StaffAction
 from aclara.handoff import queue
 from aclara.ops.store import Scope
@@ -154,6 +156,43 @@ def actor(principal: Any) -> str:
     return "agent_" + hashlib.sha256(principal.username.encode()).hexdigest()[:12]
 
 
+def source_owner(app: Any, origin: Scope, digest: str) -> Principal:
+    """Validate the live visit controller, without binding staff to a rotated child."""
+    with app.state.store.transaction(origin):
+        payload = app.state.store.get("sessions", digest)
+    if payload is None:
+        raise HTTPException(403, "Staff membership revoked")
+    try:
+        owner = TypeAdapter(Principal).validate_python(payload)
+    except ValidationError:
+        raise HTTPException(403, "Staff membership revoked") from None
+    if scope(owner) != origin or owner.expires_at <= datetime.now(UTC):
+        raise HTTPException(403, "Staff membership revoked")
+    judges = app.state.judge_sessions
+    if owner.judge_reference is not None:
+        if (
+            not app.state.settings.judge_access_enabled
+            or judges is None
+            or owner.judge_profile is not None
+            or owner.judge_reference.digest != digest
+            or re.fullmatch(r"[a-f0-9]{64}", owner.judge_active_digest) is None
+        ):
+            raise HTTPException(403, "Staff membership revoked")
+        # The stored root tracks the current child digest/revision. Reuse the
+        # same binding/configuration checks as customer authentication; never
+        # reconstruct a token or grant this root any banking authority.
+        try:
+            judges.validate(replace(owner, capability_digest=owner.judge_active_digest))
+        except HTTPException as error:
+            if error.status_code not in {401, 403}:
+                raise
+            raise HTTPException(403, "Staff membership revoked") from None
+    elif judges is not None and owner.username == judges.configuration.alias.username:
+        # A legacy alias cannot survive the transition to picker controllers.
+        raise HTTPException(403, "Staff membership revoked")
+    return owner
+
+
 def join(app: Any, principal: Any, body: RealmJoin) -> dict[str, bool]:
     if principal.role not in {"agent", "ops"} or principal.judge_reference is not None:
         raise HTTPException(403, "Separate staff sign-in required")
@@ -172,8 +211,8 @@ def join(app: Any, principal: Any, body: RealmJoin) -> dict[str, bool]:
             or grant["used_by"] not in {None, member}
         ):
             raise HTTPException(403, "Invitation unavailable")
-        owner = store.get("sessions", grant["source_digest"])
-        if owner is None or datetime.fromisoformat(owner["expires_at"]) <= datetime.now(UTC):
+        owner = source_owner(app, origin, grant["source_digest"])
+        if grant["realm"] != customer_realm(owner):
             raise HTTPException(403, "Invitation unavailable")
         grant["used_by"] = member
         app.state.idempotency[key] = grant
@@ -181,9 +220,7 @@ def join(app: Any, principal: Any, body: RealmJoin) -> dict[str, bool]:
         realm=grant["realm"],
         origin=asdict(origin),
         source_digest=grant["source_digest"],
-        expires_at=min(
-            principal.expires_at, datetime.fromisoformat(grant["owner_expires_at"])
-        ).isoformat(),
+        expires_at=min(principal.expires_at, owner.expires_at).isoformat(),
     )
     with store.transaction(scope(principal)):
         app.state.idempotency["staff-realm"] = membership
@@ -204,9 +241,8 @@ def authorized_realm(app: Any, principal: Any) -> str | None:
         or datetime.fromisoformat(member["expires_at"]) <= datetime.now(UTC)
     ):
         raise HTTPException(403, "Staff membership expired")
-    with app.state.store.transaction(Scope(**member["origin"])):
-        owner = app.state.store.get("sessions", member["source_digest"])
-    if owner is None or datetime.fromisoformat(owner["expires_at"]) <= datetime.now(UTC):
+    owner = source_owner(app, Scope(**member["origin"]), member["source_digest"])
+    if member["realm"] != customer_realm(owner):
         raise HTTPException(403, "Staff membership revoked")
     return str(member["realm"])
 

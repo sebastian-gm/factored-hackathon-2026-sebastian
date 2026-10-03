@@ -23,7 +23,13 @@ or deployment is performed by this PR.
    winner; stale versions or changed idempotency payloads return 409.
 
 Membership expires at the earlier customer/staff session expiry. Customer/root
-logout revokes it; profile switching within the same visit preserves it. A new
+logout revokes it. Each invitation redemption and delegated queue/claim request
+also validates the stored controller through the current judge-authentication
+binding/configuration checks. Judge access OFF, password/persona rotation or a
+changed dataset binding revokes delegation, including cached claim replay;
+invalid membership returns 403 rather than falling back to a workspace view.
+The controller's current child digest/revision keeps legitimate profile switching
+within the same visit valid, including after an unchanged-config restart. A new
 invitation can switch staff to another realm, replacing the previous membership.
 Invitation consumption and membership activation use separate existing session
 transactions: a crash between them is recoverable by the same staff session.
@@ -53,3 +59,8 @@ masking, other-realm/customer denial, replay, expiry and logout.
 FORCE RLS, immutable payload/realm, cross-replica claim races and audited state.
 The frontend can implement the invitation handoff and existing queue/claim API;
 do not present the invitation as a permission to access banking data.
+
+[Controller revocation regressions](../tests/test_staff_realm_revocation.py) replay
+OFF, password/config/dataset rotation, fresh/cached claims and stale invitations
+against both memory (local/unit gate) and disposable Postgres (integration gate),
+with valid restart/profile-switch controls.
