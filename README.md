@@ -1,5 +1,39 @@
 # Aclara
 
+Aclara helps customers understand unfamiliar charges, confirm an eligible dispute, or reach a human with the facts already checked. This synthetic-bank demo works in Spanish and Brazilian Portuguese.
+
+## Try it in 5 minutes
+
+Open the supplied demo link, sign in, and choose a profile. In **Prueba esto / Experimente**, pick a message, then send it yourself. [Six things to try](#judge-guide--5-minutes).
+
+For a free local demo, run `make demo`. [Setup and requirements](#local-demo).
+
+## Results
+
+**Final evaluation (v4): the same 100 cases for both systems.**
+
+| Result | Rules-only baseline | Aclara |
+|---|---:|---:|
+| Cases meeting all requirements | 62/100 | **88/100** |
+| Resolved safely without a human · all cases | 22/100 | **32/100** |
+| Resolved safely without a human · eligible cases | 22/47 | **32/47** |
+| Sent to a human when required · complete, correct transfer | 38/53 | **49/53** |
+| Model cost · per case / per safe resolution | $0 / $0 | **$0.0023 / $0.0072** |
+
+A safe resolution means an explanation or a verified case receipt, not a refund. Model cost excludes infrastructure. [Results, definitions and limits](docs/evaluation/final-v4-results.md).
+
+**Three honest limits**
+
+- Both systems failed the full safety checks; later fixes do not change v4.
+- Language evidence is mostly generated; independent human review is pending.
+- Banking and SMS verification are simulated; this is not a production bank.
+
+## Technical details ↓
+
+Everything below preserves the setup, full results, study limits and development evidence.
+
+<a id="local-demo"></a>
+
 **Run the local demo with one command:**
 
 ```sh
