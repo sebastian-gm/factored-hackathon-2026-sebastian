@@ -7,10 +7,10 @@
 <details>
 <summary>Technical details and evidence</summary>
 
-> **superseded by v4 (2026-10-01)** — Historical evaluation/release status below; use the [current summary](../README.md) and [official v4 results](evaluation/final-v4-results.md). [Post-v4 fixes](evaluation/post-v4-release-notes.md) are **not reflected in v4 numbers**.
+> **superseded by v4 (2026-10-01)** — Historical evaluation/release status below; use the [current summary](../README.md) and [official v4 results](evaluation/final-v4-results.md). [Post-v4 fixes](history/evaluation/post-v4-release-notes.md) are **not reflected in v4 numbers**.
 
 Scope: shipped backend contracts and the merged customer/staff UI in
-[PR #17](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/pull/17). Private real-model deployment is verified in the [progress log](status/progress-log.md). Solid paths below exist in code; dashed paths are pending integrations.
+[PR #17](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/pull/17). Private real-model deployment is verified in the [progress log](history/status/progress-log.md). Solid paths below exist in code; dashed paths are pending integrations.
 
 The current source configuration disables live Jev; the lead's next image release
 is pending. Gemini/Grok calls go through OpenRouter; historical Sonnet/Jev
@@ -133,7 +133,7 @@ authentication and audit are retained. This is not a multi-customer staff queue.
 
 OpenTelemetry export, comprehensive retention and operational SLOs remain production
 work. Private real-model deployment and browser flows are verified in the
-[release progress log](status/progress-log.md). The final held-out evaluation remains
+[release progress log](history/status/progress-log.md). The final held-out evaluation remains
 separate from smoke evidence. The earlier mock diagnostic failed acceptance gates.
 
 </details>

@@ -61,10 +61,10 @@ before recording; only the deployed app appears as the live product.
 The **43.6%** figure is `contact_reasons[Queja].fcr`, rounded from the
 [pipeline aggregate](../data/problem-analysis-aggregates.json). The product paths and
 control boundary come from the [API contract](../../contracts/interfaces/openapi.json)
-and [architecture](../architecture.md). The six-to-nine result comes from the [v2 human check](../ml/model-card-charge-matcher-v2.md), using identical fresh NLU outputs for both matchers; no human case was used for training. Development NLU costs and model selection come from [model-comparison.md](../ml/model-comparison.md); Jev roles from [its comparison](../ml/typesafe-jev-comparison.md). Real-model deployment evidence is in the [release progress log](../status/progress-log.md). Final measurements must come from the approved aggregate
+and [architecture](../architecture.md). The six-to-nine result comes from the [v2 human check](../ml/model-card-charge-matcher-v2.md), using identical fresh NLU outputs for both matchers; no human case was used for training. Development NLU costs and model selection come from [model-comparison.md](../history/ml/model-comparison.md); Jev roles from [its comparison](../history/ml/typesafe-jev-comparison.md). Real-model deployment evidence is in the [release progress log](../history/status/progress-log.md). Final measurements must come from the approved aggregate
 exports under the [evaluation protocol](../evaluation/eval-protocol.md).
 The prior failure statement is supported by the
-[corrected mock diagnostic](../evaluation/heldout-run01.md); remaining production
+[corrected mock diagnostic](../history/evaluation/heldout-run01.md); remaining production
 work is in [readiness](../production-readiness.md).
 
 Timings are editorial targets, not measured latency. Rehearse the actual clip and

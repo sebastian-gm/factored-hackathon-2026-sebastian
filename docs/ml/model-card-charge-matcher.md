@@ -63,7 +63,7 @@ All nine model calls succeeded, costing **US$0.009933** in total.
 
 Gold preceded inference; one post-run thousands-separator annotation erratum
 changed core-slot scoring from 6/9 to 7/9, with original gold and predictions
-preserved. The [result review](result-review.md#human-spot-check-n9-es-cl) records
+preserved. The [result review](../history/ml/result-review.md#human-spot-check-n9-es-cl) records
 methods, failure patterns and private evidence paths. One author, synthetic cards,
 single-annotator labels and no absent-target cases do not establish language
 fairness, production performance or complete agent safety. No tuning followed
@@ -85,4 +85,4 @@ pending. No card values or per-case records are committed.
 
 Sources consulted: [dbt contracts](https://docs.getdbt.com/docs/mesh/govern/model-contracts), [scikit-learn calibration](https://scikit-learn.org/stable/modules/calibration.html), [LightGBM classifier](https://lightgbm.readthedocs.io/en/stable/pythonapi/lightgbm.LGBMClassifier.html), [Optuna study API](https://optuna.readthedocs.io/en/stable/reference/generated/optuna.create_study.html).
 
-The frozen [result review](result-review.md) gives paired cost intervals, country/segment slices, and the recency-prior limitation. Training ran from an uncommitted feature tree based on the recorded Git SHA; the exact training-source SHA-256 is stored in metadata and was verified after export.
+The frozen [result review](../history/ml/result-review.md) gives paired cost intervals, country/segment slices, and the recency-prior limitation. Training ran from an uncommitted feature tree based on the recorded Git SHA; the exact training-source SHA-256 is stored in metadata and was verified after export.

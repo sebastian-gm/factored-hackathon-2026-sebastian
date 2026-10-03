@@ -4,7 +4,7 @@
 cases, ten ES and ten PT, compare the current P code with an unguarded Gemini
 tool agent. This is a bundle ablation, not an estimate of each control's effect.
 
-![Observed control failures](figures/controls-ablation.svg)
+![Observed control failures](../../evaluation/figures/controls-ablation.svg)
 
 ## Slide-ready results
 
@@ -26,8 +26,8 @@ this small sample does not establish that the naive route is safe.
 
 ## Method and limits
 
-The [authored inventory](../../evals/studies/llm/controls_ablation_cases.py) and
-[hash manifest](../../evals/studies/llm/controls_ablation_cases.manifest.json) were
+The [authored inventory](../../../evals/studies/llm/controls_ablation_cases.py) and
+[hash manifest](../../../evals/studies/llm/controls_ablation_cases.manifest.json) were
 committed at `272d236` before inference. It covers ordinary and disputed charges,
 confirmation/no confirmation, same-merchant twins, embedded injection,
 cross-customer requests, high amounts, fraud, stolen cards and refund pressure.
@@ -87,7 +87,7 @@ scores and artifacts are unchanged; no live default or Azure deployment changed.
 The original PT injection opening missed the deterministic guard because it
 matched Spanish `reglas` but not Portuguese `regras`. A narrow follow-up adds
 PT `regras`, ES/PT `políticas` and `desconsidere` to that existing guard. The
-[authored mock regressions](../../tests/test_pt_injection_guard.py) now require
+[authored mock regressions](../../../tests/test_pt_injection_guard.py) now require
 both original ES/PT openings to return `refused_security` with SEC-02, without a
 proposal or write; benign policy questions and unrelated ignore requests remain
 allowed. This fixes the observed guard gap in code; it does not claim immunity

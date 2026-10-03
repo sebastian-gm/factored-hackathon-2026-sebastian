@@ -14,7 +14,7 @@ documentation and selection-interface integration preserved identical images.
 This page renders the saved aggregates. The official JSON, Markdown, checkpoints,
 frozen suite and private bindings remain unchanged.
 
-Owner-approved [post-v4 repairs](post-v4-release-notes.md) are **not reflected in
+Owner-approved [post-v4 repairs](../history/evaluation/post-v4-release-notes.md) are **not reflected in
 these numbers**. They are checked on authored dev data and release smokes only.
 
 [ADR-0017](../adr/0017-drop-jev-from-live-path.md) disables live Jev in the
@@ -166,7 +166,7 @@ infrastructure. Full latency and cost bootstrap intervals remain in the JSON.
 Local serving removes workstation-to-Azure serving SQL hops; remote providers
 and durable budget calls remain included. These are not Azure browser timings
 and are not directly comparable infrastructure latencies to v2/v3. Deployed
-in-region probes are reported separately in [the latency study](pre-v4-latency-components.md).
+in-region probes are reported separately in [the latency study](../history/evaluation/pre-v4-latency-components.md).
 
 Durable scope **`final-evaluation-v4`**, run **`final-program-v4`**: **503 paid-call
 attempts, $0.54532659 known and charged, zero unknown costs**, including system
@@ -180,7 +180,7 @@ separate; the contemporaneous monthly estimate was $34.63 before tax.
 
 1. **Earlier mock access:** the original 200-case release had B1/P-mock
    diagnostics before paid final evaluation, with saved-observation measurement
-   corrections disclosed separately. The [access ledger](test-access-log.md)
+   corrections disclosed separately. The [access ledger](../history/evaluation/test-access-log.md)
    records this prior exposure; it was not a fresh real-model blind comparison.
 2. **V1 abandoned:** the original paid final program was stopped at approximately
    six P cases after dev evidence showed 11/20 no-fault passes and eight unreached
@@ -204,9 +204,9 @@ separate; the contemporaneous monthly estimate was $34.63 before tax.
    Seven judge items failed; 143 pairs were valid. V2 spent $2.94519961 and
    remained the official result. Its time limit was extended to 3h30 with a
    15-minute stall watchdog; it completed without a restart or resume.
-   The [post-hoc report](final-v2-error-analysis.md)
+   The [post-hoc report](../history/evaluation/final-v2-error-analysis.md)
    disclosed workflow/gold/calendar conflicts and readback artifacts; the
-   [separate slice correction](final-v2-slice-correction.md) fixed presentation
+   [separate slice correction](../history/evaluation/final-v2-slice-correction.md) fixed presentation
    of strict escalation from saved observations, without rerunning or changing
    the original official files. Human calibration remained incomplete.
    In particular, the forbidden age-boundary write was 84 days under the
@@ -224,7 +224,7 @@ separate; the contemporaneous monthly estimate was $34.63 before tax.
    merchant baseline correction passed B1 32/32 and mock P 20/20 + 12/12 and
    was disclosed. The deterministic-fraud smoke assertion was corrected without
    changing behavior or making further paid calls; combined release smoke was
-   $0.00802475. See [v3 release notes](v3-release-notes.md).
+   $0.00802475. See [v3 release notes](../history/evaluation/v3-release-notes.md).
 6. **V3 preflight attempts:** attempt 1 stopped on the missing `cancelled`
    scenario enum; attempt 2 stopped on the missing `offer_dispute` forbidden
    predicate. Each completed zero cases and spent $0. Both directories were
@@ -241,13 +241,13 @@ separate; the contemporaneous monthly estimate was $34.63 before tax.
    next item; judging stopped at 28/60. Existing report code finalized primary
    aggregates as PARTIAL with no paid retry or code change. Official pass was
    B1 52/100, P 77/100; v3 cost $0.47321405, zero unknown costs. These
-   [v3 results](final-v3-results.md) remain unchanged.
+   [v3 results](../history/evaluation/final-v3-results.md) remain unchanged.
 8. **After v3, before v4:** v3 was explicitly retired to dev data for fixes;
    the reported 100/100 P seen-v3 regression is not a held-out improvement.
    Orchestration, guards, NLG, kind aliases, OTP/simulator and live-rehearsal
    defects were corrected and disclosed. The model comparison stayed partial
    after quota failure; its prepared lean prompt was not adopted. A retired-v3
-   mock [runner rehearsal](final-program-rehearsal.md) exercised SIGTERM/resume,
+   mock [runner rehearsal](../history/evaluation/final-program-rehearsal.md) exercised SIGTERM/resume,
    DB failure, bounded judge failure and a $0 durable cap. It made no real calls
    and did not inspect v4. Independent v4 authoring used the written contract;
    behavioral and human/second-vendor language validation were not completed

@@ -22,7 +22,7 @@ Handoff 09 authorizes the selected Gemini default, failure-only Grok fallback an
 7. Use `.venv/bin/python -m scripts.serving_browser --target azure` for one additional counted conversation if the remaining allowance permits. The older broad `azure_smoke` refuses to run with real models enabled.
 8. Record the exact SHA, results and measured/unknown-reserved cost. Set the run ID to empty only after the smoke passes; apply/read back that flag change. Verify external denial and no drift. Stop and give Sebastian the SHA for the AI lane's final evaluation.
 
-Current verification status is in the [progress log](status/progress-log.md); scripts and a plan alone are not deployment evidence. Preserve the ignored smoke counter and cost records, including failed attempts.
+Current verification status is in the [progress log](history/status/progress-log.md); scripts and a plan alone are not deployment evidence. Preserve the ignored smoke counter and cost records, including failed attempts.
 
 ## Failure behavior
 

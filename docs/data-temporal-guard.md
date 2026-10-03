@@ -61,7 +61,7 @@ This preflight does not compare the five underscore-prefixed lineage columns (`_
 
 The lead's DQ-01/migration companion #131 merged on green CI. This data PR still
 requires green CI after its history-preserving refresh onto that migration.
-The [release plan](evaluation/temporal-quality-release-plan.md) pairs the image
+The [release plan](history/evaluation/temporal-quality-release-plan.md) pairs the image
 and serving reload. Required behavior:
 
 1. An older serving load without this column fails closed **for automation only**. Explanations remain available, and readiness reports a warning; absence must never be treated as `NULL`/passed.
@@ -72,6 +72,6 @@ and serving reload. Required behavior:
 The data lane did not perform an organizer rebuild or Azure load. After the
 paired integration, the lead rebuilt local organizer gold and verified zero
 source-equivalence mismatches; counts match this report. See the
-[local evidence and release plan](evaluation/temporal-quality-release-plan.md).
+[local evidence and release plan](history/evaluation/temporal-quality-release-plan.md).
 Azure serving reload/deployment remains unexecuted. This data PR adds no NLU,
 frozen-suite or official-result change. New model spend: USD 0.

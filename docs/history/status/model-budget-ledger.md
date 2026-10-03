@@ -100,7 +100,7 @@ as the submission runbook already requires. Stop above $15 or on a key/budget
 denial; use deterministic degradation instead of another paid provider.
 
 Warm replicas, public/judge ingress and publication still need separate
-submission-day approval. See the [runbook](../submission/submission-day-runbook.md).
+submission-day approval. See the [runbook](../../submission/submission-day-runbook.md).
 
 ## Executed v0.8.1 smoke
 

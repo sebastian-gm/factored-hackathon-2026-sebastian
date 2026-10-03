@@ -180,7 +180,7 @@ IDs, prompts, prices, release SHA and suite manifest. No real call is authorized
 this draft. See [evaluation protocol][eval-protocol] and
 [model comparison][model-comparison].
 
-The [earlier mock diagnostic](../evaluation/heldout-run01.md) failed acceptance gates
+The [earlier mock diagnostic](../history/evaluation/heldout-run01.md) failed acceptance gates
 and showed no AI gain. Its results remain available; they must not fill this final
 real-model scorecard. Until the final run exists, retain the visible `TODO(results)`
 cells and state that final evidence is pending. An adverse result must remain adverse.
@@ -207,9 +207,9 @@ For human workload and risk/coverage context, see [trade-offs](../tradeoffs.md) 
 Close on the value of the control pattern: a customer gets a next step supported by
 records, and a human gets the context to continue. This is an implemented synthetic
 workflow with explicit release gates, not a production banking service. Preserve the
-[failed diagnostic](../evaluation/heldout-run01.md) and evaluate subsequent changes
+[failed diagnostic](../history/evaluation/heldout-run01.md) and evaluate subsequent changes
 under the frozen protocol. Local tests do not establish cloud reliability or banking
-readiness. The [business projection](../evaluation/business-projection.md) remains a
+readiness. The [business projection](../history/evaluation/business-projection.md) remains a
 framework until acceptable outcome evidence and workflow-specific handling times exist.
 
 Durable model spend reservations and private real-model deployment are implemented.
@@ -228,11 +228,11 @@ integration work; those extensions are not delivered workflows.
 [problem-analysis]: ../problem-analysis.md
 [matcher-metrics]: ../../models/charge_matcher/v1/metrics.json
 [matcher-metadata]: ../../models/charge_matcher/v1/metadata.json
-[matcher-review]: ../ml/result-review.md
+[matcher-review]: ../history/ml/result-review.md
 [eval-protocol]: ../evaluation/eval-protocol.md
-[model-comparison]: ../ml/model-comparison.md
+[model-comparison]: ../history/ml/model-comparison.md
 [readiness]: ../production-readiness.md
 
 [matcher-v2]: ../ml/model-card-charge-matcher-v2.md
-[jev]: ../ml/typesafe-jev-comparison.md
-[release]: ../status/progress-log.md
+[jev]: ../history/ml/typesafe-jev-comparison.md
+[release]: ../history/status/progress-log.md

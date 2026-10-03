@@ -12,7 +12,7 @@ These are **post-v4 fixes, not reflected in v4 numbers**: v4 included Jev risk
 support and offline Jev judging. Historical evaluation/study code and judge
 evidence remain; they are separate from live traffic. TypeSafe standard-account
 ZDR remains unverified; synthetic approval is not permission for real data.
-[Jev limits](../ml/typesafe-jev-comparison.md), [release record](../status/progress-log.md).
+[Jev limits](../history/ml/typesafe-jev-comparison.md), [release record](../history/status/progress-log.md).
 
 The frozen workload's Portuguese authoring already used approved, project-generated
 text through OpenRouter and a second model vendor. Its
@@ -75,7 +75,7 @@ through a gateway does not inherit the direct API's terms automatically.
 | Models sold by Azure in Microsoft Foundry | [Microsoft's data terms](https://learn.microsoft.com/en-us/azure/foundry/responsible-ai/openai/data-privacy) exclude foundation-model training without permission, while abuse review, stateful features and deployment type affect storage and processing geography. | No Foundry model deployment is claimed. Azure hosting of the app/database does not establish model-provider terms or regional inference. |
 | Local mock | No external inference request. | Current application default; deterministic fallback evidence is not real-model quality. |
 
-Provider terms must be reviewed alongside the [model comparison](../ml/model-comparison.md)
+Provider terms must be reviewed alongside the [model comparison](../history/ml/model-comparison.md)
 and explicit cost approval. The frontend worktree's separate provider key is unused;
 its existence or credit limit does not authorize a run.
 

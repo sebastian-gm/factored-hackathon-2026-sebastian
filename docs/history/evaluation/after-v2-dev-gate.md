@@ -186,7 +186,7 @@ stop without another repeat. No release or v3 execution is authorized here.
 
 ## Scope and isolation
 
-This layer implements [ADR-0015](../adr/0015-post-v2-conversation-and-policy-contract.md).
+This layer implements [ADR-0015](../../adr/0015-post-v2-conversation-and-policy-contract.md).
 V2 remains the official result. Fixes were informed by its disclosed post-hoc analysis;
 there is no held-out rerun or improvement claim. Lead/AI implementers do not open
 suite-v3 scenarios, selections, bindings or its authoring tool. PR #50 stays unmerged

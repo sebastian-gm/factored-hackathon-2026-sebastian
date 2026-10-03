@@ -1,9 +1,9 @@
 # Limitations
 
-> **superseded by v4 (2026-10-01)** — Historical evaluation/release status below; use the [current summary](../README.md) and [official v4 results](evaluation/final-v4-results.md). [Post-v4 fixes](evaluation/post-v4-release-notes.md) are **not reflected in v4 numbers**.
+> **superseded by v4 (2026-10-01)** — Historical evaluation/release status below; use the [current summary](../README.md) and [official v4 results](evaluation/final-v4-results.md). [Post-v4 fixes](history/evaluation/post-v4-release-notes.md) are **not reflected in v4 numbers**.
 
 Aclara is a synthetic development service. Its current frozen mock diagnostic
-**failed acceptance gates**. See the [corrected report](evaluation/heldout-run01.md),
+**failed acceptance gates**. See the [corrected report](history/evaluation/heldout-run01.md),
 [B1 aggregate](evaluation/heldout-run01-B1.json) and
 [P/mock aggregate](evaluation/heldout-run01-P-mock.json). Engineering tests and the
 latest frontend integration establish narrower properties than safe end-to-end
@@ -25,8 +25,8 @@ banking operation.
   B1's unreachable fault cases remain in the workload denominator. Corrected scores
   reuse saved observations; no system rerun or label/suite edits were made. Later
   staff packet/API additions are outside the evaluated implementation SHA.
-- [Development provider comparison](ml/model-comparison.md) informed the selected
-  Gemini default and Grok fallback; [Jev](ml/typesafe-jev-comparison.md) supports
+- [Development provider comparison](history/ml/model-comparison.md) informed the selected
+  Gemini default and Grok fallback; [Jev](history/ml/typesafe-jev-comparison.md) supports
   risk union and a second judge. Final acceptance remains pending. Development
   NLU timings/costs and deployment smoke are not full-conversation benchmarks.
   TODO(results): final real-model quality, latency, cost and variability.
@@ -77,15 +77,15 @@ banking operation.
 - Local browser tests cover authored fixtures; the private real-model release
   also verified deployed browser flows and the web-to-API hop. Reverify the recording
   revision. Owner-IP access excludes unapproved judges; the separate access-code
-  gate is not implemented. [Release evidence](status/progress-log.md).
+  gate is not implemented. [Release evidence](history/status/progress-log.md).
 - Postgres persistence, RLS, restart and [local logical restore](ops-recovery.md) are
   tested. Azure PITR/regional DR, realistic-volume recovery, automatic retention,
   sustained load and on-call readiness are unverified. Scale-from-zero can delay
-  first requests; see the [bounded diagnosis](azure-startup-diagnosis.md).
+  first requests; see the [bounded diagnosis](history/azure-startup-diagnosis.md).
 - PostgreSQL's approved Azure-services firewall exception allows sources across
   subscriptions. TLS and restricted roles do not replace private networking.
   Infrastructure alerts do not stop spending; durable Postgres model reservations enforce separate approved caps.
   A privileged owner can rewrite an unanchored audit chain.
-- Proposed savings remain a [projection framework](evaluation/business-projection.md)
+- Proposed savings remain a [projection framework](history/evaluation/business-projection.md)
   with missing inputs. No production agent-hours, time-to-case or customer-outcome
   improvement is claimed. See [production gates and other applications](production-readiness.md).

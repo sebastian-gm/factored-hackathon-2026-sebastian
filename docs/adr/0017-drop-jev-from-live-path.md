@@ -38,7 +38,7 @@ LLM_PROVIDER=mock LLM_REAL_CALLS_APPROVED=0 \
   uv run --no-sync python -m evals.studies.llm.jev_live_replay --checkpoints /path/to/saved/checkpoints
 ```
 
-The earlier [150-case synthetic dev comparison](../ml/typesafe-jev-comparison.md#supporting-risk-cue-union-replayed-after-sebastians-decision)
+The earlier [150-case synthetic dev comparison](../history/ml/typesafe-jev-comparison.md#supporting-risk-cue-union-replayed-after-sebastians-decision)
 also has **Gemini 9/10 = union 9/10** injection detection and **0/140** false flags.
 Jev adds two distress flags whose truth has no independent labels. This is a
 small, reused dev sample, not proof of equivalence or calibrated safety.

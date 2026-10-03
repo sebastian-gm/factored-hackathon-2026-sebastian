@@ -1,6 +1,6 @@
 # Organizer-backed demo
 
-> **superseded by v4 (2026-10-01)** — Earlier evaluation/release claims on this page are historical; use the [current summary](../README.md) and [official v4 results](evaluation/final-v4-results.md). [Post-v4 fixes](evaluation/post-v4-release-notes.md) are **not reflected in v4 numbers**.
+> **superseded by v4 (2026-10-01)** — Earlier evaluation/release claims on this page are historical; use the [current summary](../README.md) and [official v4 results](evaluation/final-v4-results.md). [Post-v4 fixes](history/evaluation/post-v4-release-notes.md) are **not reflected in v4 numbers**.
 
 ## Source and runtime boundary
 
@@ -43,6 +43,6 @@ The smoke compares all four API projections with separate RLS reads, exercises E
 
 ## Evaluation and limits
 
-The held-out entry point now requires this serving dataset and RLS for every base read, adding only the frozen release's declared fictional overlays in isolated memory. Authored-only ledgers remain for independent dev tests and fixtures. No frozen labels were changed and no new full diagnostic was run for this integration. See [adapter semantics](evaluation/adapter-implementation.md), [access log](evaluation/test-access-log.md) and [dev fixes](evaluation/dev-acceptance-fixes.md).
+The held-out entry point now requires this serving dataset and RLS for every base read, adding only the frozen release's declared fictional overlays in isolated memory. Authored-only ledgers remain for independent dev tests and fixtures. No frozen labels were changed and no new full diagnostic was run for this integration. See [adapter semantics](evaluation/adapter-implementation.md), [access log](history/evaluation/test-access-log.md) and [dev fixes](history/evaluation/dev-acceptance-fixes.md).
 
 Organizer-backed transport/persistence checks are not evidence of broader language accuracy. The original frozen acceptance failure remains on record. Portuguese/dialect phrases are model-authored and lack fluent human review. Real-model selection, cross-vendor judge, production identity/queues, realistic load and recovery are still pending.

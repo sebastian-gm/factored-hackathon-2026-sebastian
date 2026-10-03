@@ -15,7 +15,7 @@ to a wrong proposal; lower coverage consumes more clarification and human attent
 Frozen matcher risk/coverage points and thresholds are in
 [metrics.json](../models/charge_matcher/v1/metrics.json). Those points measure candidate
 proposal errors, not end-to-end unsafe writes. Do not retune thresholds on the frozen
-test suite. The [corrected mock diagnostic](evaluation/heldout-run01.md) reports
+test suite. The [corrected mock diagnostic](history/evaluation/heldout-run01.md) reports
 67/193 SAR/in-scope for both systems (34.7%, Wilson 95% interval 28.36–41.67%). Each
 made six forbidden ESC-04 dispute writes and nine materially incorrect outcomes;
 acceptance failed. P used rules fallback, so this does not measure a learned-system
@@ -41,16 +41,16 @@ Logistic regression has lower test cost and better calibration. LightGBM made ab
 chooses the simplest model within 0.02 of the best **validation** cost. Logistic's
 validation gap is 0.0756, outside that tolerance, so LightGBM remains selected.
 Switching after seeing test would turn test into another validation set. The
-[result review](ml/result-review.md) preserves this unfavorable cost trade-off,
+[result review](history/ml/result-review.md) preserves this unfavorable cost trade-off,
 customer-clustered intervals, subgroup results and synthetic recency artifacts.
 A new independent workload should revisit the choice.
 
 ## Language model choice
 
 Gemini 3 Flash is the owner-selected default; Grok 4.20 is a bounded failure
-fallback. [Measured development comparisons](ml/model-comparison.md) report intent,
+fallback. [Measured development comparisons](history/ml/model-comparison.md) report intent,
 slots, valid responses, latency and per-NLU-case cost. Claude Sonnet 5 is the frontier
-comparator. [Jev](ml/typesafe-jev-comparison.md) adds a risk second opinion and a
+comparator. [Jev](history/ml/typesafe-jev-comparison.md) adds a risk second opinion and a
 second subjective judge; its small judge sample does not validate human agreement.
 The private release verifies routing and durable spend settlement. Final-run
 conversation costs and quality remain `TODO(results)`; per-call prices cannot fill them.
@@ -87,7 +87,7 @@ handoff. These results predate later staff packet additions. Sources:
 
 Pending human study: human-reviewed packet quality and agent-hours per 1,000. Agent-hours require an observed
 handling-time assumption for the selected workflow; they cannot be inferred from
-an escalation count alone. The [projection](evaluation/business-projection.md)
+an escalation count alone. The [projection](history/evaluation/business-projection.md)
 keeps those assumptions separate from offline outcomes.
 
 ## AI and rules

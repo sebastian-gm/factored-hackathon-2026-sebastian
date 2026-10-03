@@ -10,7 +10,7 @@
 **Synthetic-bank evidence does not establish population fairness or real-data
 readiness.** Code grades objective outcomes; Sonnet/Jev wording scores cannot
 establish authorization, correctness or human satisfaction.
-[Evaluation](evaluation/final-v3-results.md), [judge rubric](evaluation/judge-rubric.md).
+[Evaluation](history/evaluation/final-v3-results.md), [judge rubric](evaluation/judge-rubric.md).
 
 ## Minimize data; preserve authority
 
@@ -43,7 +43,7 @@ drafts also reject unsupported ES/PT action/causal claims. Confident
 opposite-language drafts are rejected.
 These are bounded defenses, not semantic/injection guarantees.
 [NLU](../src/aclara/agent/nlu/structured.py), [grounding](../src/aclara/agent/nlg/grounding.py),
-[phrasing](../src/aclara/agent/nlg/builder.py), [regressions](ml/pr-62-ai-review-fixes.md).
+[phrasing](../src/aclara/agent/nlg/builder.py), [regressions](history/ml/pr-62-ai-review-fixes.md).
 
 Identity, ownership, policy, proposals, confirmation/step-up, writes and read-back
 stay in code. Model prose cannot authorize an action or promise a refund.
@@ -61,9 +61,9 @@ the correct verified handoff. Denominators differ.
 | V3 ES | 48 | 18/48 (37.5%) | 16/20 (80.0%) |
 | V3 pt-BR | 48 | 19/48 (39.6%) | 13/19 (68.4%) |
 
-[Official v2](evaluation/final-v2-error-analysis.md),
-[corrected strict slices with 95% intervals](evaluation/final-v2-slice-correction.md),
-[official v3, including B1 and unnecessary transfers](evaluation/final-v3-results.md).
+[Official v2](history/evaluation/final-v2-error-analysis.md),
+[corrected strict slices with 95% intervals](history/evaluation/final-v2-slice-correction.md),
+[official v3, including B1 and unnecessary transfers](history/evaluation/final-v3-results.md).
 V2 regional P recall: es-AR **4/9**, es-CO **2/8**, es-MX **3/8**; wide intervals
 and policy mix prevent dialect rankings. V3 has four mixed cases; detailed dialect
 intervals remain private, not a parity claim. Country is not language; changed
@@ -80,7 +80,7 @@ there is **no fluent-human PT reviewer**. Synthetic/model-authored wording and
 model copy review do not substitute for native review. Judge–human agreement is
 unmeasured; v3 judging completed only 28/60 pairs, and v4 completed 60/60 machine
 pairs. Machine agreement does not establish human validation.
-[Human limits](ml/result-review.md#human-spot-check-n9-es-cl), [PT review](ml/pt-review.md).
+[Human limits](history/ml/result-review.md#human-spot-check-n9-es-cl), [PT review](history/ml/pt-review.md).
 
 The [completed official v4 report](evaluation/final-v4-results.md) includes ES/PT,
 segment and safety slices: P pass ES **43/48**, PT **41/48**. Both systems failed

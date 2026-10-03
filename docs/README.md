@@ -12,7 +12,7 @@ Portuguese. These six pages explain the demo and its evidence.
 
 The pages begin with three lines; detailed evidence is one click deeper.
 [Production work](production-readiness.md), [language-model limits](ml/model-card.md)
-and [fresh-checkout verification](submission/clean-clone-reproduction.md) give more detail.
+and [fresh-checkout verification](history/submission/clean-clone-reproduction.md) give more detail.
 
 [Development history](history/README.md) keeps earlier evaluations, studies and
 release records separate. Measurements after the final evaluation do not change

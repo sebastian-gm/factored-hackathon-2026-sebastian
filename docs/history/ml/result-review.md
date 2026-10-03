@@ -1,7 +1,7 @@
 # Frozen matcher result review
 
 For the authorized v2 development iteration and human before/after results, see
-the [v2 model card](model-card-charge-matcher-v2.md). The v1 results below remain preserved.
+the [v2 model card](../../ml/model-card-charge-matcher-v2.md). The v1 results below remain preserved.
 
 The synthetic comparison reuses the one-time v1 predictions, without refitting or additional test inference. The separately reported human spot-check uses new, excluded customers and leaves the frozen benchmark unchanged.
 
@@ -86,7 +86,7 @@ probability fell below the frozen 0.15 threshold: useful ranking did not become 
 proposal or choice. This is a failure to surface the known targets, not evidence
 of safe resolution. No thresholds, models or prompts were retuned.
 
-Gold intent/slots were authored from the [brief's §5.2/§9](../00-build-brief.md)
+Gold intent/slots were authored from the [brief's §5.2/§9](../../00-build-brief.md)
 before inference, without `aclara.policy`. A post-run audit corrected one gold
 serialization error (thousands comma read as decimal); immutable original labels,
 predictions and a timestamped erratum preserve both scores. Core slots are amount,
@@ -106,7 +106,7 @@ review remains pending.
 Evidence is local-only under `artifacts/human-validation/spanish-40/spotcheck-es-cl-v1/`:
 `per-case-report.md` contains every intent, slot, selected transaction and target;
 `GOLD.sha256.json` and `MANIFEST.sha256.json` pin inputs, annotations, code and results.
-All row-level evidence remains ignored. The [model card](model-card-charge-matcher.md)
+All row-level evidence remains ignored. The [model card](../../ml/model-card-charge-matcher.md)
 keeps this diagnostic separate from held-out metrics. Pricing was checked against
 the [OpenRouter model catalog](https://openrouter.ai/api/v1/models) before the run;
 the two-attempt-per-case estimate was US$0.084901, with only nine attempts needed.

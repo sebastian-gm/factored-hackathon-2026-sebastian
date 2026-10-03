@@ -5,7 +5,7 @@ model adapters and [proposed frontend](https://github.com/sebastian-gm/factored-
 This is a control/evidence map, not a security certification. See
 [architecture](../architecture.md) for flows and [readiness](../production-readiness.md)
 for deployment gates. Tests below are named repository tests; final CI/run status is
-in the [progress log](../status/progress-log.md).
+in the [progress log](../history/status/progress-log.md).
 
 Assets are authenticated scope, private rows, credentials, exact action proposals,
 case/card state, handoff evidence, model budget and audit integrity. Untrusted inputs
@@ -75,7 +75,7 @@ re-tested by this docs lane. CSP/HSTS, complete rate limiting, image/dependency
 scanning, purge verification, independent audit anchoring and judge access still
 require concrete implementation/verification; a checkbox here does not supply it.
 
-The [frozen mock diagnostic](../evaluation/heldout-run01.md) observed forbidden
+The [frozen mock diagnostic](../history/evaluation/heldout-run01.md) observed forbidden
 policy actions and incomplete handoffs despite passing individual security tests.
 Engineering control tests do not supersede failed outcome acceptance gates. Later
 staff API changes have no frozen-workload outcome claim.
