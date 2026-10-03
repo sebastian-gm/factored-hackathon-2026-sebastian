@@ -41,7 +41,8 @@ class SessionTurns:
                 if self.store.pool is None:
                     yield
                 else:
-                    if not self.store.dsn:
+                    # Empty conninfo is valid: Azure supplies libpq's PG* variables.
+                    if self.store.dsn is None:
                         raise PermissionError("Session serialization requires runtime storage")
                     # A dedicated autocommit connection holds only the session
                     # advisory lock, never a customer transaction or pooled slot.

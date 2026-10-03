@@ -1,5 +1,127 @@
 # Progress log
 
+## 2026-10-02 — Progress fragment integration (lead)
+
+Merged lane fragments from #141–#144 are folded below. Their pending/hold notes
+record the authoring state; all four changes are now on main `a8d9993`, with
+exact-SHA CI/safety green. No study was rerun or rescored during integration.
+The lead environment-connection fix below remains a candidate pending CI/release.
+
+## 2026-10-02 — Outcomes asset post-hoc context
+
+### Completed (verified)
+
+- Added the owner-requested one-line post-hoc context beside the failed safety
+  gate statement in the v4 outcomes PNG/SVG and source-linked caption. The
+  denominator is eight distinct P flagged cases, not independent gate flags;
+  overlapping categories and all official counts/failures remain unchanged.
+- Regenerated assets from committed aggregates only; no model calls, organizer
+  records, held-out runs or Azure changes. Model spend $0; post-v4 documentation,
+  not reflected in v4 numbers.
+
+### Done but not verified
+
+- Remote CI pending at authoring time. No main merge authorized during the
+  orchestrator's #137 → #140 hold.
+
+### Next / blocked
+
+- Leave PR unmerged until the orchestrator lifts the hold. Staff frontend is
+  developed separately against #138's contract; backend security review remains
+  lead-owned. No edits to the shared progress log.
+
+## 2026-10-02 — Azure environment-only turn-lock connection (lead)
+
+### Completed (verified)
+
+- v0.8.0 candidate a8d9993 passed exact-SHA CI/safety/access and Azure read-only
+  checks. Its concurrent chat probe returned HTTP 500 before NLU: zero provider
+  calls/reservations/spend; attempted-conversation history retained.
+- Sanitized API logs identify PermissionError in SessionTurns at the missing-DSN
+  guard. Azure uses Store("") with libpq PG* environment variables; empty conninfo
+  is valid, while None indicates no configured runtime connection.
+- Added the actual deployment configuration to the existing same-session,
+  cross-worker authored regression. Before the fix, the disposable Postgres gate
+  failed only this new environment case: 86 passed / 1 failed.
+- One-condition correction accepts empty conninfo while retaining the non-owner
+  role check, bounded admission and full-turn session advisory lock. Post-v4 fix;
+  official v4 results are unchanged. No replica/CPU/access/model settings changed.
+
+### Done but not verified
+
+- Corrected disposable Postgres gate: **87/87 passed**, including the new
+  empty-conninfo, cross-worker/full-turn test.
+- Full mock checks, remote CI and replacement release pending at authoring.
+- Judge access remains OFF; its live realm proof is deferred to submission Gate B.
+
+### Next / blocked
+
+- Require green CI, update the pinned release SHA, preserve the zero-call failed
+  attempt, and retry within the original $0.10 purse without resetting counters.
+- Staff queue #138 stays outside v0.8.0 pending controller-revocation corrections.
+
+## 2026-10-02 — Portuguese injection guard (AI lane)
+
+### Completed (verified)
+
+- Reproduced the saved ablation opening: `Ignore as regras` missed the deterministic guard; Spanish `Ignora las reglas` already matched. Four authored override regressions failed before the fix.
+- Narrow shared-file correction in `policy/rules/guards.py`: PT `regras`, ES/PT `políticas` and `desconsidere` now use the existing control-override guard.
+- Original ablation evidence and official v4 numbers remain unchanged. Post-v4 fix, not reflected in v4. No changes to `agent/ai.py` or `llm/client.py`.
+
+### Done but not verified
+
+- All authored API/unit and existing guard/workflow mock regressions pass. Full local checks, B1 32/32, Ruff, strict mypy and snapshots pass. Required remote CI is pending; no real-model claim for this fix.
+
+### Next / blocked
+
+- Merge hold until #137 then #140 land and the lead announces clearance.
+- Freeze/commit a separately disclosed 20-case adversarial dev stress arm before inference; own approved $0.10 cap.
+
+## 2026-10-02 — Adversarial ablation supplement (AI lane)
+
+### Completed (verified)
+
+- New 20-case synthetic ES/PT attack inventory and protocol hash-committed at `867ed55` before any inference on it. Explicitly authored after seeing the first ablation, with the PT guard fix applied before this arm.
+- Research-only driver uses its own `dev-gate/controls-stress` / `controls-stress`, $0.10 lifetime cap; estimated $0.06–$0.08. First study and official v4 checkpoints remain unchanged.
+- Both source ledgers now accept the same authored merchant field; the runtime and original default fixtures are unchanged. Guard-exposure counts are recorded separately from safety counters.
+- No changes to `agent/ai.py`, `llm/client.py` or production defaults; no actual banking write capability in the naive arm.
+
+- Full local mock checks: 1,370 passed / 37 DB skips, B1 32/32, Ruff, strict mypy and snapshots pass. Production credit preflight and zero-spend scope read-back passed.
+- Approved paired real pass completed 20/20: scope read-back $0.047119 known/charged, 58 attempts, zero unknowns. P: zero unconfirmed writes/foreign tool attempts; naive: two forged-confirmation writes and one foreign lookup. Both escalated all four over-limit cases.
+- Fixed refund screen flags one PT reply that actually refuses a guarantee; recorded transparently as a false positive, without altering frozen scorer/raw outputs. Full findings in docs/evaluation/controls-ablation-stress.md.
+- P additionally routed PT refund pressure to ESC-03 and unknown-ID text to DSP-06; safety counters are not a 20/20 objective-pass claim. No additional paid calls or tuning.
+
+### Done but not verified
+
+- PR #144 includes #143 until that prerequisite lands. Final-head main-targeted CI pending; no deployment claimed.
+
+### Next / blocked
+
+- Report all results or partial completion without selecting/relabeling cases or spending beyond the dedicated cap.
+- PR depends on #143; merge hold until #137 then #140 land and clearance is announced.
+- Staff queue #138 is green and still needs lead security review. Human agreement awaits the exported v4 CSV.
+
+## 2026-10-02 — Post-v4 dev rerun (AI lane)
+
+### Completed (verified)
+
+- Dedicated mock-by-default driver preserves the 36 authored inputs, fixtures and scorer.
+- Real dev rerun: **34/36** versus 32/36 earlier; ES 18/18, PT 16/18; zero detected unsafe outcomes or language errors. Supplementary dev evidence, not reflected in v4.
+- Scope `dev-gate/post-v4-rerun`, run `post-v4-rerun`, $0.08 lifetime cap: read back **$0.0538905**, 28 valid attempts, zero unknown costs. Production-key credit preflight passed. No production banking writes.
+- Full local mock checks: **1,351 passed / 37 DB skips**, Ruff, strict mypy, interface snapshots, B1 **32/32**.
+- Controls ablation #135 is merged; staff queue #138 remains open for lead security review. Combined new ablation/rerun cost is $0.098062.
+
+### Done but not verified
+
+- Both remaining PT failures match the correct amount but offer dispute follow-up for an ordinary inquiry. Raw model extractions were not retained; precise field-level cause is unproven.
+- Rerun PR remote checks pending. No prompt change or extra paid retry in this round.
+
+### Next / blocked
+
+- Merge hold until the lead lands #137 then #140 and announces clearance.
+- PT injection regression fix, then separately preregistered 20-case stress arm (own $0.10 cap).
+- Human agreement awaits Sebastian's exported v4 CSV.
+
 ## 2026-10-02 — Controls ablation authored before inference (AI lane)
 
 ### Completed (verified)

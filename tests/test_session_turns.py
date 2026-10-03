@@ -8,6 +8,7 @@ from uuid import uuid4
 
 import pytest
 from httpx import ASGITransport, AsyncClient
+from psycopg.conninfo import conninfo_to_dict
 from test_api_security import _settings, _sign_in
 from test_dev_acceptance import ledger
 
@@ -18,11 +19,31 @@ from aclara.ops.store import Scope, Store
 from aclara.ops.turns import SessionTurns
 
 
-@pytest.mark.parametrize("postgres", [False, True])
-def test_same_session_orders_full_turns_even_across_postgres_workers(postgres):
+@pytest.mark.parametrize("backend", ["memory", "dsn", "environment"])
+def test_same_session_orders_full_turns_even_across_postgres_workers(backend, monkeypatch):
+    postgres = backend != "memory"
     dsn = os.getenv("TEST_OPS_DSN") if postgres else None
     if postgres and not dsn:
         pytest.skip("Disposable local Postgres required")
+    if backend == "environment":
+        # Azure's Store("") resolves its connection from libpq's PG* environment.
+        # Use this disposable test DB, never the shell's inherited database.
+        options = conninfo_to_dict(dsn)
+        for name in list(os.environ):
+            if name.startswith("PG"):
+                monkeypatch.delenv(name)
+        for key, name in {
+            "host": "PGHOST",
+            "port": "PGPORT",
+            "user": "PGUSER",
+            "password": "PGPASSWORD",
+            "dbname": "PGDATABASE",
+            "sslmode": "PGSSLMODE",
+            "sslrootcert": "PGSSLROOTCERT",
+        }.items():
+            if key in options:
+                monkeypatch.setenv(name, options[key])
+        dsn = ""
 
     async def check():
         store = Store(dsn)
