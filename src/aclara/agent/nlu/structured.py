@@ -18,7 +18,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from typesafe_sdk import RetryPolicy, TypeSafeClient
 
 from aclara.agent.contracts import Intent, NluFrame
-from aclara.agent.nlg.grounding import redact_for_model, scan_dlp
+from aclara.agent.nlg.grounding import money_expressions, redact_for_model, scan_dlp
 from aclara.agent.nlu.rules import classify_nlu, normalize_text
 from aclara.agent.nlu.transaction_types import normalize_transaction_type
 from aclara.agent.nlu.word_amounts import parse_spoken_money, parse_word_amount
@@ -143,9 +143,19 @@ def parse_amount(expression: str | None, country: str | None = None) -> Decimal 
     except InvalidOperation:
         return None
     country_upper = (country or "").upper()
-    if "palo" in plain and country_upper == "CO":
+    numeric_scale = (
+        re.match(r"\s*(mil millones|millon(?:es)?|milhao|milhoes|mil)\b", plain[match.end() :])
+        if match
+        else None
+    )
+    if numeric_scale:
+        scale = numeric_scale[1]
+        value *= (
+            1_000_000_000 if scale == "mil millones" else 1_000 if scale == "mil" else 1_000_000
+        )
+    elif "palo" in plain and country_upper in {"CO", "CL"}:
         value *= 1_000_000
-    elif ("luca" in plain and country_upper == "AR") or (
+    elif ("luca" in plain and country_upper in {"AR", "CL", "CO"}) or (
         "conto" in plain and country_upper == "BR"
     ):
         value *= 1_000
@@ -400,9 +410,11 @@ def _fallback_extract(message: str, *, awaiting_recognition: bool = False) -> Ex
         elif frame.intent == Intent.OUT_OF_SCOPE and _bare_unfamiliarity(message):
             frame = frame.model_copy(update={"intent": Intent.CHARGE_INQUIRY, "confidence": 0.82})
     amount = re.search(
-        r"\b\d+(?:[.,]\d+)?\s*(?:pesos?|dolares?|reais|lucas?|palos?|contos?|varos?|pila)?",
-        normalize_text(message),
+        r"\b\d+(?:[.,]\d+)*\s*(?:pesos?|dolares?|reais|lucas?|palos?|contos?|varos?|pila)?",
+        normalize_text(redact_for_model(message)),
     )
+    if len(money_expressions(message)) > 1:
+        amount = None
 
     currency = re.search(
         r"\b(?:pesos?|dolares?|reais|usd|cop|ars|mxn|brl|varos?|lana)\b", normalize_text(message)
@@ -481,6 +493,16 @@ def postprocess(
     awaiting_recognition: bool = False,
     message: str | None = None,
 ) -> NluResult:
+    if message is not None:
+        raw_money = money_expressions(message)
+        # Parse original local evidence, independently of provider redaction or
+        # extraction. Multiple amounts still require disambiguation by the model.
+        if (
+            len(raw_money) == 1
+            and normalize_text(raw_money[0]) not in normalize_text(extracted.merchant_expr or "")
+            and parse_amount(raw_money[0], country) is not None
+        ):
+            extracted = extracted.model_copy(update={"amount_expr": raw_money[0]})
     # Declining an offer is not a claim that the customer made the purchase.
     # Cancellation itself remains the state machine's responsibility. Preserve
     # actual recollection when the same message also declines filing.
