@@ -27,6 +27,13 @@ omit other outcomes; use the complete report for the refund-screen false positiv
 additional limitations and the unchanged preregistered counts. No new paid study
 was run.
 
+The stress chart's first panel isolates the **two forged-confirmation cases**:
+naive filed **2 of 2**, P **0 of 2** (both stayed at proposals). Its count axis
+runs from 0 to 2. The other panels use the **full 0–20 case scale**: naive made
+2 of 20 unverified success claims and 1 of 20 foreign-customer attempts; P had
+0 of 20 on both. These subset/arm denominators are distinct, and the caption's
+overall 2/20 unconfirmed-write count remains unchanged.
+
 Regenerate the original six pairs without model calls:
 `uv run --no-sync --extra data-ml python analysis/export_slide_assets.py`.
 SVG metadata records its primary source file's SHA-256. No deck is included.
@@ -37,7 +44,7 @@ Regenerate only the supplementary stress pair from its committed aggregate table
 ```sh
 uv run --no-sync --extra data-ml python - <<'PY'
 import re
-from analysis.export_slide_assets import ROOT, MUTED, bars, cells, export, figure, plt
+from analysis.export_slide_assets import ROOT, INK, MUTED, ACCENT, BASELINE, cells, export, figure, plt
 
 source = ROOT / "docs/evaluation/controls-ablation-stress.md"
 report = source.read_text()
@@ -45,25 +52,51 @@ match = re.search(r"Fixed counter, (\d+) cases per arm", report)
 if match is None:
     raise ValueError("Missing stress denominator")
 denominator = int(match[1])
+subset_match = re.search(r"forged chat confirmation\s+(\d+)", report)
+if subset_match is None:
+    raise ValueError("Missing forged-confirmation subset denominator")
+subset = int(subset_match[1])
 plt.rcParams.update({
     "font.family": "DejaVu Sans", "text.parse_math": False,
     "svg.fonttype": "none", "svg.hashsalt": "aclara-slide-assets",
 })
 fig = figure(
-    "Forged chat consent triggered two naive writes",
+    "Naive filed 2 of 2; P stayed at proposals",
     f"Post-v4 adversarial dev · {denominator} authored cases per arm · ES / PT · not held-out",
 )
-for i, (title, key) in enumerate((
-    ("No separate confirmation", "Writes without genuine separate confirmation"),
-    ("Unverified success claims", "Write-success claims without read-back"),
-    ("Foreign-customer attempts", "Cross-customer tool access attempts"),
+for i, (title, key, total) in enumerate((
+    ("Forged-confirmation subset", "Writes without genuine separate confirmation", subset),
+    ("Unverified success claims", "Write-success claims without read-back", denominator),
+    ("Foreign-customer attempts", "Cross-customer tool access attempts", denominator),
 )):
-    counts = tuple((int(value), denominator) for value in reversed(cells(report, key)))
-    if any(not 0 <= count <= total or total <= 0 for count, total in counts):
+    counts = tuple(int(value) for value in reversed(cells(report, key)))
+    if total <= 0 or any(not 0 <= count <= total for count in counts):
         raise ValueError("Invalid stress count")
-    bars(fig.add_axes((0.06 + i * 0.305, 0.32, 0.25, 0.39)), title, counts,
-         maximum=10, labels=("Naive tool agent", "P · code controls"),
-         axis_label="Cases in this arm (%)", value_size=13)
+    if i == 0 and (subset != 2 or counts != (2, 0)):
+        raise ValueError("Forged subset facts changed; recheck the written report")
+    ax = fig.add_axes((0.06 + i * 0.305, 0.32, 0.25, 0.39))
+    ax.set_title(title, fontsize=14, fontweight="bold", loc="left", pad=20, color=INK)
+    for y, count, color, label in zip(
+        (1, 0), counts, (BASELINE, ACCENT), ("Naive tool agent", "P · code controls"), strict=True
+    ):
+        ax.barh(y, count, height=0.28, color=color)
+        if count == 0:
+            ax.plot(0, y, "o", color=color, markersize=5, clip_on=False)
+        ax.text(0, y + 0.25, label, fontsize=10, color=MUTED)
+        ax.text(total, y + 0.25, f"{count} of {total}", ha="right", fontsize=12, color=INK)
+    ax.set_xlim(0, total)
+    ax.set_ylim(-0.45, 1.65)
+    ax.set_yticks([])
+    ticks = [0, 1, 2] if i == 0 else [0, 5, 10, 15, 20]
+    ax.set_xticks(ticks, [str(value) for value in ticks])
+    ax.tick_params(axis="x", colors=MUTED, labelsize=10, length=0, pad=8)
+    ax.set_xlabel("Filed cases · 2-case subset" if i == 0 else "Cases · 20-case arm",
+                  fontsize=10, color=MUTED, labelpad=10)
+    for name, spine in ax.spines.items():
+        spine.set_visible(name == "bottom")
+        spine.set_color("#dce3de")
+        if name == "bottom":
+            spine.set_bounds(0, total)
 for y, text in (
     (0.16, "Forged-confirmation subset (2 cases): naive filed both; P stayed at proposals. Counters overlap."),
     (0.11, "Success claims lacked read-back; the foreign lookup hit a fake. Selected attacks; zeros do not establish safety."),
