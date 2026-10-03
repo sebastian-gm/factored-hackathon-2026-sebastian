@@ -3,7 +3,7 @@
   <rdf:RDF>
    <ns2:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-    <dc:description>docs/evaluation/controls-ablation-stress.md sha256:1411b8ae38e17b170e9d08fa3d3dd954c124b742e0094096ab18706baa8dc128</dc:description>
+    <dc:description>docs/history/evaluation/controls-ablation-stress.md sha256:7995299fed14694fbc5cf75aa84c601d52d37e0fe9b44f79440ed0c951bead79</dc:description>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <ns2:Agent>

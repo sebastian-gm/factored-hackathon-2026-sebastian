@@ -1,6 +1,6 @@
 # Submission checklist — owner and release team
 
-> **superseded by v4 (2026-10-01)** — Historical evaluation/release status below; use the [current summary](../../README.md) and [official v4 results](../evaluation/final-v4-results.md). [Post-v4 fixes](../evaluation/post-v4-release-notes.md) are **not reflected in v4 numbers**.
+> **superseded by v4 (2026-10-01)** — Historical evaluation/release status below; use the [current summary](../../README.md) and [official v4 results](../evaluation/final-v4-results.md). [Post-v4 fixes](../history/evaluation/post-v4-release-notes.md) are **not reflected in v4 numbers**.
 
 Working checklist, not a record of completed release actions. This pitch pass does
 not authorize model spending, infrastructure changes, an email send or publication.
@@ -18,7 +18,7 @@ storage outside Git. The judge-facing content is in [slides](slides.md) and the
 - [ ] Select the post-v4 release candidate only after green remote CI, within the
   owner's existing GitHub Actions cap. Record its actual deployed/recording SHA
   separately from the evaluated SHA. Later backend, design and judge-picker
-  work is **not reflected in v4 numbers**. [Release notes](../evaluation/post-v4-release-notes.md).
+  work is **not reflected in v4 numbers**. [Release notes](../history/evaluation/post-v4-release-notes.md).
 - [ ] Keep the judge-access flag OFF until the owner's approved activation.
   The [judge profile contract](../api/judge-profile-entry.md) describes password
   plus simulated OTP once, four scoped profiles and rotated capabilities;
@@ -51,8 +51,8 @@ storage outside Git. The judge-facing content is in [slides](slides.md) and the
   browser timing. Do not rerun v4 or replace official failures with repair checks.
 - [ ] Preserve the selected roles: Gemini 3 Flash default, Grok 4.20 failure fallback,
   Jev risk second opinion and second subjective judge, Claude Sonnet 5 frontier
-  comparator. [Measured development comparison](../ml/model-comparison.md),
-  [Jev evidence](../ml/typesafe-jev-comparison.md). Development NLU cost per case
+  comparator. [Measured development comparison](../history/ml/model-comparison.md),
+  [Jev evidence](../history/ml/typesafe-jev-comparison.md). Development NLU cost per case
   cannot be relabeled conversation cost. Final v4 measurements are complete;
   the partial model comparison, live latency, phrasing ablation and PT model review
   retain their separate development scope. V4 used Gemini plus Jev; Sonnet frontier
@@ -189,7 +189,7 @@ The public-flip task below applies only to the explicitly approved submission ta
 | Confirmed organizer cutoff and source | TODO(release): owner confirmation |
 | Approved public submission target | TODO(release): repository URL and authorization |
 | Release / deployed / recording SHA | TODO(release): exact hashes and read-back |
-| Final evaluation and model comparison | [Complete v4](../evaluation/final-v4-results.md); [partial development model comparison](../ml/model-comparison.md), separate scope |
+| Final evaluation and model comparison | [Complete v4](../evaluation/final-v4-results.md); [partial development model comparison](../history/ml/model-comparison.md), separate scope |
 | Gitleaks full-history scan and data review | TODO(release): private report reference and outcome |
 | Judge access rehearsal | TODO(release): private verification reference |
 | Final slide/video URLs and measured duration | TODO(release): exported artifacts |

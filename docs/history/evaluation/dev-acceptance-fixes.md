@@ -1,6 +1,6 @@
 # Handoff 08: independent development fixes
 
-The only diagnostic input used for these changes is the [aggregate taxonomy](run01-failure-taxonomy.json).
+The only diagnostic input used for these changes is the [aggregate taxonomy](../../evaluation/run01-failure-taxonomy.json).
 The reducer reads saved scored observations and emits counts; no frozen utterance,
 transaction, scenario ID or per-case trace was opened for diagnosis. Every access is
 recorded in the [access ledger](test-access-log.md). Frozen labels and run-01 results

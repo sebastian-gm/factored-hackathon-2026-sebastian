@@ -70,7 +70,7 @@ remain unchanged. V4 remains blind/unstarted. See
 - **#75**, `aaa2a97`: independent OFF switches, external Key Vault judge
   references, existing trusted persona alias and ordinary $3/day accounting.
   Reviewed no-op OFF plan and minimal ON plan. Credentials/roles cannot be
-  supplied by clients. [Plan, cost and future approval](../submission/infrastructure-switches.md).
+  supplied by clients. [Plan, cost and future approval](../../submission/infrastructure-switches.md).
 
 ## Integration and verified local gates
 

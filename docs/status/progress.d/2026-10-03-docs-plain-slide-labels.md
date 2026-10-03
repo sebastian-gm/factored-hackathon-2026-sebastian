@@ -8,6 +8,7 @@
 - All fourteen PNG/SVG files byte-reproduce from the documented commands; PNGs are 1920×1080, SVG text remains editable, primary source hashes match, and all eleven caption links/anchors resolve. Ruff and visual review passed.
 - Corrected an Ops browser-test race by waiting for recorded steps before opening their details. The affected mock browser test passes in the same dev-server mode as CI; product behavior is unchanged.
 - Corrected a judge-guide keyboard race by waiting for the details dialog to close before focusing the next example. All eight ES/PT guide tests pass locally, including desktop/phone accessibility checks; product behavior is unchanged.
+- Integrated the main documentation archive: controls-study links and render inputs point to the complete archived reports, whose result tables are unchanged. Refreshed SVG source hashes and rechecked reproduction and geometry.
 
 ## Done but not verified
 

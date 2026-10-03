@@ -1,3 +1,11 @@
+# Development record moved
+
+Read the [complete archived record](../history/evaluation/final-v3-results.md).
+The [final evaluation (v4)](final-v4-results.md) remains unchanged.
+
+<details>
+<summary>Compatibility excerpt for existing chart tools</summary>
+
 # Final v3 results — after fixes, fresh suite; partial judging
 
 **V2 remains the official prior result.** V3 is a separate independent 100-case evaluation after the v2-informed fixes, not a revision of v2. These are the saved v3 primary results at `e12efc73be64f8355aa9f177f08a04337593616c`. They predate PR #62 and its post-v3 fixes.
@@ -83,9 +91,11 @@ Durable v3 scope `final-evaluation-v3` / run `final-program-v3`: **$0.47321405 /
 
 ## Disclosures and current use
 
-- V2-informed orchestration, policy/contract, harness and NLU fixes preceded the independently authored v3 suite. V2 remains unchanged and official; see [the v2 report](final-v2-error-analysis.md) and [the disclosed slice correction](final-v2-slice-correction.md).
+- V2-informed orchestration, policy/contract, harness and NLU fixes preceded the independently authored v3 suite. V2 remains unchanged and official; see [the v2 report](../history/evaluation/final-v2-error-analysis.md) and [the disclosed slice correction](../history/evaluation/final-v2-slice-correction.md).
 - The accepted pre-v3 dev gate was 20/20 no-fault, 18/20 blind confirmation, 12/12 faults, zero unsafe/forbidden out of 52. The separately approved blank-merchant baseline correction passed authored regressions, B1 32/32 and mock P 20/20 + 12/12; it was disclosed before v3. This does not count as a blind confirmation rerun.
-- **Two authoring-tool case-template snippets** were accidentally exposed by a broad search after the product had already frozen and deployed at `9f0bff0`. A later search exposed three generic forbidden-action handling lines. No frozen rows, selections, bindings or results were opened by those searches. Sebastian approved continuing with disclosure and a product-path freeze; [the release notes](v3-release-notes.md) preserve the timing and restrictions.
+- **Two authoring-tool case-template snippets** were accidentally exposed by a broad search after the product had already frozen and deployed at `9f0bff0`. A later search exposed three generic forbidden-action handling lines. No frozen rows, selections, bindings or results were opened by those searches. Sebastian approved continuing with disclosure and a product-path freeze; [the release notes](../history/evaluation/v3-release-notes.md) preserve the timing and restrictions.
 - Two startup attempts stopped before calls or completed cases, each at **$0**. The `cancelled` enum and `offer_dispute` observation predicate were repaired in evaluation contracts/code only. Product images stayed identical through evaluated SHA `e12efc7`. These repairs did not alter suite bytes or product behavior.
 - The paid attempt stopped first on a budget-DB connectivity error at 212/260 published checkpoints. One authorized resume completed all system runs, then stopped during judging. Existing report code produced aggregates with no calls or tracked change; `PARTIAL.json` exists and `COMPLETE.json` does not. Historical artifacts were preserved; abandoned v1 was not accessed.
-- **V3 is now retired to development data**, after owner-authorized post-hoc analysis. The orchestrator reports P 100/100 after PR #62 fixes on these now-seen cases. That is a regression check on seen data, **not** a new evaluation result; it does not replace 77/100 here. [Post-v3 development analysis](post-v3-fixes.md) describes that work. A new independent v4 is pending; this page neither opens nor runs it.
+- **V3 is now retired to development data**, after owner-authorized post-hoc analysis. The orchestrator reports P 100/100 after PR #62 fixes on these now-seen cases. That is a regression check on seen data, **not** a new evaluation result; it does not replace 77/100 here. [Post-v3 development analysis](../history/evaluation/post-v3-fixes.md) describes that work. A new independent v4 is pending; this page neither opens nor runs it.
+
+</details>

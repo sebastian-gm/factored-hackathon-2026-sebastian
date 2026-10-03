@@ -75,7 +75,7 @@ Actions budget is preventing further use**. Local checks supplement this gap;
 they are not a green GitHub Actions run. PR #62 remains unmerged while the owner
 decides billing or explicitly overrides the merge gate.
 
-The [submission checklist](../submission/checklist.md) records min replicas one
+The [submission checklist](../../submission/checklist.md) records min replicas one
 only from share/submission day (about October 3–4), its live-price estimate and
 the separate approval/verification step. No replica change was made here.
 

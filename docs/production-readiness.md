@@ -8,8 +8,8 @@
 <summary>Technical details and evidence</summary>
 
 **A restricted synthetic-bank demo runs; a production bank service does not.**
-Official [v2](evaluation/final-v2-error-analysis.md) and
-[v3](evaluation/final-v3-results.md) failed full safety gates. This summarizes
+Official [v2](history/evaluation/final-v2-error-analysis.md) and
+[v3](history/evaluation/final-v3-results.md) failed full safety gates. This summarizes
 recorded evidence; no new cloud check or approval.
 
 ## What runs today
@@ -17,7 +17,7 @@ recorded evidence; no new cloud check or approval.
 - Azure Container Apps hosts web/BFF and internal API: restricted HTTPS ingress,
   **min 0 / max 1** replicas. Managed identities pull private images; Key Vault
   supplies secret-scoped API credentials.
-  [Deployment boundary](azure-private-dev-plan.md), [last preview verification](status/progress-log.md).
+  [Deployment boundary](azure-private-dev-plan.md), [last preview verification](history/status/progress-log.md).
 - PostgreSQL uses a non-owner role, verified TLS and forced customer/run/session
   RLS. Sessions, proposals, cases, cards and handoffs persist.
   Code controls eligibility, confirmation, fresh step-up and idempotency;
@@ -36,8 +36,8 @@ The current owner-approved `dac3801` preview includes bounded GET startup retrie
 with no POST replay. Authenticated read-only cold startup completed in **86.059 s**;
 warm reads completed afterward. The earlier `37627d4` preview's config failed at
 **50.560 s**, before that fix. These are read checks, not paid-chat acceptance.
-[Diagnosis](evaluation/preview-startup-diagnosis.md),
-[startup profile and limits](evaluation/preview-startup-profile.md).
+[Diagnosis](history/evaluation/preview-startup-diagnosis.md),
+[startup profile and limits](history/evaluation/preview-startup-profile.md).
 
 ## Work before real use
 

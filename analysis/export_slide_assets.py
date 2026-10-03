@@ -330,7 +330,7 @@ def architecture() -> None:
 
 
 def controls_ablation() -> None:
-    source = ROOT / "docs/evaluation/controls-ablation.md"
+    source = ROOT / "docs/history/evaluation/controls-ablation.md"
     report = source.read_text()
     fig = figure(
         "Plain AI claimed two filings without verification",

@@ -4,7 +4,7 @@
 from this document without the approvals below.** Submission-day activation,
 publication, email and teardown remain unexecuted. The October 2 owner-only
 v0.7.0 release and capped smoke are recorded separately in
-[release notes](../evaluation/v0.7-release-notes.md). This is a private
+[release notes](../history/evaluation/v0.7-release-notes.md). This is a private
 operator document; current-tree scrub must remove private deployment details before publication. Commands run inside this
 repository, with Git always `git -C`, only `origin`, and Azure explicitly
 **Seb Azure Sandbox**. Never change the CLI default or use `slpnova-azure-main`.
@@ -193,7 +193,7 @@ Azure's CAD billing alerts approximate USD 30/50 and notify rather than stop spe
 ### Proposed judging model cap — OFF pending Gate B
 
 Sebastian approved **$15 cumulative LLM exposure including reserves** on October 2;
-see the [approval ledger](../status/model-budget-ledger.md).
+see the [approval ledger](../history/status/model-budget-ledger.md).
 The verified v0.8.1 readback on October 3 finds conservative exposure
 **$12.40571698**. The original v0.8 smoke
 purse retains **$0.088647** unused capacity; the prior v0.7 purse retains

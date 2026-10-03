@@ -69,7 +69,7 @@ Candidate: **`f6813279620feb1869498fcbcc40cc8c59ad53ae`** (merged #40,
 including #38). Command:
 `LLM_REAL_CALLS_APPROVED=1 .venv/bin/python -m scripts.dev_gate real`.
 The process completed with exit 0. Aggregate evidence is
-[dev-p-gate-results.json](dev-p-gate-results.json); private case/call checkpoints
+[dev-p-gate-results.json](../../ml/dev-p-gate-results.json); private case/call checkpoints
 are under `artifacts/option-a-dev/gate-real/`.
 
 | Gate | Result | ES | PT |

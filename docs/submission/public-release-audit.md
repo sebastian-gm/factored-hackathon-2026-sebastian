@@ -80,7 +80,7 @@ remain required. VNet/private access remains future work in
 
 Fresh README-only reproduction of original release `f5e128d` passed all 17 steps
 in **724.10 s** with mock providers and no organizer data/cloud secrets; see
-[reproduction evidence](clean-clone-reproduction.md#october-2-original-repository-clean-clone).
+[reproduction evidence](../history/submission/clean-clone-reproduction.md#october-2-original-repository-clean-clone).
 Branch protection remains prepared but unavailable on the private plan; apply it
 after the explicit publication go. Publication and warm/judge activation are OFF.
 
@@ -235,8 +235,8 @@ external media or people's identities. The team name, export method, final sourc
 revision and exact public scope remain owner decisions.
 
 For a snapshot, carry the reproducible implementation and allowed synthetic data,
-plus sanitized [official v2](../evaluation/final-v2-error-analysis.md) and
-[official v3](../evaluation/final-v3-results.md) reports and the subsequent
+plus sanitized [official v2](../history/evaluation/final-v2-error-analysis.md) and
+[official v3](../history/evaluation/final-v3-results.md) reports and the subsequent
 development disclosures. Preserve failures and v3's transition to development
 data. V4 remains pending; this audit supplies no v4 result. If history is required
 by the organizers, use a reviewed, scoped history export instead of changing the

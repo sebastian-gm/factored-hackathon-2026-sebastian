@@ -1,6 +1,6 @@
 # Charge matcher v2: offer choices when uncertain
 
-> **superseded by v4 (2026-10-01)** — Historical evaluation/release status below; use the [current summary](../../README.md) and [official v4 results](../evaluation/final-v4-results.md). [Post-v4 fixes](../evaluation/post-v4-release-notes.md) are **not reflected in v4 numbers**.
+> **superseded by v4 (2026-10-01)** — Historical evaluation/release status below; use the [current summary](../../README.md) and [official v4 results](../evaluation/final-v4-results.md). [Post-v4 fixes](../history/evaluation/post-v4-release-notes.md) are **not reflected in v4 numbers**.
 
 **Integration status:** matcher v2 was active in the [official v4 run](../evaluation/final-v4-results.md).
 The earlier v1-default/integration instruction is superseded. V2 is a retrained
