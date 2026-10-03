@@ -207,6 +207,7 @@ test("fraud: customer handoff, agent evidence, claim and resolve, ops trace and 
     .click();
   await expect(page.getByText("Resuelto · Verificado")).toBeVisible();
   await switchRole(page, "Operaciones", "demo.ops");
+  await expect(page.locator(".execution-list > li").first()).toBeVisible();
   for (const detail of await page
     .locator(".execution-list > li details")
     .all()) {

@@ -6,6 +6,7 @@
 - Moved source paths and longer methods/limitations to captions.md, retaining both safe-resolution denominators, failed safety checks, post-hoc flag interpretation and the separate after-final-evaluation development-study limits.
 - All chart sizes, axes, ticks, bar geometry and counts match the prior renders, including the 0–2 forged-confirmation subset and full 0–20 stress count scales.
 - All fourteen PNG/SVG files byte-reproduce from the documented commands; PNGs are 1920×1080, SVG text remains editable, primary source hashes match, and all eleven caption links/anchors resolve. Ruff and visual review passed.
+- Corrected an Ops browser-test race by waiting for recorded steps before opening their details. The affected mock browser test passes in the same dev-server mode as CI; product behavior is unchanged.
 
 ## Done but not verified
 
