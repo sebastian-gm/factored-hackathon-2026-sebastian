@@ -1,64 +1,97 @@
-# Azure video shot list — final 2:55 plan
+# Video shot list — v0.8.1, 2:55 editorial plan
 
-**The three live stories passed on release `92994d933e7e4d4cddbbf988fb4cc748d3cd5db1` (#97).** Playwright verified both deployed image tags before login. ES reached choices and a localized explanation; PT reached choices, an explanation, a dispute offer, separate confirmation and an independently verified case receipt; ES fraud reached independently verified handoffs and Agent Desk. Insights was captured in ES/PT, and Ops showed actual execution/read-back events. All three quickstart and recording-helper buttons were enabled. [Release rehearsal receipt](video-rehearsal-92994d9.json).
+Targets deployed **v0.8.1**, SHA `3bc06d0db1c9b38233c04558f8093ce956258ab2`.
+The [release receipt](../evaluation/v0.8.1-release-notes.md) verifies the large-COP
+explanation→offer→denial→read-back receipt, concurrent ES/PT attribution, and a
+separately authenticated staff invitation/claim. **Judge access remains OFF**;
+judge-profile footage requires the owner's submission Gate B activation and
+visit-realm checks. This docs-only pass makes **no model calls** and performs no
+new rehearsal. The assembled recording, transitions and duration remain unverified.
 
-**Ten turns, ten valid Gemini/Jev calls, US$0.008335678 known model cost** (about **0.83 US cents**), with no unknown usage, provider errors or fallback. No `operaci3n` or raw English status appeared in any of the ten replies. Two fresh Desk packets showed a sane **15d 0h 0m** SLA counter and a verified handoff action. The packet from an already-selected charge also showed one verified fact and its evidence record. A fresh fraud shortcut correctly had no selected-charge facts. These are single rehearsal observations, not a quality or safety evaluation. [Counts and timings](video-rehearsal-92994d9.json).
+The cut totals **2:55 (175 seconds)**, inside the [three-minute limit](../00-build-brief.md).
+Times are editing targets, not latency measurements. The final fifteen seconds
+are reserved for limits. Preserve the simulated-bank banner throughout.
 
-The cut below is **2:55**, within the [brief's three-minute limit](../00-build-brief.md). Final recording, narration synchronization and exported duration remain unverified. The earlier failed PT draft and disabled-button/copy defects remain in the [prior release receipt](video-rehearsal-conversations.json); this rehearsal does not overwrite that evidence.
+## Prepare off camera
 
-## Prepare and capture off camera
+1. Verify the recording release against the [release notes](../evaluation/v0.8.1-release-notes.md)
+   and [submission checklist](checklist.md#prepare-judge-access-and-rehearse-the-deployed-product).
+   Use desktop Chromium **1440 × 1000**, normal zoom. Warm startup and authenticate
+   with owner-supplied credentials/current simulated OTP off camera. This document
+   does not authorize a paid rehearsal, access change or reset.
+2. After approved judge activation, select **CO · ES** for the COP clip. Identify
+   an owned, eligible, unfiled charge off camera; record the actual selection if
+   the filmed inquiry asks for it. Every `<importe mostrado>` below is a placeholder
+   for that record's amount, filled privately at filming time, never literal text
+   to send or an organizer value to commit. Prefer one ordinary amount with its
+   **COP** currency; do not add an ID, phone number or competing amount. The
+   [privacy-first money recovery](../evaluation/v0.8.1-release-notes.md#privacy-and-delegation-changes)
+   can deliberately ask for clarification when context is ambiguous.
+3. Record the CO explanation, dispute and contextual handoff consecutively, then
+   its staff claim, **before** capturing the PT clip. The edited cut moves PT
+   between CO segments. Keep the customer controller session open: logout/expiry
+   revokes delegated staff access. Switching profiles clears the chat and drafts,
+   not bank cases; do not pretend a later profile switch retained a selected charge.
+4. Open a **separate browser profile/context** for staff. Click **Agent Desk**
+   before login; sign in with the authorized staff account and its own OTP.
+   Another customer tab shares cookies and is not a staff login. On the customer
+   side: **Agent Desk → Crear invitación para Agent Desk → Copiar invitación**.
+   On staff: paste into **Invitación temporal → Conectar esta visita**. Copy/paste
+   and credentials stay off camera; never send the invitation into chat. The
+   one-use invitation lasts up to five minutes and grants only masked queue/claim
+   access. [Contract](../handoff-queue.md), [shipped labels](../../apps/web/src/lib/messages.ts).
+5. For PT, the trusted **Elegir una compra · PT / Escolher compra · PT** shortcut
+   selects the hinted PT-speaker profile and inserts a draft; it never sends.
+   A PT speaker still banks in MX/CO/AR: keep the actual USD/COP/ARS currency,
+   never invent BRL or a Brazilian bank persona. Wait for profile rotation/new
+   workspace before sending. Ordinary persona mode may require a separate login;
+   a language toggle alone is not evidence of Portuguese NLU.
+6. Capture clean model-backed stories only within a separately approved filming
+   budget. If a primary story becomes **Modo básico**, stop that story take;
+   do not present a deterministic fallback as the real-model demonstration.
+   The short basic-mode insert below is separately labelled authored UI evidence.
+   Do not force provider errors, exhaust a purse or change live settings to stage it.
+7. Mask organizer merchant/amount/date values, handles, customer/account details
+   and case/handoff/evidence references before export; retain **COP** and labels,
+   never substitute an invented number as a real record. Credentials, OTPs,
+   invitations, cookies and capabilities remain absent. [Export checklist](checklist.md#record-and-export).
+   A previously filed charge may return a verified **existing-case status**, not a
+   new proposal. Use that wording honestly or another eligible charge; no erasure,
+   reset, forced confirmation or staged OTP screen.
 
-1. Open the owner's restricted Azure URL at `/?grabar=1`, desktop Chromium **1440 × 1000**, normal zoom. Wait for **Accede a Aclara**. Initial readiness was **91.229 s**, including the startup capture; no cold restart was forced. The separate warm Insights visit took **0.849 s**. Prepare startup off camera. [Static observations](video-rehearsal-92994d9.json).
-2. Use **Preparar grabación → Entender un cargo · ES** or the matching quickstart button. The shortcut selects **México · consulta de cargos** and prepares a draft; it does not send a message or authorize an action. Retrieve the password from Key Vault directly into the login process. **Continuar → current simulated SMS code → Verificar y entrar**. Keep login, account fields and SMS off camera.
-3. Capture the ES explanation and its contextual fraud follow-up in the **same conversation**, then Desk/Ops, before changing persona. This preserves the selected charge in the handoff packet. The independently tested **Pedir ayuda · ES** shortcut starts a fresh conversation: its verified action is present, but its charge-facts section is explicitly empty. Do not splice that shortcut into footage claiming it retained a previous selection.
-4. For PT, click **Preparar grabación → Elegir una compra · PT** while the UI is ES, or **Preparar gravação → Escolher compra · PT** while it is PT. Wait for the new login form after asynchronous sign-out. Authenticate **México · conversa em português** off camera: **Continuar → current simulated SMS code → Verificar e entrar**. The shipped draft is prepared automatically. A language toggle alone is not evidence of PT NLU.
-5. Film ES and PT as separate authenticated clips; edit them into the order below. Preserve the visible simulated-bank banner. Mask organizer merchant/amount/date values, transaction handles, customer details, case/handoff/evidence references and account identifiers before export. Credentials and OTPs must remain absent. Keep technical references collapsed and avoid a wide Ops shot of identifiers. [Export checklist](checklist.md#record-and-export).
-6. This rehearsal filed one simulated PT case. A later take may return an **existing-case status receipt** rather than a new proposal. Show and narrate that verified status honestly; do not force a confirmation, erase a case or reset data to stage the scene. Use the observed new-case sequence only when filming actually reaches it. The new-case receipt is not a refund approval.
+## Edited sequence — exact actions and narration cues
 
-## Edited sequence and exact interactions
+| Time | Clicks / text / framing | Narration or evidence cue |
+|---|---|---|
+| **0:00–0:12** | **Insights** in ES: hero and complaint FCR label; brief problem chart. | “A charge you don't recognize should lead to an answer, a choice, or a person.” **43.6%** is complaint-contact FCR in the synthetic dataset, not an Aclara outcome or savings claim. [Source](../../apps/web/src/data/insights.json). |
+| **0:12–0:32** | **Mi chat**, CO profile. Open **Prueba esto → Cargo desconocido**: it inserts **`No reconozco este cargo.`**, focuses the composer and collapses. Press **Enviar mensaje** yourself. If identification is needed, edit to **`No reconozco este cargo de <importe mostrado> COP.`**, send, then choose the matching owned card. Hold the explanation and **¿Reconoces este movimiento?** offer; keep COP visible while masking organizer digits. | “A message is a draft, not authority. Non-recognition gets facts and an offer.” No write has occurred. Show any actual clarification/choice rather than cutting it into an apparently immediate match. [Drafts](../../apps/web/src/components/judge-try-panel.tsx), [flow](../../contracts/interfaces/conversation-policy-v3.md). |
+| **0:32–1:00** | Click **No la reconozco, quiero disputarla**; inspect the separate action dialog, then **Confirmar**. Handle any real fresh-action OTP challenge off camera. Hold **Tu caso está registrado**, verification and intake/no-refund wording. Open **¿Por qué? → Ver IDs de reglas → Cerrar** with technical/record references masked. | “Explicit intent, exact confirmation, fresh verification when required, then committed read-back.” Login/profile selection is not write confirmation; a receipt is dispute intake, not a refund. Show an existing-case receipt honestly if that is the actual outcome. [Current release proof](../evaluation/v0.8.1-release-notes.md#verified-release). |
+| **1:00–1:23** | PT clip: **Escolher compra · PT** prepares **`Quero entender uma cobrança no meu cartão. Quais compras posso revisar?`**. **Enviar mensagem → Revisar este movimento** on the intended card. Hold the Portuguese facts/explanation and actual currency. | “When the description is ambiguous, you choose the purchase.” Selecting a card identifies a transaction; it confirms no write. If unfamiliarity is needed, **Experimente → Cobrança desconhecida** inserts **`Não reconheço esta cobrança.`**; send manually and retain any second selection. [Story draft](../../apps/web/src/lib/demo-stories.ts). |
+| **1:23–1:40** | Return to the earlier CO clip **in its original conversation**. Type **`Perdí mi tarjeta y necesito ayuda con una compra que no reconozco.`**; send. Hold **Tu solicitud está en buenas manos**, verified action and reason labels. | “A card concern brings in a person with context.” Show actual selected-charge facts, or the explicit no-facts state. A handoff is not a freeze; do not claim blocking unless a separately confirmed, verified freeze was captured. |
+| **1:40–2:07** | Staff clip after off-camera invitation redemption: **Agent Desk → Solicitudes de esta visita → new packet**. Frame **Motivo principal**, other reasons, **Hechos verificados**, **Acciones registradas**, open questions and sane SLA. Click **Tomar solicitud**; hold **Asignación verificada en registros** and **En atención**. | “A separately signed-in person receives the masked packet and claims it after read-back.” This visit queue grants claim only, not final resolution, other visits, bank records, transcripts or traces. Do not show a workspace resolve button as a realm feature. [Queue boundary](../handoff-queue.md), [UI read-back](../../apps/web/src/components/agent-desk.tsx). |
+| **2:07–2:20** | Customer clip: frame the chat's **Entender → Decidir → Actuar → Verificar → Derivar** indicator and the recorded **¿Por qué?** rules/receipt. If using Ops footage instead, use an independently authorized owner's **own** workspace trace and label it as a separate visit; delegated staff cannot open the customer's trace. | “Language helps us understand. Code decides what is allowed and verifies what happened.” Live Jev is OFF; do not narrate a live risk second opinion. [Decision](../adr/0017-drop-jev-from-live-path.md), [current release](../evaluation/v0.8.1-release-notes.md#limits-and-deferred-gates). |
+| **2:20–2:31** | On a paused product frame, insert a compact sourced **dev evidence** card: **5 sessions · 1.03 s wall · warm local/mock · one-second simulated NLU**. Do not splice sequential profile clips into a claim of simultaneous execution. Any optional live split-screen must use distinct authenticated browser contexts and actual overlapping turns. | “Our five-session local mock check took about one second, with separate request context.” This is ASGI/memory, no BFF/TLS/Azure/provider, not a cloud SLO. The release's two-session live overlap is a separate small probe, not this benchmark. [Exact 1.026 s source](../evaluation/request-scoped-concurrency.md#measured-result), [release overlap](../evaluation/v0.8.1-release-notes.md#verified-release). |
+| **2:31–2:40** | Separate authored fixture/UI insert, labelled **Ejemplo de interfaz · modo básico / Exemplo de interface · modo básico**: show the subtle **Modo básico · Puedes seguir con tu consulta. / Modo básico · Você pode continuar sua consulta.** notice and usable composer. If no such clip exists, use a labelled still; do not fake a live failure. | “If the language service is unavailable, the interface explains the basic mode calmly.” This illustrates a trusted `degraded=true` reply, not measured fallback quality or a healthy Azure model turn. [Notice contract](../../apps/web/README.md#basic-mode-expiry-and-handoff-scope), [copy](../../apps/web/src/lib/messages.ts). |
+| **2:40–2:55** | **Insights → Explorar la evidencia ↓**: official v4, model-cost/latency labels, failed-safety disclosure. Keep any dev overlay visibly separate. End on Aclara. | “Official v4: 88 of 100 pass; safe automation is 32 of 100 overall, 32 of 47 eligible. Both full safety gates failed. This is simulated banking, with synthetic language evidence and production work still ahead.” [Official results](../evaluation/final-v4-results.md), [limits](../production-readiness.md). |
 
-| Clip time     | Exact clicks/messages                                                                                                                                                                                                                                                                                                                                                                     | Hold / narration cue                                                                                                                                                                                                                                      |
-| ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **0:00–0:10** | **Insights**, hero in ES.                                                                                                                                                                                                                                                                                                                                                                 | “An unfamiliar charge should lead to an answer, a choice, or a person.” Product on screen immediately; complaint-scoped FCR label visible.                                                                                                                |
-| **0:10–0:20** | Scroll to **El problema, visto en los datos**.                                                                                                                                                                                                                                                                                                                                            | Complaint volume versus handle time is dataset evidence, not realized Aclara savings. [Committed numeric source](../../apps/web/src/data/insights.json).                                                                                                  |
-| **0:20–0:48** | **Mi conversación → Preparar grabación → Entender un cargo · ES**. Confirm the prepared text **`Quiero entender un cargo en mi tarjeta.`**; **Enviar mensaje**. Click the first **Revisar este movimiento**. Latest **¿Por qué? → Cerrar**.                                                                                                                                               | Three cards → customer selection → recorded-status explanation and rules. The choice sends **`el primero`**; it confirms no write. The inquiry does not claim the selected charge is pending.                                                             |
-| **0:48–1:40** | In the separately authenticated PT clip, **Escolher compra · PT** prepares **`Quero entender uma cobrança no meu cartão. Quais compras posso revisar?`**. **Enviar mensagem → first Revisar este movimento**. Type **`Não reconheço esse movimento.`**; **Enviar mensagem**. When three choices reopen, click the first **Revisar este movimento** again.                                 | Preserve the observed second selection. It leads to **Você reconhece este movimento?**, with an explanation and recognition/denial choices. No action has been written yet.                                                                               |
-| **1:40–2:00** | Click **Não reconheço, quero contestar → Confirmar** in the separate action dialog. Hold **Seu caso está registrado**, **Verificado**, and the review/no-refund note.                                                                                                                                                                                                                     | Explicit intent and a separate confirmation precede filing; the stored case is read back. This rehearsal's login OTP was fresh, so no renewal popup appeared. If one appears in filming, handle the real challenge off camera; never stage an OTP screen. |
-| **2:00–2:30** | Return to the previously captured ES clip after its charge selection. Send **`Perdí mi tarjeta y necesito ayuda con una compra que no reconozco.`**. Hold **Tu solicitud está en buenas manos**. **Agent Desk → that new queue item**. Frame **Motivo principal**, other reason, **Hechos verificados**, **Acciones registradas → Derivación creada → Verificado en registros**, and SLA. | Fraud/card is primary; reinforced verification is also required. One selected-charge fact and a verified handoff action are visible. No freeze, claim or resolution. This deterministic turn made no model call.                                          |
-| **2:30–2:40** | Same ES session: **Evidencia y operaciones → Registro de ejecución**; select this conversation. Frame **Derivar / Verificar** and **Verificado**, without technical identifiers.                                                                                                                                                                                                          | Actual trace and independent read-back. The contextual conversation has earlier model calls; the separately tested fresh fraud conversation says **Sin llamadas al modelo registradas**. Do not describe the whole rehearsal as zero-cost.                |
-| **2:40–2:55** | **Insights → Explorar la evidencia ↓**. Hold historical evidence, labeled cost/latency and the pending-results/safety caveat.                                                                                                                                                                                                                                                             | “A simulated bank, limited human language review, and no production safety guarantee. We keep failures visible and verify actions in code.” [Committed numeric source](../../apps/web/src/data/insights.json).                                            |
+Capture first, then add voiceover. The cues above supersede the
+[historical video-script draft](video-script.md) for this cut: no pending-charge
+assumption, live Jev claim, automatic dispute, mandatory OTP popup, refund,
+production savings or pending-v4 narration. Trim holds/transitions against the
+actual exported duration; do not accelerate footage to conceal a failed action.
 
-Capture first, then add narration using [the script](video-script.md) as a separate track. Update any narration claiming a pending charge, automatic dispute, mandatory OTP renewal, Gemini/Jev fraud inference or production savings to match the filmed behavior. Reserve the last fifteen seconds for limits. No future filming spend is included in this rehearsal's total.
+## Preserved rehearsal evidence — historical, not this recording
 
-## Live acceptance and screenshot references
-
-All screenshots are under ignored, mode-0600 `artifacts/ux-audit/azure-rehearsal-92994d9/`; the directory is mode 0700. Open its `index.html` privately. Each view has a viewport PNG and a `-full.png`. There are **41 views / 82 PNGs**, zero page errors or horizontal-overflow captures, and sidebar y=0 throughout. Raw captures contain organizer facts/operational references and must not be published. [Capture receipt](video-rehearsal-92994d9.json).
-
-| Requested check                       | Result and limit                                                                                                                                                                                                                               | Private screenshot stem                                                                                                         |
-| ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| ES/PT reply integrity                 | **PASS:** all ten replies have neither `operaci3n` nor an English status; representative screenshots reviewed. Technical names in Ops remain secondary evidence, not customer reply text.                                                      | `es-explain-select`, `pt-purchase-select`, `pt-unfamiliarity-select`, `pt-confirm-receipt`                                      |
-| PT story → choices → verified receipt | **PASS:** three choices; first selection; unfamiliarity reopens choices; first re-selection; nonterminal offer; explicit denial; separate confirmation; new receipt plus authenticated GET read-back.                                          | `pt-purchase-options`, `pt-unfamiliarity-select`, `pt-dispute-proposal`, `pt-confirm-receipt`, `pt-receipt-why`                 |
-| Desk SLA counter                      | **PASS:** both new packets show about fifteen days, rather than months. Backend supplies the deadline; live UI uses wall time.                                                                                                                 | `es-context-desk`, `es-fresh-fraud-desk`                                                                                        |
-| New handoff facts/actions             | **PASS with context:** selected-charge handoff has one fact, one evidence record and one verified action; fresh helper handoff has a verified action and an explicit no-charge-facts state. Both pass independent authenticated GET read-back. | `es-context-desk-actions`, `es-fresh-fraud-desk-actions`                                                                        |
-| All story buttons enabled             | **PASS:** 3/3 quickstart and 3/3 helper controls enabled; live API hints authorize ES explain/fraud and PT ambiguity. Each shortcut was exercised through normal authentication.                                                               | `explain-ready-full`, `fraud-ready-full`, `ambiguous-ready-full`, `pt-confirm-receipt-full`                                     |
-| Insights, Desk and Ops                | **PASS:** ES/PT Insights and sources; both Desk packets; three real execution traces, including case/handoff verification.                                                                                                                     | `es-insights-overview`, `pt-insights-overview`, `es-insights-sources`, `es-context-ops`, `es-fresh-fraud-ops`, `pt-receipt-ops` |
-
-## Turn timings and cost
-
-Single observations, not latency percentiles. Browser timing ends at rendered response, before captures and extra read-backs; BFF timing excludes browser/network/startup. Amounts come from execution metadata, not a provider invoice; cloud/CI costs are excluded. [Machine-readable receipt](video-rehearsal-92994d9.json).
-
-| Turn                    |  Browser wall | Azure BFF | New valid calls | Known model USD | Outcome                                          |
-| ----------------------- | ------------: | --------: | --------------: | --------------: | ------------------------------------------------ |
-| ES neutral inquiry      |       5.464 s |   5.188 s |               2 |     0.001861992 | Three choices                                    |
-| ES first selection      |       1.502 s |   1.396 s |               1 |     0.000401000 | Explanation                                      |
-| ES contextual fraud     |       0.359 s |   0.157 s |               0 |               0 | Verified handoff with selected fact              |
-| ES fresh fraud shortcut |       0.355 s |   0.128 s |               0 |               0 | Verified handoff, no selected charge             |
-| PT shipped inquiry      |       2.471 s |   2.215 s |               2 |     0.001943244 | Three choices                                    |
-| PT first selection      |       1.624 s |   1.508 s |               1 |     0.000381500 | Explanation                                      |
-| PT bare unfamiliarity   |       1.822 s |   1.681 s |               2 |     0.001857450 | Choices reopen                                   |
-| PT first re-selection   |       0.223 s |   0.084 s |               0 |               0 | Nonterminal dispute offer                        |
-| PT denial button        |       2.127 s |   2.001 s |               2 |     0.001890492 | Separate confirmation proposal                   |
-| PT confirmation         |       0.269 s |   0.153 s |               0 |               0 | Filed, verified case; independent read-back      |
-| **Total**               | **Ten turns** |         — |          **10** | **0.008335678** | **No unknown usage, provider error or fallback** |
-
-Remaining filming considerations: initial startup belongs off camera; the PT re-selection is a visible extra click; missing merchant/product data retains explicit labels; case/evidence references and organizer values need export masking. The ES-to-PT automation initially raced asynchronous sign-out; the correct PT login was captured and ordinary auth retried before any PT model request. This was a harness wait failure, not a degraded conversation or an extra paid replay. No frozen suite, gold, B1/P evaluation, direct model key/call, cloud setting, reset, freeze, staff claim or resolution was used.
+- The [92994d9 rehearsal receipt](video-rehearsal-92994d9.json) remains unchanged:
+  ten turns, ten valid Gemini/Jev calls, **$0.008335678** known model cost, no
+  unknown usage/provider error/fallback. That earlier image had no current
+  judge-profile panel or realm staff-claim recording. Its timings are not
+  v0.8.1 latency or five-session concurrency evidence.
+- Historical captures remain ignored in
+  `artifacts/ux-audit/azure-rehearsal-92994d9/` (0700 directory, 0600 images):
+  **41 views / 82 PNGs**. They contain private organizer facts and are not export
+  assets. [Older failure receipt](video-rehearsal-conversations.json) also remains.
+- The [v0.8.1 release smoke](../evaluation/v0.8.1-release-notes.md#cost-and-preserved-history)
+  separately charged **$0.00776**, four provider calls and six conversation
+  attempts. These are preserved release observations, not spend for this
+  docs-only update and not an estimate or authorization for another take.
