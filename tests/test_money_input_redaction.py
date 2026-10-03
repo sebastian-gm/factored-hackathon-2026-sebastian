@@ -10,7 +10,7 @@ import pytest
 from pydantic import BaseModel
 
 from aclara.agent.matching import MatchState
-from aclara.agent.nlg.grounding import redact_for_model
+from aclara.agent.nlg.grounding import redact_for_model, scan_dlp
 from aclara.agent.nlu.structured import ExtractedNlu, postprocess, understand
 from aclara.bank.repository import Transaction
 from aclara.llm.client import StructuredClient
@@ -44,8 +44,8 @@ MONEY = [
 
 
 @pytest.mark.parametrize(("country", "message", "expected"), MONEY)
-def test_regional_money_survives_input_redaction(country, message, expected):
-    assert redact_for_model(message) == message
+def test_regional_money_cannot_exempt_input_digit_runs(country, message, expected):
+    assert not scan_dlp(redact_for_model(message))
 
 
 @pytest.mark.parametrize(("country", "message", "expected"), MONEY)
@@ -145,15 +145,15 @@ def test_two_different_amounts_are_not_collapsed_into_the_first_one():
 
 
 @pytest.mark.parametrize("unit", ["mil", "millones", "palos", "lucas"])
-def test_amounts_with_numeric_unit_context_are_not_identifiers(unit):
+def test_numeric_unit_context_cannot_exempt_model_digit_runs(unit):
     message = f"El monto es de 12500000 {unit}."
-    assert redact_for_model(message) == message
+    assert "12500000" not in redact_for_model(message)
 
 
-def test_identifiers_are_masked_but_the_amount_in_the_same_message_survives():
+def test_identifiers_and_amount_are_masked_and_only_separate_clause_money_is_recovered():
     message = "Mi DNI es 12.345.678; la compra fue de 12500000 pesos."
     redacted = redact_for_model(message)
-    assert "12.345.678" not in redacted and "12500000 pesos" in redacted
+    assert "12.345.678" not in redacted and "12500000" not in redacted
     assert understand(message, country="AR", bank_clock=CLOCK).slots.amount_value == Decimal(
         12500000
     )
@@ -276,7 +276,7 @@ def test_grouped_phone_without_monetary_context_is_not_amount_evidence(message):
     ],
 )
 @pytest.mark.parametrize("selected", [True, False])
-def test_shared_currency_does_not_force_the_last_amount(
+def test_shared_currency_clears_competing_model_amounts(
     country, message, first, currency, selected
 ):
     extracted = ExtractedNlu(
@@ -287,10 +287,11 @@ def test_shared_currency_does_not_force_the_last_amount(
         currency_expr=currency,
     )
     result = postprocess(extracted, country=country, bank_clock=CLOCK, message=message)
-    assert result.slots.amount_value == (Decimal(first) if selected else None)
+    assert result.slots.amount_value is None
+    assert result.extracted.amount_expr is None and result.clarification == "amount"
     assert understand(message, country=country, bank_clock=CLOCK).slots.amount_value is None
     if len(first) >= 8:
-        assert redact_for_model(message) == message  # The unit applies to both money tokens.
+        assert first not in redact_for_model(message)
 
 
 @pytest.mark.parametrize(
@@ -305,7 +306,7 @@ def test_shared_currency_does_not_force_the_last_amount(
     ],
 )
 def test_amount_cues_allow_grouped_money_without_a_currency_code(message):
-    assert redact_for_model(message) == message
+    assert "123.456.789" not in redact_for_model(message)
     assert understand(message, country="CO", bank_clock=CLOCK).slots.amount_value == Decimal(
         "123456789.50"
     )
@@ -318,9 +319,9 @@ def test_amount_cues_allow_grouped_money_without_a_currency_code(message):
         "A compra é de 1000000.00 BRL; meu telefone de contato é 300.123.456",
     ],
 )
-def test_contact_and_money_in_one_message_keep_separate_classification(message):
+def test_contact_and_money_are_masked_and_local_recovery_keeps_separate_clauses(message):
     redacted = redact_for_model(message)
-    assert "1000000.00" in redacted and "300.123.456" not in redacted
+    assert "1000000" not in redacted and "300.123.456" not in redacted
     assert understand(message, country="CO", bank_clock=CLOCK).slots.amount_value == Decimal(
         "1000000.00"
     )

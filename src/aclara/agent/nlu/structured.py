@@ -18,7 +18,8 @@ from pydantic import BaseModel, ConfigDict, Field
 from typesafe_sdk import RetryPolicy, TypeSafeClient
 
 from aclara.agent.contracts import Intent, NluFrame
-from aclara.agent.nlg.grounding import money_expressions, redact_for_model, scan_dlp
+from aclara.agent.nlg.grounding import redact_for_model, scan_dlp
+from aclara.agent.nlu.money import inspect_money
 from aclara.agent.nlu.rules import classify_nlu, normalize_text
 from aclara.agent.nlu.transaction_types import normalize_transaction_type
 from aclara.agent.nlu.word_amounts import parse_spoken_money, parse_word_amount
@@ -413,9 +414,6 @@ def _fallback_extract(message: str, *, awaiting_recognition: bool = False) -> Ex
         r"\b\d+(?:[.,]\d+)*\s*(?:pesos?|dolares?|reais|lucas?|palos?|contos?|varos?|pila)?",
         normalize_text(redact_for_model(message)),
     )
-    if len(money_expressions(message)) > 1:
-        amount = None
-
     currency = re.search(
         r"\b(?:pesos?|dolares?|reais|usd|cop|ars|mxn|brl|varos?|lana)\b", normalize_text(message)
     )
@@ -493,16 +491,21 @@ def postprocess(
     awaiting_recognition: bool = False,
     message: str | None = None,
 ) -> NluResult:
+    money_needs_clarification = False
     if message is not None:
-        raw_money = money_expressions(message)
-        # Parse original local evidence, independently of provider redaction or
-        # extraction. Multiple amounts still require disambiguation by the model.
+        raw_money = inspect_money(message)
+        money_needs_clarification = raw_money.needs_clarification
+        # Merge only unambiguous local evidence after the provider call. Reject
+        # model amount guesses when raw text contains identifiers/competing values.
         if (
-            len(raw_money) == 1
-            and normalize_text(raw_money[0]) not in normalize_text(extracted.merchant_expr or "")
-            and parse_amount(raw_money[0], country) is not None
+            raw_money.expression is not None
+            and normalize_text(raw_money.expression)
+            not in normalize_text(extracted.merchant_expr or "")
+            and parse_amount(raw_money.expression, country) is not None
         ):
-            extracted = extracted.model_copy(update={"amount_expr": raw_money[0]})
+            extracted = extracted.model_copy(update={"amount_expr": raw_money.expression})
+        elif money_needs_clarification:
+            extracted = extracted.model_copy(update={"amount_expr": None})
     # Declining an offer is not a claim that the customer made the purchase.
     # Cancellation itself remains the state machine's responsibility. Preserve
     # actual recollection when the same message also declines filing.
@@ -590,6 +593,8 @@ def postprocess(
     clarification: Literal["currency", "amount", "date", "language"] | None = None
     if language in {"mixed", "other"}:
         clarification = "language"
+    elif money_needs_clarification:
+        clarification = "amount"
     elif ambiguous:
         clarification = "currency"
     elif (

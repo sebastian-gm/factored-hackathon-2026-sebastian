@@ -30,34 +30,13 @@ _LABELLED_DOCUMENT = re.compile(
     r"([0-9][0-9.\s-]{5,16}[0-9kK])(?=\b|$)",
     re.I,
 )
-_CURRENCY_WORD = r"(?:USD|COP|CLP|ARS|MXN|BRL|EUR|GBP|pesos?|d[oó]lares?|reais|real|euros?)"
-_LABELLED_IDENTIFIER = re.compile(
-    r"(\b(?:CPF|DNI|RUT|c[eé]dula|documento|RG|RFC|CNPJ|pasaporte|passaporte|"
-    r"tel[eé]fono|telefone|celular|m[oó]vil|fono|fone|whatsapp|phone|tel|tarjeta|cart[aã]o|card|PAN|"
-    r"contact[ao]|contactar|contat[ao]|contatar|ll[aá]ma(?:me|nos)?|llame|llamar|liga|ligue|ligar)\b"
-    r"(?:\s+(?:de|del|do|da|al|a|el|o|mi|meu|contacto|contato|contactar|contatar|"
-    r"es|e|é|n[uú]mero|num|nro|para|en|no|na|pelo|pela|por|titular|cliente|cr[eé]dito)){0,6}"
-    r"\s*[:#]?\s*"
-    rf"(?:(?:{_CURRENCY_WORD}|(?:R|US)?[$€£])\s*)?)(\+?\d[\d. -]{{5,24}}[0-9kK])(?=\b|$)",
+# Also mask punctuated documents after descriptive text/currency markers. This
+# only adds masking; it cannot exempt any match of the original DLP patterns.
+_MODEL_DOCUMENT = re.compile(
+    r"(\b(?:CPF|DNI|RUT|c[eé]dula)\b[^\d\n;!?]{0,60})"
+    r"([0-9][0-9.\s-]{5,16}[0-9kK])(?=\b|$)",
     re.I,
 )
-_MONEY_SCALE = r"(?:mil(?:\s+millones)?|mill[oó]n(?:es)?|milh[aã]o|milh[oõ]es)"
-_MONEY_UNIT = (
-    rf"(?:{_CURRENCY_WORD}|{_MONEY_SCALE}|palos?|lucas?|contos?|varos?|pilas?|lana|centavos?)"
-)
-_MONEY_PREFIX = re.compile(rf"(?:\b{_CURRENCY_WORD}\s*|(?:R|US)?[$€£]\s*)$", re.I)
-_MONEY_AMOUNT_PREFIX = re.compile(
-    r"\b(?:(?:cargos?|cobros?|consumos?|compras?|cobranças?|transaç(?:ão|ões)|"
-    r"transacci[oó]n(?:es)?|pagamentos?|"
-    r"pagos?|valor|monto|importe|total|quantia)"
-    r"(?:\s+(?:es|e|é|fue|foi|de|do|da|por|en|no|na))*|por)\s*$",
-    re.I,
-)
-_MONEY_SUFFIX = re.compile(
-    rf"\s*(?:de\s+)?{_MONEY_UNIT}\b(?:\s+(?:de\s+)?{_CURRENCY_WORD}\b)?", re.I
-)
-_GROUPED_MONEY = re.compile(r"(?:\d{1,3}(?:\.\d{3})+(?:,\d{2})?|\d{1,3}(?:,\d{3})+(?:\.\d{2})?)")
-_SHARED_MONEY_UNIT = re.compile(r"\s*(?:[,/&]|y|e|o|ou)\s*(?:de\s+)?", re.I)
 _HANDLE = re.compile(r"\b(?:txn|card|prod|cust)_\d+\b", re.I)
 # UTF-8 decoded as Latin-1/Windows-1252, replacement characters, and a narrow
 # word-internal ASCII corruption signature. Ordinary ES/PT accents remain valid.
@@ -176,96 +155,15 @@ def scan_dlp(text: str, *, other_customer_names: tuple[str, ...] = ()) -> tuple[
     return tuple(violations)
 
 
-def _identifier_spans(text: str) -> list[tuple[int, int]]:
-    # Explicit identifiers and card-shaped runs win even beside a currency cue.
-    spans = [
-        match.span(2)
-        for pattern in (_LABELLED_DOCUMENT, _LABELLED_IDENTIFIER)
-        for match in pattern.finditer(text)
-    ]
-    spans.extend(match.span() for pattern in (_EMAIL, _CARD) for match in pattern.finditer(text))
-    spans.extend(
-        match.span()
-        for match in _PHONE.finditer(text)
-        if "+" in match[0] or "-" in match[0] or text[match.start() - 1 : match.start()] == "+"
-    )
-    return spans
-
-
-def _money_spans(text: str) -> tuple[tuple[int, int], ...]:
-    identifiers = _identifier_spans(text)
-    numbers = tuple(_NUMBER.finditer(text))
-    spans: dict[int, tuple[int, int]] = {}
-    blocked: set[int] = set()
-    for index, number in enumerate(numbers):
-        if any(start < number.end() and number.start() < end for start, end in identifiers):
-            blocked.add(index)
-            continue
-        if not (
-            _GROUPED_MONEY.fullmatch(number[0]) or re.fullmatch(r"\d+(?:[.,]\d{1,2})?", number[0])
-        ):
-            blocked.add(index)
-            continue
-        prefix = _MONEY_PREFIX.search(text[: number.start()]) or _MONEY_AMOUNT_PREFIX.search(
-            text[: number.start()]
-        )
-        suffix = _MONEY_SUFFIX.match(text, number.end())
-        if prefix or suffix:
-            spans[index] = (
-                prefix.start() if prefix else number.start(),
-                suffix.end() if suffix else number.end(),
-            )
-    # "125 y 234 pesos" gives both numbers monetary context. Keep them separate
-    # so postprocess/fallback cannot mistake the final qualifier for one amount.
-    for index in reversed(range(len(numbers) - 1)):
-        if index in spans or index in blocked or index + 1 not in spans:
-            continue
-        previous, following = numbers[index], numbers[index + 1]
-        if _SHARED_MONEY_UNIT.fullmatch(text[previous.end() : following.start()]) and not any(
-            date.start() < previous.end() and previous.start() < date.end()
-            for date in _ISO_DATE.finditer(text)
-        ):
-            spans[index] = previous.span()
-    return tuple(spans[index] for index in sorted(spans))
-
-
-def money_expressions(text: str) -> tuple[str, ...]:
-    """Complete numeric money evidence from original text, excluding identifiers."""
-    return tuple(text[start:end] for start, end in _money_spans(text))
-
-
 def redact_for_model(text: str) -> str:
-    """Strip identifiers, preserving money shapes only in inbound model context."""
-    # Keep source offsets until all matches are classified: sequential replacement
-    # can turn a grouped amount's remaining digits into another identifier match.
-    spans = _identifier_spans(text)
-    money = _money_spans(text)
-    for number in _NUMBER.finditer(text):
-        if (
-            _GROUPED_MONEY.fullmatch(number[0])
-            and sum(char.isdigit() for char in number[0]) >= 8
-            and not any(left <= number.start() and number.end() <= right for left, right in money)
-        ):
-            spans.append(number.span())
-    for pattern in (_PHONE, _DOCUMENT):
-        for match in pattern.finditer(text):
-            start, end = match.span()
-            # A phone regex may consume terminal punctuation/space after a number.
-            end = start + len(match[0].rstrip(" .-"))
-            if not any(left <= start and end <= right for left, right in money):
-                spans.append((start, end))
-    merged: list[tuple[int, int]] = []
-    for start, end in sorted(spans):
-        if merged and start <= merged[-1][1]:
-            merged[-1] = (merged[-1][0], max(merged[-1][1], end))
-        else:
-            merged.append((start, end))
-    parts: list[str] = []
-    position = 0
-    for start, end in merged:
-        parts.extend((text[position:start], "[REDACTED]"))
-        position = end
-    return "".join((*parts, text[position:]))
+    """Strip direct identifiers before any customer text or fact reaches a provider."""
+    # Currency or amount wording must never exempt a digit run. Local amount
+    # recovery happens after the provider call and cannot weaken this boundary.
+    redacted = _LABELLED_DOCUMENT.sub(lambda match: match[1] + "[REDACTED]", text)
+    redacted = _MODEL_DOCUMENT.sub(lambda match: match[1] + "[REDACTED]", redacted)
+    for pattern in (_EMAIL, _CARD, _PHONE, _DOCUMENT):
+        redacted = pattern.sub("[REDACTED]", redacted)
+    return redacted
 
 
 def _customer_prose(text: str, cited_facts: tuple[AllowedFact, ...]) -> str:
