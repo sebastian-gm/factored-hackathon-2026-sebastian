@@ -199,3 +199,19 @@ separately authorized reset orchestration; this UI does not widen RLS or bypass 
 
 Validation uses authored fixtures and local B1/mock API only. Risk/Grok display
 fixtures are illustrative injected test responses, not paid-model measurements.
+
+## Realm queue (#138)
+
+Implemented contract: POST `handoffs/realm-invitations` (verified, five-minute
+one-use capability), separately authenticated POST `agent/handoff-realm`, then
+masked `agent/handoffs` with `scope=current_realm`, `request_summary.text`, and
+claim-only audited/read-back actions. No browser token storage, URL transport,
+transcript link or bank access is added. Other tabs retire their view before a
+membership switch and re-read trusted identity afterwards.
+
+Optional additive proposal for the lead: expose an authenticated queue-scope
+read (`scope: current_workspace | current_realm`, no realm/customer identifiers),
+either on `/me` or GET `/agent/handoff-realm`. An empty queue currently carries no
+scope metadata after page reload. The UI uses a neutral “authorized requests”
+label in that state, rather than guessing a workspace or visit. No new endpoint
+is assumed by this implementation.

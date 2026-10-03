@@ -224,6 +224,8 @@ export type Config = {
 
 // Proposed extensions: feature-flagged fixtures ONLY until the lead adds contracts.
 export type DeskPacket = Handoff & {
+  scope?: "current_workspace" | "current_realm";
+  request_summary?: Record<string, string | Record<string, string>>;
   conversation_id: string | null;
   version?: number;
   verified?: boolean;
