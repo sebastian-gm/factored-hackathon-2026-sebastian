@@ -5319,3 +5319,36 @@ later flag-only session for the current contract and activation dependencies.
   readback are prerequisites; unused capacity does not authorize calls.
 - Judge/public/warm/burst/CPU settings remain unchanged and OFF. No state
   deletion, organizer reload, persona rebind or held-out rerun.
+
+## 2026-10-02 COT — v0.8.1 monetary security re-review
+
+### Completed (verified)
+
+- Read #149 corrected `436627d` and its four green remote gates. Zero-cost
+  authored replay confirms the earlier grouped-contact and shared-unit findings
+  are corrected, and the exact two-decimal/ISO formatter is recognized locally.
+- Further authored ES/PT replay found ordinary personal-phone wording with a
+  currency suffix, and `DNI termina por`, still sent unmasked and accepted as
+  amount evidence. Lead withheld security approval; orchestrator relayed it.
+- Customer-scoped zero-call preflight found **one unfiled eligible large-COP
+  target** for the existing CO demo persona. Saved only private operator
+  references at 0600; no row values printed, reset or persona rebind.
+- Live official East US 2 retail-price gate refreshed October 3 02:08 UTC:
+  existing min-zero deployment estimate **$34.63/month**, gate passed. Prepared
+  private release/queue-migration operators; syntax checks passed only.
+
+### Done but not verified
+
+- New owner-approved release is prepared, not deployed. Existing v0.8.0 and
+  all original receipts/counters remain untouched; no new model calls.
+- Planned smoke: COP dispute + PT ambiguity, fraud, independently authenticated
+  staff invitation/claim/revocation and browser; at most five conversation
+  attempts. Estimate **$0.02–$0.04**, owner-approved fresh **$0.10** hard purse.
+  No budget run has been created and no Azure setting/migration changed yet.
+
+### Next / blocked
+
+- AI owner will restore privacy-first digit redaction and keep raw money recovery
+  local. Identifier cues or multiple amounts leave the slot unresolved. Review
+  the new head, run final integration gates and release v0.8.1 within a fresh
+  $0.10 purse including the large-COP case. Judge activation remains OFF.
