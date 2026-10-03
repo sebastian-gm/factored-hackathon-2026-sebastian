@@ -1,5 +1,10 @@
 # Aclara — product pitch video draft
 
+**Historical draft, superseded for filming:** use the
+[v0.8.1 shot list and current narration cues](video-shot-list.md). This draft
+predates final v4, the released staff queue and the live Jev-OFF configuration;
+its pending-results, pending-charge and live-Jev narration is not current.
+
 Target: no more than **3:00**, per [brief §16.4](../00-build-brief.md).
 Narration and directions are separate below. Follow the [submission checklist](checklist.md)
 before recording; only the deployed app appears as the live product.
