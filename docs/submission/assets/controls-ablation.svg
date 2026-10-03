@@ -3,7 +3,7 @@
   <rdf:RDF>
    <ns2:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-    <dc:description>docs/evaluation/controls-ablation.md sha256:f3c322809919e3072d9a52fab2d4cd435437a10d26edc165eea569d039aeb2bd</dc:description>
+    <dc:description>docs/history/evaluation/controls-ablation.md sha256:d7cccb3da8d0d579c5cdc14d23de5055297eebfccef77a1f1b692426803fef2d</dc:description>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <ns2:Agent>
@@ -74,19 +74,19 @@
     <path d="M 51.84 213.84  L 200.805517 213.84  " style="fill: none; stroke: #dce3de; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square" />
    </g>
    <g id="text_5">
-    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="146.957143" transform="rotate(-0 51.84 146.957143)">Naive tool agent</text>
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="146.957143" transform="rotate(-0 51.84 146.957143)">Plain AI agent</text>
    </g>
    <g id="text_6">
     <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="55.564138" y="159.910045" transform="rotate(-0 55.564138 159.910045)">0/20 · 0.0%</text>
    </g>
    <g id="text_7">
-    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="186.3" transform="rotate(-0 51.84 186.3)">P · code controls</text>
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="186.3" transform="rotate(-0 51.84 186.3)">Aclara</text>
    </g>
    <g id="text_8">
     <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="55.564138" y="199.252902" transform="rotate(-0 55.564138 199.252902)">0/20 · 0.0%</text>
    </g>
    <g id="text_9">
-    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="51.84" y="111.22" transform="rotate(-0 51.84 111.22)">Ineligible writes</text>
+    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="51.84" y="111.22" transform="rotate(-0 51.84 111.22)">Actions outside the rules</text>
    </g>
   </g>
   <g id="axes_2">
@@ -137,19 +137,19 @@
     <path d="M 315.36 213.84  L 464.325517 213.84  " style="fill: none; stroke: #dce3de; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square" />
    </g>
    <g id="text_14">
-    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="315.36" y="146.957143" transform="rotate(-0 315.36 146.957143)">Naive tool agent</text>
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="315.36" y="146.957143" transform="rotate(-0 315.36 146.957143)">Plain AI agent</text>
    </g>
    <g id="text_15">
     <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="319.084138" y="159.910045" transform="rotate(-0 319.084138 159.910045)">0/20 · 0.0%</text>
    </g>
    <g id="text_16">
-    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="315.36" y="186.3" transform="rotate(-0 315.36 186.3)">P · code controls</text>
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="315.36" y="186.3" transform="rotate(-0 315.36 186.3)">Aclara</text>
    </g>
    <g id="text_17">
     <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="319.084138" y="199.252902" transform="rotate(-0 319.084138 199.252902)">0/20 · 0.0%</text>
    </g>
    <g id="text_18">
-    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="315.36" y="111.22" transform="rotate(-0 315.36 111.22)">No confirmation</text>
+    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="315.36" y="111.22" transform="rotate(-0 315.36 111.22)">Without confirmation</text>
    </g>
   </g>
   <g id="axes_3">
@@ -195,19 +195,19 @@
     <path d="M 578.88 213.84  L 727.845517 213.84  " style="fill: none; stroke: #dce3de; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square" />
    </g>
    <g id="text_23">
-    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="578.88" y="146.957143" transform="rotate(-0 578.88 146.957143)">Naive tool agent</text>
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="578.88" y="146.957143" transform="rotate(-0 578.88 146.957143)">Plain AI agent</text>
    </g>
    <g id="text_24">
     <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="597.50069" y="159.910045" transform="rotate(-0 597.50069 159.910045)">2/20 · 10.0%</text>
    </g>
    <g id="text_25">
-    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="578.88" y="186.3" transform="rotate(-0 578.88 186.3)">P · code controls</text>
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="578.88" y="186.3" transform="rotate(-0 578.88 186.3)">Aclara</text>
    </g>
    <g id="text_26">
     <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="582.604138" y="199.252902" transform="rotate(-0 582.604138 199.252902)">0/20 · 0.0%</text>
    </g>
    <g id="text_27">
-    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="578.88" y="111.22" transform="rotate(-0 578.88 111.22)">Unverified write success</text>
+    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="578.88" y="111.22" transform="rotate(-0 578.88 111.22)">Unverified success</text>
    </g>
   </g>
   <g id="axes_4">
@@ -258,13 +258,13 @@
     <path d="M 51.84 374.22  L 200.805517 374.22  " style="fill: none; stroke: #dce3de; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square" />
    </g>
    <g id="text_32">
-    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="307.337143" transform="rotate(-0 51.84 307.337143)">Naive tool agent</text>
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="307.337143" transform="rotate(-0 51.84 307.337143)">Plain AI agent</text>
    </g>
    <g id="text_33">
     <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="55.564138" y="320.290045" transform="rotate(-0 55.564138 320.290045)">0/20 · 0.0%</text>
    </g>
    <g id="text_34">
-    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="346.68" transform="rotate(-0 51.84 346.68)">P · code controls</text>
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="346.68" transform="rotate(-0 51.84 346.68)">Aclara</text>
    </g>
    <g id="text_35">
     <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="55.564138" y="359.632902" transform="rotate(-0 55.564138 359.632902)">0/20 · 0.0%</text>
@@ -321,19 +321,19 @@
     <path d="M 315.36 374.22  L 464.325517 374.22  " style="fill: none; stroke: #dce3de; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square" />
    </g>
    <g id="text_41">
-    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="315.36" y="307.337143" transform="rotate(-0 315.36 307.337143)">Naive tool agent</text>
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="315.36" y="307.337143" transform="rotate(-0 315.36 307.337143)">Plain AI agent</text>
    </g>
    <g id="text_42">
     <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="319.084138" y="320.290045" transform="rotate(-0 319.084138 320.290045)">0/20 · 0.0%</text>
    </g>
    <g id="text_43">
-    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="315.36" y="346.68" transform="rotate(-0 315.36 346.68)">P · code controls</text>
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="315.36" y="346.68" transform="rotate(-0 315.36 346.68)">Aclara</text>
    </g>
    <g id="text_44">
     <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="319.084138" y="359.632902" transform="rotate(-0 319.084138 359.632902)">0/20 · 0.0%</text>
    </g>
    <g id="text_45">
-    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="315.36" y="271.6" transform="rotate(-0 315.36 271.6)">Cross-customer access</text>
+    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="315.36" y="271.6" transform="rotate(-0 315.36 271.6)">Other-customer attempts</text>
    </g>
   </g>
   <g id="axes_6">
@@ -374,32 +374,29 @@
     <path d="M 578.88 374.22  L 727.845517 374.22  " style="fill: none; stroke: #dce3de; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square" />
    </g>
    <g id="text_50">
-    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="578.88" y="307.337143" transform="rotate(-0 578.88 307.337143)">Naive tool agent</text>
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="578.88" y="307.337143" transform="rotate(-0 578.88 307.337143)">Plain AI agent</text>
    </g>
    <g id="text_51">
     <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="731.569655" y="320.290045" transform="rotate(-0 731.569655 320.290045)">6/6 · 100.0%</text>
    </g>
    <g id="text_52">
-    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="578.88" y="346.68" transform="rotate(-0 578.88 346.68)">P · code controls</text>
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="578.88" y="346.68" transform="rotate(-0 578.88 346.68)">Aclara</text>
    </g>
    <g id="text_53">
     <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="731.569655" y="359.632902" transform="rotate(-0 731.569655 359.632902)">6/6 · 100.0%</text>
    </g>
    <g id="text_54">
-    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="578.88" y="271.6" transform="rotate(-0 578.88 271.6)">Correct escalation</text>
+    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="578.88" y="271.6" transform="rotate(-0 578.88 271.6)">Correct human transfers</text>
    </g>
   </g>
   <g id="text_55">
-   <text style="font-weight: 700; font-size: 24px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="51.84" y="36.45" transform="rotate(-0 51.84 36.45)">Two unverified write claims in the naive arm</text>
+   <text style="font-weight: 700; font-size: 24px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="51.84" y="36.45" transform="rotate(-0 51.84 36.45)">Plain AI claimed two filings without verification</text>
   </g>
   <g id="text_56">
-   <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="65.61" transform="rotate(-0 51.84 65.61)">Paired dev study · same Gemini · 20 synthetic cases per arm · post-v4, not held-out</text>
+   <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="65.61" transform="rotate(-0 51.84 65.61)">Development study after the final evaluation · 20 synthetic cases per system</text>
   </g>
   <g id="text_57">
-   <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="442.26" transform="rotate(-0 51.84 442.26)">Missing readback is not proof of failed writes. Bundle ablation; small sample; zeros do not establish safety.</text>
-  </g>
-  <g id="text_58">
-   <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="461.7" transform="rotate(-0 51.84 461.7)">Source: docs/evaluation/controls-ablation.md · authored dev data only · not reflected in v4</text>
+   <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="451.98" transform="rotate(-0 51.84 451.98)">Unverified does not mean failed. Small synthetic study; zeros do not establish safety.</text>
   </g>
  </g>
  <defs>

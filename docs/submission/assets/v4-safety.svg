@@ -3,7 +3,7 @@
   <rdf:RDF>
    <ns2:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-    <dc:description>docs/evaluation/final-v4-results.md sha256:7ebe6e0dd84aa0e90a362bc084a211649ffccf54abd9177684e2ed6ef1178f1f</dc:description>
+    <dc:description>docs/evaluation/final-v4-results.md sha256:7e4bd4049f5119a98db79786f3a5ba80d96d15f2ac3bf002253aa7e1480d57cc</dc:description>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <ns2:Agent>
@@ -58,19 +58,19 @@
     <path d="M 51.84 330.48  L 200.805517 330.48  " style="fill: none; stroke: #dce3de; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square" />
    </g>
    <g id="text_5">
-    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="184.911429" transform="rotate(-0 51.84 184.911429)">B1</text>
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="184.911429" transform="rotate(-0 51.84 184.911429)">Rules-only baseline</text>
    </g>
    <g id="text_6">
     <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="116.36639" y="209.95529" transform="rotate(-0 116.36639 209.95529)">2/98 · 2.0%</text>
    </g>
    <g id="text_7">
-    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="270.54" transform="rotate(-0 51.84 270.54)">P · Gemini + Jev</text>
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="270.54" transform="rotate(-0 51.84 270.54)">Aclara</text>
    </g>
    <g id="text_8">
     <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="115.150345" y="295.583862" transform="rotate(-0 115.150345 295.583862)">2/100 · 2.0%</text>
    </g>
    <g id="text_9">
-    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="51.84" y="130.66" transform="rotate(-0 51.84 130.66)">Unauthorized action</text>
+    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="51.84" y="130.66" transform="rotate(-0 51.84 130.66)">Unauthorized action flags</text>
    </g>
   </g>
   <g id="axes_2">
@@ -111,19 +111,19 @@
     <path d="M 315.36 330.48  L 464.325517 330.48  " style="fill: none; stroke: #dce3de; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square" />
    </g>
    <g id="text_14">
-    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="315.36" y="184.911429" transform="rotate(-0 315.36 184.911429)">B1</text>
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="315.36" y="184.911429" transform="rotate(-0 315.36 184.911429)">Rules-only baseline</text>
    </g>
    <g id="text_15">
     <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="379.88639" y="209.95529" transform="rotate(-0 379.88639 209.95529)">2/98 · 2.0%</text>
    </g>
    <g id="text_16">
-    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="315.36" y="270.54" transform="rotate(-0 315.36 270.54)">P · Gemini + Jev</text>
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="315.36" y="270.54" transform="rotate(-0 315.36 270.54)">Aclara</text>
    </g>
    <g id="text_17">
     <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="438.256552" y="295.583862" transform="rotate(-0 438.256552 295.583862)">4/100 · 4.0%</text>
    </g>
    <g id="text_18">
-    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="315.36" y="130.66" transform="rotate(-0 315.36 130.66)">Unverified success claim</text>
+    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="315.36" y="130.66" transform="rotate(-0 315.36 130.66)">Unverified success</text>
    </g>
   </g>
   <g id="axes_3">
@@ -180,32 +180,29 @@
     <path d="M 578.88 330.48  L 727.845517 330.48  " style="fill: none; stroke: #dce3de; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square" />
    </g>
    <g id="text_23">
-    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="578.88" y="184.911429" transform="rotate(-0 578.88 184.911429)">B1</text>
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="578.88" y="184.911429" transform="rotate(-0 578.88 184.911429)">Rules-only baseline</text>
    </g>
    <g id="text_24">
     <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="582.604138" y="209.95529" transform="rotate(-0 582.604138 209.95529)">0/98 · 0.0%</text>
    </g>
    <g id="text_25">
-    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="578.88" y="270.54" transform="rotate(-0 578.88 270.54)">P · Gemini + Jev</text>
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="578.88" y="270.54" transform="rotate(-0 578.88 270.54)">Aclara</text>
    </g>
    <g id="text_26">
     <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="582.604138" y="295.583862" transform="rotate(-0 582.604138 295.583862)">0/100 · 0.0%</text>
    </g>
    <g id="text_27">
-    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="578.88" y="130.66" transform="rotate(-0 578.88 130.66)">Missing confirmation / OTP</text>
+    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="578.88" y="130.66" transform="rotate(-0 578.88 130.66)">Missing consent or code</text>
    </g>
   </g>
   <g id="text_28">
-   <text style="font-weight: 700; font-size: 24px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="51.84" y="36.45" transform="rotate(-0 51.84 36.45)">Both systems failed the full safety gate</text>
+   <text style="font-weight: 700; font-size: 24px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="51.84" y="36.45" transform="rotate(-0 51.84 36.45)">Both systems failed the safety checks</text>
   </g>
   <g id="text_29">
-   <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="65.61" transform="rotate(-0 51.84 65.61)">Official observed flags · lower is better · categories overlap</text>
+   <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="65.61" transform="rotate(-0 51.84 65.61)">Final evaluation (v4) · recorded flags · lower is better</text>
   </g>
   <g id="text_30">
-   <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="442.26" transform="rotate(-0 51.84 442.26)">Action flags include frozen-reply/gold conflicts, with no observed authority bypass. Zero flags do not prove zero risk.</text>
-  </g>
-  <g id="text_31">
-   <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="461.7" transform="rotate(-0 51.84 461.7)">Source: docs/evaluation/final-v4-results.md · official v4, first pass only</text>
+   <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="451.98" transform="rotate(-0 51.84 451.98)">Flags overlap. Zero flags do not prove zero risk; see the captions for their interpretation.</text>
   </g>
  </g>
  <defs>

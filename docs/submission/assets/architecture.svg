@@ -3,7 +3,7 @@
   <rdf:RDF>
    <ns2:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-    <dc:description>docs/architecture.md sha256:5ba83d6023d4c8110145572d908beb66124957c0b88eea8a9e6066a8a0aa46ba</dc:description>
+    <dc:description>docs/architecture.md sha256:dc71465efb250008740a23eab02e3865ccfd197b49977d78d199d9f125dd2f16</dc:description>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <ns2:Agent>
@@ -101,25 +101,25 @@
     <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #20352f" x="155.1744" y="138.162857" transform="rotate(-0 155.1744 138.162857)">Customer · ES / PT</text>
    </g>
    <g id="text_2">
-    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52645d" x="155.1744" y="158.991429" transform="rotate(-0 155.1744 158.991429)">Chat + same-origin Next.js BFF</text>
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52645d" x="155.1744" y="158.991429" transform="rotate(-0 155.1744 158.991429)">Chat in your language</text>
    </g>
    <g id="text_3">
-    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #20352f" x="432" y="138.162857" transform="rotate(-0 432 138.162857)">Authentication + scope</text>
+    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #20352f" x="432" y="138.162857" transform="rotate(-0 432 138.162857)">Verified access</text>
    </g>
    <g id="text_4">
-    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52645d" x="432" y="158.991429" transform="rotate(-0 432 158.991429)">FastAPI · session + trusted role</text>
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52645d" x="432" y="158.991429" transform="rotate(-0 432 158.991429)">Signed-in customer workspace</text>
    </g>
    <g id="text_5">
-    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #176b56" x="708.8256" y="138.162857" transform="rotate(-0 708.8256 138.162857)">Language + retrieval</text>
+    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #176b56" x="708.8256" y="138.162857" transform="rotate(-0 708.8256 138.162857)">Language + charge search</text>
    </g>
    <g id="text_6">
-    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52645d" x="708.8256" y="158.991429" transform="rotate(-0 708.8256 158.991429)">Gemini / Grok fallback · matcher v2</text>
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52645d" x="708.8256" y="158.991429" transform="rotate(-0 708.8256 158.991429)">Find your own transactions</text>
    </g>
    <g id="text_7">
     <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #20352f" x="116.7264" y="250.637143" transform="rotate(-0 116.7264 250.637143)">Understand</text>
    </g>
    <g id="text_8">
-    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52645d" x="116.7264" y="271.465714" transform="rotate(-0 116.7264 271.465714)">Slots + scoped facts</text>
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52645d" x="116.7264" y="271.465714" transform="rotate(-0 116.7264 271.465714)">Customer facts</text>
    </g>
    <g id="text_9">
     <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #20352f" x="274.3632" y="250.637143" transform="rotate(-0 274.3632 250.637143)">Decide</text>
@@ -131,38 +131,35 @@
     <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #20352f" x="432" y="250.637143" transform="rotate(-0 432 250.637143)">Act</text>
    </g>
    <g id="text_12">
-    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52645d" x="432" y="271.465714" transform="rotate(-0 432 271.465714)">Confirm + fresh OTP</text>
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52645d" x="432" y="271.465714" transform="rotate(-0 432 271.465714)">Confirm + new SMS code</text>
    </g>
    <g id="text_13">
     <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #20352f" x="589.6368" y="250.637143" transform="rotate(-0 589.6368 250.637143)">Verify</text>
    </g>
    <g id="text_14">
-    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52645d" x="589.6368" y="271.465714" transform="rotate(-0 589.6368 271.465714)">Independent readback</text>
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52645d" x="589.6368" y="271.465714" transform="rotate(-0 589.6368 271.465714)">Verified receipt</text>
    </g>
    <g id="text_15">
     <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #20352f" x="747.2736" y="250.637143" transform="rotate(-0 747.2736 250.637143)">Escalate</text>
    </g>
    <g id="text_16">
-    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52645d" x="747.2736" y="271.465714" transform="rotate(-0 747.2736 271.465714)">Verified human packet</text>
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52645d" x="747.2736" y="271.465714" transform="rotate(-0 747.2736 271.465714)">Human with context</text>
    </g>
    <g id="text_17">
-    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #20352f" x="432" y="350.614286" transform="rotate(-0 432 350.614286)">Postgres · forced scope / RLS</text>
+    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #20352f" x="432" y="350.614286" transform="rotate(-0 432 350.614286)">Checked bank records</text>
    </g>
    <g id="text_18">
-    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52645d" x="432" y="371.442857" transform="rotate(-0 432 371.442857)">Serving gold + operational writes + append-only audit</text>
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: middle; fill: #52645d" x="432" y="371.442857" transform="rotate(-0 432 371.442857)">Own transactions · saved actions · recorded checks</text>
    </g>
   </g>
   <g id="text_19">
-   <text style="font-weight: 700; font-size: 24px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="51.84" y="36.45" transform="rotate(-0 51.84 36.45)">LLM for language. Code for authority.</text>
+   <text style="font-weight: 700; font-size: 24px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="51.84" y="36.45" transform="rotate(-0 51.84 36.45)">AI understands. Code controls actions.</text>
   </g>
   <g id="text_20">
-   <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="65.61" transform="rotate(-0 51.84 65.61)">Current source design · post-v4 changes are not reflected in v4 scores</text>
+   <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="65.61" transform="rotate(-0 51.84 65.61)">Current design · updated after the final evaluation; v4 scores unchanged</text>
   </g>
   <g id="text_21">
-   <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="442.26" transform="rotate(-0 51.84 442.26)">Local data → bronze hashes → contracted silver → tested dbt gold. Writes are idempotent; uncertain results reach a human.</text>
-  </g>
-  <g id="text_22">
-   <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="461.7" transform="rotate(-0 51.84 461.7)">Sources: docs/architecture.md · contracts/interfaces/conversation-policy-v3.md · docs/adr/0017-drop-jev-from-live-path.md</text>
+   <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="451.98" transform="rotate(-0 51.84 451.98)">Actions are verified before success is reported. Uncertainty reaches a human.</text>
   </g>
  </g>
  <defs>

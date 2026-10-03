@@ -3,7 +3,7 @@
   <rdf:RDF>
    <ns2:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-    <dc:description>docs/evaluation/final-v4-results.md sha256:7ebe6e0dd84aa0e90a362bc084a211649ffccf54abd9177684e2ed6ef1178f1f</dc:description>
+    <dc:description>docs/evaluation/final-v4-results.md sha256:7e4bd4049f5119a98db79786f3a5ba80d96d15f2ac3bf002253aa7e1480d57cc</dc:description>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <ns2:Agent>
@@ -58,19 +58,19 @@
     <path d="M 51.84 340.2  L 200.805517 340.2  " style="fill: none; stroke: #dce3de; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square" />
    </g>
    <g id="text_5">
-    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="186.762857" transform="rotate(-0 51.84 186.762857)">B1</text>
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="186.762857" transform="rotate(-0 51.84 186.762857)">Rules-only baseline</text>
    </g>
    <g id="text_6">
     <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="147.922759" y="212.963862" transform="rotate(-0 147.922759 212.963862)">62/100 · 62.0%</text>
    </g>
    <g id="text_7">
-    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="277.02" transform="rotate(-0 51.84 277.02)">P · Gemini + Jev</text>
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="277.02" transform="rotate(-0 51.84 277.02)">Aclara</text>
    </g>
    <g id="text_8">
     <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="186.653793" y="303.221004" transform="rotate(-0 186.653793 303.221004)">88/100 · 88.0%</text>
    </g>
    <g id="text_9">
-    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="51.84" y="130.66" transform="rotate(-0 51.84 130.66)">Conversation pass</text>
+    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="51.84" y="130.66" transform="rotate(-0 51.84 130.66)">All requirements met</text>
    </g>
   </g>
   <g id="axes_2">
@@ -111,19 +111,20 @@
     <path d="M 315.36 340.2  L 464.325517 340.2  " style="fill: none; stroke: #dce3de; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square" />
    </g>
    <g id="text_14">
-    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="315.36" y="186.762857" transform="rotate(-0 315.36 186.762857)">B1</text>
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="315.36" y="186.762857" transform="rotate(-0 315.36 186.762857)">Rules-only baseline</text>
    </g>
    <g id="text_15">
     <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="351.856552" y="212.963862" transform="rotate(-0 351.856552 212.963862)">22/100 · 22.0%</text>
    </g>
    <g id="text_16">
-    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="315.36" y="277.02" transform="rotate(-0 315.36 277.02)">P · Gemini + Jev</text>
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="315.36" y="277.02" transform="rotate(-0 315.36 277.02)">Aclara</text>
    </g>
    <g id="text_17">
     <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="366.753103" y="303.221004" transform="rotate(-0 366.753103 303.221004)">32/100 · 32.0%</text>
    </g>
    <g id="text_18">
-    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="315.36" y="130.66" transform="rotate(-0 315.36 130.66)">SAR · all in-scope cases</text>
+    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; fill: #20352f" transform="translate(315.36 113.856172)">Resolved safely</text>
+    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; fill: #20352f" transform="translate(315.36 130.66)">all cases</text>
    </g>
   </g>
   <g id="axes_3">
@@ -164,35 +165,30 @@
     <path d="M 578.88 340.2  L 727.845517 340.2  " style="fill: none; stroke: #dce3de; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square" />
    </g>
    <g id="text_23">
-    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="578.88" y="186.762857" transform="rotate(-0 578.88 186.762857)">B1</text>
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="578.88" y="186.762857" transform="rotate(-0 578.88 186.762857)">Rules-only baseline</text>
    </g>
    <g id="text_24">
     <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="652.332678" y="212.963862" transform="rotate(-0 652.332678 212.963862)">22/47 · 46.8%</text>
    </g>
    <g id="text_25">
-    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="578.88" y="277.02" transform="rotate(-0 578.88 277.02)">P · Gemini + Jev</text>
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="578.88" y="277.02" transform="rotate(-0 578.88 277.02)">Aclara</text>
    </g>
    <g id="text_26">
     <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="684.027469" y="303.221004" transform="rotate(-0 684.027469 303.221004)">32/47 · 68.1%</text>
    </g>
    <g id="text_27">
-    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="578.88" y="130.66" transform="rotate(-0 578.88 130.66)">SAR · eligible cases</text>
+    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; fill: #20352f" transform="translate(578.88 113.856172)">Resolved safely</text>
+    <text style="font-weight: 700; font-size: 14px; font-family: 'DejaVu Sans'; fill: #20352f" transform="translate(578.88 130.66)">eligible cases</text>
    </g>
   </g>
   <g id="text_28">
-   <text style="font-weight: 700; font-size: 24px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="51.84" y="36.45" transform="rotate(-0 51.84 36.45)">More cases pass, with more safe automation</text>
+   <text style="font-weight: 700; font-size: 24px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="51.84" y="36.45" transform="rotate(-0 51.84 36.45)">More cases pass; more resolved safely without a human</text>
   </g>
   <g id="text_29">
-   <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="65.61" transform="rotate(-0 51.84 65.61)">Official v4 · B1 vs P-Gemini with Jev · same 100-case workload</text>
+   <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="65.61" transform="rotate(-0 51.84 65.61)">Final evaluation (v4) · same 100 cases for both systems</text>
   </g>
   <g id="text_30">
-   <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="427.68" transform="rotate(-0 51.84 427.68)">Paired in-scope SAR difference: +10 pp (95% CI +5 to +16). Both full safety gates failed.</text>
-  </g>
-  <g id="text_31">
-   <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="447.12" transform="rotate(-0 51.84 447.12)">Post-hoc: 6 of P's 8 flagged cases trace to harness/fixture artifacts; official counts unchanged.</text>
-  </g>
-  <g id="text_32">
-   <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="466.56" transform="rotate(-0 51.84 466.56)">Sources: docs/evaluation/final-v4-results.md · docs/evaluation/final-v4-safety-analysis.md</text>
+   <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="451.98" transform="rotate(-0 51.84 451.98)">Difference across all cases: +10 pp (95% CI +5 to +16). Both systems failed the safety checks.</text>
   </g>
  </g>
  <defs>

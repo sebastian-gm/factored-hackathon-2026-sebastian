@@ -3,7 +3,7 @@
   <rdf:RDF>
    <ns2:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-    <dc:description>docs/evaluation/controls-ablation-stress.md sha256:1411b8ae38e17b170e9d08fa3d3dd954c124b742e0094096ab18706baa8dc128</dc:description>
+    <dc:description>docs/history/evaluation/controls-ablation-stress.md sha256:7995299fed14694fbc5cf75aa84c601d52d37e0fe9b44f79440ed0c951bead79</dc:description>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <ns2:Agent>
@@ -66,13 +66,13 @@
     <path d="M 51.84 330.48  L 267.84 330.48  " style="fill: none; stroke: #dce3de; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square" />
    </g>
    <g id="text_5">
-    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="177.042857" transform="rotate(-0 51.84 177.042857)">Naive tool agent</text>
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="177.042857" transform="rotate(-0 51.84 177.042857)">Plain AI agent</text>
    </g>
    <g id="text_6">
     <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #20352f" x="267.84" y="177.042857" transform="rotate(-0 267.84 177.042857)">2 of 2</text>
    </g>
    <g id="text_7">
-    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="267.3" transform="rotate(-0 51.84 267.3)">P · code controls</text>
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="267.3" transform="rotate(-0 51.84 267.3)">Aclara</text>
    </g>
    <g id="text_8">
     <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #20352f" x="267.84" y="267.3" transform="rotate(-0 267.84 267.3)">0 of 2</text>
@@ -136,13 +136,13 @@
     <path d="M 315.36 330.48  L 531.36 330.48  " style="fill: none; stroke: #dce3de; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square" />
    </g>
    <g id="text_16">
-    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="315.36" y="177.042857" transform="rotate(-0 315.36 177.042857)">Naive tool agent</text>
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="315.36" y="177.042857" transform="rotate(-0 315.36 177.042857)">Plain AI agent</text>
    </g>
    <g id="text_17">
     <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #20352f" x="531.36" y="177.042857" transform="rotate(-0 531.36 177.042857)">2 of 20</text>
    </g>
    <g id="text_18">
-    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="315.36" y="267.3" transform="rotate(-0 315.36 267.3)">P · code controls</text>
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="315.36" y="267.3" transform="rotate(-0 315.36 267.3)">Aclara</text>
    </g>
    <g id="text_19">
     <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #20352f" x="531.36" y="267.3" transform="rotate(-0 531.36 267.3)">0 of 20</text>
@@ -206,13 +206,13 @@
     <path d="M 578.88 330.48  L 794.88 330.48  " style="fill: none; stroke: #dce3de; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square" />
    </g>
    <g id="text_27">
-    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="578.88" y="177.042857" transform="rotate(-0 578.88 177.042857)">Naive tool agent</text>
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="578.88" y="177.042857" transform="rotate(-0 578.88 177.042857)">Plain AI agent</text>
    </g>
    <g id="text_28">
     <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #20352f" x="794.88" y="177.042857" transform="rotate(-0 794.88 177.042857)">1 of 20</text>
    </g>
    <g id="text_29">
-    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="578.88" y="267.3" transform="rotate(-0 578.88 267.3)">P · code controls</text>
+    <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="578.88" y="267.3" transform="rotate(-0 578.88 267.3)">Aclara</text>
    </g>
    <g id="text_30">
     <text style="font-size: 12px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #20352f" x="794.88" y="267.3" transform="rotate(-0 794.88 267.3)">0 of 20</text>
@@ -222,19 +222,13 @@
    </g>
   </g>
   <g id="text_32">
-   <text style="font-weight: 700; font-size: 24px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="51.84" y="36.45" transform="rotate(-0 51.84 36.45)">Naive filed 2 of 2; P stayed at proposals</text>
+   <text style="font-weight: 700; font-size: 24px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #20352f" x="51.84" y="36.45" transform="rotate(-0 51.84 36.45)">Plain AI filed both; Aclara stayed at proposals</text>
   </g>
   <g id="text_33">
-   <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="65.61" transform="rotate(-0 51.84 65.61)">Post-v4 adversarial dev · 20 authored cases per arm · ES / PT · not held-out</text>
+   <text style="font-size: 14px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="65.61" transform="rotate(-0 51.84 65.61)">Development study after the final evaluation · 20 cases per system · ES / PT</text>
   </g>
   <g id="text_34">
-   <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="408.24" transform="rotate(-0 51.84 408.24)">Forged-confirmation subset (2 cases): naive filed both; P stayed at proposals. Counters overlap.</text>
-  </g>
-  <g id="text_35">
-   <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="432.54" transform="rotate(-0 51.84 432.54)">Success claims lacked read-back; the foreign lookup hit a fake. Selected attacks; zeros do not establish safety.</text>
-  </g>
-  <g id="text_36">
-   <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="461.7" transform="rotate(-0 51.84 461.7)">Source: docs/evaluation/controls-ablation-stress.md · supplementary dev evidence, not reflected in v4</text>
+   <text style="font-size: 10px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #52645d" x="51.84" y="451.98" transform="rotate(-0 51.84 451.98)">Selected synthetic attacks; the foreign lookup hit a fake. Zeros do not establish safety.</text>
   </g>
  </g>
  <defs>

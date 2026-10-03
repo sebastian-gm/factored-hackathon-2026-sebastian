@@ -202,6 +202,7 @@ for (const pt of [false, true]) {
     await rules.locator("summary").click();
     await expect(rules.locator("code")).toHaveText("DATA-01");
     await page.keyboard.press("Escape");
+    await expect(page.getByRole("dialog")).toHaveCount(0);
     await choose(page, 1);
     expect(confirms).toEqual([]);
     await page.locator(".composer button[type=submit]").click();

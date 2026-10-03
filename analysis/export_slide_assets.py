@@ -23,7 +23,7 @@ from matplotlib.patches import FancyArrowPatch, Rectangle  # noqa: E402
 REPORT = ROOT / "docs/evaluation/final-v4-results.md"
 OUT = ROOT / "docs/submission/assets"
 INK, MUTED, ACCENT, BASELINE = "#20352f", "#52645d", "#176b56", "#73837b"
-LABELS = ("B1", "P · Gemini + Jev")
+LABELS = ("Rules-only baseline", "Aclara")
 
 
 def cells(report: str, label: str) -> tuple[str, str]:
@@ -52,19 +52,8 @@ def figure(title: str, subtitle: str) -> Figure:
     return fig
 
 
-def footer(
-    fig: Figure,
-    text: str,
-    source: str = "Source: docs/evaluation/final-v4-results.md · official v4, first pass only",
-) -> None:
-    fig.text(0.06, 0.09, text, fontsize=10, color=MUTED)
-    fig.text(
-        0.06,
-        0.05,
-        source,
-        fontsize=10,
-        color=MUTED,
-    )
+def footer(fig: Figure, text: str) -> None:
+    fig.text(0.06, 0.07, text, fontsize=10, color=MUTED)
 
 
 def bars(
@@ -138,14 +127,14 @@ def export(fig: Figure, name: str, source: Path = REPORT) -> None:
 
 def outcomes(report: str) -> None:
     fig = figure(
-        "More cases pass, with more safe automation",
-        "Official v4 · B1 vs P-Gemini with Jev · same 100-case workload",
+        "More cases pass; more resolved safely without a human",
+        "Final evaluation (v4) · same 100 cases for both systems",
     )
     for i, (title, key) in enumerate(
         (
-            ("Conversation pass", "Pass"),
-            ("SAR · all in-scope cases", "SAR / in-scope (95% CI)"),
-            ("SAR · eligible cases", "SAR / automation-eligible"),
+            ("All requirements met", "Pass"),
+            ("Resolved safely\nall cases", "SAR / in-scope (95% CI)"),
+            ("Resolved safely\neligible cases", "SAR / automation-eligible"),
         )
     ):
         bars(fig.add_axes((0.06 + i * 0.305, 0.30, 0.25, 0.39)), title, fractions(report, key))
@@ -155,29 +144,18 @@ def outcomes(report: str) -> None:
     )
     if interval is None:
         raise ValueError("Missing official paired SAR interval")
-    for y, text in (
-        (
-            0.12,
-            f"Paired in-scope SAR difference: +{interval[1]} pp (95% CI +{interval[2]} to +{interval[3]}). Both full safety gates failed.",
-        ),
-        (
-            0.08,
-            "Post-hoc: 6 of P's 8 flagged cases trace to harness/fixture artifacts; official counts unchanged.",
-        ),
-        (
-            0.04,
-            "Sources: docs/evaluation/final-v4-results.md · docs/evaluation/final-v4-safety-analysis.md",
-        ),
-    ):
-        fig.text(0.06, y, text, fontsize=10, color=MUTED)
+    footer(
+        fig,
+        f"Difference across all cases: +{interval[1]} pp (95% CI +{interval[2]} to +{interval[3]}). Both systems failed the safety checks.",
+    )
     export(fig, "v4-outcomes")
 
 
 def escalation(report: str) -> None:
     correct, total = fractions(report, "Strict escalation recall")[1]
     fig = figure(
-        f"Correct escalation reaches {correct} of {total} cases",
-        "Strict escalation requires the correct packet, reasons, route and readback",
+        f"Correct human transfers: {correct} of {total} cases",
+        "Final evaluation (v4) · complete, correct and verified transfers",
     )
     for i, (title, key) in enumerate(
         (
@@ -189,21 +167,21 @@ def escalation(report: str) -> None:
         bars(fig.add_axes((0.06 + i * 0.305, 0.30, 0.25, 0.39)), title, fractions(report, key))
     footer(
         fig,
-        "53 cases required a human; 47 were automation eligible. Handoff presence alone is insufficient.",
+        "53 cases required a human; 47 allowed automation. Details and limits are in the captions.",
     )
     export(fig, "v4-escalation")
 
 
 def safety(report: str) -> None:
     fig = figure(
-        "Both systems failed the full safety gate",
-        "Official observed flags · lower is better · categories overlap",
+        "Both systems failed the safety checks",
+        "Final evaluation (v4) · recorded flags · lower is better",
     )
     for i, (title, key) in enumerate(
         (
-            ("Unauthorized action", "Unauthorized action"),
-            ("Unverified success claim", "Reported without verification"),
-            ("Missing confirmation / OTP", "Missing confirmation or step-up"),
+            ("Unauthorized action flags", "Unauthorized action"),
+            ("Unverified success", "Reported without verification"),
+            ("Missing consent or code", "Missing confirmation or step-up"),
         )
     ):
         bars(
@@ -214,18 +192,18 @@ def safety(report: str) -> None:
         )
     footer(
         fig,
-        "Action flags include frozen-reply/gold conflicts, with no observed authority bypass. Zero flags do not prove zero risk.",
+        "Flags overlap. Zero flags do not prove zero risk; see the captions for their interpretation.",
     )
     export(fig, "v4-safety")
 
 
 def latency_cost(report: str) -> None:
     fig = figure(
-        "Measured latency and model cost stay visible",
-        "Historical v4 · local serving plus remote models · includes Jev, excludes Azure browser timing",
+        "Response times and model costs",
+        "Final evaluation (v4) · local server, remote models",
     )
     ax = fig.add_axes((0.06, 0.32, 0.42, 0.39))
-    ax.set_title("Turn latency · seconds", fontsize=14, fontweight="bold", loc="left", color=INK)
+    ax.set_title("Response time · seconds", fontsize=14, fontweight="bold", loc="left", color=INK)
     for i, cell in enumerate(cells(report, "Turn p50 / p95")):
         numbers = re.findall(r"\d+\.\d+", cell)
         for j, value in enumerate(map(float, numbers)):
@@ -242,7 +220,7 @@ def latency_cost(report: str) -> None:
     ax.set_xlim(0, 7.1)
     ax.set_yticks([])
     ax.set_xticks([0, 2, 4], ["0", "2", "4"])
-    ax.set_xlabel("Seconds per turn", fontsize=10, color=MUTED)
+    ax.set_xlabel("Seconds per reply", fontsize=10, color=MUTED)
     ax.tick_params(length=0, labelsize=10, colors=MUTED)
     for name, spine in ax.spines.items():
         spine.set_visible(name == "bottom")
@@ -252,13 +230,13 @@ def latency_cost(report: str) -> None:
     for y, title, row, denominator in (
         (
             0.60,
-            "Model cost per evaluated case",
+            "Model cost per case",
             "Cost / evaluated workload case",
             fractions(report, "Pass")[1][1],
         ),
         (
             0.36,
-            "Allocated cost per safe resolution",
+            "Cost per safe resolution",
             "Allocated primary cost / SAR-resolved case",
             fractions(report, "SAR / in-scope (95% CI)")[1][0],
         ),
@@ -270,14 +248,13 @@ def latency_cost(report: str) -> None:
         fig.text(
             0.58,
             y - 0.06,
-            f"P primary model spend allocated across {denominator} cases",
+            f"Aclara model spend divided by {denominator} cases",
             fontsize=10,
             color=MUTED,
         )
-    primary_cost = cells(report, "Primary-pass known model cost")[1]
     footer(
         fig,
-        f"P primary model cost {primary_cost}. Excludes repeats, judges and infrastructure; B1 model cost $0.",
+        "Model cost excludes infrastructure, repeats and judges. Rules-only baseline model cost: $0.",
     )
     export(fig, "v4-latency-cost")
 
@@ -285,8 +262,8 @@ def latency_cost(report: str) -> None:
 def architecture() -> None:
     source = ROOT / "docs/architecture.md"
     fig = figure(
-        "LLM for language. Code for authority.",
-        "Current source design · post-v4 changes are not reflected in v4 scores",
+        "AI understands. Code controls actions.",
+        "Current design · updated after the final evaluation; v4 scores unchanged",
     )
     ax = fig.add_axes((0.055, 0.21, 0.89, 0.60))
     ax.set_xlim(0, 100)
@@ -315,18 +292,18 @@ def architecture() -> None:
             )
         )
 
-    block(0, 51, 28, "Customer · ES / PT", "Chat + same-origin Next.js BFF")
-    block(34, 51, 32, "Authentication + scope", "FastAPI · session + trusted role")
-    block(72, 51, 28, "Language + retrieval", "Gemini / Grok fallback · matcher v2", True)
+    block(0, 51, 28, "Customer · ES / PT", "Chat in your language")
+    block(34, 51, 32, "Verified access", "Signed-in customer workspace")
+    block(72, 51, 28, "Language + charge search", "Find your own transactions", True)
     arrow((28, 57), (34, 57))
     arrow((66, 57), (72, 57))
     for i, (title, detail) in enumerate(
         (
-            ("Understand", "Slots + scoped facts"),
+            ("Understand", "Customer facts"),
             ("Decide", "Rules in code"),
-            ("Act", "Confirm + fresh OTP"),
-            ("Verify", "Independent readback"),
-            ("Escalate", "Verified human packet"),
+            ("Act", "Confirm + new SMS code"),
+            ("Verify", "Verified receipt"),
+            ("Escalate", "Human with context"),
         )
     ):
         block(i * 20.5, 24, 18, title, detail)
@@ -342,44 +319,31 @@ def architecture() -> None:
         12,
         0,
         76,
-        "Postgres · forced scope / RLS",
-        "Serving gold + operational writes + append-only audit",
+        "Checked bank records",
+        "Own transactions · saved actions · recorded checks",
     )
     arrow((9, 24), (22, 13))
     arrow((50, 24), (50, 13))
     arrow((70, 13), (70, 24))
-    fig.text(
-        0.06,
-        0.09,
-        "Local data → bronze hashes → contracted silver → tested dbt gold. Writes are idempotent; uncertain results reach a human.",
-        fontsize=10,
-        color=MUTED,
-    )
-    fig.text(
-        0.06,
-        0.05,
-        "Sources: docs/architecture.md · contracts/interfaces/conversation-policy-v3.md · docs/adr/0017-drop-jev-from-live-path.md",
-        fontsize=10,
-        color=MUTED,
-    )
+    footer(fig, "Actions are verified before success is reported. Uncertainty reaches a human.")
     export(fig, "architecture", source)
 
 
 def controls_ablation() -> None:
-    source = ROOT / "docs/evaluation/controls-ablation.md"
+    source = ROOT / "docs/history/evaluation/controls-ablation.md"
     report = source.read_text()
     fig = figure(
-        "Two unverified write claims in the naive arm",
-        "Paired dev study · same Gemini · 20 synthetic cases per arm · post-v4, not held-out",
+        "Plain AI claimed two filings without verification",
+        "Development study after the final evaluation · 20 synthetic cases per system",
     )
     for i, (title, key) in enumerate(
         (
-            ("Ineligible writes", "Unauthorized/ineligible writes"),
-            ("No confirmation", "Writes without explicit confirmation"),
-            ("Unverified write success", "Write-success claims without read-back"),
+            ("Actions outside the rules", "Unauthorized/ineligible writes"),
+            ("Without confirmation", "Writes without explicit confirmation"),
+            ("Unverified success", "Write-success claims without read-back"),
             ("Refund promises", "Promised refunds"),
-            ("Cross-customer access", "Cross-customer tool access attempts"),
-            ("Correct escalation", "Correct escalations, six eligible cases"),
+            ("Other-customer attempts", "Cross-customer tool access attempts"),
+            ("Correct human transfers", "Correct escalations, six eligible cases"),
         )
     ):
         counts = []
@@ -396,14 +360,13 @@ def controls_ablation() -> None:
             fig.add_axes((0.06 + (i % 3) * 0.305, 0.56 - (i // 3) * 0.33, 0.25, 0.17)),
             title,
             (counts[0], counts[1]),
-            labels=("Naive tool agent", "P · code controls"),
+            labels=("Plain AI agent", "Aclara"),
             axis_label="Cases (%)",
             value_size=12,
         )
     footer(
         fig,
-        "Missing readback is not proof of failed writes. Bundle ablation; small sample; zeros do not establish safety.",
-        "Source: docs/evaluation/controls-ablation.md · authored dev data only · not reflected in v4",
+        "Unverified does not mean failed. Small synthetic study; zeros do not establish safety.",
     )
     export(fig, "controls-ablation", source)
 
