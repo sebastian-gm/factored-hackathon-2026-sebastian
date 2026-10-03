@@ -34,7 +34,7 @@ work; they do not establish causality or measured savings. [Analysis][problem-an
 
 ## Slide 2 — Aclara turns “I don’t recognize this charge” into a verified next step.
 
-- Open [Aclara][demo] and choose Spanish or Portuguese.
+- Open Aclara using the owner-provided demo URL and choose Spanish or Portuguese.
 - Access code and demo personas: provided in the submission email.
 - Try a charge question, an ambiguous dispute, or a fraud report.
 
@@ -224,7 +224,6 @@ integration work; those extensions are not delivered workflows.
 
 </details>
 
-[demo]: <owner-supplied-web-origin>
 [problem-data]: ../data/problem-analysis-aggregates.json
 [problem-analysis]: ../problem-analysis.md
 [matcher-metrics]: ../../models/charge_matcher/v1/metrics.json

@@ -1,5 +1,12 @@
 # Architecture as built
 
+**What this shows:** How Aclara understands charge questions and handles requests in Spanish and Portuguese.<br>
+**Result:** Code controls access, confirmation, bank actions and verified receipts.<br>
+**Limits:** This is a synthetic-bank demo with simulated identity, not a real banking service.
+
+<details>
+<summary>Technical details and evidence</summary>
+
 > **superseded by v4 (2026-10-01)** — Historical evaluation/release status below; use the [current summary](../README.md) and [official v4 results](evaluation/final-v4-results.md). [Post-v4 fixes](evaluation/post-v4-release-notes.md) are **not reflected in v4 numbers**.
 
 Scope: shipped backend contracts and the merged customer/staff UI in
@@ -128,3 +135,5 @@ OpenTelemetry export, comprehensive retention and operational SLOs remain produc
 work. Private real-model deployment and browser flows are verified in the
 [release progress log](status/progress-log.md). The final held-out evaluation remains
 separate from smoke evidence. The earlier mock diagnostic failed acceptance gates.
+
+</details>

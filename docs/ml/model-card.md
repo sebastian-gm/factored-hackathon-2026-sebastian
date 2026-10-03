@@ -1,6 +1,15 @@
+# Language-layer model card
+
+**What this shows:** What the language models can do and where code keeps control.<br>
+**Result:** AI interprets customer language; code controls access, eligibility and bank actions.<br>
+**Limits:** Development studies are separate from the final evaluation, and fluent-human Portuguese review is incomplete.
+
+<details>
+<summary>Technical details and evidence</summary>
+
 > **superseded by v4 (2026-10-01)** — Earlier evaluation/release claims on this page are historical; use the [current summary](../../README.md) and [official v4 results](../evaluation/final-v4-results.md). [Post-v4 fixes](../evaluation/post-v4-release-notes.md) are **not reflected in v4 numbers**.
 
-# Language-layer model card
+
 
 **Post-v4 update:** live Jev risk union is disabled in production config; Gemini
 risk cues and deterministic guards remain. The next Azure release is pending.
@@ -101,3 +110,5 @@ For v4, preserve the independent freeze and report paired B1/P counts, policy mi
 |---|---|---|---|---|---|
 | V4 ES / pt-BR / mixed | TODO(results) | TODO(results) | TODO(results) | TODO(results) | TODO(results) |
 | V4 regional variants, where tagged | TODO(results) | TODO(results) | TODO(results) | TODO(results) | TODO(results) |
+
+</details>
