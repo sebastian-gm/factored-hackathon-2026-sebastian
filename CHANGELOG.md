@@ -13,9 +13,24 @@ certification. The v0.1.0–v0.5.0 annotated tags and GitHub Releases were creat
 - Post-v4 fixes are disclosed separately and do not change official v4 scores.
 - Every change now uses a feature branch and PR; every Azure release gets a tag.
 - `v1.0.0` is reserved for the exact submission-day Azure release SHA.
-- Follow-up, not deployed in v0.7.0: independent shared-account judge visits get
-  separate case/card realms; approved owner reset clears the durable bank maps
-  as well as its session workspace. Both modes remain OFF on Azure.
+
+## [0.8.0] — 2026-10-02 COT, concurrent chat (post-v4)
+
+- Deployed `2573e1d8367de20574935fce8f7624eb7dae33a9`: request-scoped events, AI cursor and provider records;
+  removed process-wide chat serialization, preserving full-turn session advisory
+  locks, scoped storage and atomic model budget reservations.
+- Local warm five-session, 1-second mock NLU: 1.025696-second wall, turn
+  p50/p95 1.020226/1.022139 seconds; separate cold evidence disclosed.
+- Live ES/PT first turns overlap with disjoint provider records/languages;
+  filing/readback/retry, ambiguity, fraud and Customer/Desk/Ops gates passed.
+- Independent judge visits now get distinct bank realms; judge access remains
+  OFF and live realm checks are deferred to Gate B. Authored/CI evidence passed.
+- First deployment rejected two chats before NLU due to an empty environment
+  DSN guard. #146 fixes one condition; all zero-call attempts and counters remain.
+- Smoke $0.011353 / $0.10, 6 calls, zero unknown costs; conservative
+  cumulative $12.39795698 / $15. No Azure deletion, reload, rebinding or scale/access
+  change. Gate A scaling is prepared and OFF; #138 staff queue is excluded.
+- [Evidence and limits](docs/evaluation/v0.8-release-notes.md). Official v4 unchanged.
 
 ## [0.7.0] — 2026-10-02, temporal-quality release (post-v4)
 

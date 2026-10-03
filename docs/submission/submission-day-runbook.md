@@ -194,11 +194,12 @@ Azure's CAD billing alerts approximate USD 30/50 and notify rather than stop spe
 
 Sebastian approved **$15 cumulative LLM exposure including reserves** on October 2;
 see the [approval ledger](../status/model-budget-ledger.md). Last verified
-conservative exposure after v0.7.0 is **$12.00271348**. The existing $0.10 smoke
-purse charged **$0.023339**; its unused capacity is **$0.076661**. Propose
-**$2.92 lifetime** for judging:
-**$12.00271348 + $0.076661 + $2.92 = $14.99937448 ≤ $15**. Refresh this arithmetic
-before preparation; never treat unknown reserves as available money.
+conservative exposure after v0.8.0 is **$12.39795698**. The original v0.8 smoke
+purse retains **$0.088647** unused capacity; the prior v0.7 purse retains
+**$0.076661**. Propose **$2.40 lifetime** for judging (supersedes $2.92):
+**$12.39795698 + $0.088647 + $0.076661 + $2.40 = $14.96326498 <= $15**.
+All failed conversation attempts and reservations are preserved. Refresh this
+arithmetic before preparation; never treat unknown reserves as available money.
 
 Propose **$1 per UTC day**, shared across all profiles/workers/retries/providers,
 bounded also by the remaining cumulative allowance and the production key's own
@@ -210,7 +211,7 @@ deterministically; the service may remain available through October 16.
 
 The window intersects **14 UTC dates**; $1/day therefore does **not** authorize
 $14 in judging calls. Approximate conservative upper allocation is $46.08
-infrastructure + $2.92 judging models = **$49.00**, before tax/grants and traffic
+infrastructure + $2.40 judging models = **$48.48**, before tax/grants and traffic
 beyond stated margins; infrastructure still needs its separate cost approval.
 
 **Activation prerequisite:** review and test the $1 daily configuration plus a
