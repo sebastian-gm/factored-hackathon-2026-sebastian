@@ -4,11 +4,11 @@
 
 The AI lane authored and structurally validated 40 entirely synthetic dev
 conversations before running P or fixing language behavior. Gold comes from
-[ADR-0015](../adr/0015-post-v2-conversation-and-policy-contract.md), not model
+[ADR-0015](../../adr/0015-post-v2-conversation-and-policy-contract.md), not model
 outputs. Neither the inputs nor gold may change after this freeze. No v4 data
 was opened. This is a development study, not a held-out evaluation.
 
-The [manifest](../../evals/studies/llm/dev_robustness_40.manifest.json) freezes
+The [manifest](../../../evals/studies/llm/dev_robustness_40.manifest.json) freezes
 the authored YAML, builder and materialized ScenarioV2 hashes. ES has five
 cases each of es-MX, es-CO, es-AR and es-CL; pt-BR has twenty. The shared
 ScenarioV2 and bank-country enums have no Chile entry, so es-CL speech uses a
@@ -110,9 +110,9 @@ clarifications to zero, while retaining all four mixed-language clarifications.
 cancellation with no write, but misses its required offer. The raw model flag
 and postprocessed flag are both true and intent is `charge_inquiry`. MATCH
 proposes the owned target at probability 0.9649. Then
-[`selection.uncertain`](../../src/aclara/agent/selection.py#L25) treats charge-origin
+[`selection.uncertain`](../../../src/aclara/agent/selection.py#L25) treats charge-origin
 non-recognition as transaction-selection uncertainty and clears the match in
-[`app.py`](../../src/aclara/api/app.py#L1173). The authored customer's subsequent
+[`app.py`](../../../src/aclara/api/app.py#L1173). The authored customer's subsequent
 clarification explicitly denies the purchase, so code proposes a dispute and
 the customer cancels, bypassing the offer. A separate zero-cost replay reproduces
 the guard returning true while NLU's unfamiliarity flag stays true.
@@ -135,7 +135,7 @@ human-reviewed language accuracy; no NLG outcome failure was found.
 ## Routes, evidence and budget
 
 Both measurements used the unchanged selected routes in
-[models.yaml](../../config/models.yaml): `google/gemini-3-flash-preview` via
+[models.yaml](../../../config/models.yaml): `google/gemini-3-flash-preview` via
 ZDR `google-vertex/global`, maximum 2048 output tokens, 6-second first-attempt
 and configured 20-second retry timeout, 45-second total call deadline;
 `jev-1.13.0` parallel risk-only union; and failure-only

@@ -18,7 +18,7 @@ Sebastian separately approved a **new $0.30 cap** for the lead-owned review and 
 
 `anthropic/claude-sonnet-5` reviewed **35/35** under durable Postgres scope `pt-review/lead-strings`, run ID `lead-strings`. Nine sequential calls used groups of at most four and `max_output_tokens=3072`; all nine returned valid complete responses with no truncation or retry. Scope readback: **$0.30 cap, nine attempts, $0.048878 known and charged, zero unknown-cost attempts**. The running `final-evaluation-v2` scope was not used. Detailed synthetic checkpoints remain in ignored `artifacts/`.
 
-After final v2 completed and the owner lifted the freeze, the lead accepted and applied **only A20 and W02** below. The [original proposal patch](pt-review-lead-proposed.patch) remains as the review record. A20 clarifies the handoff destination; W02 names the verification-code and confirmation steps already enforced by the workflow. An exact source comparison and normalized AST comparison verified that these are the only source changes; control flow and policy are unchanged.
+After final v2 completed and the owner lifted the freeze, the lead accepted and applied **only A20 and W02** below. The [original proposal patch](../../ml/pt-review-lead-proposed.patch) remains as the review record. A20 clarifies the handoff destination; W02 names the verification-code and confirmation steps already enforced by the workflow. An exact source comparison and normalized AST comparison verified that these are the only source changes; control flow and policy are unchanged.
 
 | ID / location | Before | After lead acceptance | Model finding and decision |
 |---|---|---|---|
@@ -71,7 +71,7 @@ placeholders, amounts, deadlines, confirmation conditions and action states.
 ### Accepted before/after proposals
 
 The following is a **lead-owned strings-only proposal**. The ready-to-apply
-[patch](copy-review-post-v3-proposed.patch) changes six source occurrences in
+[patch](../../ml/copy-review-post-v3-proposed.patch) changes six source occurrences in
 `api/app.py` and `api/workflows.py`; this AI PR does not edit those folders.
 All AI templates, offer/recognition questions and the eight new web messages
 were reviewed and retained. The patch needs lead review/application before

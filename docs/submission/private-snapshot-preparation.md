@@ -65,7 +65,7 @@ paths change. Two fresh clones were verified at zero model cost: mock checks
 **454 passed / 20 skips**, B1 **32/32**, disposable database **23/23** and browsers
 **80 fixture + 12 live + 1 staff**. The corrected clone's exact README setup,
 Compose readiness and authenticated fixture smoke passed. See
-[clean-clone reproduction](clean-clone-reproduction.md) for timings and limitations.
+[clean-clone reproduction](../history/submission/clean-clone-reproduction.md) for timings and limitations.
 Final snapshot **3dbfc1d69fbc2fc8cabf270e532fe492afc2cdaf** matches origin. Fresh exact-tree and full-history
 Gitleaks scans exit 0; private-link/home-path/cloud-host patterns have zero matches.
 All commit emails are fictional, Actions are disabled and visibility stays PRIVATE.
@@ -93,7 +93,7 @@ lake/artifacts and private Terraform inputs/state/plans are absent. Only the
 aggregate-only generic validator is retained under suite tools because runner
 tests import it. Five missing-seen-v3-input tests explicitly skip in this export;
 all remaining provider/budget/runner tests remain active. Product files did not
-change. See the [reproduction corrections](clean-clone-reproduction.md#post-v4-clean-clone).
+change. See the [reproduction corrections](../history/submission/clean-clone-reproduction.md#post-v4-clean-clone).
 
 Final pushed-tree and full-history Gitleaks **8.30.1** scans exit **0**, zero
 findings with embedded default rules and five exact path/value exceptions. The
