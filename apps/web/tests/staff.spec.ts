@@ -56,10 +56,12 @@ test("live workspace: trusted ops role, handoff claim/resolve, measured traces a
   expect(new Date(packet.created_at).getTime()).toBeGreaterThan(
     new Date("2026-06-18T06:00:00Z").getTime(),
   );
-  const sla = page.locator(".queue-item .caption").filter({ hasText: "SLA" });
-  await expect(sla).toHaveText(/Tiempo para SLA: (?:14d 23h \d+m|15d 0h 0m)/);
+  const sla = page
+    .locator(".queue-item .caption")
+    .filter({ hasText: "Plazo de atención" });
+  await expect(sla).toHaveText(/Plazo de atención: (?:14d 23h \d+m|15d 0h 0m)/);
   await expect(
-    page.getByText("El paquete no incluye movimientos verificados.", {
+    page.getByText("Sin movimientos verificados en esta solicitud.", {
       exact: false,
     }),
   ).toBeVisible();
@@ -90,9 +92,7 @@ test("live workspace: trusted ops role, handoff claim/resolve, measured traces a
   await expect(
     page.getByRole("heading", { name: "Actividad de este espacio" }),
   ).toBeVisible();
-  await expect(
-    page.getByText("Sin medir: no hay etiquetas de referencia"),
-  ).toHaveCount(2);
+  await expect(page.getByText("Sin medir en esta demo")).toHaveCount(2);
   await expect(
     page.getByText("Ejemplo ilustrativo · no es un resultado medido"),
   ).toHaveCount(0);
@@ -115,7 +115,7 @@ test("live workspace: trusted ops role, handoff claim/resolve, measured traces a
     ).violations,
   ).toEqual([]);
   await page
-    .getByRole("button", { name: "Restablecer personas demo", exact: true })
+    .getByRole("button", { name: "Restablecer demo", exact: true })
     .click();
   const otp = page.getByTestId("reset-otp");
   await expect(otp).toHaveText(/^\d{6}$/);

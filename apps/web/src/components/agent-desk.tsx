@@ -246,7 +246,7 @@ export function AgentDesk() {
                       {p.route.language.toUpperCase()}
                     </span>
                   </span>
-                  <span className="technical-reference">{p.handoff_id}</span>
+                  <span hidden>{p.handoff_id}</span>
                   <span className="row-between">
                     <span className="queue-reasons">
                       {orderedReasons(p)
@@ -275,7 +275,10 @@ export function AgentDesk() {
               <header className="packet-heading">
                 <div>
                   <h2>{t("packet")}</h2>
-                  <p className="technical-reference">{current.handoff_id}</p>
+                  <details>
+                    <summary>{t("technicalReferences")}</summary>
+                    <p className="technical-reference">{current.handoff_id}</p>
+                  </details>
                   <p>
                     {t(queueLabelKey(current.route.queue))} ·{" "}
                     {current.route.language.toUpperCase()} · {t(current.status)}
@@ -312,7 +315,10 @@ export function AgentDesk() {
                         </span>
                       )}
                       <strong>{t(handoffReasonLabelKey(reason))}</strong>
-                      <code className="technical-reference">{reason}</code>
+                      <details>
+                        <summary>{t("why")}</summary>
+                        <code className="technical-reference">{reason}</code>
+                      </details>
                     </li>
                   ))}
                 </ul>
@@ -339,9 +345,6 @@ export function AgentDesk() {
                       >
                         <FileSearch size={15} />
                         {t("evidenceTitle")}
-                        <code className="technical-reference">
-                          {current.evidence[i].id}
-                        </code>
                         <ArrowUpRight size={14} />
                       </Button>
                     )}

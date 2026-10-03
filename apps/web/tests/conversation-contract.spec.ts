@@ -222,6 +222,7 @@ test("Agent Desk shows the supplied primary reason first and preserves all contr
   );
   await login(page, "demo.agent");
   await page.getByRole("button", { name: "Agent Desk", exact: true }).click();
+  await expect(page.locator(".queue-item [hidden]").first()).toBeHidden();
   const reasons = page.getByRole("region", {
     name: "Motivos de la derivación",
   });
@@ -231,11 +232,14 @@ test("Agent Desk shows the supplied primary reason first and preserves all contr
     "ESC-02",
   ]);
   await expect(reasons.locator("li").first()).toContainText("Motivo principal");
+  await expect(reasons.locator("li code").first()).toBeHidden();
+  await reasons.locator("summary").first().click();
+  await expect(reasons.locator("li code").first()).toBeVisible();
   await expect(reasons).toContainText(
     "las acciones verificadas se muestran abajo.",
   );
   await expect(page.locator(".packet-heading h2")).toHaveText(
-    "Paquete de atención",
+    "Detalle de la solicitud",
   );
   await expect(page.locator(".packet-heading .technical-reference")).toHaveText(
     "HO-UI-MULTI",

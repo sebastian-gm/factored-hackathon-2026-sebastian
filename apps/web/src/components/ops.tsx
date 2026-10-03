@@ -158,17 +158,18 @@ export function Ops() {
               <small>{date(data.freshness.built_at, locale, true)} UTC</small>
             </div>
             <div className="metric">
-              <span>{t("dataset")}</span>
-              <strong className="text-metric mono">
-                {data.dataset_version}
-              </strong>
-              <small>
+              <span>{t("dataSource")}</span>
+              <strong className="text-metric">
                 {t(
                   data.source_kind === "organizer_serving"
-                    ? "organizerSource"
-                    : "fixture",
+                    ? "organizerData"
+                    : "exampleData",
                 )}
-              </small>
+              </strong>
+              <details>
+                <summary>{t("dataset")}</summary>
+                <small>{data.dataset_version}</small>
+              </details>
             </div>
           </div>
           <section className="panel trace-panel">
@@ -183,7 +184,7 @@ export function Ops() {
                   >
                     {data.conversations.map((c, i) => (
                       <option key={c.id} value={c.id}>
-                        {t("conversation")} {i + 1} · {c.id.slice(0, 8)}
+                        {t("conversation")} {i + 1}
                       </option>
                     ))}
                   </select>
@@ -277,7 +278,6 @@ export function Ops() {
                         <div className="row-between">
                           <strong>
                             {t(`stage_${event.stage.toLowerCase()}`)}{" "}
-                            <span className="caption">/ {event.state}</span>
                           </strong>
                           {event.verified && (
                             <span className="badge">
@@ -286,23 +286,29 @@ export function Ops() {
                             </span>
                           )}
                         </div>
-                        <p className="caption">
-                          {event.tool
-                            ? `${t("tool")}: ${event.tool}`
-                            : event.llm
-                              ? t("llm")
-                              : t("noLlm")}
-                        </p>
-                        {event.rules.length > 0 && (
-                          <div className="rule-list">
-                            {event.rules.map((rule) => (
-                              <span key={rule} className="rule">
-                                {rule}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                        {event.llm && <CallDetails call={event.llm} />}
+                        <details>
+                          <summary>{t("why")}</summary>
+                          <p className="caption">
+                            {t("state")}: {event.state}
+                          </p>
+                          <p className="caption">
+                            {event.tool
+                              ? `${t("tool")}: ${event.tool}`
+                              : event.llm
+                                ? t("llm")
+                                : t("noLlm")}
+                          </p>
+                          {event.rules.length > 0 && (
+                            <div className="rule-list">
+                              {event.rules.map((rule) => (
+                                <span key={rule} className="rule">
+                                  {rule}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                          {event.llm && <CallDetails call={event.llm} />}
+                        </details>
                       </div>
                     </li>
                   ))}
@@ -425,7 +431,7 @@ export function Ops() {
                           locale,
                         )}
                       </dd>
-                      <dt>SAR</dt>
+                      <dt>{t("safeResolution")}</dt>
                       <dd>{t("notMeasured")}</dd>
                       <dt>{t("unsafe")}</dt>
                       <dd>{t("notMeasured")}</dd>
