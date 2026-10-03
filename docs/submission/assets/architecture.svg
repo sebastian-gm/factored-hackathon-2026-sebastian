@@ -3,7 +3,7 @@
   <rdf:RDF>
    <ns2:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-    <dc:description>docs/architecture.md sha256:5ba83d6023d4c8110145572d908beb66124957c0b88eea8a9e6066a8a0aa46ba</dc:description>
+    <dc:description>docs/architecture.md sha256:b951c4783d94ca038fbd2c4db28327c7dbf526851a684d78c59d6a0b0f776322</dc:description>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <ns2:Agent>
