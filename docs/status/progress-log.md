@@ -5352,3 +5352,35 @@ later flag-only session for the current contract and activation dependencies.
   local. Identifier cues or multiple amounts leave the slot unresolved. Review
   the new head, run final integration gates and release v0.8.1 within a fresh
   $0.10 purse including the large-COP case. Judge activation remains OFF.
+
+## 2026-10-02 COT — v0.8.1 privacy-first integration
+
+### Completed (verified)
+
+- Re-reviewed #149 `806f4cd`: all monetary redaction exemptions removed; raw
+  amounts recovered locally after NLU. Identifier context or competing amounts
+  clears model guesses and requests clarification. Lead-run provider-payload
+  regressions passed for every reported leak, regional formats and shared units.
+- Combined #138/#147/#149 mock `make checks`: **1,608 passed / 41 skipped**,
+  B1 **32/32**, hooks, Ruff, strict mypy and interfaces passed. Disposable
+  Postgres **101 passed**; reactive B1 v2 **32/32**; live mock customer **12**
+  and staff **13** browser checks passed. Cost $0.
+- Folded the monetary lane's two fragments. Earlier exemption-based versions
+  were rejected by lead review; their regressions and history are preserved.
+
+### Done but not verified
+
+- Source #149 browser CI failed one mobile choice viewport assertion after
+  162 fixture passes. The combined frontend's remote gate is still required;
+  no failed source workflow is described as green.
+  Lead repeated the exact mobile test on the combined production build:
+  **3/3 passed**, with no code or assertion change.
+- Integration accepted locally; main merge, queue migration, new-SHA purse and
+  Azure v0.8.1 release remain pending. Existing receipts/counters unchanged.
+
+### Next / blocked
+
+- Complete combined remote CI, merge and run the approved image release and
+  bounded real smoke ($0.02–$0.04 estimated, fresh $0.10 cap, cumulative $15).
+- Judge OFF; live judge realms deferred to submission Gate B. No public,
+  scaling/CPU, organizer reload, persona rebinding or state deletion changes.
