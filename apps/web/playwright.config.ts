@@ -29,6 +29,7 @@ export default defineConfig({
           "**/video-readiness.spec.ts",
           "**/minimal-design.spec.ts",
           "**/judge-profiles.spec.ts",
+          "**/judge-guide.spec.ts",
           "**/admission.spec.ts",
           "**/resilience-ux.spec.ts",
         ],
