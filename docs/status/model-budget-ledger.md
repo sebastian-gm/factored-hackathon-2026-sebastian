@@ -101,3 +101,19 @@ denial; use deterministic degradation instead of another paid provider.
 
 Warm replicas, public/judge ingress and publication still need separate
 submission-day approval. See the [runbook](../submission/submission-day-runbook.md).
+
+## Executed v0.8.1 smoke
+
+Owner-approved fresh `pre-v4-release-3bc06d0db1c9b38233c04558f8093ce956258ab2` $0.10 lifetime purse: **$0.00776**,
+**4 provider calls**, **6 attempted conversations**, zero unknown
+smoke costs. Key remaining **$4.9742135**; independently
+measured decrease **$0.00776**, minus smoke charge
+**$0.0**. No key increase, reserve release or history reset.
+
+All-scope known **$6.15450334**, retained exposure
+**$7.88382184**, conservative
+**$12.40571698**. Include unused capacities from both prior purses and this new
+purse, plus OFF judging $2.30: **$14.96326498 <= $15**. All
+64 legacy unknown reservations retained.
+Judging $1/UTC-day/activation remain OFF pending explicit Gate B go.
+See [verified release evidence](../evaluation/v0.8.1-release-notes.md).

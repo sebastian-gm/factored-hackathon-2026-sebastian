@@ -13,9 +13,22 @@ certification. The v0.1.0–v0.5.0 annotated tags and GitHub Releases were creat
 - Post-v4 fixes are disclosed separately and do not change official v4 scores.
 - Every change now uses a feature branch and PR; every Azure release gets a tag.
 - `v1.0.0` is reserved for the exact submission-day Azure release SHA.
-- v0.8.1 candidate: validated, realm-scoped staff queue with independently
-  verified claims; draft-only judge guide; privacy-first monetary recovery local
-  to NLU. No monetary provider-redaction exemptions. Official v4 unchanged.
+
+## [0.8.1] — 2026-10-02 COT, staff queue and monetary privacy (post-v4)
+
+- Deployed `3bc06d0db1c9b38233c04558f8093ce956258ab2`; #138/#147/#149 integrated through green #150.
+- Current-controller validation revokes delegated staff access on judge OFF,
+  rotation, expiry/logout and changed binding, including cached claims.
+- Additive FORCE-RLS queue: independently verified one-winner claims, immutable
+  packet/realm; no bank/transcript/trace authority granted.
+- Guide examples draft only; monetary digit redaction has no exemptions;
+  unambiguous money recovered locally. Identifier/multiple amounts clarify.
+- Existing large-COP dispute/readback/retry, concurrent ES/PT attribution,
+  deterministic fraud, staff invitation/claim/revocation and three surfaces passed.
+- Smoke $0.00776 / $0.10; 4 provider calls; maximum allocation
+  $14.96326498 / $15 including retained allowances and OFF judging proposal.
+- Judge/public/scaling remain OFF; no deletion/reload/rebind. Official v4 unchanged.
+- [Verified evidence and limits](docs/evaluation/v0.8.1-release-notes.md).
 
 ## [0.8.0] — 2026-10-02 COT, concurrent chat (post-v4)
 
