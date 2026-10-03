@@ -33,8 +33,11 @@ _LABELLED_DOCUMENT = re.compile(
 _CURRENCY_WORD = r"(?:USD|COP|CLP|ARS|MXN|BRL|EUR|GBP|pesos?|d[oó]lares?|reais|real|euros?)"
 _LABELLED_IDENTIFIER = re.compile(
     r"(\b(?:CPF|DNI|RUT|c[eé]dula|documento|RG|RFC|CNPJ|pasaporte|passaporte|"
-    r"tel[eé]fono|telefone|celular|m[oó]vil|fono|whatsapp|phone|tel|tarjeta|cart[aã]o|card|PAN)\b"
-    r"(?:\s+de\s+cr[eé]dito)?(?:\s+(?:es|e|é))?\s*[:#]?\s*"
+    r"tel[eé]fono|telefone|celular|m[oó]vil|fono|fone|whatsapp|phone|tel|tarjeta|cart[aã]o|card|PAN|"
+    r"contact[ao]|contactar|contat[ao]|contatar|ll[aá]ma(?:me|nos)?|llame|llamar|liga|ligue|ligar)\b"
+    r"(?:\s+(?:de|del|do|da|al|a|el|o|mi|meu|contacto|contato|contactar|contatar|"
+    r"es|e|é|n[uú]mero|num|nro|para|en|no|na|pelo|pela|por|titular|cliente|cr[eé]dito)){0,6}"
+    r"\s*[:#]?\s*"
     rf"(?:(?:{_CURRENCY_WORD}|(?:R|US)?[$€£])\s*)?)(\+?\d[\d. -]{{5,24}}[0-9kK])(?=\b|$)",
     re.I,
 )
@@ -43,10 +46,18 @@ _MONEY_UNIT = (
     rf"(?:{_CURRENCY_WORD}|{_MONEY_SCALE}|palos?|lucas?|contos?|varos?|pilas?|lana|centavos?)"
 )
 _MONEY_PREFIX = re.compile(rf"(?:\b{_CURRENCY_WORD}\s*|(?:R|US)?[$€£]\s*)$", re.I)
+_MONEY_AMOUNT_PREFIX = re.compile(
+    r"\b(?:(?:cargos?|cobros?|consumos?|compras?|cobranças?|transaç(?:ão|ões)|"
+    r"transacci[oó]n(?:es)?|pagamentos?|"
+    r"pagos?|valor|monto|importe|total|quantia)"
+    r"(?:\s+(?:es|e|é|fue|foi|de|do|da|por|en|no|na))*|por)\s*$",
+    re.I,
+)
 _MONEY_SUFFIX = re.compile(
     rf"\s*(?:de\s+)?{_MONEY_UNIT}\b(?:\s+(?:de\s+)?{_CURRENCY_WORD}\b)?", re.I
 )
 _GROUPED_MONEY = re.compile(r"(?:\d{1,3}(?:\.\d{3})+(?:,\d{2})?|\d{1,3}(?:,\d{3})+(?:\.\d{2})?)")
+_SHARED_MONEY_UNIT = re.compile(r"\s*(?:[,/&]|y|e|o|ou)\s*(?:de\s+)?", re.I)
 _HANDLE = re.compile(r"\b(?:txn|card|prod|cust)_\d+\b", re.I)
 # UTF-8 decoded as Latin-1/Windows-1252, replacement characters, and a narrow
 # word-internal ASCII corruption signature. Ordinary ES/PT accents remain valid.
@@ -174,27 +185,48 @@ def _identifier_spans(text: str) -> list[tuple[int, int]]:
     ]
     spans.extend(match.span() for pattern in (_EMAIL, _CARD) for match in pattern.finditer(text))
     spans.extend(
-        match.span() for match in _PHONE.finditer(text) if "+" in match[0] or "-" in match[0]
+        match.span()
+        for match in _PHONE.finditer(text)
+        if "+" in match[0] or "-" in match[0] or text[match.start() - 1 : match.start()] == "+"
     )
     return spans
 
 
 def _money_spans(text: str) -> tuple[tuple[int, int], ...]:
     identifiers = _identifier_spans(text)
-    spans: list[tuple[int, int]] = []
-    for number in _NUMBER.finditer(text):
+    numbers = tuple(_NUMBER.finditer(text))
+    spans: dict[int, tuple[int, int]] = {}
+    blocked: set[int] = set()
+    for index, number in enumerate(numbers):
         if any(start < number.end() and number.start() < end for start, end in identifiers):
+            blocked.add(index)
             continue
-        prefix = _MONEY_PREFIX.search(text[: number.start()])
+        if not (
+            _GROUPED_MONEY.fullmatch(number[0]) or re.fullmatch(r"\d+(?:[.,]\d{1,2})?", number[0])
+        ):
+            blocked.add(index)
+            continue
+        prefix = _MONEY_PREFIX.search(text[: number.start()]) or _MONEY_AMOUNT_PREFIX.search(
+            text[: number.start()]
+        )
         suffix = _MONEY_SUFFIX.match(text, number.end())
-        if prefix or suffix or _GROUPED_MONEY.fullmatch(number[0]):
-            spans.append(
-                (
-                    prefix.start() if prefix else number.start(),
-                    suffix.end() if suffix else number.end(),
-                )
+        if prefix or suffix:
+            spans[index] = (
+                prefix.start() if prefix else number.start(),
+                suffix.end() if suffix else number.end(),
             )
-    return tuple(spans)
+    # "125 y 234 pesos" gives both numbers monetary context. Keep them separate
+    # so postprocess/fallback cannot mistake the final qualifier for one amount.
+    for index in reversed(range(len(numbers) - 1)):
+        if index in spans or index in blocked or index + 1 not in spans:
+            continue
+        previous, following = numbers[index], numbers[index + 1]
+        if _SHARED_MONEY_UNIT.fullmatch(text[previous.end() : following.start()]) and not any(
+            date.start() < previous.end() and previous.start() < date.end()
+            for date in _ISO_DATE.finditer(text)
+        ):
+            spans[index] = previous.span()
+    return tuple(spans[index] for index in sorted(spans))
 
 
 def money_expressions(text: str) -> tuple[str, ...]:
@@ -208,6 +240,13 @@ def redact_for_model(text: str) -> str:
     # can turn a grouped amount's remaining digits into another identifier match.
     spans = _identifier_spans(text)
     money = _money_spans(text)
+    for number in _NUMBER.finditer(text):
+        if (
+            _GROUPED_MONEY.fullmatch(number[0])
+            and sum(char.isdigit() for char in number[0]) >= 8
+            and not any(left <= number.start() and number.end() <= right for left, right in money)
+        ):
+            spans.append(number.span())
     for pattern in (_PHONE, _DOCUMENT):
         for match in pattern.finditer(text):
             start, end = match.span()

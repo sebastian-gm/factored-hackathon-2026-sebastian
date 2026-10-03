@@ -103,6 +103,17 @@ def test_rules_fallback_keeps_the_complete_amount(country, message, expected):
         ("DNI $ 12.345.678", "12.345.678"),
         ("Telefone R$ 123.456.789", "123.456.789"),
         ("Meu documento é 12500000 reais", "12500000"),
+        ("+123456789 COP", "123456789"),
+        ("Mi teléfono de contacto es 300.123.456", "300.123.456"),
+        ("Contacta al 300.123.456", "300.123.456"),
+        ("Meu telefone de contato é 300.123.456", "300.123.456"),
+        ("Entre em contato pelo 300.123.456", "300.123.456"),
+        ("Meu celular para contato é 300.123.456 BRL", "300.123.456"),
+        ("WhatsApp de contacto: 300.123.456 COP", "300.123.456"),
+        ("Llame al 300.123.456 COP", "300.123.456"),
+        ("Ligue para 300.123.456 BRL", "300.123.456"),
+        ("4111.1111.1111.1111 USD", "4111.1111.1111.1111"),
+        ("4111.1111.1111.1111 y 234 USD", "4111.1111.1111.1111"),
     ],
 )
 def test_identifier_evidence_wins_over_currency_context(text, identifier):
@@ -230,3 +241,86 @@ def test_raw_amount_recovery_reaches_match_like_canonical_ledger_evidence(countr
     # Large same-merchant twins may still need a choice under the existing learned
     # matcher. Fix input evidence without weakening that conservative decision.
     assert decision == MatchState().match(reference.slots, rows, "authored-customer", CLOCK)
+
+
+@pytest.mark.parametrize(
+    "message",
+    [
+        "300.123.456",
+        "Mi teléfono de contacto es 300.123.456",
+        "Contacta al 300.123.456",
+        "Meu telefone de contato é 300.123.456",
+        "Contato pelo 300.123.456",
+    ],
+)
+def test_grouped_phone_without_monetary_context_is_not_amount_evidence(message):
+    redacted = redact_for_model(message)
+    assert "300.123.456" not in redacted and "[REDACTED]" in redacted
+    missing = ExtractedNlu(language="es", intent="charge_inquiry", intent_confidence=0.95)
+    assert (
+        postprocess(missing, country="CO", bank_clock=CLOCK, message=message).slots.amount_value
+        is None
+    )
+    assert understand(message, country="CO", bank_clock=CLOCK).slots.amount_value is None
+
+
+@pytest.mark.parametrize(
+    ("country", "message", "first", "currency"),
+    [
+        ("CO", "Veo dos cargos de 125 y 234 pesos.", "125", "pesos"),
+        ("BR", "Vejo duas compras de 125 e 234 reais.", "125", "reais"),
+        ("CO", "125 y 234 pesos.", "125", "pesos"),
+        ("BR", "125 e 234 reais.", "125", "reais"),
+        ("CO", "12500000 y 23400000 pesos.", "12500000", "pesos"),
+        ("BR", "12500000 e 23400000 reais.", "12500000", "reais"),
+    ],
+)
+@pytest.mark.parametrize("selected", [True, False])
+def test_shared_currency_does_not_force_the_last_amount(
+    country, message, first, currency, selected
+):
+    extracted = ExtractedNlu(
+        language="pt" if country == "BR" else "es",
+        intent="charge_inquiry",
+        intent_confidence=0.95,
+        amount_expr=first if selected else None,
+        currency_expr=currency,
+    )
+    result = postprocess(extracted, country=country, bank_clock=CLOCK, message=message)
+    assert result.slots.amount_value == (Decimal(first) if selected else None)
+    assert understand(message, country=country, bank_clock=CLOCK).slots.amount_value is None
+    if len(first) >= 8:
+        assert redact_for_model(message) == message  # The unit applies to both money tokens.
+
+
+@pytest.mark.parametrize(
+    "message",
+    [
+        "El cargo de 123.456.789,50",
+        "La compra fue por 123.456.789,50",
+        "A cobrança é de 123.456.789,50",
+        "O valor é 123.456.789,50",
+        "A transação de 123.456.789,50",
+        "La transacción de 123.456.789,50",
+    ],
+)
+def test_amount_cues_allow_grouped_money_without_a_currency_code(message):
+    assert redact_for_model(message) == message
+    assert understand(message, country="CO", bank_clock=CLOCK).slots.amount_value == Decimal(
+        "123456789.50"
+    )
+
+
+@pytest.mark.parametrize(
+    "message",
+    [
+        "El cargo es de 1000000.00 COP; mi teléfono de contacto es 300.123.456",
+        "A compra é de 1000000.00 BRL; meu telefone de contato é 300.123.456",
+    ],
+)
+def test_contact_and_money_in_one_message_keep_separate_classification(message):
+    redacted = redact_for_model(message)
+    assert "1000000.00" in redacted and "300.123.456" not in redacted
+    assert understand(message, country="CO", bank_clock=CLOCK).slots.amount_value == Decimal(
+        "1000000.00"
+    )
