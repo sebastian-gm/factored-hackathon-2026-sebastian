@@ -60,3 +60,26 @@ Latest AI live diagnosis: [partial exploration and zero-cost root causes](progre
 ### Next / blocked
 
 - Lead owns merge/release; clean 2x authored-fixture video assets follow both merges.
+
+## 2026-10-04 — English launch gallery and phone icon
+
+### Completed (verified)
+
+- Both English-interface PRs merged; #195 head was
+  `4407436036389d25dbc0faf347ba95d46c6dff0e`, merged at `7ca5905`.
+- Local authored bank gallery: 90 PNGs at 2x scale, desktop and phone,
+  ES/PT replies, English staff guidance, verified case and four claim readbacks.
+  Published aggregate Insights charts included with explicit owner approval.
+- Phone icon regression reproduced at 320/390px; CSS correction passed all
+  13 English Playwright checks including axe. TypeScript and focused lint passed.
+- Model spend and external browser requests: zero. Gallery stays ignored at
+  `artifacts/ux-audit/video-assets-en/`; no organizer row inputs used.
+
+### Done but not verified
+
+- Phone icon correction awaits remote CI and lead review; refreshed captures
+  will identify their exact source SHA in the local manifest.
+
+### Next / blocked
+
+- Lead retains all main merge and release authority. No live model runs needed.

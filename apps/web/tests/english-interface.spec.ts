@@ -274,3 +274,21 @@ test("EN staff guidance is reason-based and has a conservative unknown-code fall
     "no outcome is guaranteed",
   );
 });
+
+for (const width of [320, 390])
+  test(`EN ${width}px chat header keeps its brand glyph legible`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 844 });
+    await loginJudge(page);
+    await page.getByTestId("profile-mx-es").click();
+    await expect(page.locator(".chat-header")).toContainText(notice);
+    await expect(page.locator(".secure-pill")).toContainText(
+      "Verified session",
+    );
+    const avatar = await page.locator(".chat-avatar").boundingBox();
+    expect(avatar).not.toBeNull();
+    expect(avatar!.width).toBeGreaterThanOrEqual(24);
+    expect(Math.abs(avatar!.width - avatar!.height)).toBeLessThan(1);
+    await audit(page);
+  });
