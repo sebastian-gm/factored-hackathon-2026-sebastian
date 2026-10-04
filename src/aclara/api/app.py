@@ -208,6 +208,39 @@ def _localized(language: str, spanish: str, portuguese: str) -> str:
     return spanish if language == "es" else portuguese
 
 
+def _informational_followup(message: str) -> bool:
+    """Only short read questions may reuse an already identified charge."""
+    value = normalize_text(message).strip(" .,!¿?¡")
+    return bool(
+        re.fullmatch(
+            r"(?:(?:y|e) )?(?:por que(?: aparece como (?:aprobado|aprovado))?|"
+            r"ahora que|que pasa ahora|que hago ahora|que sigue|agora|o que acontece agora|"
+            r"cuanto tarda|cuanto demora|cuanto tiempo (?:tarda|demora)|"
+            r"quanto tempo (?:demora|leva))|entao esse valor volta para mim|"
+            r"em que dia isso aparece no extrato",
+            value,
+        )
+    )
+
+
+def _case_question(message: str, *, everyday: bool = False) -> bool:
+    value = normalize_text(message)
+    return bool(
+        re.search(r"DSP-[A-Za-z0-9-]+", message, re.IGNORECASE)
+        or re.search(
+            r"(estado|status|andamento).{0,30}(caso|disputa|contestacion|contestacao)|(mi caso|minha contestacao)",
+            value,
+        )
+        or everyday
+        and re.search(r"\b(caso|disputa|contestacion|contestacao)\b", value)
+        and re.search(
+            r"\b(que pasa|que acontece|agora|ahora|como (?:esta|vai)|"
+            r"siguiente paso|proximo passo|cuanto tarda|quanto tempo)\b",
+            value,
+        )
+    )
+
+
 def _explanation(language: str, row: Transaction, reason: str) -> str:
     row = replace(row, merchant_name=safe_merchant(row.merchant_name))
     amount = f"{row.amount:.2f} {row.currency}"
@@ -1028,14 +1061,7 @@ def create_app(
         frame = classify_request(message)
         if escalations(message) or frame.intent == Intent.FRAUD or unsupported_language(message):
             return snapshot, None
-        if (
-            re.search(r"DSP-[A-Za-z0-9-]+", message, re.IGNORECASE)
-            or re.search(
-                r"(estado|status|andamento).{0,30}(caso|disputa|contestacion|contestacao)|(mi caso|minha contestacao)",
-                normalize_text(message),
-            )
-            or conversation.candidates
-        ):
+        if _case_question(message, everyday=True) or conversation.candidates:
             return snapshot, None
         row = None
         if conversation.offer_handle:
@@ -1058,6 +1084,30 @@ def create_app(
                 else None,
             },
         )
+
+    def case_status(record: dict[str, Any], language: str) -> dict[str, Any]:
+        app.state.runtime.record("status_lookup")
+        app.state.runtime.record("report_case", handle=record["transaction_handle"])
+        reply = _localized(
+            language,
+            f"El caso {record['case_id']} tiene estado {record['status']}.",
+            f"O caso {record['case_id']} tem status {record['status']}.",
+        )
+        if app.state.runtime.system == "P":
+            days = int(rule("COM-01").parameters["synthetic_sla_days_max"])
+            reply += " " + _localized(
+                language,
+                f"El siguiente paso es la revisión. El plazo de respuesta simulado es de hasta {days} días; no garantiza una fecha ni un reembolso.",
+                f"O próximo passo é a análise. O prazo de resposta simulado é de até {days} dias; não garante uma data nem reembolso.",
+            )
+        return {
+            "response_type": "report_status",
+            "outcome": "status_reported",
+            "reply": reply,
+            "case": public_case(record),
+            "verified": True,
+            "policy_rules": ["DSP-06", "COM-01"] if app.state.runtime.system == "P" else ["DSP-06"],
+        }
 
     async def process_message(
         conversation_id: str,
@@ -1121,10 +1171,12 @@ def create_app(
                 },
                 "policy_rules": packet["reason_codes"],
             }
+        contextual = app.state.runtime.system == "P" and _informational_followup(body.message)
         if conversation.proposal is not None:
             if is_confirmation(body.message):
                 raise HTTPException(status_code=409, detail="Use the action confirmation control")
-            conversation.proposal = None
+            if not contextual:
+                conversation.proposal = None
             if is_cancellation(body.message):
                 return {
                     "response_type": "cancelled",
@@ -1138,7 +1190,7 @@ def create_app(
         nlu: NluResult | None = None
         language = (
             conversation.language
-            if conversation.candidates or conversation.offer_handle
+            if conversation.candidates or conversation.offer_handle or contextual
             else frame.language
         )
         conversation.language = language
@@ -1179,12 +1231,8 @@ def create_app(
                 "reply": "Puedo atenderte en español o portugués. / Posso atender em espanhol ou português.",
                 "policy_rules": ["ESC-04"],
             }
-        normalized_message = normalize_text(body.message)
         requested = re.search(r"DSP-[A-Za-z0-9-]+", body.message, re.IGNORECASE)
-        if requested or re.search(
-            r"(estado|status|andamento).{0,30}(caso|disputa|contestacion|contestacao)|(mi caso|minha contestacao)",
-            normalized_message,
-        ):
+        if _case_question(body.message, everyday=app.state.runtime.system == "P"):
             cases = list(app.state.cases.values())
             if requested:
                 cases = [
@@ -1192,20 +1240,7 @@ def create_app(
                 ]
             if cases:
                 record = max(cases, key=lambda case: datetime.fromisoformat(case["created_at"]))
-                app.state.runtime.record("status_lookup")
-                app.state.runtime.record("report_case", handle=record["transaction_handle"])
-                return {
-                    "response_type": "report_status",
-                    "outcome": "status_reported",
-                    "reply": _localized(
-                        language,
-                        f"El caso {record['case_id']} tiene estado {record['status']}.",
-                        f"O caso {record['case_id']} tem status {record['status']}.",
-                    ),
-                    "case": public_case(record),
-                    "verified": True,
-                    "policy_rules": ["DSP-06"],
-                }
+                return case_status(record, language)
             return {
                 "response_type": "clarify",
                 "outcome": "clarification",
@@ -1227,7 +1262,7 @@ def create_app(
         if (
             app.state.runtime.system == "P"
             and not conversation.candidates
-            and not conversation.proposal
+            and (not conversation.proposal or contextual)
         ):
             if inferred is None:
                 raise HTTPException(503, "NLU context unavailable; no action can be confirmed")
@@ -1294,6 +1329,43 @@ def create_app(
                             nlu.clarification or "language", conversation.language
                         ),
                     }
+        if contextual and not conversation.candidates:
+            handle = conversation.selected_handle
+            current = dict(ledger.for_customer(principal.customer_id, active_settings.bank_clock))
+            row = current.get(handle or "")
+            if row is not None:
+                cases = [
+                    case
+                    for case in app.state.cases.values()
+                    if case["transaction_handle"] == handle
+                ]
+                if cases:
+                    return case_status(
+                        max(cases, key=lambda case: datetime.fromisoformat(case["created_at"])),
+                        language,
+                    )
+                context = policy_context(app, principal, row)
+                decision = evaluate(
+                    row, active_settings.bank_clock, is_dispute=False, context=context
+                )
+                app.state.runtime.record("explain_status", handle=handle)
+                reply = _explanation(language, row, decision.reason)
+                if conversation.proposal:
+                    reply += " " + _localized(
+                        language,
+                        "La propuesta aún no está registrada. Usa el control de confirmación para abrir el caso; no garantiza un reembolso.",
+                        "A proposta ainda não foi registrada. Use o controle de confirmação para abrir o caso; não garante reembolso.",
+                    )
+                return {
+                    "response_type": "explain_status",
+                    "outcome": "explained",
+                    "reply": reply,
+                    "transaction": _masked_transaction(handle or "", row),
+                    "policy_rules": list(decision.rule_ids),
+                }
+            if handle:
+                conversation.proposal = None
+                return safe_failure(principal, language, "database_timeout")
         if offered_row is not None:
             if nlu is None:
                 nlu = deterministic_understand(
