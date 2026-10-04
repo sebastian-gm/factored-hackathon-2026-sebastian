@@ -35,3 +35,4 @@ preserve author-time checks and holds. The combined v0.9.1 release, reset and li
 Historical AI baseline: [October 3 mock judge exploration](../evaluation/judge-multi-turn-exploration.md).
 
 Latest AI controls: [live exploration verification](progress.d/2026-10-04-ai-live-controls.md).
+Latest AI choice follow-ups: [mock context regressions](progress.d/2026-10-04-ai-pending-candidate-followups.md).
