@@ -52,7 +52,11 @@ try {
       env.JUDGE_TOUR_MODE = "live";
     }
     if (!/^[a-f0-9]{40}$/.test(env.JUDGE_TOUR_RELEASE_SHA ?? "")) throw new Error();
-    if (env.JUDGE_TOUR_PAID === "1" && !env.JUDGE_TOUR_BUDGET_SCOPE) throw new Error();
+    if (env.JUDGE_TOUR_PAID === "1") {
+      const adapter = path.resolve(root, env.JUDGE_TOUR_BUDGET_ADAPTER ?? "");
+      if (!env.JUDGE_TOUR_BUDGET_SCOPE || !adapter.startsWith(path.join(root, "artifacts") + path.sep) || !adapter.endsWith(".mjs") || realpathSync(adapter) !== adapter || (statSync(adapter).mode & 0o777) !== 0o600) throw new Error();
+      env.JUDGE_TOUR_BUDGET_ADAPTER = adapter;
+    }
   }
   if (!env.JUDGE_TOUR_USERNAME || !env.JUDGE_TOUR_PASSWORD) throw new Error();
   const directory = path.join(root, `artifacts/ux-audit/go-live/${mode}`);
