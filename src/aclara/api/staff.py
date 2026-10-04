@@ -214,6 +214,12 @@ def install_staff(
         if principal.role not in ({"ops"} if ops else {"agent", "ops"}):
             raise HTTPException(403, "Staff role required")
 
+    def queue_realm(principal: Any) -> str | None:
+        # This exception grants only masked queue access, never a staff role.
+        if principal.judge_reference is None:
+            staff(principal)
+        return staff_queue.authorized_realm(app, principal)
+
     def fresh(principal: Any) -> None:
         if principal.step_up_at is None or datetime.now(UTC) - principal.step_up_at > timedelta(
             minutes=10
@@ -293,8 +299,7 @@ def install_staff(
 
     @app.get("/agent/handoffs", response_model=list[DeskPacket])
     async def queue(principal: Any = principal_default) -> list[DeskPacket]:
-        staff(principal)
-        realm = staff_queue.authorized_realm(app, principal)
+        realm = queue_realm(principal)
         if realm is not None:
             return sorted(
                 staff_queue.packets(app, principal, realm),
@@ -306,8 +311,7 @@ def install_staff(
 
     @app.get("/agent/handoffs/{handoff_id}", response_model=DeskPacket)
     async def detail(handoff_id: str, principal: Any = principal_default) -> DeskPacket:
-        staff(principal)
-        realm = staff_queue.authorized_realm(app, principal)
+        realm = queue_realm(principal)
         if realm is not None:
             packets = staff_queue.packets(app, principal, realm, handoff_id)
             if not packets:
@@ -317,8 +321,7 @@ def install_staff(
             return desk(handoff_id)
 
     async def transition(key: str, body: StaffAction, principal: Any, resolve: bool) -> DeskPacket:
-        staff(principal)
-        realm = staff_queue.authorized_realm(app, principal)
+        realm = queue_realm(principal)
         if realm is not None:
             if resolve:
                 raise HTTPException(409, "Realm queue supports claim only")
@@ -382,7 +385,8 @@ def install_staff(
     async def join_realm(
         body: staff_queue.RealmJoin, principal: Any = principal_default
     ) -> dict[str, bool]:
-        staff(principal)
+        if principal.judge_reference is None:
+            staff(principal)
         return staff_queue.join(app, principal, body)
 
     @app.post("/agent/handoffs/{handoff_id}/resolve", response_model=DeskPacket)

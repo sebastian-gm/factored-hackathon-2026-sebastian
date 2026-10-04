@@ -7,7 +7,11 @@ import { notifyProfileChange, retireWorkspace } from "@/lib/profile-workspace";
 import { Button } from "./ui/button";
 import { Modal } from "./ui/dialog";
 
-export function StaffInvitation() {
+export function StaffInvitation({
+  onOpenOwnVisit,
+}: {
+  onOpenOwnVisit?: () => Promise<void>;
+}) {
   const t = useTranslations();
   const [open, setOpen] = useState(false),
     [busy, setBusy] = useState(false);
@@ -47,11 +51,39 @@ export function StaffInvitation() {
       setBusy(false);
     }
   }
+  async function openOwnVisit() {
+    if (busy || !onOpenOwnVisit) return;
+    setBusy(true);
+    setFailed(false);
+    try {
+      await onOpenOwnVisit();
+    } catch {
+      setFailed(true);
+    } finally {
+      setBusy(false);
+    }
+  }
   return (
     <>
       <h2>{t("staffShareTitle")}</h2>
-      <p className="muted">{t("staffShareBody")}</p>
-      <Button onClick={() => void invite()} disabled={busy}>
+      <p className="muted">
+        {t(onOpenOwnVisit ? "judgeOwnQueueBody" : "staffShareBody")}
+      </p>
+      {onOpenOwnVisit && (
+        <Button onClick={() => void openOwnVisit()} disabled={busy}>
+          {t(busy ? "loading" : "judgeOwnQueueOpen")}
+        </Button>
+      )}
+      {onOpenOwnVisit && failed && !open && (
+        <p role="alert" className="error">
+          {t("staffJoinFailed")}
+        </p>
+      )}
+      <Button
+        variant={onOpenOwnVisit ? "secondary" : "default"}
+        onClick={() => void invite()}
+        disabled={busy}
+      >
         {t("staffInvite")}
       </Button>
       <Modal

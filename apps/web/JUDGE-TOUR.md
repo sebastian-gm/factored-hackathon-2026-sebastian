@@ -58,6 +58,13 @@ and named in the summary. Do not treat a green read-only run as a complete tour.
 The lead owns the BFF correction accepting trusted Ops-backed judge profiles.
 Selected MX/PT profiles must be checked after that correction is deployed.
 
+In judge mode, Agent Desk offers **Abrir la cola de esta visita / Abrir a fila
+desta visita**. Generate and redeem the one-use invitation in the existing judge
+session, then inspect and claim the masked packet with independent read-back.
+No separate staff login is needed for this judge path. Reloading or changing a
+profile recovers membership from the server; logout revokes it. External staff
+continues to use its own login and a separate browser profile/private window.
+
 For the paid journeys, the lead must first read back the account/key balances
 and bind a dedicated durable frontend budget scope capped at **$0.20 total**,
 including both networks. Reserve unknown costs, stop on exhaustion, and read back

@@ -1,4 +1,7 @@
 export const es = {
+  judgeOwnQueueOpen: "Abrir la cola de esta visita",
+  judgeOwnQueueBody:
+    "Abre las solicitudes enmascaradas de tu visita sin otro acceso. Puedes revisar y tomar una solicitud; no resolverla. Para compartirla con atención externa, crea una invitación y usa su acceso independiente.",
   staffLoginTitle: "Acceso de Agent Desk",
   staffLoginBody:
     "Usa tu cuenta de atención con contraseña y código de verificación.",
@@ -501,6 +504,9 @@ export const es = {
     "Esta vista estará disponible cuando el servicio publique su contrato de agente y operaciones. La conversación de cliente ya está conectada.",
 };
 export const pt: typeof es = {
+  judgeOwnQueueOpen: "Abrir a fila desta visita",
+  judgeOwnQueueBody:
+    "Abra as solicitações mascaradas da sua visita sem outro acesso. Você pode revisar e assumir uma solicitação, mas não resolvê-la. Para compartilhar com atendimento externo, crie um convite e use o acesso independente da equipe.",
   staffLoginTitle: "Acesso ao Agent Desk",
   staffLoginBody:
     "Use sua conta de atendimento com senha e código de verificação.",

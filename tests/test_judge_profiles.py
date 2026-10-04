@@ -281,7 +281,10 @@ def test_old_conversation_case_handoff_proposal_and_otp_cannot_cross_profiles(mo
         f"/disputes/{case['case']['case_id']}",
         f"/agent/handoffs/{handoff['handoff']['handoff_id']}",
     ]:
-        assert client.get(path, headers=headers(co)).status_code == 404
+        # Queue access now requires an explicit own-visit invitation. Other
+        # customer resources remain independently scoped to this profile.
+        expected = 403 if path.startswith("/agent/handoffs/") else 404
+        assert client.get(path, headers=headers(co)).status_code == expected
     assert (
         client.post(
             f"/chat/sessions/{cid}/confirm",
@@ -303,7 +306,7 @@ def test_old_conversation_case_handoff_proposal_and_otp_cannot_cross_profiles(mo
         client.get(f"/disputes/{case['case']['case_id']}", headers=headers(returned)).status_code
         == 200
     )
-    assert client.get("/agent/handoffs", headers=headers(returned)).json() == []
+    assert client.get("/agent/handoffs", headers=headers(returned)).status_code == 403
     assert (
         client.post(
             "/auth/judge/profile", headers=mx_headers, json={"profile_id": "pt"}

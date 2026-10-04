@@ -155,7 +155,8 @@ def test_judge_rls_restart_audit_and_global_budget(judge_database):
         assert restored.get(path, headers=headers(current)).status_code == (
             200 if key == "mx-es" else 404
         )
-        assert restored.get("/agent/handoffs", headers=headers(current)).json() == []
+        # Selecting a profile alone does not grant masked staff queue access.
+        assert restored.get("/agent/handoffs", headers=headers(current)).status_code == 403
         with pytest.raises(BudgetFailure):
             PostgresSpendGate(stores[1], scope=budget_scope).reserve(0.20)
         principal = app2.state.sessions[current]

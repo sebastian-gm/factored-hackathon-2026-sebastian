@@ -37,6 +37,7 @@ import { Login } from "./login";
 import { CustomerChat } from "./customer-chat";
 import { AgentDesk } from "./agent-desk";
 import { StaffInvitation } from "./staff-realm-access";
+import { JudgeStaffDesk } from "./judge-staff-desk";
 import { RecordingHelper } from "./recording-helper";
 import {
   storyPersona,
@@ -790,6 +791,8 @@ function Shell({
                   onSelect={chooseProfile}
                   onRetry={refreshProfiles}
                 />
+              ) : profileFlow && session && workspaceSurface === "desk" ? (
+                <JudgeStaffDesk key={workspaceRevision} />
               ) : !allowed ? (
                 <div className="customer-grid">
                   <section className="panel login-panel">

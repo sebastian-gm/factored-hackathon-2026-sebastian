@@ -1,4 +1,4 @@
-"""Explicit realm delegation to independently authenticated staff; masked packets only."""
+"""Explicit realm delegation to staff or the originating judge; masked packets only."""
 
 from __future__ import annotations
 
@@ -193,17 +193,35 @@ def source_owner(app: Any, origin: Scope, digest: str) -> Principal:
     return owner
 
 
+def membership_context(app: Any, principal: Any) -> tuple[Scope, str]:
+    """Judge grants belong to the live controller, never a role or bank scope."""
+    if principal.judge_reference is None:
+        return scope(principal), "staff-realm"
+    judges = app.state.judge_sessions
+    if judges is None or principal.judge_profile is None:
+        raise HTTPException(403, "Selected judge profile required")
+    judges.validate(principal)
+    return judges.controller_scope(principal.judge_reference), "judge-staff-realm"
+
+
 def join(app: Any, principal: Any, body: RealmJoin) -> dict[str, bool]:
-    if principal.role not in {"agent", "ops"} or principal.judge_reference is not None:
+    judge = principal.judge_reference is not None
+    if not judge and principal.role not in {"agent", "ops"}:
         raise HTTPException(403, "Separate staff sign-in required")
     store = app.state.store
+    member_scope, member_key = membership_context(app, principal)
     try:
         origin = app.state.sessions.auth_context(body.invitation)
     except KeyError:
         raise HTTPException(403, "Invitation unavailable") from None
+    if judge and origin != member_scope:
+        raise HTTPException(403, "Invitation must belong to this judge visit")
     key = "realm-invite:" + hashlib.sha256(body.invitation.encode()).hexdigest()
-    member = hashlib.sha256((principal.run_id + ":" + principal.session_id).encode()).hexdigest()
+    member = hashlib.sha256((member_scope.run_id + ":" + member_scope.sid).encode()).hexdigest()
     with store.transaction(origin):
+        if judge:
+            # A profile switch may have superseded this child before the lock.
+            app.state.judge_sessions.validate(principal)
         grant = app.state.idempotency.get(key)
         if (
             not grant
@@ -211,36 +229,51 @@ def join(app: Any, principal: Any, body: RealmJoin) -> dict[str, bool]:
             or grant["used_by"] not in {None, member}
         ):
             raise HTTPException(403, "Invitation unavailable")
+        if judge and grant["source_digest"] != principal.judge_reference.digest:
+            raise HTTPException(403, "Invitation must belong to this judge visit")
         owner = source_owner(app, origin, grant["source_digest"])
         if grant["realm"] != customer_realm(owner):
             raise HTTPException(403, "Invitation unavailable")
+        membership = dict(
+            realm=grant["realm"],
+            origin=asdict(origin),
+            source_digest=grant["source_digest"],
+            expires_at=min(principal.expires_at, owner.expires_at).isoformat(),
+        )
         grant["used_by"] = member
         app.state.idempotency[key] = grant
-    membership = dict(
-        realm=grant["realm"],
-        origin=asdict(origin),
-        source_digest=grant["source_digest"],
-        expires_at=min(principal.expires_at, owner.expires_at).isoformat(),
-    )
-    with store.transaction(scope(principal)):
-        app.state.idempotency["staff-realm"] = membership
-        store.audit(dict(action="join_handoff_realm", realm=grant["realm"]))
+        if judge:
+            # The one-use invitation and its controller grant commit together.
+            app.state.idempotency[member_key] = membership
+            store.audit(dict(action="judge_join_handoff_realm", realm=grant["realm"]))
+    if not judge:
+        with store.transaction(member_scope):
+            app.state.idempotency[member_key] = membership
+            store.audit(dict(action="join_handoff_realm", realm=grant["realm"]))
     if authorized_realm(app, principal) != grant["realm"]:
         raise HTTPException(503, "Membership readback failed")
     return dict(joined=True, verified=True)
 
 
 def authorized_realm(app: Any, principal: Any) -> str | None:
-    with app.state.store.transaction(scope(principal)):
-        member = app.state.idempotency.get("staff-realm")
+    member_scope, member_key = membership_context(app, principal)
+    with app.state.store.transaction(member_scope):
+        member = app.state.idempotency.get(member_key)
     if member is None:
+        if principal.judge_reference is not None:
+            raise HTTPException(403, "Judge staff invitation required")
         return None
     if (
-        principal.role not in {"agent", "ops"}
-        or principal.judge_reference is not None
+        principal.judge_reference is None
+        and principal.role not in {"agent", "ops"}
         or datetime.fromisoformat(member["expires_at"]) <= datetime.now(UTC)
     ):
         raise HTTPException(403, "Staff membership expired")
+    if principal.judge_reference is not None and (
+        Scope(**member["origin"]) != member_scope
+        or member["source_digest"] != principal.judge_reference.digest
+    ):
+        raise HTTPException(403, "Staff membership revoked")
     owner = source_owner(app, Scope(**member["origin"]), member["source_digest"])
     if member["realm"] != customer_realm(owner):
         raise HTTPException(403, "Staff membership revoked")
@@ -256,6 +289,8 @@ def packets(app: Any, principal: Any, realm: str, key: str | None = None) -> lis
 
 
 def claim(app: Any, principal: Any, realm: str, key: str, body: StaffAction) -> DeskPacket:
+    if authorized_realm(app, principal) != realm:
+        raise HTTPException(403, "Staff membership revoked")
     store = app.state.store
     fingerprint = hashlib.sha256(body.model_dump_json().encode()).hexdigest()
     cache_key = f"realm-claim:{realm}:{key}:{body.idempotency_key}"
@@ -277,6 +312,8 @@ def claim(app: Any, principal: Any, realm: str, key: str, body: StaffAction) -> 
             app.state.idempotency[cache_key] = dict(
                 fingerprint=fingerprint, result=expected.model_dump(mode="json")
             )
+    if authorized_realm(app, principal) != realm:
+        raise HTTPException(403, "Staff membership revoked")
     actual = packets(app, principal, realm, key)
     if (
         len(actual) != 1

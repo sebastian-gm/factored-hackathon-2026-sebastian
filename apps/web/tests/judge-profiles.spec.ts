@@ -64,7 +64,7 @@ async function capture(page: Page, name: string) {
 }
 
 for (const profileId of ["mx-es", "pt"] as const) {
-  test(`${profileId}: trusted Ops judge uses a separate staff invitation`, async ({
+  test(`${profileId}: trusted Ops judge can still invite separate staff; fixtures never fake queue access`, async ({
     page,
   }) => {
     await loginJudge(page);
@@ -100,13 +100,39 @@ for (const profileId of ["mx-es", "pt"] as const) {
         },
       }),
     );
-    await page.locator(".login-panel > button").click();
+    await page
+      .getByRole("button", {
+        name:
+          profileId === "pt"
+            ? "Criar convite para o Agent Desk"
+            : "Crear invitación para Agent Desk",
+        exact: true,
+      })
+      .click();
     await expect(
       page.getByRole("dialog").locator("input[type=password]"),
     ).toBeVisible();
     await audit(page);
   });
 }
+
+test("fixture judge cannot fake a successful visit membership or claim", async ({
+  page,
+}) => {
+  await loginJudge(page);
+  await select(page, "mx-es");
+  await page.getByRole("button", { name: "Agent Desk", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Abrir la cola de esta visita", exact: true })
+    .click();
+  await expect(page.locator(".login-panel .error[role=alert]")).toContainText(
+    "No pudimos verificar el vínculo",
+  );
+  await expect(page.locator(".desk-grid")).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: "Tomar solicitud", exact: true }),
+  ).toHaveCount(0);
+});
 
 test("password/OTP opens metadata-only picker; capability stays HttpOnly and expiry never extends", async ({
   page,
