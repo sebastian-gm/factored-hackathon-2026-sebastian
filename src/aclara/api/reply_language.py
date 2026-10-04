@@ -8,10 +8,21 @@ from typing import Any
 from aclara.agent.contracts import ResponsePlan
 from aclara.agent.nlg.builder import render_template
 from aclara.agent.nlg.grounding import scan_dlp
-from aclara.agent.nlu.rules import detect_language_evidence
+from aclara.agent.nlu.rules import detect_language_evidence, normalize_text
 
 
 def conversation_language(message: str, current: str, merchants: tuple[str, ...]) -> str:
+    text = normalize_text(message)
+    for merchant in merchants:
+        if merchant.strip():
+            text = text.replace(normalize_text(merchant), " ")
+    requested = re.search(
+        r"\b(?:responder|responda|responde|respondas|habla|hablar|fale|falar)\b"
+        r"[^.!?]{0,40}\b(?:en|em)\s+(espanol|castellano|portugues)\b",
+        text,
+    )
+    if requested:
+        return "pt" if requested.group(1) == "portugues" else "es"
     evidence = detect_language_evidence(message, ignored_terms=merchants)
     return current if evidence == "uncertain" else evidence
 

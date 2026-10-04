@@ -1272,6 +1272,14 @@ def create_app(
                     and confirmation.extracted.other_customer_reference
                 ),
             )
+        language_before_turn = conversation.language
+        if app.state.runtime.system == "P":
+            known_merchants = tuple(row.merchant_name for _, row in conversation.candidates)
+            if conversation.proposal:
+                known_merchants += (conversation.proposal.transaction.merchant_name,)
+            conversation.language = conversation_language(
+                body.message, language_before_turn, known_merchants
+            )
         if conversation.terminal_handoff_id:
             packet = app.state.handoffs[conversation.terminal_handoff_id]
             return {
@@ -1295,14 +1303,6 @@ def create_app(
             and not conversation.candidates
             and is_confirmation(body.message)
         )
-        language_before_turn = conversation.language
-        if app.state.runtime.system == "P":
-            known_merchants = tuple(row.merchant_name for _, row in conversation.candidates)
-            if conversation.proposal:
-                known_merchants += (conversation.proposal.transaction.merchant_name,)
-            conversation.language = conversation_language(
-                body.message, language_before_turn, known_merchants
-            )
         if conversation.proposal is not None:
             if is_confirmation(body.message):
                 raise HTTPException(status_code=409, detail="Use the action confirmation control")
@@ -1383,6 +1383,8 @@ def create_app(
             )
             conversation.language = language
         if courtesy:
+            language = courtesy[1]
+            conversation.language = language
             return {
                 "response_type": "abstain",
                 "outcome": "abstained_out_of_scope",
@@ -1476,6 +1478,9 @@ def create_app(
                 ):
                     # Reject before merging: an invented or uncertain detail must
                     # not influence this selection or a later correction.
+                    conversation.rounds += 1
+                    if conversation.rounds >= 2:
+                        return make_handoff(app, principal, conversation.language, "ESC-04")
                     return {
                         "response_type": "clarify",
                         "outcome": "clarification",

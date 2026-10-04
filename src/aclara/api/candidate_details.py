@@ -49,6 +49,15 @@ def grounded_details(nlu: NluResult, message: str, country: str | None) -> bool:
         span = normalize_text(nlu.extracted.date_expr or "").strip()
         if not span or not re.search(rf"(?<!\w){re.escape(span)}(?!\w)", normalize_text(message)):
             return False
+        # A mentioned but explicitly retracted date is not positive evidence.
+        # Keep denial of the purchase distinct from negation of its date.
+        if re.search(
+            rf"\b(?:no|nao)\s+(?:(?:fue|foi|era|es|e)\s+)?"
+            rf"(?:(?:el|en|em|dia|a|o|la|data|fecha|del|de)\s+){{0,4}}"
+            rf"{re.escape(span)}(?!\w)",
+            normalize_text(message),
+        ):
+            return False
     return has_details(nlu.slots)
 
 
