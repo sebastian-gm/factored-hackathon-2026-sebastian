@@ -63,6 +63,51 @@ async function capture(page: Page, name: string) {
   await chmod(path, 0o600);
 }
 
+for (const profileId of ["mx-es", "pt"] as const) {
+  test(`${profileId}: trusted Ops judge uses a separate staff invitation`, async ({
+    page,
+  }) => {
+    await loginJudge(page);
+    await select(page, profileId);
+    // Authored UI projection of the trusted Ops-backed production profiles.
+    // The BFF selection validator remains owned by the lead's prerequisite PR.
+    await page.route("**/api/bff/config", async (route) => {
+      const data = await (await route.fetch()).json();
+      await route.fulfill({ json: { ...data, fixtures: false } });
+    });
+    await page.route("**/api/bff/me", async (route) => {
+      const data = await (await route.fetch()).json();
+      await route.fulfill({ json: { ...data, role: "ops" } });
+    });
+    await page.reload();
+    await expect(page.locator(".composer textarea")).toBeVisible();
+    await page.getByRole("button", { name: "Agent Desk", exact: true }).click();
+    await expect(
+      page.getByRole("heading", {
+        name:
+          profileId === "pt"
+            ? "Compartilhe sua solicitação com o atendimento"
+            : "Comparte tu solicitud con atención",
+      }),
+    ).toBeVisible();
+    await expect(page.locator(".desk-grid")).toHaveCount(0);
+    await page.route("**/api/bff/handoffs/realm-invitations", (route) =>
+      route.fulfill({
+        json: {
+          invitation: "authored.judge.staff.invitation.only",
+          expires_at: new Date(Date.now() + 240000).toISOString(),
+          verified: true,
+        },
+      }),
+    );
+    await page.locator(".login-panel > button").click();
+    await expect(
+      page.getByRole("dialog").locator("input[type=password]"),
+    ).toBeVisible();
+    await audit(page);
+  });
+}
+
 test("password/OTP opens metadata-only picker; capability stays HttpOnly and expiry never extends", async ({
   page,
   context,

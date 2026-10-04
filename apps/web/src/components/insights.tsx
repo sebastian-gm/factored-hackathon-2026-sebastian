@@ -46,7 +46,7 @@ function Source({ id }: { id: string }) {
     <a
       className="insights-ref"
       href={`#insights-source-${id}`}
-      aria-label={`${c.source}: ${source.path}`}
+      aria-label={`[${index + 1}] ${c.source}: ${source.path}`}
     >
       [{index + 1}]
     </a>
@@ -746,6 +746,12 @@ export function Insights({ onTry }: { onTry: () => void }) {
             {c.lineageNote} <Source id="lineage" />
           </p>
           <a href="/dbt-lineage.svg" target="_blank" rel="noreferrer">
+            <span className="lineage-zoom">
+              {locale === "pt-BR"
+                ? "Abrir mapa em tamanho original"
+                : "Abrir mapa en tamaño original"}{" "}
+              <span aria-hidden="true">↗</span>
+            </span>
             <Image
               unoptimized
               src="/dbt-lineage.svg"

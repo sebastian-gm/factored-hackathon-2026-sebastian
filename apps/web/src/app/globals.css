@@ -1357,6 +1357,10 @@ h1 {
     min-width: 0;
     flex: 1;
   }
+  .nav-item > span {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
   .nav-item svg {
     display: none;
   }
@@ -2274,6 +2278,9 @@ summary:focus-visible,
   background: #202f32;
   color: #fff;
   overflow-y: auto;
+}
+.sidebar :is(a, button):focus-visible {
+  outline-color: var(--white);
 }
 .brand,
 .brand-mark {
@@ -3378,6 +3385,12 @@ label {
 .insights-publication code {
   font-size: var(--type-small);
 }
+.insights-publication > a {
+  display: block;
+  min-height: 44px;
+  padding: 12px 0;
+  margin: 8px 0;
+}
 .insights-training {
   padding: 0;
   border: 0;
@@ -3480,6 +3493,10 @@ label {
   }
   .breadcrumb {
     font-size: var(--type-small);
+  }
+  .locale-select select {
+    max-width: min(180px, 45vw);
+    padding-right: 8px;
   }
   .main-content {
     padding: 16px 16px 32px;
