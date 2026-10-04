@@ -5,6 +5,15 @@ and semantic versioning. Versions describe released behavior, not safety
 certification. The v0.1.0–v0.5.0 annotated tags and GitHub Releases were created
 **retroactively on 2026-10-01**; their commits retain their original dates.
 
+## [v0.9.5] — 2026-10-04
+
+- English reviewer UI, reason-based staff guidance and rule labels; ES/PT customer
+  conversation language remains scoped to the selected bank profile.
+- Verified desktop/390px English smoke, scoped profile/logout readbacks and exact
+  SHA CI/safety/access. Image-only release; unchanged API digest.
+- New model spend $0; v0.9.4 real-model evidence explicitly inherited. Official v4
+  unchanged. [Release evidence](docs/submission/v0.9.5-release-evidence.md).
+
 ## [Unreleased]
 
 - Renamed the original development repository to the submission name, retaining

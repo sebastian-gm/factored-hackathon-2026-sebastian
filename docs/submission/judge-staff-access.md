@@ -1,8 +1,8 @@
 # Judge access to the masked staff queue
 
 The judge signs in with the judge password and OTP once, selects a customer
-profile, and creates a handoff in chat. In **Agent Desk**, choose **Abrir la cola
-de esta visita / Abrir a fila desta visita**. The browser creates and redeems a
+profile, and creates a handoff in chat. In **Agent Desk**, choose
+**Open this visit's queue**. The browser creates and redeems a
 short-lived invitation using that same authenticated visit, then reads back the
 membership and displays the existing masked queue and verified claim controls.
 No separate staff credential is needed for this judge path.
