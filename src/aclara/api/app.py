@@ -244,7 +244,11 @@ def _dispute_target_correction(message: str) -> bool:
         r"\b(?:quiero|quero)\s+(?:(?:solo|so|apenas)\s+)?"
         r"(?:consultar|revisar|entender|saber|ver)\b|"
         r"\b(?:explicame|expliqueme|explique|puedes explicar|pode explicar)\b|"
-        r"\b(?:cual es el estado|qual e o status|qual e o andamento|por que)\b",
+        r"\b(?:cual es el estado|qual e o status|qual e o andamento|por que)\b|"
+        r"\bque (?:paso|pasa|ocurrio|ocurre) con (?:es[ae]|est[ae]|la|el|mi) "
+        r"(?:compra|cargo)\b|"
+        r"\bo que (?:aconteceu|acontece) com (?:ess[ae]|est[ae]|a|o|minha|meu) "
+        r"(?:compra|cobranca)\b",
         value,
     )
     recognized = re.search(

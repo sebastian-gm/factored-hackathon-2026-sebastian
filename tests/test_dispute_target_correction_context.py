@@ -196,7 +196,9 @@ def test_previous_proposal_hash_cannot_confirm_the_corrected_target(language: La
 
 
 @pytest.mark.parametrize("language", ["es", "pt"])
-@pytest.mark.parametrize("decision", ["inquiry", "question", "recognized", "declined"])
+@pytest.mark.parametrize(
+    "decision", ["inquiry", "question", "bare_question", "recognized", "declined"]
+)
 def test_explicit_read_recognition_or_decline_does_not_continue_dispute(
     language: Language, decision: str
 ) -> None:
@@ -204,6 +206,7 @@ def test_explicit_read_recognition_or_decline_does_not_continue_dispute(
         suffix = {
             "inquiry": ("Solo quiero consultar esa compra.", "Só quero consultar essa compra."),
             "question": ("¿Qué pasó con esa compra?", "O que aconteceu com essa compra?"),
+            "bare_question": ("Qué pasó con esa compra.", "O que aconteceu com essa compra."),
             "recognized": ("Ahora sí la reconozco.", "Agora sim reconheço essa compra."),
             "declined": (
                 "No quiero abrir una disputa.",

@@ -8,7 +8,10 @@
   target correction. Re-run normal matching and policy, issue a fresh proposal,
   and reject the previous hash and textual assent. Questions, ordinary inquiries,
   recognition, cancellation, uncertain details and safety guards retain precedence.
-- **30 new ES/PT regressions and 329 existing regressions passed**. Ruff lint and
+- Lead review correction: punctuation-free ES/PT “what happened to that purchase”
+  questions explain the charge rather than continuing a pending dispute. Both
+  exact reported messages failed before the fix and now pass.
+- **32 new ES/PT regressions and 329 existing regressions passed**. Ruff lint and
   format and strict mypy on all 80 source files passed; no model spend.
 - The unchanged frozen exploration remains **27/30**, 103/109 turns,
   773/789 assertions. Failures remain JE-08, JE-16 and JE-28. No-write 100/100,
