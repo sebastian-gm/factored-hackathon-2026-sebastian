@@ -11,6 +11,11 @@
   heads. Those unchanged, valid results remain in place.
 - #173 contains the locally verified ES/PT desktop/phone gallery fixes, healthy
   reply regression and first-time receipt tour. Screenshots remain ignored.
+- First remote run passed safety, Python, Postgres and 171 mock UI checks. Its
+  local bank-API suite caught an old assertion expecting the removed product
+  placeholder. The corrected assertion requires the merchant and no empty field.
+- Local bank-API 12/12, staff 13/13 and trusted-role 2/2 browser checks passed with
+  mock providers. The correction changes only the regression test.
 
 ## Done but not verified
 
