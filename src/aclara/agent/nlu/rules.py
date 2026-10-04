@@ -23,7 +23,9 @@ def detect_language_evidence(
     for name in sorted(ignored_terms, key=len, reverse=True):
         if name.strip():
             normalized = re.sub(rf"(?<!\w){re.escape(normalize_text(name))}(?!\w)", " ", normalized)
-    words = set(re.findall(r"[a-z]+", normalized))
+    # Opaque alphanumeric references (for example DSP-E9B0CA7A) are not words.
+    # Splitting their hex fragments would give "e" and "a" a Portuguese vote.
+    words = set(re.findall(r"\b[a-z]+\b", normalized))
     # Shared/ambiguous tokens (including com and sim) cannot decide language.
     # Distinctive lexical evidence counts twice; weak function words require
     # context. Conflicting or insufficient evidence stays explicitly uncertain.
