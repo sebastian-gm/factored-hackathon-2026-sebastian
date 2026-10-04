@@ -28,6 +28,13 @@ regexTarget = "secret"
 regexes = ['^claim_fixture_01$', '^resolve_fixture_01$']
 
 [[rules.allowlists]]
+description = "Exact authored judge claim replay markers, never credentials"
+condition = "AND"
+paths = ['(?:^|/)tests/test_judge_staff_queue\.py$']
+regexTarget = "secret"
+regexes = ['^judge_self_claim_001$', '^revoked_claim_001$']
+
+[[rules.allowlists]]
 description = "The fixture evidence's single release-commit SHA field"
 condition = "AND"
 paths = ['(?:^|/)apps/web/fixtures/live-story-evidence\.json$']
