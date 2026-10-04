@@ -71,11 +71,13 @@ export function CustomerChat({
   }, [proposal, busy, renew, uncertain, freezePending, onPendingChange]);
   useEffect(() => {
     if (!latest || busy || confirmOpen) return;
-    const frame = requestAnimationFrame(() =>
-      (decision.current ?? receipt.current)?.scrollIntoView({
-        block: "nearest",
-      }),
-    );
+    const frame = requestAnimationFrame(() => {
+      const target =
+        decision.current?.querySelector<HTMLElement>(".candidate-grid") ??
+        decision.current ??
+        receipt.current;
+      target?.scrollIntoView({ block: "nearest" });
+    });
     return () => cancelAnimationFrame(frame);
   }, [latest, busy, confirmOpen]);
   useEffect(() => {
