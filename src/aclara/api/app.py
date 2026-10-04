@@ -1191,7 +1191,7 @@ def create_app(
                     c for c in cases if c["case_id"].casefold() == requested.group().casefold()
                 ]
             if cases:
-                record = cases[-1]
+                record = max(cases, key=lambda case: datetime.fromisoformat(case["created_at"]))
                 app.state.runtime.record("status_lookup")
                 app.state.runtime.record("report_case", handle=record["transaction_handle"])
                 return {
