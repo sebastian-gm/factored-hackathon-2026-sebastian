@@ -26,29 +26,29 @@
       "id": "v2",
       "path": "docs/evaluation/final-v2-error-analysis.md",
       "section": "Official headline report; Full-suite paired SAR difference",
-      "sha256": "e6e62d76437d48da49e07353c5b255a3765cacc83110480979433013a1a4dfbd",
-      "commit": "791402214a2d8d5829c6c6e9e1208e80a2679945"
+      "sha256": "98b5f94433408f20550d6cf4daa8e8d740740e21bea76abfaa393bd6d0192893",
+      "commit": "819cdc77889c34afba9b5e705e34d2dc31b7f72e"
     },
     {
       "id": "v3",
       "path": "docs/evaluation/final-v3-results.md",
       "section": "Primary results; Safety and readbacks; Repeats and judges; Latency and cost",
-      "sha256": "834c2634d8803cda3fd216d22cbba196474bc30acbb769fe25b6708edb5a40bf",
-      "commit": "2b9c355d061f17ed2c25fcffe06a9f816256a4fa"
+      "sha256": "61eb3e98652a3f7fd4d215e4b0110e4ffdc8a9ae44191ab99c663bb94ed6aca7",
+      "commit": "819cdc77889c34afba9b5e705e34d2dc31b7f72e"
     },
     {
       "id": "v4",
       "path": "docs/evaluation/final-v4-results.md",
       "section": "Primary B1 versus P-Gemini; Safety gates; ES/PT and segments; Repeats; Cost and latency; Limitations",
-      "sha256": "8d0533ec745df295c23b43c079572db99158bf1e30dbd399e66beb1831dd80db",
-      "commit": "71bca79b200fa2786dc20dfd49625c8654370242"
+      "sha256": "7f9af443cf43b54868403abe990302e0907895b56252089d23380b4668099090",
+      "commit": "d8dc46956e92b200e67849c0d881692cdde1e7ef"
     },
     {
       "id": "matcher",
       "path": "docs/ml/model-card-charge-matcher-v2.md",
       "section": "Training and freeze; Reused synthetic test diagnostics; Human spot-check; Limits",
-      "sha256": "be8f2d36fb47a6083f78f8c94b6cd7b2047751e4fedbfe41b5be7af0c6726ed0",
-      "commit": "3c274cd0b74ab0028ad98b3384bbb933638773dc"
+      "sha256": "8d52d60e9cf3980e18af4f00efb9a83e343d26266bed7429f4fb1dae454b2fe6",
+      "commit": "819cdc77889c34afba9b5e705e34d2dc31b7f72e"
     },
     {
       "id": "matcherMetrics",
@@ -61,8 +61,8 @@
       "id": "tracking",
       "path": "docs/ml/model-card-charge-matcher.md",
       "section": "Reproduction and tracking (original v1 experiment)",
-      "sha256": "b97e1b23da6dcf980087e001b32481af987bc4143b0ecc408aa645e2c64d3dee",
-      "commit": "cfc02ffee4137c0b1a85e2562f8b37c01df8921d"
+      "sha256": "918b0a50d8f82e5eab9e127d64657c6ee216eb7965bbd299800d912d4da95624",
+      "commit": "819cdc77889c34afba9b5e705e34d2dc31b7f72e"
     },
     {
       "id": "pipeline",
@@ -82,8 +82,8 @@
       "id": "disclosure",
       "path": "docs/status/progress-log.md",
       "section": "First final attempt abandoned; results never viewed",
-      "sha256": "1add2ace22914ed5e7a16955eeb10e2bd009d73adbd2c80fc1ea03709e3cd795",
-      "commit": "4d005e2be19bc9b62503d05e396940f6b514d549"
+      "sha256": "117784bb91b2af332dccbcf4c4e8516095c4a950907afda176259b2885ad46aa",
+      "commit": "d8dc46956e92b200e67849c0d881692cdde1e7ef"
     },
     {
       "id": "azureLatency",

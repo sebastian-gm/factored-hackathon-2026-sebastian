@@ -6037,3 +6037,87 @@ docs PRs are already on main; the finished held-batch work is being integrated.
 - Verify exact heads and green checks before reporting readiness. Retain draft
   state and disabled auto-merge on #173 while the release batch is held.
 - This is post-evaluation development evidence; official v4 results are unchanged.
+
+
+# Phone candidate choices — 2026-10-04 (author-time evidence)
+
+## Completed (verified)
+
+- Reviewed and applied the AI lane's supplied `phone-choice-viewport-proposed.patch`
+  on a new branch from `origin/main` (`edd3070`). Credit: AI lane proposal and
+  initial tests; frontend lane review and independent validation.
+- Customer chat scrolls the candidate grid into view, retaining decision/receipt
+  fallbacks and the pending-confirmation guard.
+- The regression waits for exactly three choices and checks every button's full
+  phone viewport bounds in ES and PT. Selecting a choice still opens a separate
+  confirmation dialog without issuing a confirm request. Accessibility and
+  horizontal overflow assertions remain in place.
+- `cd apps/web && pnpm test:e2e tests/judge-ux.spec.ts --grep 'phone choices' --repeat-each=3`:
+  six passes at 390 × 844. `pnpm test:e2e tests/judge-ux.spec.ts`: 19 passes,
+  including desktop/phone, offer actions, retry and authority boundaries.
+- `pnpm typecheck`, `pnpm lint` and `git diff --check` passed. All browser runs
+  used local project-authored fixtures; zero paid calls or cloud changes.
+
+## Done but not verified
+
+- Remote CI for this new branch is pending publication of its small held PR.
+- Deployed judge access remains unopened; owner-network and GitHub-runner live
+  tours still await the lead's access signal and approved cost adapter.
+
+## Next / blocked
+
+- Keep the PR held for the lead's v0.9.1 review and merge order; auto-merge stays
+  off. Repository publication is approved. Official v4 evidence is unchanged.
+
+
+## Lead: reviewed v0.9.1 candidate — 2026-10-04
+
+### Completed (verified)
+
+- Integrated reviewed #161/#166/#169/#170/#174 API heads,
+  #163/#164/#167/#168/#173 UI/tour heads, #159/#162/#171 evidence, and #175's
+  phone-choice correction on `integration/v091-judge-batch`; no main merge or
+  Azure change is claimed here. Conflicts preserve contextual and courtesy
+  behavior, scoped receipts, exact confirmation hashes and language handling.
+- Three confirmed API review bugs fixed with authored ES/PT regressions:
+  negated correction dates cannot choose the rejected charge; invalid/uncertain
+  corrections reach the existing two-turn clarification limit; terminal handoff
+  language switches preserve packet identity/reasons and do not grant authority.
+  A combined-language greeting override was corrected as well.
+- `pytest` on the six focused review modules: **123 passed**; explicit language
+  requests and merchant-name controls included. Full `pytest -o addopts= -q`:
+  **1,754 passed / 43 skipped**, **249.12 s**, all mock/offline.
+- `scripts.test_postgres` on disposable local Postgres: **105 passed**; the
+  database and test roles were dropped by the runner. Both `evals.runner --system B1`
+  suites (base and `evals/dev_scenarios_v2.yaml`) remain **32/32**. Ruff, format,
+  strict mypy, compile, interfaces, policy catalog and staged-file gates passed.
+- CO/AR shortcuts keep the current eligible judge profile; explicit recording
+  cross-profile fallback remains supported: **6/6** authored profile checks,
+  typecheck and focused ESLint passed. Combined local browser `--live` **12/12**,
+  `--staff` **13/13**, `--judge-roles` **2/2**; all fixtures/mock, no Azure calls.
+- First full combined fixture browser pass: **184/185**; the sole failure caught
+  uncommitted aggregate-source documentation during concurrent source export.
+  Sources were committed and Insights provenance regenerated; official numeric
+  payloads are unchanged. Focused post-commit checks and final remote CI follow.
+- `pre-commit run --all-files` passed; Gitleaks 8.30.1 on the reviewed
+  post-publication commit range exited **0 / zero findings** using the audited
+  default-rule publication config. Private logs remain ignored.
+- Read-only budget/provider preflight: conservative allocation **$14.96326498 /
+  $15**, including historical reserves and retained unused purses. Existing lead
+  scope `go-live/2026-10-03/lead`, run `2026-10-03`, has **$0.05841450** left;
+  AI/frontend scopes retain **$0.30/$0.20**. Production remains **$1/UTC day** and
+  `judging-2026-10` lifetime **$1.60**. No new purse or counter reset.
+
+### Done but not verified
+
+- Final aggregate remote CI, deployed v0.9.1, current live story/browser checks
+  and the new scoped owner reset are pending. No real model call occurred while
+  preparing this candidate; official v4 metrics remain unchanged.
+
+### Next / blocked
+
+- Merge the combined candidate only after remote gates are green; image-tag-only
+  release with current warm/burst/judge settings and budget binding unchanged.
+- Back up all four owner maps before the approved scoped reset; preserve judge
+  realms, organizer ledger, audit and budgets. Then signal lanes with existing
+  separate caps and private credential path. `v1.0.0` and email await Sebastian.
