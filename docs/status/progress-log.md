@@ -2,7 +2,7 @@
 
 Read the [complete archived record](../history/status/progress-log.md).
 The [final evaluation (v4)](../evaluation/final-v4-results.md) remains unchanged.
-Current release: [v0.9.2 verified release](../submission/v0.9.2-release-evidence.md).
+Current release: [v0.9.3 deployed, known quick-start defect](../submission/v0.9.3-release-evidence.md).
 
 Latest AI human review: [October 3 post-hoc agreement](../evaluation/judge-human-validation.md).
 
@@ -38,4 +38,8 @@ Latest AI controls: [live exploration verification](progress.d/2026-10-04-ai-liv
 Latest AI choice follow-ups: [mock context regressions](progress.d/2026-10-04-ai-pending-candidate-followups.md).
 
 Current candidate: [v0.9.3 reviewed judge-story integration](progress.d/2026-10-04-v093-review.md).
-Release verification is pending; the deployed release remains v0.9.2.
+v0.9.3 controls passed; its real ES quick-start clarified. PT/offer unverified.
+Next candidate: [v0.9.4 date-free quick-start](progress.d/2026-10-04-v094-quickstart.md).
+
+Latest AI starter replays: [missing-merchant normalization](progress.d/2026-10-04-ai-merchant-placeholder.md).
+Latest AI live diagnosis: [partial exploration and zero-cost root causes](progress.d/2026-10-04-ai-live-exploration-partial.md).

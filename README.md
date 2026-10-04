@@ -156,7 +156,7 @@ uses explicit v3 assumptions and claims no realized savings.
 
 For a first charge explanation, use **Entender un cargo / Entender cobrança**.
 Quick-start reads your selected profile's visible purchases and prepares a question
-with the merchant, exact amount, currency and date, preferring a pending purchase.
+with the merchant, exact amount and currency, preferring a pending purchase.
 You edit and send it yourself. If no complete purchase is available, a clear
 notice accompanies a generic question asking for identifying details.
 

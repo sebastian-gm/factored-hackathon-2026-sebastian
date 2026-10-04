@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import secrets
 from dataclasses import asdict, replace
 from datetime import timedelta
 from html import unescape
@@ -315,9 +316,18 @@ def test_injected_prewrite_failure_uses_current_p_language_and_verified_handoff(
 
 @pytest.mark.parametrize("system", ["B1", "P"])
 @pytest.mark.parametrize("language", ["es", "pt"])
+@pytest.mark.parametrize("case_suffix", ["E9B0CA7A", "C9E8DEAD"])
 def test_receipt_replay_after_real_language_switch_preserves_verified_case_and_calls(
-    system: str, language: str
+    system: str, language: str, case_suffix: str, monkeypatch: pytest.MonkeyPatch
 ) -> None:
+    original_token_hex = secrets.token_hex
+    # Reproduce the CI failure without leaving the case's hex word fragments to chance.
+    monkeypatch.setattr(
+        secrets,
+        "token_hex",
+        lambda nbytes=None: case_suffix if nbytes == 4 else original_token_hex(nbytes),
+    )
+
     async def check() -> None:
         llm, store = _proposal_client(language), Store()
         app = create_app(_settings_for(language), ledger(), Runtime(system=system), llm, store)
@@ -330,6 +340,7 @@ def test_receipt_replay_after_real_language_switch_preserves_verified_case_and_c
             assert first.status_code == 200 and first.json()["verified"] is True
             original = first.json()
             case_id = original["case"]["case_id"]
+            assert case_id == f"DSP-{case_suffix}"
             target = _other(language)
             status, _ = await message(client, headers, _status(target) + " " + case_id, cid)
             assert status["case"] == original["case"] and status["verified"] is True

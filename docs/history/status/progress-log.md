@@ -6259,3 +6259,23 @@ docs PRs are already on main; the finished held-batch work is being integrated.
 - Merge on aggregate green; image-only release with existing Gate A/B controls.
   Fresh judge ES/PT quick-start explanation → dispute offer within the existing
   funded purse. v1.0.0 and email still require Sebastian’s go after video.
+
+## 2026-10-04 — v0.9.3 closure; v0.9.4 date-free starter candidate
+
+### Completed (verified)
+
+- v0.9.3 deployed/tagged 63e69b6: CI/safety/access and controls passed. The real
+  ES starter returned clarification ($0.0021315 settled); PT/offer unverified.
+  Owner accepted closure as-is, with [evidence](../../submission/v0.9.3-release-evidence.md).
+- #189/#191 critically reviewed and #190 root-cause chronology retained;
+  independent #189 authored regression run 96/96, zero spend.
+- Existing Lead allowance $0.07636550; conservative maximum $14.91264898/$15.
+
+### Done but not verified
+
+- Combined v0.9.4 release and live ES/PT starter acceptance remain pending.
+
+### Next / blocked
+
+- Follow [candidate record](../../status/progress.d/2026-10-04-v094-quickstart.md).
+  One combined green CI, image-only release, then the approved bounded live check.

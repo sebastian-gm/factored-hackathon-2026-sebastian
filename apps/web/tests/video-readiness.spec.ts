@@ -173,8 +173,8 @@ for (const pt of [false, true]) {
         .click();
       await expect(page.locator(".composer textarea")).toHaveValue(
         pt
-          ? "O que é a cobrança de Papelaria Prisma por 64.25 USD em 2026-06-12?"
-          : "¿Qué es el cargo de Papelería Prisma por 64.25 USD del 2026-06-12?",
+          ? "O que é a cobrança de Papelaria Prisma por 64.25 USD?"
+          : "¿Qué es el cargo de Papelería Prisma por 64.25 USD?",
       );
       await expect(page.locator("input[type=password]")).toHaveCount(0);
       await expect(page.getByRole("dialog")).toHaveCount(0);
