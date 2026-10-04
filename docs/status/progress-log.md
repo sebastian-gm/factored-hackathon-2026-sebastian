@@ -111,3 +111,31 @@ Latest AI live diagnosis: [partial exploration and zero-cost root causes](progre
 ### Next / blocked
 
 - Lead retains all main merge and release authority. No live model runs needed.
+
+## 2026-10-04 — v0.9.6 phone release
+
+## Completed — verified
+
+- Reviewed #197; history-preserving main merge kept both progress entries.
+  Fresh four-gate CI passed before merge; no action/session/policy changes.
+- Deployed/tagged/released `22f8833c33599e0b49d00ce60e533641ce4be9e8` as v0.9.6.
+- Local/mock English checks 13/13; refreshed PR browser groups 257 passed;
+  exact-SHA CI/safety, production build and Azure readback passed.
+- Live Chromium ES/PT at 320/390px: square avatar, minimum width 32px;
+  page/header bounds, English UI, ES/PT drafts and logout passed.
+- Four-profile RLS/role/stale-cookie checks, temporal/queue security and independent
+  authenticated azure-access passed. Zero chat submissions/financial writes/models.
+- New LLM spend $0; budget/provider readbacks unchanged; conservative maximum
+  $14.91264898/$15; production $1/UTC-day retained. Image/metadata-only release.
+- [Release evidence](../submission/v0.9.6-release-evidence.md) records commands,
+  exact workflows, image digests and verification limits.
+
+## Done but not verified
+
+- No new real-model or financial-action check; unchanged API explicitly inherits
+  v0.9.4 evidence. No populated live packet or physical-device/Safari test.
+
+## Next / blocked
+
+- Stand by for submission instructions. v1.0.0/email await Sebastian's go.
+- Official v4 unchanged; no held-out rerun or new score.

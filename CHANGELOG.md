@@ -5,6 +5,13 @@ and semantic versioning. Versions describe released behavior, not safety
 certification. The v0.1.0–v0.5.0 annotated tags and GitHub Releases were created
 **retroactively on 2026-10-01**; their commits retain their original dates.
 
+## [v0.9.6] — 2026-10-04
+
+- Preserve the phone chat avatar while English notice text wraps.
+- Local 13/13 checks; live ES/PT 320/390px geometry, scoped access and logout verified.
+- Image-only release, $0 new LLM spend, unchanged API evidence inherited; official
+  v4 unchanged. [Evidence](docs/submission/v0.9.6-release-evidence.md).
+
 ## [v0.9.5] — 2026-10-04
 
 - English reviewer UI, reason-based staff guidance and rule labels; ES/PT customer
