@@ -419,6 +419,43 @@ def test_competing_dates_with_identity_uncertainty_cannot_select(language: Langu
 
 
 @pytest.mark.parametrize("language", ["es", "pt"])
+def test_date_alternatives_without_uncertainty_words_cannot_select(language: Language) -> None:
+    async def check() -> None:
+        amount = {"amount_expr": "24.00", "currency_expr": "USD"}
+        app = application(
+            language,
+            {"date_expr": "2026-06-13"},
+            same_amount=True,
+            followup_observations=(amount,),
+        )
+        async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+            headers = {"Authorization": "Bearer " + await _sign_in(client)}
+            choice, conversation = await message(client, headers, opening(language))
+            assert choice["response_type"] == "choose_transaction"
+            assert {item["handle"] for item in choice["candidates"]} == {"txn_1", "txn_2"}
+            texts = (
+                "Fue el 2026-06-13 o el 2026-06-14.",
+                "Foi em 2026-06-13 ou em 2026-06-14.",
+            )
+            result, _ = await message(client, headers, texts[language == "pt"], conversation)
+            assert result["response_type"] in {"clarify", "choose_transaction", "offer_human"}
+            assert not result.get("proposal") and not result.get("case")
+            # A date guessed from the alternatives must not survive into a later turn.
+            text = "El valor era 24.00 USD." if language == "es" else "O valor era 24.00 USD."
+            later, _ = await message(client, headers, text, conversation)
+            assert not later.get("proposal") and not later.get("case")
+            denied = await client.post(
+                f"/chat/sessions/{conversation}/confirm",
+                headers=headers,
+                json={"proposal_hash": "0" * 64, "confirmed": True},
+            )
+            assert denied.status_code == 409 and case_count(app, headers) == 0
+            assert app.state.ai.client.spent_usd == 0
+
+    asyncio.run(check())
+
+
+@pytest.mark.parametrize("language", ["es", "pt"])
 def test_currency_only_after_clarification_does_not_identify_a_single_row(
     language: Language,
 ) -> None:

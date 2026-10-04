@@ -41,6 +41,11 @@ def grounded_details(nlu: NluResult, message: str, country: str | None) -> bool:
         if ambiguous or currency != nlu.slots.currency:
             return False
     if nlu.slots.date_start is not None or nlu.slots.date_end is not None:
+        date = r"(?:\d{4}-\d{2}-\d{2}|\d{1,2}/\d{1,2}(?:/\d{2,4})?|hoy|hoje|ayer|ontem|anteayer|anteontem)"
+        if re.search(
+            rf"{date}\W+(?:o|ou)\s+(?:(?:el|em|dia|foi|fue)\s+)*{date}", normalize_text(message)
+        ):
+            return False
         span = normalize_text(nlu.extracted.date_expr or "").strip()
         if not span or not re.search(rf"(?<!\w){re.escape(span)}(?!\w)", normalize_text(message)):
             return False
