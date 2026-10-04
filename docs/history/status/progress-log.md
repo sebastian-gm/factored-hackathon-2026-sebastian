@@ -5479,3 +5479,561 @@ later flag-only session for the current contract and activation dependencies.
   day or remaining $1.60 lifetime run, whichever first. Retirement requires
   Sebastian's explicit scale-down/delete/backup decision. No extra paid calls
   authorized by unused purse capacity.
+
+## 2026-10-04 public-only publication and held-batch records
+
+### Completed (verified)
+
+- Sebastian approved public-only publication of the original repository at
+  deployed v0.9.0 SHA `edd30702f32b21af17fc353d0ee410e67b2e932b`.
+  The independent 08:25 UTC readback confirmed PUBLIC, active main ruleset
+  **24450444**, exact main SHA and logged-out audited README rendering.
+  **10 existing tags / 10 existing Releases** remained visible; no new tag,
+  Release or email was created. No Azure or model call was needed for publication.
+- The reviewed final publication history scan passed Gitleaks with **0 findings /
+  238 ref tips**; default rules were retained and the private publication
+  configuration included two exact authored replay-key exceptions, rather than
+  using only the repository `.gitleaks.toml`. The exact-value audit had **0 findings / 1,046 text files /
+  2,743 historical blobs**. GitHub text covered **53 PRs**, with zero secret or
+  contextual findings. Actions covered **251/251** available attempt archives,
+  zero unavailable archives, sensitive/unresolved findings or GitHub artifacts.
+  Earlier default/configured findings were reviewed and retained, not hidden as
+  clean scans. [Dated publication evidence](../../submission/go-live-2026-10-03.md#october-4-public-only-publication)
+  and ignored receipts preserve the audited scope.
+- Folded **20 completed fragments**: seven earlier documentation sessions
+  already present on origin/main, plus the thirteen finished AI/frontend
+  held-batch sessions below. Removed their duplicate files and redirected
+  compatibility-page links. Original commands, counts, failures and caveats
+  remain; no official v4 score, frozen input or evaluation output changed.
+- Linked the completed October 3 [post-hoc human review](../../evaluation/judge-human-validation.md)
+  from the [official v4 page](../../evaluation/final-v4-results.md): twenty
+  paired items, seventy applicable ratings, no new model calls. One reviewer
+  and PT n=3 do not satisfy the 50-item calibration requirement or fluent PT review.
+- Local docs-only verification: `git -C <repo> diff --check` passed; a scoped
+  Markdown validator checked **149 references / 0 broken**; all **56 official
+  v4 table rows** match the pre-edit tree. SHA-256/readback comparison verified
+  all twenty folded record bodies (heading depth alone changed), with **0**
+  remaining links to deleted fragments. No product files or CHANGELOG edited.
+
+### Done but not verified
+
+- The v0.9.1 combined candidate's fresh local/remote gates and subsequent Azure
+  release are still separate Lead work; publication at v0.9.0 does not verify
+  that candidate. Its new fixes and commands will be recorded after execution.
+- The historical mock studies below do not establish live judge/browser results.
+  Judge access is now ON in v0.9.0; each approved lane must still produce its
+  own scoped live evidence without treating unused allowance as a new approval.
+
+### Next / blocked
+
+- Complete the CI-green integration and approved image release; preserve the
+  current WARM/JUDGE-ON settings, production $1/UTC-day/$1.60 lifetime binding,
+  existing lane purses and the conservative $15 ceiling.
+- v1.0.0 and submission email remain pending Sebastian's explicit final go.
+  PUBLIC-only approval did not authorize either operation, maintenance or teardown.
+
+### Historical lane records
+
+The following entries preserve each author's status at the time of writing.
+Their original “pending”, “held”, “private” and “wait for access” statements
+are historical; the publication/readiness status above supersedes those states,
+without retrospectively claiming a test or changing a measured result. Earlier
+docs PRs are already on main; the finished held-batch work is being integrated.
+
+## 2026-10-02 — Controls-stress count axes
+
+### Completed (verified)
+
+- Merged #152 after verifying all four remote gates and exact head; read-back
+  confirmed merge `e22d90ed36ac8d23ec3b63f4e75b069ea5e9fa80` before this branch.
+- Replaced the stress asset's 0–10% display with an explicitly labelled
+  forged-confirmation subset: naive filed **2 of 2**, P **0 of 2**, both P cases
+  stayed at proposals. The other panels use full **0–20 count axes** for
+  unverified success claims and instrumented foreign-customer attempts.
+- Preserved the honest aggregate caption, overlapping-counter/fake-tool limits,
+  source hash and post-v4 disclosure. Added explicit subset/arm denominator
+  explanation and updated the committed caption's regeneration recipe only.
+- Structural verification passed axes **0–2 / 0–20 / 0–20**, bar widths
+  **2,0 / 2,0 / 1,0**, complete ticks, **1920 × 1080 PNG**, editable SVG text
+  and committed source SHA. Regeneration reproduced PNG/SVG **byte-for-byte**;
+  visually reviewed the chart and `git diff --check` passed.
+- **$0 model/API spend**. Docs/assets only; no study, organizer, checkpoint,
+  frozen-suite, runtime or Azure changes.
+
+### Done but not verified
+
+- Remote gates pending at authoring time; no new model or browser rehearsal.
+
+### Next / blocked
+
+- Open one small follow-up PR, merge the exact green head as authorized, verify
+  the merge, then stand by. No shared progress-log edits.
+
+## 2026-10-02 — Final submission docs/assets polish
+
+### Completed (verified)
+
+- Added `controls-stress.png` / `.svg` beside the slide assets, with caption and
+  a reproducible recipe reading only the committed stress aggregate table.
+  Explicit 20-case denominators, overlapping counters, forged-confirmation
+  proposal/write contrast and instrumented foreign-lookup limits stay visible.
+- Moved README **Results at a glance** near the top. Preserved official v4,
+  both SAR denominators, cost per case/safe resolution and failed safety gates;
+  separately labelled 34/36 real dev messages, adversarial stress and the
+  1.026-second warm five-session local/mock batch. Updated the shipped staff
+  queue guide, preserving legacy anchors used by existing submission docs.
+- Refreshed the v0.8.1 shot list for judge draft-only suggestions, COP, PT,
+  separately authenticated/verified staff claim, concurrency and basic mode.
+  Ten contiguous editorial segments total **175 seconds / 2:55**. Judge
+  activation, actual filming and healthy real-model footage remain separate.
+  Marked the stale narration draft as superseded, preserving historical receipts.
+- Local structural check passed **84 document links/anchors**, shot timing,
+  **1920 × 1080 PNG**, editable SVG text/source SHA and official/dev separation.
+  Visually reviewed the chart. The documented `uv run --no-sync --extra data-ml`
+  recipe reproduced both files **byte-for-byte**; `git diff --check` passed.
+- **$0 model/API spend**; docs/assets only. No organizer, checkpoint or frozen
+  scenario reads, system runs, live browser calls or Azure changes. These docs
+  do not revise v4 or claim a new current-product evaluation.
+
+### Done but not verified
+
+- Remote PR gates pending at authoring time. No new recording, narration sync,
+  exported video duration or judge Gate B verification performed in this pass.
+
+### Next / blocked
+
+- One small PR to main; require green remote gates before merge. The owner
+  lifted the v0.8.1 hold. Final filming/access/release decisions remain owner-
+  controlled. No shared progress-log edits or runtime/exporter code changes.
+
+## Plain-language README entry — 2026-10-02
+
+### Completed (verified)
+
+- Added a short judge introduction, five-minute entry, five-row result table and three honest limits above the technical details.
+- Kept both safe-resolution denominators, complete transfer counts, cost per case and per safe resolution, and the failed safety checks.
+- Retained the full setup, official results, development evidence and existing anchors below the introduction. No number, model, policy or serving change.
+
+### Done but not verified
+
+- Remote CI and merge pending at authoring time.
+
+### Next / blocked
+
+- Plain ES/PT app copy and shorter slide legends/footers follow in separate PRs. Zero model spend.
+
+## AI lane: corrected candidate details
+
+### Completed (verified)
+
+- P candidate replies with corrected dates/amounts use structured NLU, retain dispute intent and re-filter freshly read customer-scoped charges. A uniquely consistent correction uses the existing policy, separate confirmation and receipt readback; contradictory or uncertain details cannot select a charge. No matcher thresholds changed.
+- Validate new selection facts against customer text before merging conversation slots. Rejected model-invented details cannot influence a later turn. Currency alone cannot identify a charge after clarification. A missing date alone still allows safe owned choices.
+- Candidate regressions: 34 ES/PT cases pass, including ghost-date persistence, competing dates with/without uncertainty words, stale bank facts, confirmation denial and verified receipt identity. Reject competing dates before merging slots. Ruff passed; strict mypy passed on 79 source files. Zero model spend.
+- Combined held fixes: `LLM_PROVIDER=mock LLM_REAL_CALLS_APPROVED=0 OPS_BACKEND=memory LEDGER_BACKEND=fixture .venv/bin/pytest -o addopts='' -q`: 1,710 passed, 43 skipped. All 75 new ES/PT context/courtesy/correction regressions pass.
+- Hash-verified frozen exploration: 27/30 (103/109 turns, 772/789 checks), ES 15/15 and PT 12/15. All 100 no-write, 109 zero-spend, 14 case and 7 handoff readbacks pass. B1 v2 remains 32/32. Independent review confirmed hashes, unchanged expectations and matcher checksums. [Aggregate report and remaining JE-08/16/28 failures](../../evaluation/judge-conversation-improvements.md).
+- Sebastian authorized cross-lane `src/aclara/api/` changes for this task. Lead review required. Post-v4 changes do not revise official v4 results.
+
+### Done but not verified
+
+- Latest remote CI is blocked before setup by the exhausted GitHub Actions budget; no retry pushes or budget/visibility changes. Courtesy #169's earlier four green gates remain verified. Skipped infrastructure tests and lead review remain unverified.
+- Real-model understanding, browser behavior and live judge exploration unverified.
+
+### Next / blocked
+
+- Lead reviews cross-lane API edits and shared conversation seams in #166/#169/#170. Batch the final date guard, tests and aggregate report; rerun remote CI only after the lead says access is restored. Remaining workflow failures are conservative matching/selection and JE-28's missing-case/language cascade; no UX/control failures.
+- Keep PR unmerged under the v0.9.0 / Gate A–B release hold; live calls await the lead's explicit judge-access signal and approved spend scope.
+
+## 2026-10-03 — Courtesy and scope recovery
+
+### Completed (verified)
+
+- User-authorized P conversation/API changes keep whole-message ES/PT greetings, thanks and small talk friendly and open. These turns preserve decisions and never confirm an action. NLG retains code-approved courtesy text with unchanged privacy checks.
+- Genuine out-of-scope requests offer a person without making the chat terminal. Active charge/offer/choice context is retained; unrelated requests invalidate pending proposals. Optional scoped packets are reused, including after restart; explicit human requests promote the same packet to a terminal handoff. Security, fraud, legal, bounded ambiguity and real handoff behavior remain protected.
+- Combined with the context fix, unchanged exploration is 25/30 (98/109 turns): all 100 no-write and 109 mock/zero-spend checks pass, plus 14 case and 8 handoff reads. Matching thresholds and authored expectations unchanged. Twenty-nine ES/PT courtesy regressions pass; affected suites before the two restart additions passed 252 tests. Existing NLG tests: 93 passed. B1 v2: 32/32. Ruff/mypy passed; $0 spend.
+
+### Done but not verified
+
+- Remote CI and lead review pending. Live behavior untested; target >=26/30 awaits candidate correction.
+
+### Next / blocked
+
+- Keep this separate cross-lane PR held until Sebastian lifts the release hold. Lead reviews optional serialized conversation state and soft scope semantics.
+- Finish candidate date/amount correction and report the final score and remaining failures; judge-access signal still required before live runs.
+
+## 2026-10-03 — Scoped conversation follow-ups
+
+### Completed (verified)
+
+- Sebastian authorized cross-lane API conversation edits, separate small PRs and lead review, with the release hold continuing. Main-targeted held PR #166 includes the already-audited latest-case fix #161 so the existing required CI runs.
+- P answers short ES/PT why/next-step/timing questions from a freshly read selected charge, pending proposal or saved case. Informational turns retain the exact proposal hash/expiry and cannot confirm it. Everyday case questions use the shared status detector and independently verified receipt path; simulated response timing comes from COM-01, with no refund/date promise.
+- Unchanged exploration inputs rose from 15/30 to 20/30 (86/109 turns). All 100 no-write and 109 mock/zero-spend checks passed; 13 case and 19 handoff reads passed. Matching thresholds and authored expectations unchanged. New ES/PT regressions and existing affected safety suites: 225 passed. B1 v2 remains 32/32. Ruff and strict mypy passed; $0 spend.
+- Earlier held evidence PRs #159/#162 and latest-case PR #161 have all four remote gates green. All remain unmerged; no deployment, publication or live calls.
+- Remote CI caught a Portuguese polite-refusal/recollection overlap with everyday case routing. Exclude explicit dispute refusal only from that additive detector; legacy status/IDs remain unchanged. `pytest -o addopts='' tests/test_context_followups.py tests/test_offer_refusal_state.py -q`: 24 passed. CI rerun required on this correction.
+
+### Done but not verified
+
+- New fix PR remote CI and lead review pending. Live behavior remains untested; mock target >=26/30 is not yet met.
+
+### Next / blocked
+
+- Finish P courtesy/nonterminal scope and candidate date/amount corrections in separate held PRs, each with ES/PT regressions. Report the unchanged suite score and remaining failures.
+- Wait for explicit release-hold lift before merging, and judge-access signal before live runs.
+
+## 2026-10-03 — Judge conversation exploration
+
+### Completed (verified)
+
+- Authored 30 synthetic ES/PT conversations, 109 turns and all handoff 19 topics. Actual mock API ran with scoped in-memory stores, code-owned matching/confirmation and independent receipt reads; all 93 supplied NLU observations validate.
+- Final unchanged-base run met all goals in 15/30 conversations (ES 9/15, PT 6/15), 75/109 turns and 727/798 assertions. All 100 no-write, 109 zero-spend, 12 case-readback and 21 handoff-readback checks passed. Reviewed every conversation and reported five UX weaknesses with authoring/scope-policy limits.
+- Preserved original six-row setup and corrected runs. Earlier 14/30 versus later 15/30 was caused only by the random latest-case bug, not an improvement. Authorized minimal API fix and deterministic mock regressions are separately held in PR #161 for lead review; full fixed run 15/30. Official v4 unchanged; no paid calls or cloud writes.
+- Private final artifacts have source hashes, mode 0600 and read-back verification. Live, overwrite and outside-artifact guards refuse before API import. Independent review found an inherited-settings import path; corrected lazy import forces mock/fixture/memory. Both full suites reran with live settings and DB/provider/socket sentinels: zero external calls, unchanged results. The standalone sandbox thread issue was isolated without app code; mock execution outside it completed normally.
+
+### Done but not verified
+
+- Exploration PR #162 final-head CI pending. Live model/judge-browser coherence untested; remaining UX findings are open. Held API PR #161 has all four remote gates green and awaits lead review.
+- Item 6 is complete in held PR #159, with all four remote gates green after the unchanged-head web rerun. Its first web gate failed the existing phone-choice viewport check (170/171 passed); original failure retained.
+
+### Next / blocked
+
+- Hold all PRs unmerged until Sebastian lifts the v0.9.0 / Gate A–B release hold; lead reviews the cross-lane API fix. Keep remote gates green.
+- Live suite and adapter await the explicit judge-access signal, scoped masked bindings, a separate durable $0.30 cap and private before/after balances.
+
+## 2026-10-03 — Human agreement on final v4 wording
+
+### Completed (verified)
+
+- Read repository rules, handoffs 17–19, current/archived progress and origin/main. Created the AI feature branch from private origin/main; no public change, provider call or cloud spend.
+- Strict offline import validated twenty unique unchanged blind items and all 70 applicable human ratings against saved v4 wording. All 20 have both saved judges; handoffs have n=10. CSV, individual ratings and notes remain outside Git.
+- Reported each judge's exact/within-one agreement, quadratic weighted κ and Spearman ρ overall and for ES/PT. Independent in-memory recomputation matched all aggregates. Original outcomes and published v4 metrics are unchanged; agreement was measured after the final evaluation.
+- `LLM_PROVIDER=mock .venv/bin/python -m docs.evaluation.judge_agreement --self-check` passed known ranks, ties, constant and empty examples. The aggregate output was read back at mode 0600. Existing importer/judge tests: 15 passed. Strict mypy: 78 source files passed.
+- Reviewed every human–judge gap larger than one point privately. All favored the judge's score; notes were blank, so response-context observations are not attributed to the human's reasons. Ruff/format and documentation links passed (839 links, zero broken).
+
+### Done but not verified
+
+- Remote CI and merge pending on this small evidence PR.
+- n=20 does not meet the rubric's 50-item calibration requirement. Fluent PT review is unconfirmed; PT n=3 and handoff n=2 cannot validate Portuguese quality.
+
+### Next / blocked
+
+- Merge on green remote CI, then finish handoff 19 item 7 in a separate small PR: 30 authored ES/PT multi-turn conversations, mock run and honest UX findings.
+- Live exploration awaits the lead's confirmation that judge access is open, a separate durable scope capped at $0.30, and fresh before/after balance checks. No live model run started.
+
+## 2026-10-03 — Latest case status correction
+
+### Completed (verified)
+
+- The synthetic judge exploration reproduced a status lookup returning the older of two verified cases. Customer-scoped storage orders random IDs lexically; lookup previously took the last ID instead of the latest creation time.
+- Prepared and verified the minimal patch in memory first. Sebastian then explicitly approved the cross-lane API edit in a separate held feature PR, with lead review.
+- Status now selects the newest scoped creation timestamp. Explicit case references still select the requested case. Authorization, confirmation, write actions, receipt reads and frozen interfaces are unchanged.
+- Added deterministic ES/PT regressions for B1/P, forcing IDs into reverse chronological order while filing through actual confirmed API actions and reading each receipt back. Targeted mock checks: 27 passed, 3 database-dependent skips. No model calls or spend; measured after the final evaluation, with official v4 numbers unchanged.
+
+### Done but not verified
+
+- Remote CI and lead security review pending. No live/deployed verification.
+
+### Next / blocked
+
+- Keep the feature PR unmerged during the lead's v0.9.0 / Gate A–B release hold. Merge only after the hold is explicitly lifted, lead review and green remote CI.
+- Continue the separate authored exploration evidence PR; live exploration waits for the judge-access signal and its approved durable $0.30 scope.
+
+## 2026-10-03 — Archive development records
+
+### Completed (verified)
+
+- Archived 58 progress/budget, v1–v3 evaluation, development study, review and release/reproduction records under docs/history. Original prose, numbers and caveats are unchanged; only link destinations were adjusted.
+- Kept 15 compatibility pages for existing outside links and chart-tool inputs. Complete records are archived; the old chart inputs contain unchanged excerpts. Frozen study instructions keep their original bytes and paths.
+- Local link check passed with zero broken paths/anchors. Canonical progress history is now docs/history/status/progress-log.md; lane work still uses progress.d fragments. Root README, code, images, frozen suites and official result artifacts are unchanged. Zero model/cloud calls.
+
+- Mock frozen-protocol/study tests and all documentation policy/secret/type/style checks passed. The committed-source chart check passed against 13 sources and unchanged published aggregates. After rebasing on #154/#155: local links 837 checked, zero broken; published aggregates unchanged.
+
+### Done but not verified
+
+- Corrected-head remote CI pending.
+
+### Next / blocked
+
+- Merge after #155 and green CI. The lead should fold later progress fragments into the archived canonical log.
+
+## 2026-10-03 — Judge reading path and plain summaries
+
+### Completed (verified)
+
+- Read handoff 18. Added a six-page judge reading path and three-line summaries to eight key evidence pages; detailed bodies are one click deeper.
+- Original evidence bodies, numeric tables, caveats and claim wording are preserved exactly under the expandable details. Root README and application/source/config files are unchanged. Zero model calls.
+
+- Local link check passed: 796 references, zero broken paths/anchors. Verified original bodies by SHA-256 on all eight summarized pages. Fixed two pre-existing source-line links and replaced a non-URL placeholder in the slide script with owner-provided URL instructions; no slide assets or root README changes.
+
+### Done but not verified
+
+- Remote CI pending on the documentation head.
+
+### Next / blocked
+
+- Merge this small documentation PR only on green CI; archive process records in a follow-up with links fixed and root-README compatibility preserved.
+
+## Plain ES/PT app copy — 2026-10-03
+
+### Completed (verified)
+
+- Replaced the displayed B1/P/SAR names with Aclara, a rules-only comparison and safe-resolution wording. Shortened Insights, Ops and Desk labels; preserved counts, costs, axes, source links and safety limits.
+- Kept raw rule IDs under ¿Por qué? / Por quê?, with execution metadata and record references one click deeper. Preserved the code-controlled chat, confirmation, verification, queue and claim behavior.
+- Build, lint and strict web typing passed. The full fixture inventory was exercised; changed copy assertions, reference visibility and ES/PT desktop/phone accessibility passed their focused reruns. Reviewed ignored screenshots under artifacts/ux-audit/minimal-design/after/.
+
+### Done but not verified
+
+- Remote CI and merge pending at authoring time.
+
+### Next / blocked
+
+- Finish plain slide legends and move longer footers to captions in the separate asset PR. No organizer data or real-model calls used.
+
+## Plain slide legends and footers — 2026-10-03
+
+### Completed (verified)
+
+- Retitled the seven slide asset pairs with Aclara, Rules-only baseline and Plain AI agent labels. Removed internal model/system names from displayed chart text and kept one short footer per chart.
+- Moved source paths and longer methods/limitations to captions.md, retaining both safe-resolution denominators, failed safety checks, post-hoc flag interpretation and the separate after-final-evaluation development-study limits.
+- All chart sizes, axes, ticks, bar geometry and counts match the prior renders, including the 0–2 forged-confirmation subset and full 0–20 stress count scales.
+- All fourteen PNG/SVG files byte-reproduce from the documented commands; PNGs are 1920×1080, SVG text remains editable, primary source hashes match, and all eleven caption links/anchors resolve. Ruff and visual review passed.
+- Corrected an Ops browser-test race by waiting for recorded steps before opening their details. The affected mock browser test passes in the same dev-server mode as CI; product behavior is unchanged.
+- Corrected a judge-guide keyboard race by waiting for the details dialog to close before focusing the next example. All eight ES/PT guide tests pass locally, including desktop/phone accessibility checks; product behavior is unchanged.
+- Integrated the main documentation archive: controls-study links and render inputs point to the complete archived reports, whose result tables are unchanged. Refreshed SVG source hashes and rechecked reproduction and geometry.
+
+### Done but not verified
+
+- Remote CI and merge pending at authoring time.
+
+### Next / blocked
+
+- Merge this small docs/asset PR on green. No model calls, organizer records or frozen system runs used.
+
+## Judge browser accessibility — 2026-10-03
+
+### Completed (verified)
+
+- Read handoffs 17–19, repository rules, recent progress and origin/main. Zero
+  model/cloud spend; repository remains private. User's release merge hold is active.
+- Fixed sidebar focus contrast (2.03:1 → 13.87:1), cropped phone locale labels,
+  visible/accessibility link-name mismatches, small v4 source touch target, lineage
+  zoom discoverability and narrow-phone cost-axis wrapping. All numbers unchanged.
+- Verified 20 keyboard checks, 16 locale/header checks at 320–1440px, eight explicit
+  axe checks, 65 initial and 17 affected fixture browser checks. Web typecheck,
+  lint and production build passed. Rebuilt make demo; desktop/mobile Lighthouse
+  accessibility both 100, performance 69/70 on the development server.
+- Fixed the UI Desk shortcut for Ops-backed judge profiles: judges use the
+  invitation panel for a separately signed-in staff session. Two authored MX/PT
+  UI regressions passed; BFF selection validation is untouched and lead-owned.
+- Private evidence: artifacts/ux-audit/go-live/. Generated screenshots/data are ignored.
+  Changes were measured after the final evaluation and do not change v4.
+
+### Done but not verified
+
+- Exact-head remote CI and deployed visual/keyboard evidence pending.
+- Lead's Ops-backed BFF profile correction must deploy before live judge checks.
+
+### Next / blocked
+
+- Keep the PR open during the release merge hold; no merge/auto-merge.
+- Complete the separate tour/gallery PRs. Live owner/runner checks wait for the
+  user's judge-access-open signal and the lead's dedicated $0.20 browser scope.
+
+## Judge gallery detail corrections — 2026-10-03
+
+### Completed (verified)
+
+- Quick-start shows only available stories for the active trusted judge profile
+  or live persona. Language suffixes and the vague unavailable caption are gone.
+- Case receipt verification groups its icon and label inline. Transaction cards
+  omit the empty product row; messages omit the duplicate step label.
+- Eleven quick-start/phone/guide browser checks and four ES/PT desktop/phone
+  healthy → degraded → healthy checks passed. The latter use nonfixture config,
+  explicit false/true/absent flags, receipt geometry, axe and overflow assertions.
+- Broader local browser suite: 172 checks passed; seven outdated shortcut
+  expectations were corrected and their focused rerun passed 7/7. Runnable
+  shortcuts still lock during pending actions; unsupported stories stay hidden.
+- Real mock-stack gallery refresh: 24 checks passed in the full sweep; four
+  corrected retry assertions then passed. HTTP errors retain the previous reply,
+  so its degraded notice stays until a healthy reply replaces it.
+- Four first-time receipts followed independently verified scoped local reset,
+  explicit recognition/denial/confirmation and matching case/transaction read-back.
+  Rebuilt the private gallery: 219 PNGs; 104 screen audits, zero axe violations,
+  overflow, application console errors or page errors. Desktop/phone receipt and
+  PT phone transaction captures were visually inspected.
+- Local integration production build, typecheck and lint passed. BFF profile
+  selection validation is untouched. Measured after final evaluation; v4 unchanged.
+
+### Done but not verified
+
+- Remote CI unavailable: owner reported exhausted GitHub Actions budget. No
+  repeated push, budget increase or repository visibility change is authorized.
+- Healthy real-model replies on the deployed app remain to verify after judge
+  access opens. The browser regression uses explicit healthy/degraded projections;
+  no real model or live customer calls were made.
+
+### Next / blocked
+
+- Keep one small stacked PR open under the merge hold. Batch final changes in one
+  push, then wait for restored CI and an explicit lift of the hold before merging.
+- Live owner/GitHub tours remain pending the user's access-open message and the
+  lead's durable private budget adapter. No paid calls or cloud changes made.
+
+## Judge gallery and operator runbook — 2026-10-03
+
+### Completed (verified)
+
+- Generated a private ignored gallery with 213 desktop/phone screenshots. Full
+  screenshots and actual-scroll viewport captures cover ES/PT OTP, explanation,
+  Why, clarification, case receipt, handoff/freeze, Desk claim, Insights and Ops.
+  The gallery itself has no overflow at 320, 390 or 1440px.
+- Local tour: 28/28 checks; eight affected story/Desk checks and final phone
+  OTP/expiry check passed. Across 101 screen audits: zero axe violations or
+  horizontal overflow. The 32 current request-metric files record zero application
+  exceptions; one legacy-format metric file is excluded from that count.
+- Aggregate-only Lighthouse: accessibility 100/100 desktop/mobile, performance
+  69/70, best practices 96, SEO 100, CLS 0. Development-server timing only;
+  signed-out /me resource errors are expected. No paid model calls.
+- Added README commands, an operator runbook and a lead-owned runner workflow
+  template under apps/web/ci. YAML/default/no-upload checks and script syntax
+  passed. Private operator reservations are mandatory for paid dispatches.
+- Combined local preparation branch passed web typecheck, lint and production
+  build. Conditional Python operator dependencies are included in the runner
+  template; actual shared workflows remain untouched.
+- Measured after the final evaluation; v4 and all official result numbers unchanged.
+
+### Done but not verified
+
+- Exact-head remote CI pending. Workflow installation, private live credentials,
+  operator adapter/binding and deployed owner/GitHub execution are not completed.
+- Local demo lacks judge picker and separate staff identity; candidate selection
+  is explicitly unverified where the serving ledger returns clarification.
+
+### Next / blocked
+
+- Keep PRs open under the release merge hold. Merge harness before its companion
+  journey PR after the user lifts the hold and fresh required checks are green.
+- Lead installs/reviews the runner template in its shared workflow lane. Run live
+  only after the user opens access, with exact SHA and shared $0.20 frontend scope.
+
+## Private judge tour harness — 2026-10-03
+
+### Completed (verified)
+
+- Prepared a separate external-stack Playwright configuration for ES/PT desktop
+  and phone. Default live mode sends no messages; no automatic retries.
+- Added durable pre-send attempt reservations that fail closed and cannot raise
+  an existing cap. Six guard regressions pass. Dollar enforcement remains the
+  lead's shared durable budget scope, not this attempt counter.
+- Captures mask credentials and live customer facts. Reports retain static check
+  names, counts and timings only; traces, videos and DOM/error bodies are disabled.
+  Diagnostic CLI overrides are rejected; failed OTP captures are removed.
+- Paid mode now requires a private operator adapter. It reserves before every
+  message/confirmation, verifies settlement before returning the response, and
+  retains/stops on unknown receipts. Authored HTTP tests verify ordering and
+  stopping; a scope label alone cannot authorize model calls.
+- Verified with the companion tour against this checkout's real make demo stack:
+  28/28 mock checks, then eight affected story/Desk checks after stronger read-back
+  assertions. No provider spend, cloud changes, organizer data or public artifacts.
+
+### Done but not verified
+
+- Exact-head remote CI pending. The separate companion PR adds the journey suite.
+- Live judge picker, independent staff identities, candidate selection and both
+  deployed networks remain unverified; the default demo cannot prove these.
+- Lead's real adapter/budget binding and per-request dollar maximum are pending.
+
+### Next / blocked
+
+- Keep all frontend PRs unmerged during the user release hold.
+- Live runs wait for the user's access-open signal, deployed release SHA,
+  private credentials and the lead's dedicated $0.20 frontend scope.
+
+## Judge browser journeys — 2026-10-03
+
+### Completed (verified)
+
+- Added seven external-stack checks across Spanish/Portuguese desktop and phone:
+  landing/keyboard/anchors, exact Insights aggregates, real password/OTP and cookie
+  expiry/re-login, six chat stories/Why, Desk invitation/claim, Ops and simulated
+  local basic-mode/429 feedback. Live staff credentials must be distinct.
+- Local make demo matrix passed 28/28. Eight affected story/Desk checks passed
+  after adding independent dispute GET read-back, injection browser write counts,
+  delayed action-OTP handling and mobile staff-browser settings. Final masked
+  phone login/expiry check passed after tightening launcher/capture protections.
+- Every captured screen passed axe WCAG A/AA and horizontal-overflow checks.
+  Reports distinguish missing candidates, judge picker and separate staff identity
+  from verified local paths. Credentials and private facts are never logged.
+- No paid model calls, organizer rows, public screenshots or cloud changes.
+- Wired message/confirmation interception to the fail-closed operator guard;
+  settlement must verify before the browser receives a paid response.
+
+### Done but not verified
+
+- Exact-head remote CI pending. This independent main-targeted PR includes
+  identical shared helpers so normal CI can typecheck it. The executable launcher
+  and guard regressions remain in the companion harness PR; merge harness first.
+- Live picker/paid stories/staff invitation and both deployed networks pending.
+  Browser-cookie expiry proves re-login, not elapsed server TTL or forced cold start.
+
+### Next / blocked
+
+- Keep this PR unmerged during the release hold.
+- After access opens, run on the exact deployed SHA from the owner and GitHub
+  networks inside the lead's shared $0.20 scope. Record any unverified paths.
+
+## AI lane: reply language and safe selection audit
+
+### Completed (verified)
+
+- P reply language follows reliable ES/PT customer evidence, ignoring scoped merchant names; uncertain turns retain the conversation language. Candidate selection cannot lock case questions into the previous language. Trusted locale initializes new P chats; B1 behavior remains frozen.
+- Confirmation/cancellation/failure use current conversation language while the proposal hash, expiry and source language remain immutable. Replay verifies the same scoped case, changes only reply text, scans the code template and makes no new model call or financial write. Existing machine-readable error details remain intact for the BFF.
+- Explicit different-merchant retargets clear prior amount/date slots, including an amount-only identified prior charge. MATCH and confirmation gates remain unchanged.
+- New ES/PT/B1 language, replay, restart, retarget and guard regressions: 30 passed. Existing conversation/safety suites: 231 passed. Ruff and strict mypy passed on 79 source files. Mock/fixture/memory only; $0 spent.
+- Combined held stack: full local tests 1,740 passed, 43 skipped; B1 v2 32/32. Unchanged exploration 27/30, 103/109 turns, 773/789 checks. All 100 no-write, 109 zero-spend, 14 case and 7 handoff readbacks pass. JE-28's Portuguese status-language check now passes; its unselected new charge still prevents a case. Independent source/frozen-input/readback review passed. [Remaining-choice audit](../../evaluation/judge-language-and-choice-audit.md).
+- Read-only JE-08/16 audit found no lost positively identified requested charge. Merchant-only requests return two choices below the unchanged 0.9 confidence gate; fresh merchant-only matching still chooses safely. Keep those selections and frozen expectations.
+- Sebastian explicitly authorized cross-lane API edits. Lead review required; official v4 results unchanged.
+- Held [PR #174](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/pull/174) was opened before the publication audit hold. Readback verified its exact description, feature head, 719 changed lines, open state and unmerged state. The earlier checks and invariants did not execute because of the Actions budget, as verified in their annotations.
+- Sebastian lifted the publication audit hold and authorized pushing local commits and refreshing held branches. GitHub readback confirms the repository is public. The lead retains review and merge order for v0.9.1; no merges or live calls are authorized by this signal.
+
+### Done but not verified
+
+- Refreshed remote CI, skipped infrastructure tests and lead review remain pending. Already-passing current branches need no rerun; budget-blocked current branches may rerun now that CI access is restored.
+- Live-model/browser behavior remains unverified; no live calls.
+
+### Next / blocked
+
+- Preserve shared conversation seams when integrating #174 with #166/#169/#170. JE-08/16 choices remain deliberate policy-safe requests; JE-28 now has only the selection/missing-case workflow failures. No threshold or expectation weakening.
+- Refresh published older branches with main merges to preserve history under the repository's no-force-push rule; the remaining branches already contain current main. Push the local documentation and verify remote heads and CI. Keep the separate merge hold and wait for judge access. No budget or repository-visibility changes performed by the AI lane.
+
+## Held frontend PR publication sync — 2026-10-04
+
+### Completed (verified)
+
+- Owner lifted the publication hold. GitHub read-back confirms the repository
+  is public. Fetch used only origin; main remains edd3070.
+- All five frontend PR branches include current origin/main and match their
+  remote heads. No source rebase or force-push is necessary; local integration
+  merges remain local rather than becoming a large aggregate PR.
+- PRs #163, #164, #167 and #168 have successful CI and safety runs on their exact
+  heads. Those unchanged, valid results remain in place.
+- #173 contains the locally verified ES/PT desktop/phone gallery fixes, healthy
+  reply regression and first-time receipt tour. Screenshots remain ignored.
+- First remote run passed safety, Python, Postgres and 171 mock UI checks. Its
+  local bank-API suite caught an old assertion expecting the removed product
+  placeholder. The corrected assertion requires the merchant and no empty field.
+- Local bank-API 12/12, staff 13/13 and trusted-role 2/2 browser checks passed with
+  mock providers. The correction changes only the regression test.
+
+### Done but not verified
+
+- #173 remote CI is pending. CI runs only for PRs targeting main, so the held
+  draft is temporarily targeted at main for validation of its new session head.
+  Restore its base to #167 after validation to retain a small review.
+- Live owner/GitHub judge tours still require the explicit access-open signal
+  and the lead's durable budget adapter. No live or paid model calls were made.
+
+### Next / blocked
+
+- Keep every merge held. The lead owns review and merge order for v0.9.1.
+- Verify exact heads and green checks before reporting readiness. Retain draft
+  state and disabled auto-merge on #173 while the release batch is held.
+- This is post-evaluation development evidence; official v4 results are unchanged.

@@ -14,6 +14,22 @@ certification. The v0.1.0–v0.5.0 annotated tags and GitHub Releases were creat
 - Every change now uses a feature branch and PR; every Azure release gets a tag.
 - `v1.0.0` is reserved for the exact submission-day Azure release SHA.
 
+## [0.9.1] — 2026-10-04, judge conversation and tour (post-v4)
+
+- Scoped latest-case status and verified readbacks; contextual follow-ups,
+  courtesy and ES/PT reply-language changes preserve action confirmation.
+- Corrections use grounded positive details; negated dates cannot select a charge,
+  and rejected corrections reach the existing clarification/handoff limit.
+- CO/AR quick-start stories keep the selected customer profile; explicit
+  cross-profile recording shortcuts still use trusted server profile selection.
+- Accessible judge invitation, numbered choices, phone layouts and private tour
+  tooling; completed post-hoc human agreement is linked separately from v4.
+- Repository publication was explicitly approved and verified on October 4,
+  with PR/check protection on main. `v1.0.0` and email remain pending approval.
+- Official v4 results are unchanged. This batch does not change warm/burst
+  settings, judge access, CPU or budget binding. Deployment gates and spend are
+  recorded in the release receipt and progress log when verified.
+
 ## [0.9.0] — 2026-10-03 COT, judge go-live (post-v4)
 
 - Deployed/tagged `edd30702f32b21af17fc353d0ee410e67b2e932b`; CI, safety and authenticated

@@ -4,7 +4,7 @@ Read the [complete archived record](../history/status/progress-log.md).
 The [final evaluation (v4)](../evaluation/final-v4-results.md) remains unchanged.
 Current release: [v0.9.0 go-live evidence](../submission/go-live-2026-10-03.md).
 
-Latest AI session: [October 3 human review](progress.d/2026-10-03-ai-judge-human-agreement.md).
+Latest AI human review: [October 3 post-hoc agreement](../evaluation/judge-human-validation.md).
 
 <details>
 <summary>Compatibility excerpt for existing chart tools</summary>
@@ -24,7 +24,9 @@ Latest AI session: [October 3 human review](progress.d/2026-10-03-ai-judge-human
 
 </details>
 
-AI candidate-correction session: [verified work, pending checks and blockers](progress.d/2026-10-03-ai-candidate-corrections.md).
-AI reply-language session: [verified work, pending checks and blockers](progress.d/2026-10-04-ai-reply-language.md).
-Publication audit hold lifted after Sebastian's public-repository signal; merges remain held for the lead's v0.9.1 release batch.
-Latest AI mock session: [October 3 judge exploration](progress.d/2026-10-03-ai-judge-exploration.md).
+AI candidate-correction evidence: [mock conversation improvements](../evaluation/judge-conversation-improvements.md).
+AI reply-language evidence: [mock language and choice audit](../evaluation/judge-language-and-choice-audit.md).
+Public-only publication completed at v0.9.0; v1.0.0 and email remain pending.
+The [folded lane records](../history/status/progress-log.md#2026-10-04-public-only-publication-and-held-batch-records)
+preserve author-time checks and holds. The combined v0.9.1 gates/release remain Lead work.
+Historical AI baseline: [October 3 mock judge exploration](../evaluation/judge-multi-turn-exploration.md).

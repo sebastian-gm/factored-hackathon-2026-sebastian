@@ -4,6 +4,14 @@
 **Result:** 15/30 met every scripted goal, with 75/109 passing turns; all checked write boundaries and receipt reads passed.
 **Limits:** This tests supplied NLU observations and small synthetic ledgers, not live-model understanding or browser quality. Measured after the final evaluation; official v4 results are unchanged.
 
+**Historical baseline:** These are the October 3 mock-study results on
+`5a1f574`, recorded in PR #162 before the later conversation fixes. Waiting
+states below describe that study's authoring time. Judge access subsequently
+opened in [v0.9.0](../submission/go-live-2026-10-03.md); this report is not a
+live acceptance check or a measurement of the current integration. Later mock
+results are reported separately in [conversation improvements](judge-conversation-improvements.md)
+and the [reply-language audit](judge-language-and-choice-audit.md).
+
 The unchanged base API (`5a1f574`) had 727/798 passing assertions, ES 9/15 and PT 6/15 conversations meeting every goal. Controls passed: 100 no-financial-write checks, 109 mock/zero-spend checks, 12 independent case reads and 21 handoff reads. Spend: **$0**. Fourteen turns missed workflow expectations and 23 missed UX expectations; these sets overlap. A missed goal is not automatically a safety or product defect.
 
 ## Each conversation
@@ -26,7 +34,7 @@ These are synthetic fixture IDs. “Met” means all authored checks passed, inc
 | JE-12 | PT | Not met (turn 1) | Safe choice on wrong date; later correction needs an ordinal. |
 | JE-13 | ES | Met | Changed amount produces a new target; verified case/status work. |
 | JE-14 | PT | Not met (turn 1) | Explicit date uncertainty clarifies: initial expected choice was an authoring assumption; correction works. |
-| JE-15 | ES | Met | Two verified cases work this run; generic status returned the older case in another unchanged run (fixed in held #161). |
+| JE-15 | ES | Met | Two verified cases work this run; generic status returned the older case in another unchanged run (fix prepared in #161 at study time). |
 | JE-16 | PT | Not met (turn 1) | Conservative matching asks choices; returning to the first charge gets stuck. |
 | JE-17 | ES | Not met (turn 2) | Off-topic turn transfers permanently; later dispute cannot resume. |
 | JE-18 | PT | Met | Scope response and explicit human request keep the same handoff. |
@@ -49,14 +57,20 @@ These are synthetic fixture IDs. “Met” means all authored checks passed, inc
 2. **Everyday case questions miss status lookup.** “What happens now with the dispute?” rematches charges; direct “case status” works (JE-25).
 3. **Greetings and thanks can end the chat.** The required scope transfer is terminal, so later valid banking questions repeat the handoff (JE-05, 17, 19, 20, 30). This complies with the current policy but feels robotic.
 4. **Corrections are awkward inside choices.** A corrected date is not an ordinal choice and can keep the judge stuck (JE-12). Other matcher choices remain appropriately conservative; thresholds were unchanged.
-5. **The newest case could be misidentified.** Random case-ID ordering sometimes selects the older of two cases (JE-15). The authorized one-line API fix and deterministic ES/PT × B1/P regressions are in [held PR #161](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/pull/161), with all four CI gates green; lead review and the merge hold remain.
+5. **The newest case could be misidentified.** Random case-ID ordering sometimes selects the older of two cases (JE-15). At study time, the authorized one-line API fix and deterministic ES/PT × B1/P regressions were in [PR #161](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/pull/161), with all four CI gates green and lead review/merge still pending. That fix belongs to the subsequent integration; no baseline number is rescored here.
 
 ## Reproduce and read the limits
 
 Run `LLM_PROVIDER=mock .venv/bin/python -m docs.evaluation.judge_exploration --output artifacts/judge-exploration/new-run`. The [runner](judge_exploration.py) exits **1 when scripted goals remain unmet**, without hiding failures. It refuses output overwrites and live mode before importing the API; that import uses safe default settings, so inherited provider/database settings cannot open a live backend. Inputs are [30 project-authored cases](judge-exploration-cases.json); all 93 message observations validate against the actual NLU schema. Each story has one or two relevant invented charges. The API owns matching, policy, scoped state, confirmation and verified writes; no authority is mocked.
 
-An initial six-row fixture palette caused safe confidence-based choice cascades (3/30 goals met). Its receipt is preserved under `artifacts/judge-exploration/baseline-six-fixtures/`; the authoring correction changed only per-case fixtures, never thresholds or expected behaviors. Corrected unchanged-code runs scored **14/30 then 15/30** solely because JE-15 depends on random ID ordering; this is not an improvement claim. The held fix also scored 15/30, with a separate deterministic before/after regression proving the status correction. Remaining context/policy weaknesses are open; no broader API refactor was applied.
+An initial six-row fixture palette caused safe confidence-based choice cascades (3/30 goals met). Its receipt is preserved under `artifacts/judge-exploration/baseline-six-fixtures/`; the authoring correction changed only per-case fixtures, never thresholds or expected behaviors. Corrected unchanged-code runs scored **14/30 then 15/30** solely because JE-15 depends on random ID ordering; this is not an improvement claim. The then-held latest-case fix also scored 15/30, with a separate deterministic before/after regression proving the status correction. Remaining context/policy weaknesses were open in this study; no broader API refactor was applied for its baseline measurement.
 
 Private run/aggregate receipts are under `artifacts/judge-exploration/{baseline,controls-report,final-base-report,final-fixed-report,isolated-base-report,isolated-fixed-report}/`, mode 0600 and read back. Final receipts hash the suite, runner, API, NLU and store sources; the in-memory fix has a separate source hash. The final isolation check ran both full suites with inherited live settings and DB/provider/socket sentinels: zero external calls, unchanged aggregates, and all CLI guards refused before API import. A minimal `asyncio.to_thread` check hangs under the restricted shell sandbox but exits normally outside it; the exact zero-spend suite ran outside that sandbox, with no runtime workaround.
 
-**Live pending:** Wait for Sebastian's judge-access signal. Use one separate durable server scope capped at **$0.30**, check the production key/account balance privately before and after, retain unknown-cost reservations, and stop on budget denial. Do not retry the paid suite or substitute owner sessions for judge sessions. Bind only scoped masked transactions in memory; missing story bindings must be marked skipped. The current runner intentionally has no paid/live path; the authenticated live adapter will be prepared after the access signal. Judge-browser checks and real-model coherence remain unverified. All PRs stay unmerged until Sebastian lifts the release hold.
+**Historical waiting status:** At study time, live exploration awaited Sebastian's
+judge-access signal and a separate durable server scope capped at **$0.30**;
+the PRs were held for lead review. The mock runner intentionally has no paid/live
+path, so its result does not verify real-model coherence or judge-browser checks.
+Later approved live work uses the existing scoped purse, private before/after
+balance checks and retained unknown-cost reservations; this report does not
+authorize another paid suite, owner-session substitution or new allowance.

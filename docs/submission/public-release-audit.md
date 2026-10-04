@@ -1,6 +1,38 @@
 # Public-release readiness audit
 
-**2026-10-01 owner decision supersedes the snapshot recommendation below.**
+## October 4 public-only publication completed
+
+Sebastian explicitly approved publication of the original repository only.
+Independent readback at **2026-10-04 08:25 UTC** confirmed it is PUBLIC at
+deployed v0.9.0 SHA **`edd30702f32b21af17fc353d0ee410e67b2e932b`**. Active
+main ruleset **24450444** has no bypass actors, blocks deletion/non-fast-forward
+updates, and requires PRs with resolved threads and strict `checks`, `invariants`,
+`postgres` and `web` checks. Logged-out checks verified exact main, audited README
+bytes/rendering and ten existing tags/Releases. **No new tag or Release was
+created, v1.0.0 is absent, and no email was sent.**
+
+The final publication history scan used checksum-verified **Gitleaks 8.30.1**,
+with default rules retained and a private publication configuration including
+**two reviewed exact authored replay-key exceptions**. The repository's
+`.gitleaks.toml` alone was not the complete configuration for this scan. It
+exited **0 / zero findings across 238 ref tips**. Earlier default/configured
+scans had findings; their triage and original receipts remain preserved.
+
+Exact-value comparison found **zero** matches across **1,046 current text files
+and 2,743 historical blobs**, without saving credential values. The GitHub-text
+audit covered **53 PRs**, zero secret/contextual findings; Actions coverage
+rechecked **251/251** available attempt archives, with zero unavailable,
+sensitive or unresolved findings and zero GitHub artifacts. Existing Release
+text had zero actionable credentials after independent image-digest triage.
+These are dated detection results, not proof of universal absence.
+
+[Go-live publication evidence](go-live-2026-10-03.md#october-4-public-only-publication)
+records the boundary and ignored `artifacts/public-only-2026-10-04/` receipts.
+No history rewrite, Azure change or model call occurred in this public-only step.
+Later integration/release changes require their own fresh gates; v1.0.0 and
+submission email still require Sebastian's separate final go.
+
+**Historical October 1 owner decision:** this superseded the earlier snapshot recommendation.
 The original lab is now `factored-hackathon-2026-sebastian`, still private.
 Sebastian accepts historical commit email and Azure hostname disclosure. The
 former snapshot is privately archived as `factored-hackathon-2026-sebastian-snapshot-archive`.
@@ -8,6 +40,11 @@ A fresh full-history, PR/comment and Actions audit plus password rotation is
 required before publication; the historical scan below does not satisfy it.
 
 ## October 2 original-repository readiness audit
+
+**Historical snapshot:** the private/OFF and approval-pending states in this
+section describe October 2. The separately authorized October 3 Gate A/B and
+October 4 public-only checks above supersede those states, without expanding
+this earlier audit's measured coverage.
 
 The renamed original repository remains **private**. No visibility change,
 history rewrite, organizer-data upload or new cloud resource was performed.
