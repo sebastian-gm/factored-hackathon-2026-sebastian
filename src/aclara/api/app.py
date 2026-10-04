@@ -232,6 +232,56 @@ def _informational_followup(message: str) -> bool:
     )
 
 
+def _candidate_recognition(message: str) -> bool:
+    """Recognition can end unfamiliarity without identifying one pending choice."""
+    value = normalize_text(message).strip(" .,!¿?¡")
+    return recognizes_charge(message) or bool(
+        re.fullmatch(
+            r"(?:ah[, ]+)?(?:si[, ]+)?(?:(?:la|lo) )?reconozco(?:[.! ]+fui yo)?|"
+            r"(?:ah[, ]+)?(?:sim[, ]+)?(?:eu )?reconheco(?:[.! ]+fui eu)?",
+            value,
+        )
+    )
+
+
+def _dispute_target_correction(message: str) -> bool:
+    """A positive correction may continue a pending dispute, never a new read."""
+    value = normalize_text(message)
+    correction = re.search(
+        r"(?:^|[.!?;]\s*)(?:me equivoque de (?:cargo|compra)|"
+        r"me enganei (?:na|de) (?:cobranca|compra))\b",
+        value,
+    )
+    read_request = re.search(
+        r"\b(?:quiero|quero)\s+(?:(?:solo|so|apenas)\s+)?"
+        r"(?:consultar|revisar|entender|saber|ver)\b|"
+        r"\b(?:explicame|expliqueme|explique|puedes explicar|pode explicar)\b|"
+        r"\b(?:cual es el estado|qual e o status|qual e o andamento|por que)\b|"
+        r"\bque (?:paso|pasa|ocurrio|ocurre) con (?:es[ae]|est[ae]|la|el|mi) "
+        r"(?:compra|cargo)\b|"
+        r"\bo que (?:aconteceu|acontece) com (?:ess[ae]|est[ae]|a|o|minha|meu) "
+        r"(?:compra|cobranca)\b|"
+        # Questions remain reads without punctuation. Require a clause boundary
+        # so a corrected merchant's name does not supply the customer's intent.
+        r"(?:^|[.!?;]\s*)(?:(?:y|e|pero|mas)\s+)?"
+        r"(?:que (?:es|significa|quiere decir)|o que (?:e|significa|quer dizer))\b",
+        value,
+    )
+    recognized = re.search(
+        r"(?:^|[.!?;,]\s*|\b(?:ahora|agora|ya|ja)\s+)"
+        r"(?:(?:si|sim)[, ]+)?(?:(?:la|lo|a|o)\s+)?(?:reconozco|reconheco)\b",
+        value,
+    )
+    return bool(
+        correction
+        and not read_request
+        and not re.search(r"[¿?]", value)
+        and not recognized
+        and not declines_dispute(message)
+        and not re.search(r"\b(?:cancelar|cancela|cancele)\b", value)
+    )
+
+
 def _case_question(message: str, *, everyday: bool = False) -> bool:
     value = normalize_text(message)
     return bool(
@@ -1303,6 +1353,11 @@ def create_app(
             and not conversation.candidates
             and is_confirmation(body.message)
         )
+        pending_dispute_correction = bool(
+            app.state.runtime.system == "P"
+            and conversation.proposal is not None
+            and _dispute_target_correction(body.message)
+        )
         if conversation.proposal is not None:
             if is_confirmation(body.message):
                 raise HTTPException(status_code=409, detail="Use the action confirmation control")
@@ -1468,13 +1523,17 @@ def create_app(
             )
             if not nlu.degraded:
                 frame = nlu.frame
+                correcting_dispute = pending_dispute_correction and frame.intent in {
+                    Intent.CHARGE_INQUIRY,
+                    Intent.DISPUTE_CHARGE,
+                }
                 if (
                     (conversation.candidates or conversation.rounds)
                     and has_details(nlu.slots)
-                    and (
-                        not grounded_details(nlu, body.message, trusted_country(principal))
-                        or uncertain_selection(body.message)
-                    )
+                    or correcting_dispute
+                ) and (
+                    not grounded_details(nlu, body.message, trusted_country(principal))
+                    or uncertain_selection(body.message)
                 ):
                     # Reject before merging: an invented or uncertain detail must
                     # not influence this selection or a later correction.
@@ -1490,6 +1549,11 @@ def create_app(
                             "Preciso de um valor ou de uma data que você tenha certeza para escolher a cobrança. Qual dado deseja corrigir?",
                         ),
                     }
+                if correcting_dispute:
+                    # The customer corrected a pending action's target. Rebuild
+                    # the proposal from owned facts and policy; its old hash and
+                    # any textual assent still cannot authorize the new action.
+                    frame = frame.model_copy(update={"intent": Intent.DISPUTE_CHARGE})
                 previous = conversation.slots.model_dump() if conversation.slots else {}
                 previous_merchant = conversation.slots.merchant_expr if conversation.slots else None
                 if not previous_merchant and conversation.selected_handle:
@@ -1575,6 +1639,30 @@ def create_app(
             if handle:
                 conversation.proposal = None
                 return safe_failure(principal, language, "database_timeout")
+        if (
+            app.state.runtime.system == "P"
+            and conversation.candidates
+            and nlu is None
+            and (contextual or _candidate_recognition(body.message))
+        ):
+            current = dict(ledger.for_customer(principal.customer_id, active_settings.bank_clock))
+            available = [(h, current[h]) for h, _ in conversation.candidates if h in current]
+            if not available:
+                return safe_failure(principal, language, "database_timeout")
+            conversation.candidates = available
+            if _candidate_recognition(body.message):
+                conversation.unfamiliar_charge = False
+                conversation.intent = Intent.CHARGE_INQUIRY
+            return {
+                "response_type": "choose_transaction",
+                "outcome": "choose_transaction",
+                "reply": _localized(
+                    language,
+                    "Aún no identificamos el cargo. Elige uno de la lista para revisar su estado.",
+                    "Ainda não identificamos a cobrança. Escolha uma da lista para consultar seu status.",
+                ),
+                "candidates": [_masked_transaction(h, row) for h, row in available[:3]],
+            }
         if (
             app.state.runtime.system == "P"
             and frame.intent == Intent.OUT_OF_SCOPE

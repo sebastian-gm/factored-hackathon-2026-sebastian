@@ -154,6 +154,12 @@ uses explicit v3 assumptions and claims no realized savings.
 
 ## Judge guide — 5 minutes
 
+For a first charge explanation, use **Entender un cargo / Entender cobrança**.
+Quick-start reads your selected profile's visible purchases and prepares a question
+with the merchant, exact amount, currency and date, preferring a pending purchase.
+You edit and send it yourself. If no complete purchase is available, a clear
+notice accompanies a generic question asking for identifying details.
+
 Sign in with the supplied password and simulated SMS OTP, pick a judge profile,
 then open **Prueba esto / Experimente** in Customer Chat. Each button fills the
 composer: edit the draft and press Send yourself. Start with rows 1–2, then try

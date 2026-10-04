@@ -34,17 +34,12 @@ import { date } from "@/lib/format";
 import { es, pt } from "@/lib/messages";
 import { Button } from "./ui/button";
 import { Login } from "./login";
-import { CustomerChat } from "./customer-chat";
+import { StoryChat } from "./story-chat";
 import { AgentDesk } from "./agent-desk";
 import { StaffInvitation } from "./staff-realm-access";
 import { JudgeStaffDesk } from "./judge-staff-desk";
 import { RecordingHelper } from "./recording-helper";
-import {
-  storyPersona,
-  storyDraft,
-  storyProfile,
-  type DemoStory,
-} from "@/lib/demo-stories";
+import { storyPersona, storyProfile, type DemoStory } from "@/lib/demo-stories";
 import { Ops } from "./ops";
 import { JudgeQuickstart } from "./judge-quickstart";
 import { Insights } from "./insights";
@@ -823,22 +818,17 @@ function Shell({
                 </div>
               ) : workspaceSurface === "chat" ? (
                 <div className="customer-grid">
-                  <CustomerChat
+                  <StoryChat
                     key={`${session.username}:${workspaceRevision}:${profileFlow ? (preparedStory?.id ?? "") : ""}`}
                     onPendingChange={setChatLocked}
-                    initialDraft={
+                    story={
                       story &&
                       (profileFlow ||
                         session.username ===
                           storyPersona(config, story, session?.username)
                             ?.username)
-                        ? storyDraft(
-                            profileFlow
-                              ? { ...config, fixtures: false }
-                              : config,
-                            story,
-                          )
-                        : ""
+                        ? story
+                        : null
                     }
                   />
                 </div>

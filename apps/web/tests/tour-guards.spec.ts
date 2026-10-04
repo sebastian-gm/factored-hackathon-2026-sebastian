@@ -6,7 +6,7 @@ import path from "node:path";
 import { reserveLiveTurn } from "./helpers/judge-tour";
 import { installPaidBudgetGuard } from "./helpers/tour-budget";
 
-const keys = ["JUDGE_TOUR_PAID", "JUDGE_TOUR_MAX_TURNS", "JUDGE_TOUR_TURN_LEDGER", "JUDGE_TOUR_BUDGET_ADAPTER", "JUDGE_TOUR_BUDGET_SCOPE"] as const;
+const keys = ["JUDGE_TOUR_PAID", "JUDGE_TOUR_MAX_TURNS", "JUDGE_TOUR_TURN_LEDGER", "JUDGE_TOUR_BUDGET_ADAPTER", "JUDGE_TOUR_BUDGET_SCOPE", "JUDGE_TOUR_RESERVE_ALL_HTTP", "JUDGE_TOUR_URL"] as const;
 let original: (string | undefined)[];
 let folder: string;
 let server: Server | undefined;
@@ -19,6 +19,8 @@ test.beforeEach(() => {
   process.env.JUDGE_TOUR_PAID = "1";
   process.env.JUDGE_TOUR_MAX_TURNS = "2";
   process.env.JUDGE_TOUR_BUDGET_SCOPE = `authored.${path.basename(folder)}`;
+  delete process.env.JUDGE_TOUR_RESERVE_ALL_HTTP;
+  delete process.env.JUDGE_TOUR_URL;
 });
 test.afterEach(async () => {
   if (server) await new Promise<void>((resolve) => server!.close(() => resolve()));
@@ -33,7 +35,7 @@ test("live turn guard requires opt-in and a finite bounded cap", () => {
   process.env.JUDGE_TOUR_PAID = "0";
   expect(() => reserveLiveTurn()).toThrow();
   process.env.JUDGE_TOUR_PAID = "1";
-  for (const value of ["0", "41", "NaN", "Infinity", "1.5"]) {
+  for (const value of ["0", "113", "NaN", "Infinity", "1.5"]) {
     process.env.JUDGE_TOUR_MAX_TURNS = value;
     expect(() => reserveLiveTurn()).toThrow();
   }
@@ -99,4 +101,15 @@ test("unknown operator receipts retain reserves and stop later paid requests", a
   expect(() => healthy()).toThrow();
   expect(readFileSync(calls, "utf8")).toBe("reserve\nsent\nsettle\nhalt\n");
   await expect(installPaidBudgetGuard(page)).rejects.toThrow();
+});
+
+test("all-HTTP guard reserves deterministic reads without consuming paid turn attempts", async ({ page }) => {
+  const calls = operatorAdapter();
+  await operatorPage(page, calls);
+  process.env.JUDGE_TOUR_RESERVE_ALL_HTTP = "1";
+  const healthy = await installPaidBudgetGuard(page);
+  expect(await page.evaluate(() => fetch("/authored-read").then((r) => r.status))).toBe(200);
+  healthy();
+  expect(readFileSync(calls, "utf8")).toBe("reserve\nsettle\n");
+  expect(() => readFileSync(process.env.JUDGE_TOUR_TURN_LEDGER!, "utf8")).toThrow();
 });

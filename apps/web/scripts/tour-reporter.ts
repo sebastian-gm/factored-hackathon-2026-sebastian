@@ -17,7 +17,7 @@ export default class TourReporter implements Reporter {
       check: test.title,
       status: result.status,
       duration_ms: result.duration,
-      not_verified: test.annotations.filter((a) => a.type === "limitation" || a.type === "skip").map((a) => a.description ?? a.type),
+      not_verified: test.annotations.filter((a) => ["limitation", "skip", "unverified", "simulated"].includes(a.type)).map((a) => a.description ?? a.type),
       ...(result.error?.location ? { line: result.error.location.line } : {}),
     });
   }

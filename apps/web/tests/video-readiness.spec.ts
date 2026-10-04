@@ -60,6 +60,9 @@ async function bootstrap(
   await page.route("**/api/bff/chat/sessions", (r) =>
     r.fulfill({ json: { conversation_id: "CONV-UI-VIDEO" } }),
   );
+  await page.route("**/api/bff/transactions", (r) =>
+    r.fulfill({ json: [offerFixture(pt).transaction] }),
+  );
   await page.goto("/?grabar=1");
   await expect(
     page.locator(signedIn ? ".composer" : ".login-panel"),
@@ -155,7 +158,7 @@ for (const pt of [false, true]) {
       expect(posts).toBe(0); // No login, OTP, message, confirmation or reset.
       await audit(page);
     });
-    test(`${prefix}: authenticated hinted Ops persona only prepares a neutral draft`, async ({
+    test(`${prefix}: authenticated hinted Ops persona only prepares its visible charge draft`, async ({
       page,
     }) => {
       await page.setViewportSize({ width, height: width === 390 ? 844 : 1000 });
@@ -170,8 +173,8 @@ for (const pt of [false, true]) {
         .click();
       await expect(page.locator(".composer textarea")).toHaveValue(
         pt
-          ? "Quero entender uma cobrança no meu cartão. Quais compras posso revisar?"
-          : "Quiero entender un cargo en mi tarjeta.",
+          ? "O que é a cobrança de Papelaria Prisma por 64.25 USD em 2026-06-12?"
+          : "¿Qué es el cargo de Papelería Prisma por 64.25 USD del 2026-06-12?",
       );
       await expect(page.locator("input[type=password]")).toHaveCount(0);
       await expect(page.getByRole("dialog")).toHaveCount(0);

@@ -1,4 +1,6 @@
 export const es = {
+  storyLedgerUnavailable:
+    "No encontramos una compra con datos completos para preparar el mensaje. Puedes escribir tu consulta.",
   judgeOwnQueueOpen: "Abrir la cola de esta visita",
   judgeOwnQueueBody:
     "Abre las solicitudes enmascaradas de tu visita sin otro acceso. Puedes revisar y tomar una solicitud; no resolverla. Para compartirla con atención externa, crea una invitación y usa su acceso independiente.",
@@ -504,6 +506,8 @@ export const es = {
     "Esta vista estará disponible cuando el servicio publique su contrato de agente y operaciones. La conversación de cliente ya está conectada.",
 };
 export const pt: typeof es = {
+  storyLedgerUnavailable:
+    "Não encontramos uma compra com dados completos para preparar a mensagem. Você pode escrever sua consulta.",
   judgeOwnQueueOpen: "Abrir a fila desta visita",
   judgeOwnQueueBody:
     "Abra as solicitações mascaradas da sua visita sem outro acesso. Você pode revisar e assumir uma solicitação, mas não resolvê-la. Para compartilhar com atendimento externo, crie um convite e use o acesso independente da equipe.",

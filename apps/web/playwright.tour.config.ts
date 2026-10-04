@@ -5,6 +5,9 @@ process.env.PLAYWRIGHT_NO_COPY_PROMPT = "1";
 
 // External stack only: never start a fixture server or reuse ordinary test config.
 const mode = process.env.JUDGE_TOUR_MODE;
+const network = process.env.JUDGE_TOUR_NETWORK ?? (process.env.GITHUB_ACTIONS === "true" ? "github-runner" : "owner-workstation");
+if (!["owner-workstation", "github-runner"].includes(network) || network !== (process.env.GITHUB_ACTIONS === "true" ? "github-runner" : "owner-workstation"))
+  throw new Error("Tour network must match the execution environment.");
 const url = new URL(process.env.JUDGE_TOUR_URL ?? "http://localhost");
 if (
   !["demo", "live"].includes(mode ?? "") ||
@@ -24,9 +27,10 @@ export default defineConfig({
   fullyParallel: false,
   workers: 1,
   retries: 0,
+  maxFailures: mode === "live" && process.env.JUDGE_TOUR_PAID === "1" ? 1 : 0,
   timeout: 180000,
   expect: { timeout: 30000 },
-  outputDir: `../../artifacts/ux-audit/go-live/${mode}/test-results`,
+  outputDir: `../../artifacts/ux-audit/go-live/${mode}${mode === "live" ? `/${network}` : ""}/test-results`,
   reporter: "./scripts/tour-reporter.ts",
   use: {
     baseURL: url.origin,

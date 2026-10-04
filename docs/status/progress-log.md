@@ -6,6 +6,8 @@ Current release: [v0.9.2 verified release](../submission/v0.9.2-release-evidence
 
 Latest AI human review: [October 3 post-hoc agreement](../evaluation/judge-human-validation.md).
 
+Latest live AI evidence: [partial v0.9.1 judge exploration](../evaluation/judge-live-exploration-v0.9.1.md).
+
 <details>
 <summary>Compatibility excerpt for existing chart tools</summary>
 
@@ -29,5 +31,11 @@ AI reply-language evidence: [mock language and choice audit](../evaluation/judge
 Public-only publication completed at v0.9.0; v1.0.0 and email remain pending.
 The [folded lane records](../history/status/progress-log.md#2026-10-04-public-only-publication-and-held-batch-records)
 preserve author-time checks and holds. The combined v0.9.1 release, reset and live-lane signal are verified in the
-[latest progress entry](../history/status/progress-log.md#2026-10-04-v091-release-verified-and-live-lane-signal).
+[v0.9.1 progress entry](../history/status/progress-log.md#2026-10-04-v091-release-verified-and-live-lane-signal).
 Historical AI baseline: [October 3 mock judge exploration](../evaluation/judge-multi-turn-exploration.md).
+
+Latest AI controls: [live exploration verification](progress.d/2026-10-04-ai-live-controls.md).
+Latest AI choice follow-ups: [mock context regressions](progress.d/2026-10-04-ai-pending-candidate-followups.md).
+
+Current candidate: [v0.9.3 reviewed judge-story integration](progress.d/2026-10-04-v093-review.md).
+Release verification is pending; the deployed release remains v0.9.2.
