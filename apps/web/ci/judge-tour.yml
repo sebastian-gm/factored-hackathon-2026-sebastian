@@ -1,0 +1,67 @@
+# Lead-owned installation: copy to .github/workflows/judge-tour.yml after review.
+# Independent network; default is read-only. Paid dispatch requires the lead's scope.
+name: judge-browser-tour
+on:
+  workflow_dispatch:
+    inputs:
+      release_sha:
+        description: Deployed full release SHA
+        required: true
+      paid_project:
+        description: One paid project, only after the lead binds the shared $0.20 scope
+        type: choice
+        default: none
+        options: [none, es-desktop, es-phone, pt-desktop, pt-phone]
+      max_turns:
+        description: Attempt cap inside the remaining lead-approved scope
+        default: "0"
+        required: true
+permissions:
+  contents: read
+concurrency:
+  group: judge-browser-tour
+  cancel-in-progress: false
+jobs:
+  independent-network:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: "22"
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+        working-directory: apps/web
+      - run: pnpm exec playwright install --with-deps chromium
+        working-directory: apps/web
+      - name: Stage lead-reviewed private operator adapter
+        if: inputs.paid_project != 'none'
+        working-directory: apps/web
+        env:
+          OPERATOR_ADAPTER_SOURCE: ${{ secrets.JUDGE_TOUR_BUDGET_ADAPTER_SOURCE }}
+        run: |
+          node --input-type=module <<'NODE'
+          import { mkdirSync, writeFileSync } from 'node:fs';
+          const source = process.env.OPERATOR_ADAPTER_SOURCE;
+          if (!source) throw new Error('Lead-reviewed operator adapter required');
+          mkdirSync('../../artifacts/ux-audit/go-live/operator', {recursive:true, mode:0o700});
+          writeFileSync('../../artifacts/ux-audit/go-live/operator/adapter.mjs', source, {mode:0o600});
+          NODE
+      - name: ES/PT desktop and phone judge tour
+        working-directory: apps/web
+        env:
+          JUDGE_TOUR_URL: ${{ vars.AZURE_WEB_URL }}
+          JUDGE_TOUR_RELEASE_SHA: ${{ inputs.release_sha }}
+          JUDGE_TOUR_USERNAME: ${{ secrets.JUDGE_TOUR_USERNAME }}
+          JUDGE_TOUR_PASSWORD: ${{ secrets.JUDGE_TOUR_PASSWORD }}
+          JUDGE_TOUR_STAFF_USERNAME: ${{ secrets.JUDGE_TOUR_STAFF_USERNAME }}
+          JUDGE_TOUR_STAFF_PASSWORD: ${{ secrets.JUDGE_TOUR_STAFF_PASSWORD }}
+          JUDGE_TOUR_PAID: ${{ inputs.paid_project != 'none' && '1' || '0' }}
+          JUDGE_TOUR_PAID_PROJECT: ${{ inputs.paid_project }}
+          JUDGE_TOUR_MAX_TURNS: ${{ inputs.max_turns }}
+          JUDGE_TOUR_BUDGET_SCOPE: ${{ secrets.JUDGE_TOUR_BUDGET_SCOPE }}
+          JUDGE_TOUR_BUDGET_ADAPTER: artifacts/ux-audit/go-live/operator/adapter.mjs
+        run: node scripts/judge-tour.mjs live
+      # No screenshot, trace, DOM, or row-level artifacts are uploaded to CI.
+      # The custom reporter prints only static check names, counts and durations.
