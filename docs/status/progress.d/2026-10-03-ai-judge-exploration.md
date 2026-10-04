@@ -10,7 +10,7 @@
 ## Done but not verified
 
 - Remote CI pending. Live model/judge-browser coherence untested; remaining UX findings are open.
-- Item 6 is complete in held PR #159. Its first web gate failed the existing phone-choice viewport check (170/171 passed); unchanged-head rerun is pending. Original failure retained.
+- Item 6 is complete in held PR #159, with all four remote gates green after the unchanged-head web rerun. Its first web gate failed the existing phone-choice viewport check (170/171 passed); original failure retained.
 
 ## Next / blocked
 

@@ -41,7 +41,7 @@ These are synthetic fixture IDs. “Met” means all authored checks passed, inc
 | JE-27 | ES | Met | ES to PT to ES switch preserves the explicit charge. |
 | JE-28 | PT | Not met (turn 2) | Safe matcher choice blocks the new action; later status/language cannot complete. |
 | JE-29 | ES | Met | Overlong input rejects; typos/emoji recover; text yes never files; button receipt verifies. |
-| JE-30 | PT | Not met (turn 3) | Long input rejects and injection refuses; courtesy creates a terminal transfer. |
+| JE-30 | PT | Not met (turn 3) | Long valid input accepts and injection refuses; isolated “sim” creates a terminal transfer. |
 
 ## Five weaknesses a judge would notice
 
