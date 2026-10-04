@@ -232,6 +232,36 @@ def _informational_followup(message: str) -> bool:
     )
 
 
+def _dispute_target_correction(message: str) -> bool:
+    """A positive correction may continue a pending dispute, never a new read."""
+    value = normalize_text(message)
+    correction = re.search(
+        r"(?:^|[.!?;]\s*)(?:me equivoque de (?:cargo|compra)|"
+        r"me enganei (?:na|de) (?:cobranca|compra))\b",
+        value,
+    )
+    read_request = re.search(
+        r"\b(?:quiero|quero)\s+(?:(?:solo|so|apenas)\s+)?"
+        r"(?:consultar|revisar|entender|saber|ver)\b|"
+        r"\b(?:explicame|expliqueme|explique|puedes explicar|pode explicar)\b|"
+        r"\b(?:cual es el estado|qual e o status|qual e o andamento|por que)\b",
+        value,
+    )
+    recognized = re.search(
+        r"(?:^|[.!?;,]\s*|\b(?:ahora|agora|ya|ja)\s+)"
+        r"(?:(?:si|sim)[, ]+)?(?:(?:la|lo|a|o)\s+)?(?:reconozco|reconheco)\b",
+        value,
+    )
+    return bool(
+        correction
+        and not read_request
+        and not re.search(r"[¿?]", value)
+        and not recognized
+        and not declines_dispute(message)
+        and not re.search(r"\b(?:cancelar|cancela|cancele)\b", value)
+    )
+
+
 def _case_question(message: str, *, everyday: bool = False) -> bool:
     value = normalize_text(message)
     return bool(
@@ -1303,6 +1333,11 @@ def create_app(
             and not conversation.candidates
             and is_confirmation(body.message)
         )
+        pending_dispute_correction = bool(
+            app.state.runtime.system == "P"
+            and conversation.proposal is not None
+            and _dispute_target_correction(body.message)
+        )
         if conversation.proposal is not None:
             if is_confirmation(body.message):
                 raise HTTPException(status_code=409, detail="Use the action confirmation control")
@@ -1468,13 +1503,17 @@ def create_app(
             )
             if not nlu.degraded:
                 frame = nlu.frame
+                correcting_dispute = pending_dispute_correction and frame.intent in {
+                    Intent.CHARGE_INQUIRY,
+                    Intent.DISPUTE_CHARGE,
+                }
                 if (
                     (conversation.candidates or conversation.rounds)
                     and has_details(nlu.slots)
-                    and (
-                        not grounded_details(nlu, body.message, trusted_country(principal))
-                        or uncertain_selection(body.message)
-                    )
+                    or correcting_dispute
+                ) and (
+                    not grounded_details(nlu, body.message, trusted_country(principal))
+                    or uncertain_selection(body.message)
                 ):
                     # Reject before merging: an invented or uncertain detail must
                     # not influence this selection or a later correction.
@@ -1490,6 +1529,11 @@ def create_app(
                             "Preciso de um valor ou de uma data que você tenha certeza para escolher a cobrança. Qual dado deseja corrigir?",
                         ),
                     }
+                if correcting_dispute:
+                    # The customer corrected a pending action's target. Rebuild
+                    # the proposal from owned facts and policy; its old hash and
+                    # any textual assent still cannot authorize the new action.
+                    frame = frame.model_copy(update={"intent": Intent.DISPUTE_CHARGE})
                 previous = conversation.slots.model_dump() if conversation.slots else {}
                 previous_merchant = conversation.slots.merchant_expr if conversation.slots else None
                 if not previous_merchant and conversation.selected_handle:
