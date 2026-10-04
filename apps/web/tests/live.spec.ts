@@ -333,9 +333,30 @@ test("recording helper uses optional bank persona binding and never auto-sends",
     .getByRole("textbox", { name: "Código de 6 dígitos" })
     .fill((await sms.textContent())!);
   await page.getByRole("button", { name: "Verificar y entrar" }).click();
-  await expect(page.getByRole("textbox", { name: "Tu mensaje" })).toHaveValue(
-    "Quiero entender un cargo en mi tarjeta.",
-  );
+  const composer = page.getByRole("textbox", { name: "Tu mensaje" });
+  await expect(composer).toHaveValue(/^¿Qué es el cargo de /);
+  const visible = await page.evaluate(async () => {
+    const response = await fetch("/api/bff/transactions");
+    if (!response.ok) throw new Error("Fixture ledger read failed");
+    return response.json() as Promise<
+      {
+        merchant: string | null;
+        amount: number;
+        currency: string;
+        transaction_date: string;
+      }[]
+    >;
+  });
+  const draft = await composer.inputValue();
+  expect(
+    visible.some(
+      (transaction) =>
+        !!transaction.merchant &&
+        draft.includes(transaction.merchant) &&
+        draft.includes(`${transaction.amount} ${transaction.currency}`) &&
+        draft.includes(transaction.transaction_date.slice(0, 10)),
+    ),
+  ).toBe(true);
   await expect(
     page.getByRole("heading", { name: "Tu caso está registrado" }),
   ).toHaveCount(0);
