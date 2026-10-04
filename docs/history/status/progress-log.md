@@ -6175,3 +6175,57 @@ docs PRs are already on main; the finished held-batch work is being integrated.
 - AI/frontend run their approved live checks in the existing distinct scopes;
   report any judge blockers before the owner records the video. No further Lead
   paid calls or reset is implied. v1.0.0/email await Sebastian's final approval.
+
+## 2026-10-04 v0.9.2 judge own-visit staff queue released
+
+### Completed (verified)
+
+- Folded the [lead fragment](../../status/progress.d/2026-10-04-judge-own-visit-staff.md).
+  The v0.9.1 gap was confirmed: judge redemption required a second Agent/Ops
+  sign-in. Reviewed PR #178 adds controller-bound queue-only self-redemption,
+  using the existing judge password/OTP visit. No new credential or bank scope.
+- Security tests cover ES/PT, cross-visit and owner invitation denial, valid
+  profile switching/restart, revocation and cached claims. Review found a
+  profile-switch race; revalidation inside the controller lock now denies it
+  before invitation consumption. No threshold or model prompt changes.
+- `pytest --tb=short`: **1,773 passed / 43 skipped**;
+  `scripts.test_postgres`: **124 passed**, disposable non-owner FORCE RLS;
+  B1 original/reactive: **32/32 each**. Ruff, strict mypy, interfaces, catalog,
+  compile and pre-commit passed. Remote browser CI: **217 checks**.
+- Deployed/annotated/tagged **v0.9.2** at
+  `f9d1796ddd661883c131359c1881bea67f9a0c49`; main CI/safety
+  **37198199416 / 37198199250** and independent authenticated access
+  **37200217827** succeeded. Tag and public Release readbacks verified.
+- Image-only plan/apply changed two existing apps' images/release metadata;
+  ready revisions, temporal/RLS/queue privileges and unchanged Gate A/B settings
+  verified. No reload, reset, rebinding, access, scaling or budget-policy change.
+- Real explanation plus ES/PT masked queue/claim, profile switching, unchanged
+  customer scope, cross-visit and logout checks passed. Four-profile scoped
+  ledger readback passed. Azure browser: **2 claims / 13 stages**, both languages,
+  independent committed handoff readbacks, **0 model calls**.
+- Actual smoke **$0.0038790** includes the first operator-stop call. Original
+  journals/hashes retained. Browser passed but its private verifier expected a
+  field absent before independent readback; recovered from exact scoped
+  auxiliary records without replay. Terminal **$0.01 reserve remains retained**.
+- Existing `release/v0.9.1/lead / v0.9.1` cap **$0.10**: charged/exposed
+  **$0.02150300**, remaining **$0.07849700**. Conservative maximum including all
+  reserves and unused approved caps **$14.91264898 <= $15**. At 12:00 UTC,
+  provider account **$8.750743454**, key remaining **$4.8945085**; no key printed.
+- Live frontend signal: judge login/OTP → profile → human request → Agent Desk
+  → **Abrir la cola de esta visita / Abrir a fila desta visita** → claim/readback.
+  Existing ignored/untracked 0600 credential path is unchanged. Three release
+  receipt flags true; [full evidence](../../submission/v0.9.2-release-evidence.md).
+
+### Done but not verified
+
+- Full frontend exploration, accessibility, cold start and burst scale-out are
+  not established by this bounded smoke. Official v4, including **0/30** flips,
+  remains unchanged; no held-out rerun or improvement claim.
+- The subsequent evidence PR changes documentation only; its main SHA is not
+  the deployed image/tag SHA and needs no Azure release.
+
+### Next / blocked
+
+- Lanes may rehearse within their existing approved scopes; no new paid run or
+  reset is implied. Owner video is the next milestone. v1.0.0 and submission
+  email still require Sebastian's explicit approval.
