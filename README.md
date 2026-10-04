@@ -59,8 +59,9 @@ Screenshots stay private under ignored `artifacts/ux-audit/go-live/`.
 [![ci](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/actions/workflows/ci.yml/badge.svg)](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/actions/workflows/ci.yml)
 
 This is Sebastian's Factored Hackathon 2026 submission repository, renamed from
-`bank-agent-lab` with its original PR and evaluation history retained. It remains
-private until submission-day approval. [Changelog](CHANGELOG.md).
+`bank-agent-lab` with its original PR and evaluation history retained. It is
+public following Sebastian's October 4 approval. [Changelog](CHANGELOG.md);
+[verified v0.9.1 release](docs/submission/v0.9.1-release-evidence.md).
 
 Aclara helps a signed-in customer understand an unfamiliar charge, confirm an
 eligible dispute, or reach a human with verified context, in **Spanish and
