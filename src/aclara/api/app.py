@@ -232,6 +232,18 @@ def _informational_followup(message: str) -> bool:
     )
 
 
+def _candidate_recognition(message: str) -> bool:
+    """Recognition can end unfamiliarity without identifying one pending choice."""
+    value = normalize_text(message).strip(" .,!¿?¡")
+    return recognizes_charge(message) or bool(
+        re.fullmatch(
+            r"(?:ah[, ]+)?(?:si[, ]+)?(?:(?:la|lo) )?reconozco(?:[.! ]+fui yo)?|"
+            r"(?:ah[, ]+)?(?:sim[, ]+)?(?:eu )?reconheco(?:[.! ]+fui eu)?",
+            value,
+        )
+    )
+
+
 def _dispute_target_correction(message: str) -> bool:
     """A positive correction may continue a pending dispute, never a new read."""
     value = normalize_text(message)
@@ -1623,6 +1635,30 @@ def create_app(
             if handle:
                 conversation.proposal = None
                 return safe_failure(principal, language, "database_timeout")
+        if (
+            app.state.runtime.system == "P"
+            and conversation.candidates
+            and nlu is None
+            and (contextual or _candidate_recognition(body.message))
+        ):
+            current = dict(ledger.for_customer(principal.customer_id, active_settings.bank_clock))
+            available = [(h, current[h]) for h, _ in conversation.candidates if h in current]
+            if not available:
+                return safe_failure(principal, language, "database_timeout")
+            conversation.candidates = available
+            if _candidate_recognition(body.message):
+                conversation.unfamiliar_charge = False
+                conversation.intent = Intent.CHARGE_INQUIRY
+            return {
+                "response_type": "choose_transaction",
+                "outcome": "choose_transaction",
+                "reply": _localized(
+                    language,
+                    "Aún no identificamos el cargo. Elige uno de la lista para revisar su estado.",
+                    "Ainda não identificamos a cobrança. Escolha uma da lista para consultar seu status.",
+                ),
+                "candidates": [_masked_transaction(h, row) for h, row in available[:3]],
+            }
         if (
             app.state.runtime.system == "P"
             and frame.intent == Intent.OUT_OF_SCOPE
