@@ -61,7 +61,7 @@ Screenshots stay private under ignored `artifacts/ux-audit/go-live/`.
 This is Sebastian's Factored Hackathon 2026 submission repository, renamed from
 `bank-agent-lab` with its original PR and evaluation history retained. It is
 public following Sebastian's October 4 approval. [Changelog](CHANGELOG.md);
-[verified v0.9.1 release](docs/submission/v0.9.1-release-evidence.md).
+[verified v0.9.2 release](docs/submission/v0.9.2-release-evidence.md).
 
 Aclara helps a signed-in customer understand an unfamiliar charge, confirm an
 eligible dispute, or reach a human with verified context, in **Spanish and
@@ -71,8 +71,9 @@ records, rules and readbacks. This is a **synthetic-bank demo**.
 **Try the restricted demo at the owner-supplied web link:**
 use owner-supplied credentials and the simulated SMS OTP, then pick a guided
 story. Access is owner-approved; passwords stay outside Git. The new
-[judge profile picker](docs/api/judge-profile-entry.md) stays behind the OFF
-judge-access flag until owner activation. [Access checklist](docs/submission/checklist.md).
+[judge profile picker](docs/api/judge-profile-entry.md) is enabled on the
+owner-approved Azure release; local judge access defaults to OFF.
+[Access checklist](docs/submission/checklist.md).
 
 <a id="final-v4-evidence--2026-10-01"></a>
 
@@ -187,8 +188,8 @@ External staff still signs in independently: create a temporary invitation in th
 customer's Desk tab and connect it in a separate browser profile/private window.
 Keep the customer's session open. The invitation is single-use and expires within
 five minutes; never paste it into chat.
-The judge login/profile mode remains behind owner activation; this guide does not
-enable it. [Conversation contract](contracts/interfaces/conversation-policy-v3.md).
+The owner activated judge mode on Azure; other environments still require
+explicit activation. [Conversation contract](contracts/interfaces/conversation-policy-v3.md).
 
 Current main selects **Gemini 3 Flash** for language/risk cues, **Grok 4.20**
 only after Gemini failure, and matcher v2 for scoped ranking. Identity, policy,

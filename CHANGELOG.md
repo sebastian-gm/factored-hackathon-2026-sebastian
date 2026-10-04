@@ -14,6 +14,21 @@ certification. The v0.1.0–v0.5.0 annotated tags and GitHub Releases were creat
 - Every change now uses a feature branch and PR; every Azure release gets a tag.
 - `v1.0.0` is reserved for the exact submission-day Azure release SHA.
 
+## [0.9.2] — 2026-10-04, judge own-visit staff queue (post-v4)
+
+- One judge password/OTP visit can open its masked queue and claim handoffs
+  directly in Agent Desk; no second staff credential is needed.
+- Queue-only delegation preserves customer/role scope; other visits and owner
+  invitations are denied. Profile switching/restart preserves membership;
+  logout, expiry, judge OFF and credential/config/binding rotation revoke it.
+- Auth revalidation under the controller lock prevents a profile-switch race
+  from consuming an invitation. Normal external staff flow is preserved.
+- Deployed/tagged `f9d1796ddd661883c131359c1881bea67f9a0c49`; exact-SHA
+  CI/safety/access and live ES/PT queue/claim/browser checks passed.
+- Smoke $0.003879; browser $0 with a $0.01 verifier-stop reserve retained.
+  Image-only release; official v4 results remain unchanged.
+- [Verified evidence, commands and operator disclosures](docs/submission/v0.9.2-release-evidence.md).
+
 ## [0.9.1] — 2026-10-04, judge conversation and tour (post-v4)
 
 - Scoped latest-case status and verified readbacks; contextual follow-ups,

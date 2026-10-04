@@ -2,7 +2,7 @@
 
 Read the [complete archived record](../history/status/progress-log.md).
 The [final evaluation (v4)](../evaluation/final-v4-results.md) remains unchanged.
-Current release: [v0.9.1 verified release](../submission/v0.9.1-release-evidence.md).
+Current release: [v0.9.2 verified release](../submission/v0.9.2-release-evidence.md).
 
 Latest AI human review: [October 3 post-hoc agreement](../evaluation/judge-human-validation.md).
 
