@@ -6098,7 +6098,7 @@ docs PRs are already on main; the finished held-batch work is being integrated.
 - First full combined fixture browser pass: **184/185**; the sole failure caught
   uncommitted aggregate-source documentation during concurrent source export.
   Sources were committed and Insights provenance regenerated; official numeric
-  payloads are unchanged. Focused post-commit checks and final remote CI follow.
+  payloads are unchanged. Focused post-commit ES/PT phone and aggregate snapshot checks passed **3/3**; final remote CI follows.
 - `pre-commit run --all-files` passed; Gitleaks 8.30.1 on the reviewed
   post-publication commit range exited **0 / zero findings** using the audited
   default-rule publication config. Private logs remain ignored.
@@ -6107,6 +6107,12 @@ docs PRs are already on main; the finished held-batch work is being integrated.
   scope `go-live/2026-10-03/lead`, run `2026-10-03`, has **$0.05841450** left;
   AI/frontend scopes retain **$0.30/$0.20**. Production remains **$1/UTC day** and
   `judging-2026-10` lifetime **$1.60**. No new purse or counter reset.
+
+- Owner approved a fresh **$0.10** `release/v0.9.1/lead` purse, funded by
+  closing the unused v0.9.0 production release run and old lead run; all charges
+  and unknown reserves remain. Planned conservative maximum **$14.91264898 /
+  $15**. The configured NLU retry/fallback ceiling exceeds the old lead remainder;
+  no under-sized reserve or paid call was used to bypass it.
 
 ### Done but not verified
 
