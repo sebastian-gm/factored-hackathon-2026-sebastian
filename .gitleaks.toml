@@ -40,3 +40,13 @@ condition = "AND"
 paths = ['(?:^|/)apps/web/fixtures/live-story-evidence\.json$']
 regexTarget = "line"
 regexes = ["^\\s*\"api_release_sha\": \"c32fd6429281a764ee33dd96622f237c7c0289c3\",?\\s*$"]
+
+[[rules.allowlists]]
+description = "Exact audited v0.9.1 auth source hashes used by the receipt verifier"
+condition = "AND"
+paths = ['(?:^|/)docs/evaluation/live_exploration_controls\.py$']
+regexTarget = "secret"
+regexes = [
+  '^411f14672ed19d55682dd5311fc4a7281b26ff68cad3a13bac1d7bd8f3a83be1$',
+  '^8ecde7737cec64202bfb1e6871026f43811214d8d0dd24f52e55eb5b23b824ac$',
+]

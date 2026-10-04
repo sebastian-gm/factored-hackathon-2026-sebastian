@@ -36,3 +36,6 @@ Historical AI baseline: [October 3 mock judge exploration](../evaluation/judge-m
 
 Latest AI controls: [live exploration verification](progress.d/2026-10-04-ai-live-controls.md).
 Latest AI choice follow-ups: [mock context regressions](progress.d/2026-10-04-ai-pending-candidate-followups.md).
+
+Current candidate: [v0.9.3 reviewed judge-story integration](progress.d/2026-10-04-v093-review.md).
+Release verification is pending; the deployed release remains v0.9.2.

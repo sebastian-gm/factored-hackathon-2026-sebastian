@@ -6229,3 +6229,33 @@ docs PRs are already on main; the finished held-batch work is being integrated.
 - Lanes may rehearse within their existing approved scopes; no new paid run or
   reset is implied. Owner video is the next milestone. v1.0.0 and submission
   email still require Sebastian's explicit approval.
+
+## 2026-10-04 — v0.9.3 reviewed integration candidate
+
+### Completed (verified)
+
+- Folded the [lead review](../../status/progress.d/2026-10-04-v093-review.md),
+  [AI candidate follow-ups](../../status/progress.d/2026-10-04-ai-pending-candidate-followups.md)
+  and [profile-ledger draft record](../../status/progress.d/2026-10-04-fix-profile-ledger-quickstart.md).
+  Earlier lane pending labels preserve author-time state.
+- Priority #186 reviewed first: scoped purchases, stale-response rejection,
+  editable drafts, no automatic send/action; pending preference grants no
+  dispute eligibility. #179–#183 and #185 preserve reviewed head history.
+- Corrected remaining authored unpunctuated read-question regressions during
+  target correction. No prompt/threshold/authority changes.
+- Combined mock Python **1,896 passed / 43 skipped**, disposable Postgres
+  **124 passed**, original/reactive B1 **32/32 each**, browser **242 passed**.
+  Typecheck, lint, build, interfaces, policy catalog, Ruff and strict mypy passed.
+- Gitleaks range clean after exact hash-only allowances. Existing purse and
+  retained reserves preserved; conservative maximum **$14.91264898 / $15**.
+
+### Done but not verified
+
+- Aggregate remote CI and v0.9.3 deployment/live quick-start checks pending.
+  Official v4 files and metrics remain unchanged.
+
+### Next / blocked
+
+- Merge on aggregate green; image-only release with existing Gate A/B controls.
+  Fresh judge ES/PT quick-start explanation → dispute offer within the existing
+  funded purse. v1.0.0 and email still require Sebastian’s go after video.
