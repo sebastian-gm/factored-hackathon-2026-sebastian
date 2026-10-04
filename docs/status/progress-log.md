@@ -20,3 +20,5 @@ The [final evaluation (v4)](../evaluation/final-v4-results.md) remains unchanged
 - Disclosure: a first final attempt was stopped at ~6/200 P cases after a dev-only finding; its results were never viewed.
 
 </details>
+
+Latest AI mock session: [October 3 judge exploration](progress.d/2026-10-03-ai-judge-exploration.md).
