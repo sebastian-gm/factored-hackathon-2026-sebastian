@@ -134,7 +134,7 @@ for (const pt of [false, true]) {
     await expect(page.locator(".chat-stages [aria-current=step]")).toHaveText(
       pt ? "Decidir" : "Decidir",
     );
-    await expect(page.locator(".turn-stage")).toHaveText("Decidir");
+    await expect(page.locator(".turn-stage")).toHaveCount(0);
     await expect(page.getByRole("dialog")).toHaveCount(0);
     await expect(page.locator(".receipt")).toHaveCount(0);
     await expect(page.locator(".composer textarea")).toBeEnabled();
@@ -552,7 +552,7 @@ test("card retry keeps the challenge; expiry starts a fresh review without confi
     await expect(page.getByTestId(`quickstart-${story}`)).toBeDisabled();
 });
 
-test("unbound live stories stay disabled and failed preparation does not claim a new session", async ({
+test("unbound live stories are hidden and failed preparation does not claim a new session", async ({
   page,
 }) => {
   await page.route("**/api/bff/config", async (r) => {
@@ -569,11 +569,10 @@ test("unbound live stories stay disabled and failed preparation does not claim a
     });
   });
   await page.goto("/");
-  // Wait for the mocked config to render all shortcuts before removing its
-  // route. Locator.all() can return an empty array while bootstrap is pending.
-  await expect(page.locator(".story-picker button")).toHaveCount(3);
-  for (const button of await page.locator(".story-picker button").all())
-    await expect(button).toBeDisabled();
+  await expect(page.locator("#quickstart-title")).toBeVisible();
+  await expect(page.locator(".story-picker button")).toHaveCount(0);
+  await expect(page.locator(".story-language")).toHaveCount(0);
+  await expect(page.locator(".judge-quickstart .caption")).toHaveCount(0);
   await expect(
     page.getByRole("button", { name: /Conoce los datos/ }),
   ).toBeEnabled();

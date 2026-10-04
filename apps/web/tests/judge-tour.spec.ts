@@ -3,6 +3,7 @@ import { writeFileSync } from "node:fs";
 import path from "node:path";
 import { aggregates, capture, directory, language, live, locale, login, logout, paid, profile, visible } from "./helpers/judge-tour";
 import { installPaidBudgetGuard } from "./helpers/tour-budget";
+import { resetDemoReceipt } from "./helpers/tour-receipt";
 
 const finish = new Map<Page, () => void>();
 const budgets = new Map<Page, () => void>();
@@ -35,6 +36,7 @@ async function turn(page: Page, action: () => Promise<unknown>) {
   await action();
   const reply = await response;
   const body = await reply.json();
+  await expect.poll(() => page.getByTestId("basic-mode").count()).toBe(body.degraded === true ? 1 : 0);
   return {
     status: reply.status(),
     type: body.response_type ?? "",
@@ -56,7 +58,10 @@ async function send(page: Page, message: string) {
 async function fresh(page: Page, info: TestInfo, story?: string) {
   await page.reload();
   await visible(page.locator(".composer textarea"));
-  if (story && !live && (await page.getByTestId(`quickstart-${story}`).isEnabled())) await page.getByTestId(`quickstart-${story}`).click();
+  if (story && !live) {
+    const shortcut = page.getByTestId(`quickstart-${story}`);
+    if ((await shortcut.count()) && (await shortcut.isEnabled())) await shortcut.click();
+  }
   if (story && live) {
     const draft = page.getByTestId(`judge-draft-${story === "explain" ? "unfamiliar" : story === "fraud" ? "card" : story}`);
     await page.getByTestId("judge-try-panel").locator("summary").click();
@@ -246,28 +251,33 @@ test("six real BFF stories: explanation/why, candidates, receipt, freeze/handoff
       });
   });
   await test.step("Recognition, explicit denial, confirmation and case read-back", async () => {
+    // Owner demo cases survive reload/login. Reset only this local mock workspace
+    // through the scoped, step-up protected API and independently read it back.
+    // Live judge runs start a fresh root login/visit; never reset a live workspace.
+    if (!live) expect(await resetDemoReceipt(page)).toBe(true);
     await fresh(page, info);
     const dispute = await chargeDraft(page, pt(info), "dispute");
     expect(Boolean(dispute)).toBe(true);
     const offered = await send(page, dispute);
     expect(offered.status).toBe(200);
-    expect(["offer_dispute", "confirm_action", "report_status", "report_case"].includes(offered.type)).toBe(true);
+    expect(offered.type).toBe("offer_dispute");
+    expect(offered.hasCase).toBe(false);
     await capture(page, info, "unfamiliar-charge");
-    if (offered.type === "offer_dispute") {
-      expect(offered.hasCase).toBe(false);
-      const proposed = await turn(page, () => page.locator(".recognition-buttons button").last().click());
-      expect(proposed.type).toBe("confirm_action");
-    }
-    if (["offer_dispute", "confirm_action"].includes(offered.type)) await confirm(page, info, "dispute");
+    const proposed = await turn(page, () => page.locator(".recognition-buttons button").last().click());
+    expect(proposed.type).toBe("confirm_action");
+    const confirmed = page.waitForResponse((reply) => reply.url().endsWith("/confirm") && reply.ok());
+    await confirm(page, info, "dispute");
+    const receipt = await (await confirmed).json();
+    expect(receipt.response_type === "report_case" && receipt.outcome === "dispute_filed" && receipt.verified === true && receipt.case?.status === "received").toBe(true);
     await visible(page.locator(".receipt").first());
     expect((await page.locator(".case-reference").count()) > 0).toBe(true);
-    const readback = await page.evaluate(async () => {
+    const readback = await page.evaluate(async (expected) => {
       const reference = document.querySelector(".case-reference strong")?.textContent?.trim();
       if (!reference) return false;
       const response = await fetch(`/api/bff/disputes/${encodeURIComponent(reference)}`);
       const record = await response.json();
-      return response.ok && record.case_id === reference && typeof record.status === "string" && Boolean(record.transaction_handle);
-    });
+      return response.ok && record.case_id === reference && record.case_id === expected.case_id && record.status === "received" && record.transaction_handle === expected.transaction_handle;
+    }, receipt.case);
     expect(readback).toBe(true);
     await capture(page, info, "case-receipt");
   });
