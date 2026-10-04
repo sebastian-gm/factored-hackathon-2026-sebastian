@@ -52,8 +52,8 @@ export function storyProfile(
   );
   const preferred: ProfileId = story.id === "ambiguous" ? "pt" : "mx-es";
   return (
-    eligible.find((p) => p.profile_id === preferred) ??
     eligible.find((p) => p.profile_id === current) ??
+    eligible.find((p) => p.profile_id === preferred) ??
     eligible[0]
   );
 }

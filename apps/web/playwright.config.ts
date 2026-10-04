@@ -36,6 +36,7 @@ export default defineConfig({
             "**/admission.spec.ts",
             "**/resilience-ux.spec.ts",
             "**/tour-guards.spec.ts",
+            "**/current-profile-stories.spec.ts",
           ],
   fullyParallel: false,
   workers: 1,
