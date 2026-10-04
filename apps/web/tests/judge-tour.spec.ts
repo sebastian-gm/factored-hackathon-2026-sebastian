@@ -36,7 +36,8 @@ async function turn(page: Page, action: () => Promise<unknown>) {
   await action();
   const reply = await response;
   const body = await reply.json();
-  await expect.poll(() => page.getByTestId("basic-mode").count()).toBe(body.degraded === true ? 1 : 0);
+  // An HTTP error leaves the last reply visible; it supplies no replacement plan.
+  if (reply.ok()) await expect.poll(() => page.getByTestId("basic-mode").count()).toBe(body.degraded === true ? 1 : 0);
   return {
     status: reply.status(),
     type: body.response_type ?? "",
@@ -456,6 +457,7 @@ test("simulated local basic-mode banner and 429 retry feedback", async ({ page }
   limited = true;
   const rejected = await send(page, pt(info) ? "Consulta inventada de interface." : "Consulta inventada de interfaz.");
   expect(rejected.status).toBe(429);
+  await visible(page.getByTestId("basic-mode"));
   await visible(page.locator(".chat-panel [role=alert]"));
   expect((await page.locator(".chat-panel [role=alert]").innerText()).includes("17 s.")).toBe(true);
   expect(await page.locator(".composer textarea").isEnabled()).toBe(true);

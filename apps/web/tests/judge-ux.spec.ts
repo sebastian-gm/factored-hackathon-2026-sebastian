@@ -466,7 +466,17 @@ test("card retry keeps the challenge; expiry starts a fresh review without confi
     proposals = 0;
   await page.route("**/api/bff/config", async (r) => {
     const config = await (await r.fetch()).json();
-    await r.fulfill({ json: { ...config, fixtures: false } });
+    await r.fulfill({
+      json: {
+        ...config,
+        fixtures: false,
+        personas: config.personas.map((persona: Record<string, unknown>) => ({
+          ...persona,
+          demo_stories:
+            persona.username === "demo.es.mx" ? ["explain", "fraud"] : [],
+        })),
+      },
+    });
   });
   await page.route("**/chat/sessions/*/messages", (r) =>
     r.fulfill({
@@ -528,7 +538,8 @@ test("card retry keeps the challenge; expiry starts a fresh review without confi
     .click();
   const dialog = page.getByRole("dialog");
   await expect(dialog).not.toContainText(/card_ui_preview|Credit/);
-  for (const story of ["explain", "ambiguous", "fraud"])
+  await expect(page.getByTestId("quickstart-ambiguous")).toHaveCount(0);
+  for (const story of ["explain", "fraud"])
     await expect(page.getByTestId(`quickstart-${story}`)).toBeDisabled();
   await dialog.locator("input").fill("000000");
   await dialog.locator("button[type=submit]").click();
@@ -548,7 +559,7 @@ test("card retry keeps the challenge; expiry starts a fresh review without confi
   expect(challenges).toBe(2);
   expect(proposals).toBe(1);
   expect(writes).toBe(0);
-  for (const story of ["explain", "ambiguous", "fraud"])
+  for (const story of ["explain", "fraud"])
     await expect(page.getByTestId(`quickstart-${story}`)).toBeDisabled();
 });
 
