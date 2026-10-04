@@ -14,6 +14,18 @@ certification. The v0.1.0–v0.5.0 annotated tags and GitHub Releases were creat
 - Every change now uses a feature branch and PR; every Azure release gets a tag.
 - `v1.0.0` is reserved for the exact submission-day Azure release SHA.
 
+## [0.9.3] — 2026-10-04, scoped judge-story drafts (post-v4)
+
+- Scoped ledger quick-start, conservative target corrections and pending-choice
+  recognition context; explicit Send and separate confirmation are preserved.
+- Deployed/tagged `63e69b674a91d43be3e304c9b6e7291ea656e0ce`; exact-SHA
+  CI/safety/access, ready images and scoped data/queue controls passed.
+- Known live defect: the first ES quick-start clarified instead of explaining;
+  displayed date can conflict with process date. Cost $0.0021315, settled;
+  PT and explanation→offer were not verified. Owner accepted this release
+  as-is; v0.9.4 addresses the starter separately. Official v4 unchanged.
+- [Evidence and preserved operator stops](docs/submission/v0.9.3-release-evidence.md).
+
 ## [0.9.2] — 2026-10-04, judge own-visit staff queue (post-v4)
 
 - One judge password/OTP visit can open its masked queue and claim handoffs
