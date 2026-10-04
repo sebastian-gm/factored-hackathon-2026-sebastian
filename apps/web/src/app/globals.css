@@ -2605,7 +2605,11 @@ label {
   gap: 16px;
   border-bottom: 0;
 }
+.chat-header > div {
+  min-width: 0;
+}
 .chat-avatar {
+  flex-shrink: 0;
   width: 32px;
   height: 32px;
   border-radius: 4px;
