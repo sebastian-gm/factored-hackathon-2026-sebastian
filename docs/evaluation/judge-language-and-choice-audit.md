@@ -35,8 +35,8 @@ readback** checks pass. B1 v2 remains **32/32**; model spend is **$0**. Spanish
 passes 15/15; Portuguese 12/15. All remaining failures (JE-08/16/28) are workflow
 checks; no UX/control check fails. Thirty new ES/PT/B1 regressions pass.
 Full local integration tests: **1,740 passed, 43 skipped**. Ruff and strict mypy
-pass; skipped infrastructure tests remain unverified. Remote CI did not execute:
-Actions budget annotations confirm the checks and invariants jobs were blocked.
+pass; skipped infrastructure tests remain unverified. Earlier remote CI did not
+execute, as verified in Actions budget annotations; refreshed CI awaits readback.
 
 The frozen suite/runner and source receipts were independently hash-verified.
 This extends held [#166](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/pull/166),
@@ -45,6 +45,7 @@ This extends held [#166](https://github.com/sebastian-gm/factored-hackathon-2026
 Metrics describe authored mock development fixtures; official v4 results remain
 unchanged. Sebastian authorized cross-lane API edits; lead reviews the new held
 feature and shared merge seams. PR #174 was opened before the publication audit
-hold; further work and commits remain local until Sebastian confirms the repo is
-public. The merge hold remains separate. Remote CI and live judge access await
-the lead's signals. No deployment, budget or repository-visibility changes were made.
+hold. Sebastian has since lifted that hold, and GitHub readback confirms the repo
+is public. The lead retains the v0.9.1 merge order; merges remain held. Refreshed
+remote CI awaits readback, and live judge runs await explicit access. No deployment,
+budget or repository-visibility changes were made by the AI lane.

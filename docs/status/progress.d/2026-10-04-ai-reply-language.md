@@ -9,14 +9,15 @@
 - Combined held stack: full local tests 1,740 passed, 43 skipped; B1 v2 32/32. Unchanged exploration 27/30, 103/109 turns, 773/789 checks. All 100 no-write, 109 zero-spend, 14 case and 7 handoff readbacks pass. JE-28's Portuguese status-language check now passes; its unselected new charge still prevents a case. Independent source/frozen-input/readback review passed. [Remaining-choice audit](../../evaluation/judge-language-and-choice-audit.md).
 - Read-only JE-08/16 audit found no lost positively identified requested charge. Merchant-only requests return two choices below the unchanged 0.9 confidence gate; fresh merchant-only matching still chooses safely. Keep those selections and frozen expectations.
 - Sebastian explicitly authorized cross-lane API edits. Lead review required; official v4 results unchanged.
-- Held [PR #174](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/pull/174) was opened before the publication audit hold. Readback verified its exact description, feature head, 719 changed lines, open state and unmerged state. Remote checks and invariants annotations confirm the jobs were not started because the Actions budget blocks execution.
+- Held [PR #174](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/pull/174) was opened before the publication audit hold. Readback verified its exact description, feature head, 719 changed lines, open state and unmerged state. The earlier checks and invariants did not execute because of the Actions budget, as verified in their annotations.
+- Sebastian lifted the publication audit hold and authorized pushing local commits and refreshing held branches. GitHub readback confirms the repository is public. The lead retains review and merge order for v0.9.1; no merges or live calls are authorized by this signal.
 
 ## Done but not verified
 
-- Remote CI has not executed; skipped infrastructure tests and lead review remain pending. No CI retry requested.
+- Refreshed remote CI, skipped infrastructure tests and lead review remain pending. Already-passing current branches need no rerun; budget-blocked current branches may rerun now that CI access is restored.
 - Live-model/browser behavior remains unverified; no live calls.
 
 ## Next / blocked
 
 - Preserve shared conversation seams when integrating #174 with #166/#169/#170. JE-08/16 choices remain deliberate policy-safe requests; JE-28 now has only the selection/missing-case workflow failures. No threshold or expectation weakening.
-- Publication audit hold: work and commit locally only; no branch push, PR creation/edit or GitHub comment until Sebastian says the repository is public. Keep the separate merge hold and wait for CI-restored and judge-access signals. No budget or repository-visibility changes.
+- Refresh published older branches with main merges to preserve history under the repository's no-force-push rule; the remaining branches already contain current main. Push the local documentation and verify remote heads and CI. Keep the separate merge hold and wait for judge access. No budget or repository-visibility changes performed by the AI lane.

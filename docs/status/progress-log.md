@@ -22,4 +22,4 @@ The [final evaluation (v4)](../evaluation/final-v4-results.md) remains unchanged
 </details>
 
 AI reply-language session: [verified work, pending checks and blockers](progress.d/2026-10-04-ai-reply-language.md).
-Publication audit hold recorded locally: no pushes or GitHub writes until Sebastian's public-repository signal.
+Publication audit hold lifted after Sebastian's public-repository signal; merges remain held for the lead's v0.9.1 release batch.
