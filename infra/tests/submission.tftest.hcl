@@ -56,6 +56,7 @@ run "judge_plan_only" {
   command = plan
   variables {
     enable_judge_access = true
+    llm_budget_run_id   = "judging-2026-10"
   }
   assert {
     condition     = length(azurerm_container_app.web[0].ingress[0].ip_security_restriction) == 0 && !azurerm_container_app.web[0].ingress[0].allow_insecure_connections
@@ -70,9 +71,17 @@ run "judge_plan_only" {
     error_message = "Container Apps secrets must be Key Vault references, never literal values."
   }
   assert {
-    condition     = one([for e in azurerm_container_app.api[0].template[0].container[0].env : e.value if e.name == "LLM_DAILY_BUDGET_USD"]) == "3" && one([for e in azurerm_container_app.api[0].template[0].container[0].env : e.value if e.name == "JUDGE_ACCESS_ENABLED"]) == "true"
-    error_message = "Login mode and USD 3/day cap must be enabled together."
+    condition     = one([for e in azurerm_container_app.api[0].template[0].container[0].env : e.value if e.name == "LLM_DAILY_BUDGET_USD"]) == "1" && one([for e in azurerm_container_app.api[0].template[0].container[0].env : e.value if e.name == "JUDGE_ACCESS_ENABLED"]) == "true" && one([for e in azurerm_container_app.api[0].template[0].container[0].env : e.value if e.name == "LLM_BUDGET_RUN_ID"]) == "judging-2026-10"
+    error_message = "Judge mode, USD 1/day and its lifetime run must be enabled together."
   }
+}
+
+run "judge_requires_lifetime_run" {
+  command = plan
+  variables {
+    enable_judge_access = true
+  }
+  expect_failures = [var.enable_judge_access]
 }
 
 run "warm_requires_switch" {

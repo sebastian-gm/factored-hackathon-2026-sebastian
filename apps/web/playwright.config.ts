@@ -1,6 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 const staff = process.env.FRONTEND_E2E_STAFF === "1";
 const live = process.env.FRONTEND_E2E_LIVE === "1";
+const judgeRoles = process.env.FRONTEND_E2E_JUDGE_ROLES === "1";
 const secret = process.env.FRONTEND_FIXTURE_PASSWORD ?? "";
 const webPort = Number(process.env.FRONTEND_E2E_WEB_PORT ?? "3212");
 const apiPort = Number(process.env.FRONTEND_E2E_API_PORT ?? "8212");
@@ -15,24 +16,26 @@ if (
   );
 export default defineConfig({
   testDir: "./tests",
-  testMatch: staff
-    ? ["**/staff.spec.ts", "**/staff-realm.spec.ts"]
-    : live
-      ? "**/live.spec.ts"
-      : [
-          "**/stories.spec.ts",
-          "**/conversation-contract.spec.ts",
-          "**/startup.spec.ts",
-          "**/judge-ux.spec.ts",
-          "**/ux-review.spec.ts",
-          "**/insights.spec.ts",
-          "**/video-readiness.spec.ts",
-          "**/minimal-design.spec.ts",
-          "**/judge-profiles.spec.ts",
-          "**/judge-guide.spec.ts",
-          "**/admission.spec.ts",
-          "**/resilience-ux.spec.ts",
-        ],
+  testMatch: judgeRoles
+    ? "**/judge-trusted-roles.spec.ts"
+    : staff
+      ? ["**/staff.spec.ts", "**/staff-realm.spec.ts"]
+      : live
+        ? "**/live.spec.ts"
+        : [
+            "**/stories.spec.ts",
+            "**/conversation-contract.spec.ts",
+            "**/startup.spec.ts",
+            "**/judge-ux.spec.ts",
+            "**/ux-review.spec.ts",
+            "**/insights.spec.ts",
+            "**/video-readiness.spec.ts",
+            "**/minimal-design.spec.ts",
+            "**/judge-profiles.spec.ts",
+            "**/judge-guide.spec.ts",
+            "**/admission.spec.ts",
+            "**/resilience-ux.spec.ts",
+          ],
   fullyParallel: false,
   workers: 1,
   timeout: 45000,
@@ -77,6 +80,7 @@ export default defineConfig({
         FRONTEND_DEMO_MODE: live ? "live" : "fixtures",
         FRONTEND_FIXTURE_PASSWORD: secret,
         FRONTEND_FIXTURE_JUDGE_ACCESS: live ? "false" : "true",
+        FRONTEND_FIXTURE_JUDGE_TRUSTED_ROLES: judgeRoles ? "true" : "false",
         NEXT_TELEMETRY_DISABLED: "1",
         // Exercise ACA header parsing with a test-owned simulated ingress.
         CONTAINER_APP_NAME: "aclara-browser-fixture",
