@@ -380,7 +380,13 @@ def publish(sha: str, deployed_sha: str, notes: Path) -> None:
         verify_ruleset(api(f"rulesets/{value['id']}"))
     except Exception:
         # Approval includes restoring privacy if protection cannot be established.
-        api("", method="PATCH", value={"private": True})
+        try:
+            api("", method="PATCH", value={"private": True})
+            require(api("").get("private") is True, "Privacy restoration readback failed")
+        except Exception:
+            raise GateError(
+                "Main protection failed; privacy rollback unverified; owner review required"
+            ) from None
         raise GateError("Main protection failed; restored private visibility") from None
     require(api("")["private"] is False, "Publication readback failed")
     git("tag", "-a", TAG, deployed_sha, "-m", "Aclara final submission release")

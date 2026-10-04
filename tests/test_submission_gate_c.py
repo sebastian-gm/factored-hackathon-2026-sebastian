@@ -333,6 +333,8 @@ def test_failed_protection_restores_private_without_creating_tag(monkeypatch):
     def fake_api(path, *, method="GET", value=None):
         if path == "rulesets":
             raise gate.GateError("authored protection failure")
+        if method == "GET":
+            return {"private": changes[-1]}
         changes.append(value["private"])
 
     monkeypatch.setattr(gate, "api", fake_api)
@@ -340,6 +342,18 @@ def test_failed_protection_restores_private_without_creating_tag(monkeypatch):
     with pytest.raises(gate.GateError, match="restored private"):
         gate.publish(SHA, DEPLOYED, Path("notes.md"))
     assert changes == [False, True]
+
+
+def test_failed_privacy_rollback_readback_cannot_report_restoration(monkeypatch):
+    def fake_api(path, *, method="GET", value=None):
+        if path == "rulesets":
+            raise gate.GateError("authored protection failure")
+        return {"private": False}
+
+    monkeypatch.setattr(gate, "api", fake_api)
+    monkeypatch.setattr(gate, "git", lambda *args: pytest.fail("Unsafe tag creation"))
+    with pytest.raises(gate.GateError, match="privacy rollback unverified"):
+        gate.publish(SHA, DEPLOYED, Path("notes.md"))
 
 
 def test_publication_uses_deployed_sha_and_verifies_remote_tag(monkeypatch):

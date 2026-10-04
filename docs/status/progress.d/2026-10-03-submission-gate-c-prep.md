@@ -6,7 +6,7 @@
   against GitHub. Exact-origin, fresh audit/approval/release, undeployed-code,
   reviewed-notes snapshot, protection rollback and annotated-tag guards.
 - `ruff check`, `ruff format --check`, CLI `--help` and authored unit/mock plan
-  tests **40 passed** after final host/receipt/scanner hardening. Tests make no
+  tests **41 passed** after final host/receipt/scanner/rollback hardening. Tests make no
   Azure/GitHub/model calls.
 - Full mock `make checks`: **1,668 passed / 43 skipped**, B1 **32/32**,
   hooks, interfaces and policy checks passed (exit 0). Initial restricted-sandbox
