@@ -359,3 +359,147 @@ test("live recording trusts scoped story hints, allows a shared customer, and ne
     "demo.agent",
   );
 });
+
+// Exercise the actual fixture BFF: do not fulfill the /messages route here.
+// The backend's 1000-character limit counts Unicode code points, not UTF-16 units.
+for (const pt of [false, true])
+  for (const kind of ["ascii", "emoji"] as const) {
+    test(`${pt ? "PT" : "ES"} BFF ${kind}: invalid message is 422 and a valid follow-up stays read-only`, async ({
+      page,
+    }) => {
+      await login(page, pt ? "demo.pt.br" : "demo.es.mx");
+      let financialActions = 0;
+      page.on("request", (request) => {
+        if (
+          request.method() === "POST" &&
+          /\/(confirm|freeze)(?:\/proposal)?$/.test(
+            new URL(request.url()).pathname,
+          )
+        )
+          financialActions++;
+      });
+      const text = pt
+        ? "Quero revisar um movimento de teste."
+        : "Quiero revisar un movimiento de prueba.";
+      const invalid =
+        kind === "ascii" ? text.padEnd(1001, "x") : "🙂".repeat(1001);
+      const replies = await page.evaluate(
+        async ({ invalid, text }) => {
+          const post = async (path: string, body: unknown) => {
+            const response = await fetch(`/api/bff/${path}`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(body),
+            });
+            return { status: response.status, body: await response.json() };
+          };
+          const created = await post("chat/sessions", {});
+          if (created.status !== 200)
+            throw new Error("Authored fixture conversation was not created");
+          const path = `chat/sessions/${created.body.conversation_id}/messages`;
+          return [
+            await post(path, { message: invalid }),
+            await post(path, { message: text.padEnd(1000, "x") }),
+            // 1000 emoji occupy 2000 UTF-16 units but are 1000 Unicode characters.
+            await post(path, { message: "🙂".repeat(1000) }),
+            await post(path, { message: text }),
+          ];
+        },
+        { invalid, text },
+      );
+      expect(replies[0]).toEqual({
+        status: 422,
+        body: { error: "invalid_message" },
+      });
+      for (const reply of replies.slice(1)) {
+        expect(reply.status).toBe(200);
+        const plan = planSchema.parse(reply.body);
+        expect(["clarify", "choose_transaction", "explain_status"]).toContain(
+          plan.response_type,
+        );
+        expect(plan.case ?? null).toBeNull();
+        expect(plan.proposal ?? null).toBeNull();
+        expect(plan.card ?? null).toBeNull();
+      }
+      expect(financialActions).toBe(0);
+      await expect(page.getByRole("dialog")).toHaveCount(0);
+      await expect(page.locator(".composer textarea")).toBeEditable();
+    });
+  }
+
+for (const pt of [false, true])
+  for (const width of [1440, 390]) {
+    test(`${pt ? "PT" : "ES"} ${width}px BFF: rejected overlong draft stays editable and recovers`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: width === 390 ? 844 : 1000 });
+      await login(page, pt ? "demo.pt.br" : "demo.es.mx");
+      let financialActions = 0;
+      page.on("request", (request) => {
+        if (
+          request.method() === "POST" &&
+          /\/(confirm|freeze)(?:\/proposal)?$/.test(
+            new URL(request.url()).pathname,
+          )
+        )
+          financialActions++;
+      });
+      const composer = page.locator(".composer textarea");
+      const alert = page.locator(".chat-panel").getByRole("alert");
+      await expect(composer).toHaveAttribute("maxlength", "1000");
+      // Bypass only the browser limit to exercise the real BFF rejection and
+      // form recovery. No message response is mocked or fulfilled by this test.
+      await composer.evaluate((input) => input.removeAttribute("maxlength"));
+      const text = pt
+        ? "Quero revisar um movimento de teste."
+        : "Quiero revisar un movimiento de prueba.";
+      const invalid = text.padEnd(1001, "x");
+      const send = page.getByRole("button", {
+        name: pt ? "Enviar mensagem" : "Enviar mensaje",
+        exact: true,
+      });
+      const messageResponse = () =>
+        page.waitForResponse(
+          (response) =>
+            response.request().method() === "POST" &&
+            /\/chat\/sessions\/[^/]+\/messages$/.test(
+              new URL(response.url()).pathname,
+            ),
+        );
+      await composer.fill(invalid);
+      const rejected = messageResponse();
+      await send.click();
+      const rejection = await rejected;
+      expect(rejection.status()).toBe(422);
+      expect(await rejection.json()).toEqual({ error: "invalid_message" });
+      await expect(alert).toHaveText(
+        pt
+          ? "Não foi possível concluir a solicitação. Tente novamente."
+          : "No pudimos completar la solicitud. Inténtalo de nuevo.",
+      );
+      await expect(composer).toBeEditable();
+      await expect(composer).toHaveValue(invalid);
+      await expect(page.getByRole("dialog")).toHaveCount(0);
+      await composer.fill(text);
+      const accepted = messageResponse();
+      await send.click();
+      const followUp = await accepted;
+      expect(followUp.status()).toBe(200);
+      const plan = planSchema.parse(await followUp.json());
+      expect(["clarify", "choose_transaction", "explain_status"]).toContain(
+        plan.response_type,
+      );
+      expect(plan.case ?? null).toBeNull();
+      expect(plan.proposal ?? null).toBeNull();
+      expect(plan.card ?? null).toBeNull();
+      await expect(
+        page.locator(".chat-line.aclara .bubble > p").last(),
+      ).toHaveText(plan.reply);
+      await expect(alert).toHaveCount(0);
+      await expect(page.getByRole("dialog")).toHaveCount(0);
+      await expect(page.locator(".receipt")).toHaveCount(0);
+      await expect(composer).toBeEditable();
+      await expect(composer).toHaveValue("");
+      expect(financialActions).toBe(0);
+    });
+  }

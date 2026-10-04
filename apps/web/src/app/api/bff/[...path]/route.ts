@@ -471,11 +471,21 @@ async function handle(
     )
       return response(traceSchema.parse(await upstream(path, "GET", token)));
     if (!allowed(path, request.method)) throw new HttpError(404, "not_found");
-    if (path.endsWith("/messages"))
-      body = z
-        .object({ message: z.string().trim().min(1).max(1000) })
+    if (path.endsWith("/messages")) {
+      const input = z
+        .object({
+          message: z
+            .string()
+            .trim()
+            .min(1)
+            // Match FastAPI's Unicode character limit, including astral emoji.
+            .refine((message) => Array.from(message).length <= 1000),
+        })
         .strict()
-        .parse(body);
+        .safeParse(body);
+      if (!input.success) throw new HttpError(422, "invalid_message");
+      body = input.data;
+    }
     if (path.endsWith("/confirm") || path.endsWith("/freeze"))
       body = z
         .object({
