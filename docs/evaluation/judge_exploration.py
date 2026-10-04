@@ -19,6 +19,7 @@ import sys
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Literal
+from unittest.mock import patch
 
 from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient
@@ -27,7 +28,6 @@ from pydantic import BaseModel
 from aclara.agent.contracts import DisputeCaseView, HandoffView
 from aclara.agent.nlu.structured import ExtractedNlu
 from aclara.agent.runtime import Runtime
-from aclara.api.app import create_app
 from aclara.bank.repository import Customer, Transaction, TransactionRepository
 from aclara.llm.client import StructuredClient
 from aclara.llm.types import ModelSpec
@@ -257,6 +257,10 @@ async def readback(
 
 
 async def run_case(case: dict[str, Any]) -> dict[str, Any]:
+    # API import creates a default app too; keep it offline despite inherited shell settings.
+    with patch.object(Settings, "from_environment", return_value=Settings()):
+        from aclara.api.app import create_app
+
     country, locale = PROFILES[case["profile"]]
     repository, aliases = synthetic_ledger(country, case.get("fixture_aliases"))
     settings = Settings(
