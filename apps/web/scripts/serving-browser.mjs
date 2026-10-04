@@ -57,7 +57,7 @@ try {
   await page
     .getByRole("heading", { name: "Actividad de este espacio" })
     .waitFor();
-  await page.getByText("Registro del organizador · últimos 120 días").waitFor();
+  await page.getByText("Banco sintético", { exact: true }).waitFor();
   const valid = await page.evaluate(async () => {
     const r = await fetch("/api/bff/ops/snapshot");
     const d = await r.json();
