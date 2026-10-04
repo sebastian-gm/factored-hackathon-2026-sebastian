@@ -121,11 +121,10 @@ export function ledgerStoryDraft(
   for (const purchase of purchases) {
     // Preserve the API's numeric value without rounding or locale separators.
     const amount = String(purchase.amount);
-    const day = purchase.transaction_date.slice(0, 10);
     const draft =
       story.locale === "pt-BR"
-        ? `O que é a cobrança de ${purchase.merchant} por ${amount} ${purchase.currency} em ${day}?`
-        : `¿Qué es el cargo de ${purchase.merchant} por ${amount} ${purchase.currency} del ${day}?`;
+        ? `O que é a cobrança de ${purchase.merchant} por ${amount} ${purchase.currency}?`
+        : `¿Qué es el cargo de ${purchase.merchant} por ${amount} ${purchase.currency}?`;
     if (Array.from(draft).length <= 1000) return draft;
   }
   return null;
