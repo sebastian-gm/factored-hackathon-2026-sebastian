@@ -562,7 +562,9 @@ function Shell({
     (!config.fixtures &&
       !!session &&
       (workspaceSurface === "chat" ||
-        (workspaceSurface === "desk" && session.role === "ops")));
+        (workspaceSurface === "desk" &&
+          session.role === "ops" &&
+          !profileFlow)));
   const nav = [
     { id: "chat" as const },
     { id: "desk" as const },
@@ -585,8 +587,8 @@ function Shell({
         {locale === "pt-BR" ? "Ir ao conteúdo" : "Ir al contenido"}
       </a>
       <aside className="sidebar">
-        <Link className="brand" href="/" aria-label="Aclara">
-          <span className="brand-mark">
+        <Link className="brand" href="/">
+          <span className="brand-mark" aria-hidden="true">
             a<span />
           </span>
           <span>
@@ -648,7 +650,7 @@ function Shell({
                     <option value="es-MX">ES · México</option>
                     <option value="es-CO">ES · Colombia</option>
                     <option value="es-AR">ES · Argentina</option>
-                    <option value="pt-BR">PT · Português brasileiro</option>
+                    <option value="pt-BR">PT · Português</option>
                   </select>
                 </label>
               )}
