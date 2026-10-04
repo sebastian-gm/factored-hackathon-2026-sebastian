@@ -43,3 +43,20 @@ Historical v0.9.3 stop remains disclosed; v0.9.4 is verified in the
 
 Latest AI starter replays: [missing-merchant normalization](progress.d/2026-10-04-ai-merchant-placeholder.md).
 Latest AI live diagnosis: [partial exploration and zero-cost root causes](progress.d/2026-10-04-ai-live-exploration-partial.md).
+
+## 2026-10-04 — English reviewer interface candidate
+
+### Completed (verified)
+
+- EN desktop/phone chrome, ES/PT conversation separation and staff guidance;
+  [lane record](progress.d/2026-10-04-english-interface-activation.md).
+- Final admission/resilience checks: 26 passed; TypeScript and lint passed.
+- Catalog #194 merged; main merged into activation #195 without rewriting history.
+
+### Done but not verified
+
+- Activation remote final gates and deployed v0.9.5 behavior remain pending.
+
+### Next / blocked
+
+- Lead owns merge/release; clean 2x authored-fixture video assets follow both merges.
