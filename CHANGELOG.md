@@ -27,8 +27,9 @@ certification. The v0.1.0–v0.5.0 annotated tags and GitHub Releases were creat
 - Repository publication was explicitly approved and verified on October 4,
   with PR/check protection on main. `v1.0.0` and email remain pending approval.
 - Official v4 results are unchanged. This batch does not change warm/burst
-  settings, judge access, CPU or budget binding. Deployment gates and spend are
-  recorded in the release receipt and progress log when verified.
+  settings, judge access, CPU or budget binding. Deployed/tagged `0f0e12df13e281538d7b25800f56c55da0b8dc0b`;
+  two live ES/PT stories verified; smoke $0.007624, browser $0.
+- [Verified release evidence and operator disclosures](docs/submission/v0.9.1-release-evidence.md).
 
 ## [0.9.0] — 2026-10-03 COT, judge go-live (post-v4)
 

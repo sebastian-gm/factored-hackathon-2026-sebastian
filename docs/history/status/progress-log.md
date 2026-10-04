@@ -6127,3 +6127,51 @@ docs PRs are already on main; the finished held-batch work is being integrated.
 - Back up all four owner maps before the approved scoped reset; preserve judge
   realms, organizer ledger, audit and budgets. Then signal lanes with existing
   separate caps and private credential path. `v1.0.0` and email await Sebastian.
+
+
+## 2026-10-04 v0.9.1 release verified and live-lane signal
+
+### Completed (verified)
+
+- Reviewed batch merged through #176; deployed and annotated/tagged **v0.9.1**
+  at `0f0e12df13e281538d7b25800f56c55da0b8dc0b`. Exact-SHA CI/safety
+  **37192919170 / 37192919148** and independent authenticated access
+  **37193884747** succeeded. Public Release read-back passed.
+- `release_operator.py` plan/apply changed exactly two apps' images and release
+  metadata. `verify.py` passed ready revisions, unchanged warm/burst/judge
+  settings, internal API and existing $1/UTC-day / $1.60 judging binding.
+- Temporal column/fingerprint, TLS/non-owner/no bypass/FORCE RLS and immutable
+  staff queue checks passed; unscoped bank/queue rows 0. Four judge profiles /
+  15 transaction readbacks, trusted roles, switch replay and logout passed.
+- Real ES/PT explanation → denial → OTP → typed confirmation → independent
+  dispute read-back: **2 verified stories, 4 calls, $0.0076240**, zero new unknowns.
+  Injection/human/masked staff checks passed. `browser-check.py`: Chat/Desk/Ops,
+  independently verified human handoff, **$0**. `record-release.py` wrote all
+  three release flags true; no product fix was made during these checks.
+- Approved owner reset: four 0600 backups verified before maintenance; each
+  owner map already had zero cases/cards, independently empty across login.
+  Organizer ledger, judge realms, history/audit and budgets were preserved.
+- Fresh funded `release/v0.9.1/lead`, run **v0.9.1**, cap **$0.10**, charged
+  **$0.00762400**. Reserve-inclusive maximum **$14.91264898 <= $15**; 65 historical
+  unknown reservations retained. AI/frontend live signal sent with existing
+  scopes `go-live/2026-10-03/ai` **$0.30** and `/frontend` **$0.20**, both run
+  **2026-10-03**, and the ignored mode-0600 credential path.
+- Earlier auth-only $0 attempt and zero-network proof refusal are disclosed;
+  its original receipt and two requests remain preserved. The successful access
+  workflow's temporary capability was removed/read back, without a workflow rerun.
+- [Commands, image digests, costs and limitations](../../submission/v0.9.1-release-evidence.md).
+
+### Done but not verified
+
+- Full AI/frontend live exploration, gallery/accessibility, forced cold start
+  and actual burst scale-out are not established by this bounded smoke.
+- Official v4 numbers and **0/30** flips remain unchanged. Provider metadata
+  initially lagged; the 10:14 UTC account/key read both decreased **$0.007624**,
+  matching the independently scoped smoke cost. Key remaining **$4.955004**.
+  Cost attribution still uses per-turn records rather than shared deltas.
+
+### Next / blocked
+
+- AI/frontend run their approved live checks in the existing distinct scopes;
+  report any judge blockers before the owner records the video. No further Lead
+  paid calls or reset is implied. v1.0.0/email await Sebastian's final approval.
