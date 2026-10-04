@@ -26,3 +26,4 @@ Latest AI session: [October 3 human review](progress.d/2026-10-03-ai-judge-human
 AI candidate-correction session: [verified work, pending checks and blockers](progress.d/2026-10-03-ai-candidate-corrections.md).
 AI reply-language session: [verified work, pending checks and blockers](progress.d/2026-10-04-ai-reply-language.md).
 Publication audit hold lifted after Sebastian's public-repository signal; merges remain held for the lead's v0.9.1 release batch.
+Latest AI mock session: [October 3 judge exploration](progress.d/2026-10-03-ai-judge-exploration.md).
