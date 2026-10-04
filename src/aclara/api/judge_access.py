@@ -18,6 +18,7 @@ PROFILE_LABELS = {
     "ar-es": "Argentina · Español",
     "pt": "Conversa em português",
 }
+JUDGING_BUDGET_RUN_ID = "judging-2026-10"
 
 
 @dataclass(frozen=True)
@@ -36,11 +37,17 @@ def judge_configuration(
     if (
         len(settings.judge_password) < 32
         or hmac.compare_digest(settings.judge_password, settings.demo_password)
-        or os.getenv("LLM_BUDGET_RUN_ID")
-        or (settings.llm_provider != "mock" and os.getenv("LLM_DAILY_BUDGET_USD") != "3")
+        or os.getenv("LLM_BUDGET_RUN_ID", "") not in {"", JUDGING_BUDGET_RUN_ID}
+        or (
+            settings.llm_provider != "mock"
+            and (
+                os.getenv("LLM_DAILY_BUDGET_USD") != "1"
+                or os.getenv("LLM_BUDGET_RUN_ID") != JUDGING_BUDGET_RUN_ID
+            )
+        )
     ):
         raise ValueError(
-            "Judge access requires separate credentials and normal USD 3/day accounting"
+            "Judge access requires separate credentials and USD 1/day judging accounting"
         )
     try:
         definition = json.loads(settings.judge_persona)
