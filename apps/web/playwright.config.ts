@@ -35,6 +35,7 @@ export default defineConfig({
             "**/judge-guide.spec.ts",
             "**/admission.spec.ts",
             "**/resilience-ux.spec.ts",
+            "**/tour-guards.spec.ts",
           ],
   fullyParallel: false,
   workers: 1,
