@@ -6,6 +6,7 @@ import { ArrowRight } from "lucide-react";
 import { EvidenceChart } from "./evidence-chart";
 import snapshot from "@/data/insights.json";
 import { insightsEs, insightsPt } from "@/lib/insights-copy";
+import { insightsEn } from "@/lib/insights-copy-en";
 import {
   insightsResultsSchema,
   type InsightsResults,
@@ -19,7 +20,12 @@ const sourceUrl = (source: { path: string; commit: string }) =>
 
 function useInsightsFormat() {
   const { locale } = useApp();
-  const c = locale === "pt-BR" ? insightsPt : insightsEs;
+  const c =
+    locale === "en-US"
+      ? insightsEn
+      : locale === "pt-BR"
+        ? insightsPt
+        : insightsEs;
   const number = (n: number, digits = 0) =>
     new Intl.NumberFormat(locale, {
       maximumFractionDigits: digits,
@@ -139,7 +145,12 @@ function Interval({ delta }: { delta: { estimate: number; ci95: number[] } }) {
 
 export function Insights({ onTry }: { onTry: () => void }) {
   const { locale } = useApp();
-  const c = locale === "pt-BR" ? insightsPt : insightsEs;
+  const c =
+    locale === "en-US"
+      ? insightsEn
+      : locale === "pt-BR"
+        ? insightsPt
+        : insightsEs;
   const [version, setVersion] = useState<"v2" | "v3" | "v4">("v4");
   const [step, setStep] = useState(0);
   const [workloadIndex, setWorkloadIndex] = useState(1);
@@ -300,7 +311,7 @@ export function Insights({ onTry }: { onTry: () => void }) {
               }}
             >
               <strong>{s.title}</strong>
-              <small>{s.english}</small>
+              {locale !== "en-US" && <small>{s.english}</small>}
             </button>
           ))}
         </div>
@@ -454,7 +465,12 @@ export function Insights({ onTry }: { onTry: () => void }) {
           {(["ES", "PT"] as const).map((language) => (
             <div key={language}>
               <h3>
-                {language} · v4 <Source id="v4" />
+                {locale === "en-US"
+                  ? language === "ES"
+                    ? "Spanish"
+                    : "Portuguese"
+                  : language}{" "}
+                · v4 <Source id="v4" />
               </h3>
               <CountsChart title={c.pass} values={v4.languages[language]} />
             </div>
@@ -747,9 +763,11 @@ export function Insights({ onTry }: { onTry: () => void }) {
           </p>
           <a href="/dbt-lineage.svg" target="_blank" rel="noreferrer">
             <span className="lineage-zoom">
-              {locale === "pt-BR"
-                ? "Abrir mapa em tamanho original"
-                : "Abrir mapa en tamaño original"}{" "}
+              {locale === "en-US"
+                ? "Open the map at its original size"
+                : locale === "pt-BR"
+                  ? "Abrir mapa em tamanho original"
+                  : "Abrir mapa en tamaño original"}{" "}
               <span aria-hidden="true">↗</span>
             </span>
             <Image

@@ -15,7 +15,7 @@ export function Login({
   preferredUsername?: string;
 }) {
   const t = useTranslations();
-  const { config, signedIn, setLocale } = useApp();
+  const { config, signedIn, setLocale, setBankLocale, locale } = useApp();
   const choices = config.personas.filter((p) => p.role === role);
   const [username, setUsername] = useState(
     choices.find((p) => p.username === preferredUsername)?.username ??
@@ -119,7 +119,10 @@ export function Login({
                     const p = choices.find(
                       (x) => x.username === e.target.value,
                     );
-                    if (p) setLocale(p.locale);
+                    if (p) {
+                      setBankLocale(p.locale);
+                      if (locale !== "en-US") setLocale(p.locale);
+                    }
                   }}
                 >
                   {choices.map((p) => (

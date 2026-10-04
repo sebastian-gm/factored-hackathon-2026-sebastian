@@ -10,6 +10,11 @@ export const test = base.extend<{ admissionClient: void }>({
         .digest("hex")
         .slice(0, 24);
       const ip = `2001:db8:${hash.match(/.{4}/g)!.join(":")}`;
+      // Existing ES/PT suites explicitly opt into their historical UI language.
+      if (!info.file.endsWith("english-interface.spec.ts"))
+        await context.addInitScript(() =>
+          localStorage.setItem("aclara.interfaceLanguage", "es-MX"),
+        );
       await context.setExtraHTTPHeaders({ "X-Forwarded-For": ip });
       await use();
     },

@@ -21,7 +21,12 @@ import { TransactionCard } from "./transaction-card";
 import { FreezeCard } from "./freeze-card";
 import { ChatStages } from "./chat-stages";
 import { JudgeTryPanel } from "./judge-try-panel";
-import { queueLabelKey, ruleLabelKey } from "@/lib/ui-copy";
+import { es, pt } from "@/lib/messages";
+import {
+  queueLabelKey,
+  ruleLabelKey,
+  handoffReasonLabelKey,
+} from "@/lib/ui-copy";
 
 type Line = {
   id: number;
@@ -37,7 +42,7 @@ export function CustomerChat({
   onPendingChange?: (locked: boolean) => void;
 }) {
   const t = useTranslations();
-  const { locale, config, session, signOut } = useApp();
+  const { locale, conversationLocale, config, session, signOut } = useApp();
   const [conversation, setConversation] = useState("");
   const [lines, setLines] = useState<Line[]>([]);
   const [draft, setDraft] = useState(initialDraft),
@@ -109,7 +114,11 @@ export function CustomerChat({
     return () => clearInterval(timer);
   }, [proposal]);
   function failed(caught: unknown, mutation = false) {
-    if (caught instanceof ApiError && caught.code === "admission_limited") {
+    if (
+      caught instanceof ApiError &&
+      (caught.code === "admission_limited" ||
+        (caught.status === 429 && !mutation))
+    ) {
       setUncertain(false);
       setError(t("rateLimited", { seconds: caught.retryAfter }));
       return;
@@ -159,7 +168,10 @@ export function CustomerChat({
       );
     } catch (caught) {
       setDraft(text);
-      if (caught instanceof ApiError && caught.code === "admission_limited")
+      if (
+        caught instanceof ApiError &&
+        (caught.code === "admission_limited" || caught.status === 429)
+      )
         setLines((current) => current.slice(0, -1));
       failed(caught);
     } finally {
@@ -294,10 +306,12 @@ export function CustomerChat({
     event.preventDefault();
     void send(draft);
   }
+  const customerText = (key: keyof typeof es) =>
+    (conversationLocale === "pt-BR" ? pt : es)[key];
   const examples =
     session?.username === "demo.fraud"
       ? ["fraudPrompt"]
-      : locale === "pt-BR"
+      : conversationLocale === "pt-BR"
         ? ["ambiguousPrompt", "fraudPrompt"]
         : ["normalPrompt", "fraudPrompt"];
   const judgeProfile =
@@ -320,6 +334,11 @@ export function CustomerChat({
             <span className={`dot ${renew ? "paused" : ""}`} />
             {t(renew ? "signInAgain" : "active")}
           </span>
+          {locale === "en-US" && (
+            <p className="caption" data-testid="conversation-language-notice">
+              {t("conversationLanguageNotice")}
+            </p>
+          )}
         </div>
         <span className={`secure-pill ${renew ? "pending" : ""}`}>
           {renew ? <CircleHelp size={14} /> : <ShieldCheck size={14} />}
@@ -352,7 +371,9 @@ export function CustomerChat({
                 {examples.map((key) => (
                   <button
                     key={key}
-                    onClick={() => void send(t(key))}
+                    onClick={() =>
+                      void send(customerText(key as keyof typeof es))
+                    }
                     disabled={busy}
                   >
                     {t(key)}
@@ -476,7 +497,7 @@ export function CustomerChat({
                 disabled={busy}
                 onChoose={() =>
                   void send(
-                    locale === "pt-BR"
+                    conversationLocale === "pt-BR"
                       ? `o ${["primeiro", "segundo", "terceiro"][i]}`
                       : `el ${["primero", "segundo", "tercero"][i]}`,
                   )
@@ -489,7 +510,9 @@ export function CustomerChat({
             size="small"
             onClick={() =>
               void send(
-                locale === "pt-BR" ? "nenhuma dessas" : "ninguno de estos",
+                conversationLocale === "pt-BR"
+                  ? "nenhuma dessas"
+                  : "ninguno de estos",
               )
             }
           >
@@ -521,13 +544,13 @@ export function CustomerChat({
             <Button
               variant="secondary"
               disabled={busy}
-              onClick={() => void send(t("recognizeChargeMessage"))}
+              onClick={() => void send(customerText("recognizeChargeMessage"))}
             >
               {t("recognizeCharge")}
             </Button>
             <Button
               disabled={busy}
-              onClick={() => void send(t("disputeCharge"))}
+              onClick={() => void send(customerText("disputeCharge"))}
             >
               {t("disputeCharge")}
             </Button>
@@ -567,13 +590,13 @@ export function CustomerChat({
             <div className="recovery-actions">
               <Button
                 variant="secondary"
-                onClick={() => prepareQuery(t("statusPrompt"))}
+                onClick={() => prepareQuery(customerText("statusPrompt"))}
               >
                 {t("prepareStatus")}
               </Button>
               <Button
                 variant="secondary"
-                onClick={() => prepareQuery(t("humanPrompt"))}
+                onClick={() => prepareQuery(customerText("humanPrompt"))}
               >
                 {t("askHuman")}
               </Button>
@@ -717,7 +740,7 @@ export function CustomerChat({
         closeLabel={t("close")}
         drawer
       >
-        <p className="why-explanation">{why?.reply}</p>
+        {locale !== "en-US" && <p className="why-explanation">{why?.reply}</p>}
         <div className="drawer-section">
           <h3>{t("evidence")}</h3>
           {why?.transaction ? (
@@ -732,6 +755,16 @@ export function CustomerChat({
         </div>
         <div className="drawer-section">
           <h3>{t("rules")}</h3>
+          {locale === "en-US" && (
+            <ul className="rule-list">
+              {[...new Set(whyRules)].map((rule) => (
+                <li key={rule}>
+                  <code>{rule}</code> · {t(ruleLabelKey(rule))} ·{" "}
+                  {t(handoffReasonLabelKey(rule))}
+                </li>
+              ))}
+            </ul>
+          )}
           <div className="rule-list">
             {whyRules
               .map(ruleLabelKey)

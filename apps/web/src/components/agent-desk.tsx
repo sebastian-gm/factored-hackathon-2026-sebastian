@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import { staffGuidance } from "@/lib/staff-guidance-en";
 import { useTranslations } from "next-intl";
 import {
   ArrowUpRight,
@@ -293,10 +294,28 @@ export function AgentDesk({ ownVisit = false }: { ownVisit?: boolean }) {
                 <h3>{t("requestSummary")}</h3>
                 <p>
                   {typeof current.request_summary?.text === "string"
-                    ? current.request_summary.text
-                    : t("requestSummaryEmpty")}
+                    ? locale === "en-US"
+                      ? staffGuidance(orderedReasons(current))
+                          .map((g) => g.summary)
+                          .join(" ")
+                      : current.request_summary.text
+                    : locale === "en-US"
+                      ? staffGuidance(orderedReasons(current))
+                          .map((g) => g.summary)
+                          .join(" ")
+                      : t("requestSummaryEmpty")}
                 </p>
               </section>
+              {locale === "en-US" &&
+                typeof current.request_summary?.text === "string" && (
+                  <section className="packet-section">
+                    <h3>API summary (original, ES/PT)</h3>
+                    <p lang={current.route.language}>
+                      {current.request_summary.text}
+                    </p>
+                    <p className="caption">{t("apiOriginal")}</p>
+                  </section>
+                )}
               <section
                 className="packet-section"
                 aria-labelledby="handoff-reasons-title"
@@ -424,11 +443,16 @@ export function AgentDesk({ ownVisit = false }: { ownVisit?: boolean }) {
                   </details>
                 </section>
               ) : null}
-              {current.suggested_next_steps?.length ? (
+              {locale === "en-US" || current.suggested_next_steps?.length ? (
                 <section className="packet-section">
                   <h3>{t("nextSteps")}</h3>
                   <ul>
-                    {current.suggested_next_steps.map((step) => (
+                    {(locale === "en-US"
+                      ? staffGuidance(orderedReasons(current)).map(
+                          (g) => g.next,
+                        )
+                      : (current.suggested_next_steps ?? [])
+                    ).map((step) => (
                       <li key={step}>{step}</li>
                     ))}
                   </ul>
@@ -436,13 +460,18 @@ export function AgentDesk({ ownVisit = false }: { ownVisit?: boolean }) {
               ) : null}
               <section className="packet-section">
                 <h3>{t("questions")}</h3>
-                {!current.open_questions.length && (
+                {locale !== "en-US" && !current.open_questions.length && (
                   <p className="caption packet-empty">
                     {t("packetQuestionsEmpty")}
                   </p>
                 )}
                 <ul className="questions">
-                  {current.open_questions.map((q) => (
+                  {(locale === "en-US"
+                    ? staffGuidance(orderedReasons(current)).map(
+                        (g) => g.question,
+                      )
+                    : current.open_questions
+                  ).map((q) => (
                     <li key={q}>{q}</li>
                   ))}
                 </ul>

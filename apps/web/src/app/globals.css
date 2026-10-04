@@ -3785,7 +3785,7 @@ label {
     display: none;
   }
   .profile-selected .topbar-controls {
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
   }
 }
 
