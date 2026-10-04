@@ -14,6 +14,38 @@ certification. The v0.1.0–v0.5.0 annotated tags and GitHub Releases were creat
 - Every change now uses a feature branch and PR; every Azure release gets a tag.
 - `v1.0.0` is reserved for the exact submission-day Azure release SHA.
 
+## [0.9.1] — 2026-10-04, judge conversation and tour (post-v4)
+
+- Scoped latest-case status and verified readbacks; contextual follow-ups,
+  courtesy and ES/PT reply-language changes preserve action confirmation.
+- Corrections use grounded positive details; negated dates cannot select a charge,
+  and rejected corrections reach the existing clarification/handoff limit.
+- CO/AR quick-start stories keep the selected customer profile; explicit
+  cross-profile recording shortcuts still use trusted server profile selection.
+- Accessible judge invitation, numbered choices, phone layouts and private tour
+  tooling; completed post-hoc human agreement is linked separately from v4.
+- Repository publication was explicitly approved and verified on October 4,
+  with PR/check protection on main. `v1.0.0` and email remain pending approval.
+- Official v4 results are unchanged. This batch does not change warm/burst
+  settings, judge access, CPU or budget binding. Deployment gates and spend are
+  recorded in the release receipt and progress log when verified.
+
+## [0.9.0] — 2026-10-03 COT, judge go-live (post-v4)
+
+- Deployed/tagged `edd30702f32b21af17fc353d0ee410e67b2e932b`; CI, safety and authenticated
+  independent-runner access green at that SHA. Official v4 numbers unchanged.
+- Approved warm min=1, API max=3 / HTTP concurrency=5; unchanged CPU/memory/worker.
+  Public HTTPS web with judge login/picker, API internal; trusted source roles
+  accepted without weakening identity/cookie/expiry validation.
+- Production $1/UTC day plus $1.60 lifetime judging limit; separate durable
+  $0.10/$0.30/$0.20 operator scopes, conservative maximum $14.96326498 / $15.
+- Backed up/reset four owner maps; two judge visits filed the same story with
+  isolated receipts. Staff claim and password rotation/restoration verified.
+- Six provider calls cost $0.0115855; another $0.03 attribution reserve retained.
+  Browser adapter failures and follow-up checks disclosed; no paid filing replay.
+- Repository private; Gate C publication/v1.0.0/email needs Sebastian's final go.
+- [Evidence, costs and limits](docs/submission/go-live-2026-10-03.md).
+
 ## [0.8.1] — 2026-10-02 COT, staff queue and monetary privacy (post-v4)
 
 - Deployed `3bc06d0db1c9b38233c04558f8093ce956258ab2`; #138/#147/#149 integrated through green #150.

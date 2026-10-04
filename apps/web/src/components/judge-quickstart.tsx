@@ -28,11 +28,26 @@ export function JudgeQuickstart({
   const available = (story: DemoStory) =>
     profileFlow
       ? !!storyProfile(
-          profiles?.profiles ?? [],
+          (profiles?.profiles ?? []).filter(
+            (profile) =>
+              !session?.judge_profile_id ||
+              profile.profile_id === session.judge_profile_id,
+          ),
           story,
           session?.judge_profile_id,
         )
-      : !!storyPersona(config, story, session?.username);
+      : !!storyPersona(
+          !config.fixtures && session
+            ? {
+                ...config,
+                personas: config.personas.filter(
+                  (persona) => persona.username === session.username,
+                ),
+              }
+            : config,
+          story,
+          session?.username,
+        );
   const [busy, setBusy] = useState(false),
     [failed, setFailed] = useState(false);
   const lock = useRef(false);
@@ -70,26 +85,24 @@ export function JudgeQuickstart({
           )}
         </div>
       </div>
-      <div className="story-picker" aria-label={t("quickstartStories")}>
-        {demoStories.map((story) => (
+      <div
+        className="story-picker"
+        role="group"
+        aria-label={t("quickstartStories")}
+      >
+        {demoStories.filter(available).map((story) => (
           <Button
             key={story.id}
             variant="secondary"
             data-testid={`quickstart-${story.id}`}
             aria-pressed={selected?.id === story.id}
-            disabled={busy || locked || !available(story)}
+            disabled={busy || locked}
             onClick={() => void prepare(story)}
           >
             {t(`story_${story.id}`)}
-            <span className="story-language">
-              {story.locale === "pt-BR" ? "PT" : "ES"}
-            </span>
           </Button>
         ))}
       </div>
-      {demoStories.some((story) => !available(story)) && (
-        <p className="caption">{t("recordingUnavailable")}</p>
-      )}
       {failed && (
         <p className="error" role="alert">
           {t("storyFailed")}

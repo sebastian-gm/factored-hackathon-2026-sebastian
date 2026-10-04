@@ -41,7 +41,9 @@ test("live ADR-0015: password, OTP, explanation, offer, denial and separate conf
     .fill("¿Qué es el cargo de Café Central?");
   await page.getByRole("button", { name: "Enviar mensaje" }).click();
   await expect(page.getByText(/Es una autorización;/)).toBeVisible();
-  await expect(page.getByText("Producto no informado")).toBeVisible();
+  await expect(page.locator(".transaction-top h3")).toBeVisible();
+  await expect(page.locator(".transaction-top p")).toHaveCount(0);
+  await expect(page.getByText("Producto no informado")).toHaveCount(0);
   await page.getByRole("button", { name: "¿Por qué?", exact: true }).click();
   await expect(page.getByRole("dialog")).toContainText("Estado del movimiento");
   await page.keyboard.press("Escape");

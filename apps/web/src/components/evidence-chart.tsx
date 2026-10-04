@@ -25,6 +25,7 @@ export function EvidenceChart({
   sort?: boolean;
 }) {
   const ordered = sort ? [...rows].sort((a, b) => b.value - a.value) : rows;
+  const axisTick = (value: number) => tick(value).replaceAll("\u00a0", " ");
   return (
     <figure
       className="evidence-chart"
@@ -57,9 +58,9 @@ export function EvidenceChart({
         ))}
       </div>
       <div className="evidence-axis" aria-hidden="true">
-        <span>{tick(0)}</span>
-        <span>{tick(max / 2)}</span>
-        <span>{tick(max)}</span>
+        <span>{axisTick(0)}</span>
+        <span>{axisTick(max / 2)}</span>
+        <span>{axisTick(max)}</span>
       </div>
       <p className="evidence-units">{axisLabel}</p>
     </figure>

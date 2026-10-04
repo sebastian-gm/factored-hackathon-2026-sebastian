@@ -1,0 +1,13 @@
+# Local make demo only: authored fixtures, mock models, scoped reset + read-back.
+# Apply after docker-compose.yml and docker-compose.demo.yml; never deploy this.
+services:
+  api:
+    environment:
+      LEDGER_BACKEND: fixture
+      LLM_PROVIDER: mock
+      LLM_REAL_CALLS_APPROVED: "0"
+      JUDGE_ACCESS_ENABLED: "false"
+      ALLOW_DEMO_RESET: "true"
+  web:
+    environment:
+      FRONTEND_ALLOW_DEMO_RESET: "true"

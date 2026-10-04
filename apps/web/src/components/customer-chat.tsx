@@ -19,7 +19,7 @@ import { Button } from "./ui/button";
 import { Modal } from "./ui/dialog";
 import { TransactionCard } from "./transaction-card";
 import { FreezeCard } from "./freeze-card";
-import { ChatStages, responseStage } from "./chat-stages";
+import { ChatStages } from "./chat-stages";
 import { JudgeTryPanel } from "./judge-try-panel";
 import { queueLabelKey, ruleLabelKey } from "@/lib/ui-copy";
 
@@ -71,11 +71,13 @@ export function CustomerChat({
   }, [proposal, busy, renew, uncertain, freezePending, onPendingChange]);
   useEffect(() => {
     if (!latest || busy || confirmOpen) return;
-    const frame = requestAnimationFrame(() =>
-      (decision.current ?? receipt.current)?.scrollIntoView({
-        block: "nearest",
-      }),
-    );
+    const frame = requestAnimationFrame(() => {
+      const target =
+        decision.current?.querySelector<HTMLElement>(".candidate-grid") ??
+        decision.current ??
+        receipt.current;
+      target?.scrollIntoView({ block: "nearest" });
+    });
     return () => cancelAnimationFrame(frame);
   }, [latest, busy, confirmOpen]);
   useEffect(() => {
@@ -363,11 +365,6 @@ export function CustomerChat({
               {line.plan?.transaction && (
                 <TransactionCard transaction={line.plan.transaction} />
               )}
-              {line.plan && (
-                <span className="turn-stage" aria-label={t("turnStage")}>
-                  {t(`stage_${responseStage(line.plan)}`)}
-                </span>
-              )}
               {line.plan?.outcome === "cancelled" && (
                 <div className="cancelled-notice" role="status">
                   <CircleSlash2 size={21} aria-hidden="true" />
@@ -399,7 +396,11 @@ export function CustomerChat({
                       {line.plan.case.status === "received"
                         ? t("caseStatus")
                         : t("caseStatusOther")}{" "}
-                      · <CheckCheck size={14} /> {t("verified")}
+                      ·{" "}
+                      <span className="receipt-verification">
+                        <CheckCheck size={14} aria-hidden="true" />
+                        <span>{t("verified")}</span>
+                      </span>
                     </p>
                     <small>{t("receiptNote")}</small>
                     {line.plan.case.review_flag && <p>{t("reviewFlag")}</p>}

@@ -2,6 +2,9 @@
 
 Read the [complete archived record](../history/status/progress-log.md).
 The [final evaluation (v4)](../evaluation/final-v4-results.md) remains unchanged.
+Current release: [v0.9.0 go-live evidence](../submission/go-live-2026-10-03.md).
+
+Latest AI human review: [October 3 post-hoc agreement](../evaluation/judge-human-validation.md).
 
 <details>
 <summary>Compatibility excerpt for existing chart tools</summary>
@@ -20,3 +23,10 @@ The [final evaluation (v4)](../evaluation/final-v4-results.md) remains unchanged
 - Disclosure: a first final attempt was stopped at ~6/200 P cases after a dev-only finding; its results were never viewed.
 
 </details>
+
+AI candidate-correction evidence: [mock conversation improvements](../evaluation/judge-conversation-improvements.md).
+AI reply-language evidence: [mock language and choice audit](../evaluation/judge-language-and-choice-audit.md).
+Public-only publication completed at v0.9.0; v1.0.0 and email remain pending.
+The [folded lane records](../history/status/progress-log.md#2026-10-04-public-only-publication-and-held-batch-records)
+preserve author-time checks and holds. The combined v0.9.1 gates/release remain Lead work.
+Historical AI baseline: [October 3 mock judge exploration](../evaluation/judge-multi-turn-exploration.md).

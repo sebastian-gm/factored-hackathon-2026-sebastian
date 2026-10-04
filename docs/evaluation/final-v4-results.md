@@ -143,9 +143,13 @@ failed or unpaired items. Handoff usefulness applies to 31 of those items.
 | Empathy | 21/60 (35.0%) | 58/60 (96.7%) | 0.179 |
 | Handoff usefulness | 29/31 (93.5%) | 31/31 (100%) | 0.000 |
 
-Machine agreement is not human validation. The blank 20-item owner sheet is
+Machine agreement is not human validation. The original 20-item owner sheet is
 `artifacts/final-program-v4/human-judge-20.csv`, verified at mode 0600 and 20
-records. Human scores, judge–human agreement and calibration remain pending.
+records. Sebastian completed the blind review on October 3; the separate
+[post-hoc human agreement report](judge-human-validation.md) pairs all **20
+items / 70 applicable ratings** with both saved judges, without new model calls
+or changes to these official results. This one-reviewer sample does not meet the
+rubric's 50-item calibration requirement; fluent PT review remains unconfirmed.
 
 ## Cost and latency
 

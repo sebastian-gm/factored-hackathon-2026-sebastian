@@ -120,9 +120,9 @@ for (const pt of [false, true]) {
         if (r.method() === "POST") posts++;
       });
       await bootstrap(page, pt, false);
-      await expect(page.getByTestId("quickstart-explain")).toBeDisabled();
-      await expect(page.getByTestId("quickstart-fraud")).toBeDisabled();
-      await expect(page.getByTestId("quickstart-ambiguous")).toBeDisabled();
+      await expect(page.getByTestId("quickstart-explain")).toHaveCount(0);
+      await expect(page.getByTestId("quickstart-fraud")).toHaveCount(0);
+      await expect(page.getByTestId("quickstart-ambiguous")).toHaveCount(0);
       const shortcut = page.getByRole("button", {
         name: pt
           ? "Abrir ferramentas de gravação"

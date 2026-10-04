@@ -1,11 +1,31 @@
 # Submission-day runbook — Sunday, October 4, 2026
 
-**Preparation only. Do not execute activation, publication, spending or deletion
-from this document without the approvals below.** Submission-day activation,
-publication, email and teardown remain unexecuted. The October 2 owner-only
+**October 3 update:** Sebastian approved and activated Gates A/B in handoff 19.
+[v0.9.0 evidence](go-live-2026-10-03.md) records warm/burst replicas, public web
+judge login, internal API, $1/UTC-day and $1.60 lifetime judging limits,
+backed-up owner maintenance and live checks. **Do not repeat sections 0–3 below:
+their OFF-baseline activation recipes are historical preparation.** At that
+release check, publication, v1.0.0, email, future maintenance and retirement
+still needed their own approvals; the public-only update below supersedes only
+the publication state.
+Handoff 19's grouped **Gate C** means publication + v1.0.0 + email; the older
+table below names those D/E. Use the new Gate C script/checklist when merged,
+after a final release and fresh audit; never infer approval from this runbook.
+
+**October 4 update:** Sebastian separately approved **public-only** publication.
+At 08:25 UTC, the original repository was public at deployed v0.9.0 SHA
+`edd30702f32b21af17fc353d0ee410e67b2e932b`, with active strict main protection
+and logged-out README/readback checks. See [publication evidence](go-live-2026-10-03.md#october-4-public-only-publication).
+No new tag, Release or email was created. Do not repeat the historical visibility
+recipe below or run the old combined private-to-public script against this now-
+public repository. A final release, v1.0.0 and email remain separate pending gates.
+
+**Preparation history. Do not execute publication, spending or deletion
+from this document without the approvals below.** The public-only operation
+above is complete; v1.0.0, email and teardown remain unexecuted. The October 2 owner-only
 v0.7.0 release and capped smoke are recorded separately in
 [release notes](../history/evaluation/v0.7-release-notes.md). This is a private
-operator document; current-tree scrub must remove private deployment details before publication. Commands run inside this
+operator history; the publication audit is recorded separately above. Commands run inside this
 repository, with Git always `git -C`, only `origin`, and Azure explicitly
 **Seb Azure Sandbox**. Never change the CLI default or use `slpnova-azure-main`.
 
@@ -19,11 +39,11 @@ through **October 16 inclusive**. Proposed closure: **October 17, 00:00 COT =
 
 | Gate | Explicit Sebastian OK / scope |
 | --- | --- |
-| A — warm | **Required:** date/window, both apps min=1, exact plan and monthly estimate; separately approve an estimate above $40 |
-| B — judge | **Required:** public web HTTPS, separate account/four reviewed sources, secret creation/rotation, two secret-scoped role assignments, proposed shared $1/UTC-day cap with a cumulative judging limit, and external access check |
+| A — warm | **Approved/executed October 3:** both apps min=1 through October 16, API max=3 / HTTP concurrency=5; cost/readback in v0.9.0 evidence. No repeat activation |
+| B — judge | **Approved/executed October 3:** public web HTTPS, internal API, four profiles, Key Vault password, $1/UTC-day plus $1.60 lifetime judging run; independent-network checks passed |
 | C — final release | **Standing OK already granted:** CI-green main image-tag updates and approved smoke binding. Sebastian approved +$3 on October 2: **$15 cumulative including reserves**, for the final smoke and judging window. Record the final SHA; additional resource/access changes still require a new OK |
-| M — owner maintenance | **Required before each pre-video/pre-submission reset:** named persona/owner realm, private verified backup, quiesced owner sessions, temporary reset flags, proposal/confirmation/readback and restoration of flags. No direct database deletion fallback |
-| D — public repo | **Required:** exact original-repo release SHA, full-history/PR/Actions audit and `sebastian-gm/factored-hackathon-2026-sebastian` only. It stays private until this gate |
+| M — owner maintenance | **Fresh approval required for each future reset.** October 3 handoff 19 separately authorized backed-up app-role/FORCE-RLS maintenance; 22 owner cases backed up/reset, HTTP flags stayed OFF. Historical HTTP recipe below is not a fallback authorization |
+| D — public repo | **Approved/executed October 4, public-only:** exact original-repo deployed SHA `edd3070`, full-history/PR/Actions audit, active main ruleset and anonymous README readback. No v1.0.0 or email; do not repeat visibility activation |
 | E — send | Sebastian approves the completed email, attachments/links and private credential delivery; the operator does not send on a draft's authority |
 | F — retirement | **Required:** exact closure time, scale-down versus irreversible deletion, backup retention/destination and any extra availability/model allowance |
 

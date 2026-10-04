@@ -1,7 +1,7 @@
 # Repository working rules
 
 - Work only in this repository. Run every Git command as `git -C <repo>` with this repository path.
-- This is the submission repository, `sebastian-gm/factored-hackathon-2026-sebastian` (formerly `bank-agent-lab`). Keep it private until Sebastian's explicit submission-day publication approval. Configure and push only `origin`.
+- This is the submission repository, `sebastian-gm/factored-hackathon-2026-sebastian` (formerly `bank-agent-lab`). Sebastian approved its public-only publication on October 4, 2026. Routine authorized feature-branch PRs follow the existing review/merge rules; Azure access changes and new public resources still require explicit approval. Configure and push only `origin`.
 - Never add organizer rows, credentials, keys, passwords, connection strings, or local secrets to Git.
 - Read organizer records only from a local `LOCAL_RAW_DIR`; write generated data only under ignored `lake/` or `artifacts/`.
 - Commit aggregates, schemas, contracts, and project-generated fixtures only. Do not put row-level data in logs, docs, or CI artifacts.

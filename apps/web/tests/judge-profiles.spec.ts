@@ -63,6 +63,51 @@ async function capture(page: Page, name: string) {
   await chmod(path, 0o600);
 }
 
+for (const profileId of ["mx-es", "pt"] as const) {
+  test(`${profileId}: trusted Ops judge uses a separate staff invitation`, async ({
+    page,
+  }) => {
+    await loginJudge(page);
+    await select(page, profileId);
+    // Authored UI projection of the trusted Ops-backed production profiles.
+    // The BFF selection validator remains owned by the lead's prerequisite PR.
+    await page.route("**/api/bff/config", async (route) => {
+      const data = await (await route.fetch()).json();
+      await route.fulfill({ json: { ...data, fixtures: false } });
+    });
+    await page.route("**/api/bff/me", async (route) => {
+      const data = await (await route.fetch()).json();
+      await route.fulfill({ json: { ...data, role: "ops" } });
+    });
+    await page.reload();
+    await expect(page.locator(".composer textarea")).toBeVisible();
+    await page.getByRole("button", { name: "Agent Desk", exact: true }).click();
+    await expect(
+      page.getByRole("heading", {
+        name:
+          profileId === "pt"
+            ? "Compartilhe sua solicitação com o atendimento"
+            : "Comparte tu solicitud con atención",
+      }),
+    ).toBeVisible();
+    await expect(page.locator(".desk-grid")).toHaveCount(0);
+    await page.route("**/api/bff/handoffs/realm-invitations", (route) =>
+      route.fulfill({
+        json: {
+          invitation: "authored.judge.staff.invitation.only",
+          expires_at: new Date(Date.now() + 240000).toISOString(),
+          verified: true,
+        },
+      }),
+    );
+    await page.locator(".login-panel > button").click();
+    await expect(
+      page.getByRole("dialog").locator("input[type=password]"),
+    ).toBeVisible();
+    await audit(page);
+  });
+}
+
 test("password/OTP opens metadata-only picker; capability stays HttpOnly and expiry never extends", async ({
   page,
   context,
@@ -214,7 +259,7 @@ for (const locale of ["es-MX", "pt-BR"] as const)
     });
   }
 
-test("shortcuts select hinted profiles, prepare text without sending and never enable judge reset", async ({
+test("shortcuts follow the active profile, prepare text without sending and never enable judge reset", async ({
   page,
 }) => {
   let logins = 0,
@@ -231,11 +276,14 @@ test("shortcuts select hinted profiles, prepare text without sending and never e
   });
   await loginJudge(page);
   await select(page, "ar-es");
+  await expect(page.getByTestId("quickstart-ambiguous")).toHaveCount(0);
   for (const [story, id] of [
     ["explain", "mx-es"],
     ["ambiguous", "pt"],
     ["fraud", "mx-es"],
   ]) {
+    await openPicker(page);
+    await select(page, id as ProfileId);
     await page.getByTestId(`quickstart-${story}`).click();
     await expect(
       page.getByRole("textbox", { name: /Tu mensaje|Sua mensagem/ }),
@@ -248,7 +296,15 @@ test("shortcuts select hinted profiles, prepare text without sending and never e
       page.getByRole("button", { name: /Cambiar perfil|Trocar perfil/ }),
     ).toContainText(id === "pt" ? "Falante PT" : "MX · ES");
   }
-  expect(ids).toEqual(["ar-es", "mx-es", "pt", "mx-es"]);
+  expect(ids).toEqual([
+    "ar-es",
+    "mx-es",
+    "mx-es",
+    "pt",
+    "pt",
+    "mx-es",
+    "mx-es",
+  ]);
   expect([logins, otps, messages]).toEqual([1, 1, 0]);
   await page.getByText("Preparar grabación", { exact: true }).click();
   await expect(
@@ -282,7 +338,7 @@ test("empty hints never fall back to unsupported story scopes", async ({
   await loginJudge(page);
   await select(page, "mx-es");
   for (const story of ["explain", "ambiguous", "fraud"])
-    await expect(page.getByTestId(`quickstart-${story}`)).toBeDisabled();
+    await expect(page.getByTestId(`quickstart-${story}`)).toHaveCount(0);
 });
 
 test("switch clears proposal/dialog and conversation; selecting same profile also rotates", async ({

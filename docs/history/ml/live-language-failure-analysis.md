@@ -7,8 +7,11 @@ Zero-spend AI-lane diagnosis, 2026-09-30 PDT. Only saved **retired v3 and author
 The reported authored reproduction returned `safe=True` before this change:
 
 ```python
-verify_draft("La operaci3n figura como approved.", ["status"],
-             (AllowedFact("status", "Approved", "scoped_transaction_read"),))
+verify_draft(
+    "La operaci3n figura como approved.",
+    ["status"],
+    (AllowedFact("status", "Approved", "scoped_transaction_read"),),
+)
 ```
 
 It now returns unsafe with `text_corruption` and `unlocalized_enum`. The context-aware [grounding verifier](../../../src/aclara/agent/nlg/grounding.py) rejects letters–digits–letters in ordinary words, the existing mojibake/punctuation signatures, and English status/type or machine-state enums in ES/PT drafts. Cited source-backed merchant literals, verified DSP/HO case references and masked-card literals are excluded **only from the prose-quality scan**. Original DLP, citation, number/date, promise and authorization checks still inspect the complete draft; citing an internal handle cannot authorize displaying it. Separate corrupt prose or raw status words remain rejected beside a legitimate merchant, including a merchant named `Approved`.
