@@ -37,7 +37,7 @@ Historical AI baseline: [October 3 mock judge exploration](../evaluation/judge-m
 Latest AI controls: [live exploration verification](progress.d/2026-10-04-ai-live-controls.md).
 Latest AI choice follow-ups: [mock context regressions](progress.d/2026-10-04-ai-pending-candidate-followups.md).
 
-Current candidate: [v0.9.3 reviewed judge-story integration](progress.d/2026-10-04-v093-review.md).
+Earlier candidate: [v0.9.3 reviewed judge-story integration](progress.d/2026-10-04-v093-review.md).
 Historical v0.9.3 stop remains disclosed; v0.9.4 is verified in the
 [release progress record](progress.d/2026-10-04-v094-release.md).
 
@@ -60,3 +60,31 @@ Latest AI live diagnosis: [partial exploration and zero-cost root causes](progre
 ### Next / blocked
 
 - Lead owns merge/release; clean 2x authored-fixture video assets follow both merges.
+
+## 2026-10-04 — v0.9.5
+
+## Completed — verified
+
+- Catalog #194 and corrected activation #195 merged on four green remote gates.
+- Deployed/tagged/released `7ca5905015a42f1e79db10e1bb995005a7b17747` as v0.9.5.
+- Local/mock browser review 129/129; corrected PR browser groups 255 passed;
+  production build and exact-SHA CI/safety passed.
+- Image-only plan/apply; Azure readback and independent authenticated access passed.
+- Live fresh-judge EN default, English Desk/Insights, ES/PT draft language,
+  desktop/390px bounds, four-profile RLS, stale-cookie and logout checks passed.
+- Temporal and masked queue security readbacks passed. Zero new model calls/spend;
+  conservative maximum $14.91264898/$15; existing $1/UTC-day prod cap retained.
+- [Release evidence](../submission/v0.9.5-release-evidence.md) documents commands,
+  workflow IDs, image digests, initial CI failures and revision convergence.
+
+## Done but not verified
+
+- No new real-model or financial-action run: v0.9.4 evidence is explicitly inherited
+  only for the identical API digest and unchanged runtime inputs.
+- Populated live English packets were not created; source and authored tests cover
+  English guidance. Original API summaries remain labeled ES/PT service text.
+
+## Next / blocked
+
+- Video/submission may use v0.9.5. Final v1.0.0/email await Sebastian's go.
+- Official v4 results remain unchanged; no held-out replay or new score.
