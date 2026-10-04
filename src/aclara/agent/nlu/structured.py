@@ -579,12 +579,15 @@ def postprocess(
     # MATCH compares exact ledger enums. Preserve the raw expression for audit,
     # but only pass a canonical kind or missing evidence into its unchanged model.
     transaction_type = normalize_transaction_type(extracted.type_expr)
+    normalized_merchant = extracted.merchant_expr
+    if normalized_merchant is not None and normalized_merchant.strip() in {"", "—"}:
+        normalized_merchant = None
     slots = NormalizedSlots(
         amount_value=parse_amount(extracted.amount_expr, country),
         currency=currency,
         date_start=dates[0] if dates else None,
         date_end=dates[1] if dates else None,
-        merchant_expr=extracted.merchant_expr,
+        merchant_expr=normalized_merchant,
         type_expr=transaction_type,
         product_hint=extracted.product_hint,
         country_expr=extracted.country_expr,
