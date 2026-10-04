@@ -232,6 +232,7 @@ def _case_question(message: str, *, everyday: bool = False) -> bool:
             value,
         )
         or everyday
+        and not declines_dispute(message)
         and re.search(r"\b(caso|disputa|contestacion|contestacao)\b", value)
         and re.search(
             r"\b(que pasa|que acontece|agora|ahora|como (?:esta|vai)|"
