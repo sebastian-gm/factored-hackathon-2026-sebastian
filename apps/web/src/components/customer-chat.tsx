@@ -62,6 +62,14 @@ export function CustomerChat({
   const [uncertain, setUncertain] = useState(false),
     [notice, setNotice] = useState("");
   const [freezePending, setFreezePending] = useState(false);
+  useEffect(() => {
+    if (!initialDraft) return;
+    const frame = requestAnimationFrame(() => {
+      composer.current?.focus();
+      composer.current?.scrollIntoView({ block: "nearest" });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [initialDraft]);
   const proposal = latest?.proposal;
   useEffect(() => {
     onPendingChange?.(

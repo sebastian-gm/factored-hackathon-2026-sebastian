@@ -683,11 +683,14 @@ test("a signed-in judge alias keeps its eligible story account and only prepares
       },
     }),
   );
+  await page.route("**/api/bff/transactions", (route) =>
+    route.fulfill({ json: [offerFixture(false).transaction] }),
+  );
   await page.goto("/");
   await expect(page.locator(".composer")).toBeVisible();
   await page.getByTestId("quickstart-explain").click();
   await expect(page.locator(".composer textarea")).toHaveValue(
-    "Quiero entender un cargo en mi tarjeta.",
+    "¿Qué es el cargo de Papelería Prisma por 64.25 USD del 2026-06-12?",
   );
   await expect(page.locator("input[type=password]")).toHaveCount(0);
   expect(posts).toBe(0); // No logout, message, proposal, OTP renewal or action call.

@@ -99,7 +99,11 @@ export function JudgeQuickstart({
             disabled={busy || locked}
             onClick={() => void prepare(story)}
           >
-            {t(`story_${story.id}`)}
+            {t(
+              profileFlow && story.id === "ambiguous"
+                ? "story_explain"
+                : `story_${story.id}`,
+            )}
           </Button>
         ))}
       </div>
