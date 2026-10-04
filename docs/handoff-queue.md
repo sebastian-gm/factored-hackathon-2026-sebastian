@@ -8,15 +8,16 @@ or deployment is performed by this PR.
    `/handoffs/realm-invitations`. The response contains a five-minute, opaque
    invitation and `expires_at`, verified by read-back. Treat it as a temporary
    capability: do not log it, store it in a transcript, or send it to a model.
-2. A **separately signed-in agent/ops persona**, using its own OTP session, posts
-   `{"invitation": "…"}` to `/agent/handoff-realm`. An invitation grants no staff
-   role. Judge-profile sessions cannot redeem it, even if their source demo
-   persona has an ops role. Each invitation is redeemable by one staff session;
-   retries from that session are idempotent.
+2. A **separately signed-in agent/ops persona**, or the **selected judge from the
+   originating visit**, posts `{"invitation": "…"}` to `/agent/handoff-realm`.
+   An invitation grants no staff role. A judge cannot redeem another visit's or
+   an owner-demo invitation. Each invitation is bound to one staff session or
+   judge controller; retries from that live member are idempotent.
 3. Existing `/agent/handoffs` and `/agent/handoffs/{id}` then return that realm's
    masked queue, with `scope="current_realm"`. All customer profiles in one judge
    visit share the queue; a new judge login has a different realm. Without a
-   membership, the previous `current_workspace` view remains available to staff.
+   membership, the previous `current_workspace` view remains available to normal
+   staff. A judge without membership is denied, with no workspace fallback.
 4. Claim uses the existing `/agent/handoffs/{id}/claim` request
    (`expected_version`, `idempotency_key`). It commits an audited version change,
    reads it back, and returns the committed packet. Concurrent claimants get one
@@ -31,8 +32,11 @@ invalid membership returns 403 rather than falling back to a workspace view.
 The controller's current child digest/revision keeps legitimate profile switching
 within the same visit valid, including after an unchanged-config restart. A new
 invitation can switch staff to another realm, replacing the previous membership.
-Invitation consumption and membership activation use separate existing session
-transactions: a crash between them is recoverable by the same staff session.
+For external staff, invitation consumption and membership activation use separate
+session transactions; a crash between them is recoverable by the same staff
+session. Judge self-redemption consumes the invitation and stores membership
+atomically under its existing controller scope, with the selected capability
+revalidated inside that transaction.
 
 Only the new masked queue has realm visibility. Its table has **FORCE RLS**;
 staff can update only claim-state columns. A narrow owner function publishes or
@@ -52,6 +56,11 @@ is also read back; failure returns 503 rather than claiming queue success. New
 queue packets begin at deployment; this change does not backfill earlier sessions.
 The realm queue supports **claim only**; existing workspace resolve stays intact.
 Staff sign-in/OTP remains the restricted demo identity system, not production IAM.
+
+The judge Desk's **Abrir la cola de esta visita / Abrir a fila desta visita**
+creates and redeems the invitation without a second login. Membership survives
+valid profile switching and reload, but adds no banking, transcript or Ops
+authority. [Judge session contract and threat checks](submission/judge-staff-access.md).
 
 [Mock authorization tests](../tests/test_staff_realm_queue.py) cover sharing,
 masking, other-realm/customer denial, replay, expiry and logout.
