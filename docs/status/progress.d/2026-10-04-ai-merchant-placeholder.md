@@ -22,10 +22,17 @@
 - A concrete owned-charge frontend proposal remains ignored for w8 to apply:
   TypeScript, ESLint and 46 offline checks pass; six browser regressions unrun.
   No tracked frontend files or profile bindings changed. Zero model spend.
+- Remote CI reproduced a language bug independent of merchant normalization:
+  random case ID `DSP-E9B0CA7A` supplied Portuguese `e`/`a` fragments and blocked
+  an explicit ES status switch. Whole-word tokenization excludes alphanumeric
+  references without changing language confidence or routing thresholds.
+  Nine new evidence cases and four additional deterministic ES/PT B1/P receipt
+  cases cover it. All 96 targeted language/starter regressions pass; the existing
+  conflict/uncertainty, verified case, no-extra-write and no-model-call checks remain.
 
 ## Done but not verified
 
-- Remote CI is pending. No live rerun or deployed verification of this fix.
+- Updated remote CI is pending. No live rerun or deployed verification of this fix.
 - Placeholder normalization alone does not fix the opener's incomplete target;
   the frontend must draft from a complete owned purchase without an added date.
 

@@ -95,6 +95,21 @@ def test_conflicting_evidence_is_uncertain() -> None:
     assert detect_language_evidence("Quiero falar com uma pessoa") == "uncertain"
 
 
+@pytest.mark.parametrize("reference", ["DSP-E9B0CA7A", "DSP-C9E8DEAD", "ref-E9B0CA7A"])
+@pytest.mark.parametrize(
+    "text,expected",
+    [
+        ("¿Puedes mostrarme el estado de mi caso?", "es"),
+        ("Agora, qual é o status do meu caso?", "pt"),
+        ("status", "uncertain"),
+    ],
+)
+def test_opaque_alphanumeric_references_carry_no_language_vote(
+    reference: str, text: str, expected: str
+) -> None:
+    assert detect_language_evidence(f"{text} {reference}") == expected
+
+
 def test_sim_request_keeps_spanish_handoff_through_mock_api() -> None:
     async def check() -> None:
         seen: list[str] = []
