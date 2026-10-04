@@ -260,7 +260,11 @@ def _dispute_target_correction(message: str) -> bool:
         r"\bque (?:paso|pasa|ocurrio|ocurre) con (?:es[ae]|est[ae]|la|el|mi) "
         r"(?:compra|cargo)\b|"
         r"\bo que (?:aconteceu|acontece) com (?:ess[ae]|est[ae]|a|o|minha|meu) "
-        r"(?:compra|cobranca)\b",
+        r"(?:compra|cobranca)\b|"
+        # Questions remain reads without punctuation. Require a clause boundary
+        # so a corrected merchant's name does not supply the customer's intent.
+        r"(?:^|[.!?;]\s*)(?:(?:y|e|pero|mas)\s+)?"
+        r"(?:que (?:es|significa|quiere decir)|o que (?:e|significa|quer dizer))\b",
         value,
     )
     recognized = re.search(

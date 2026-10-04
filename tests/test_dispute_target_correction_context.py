@@ -18,7 +18,7 @@ from test_workflow_api import message
 from aclara.agent.contracts import DisputeCaseView
 from aclara.agent.nlu.structured import ExtractedNlu
 from aclara.agent.runtime import Runtime
-from aclara.api.app import create_app
+from aclara.api.app import _dispute_target_correction, create_app
 from aclara.bank.repository import Customer, Transaction, TransactionRepository
 from aclara.llm.client import StructuredClient
 from aclara.llm.types import ModelSpec
@@ -118,6 +118,17 @@ def _scope(app: FastAPI, headers: dict[str, str]) -> Scope:
     return Scope(principal.customer_id, principal.run_id, principal.session_id)
 
 
+@pytest.mark.parametrize(
+    "text",
+    [
+        "Me equivoqué de cargo. Era Qué Significa Estudio por 35.00 USD.",
+        "Me enganei na cobrança. Era O Que É Estúdio por 35.00 USD.",
+    ],
+)
+def test_merchant_question_words_do_not_turn_positive_correction_into_read(text: str) -> None:
+    assert _dispute_target_correction(text)
+
+
 def _state(app: FastAPI, scope: Scope, conversation_id: str) -> dict[str, Any]:
     with app.state.store.transaction(scope):
         conversation = app.state.conversations[conversation_id]
@@ -197,7 +208,8 @@ def test_previous_proposal_hash_cannot_confirm_the_corrected_target(language: La
 
 @pytest.mark.parametrize("language", ["es", "pt"])
 @pytest.mark.parametrize(
-    "decision", ["inquiry", "question", "bare_question", "recognized", "declined"]
+    "decision",
+    ["inquiry", "question", "bare_question", "bare_what", "bare_meaning", "recognized", "declined"],
 )
 def test_explicit_read_recognition_or_decline_does_not_continue_dispute(
     language: Language, decision: str
@@ -207,6 +219,8 @@ def test_explicit_read_recognition_or_decline_does_not_continue_dispute(
             "inquiry": ("Solo quiero consultar esa compra.", "Só quero consultar essa compra."),
             "question": ("¿Qué pasó con esa compra?", "O que aconteceu com essa compra?"),
             "bare_question": ("Qué pasó con esa compra.", "O que aconteceu com essa compra."),
+            "bare_what": ("Qué es ese cargo.", "O que é essa cobrança."),
+            "bare_meaning": ("Qué significa esa compra.", "O que significa essa compra."),
             "recognized": ("Ahora sí la reconozco.", "Agora sim reconheço essa compra."),
             "declined": (
                 "No quiero abrir una disputa.",
