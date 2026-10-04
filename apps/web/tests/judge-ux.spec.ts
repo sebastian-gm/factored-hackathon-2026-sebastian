@@ -590,46 +590,50 @@ test("unbound live stories stay disabled and failed preparation does not claim a
   await expect(page.locator("input[type=password]")).toHaveCount(0);
 });
 
-test("phone choices show all three review actions; choosing a card still requires separate confirmation", async ({
-  page,
-}) => {
-  await page.setViewportSize({ width: 390, height: 844 });
-  const tx = offerFixture(false).transaction!;
-  let messages = 0,
-    confirms = 0;
-  await page.route("**/chat/sessions/*/messages", (r) => {
-    messages++;
-    return r.fulfill({
-      json:
-        messages === 1
-          ? {
-              response_type: "choose_transaction",
-              outcome: "choose_transaction",
-              reply: "Elige el movimiento que quieres revisar.",
-              candidates: [1, 2, 3].map((i) => ({
-                ...tx,
-                handle: `txn_ui_option_${i}`,
-                amount: 60 + i,
-              })),
-            }
-          : proposalFixture(false),
+for (const pt of [false, true])
+  test(`${pt ? "PT" : "ES"}: phone choices show all three review actions; choosing a card still requires separate confirmation`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    const tx = offerFixture(pt).transaction!;
+    let messages = 0,
+      confirms = 0;
+    await page.route("**/chat/sessions/*/messages", (r) => {
+      messages++;
+      return r.fulfill({
+        json:
+          messages === 1
+            ? {
+                response_type: "choose_transaction",
+                outcome: "choose_transaction",
+                reply: pt
+                  ? "Escolha o movimento que deseja revisar."
+                  : "Elige el movimiento que quieres revisar.",
+                candidates: [1, 2, 3].map((i) => ({
+                  ...tx,
+                  handle: `txn_ui_option_${i}`,
+                  amount: 60 + i,
+                })),
+              }
+            : proposalFixture(pt),
+      });
     });
+    page.on("request", (r) => {
+      if (r.url().endsWith("/confirm")) confirms++;
+    });
+    await login(page, pt);
+    await send(page);
+    await expect(page.locator(".chat-stages [aria-current=step]")).toHaveText(
+      "Entender",
+    );
+    const choices = page.locator(".candidate-grid button");
+    await expect(choices).toHaveCount(3);
+    for (let i = 0; i < 3; i++) await inViewport(choices.nth(i), page);
+    await page.locator(".candidate-grid button").nth(1).click();
+    await expect(page.getByRole("dialog")).toBeVisible();
+    expect(confirms).toBe(0);
+    await audit(page);
   });
-  page.on("request", (r) => {
-    if (r.url().endsWith("/confirm")) confirms++;
-  });
-  await login(page);
-  await send(page);
-  await expect(page.locator(".chat-stages [aria-current=step]")).toHaveText(
-    "Entender",
-  );
-  for (const button of await page.locator(".candidate-grid button").all())
-    await inViewport(button, page);
-  await page.locator(".candidate-grid button").nth(1).click();
-  await expect(page.getByRole("dialog")).toBeVisible();
-  expect(confirms).toBe(0);
-  await audit(page);
-});
 
 test("a signed-in judge alias keeps its eligible story account and only prepares a draft", async ({
   page,
