@@ -51,6 +51,11 @@ key is required. Try `DEMO_LANGUAGE=pt make demo` for a separate Portuguese demo
 and preserves its volume. [Clean-clone verification](docs/submission/clean-clone-reproduction.md).
 These post-v4 local-demo changes are **not reflected in v4 numbers**.
 
+For the ES/PT desktop and phone browser tour, run
+`node apps/web/scripts/judge-tour.mjs demo` after `make demo`.
+Screenshots stay private under ignored `artifacts/ux-audit/go-live/`.
+[Tour commands, coverage and live-run prerequisites](apps/web/JUDGE-TOUR.md).
+
 [![ci](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/actions/workflows/ci.yml/badge.svg)](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/actions/workflows/ci.yml)
 
 This is Sebastian's Factored Hackathon 2026 submission repository, renamed from
