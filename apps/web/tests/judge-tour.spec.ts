@@ -487,14 +487,14 @@ test("live judge Agent Desk invitation without a model turn", async ({ page }, i
   await capture(page, info, "judge-staff-invitation");
   info.annotations.push({
     type: "limitation",
-    description: "Judge-side invitation verified. Deployed redemption requires a separately authenticated non-judge staff identity; no delegated judge staff login exists, so live queue claim is unverified.",
+    description: "This invitation-only check does not verify a claim. The own-visit staff step covers judge redemption and claim; external staff uses a separate login.",
   });
   await page.keyboard.press("Escape");
   expect(await page.getByRole("dialog").count()).toBe(0);
 });
 
 test("local independent staff browser claims with read-back", async ({ page, browser }, info) => {
-  test.skip(live, "Live delegated judge staff redemption is unavailable; no owner or separate staff credentials are used.");
+  test.skip(live, "Separate-staff browser coverage is local-only; the live own-visit step covers the judge queue without owner or external staff credentials.");
   test.skip(
     !credentials() || !paid(info) || !process.env.JUDGE_TOUR_STAFF_USERNAME || !process.env.JUDGE_TOUR_STAFF_PASSWORD,
     "Local demo runtime credentials required; queue claim is not verified.",

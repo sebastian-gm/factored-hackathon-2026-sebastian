@@ -31,7 +31,7 @@ AI reply-language evidence: [mock language and choice audit](../evaluation/judge
 Public-only publication completed at v0.9.0; v1.0.0 and email remain pending.
 The [folded lane records](../history/status/progress-log.md#2026-10-04-public-only-publication-and-held-batch-records)
 preserve author-time checks and holds. The combined v0.9.1 release, reset and live-lane signal are verified in the
-[latest progress entry](../history/status/progress-log.md#2026-10-04-v091-release-verified-and-live-lane-signal).
+[v0.9.1 progress entry](../history/status/progress-log.md#2026-10-04-v091-release-verified-and-live-lane-signal).
 Historical AI baseline: [October 3 mock judge exploration](../evaluation/judge-multi-turn-exploration.md).
 
 Latest AI controls: [live exploration verification](progress.d/2026-10-04-ai-live-controls.md).
