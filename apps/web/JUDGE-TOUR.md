@@ -104,7 +104,9 @@ secrets, and must use the same externally enforced
 $0.20 scope as the owner runs. GitHub's ephemeral attempt ledger cannot enforce
 a cap across dispatches; the lead's durable scope must do that.
 The adapter source contains no embedded credentials; the lead supplies any
-operator connection through separately approved private runtime configuration.
+operator connection through the private `JUDGE_TOUR_OPERATOR_DSN` secret.
+Paid dispatches install the existing Python operator dependencies; the adapter
+must use that scoped connection and the same shared purse as the owner.
 Owner and runner evidence must record network and exact deployed release SHA.
 
 ## Interpreting evidence

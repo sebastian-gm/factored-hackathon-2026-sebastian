@@ -35,6 +35,15 @@ jobs:
         working-directory: apps/web
       - run: pnpm exec playwright install --with-deps chromium
         working-directory: apps/web
+      - uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38
+        if: inputs.paid_project != 'none'
+        with:
+          python-version: "3.12"
+      - name: Install existing operator helper dependencies
+        if: inputs.paid_project != 'none'
+        run: |
+          python -m pip install uv==0.11.2
+          uv sync --extra dev
       - name: Stage lead-reviewed private operator adapter
         if: inputs.paid_project != 'none'
         working-directory: apps/web
@@ -62,6 +71,7 @@ jobs:
           JUDGE_TOUR_MAX_TURNS: ${{ inputs.max_turns }}
           JUDGE_TOUR_BUDGET_SCOPE: ${{ secrets.JUDGE_TOUR_BUDGET_SCOPE }}
           JUDGE_TOUR_BUDGET_ADAPTER: artifacts/ux-audit/go-live/operator/adapter.mjs
+          JUDGE_TOUR_OPERATOR_DSN: ${{ secrets.JUDGE_TOUR_OPERATOR_DSN }}
         run: node scripts/judge-tour.mjs live
       # No screenshot, trace, DOM, or row-level artifacts are uploaded to CI.
       # The custom reporter prints only static check names, counts and durations.

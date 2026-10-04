@@ -16,6 +16,9 @@
 - Added README commands, an operator runbook and a lead-owned runner workflow
   template under apps/web/ci. YAML/default/no-upload checks and script syntax
   passed. Private operator reservations are mandatory for paid dispatches.
+- Combined local preparation branch passed web typecheck, lint and production
+  build. Conditional Python operator dependencies are included in the runner
+  template; actual shared workflows remain untouched.
 - Measured after the final evaluation; v4 and all official result numbers unchanged.
 
 ## Done but not verified
