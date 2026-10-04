@@ -104,6 +104,8 @@ export function ledgerStoryDraft(
       (transaction) =>
         transaction.transaction_type === "Purchase" &&
         !!transaction.merchant?.trim() &&
+        // The API masks missing or unsafe merchant names with this marker.
+        transaction.merchant?.trim() !== "—" &&
         Number.isFinite(transaction.amount) &&
         transaction.amount >= 0 &&
         /^[A-Z]{3}$/.test(transaction.currency) &&

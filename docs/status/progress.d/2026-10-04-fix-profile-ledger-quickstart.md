@@ -14,13 +14,17 @@
   cannot replace the new profile's draft. Empty, unavailable or malformed ledgers
   show a localized notice and an editable generic question.
 - PT judge quick-start is labeled “Entender cobrança”; desktop and phone browser
-  regressions skip null/blank merchant names and prefer a complete pending charge
-  over a newer approved charge. This change introduces no dispute story or
+  regressions skip null/blank merchant names and the API's redaction marker, and
+  prefer a complete pending charge over a newer approved charge. The marker
+  regression first reproduced on both viewports before its guard was added.
+  This change introduces no dispute story or
   frontend determination of dispute eligibility.
 - `FRONTEND_E2E_WEB_PORT=3217 FRONTEND_E2E_API_PORT=8217 pnpm test:e2e
   current-profile-stories.spec.ts judge-ux.spec.ts video-readiness.spec.ts
   judge-guide.spec.ts`: 67 passed, including MX/CO/AR/PT desktop/phone coverage,
   fallback states, no auto-send, focus/viewport and late-profile-response checks.
+- After adding the API merchant-marker guard, the same local command restricted
+  to `current-profile-stories.spec.ts` passed all 22 profile/draft checks.
 - `FRONTEND_E2E_WEB_PORT=3217 FRONTEND_E2E_API_PORT=8217 pnpm test:e2e --live
   --grep 'recording helper'`: 2 passed against the local real BFF and authored
   fixture API with `llm_provider="mock"`. `pnpm lint` and `pnpm typecheck` passed.

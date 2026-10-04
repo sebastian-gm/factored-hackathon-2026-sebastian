@@ -139,6 +139,12 @@ for (const width of [1440, 390])
           },
           {
             ...purchases.pt,
+            handle: "UI-PT-redacted-merchant",
+            merchant: "—",
+            status: "Pending",
+          },
+          {
+            ...purchases.pt,
             handle: "UI-PT-approved",
             merchant: "Mercado Sol",
           },
