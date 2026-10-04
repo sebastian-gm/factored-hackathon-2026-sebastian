@@ -5,9 +5,12 @@ const require = createRequire(import.meta.url);
 // Ephemeral test credential: shared only through the child environment, never logged.
 const staff = process.argv.includes("--staff");
 const live = process.argv.includes("--live") || staff;
+const judgeRoles = process.argv.includes("--judge-roles");
+if (judgeRoles && live)
+  throw new Error("Judge role fixtures require an isolated mock run");
 const args = process.argv
   .slice(2)
-  .filter((arg) => arg !== "--live" && arg !== "--staff");
+  .filter((arg) => !["--live", "--staff", "--judge-roles"].includes(arg));
 const result = spawnSync(
   process.execPath,
   [require.resolve("@playwright/test/cli"), "test", ...args],
@@ -17,6 +20,7 @@ const result = spawnSync(
       ...process.env,
       FRONTEND_E2E_LIVE: live ? "1" : "0",
       FRONTEND_E2E_STAFF: staff ? "1" : "0",
+      FRONTEND_E2E_JUDGE_ROLES: judgeRoles ? "1" : "0",
       FRONTEND_FIXTURE_PASSWORD: randomBytes(32).toString("hex"),
       NEXT_TELEMETRY_DISABLED: "1",
     },

@@ -417,7 +417,6 @@ async function handle(
         !actual.judge_profiles_enabled ||
         actual.profile_selection_required ||
         actual.judge_profile_id !== input.data.profile_id ||
-        actual.role !== "customer" ||
         remaining <= 0 ||
         JSON.stringify(actual) !== JSON.stringify(auth.identity)
       )
