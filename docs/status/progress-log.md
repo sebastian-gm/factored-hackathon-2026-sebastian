@@ -6,6 +6,8 @@ Current release: [v0.9.2 verified release](../submission/v0.9.2-release-evidence
 
 Latest AI human review: [October 3 post-hoc agreement](../evaluation/judge-human-validation.md).
 
+Latest live AI evidence: [partial v0.9.1 judge exploration](../evaluation/judge-live-exploration-v0.9.1.md).
+
 <details>
 <summary>Compatibility excerpt for existing chart tools</summary>
 
