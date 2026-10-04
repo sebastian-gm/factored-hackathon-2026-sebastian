@@ -137,6 +137,7 @@ class Conversation:
     rounds: int = 0
     unsupported_turns: int = 0
     terminal_handoff_id: str | None = None
+    scope_handoff_id: str | None = None
     offer_handle: str | None = None
     unfamiliar_charge: bool = False
     recognition_rounds: int = 0
@@ -240,6 +241,29 @@ def _case_question(message: str, *, everyday: bool = False) -> bool:
             value,
         )
     )
+
+
+def _courtesy(message: str) -> tuple[str, str] | None:
+    """Whole-message courtesy only: never consume a banking or risk request."""
+    value = re.sub(r"[.,!?¿¡🙂🙏😊]", " ", normalize_text(message))
+    value = " ".join(value.split())
+    for language, greeting, thanks in (
+        (
+            "es",
+            r"hola(?: como estas| que tal| todo bien)?|buenos dias|buenas tardes|buenas noches|que tal|como estas",
+            r"gracias(?: ya me quedo claro| por ayudar| por la ayuda)?|muchas gracias",
+        ),
+        (
+            "pt",
+            r"ola(?: tudo bem)?|oi|bom dia|boa tarde|boa noite|tudo bem|como vai voce",
+            r"obrigad[oa](?: agora ficou claro| por ajudar| pela ajuda)?|muito obrigad[oa]",
+        ),
+    ):
+        if re.fullmatch(greeting, value):
+            return "greeting", language
+        if re.fullmatch(thanks, value):
+            return "thanks", language
+    return None
 
 
 def _explanation(language: str, row: Transaction, reason: str) -> str:
@@ -897,7 +921,15 @@ def create_app(
             app.state.runtime.record("response", response_type=result["response_type"])
             conversation = app.state.conversations.get(conversation_id)
             complete_packet(app, result, principal, conversation_id, body.message)
-            if conversation and result.get("handoff"):
+            if (
+                conversation
+                and result.get("handoff")
+                and not (
+                    app.state.runtime.system == "P"
+                    and result["response_type"] == "abstain"
+                    and result.get("policy_rules") == ["SCOPE-01"]
+                )
+            ):
                 conversation.proposal = None
                 conversation.candidates = []
                 conversation.offer_handle = None
@@ -1054,6 +1086,13 @@ def create_app(
             and (is_confirmation(body.message) or is_cancellation(body.message))
         ):
             return snapshot, None
+        if _courtesy(body.message) or (
+            conversation.selected_handle
+            and not conversation.offer_handle
+            and not conversation.candidates
+            and is_confirmation(body.message)
+        ):
+            return snapshot, None
         message = body.message
         if injection(message):
             message = " ".join(part for part in re.split(r"[.;\n]", message) if not injection(part))
@@ -1109,6 +1148,58 @@ def create_app(
             "verified": True,
             "policy_rules": ["DSP-06", "COM-01"] if app.state.runtime.system == "P" else ["DSP-06"],
         }
+
+    def human_handoff(
+        principal: Principal, conversation: Conversation, language: str, reasons: list[str]
+    ) -> dict[str, Any]:
+        if set(reasons) != {"ESC-01"} or not conversation.scope_handoff_id:
+            return make_handoff(app, principal, language, reasons)
+        packet = create_packet(language, reasons, app.state.agent_directory)
+        if conversation.scope_handoff_id in app.state.handoffs:
+            packet["handoff_id"] = conversation.scope_handoff_id
+        app.state.handoffs[packet["handoff_id"]] = {
+            **packet,
+            "customer_id": principal.customer_id,
+            "session_id": principal.session_id,
+        }
+        conversation.scope_handoff_id = None
+        return {
+            "response_type": "offer_human",
+            "outcome": "handoff_created",
+            "reply": _handoff_reply(language),
+            "policy_rules": packet["reason_codes"],
+            "handoff": {key: value for key, value in packet.items() if key != "request_summary"},
+        }
+
+    def scope_offer(
+        principal: Principal, conversation: Conversation, language: str
+    ) -> dict[str, Any]:
+        result: dict[str, Any] = {
+            "policy_rules": ["SCOPE-01"],
+            "response_type": "abstain",
+            "outcome": "abstained_out_of_scope",
+            "reply": _localized(
+                language,
+                "Puedo ayudar con cargos no reconocidos. Para otro tema, puedo derivarte a una persona. Podemos seguir con tu cargo cuando quieras.",
+                "Posso ajudar com cobranças não reconhecidas. Para outro assunto, posso encaminhar você a uma pessoa. Podemos continuar com sua cobrança quando quiser.",
+            ),
+        }
+        if not (
+            conversation.selected_handle or conversation.offer_handle or conversation.candidates
+        ):
+            packet = app.state.handoffs.get(conversation.scope_handoff_id or "")
+            if packet is not None:
+                result["handoff"] = {
+                    key: value
+                    for key, value in packet.items()
+                    if key not in {"customer_id", "session_id", "request_summary"}
+                }
+            else:
+                handoff = make_handoff(app, principal, language, "SCOPE-01")
+                result["handoff"] = handoff["handoff"]
+                conversation.scope_handoff_id = handoff["handoff"]["handoff_id"]
+        app.state.runtime.record("abstain")
+        return result
 
     async def process_message(
         conversation_id: str,
@@ -1173,10 +1264,19 @@ def create_app(
                 "policy_rules": packet["reason_codes"],
             }
         contextual = app.state.runtime.system == "P" and _informational_followup(body.message)
+        courtesy = _courtesy(body.message) if app.state.runtime.system == "P" else None
+        unbound_assent = bool(
+            app.state.runtime.system == "P"
+            and conversation.selected_handle
+            and not conversation.proposal
+            and not conversation.offer_handle
+            and not conversation.candidates
+            and is_confirmation(body.message)
+        )
         if conversation.proposal is not None:
             if is_confirmation(body.message):
                 raise HTTPException(status_code=409, detail="Use the action confirmation control")
-            if not contextual:
+            if not (courtesy or contextual):
                 conversation.proposal = None
             if is_cancellation(body.message):
                 return {
@@ -1191,9 +1291,11 @@ def create_app(
         nlu: NluResult | None = None
         language = (
             conversation.language
-            if conversation.candidates or conversation.offer_handle or contextual
+            if conversation.candidates or conversation.offer_handle or contextual or unbound_assent
             else frame.language
         )
+        if courtesy:
+            language = courtesy[1]
         conversation.language = language
         if injection(body.message):
             security_event(app, "direct_prompt_injection")
@@ -1221,7 +1323,7 @@ def create_app(
             conversation.proposal = None
             if "FRD-01" in reasons:
                 return fraud_handoff(app, principal, language, reasons=reasons)
-            return make_handoff(app, principal, language, reasons)
+            return human_handoff(principal, conversation, language, reasons)
         if unsupported_language(body.message):
             conversation.unsupported_turns += 1
             if conversation.unsupported_turns >= 2:
@@ -1231,6 +1333,30 @@ def create_app(
                 "outcome": "clarification",
                 "reply": "Puedo atenderte en español o portugués. / Posso atender em espanhol ou português.",
                 "policy_rules": ["ESC-04"],
+            }
+        if courtesy:
+            return {
+                "response_type": "abstain",
+                "outcome": "abstained_out_of_scope",
+                "reply": _localized(
+                    language,
+                    "Hola. Estoy aquí para ayudarte con tus cargos."
+                    if courtesy[0] == "greeting"
+                    else "De nada. Podemos seguir revisando tus cargos cuando quieras.",
+                    "Olá. Estou aqui para ajudar com suas cobranças."
+                    if courtesy[0] == "greeting"
+                    else "De nada. Podemos continuar revisando suas cobranças quando quiser.",
+                ),
+            }
+        if unbound_assent:
+            return {
+                "response_type": "clarify",
+                "outcome": "clarification",
+                "reply": _localized(
+                    conversation.language,
+                    "¿Quieres consultar el cargo o preparar una disputa? Un sí en el chat no confirma una acción.",
+                    "Você quer consultar a cobrança ou preparar uma contestação? Um sim no chat não confirma uma ação.",
+                ),
             }
         requested = re.search(r"DSP-[A-Za-z0-9-]+", body.message, re.IGNORECASE)
         if _case_question(body.message, everyday=app.state.runtime.system == "P"):
@@ -1280,7 +1406,7 @@ def create_app(
             if extracted_reasons:
                 if "FRD-01" in extracted_reasons:
                     return fraud_handoff(app, principal, language, reasons=extracted_reasons)
-                return make_handoff(app, principal, language, extracted_reasons)
+                return human_handoff(principal, conversation, language, extracted_reasons)
             conversation.degraded = nlu.degraded
             conversation.model_failed |= nlu.degraded and (
                 ai.client.models["nlu"].provider != "mock"
@@ -1367,6 +1493,31 @@ def create_app(
             if handle:
                 conversation.proposal = None
                 return safe_failure(principal, language, "database_timeout")
+        if (
+            app.state.runtime.system == "P"
+            and frame.intent == Intent.OUT_OF_SCOPE
+            and not conversation.model_failed
+            and not uncertain(body.message)
+            and not is_confirmation(body.message)
+            and not re.search(
+                r"\d|\b(primero|primeiro|segundo|tercero|terceiro)\b", normalize_text(body.message)
+            )
+            and not (nlu and any(value is not None for value in nlu.slots.model_dump().values()))
+            and not (
+                offered_row
+                and (
+                    recognizes_charge(body.message)
+                    or nlu
+                    and nlu.extracted.recognition is not None
+                    or normalize_text(body.message).strip(" .,!¿?¡") in {"no", "nao"}
+                )
+            )
+            and not scoped_inquiry_language(
+                body.message, ledger.for_customer(principal.customer_id, active_settings.bank_clock)
+            )
+            and explicit_choice(body.message, len(conversation.candidates)) is None
+        ):
+            return scope_offer(principal, conversation, language)
         if offered_row is not None:
             if nlu is None:
                 nlu = deterministic_understand(
@@ -1473,6 +1624,8 @@ def create_app(
             conversation.proposal = None
             if reason_code == "FRD-01":
                 return fraud_handoff(app, principal, language)
+            if reason_code == "ESC-01" and app.state.runtime.system == "P":
+                return human_handoff(principal, conversation, language, [reason_code])
             packet = create_packet(language, reason_code, app.state.agent_directory)
             app.state.handoffs[packet["handoff_id"]] = {
                 **packet,
