@@ -761,6 +761,16 @@ h1 {
 .receipt p {
   margin: 5px 0 8px;
 }
+.receipt-verification {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+.receipt-verification svg {
+  flex-shrink: 0;
+}
 .receipt small {
   display: block;
   line-height: 1.7;

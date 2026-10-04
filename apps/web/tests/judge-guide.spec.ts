@@ -103,6 +103,21 @@ for (const pt of [false, true])
       await login(page);
       await expect(page.getByTestId("judge-try-panel")).toHaveCount(0);
       await select(page, pt);
+      await expect(page.locator(".story-picker button")).toHaveCount(
+        pt ? 1 : 2,
+      );
+      await expect(page.locator(".story-picker button:disabled")).toHaveCount(
+        0,
+      );
+      await expect(page.getByTestId("quickstart-ambiguous")).toHaveCount(
+        pt ? 1 : 0,
+      );
+      await expect(page.getByTestId("quickstart-explain")).toHaveCount(
+        pt ? 0 : 1,
+      );
+      await expect(page.locator(".story-language")).toHaveCount(0);
+      for (const button of await page.locator(".story-picker button").all())
+        await expect(button).not.toHaveText(/\b(?:ES|PT)\b/);
       const writes: string[] = [];
       page.on("request", (request) => {
         if (request.method() === "POST") writes.push(request.url());

@@ -16,7 +16,7 @@ export function TransactionCard({
   choiceNumber?: number;
 }) {
   const t = useTranslations();
-  const { locale, config } = useApp();
+  const { locale } = useApp();
   const merchant = transaction.merchant?.trim();
   const statuses: Record<string, string> = {
     Pending: "pending",
@@ -36,7 +36,6 @@ export function TransactionCard({
           <h3>
             {merchant && merchant !== "—" ? merchant : t("merchantMissing")}
           </h3>
-          <p>{config.fixtures ? t("demoProduct") : t("productMissing")}</p>
         </div>
       </div>
       <div className="transaction-money">

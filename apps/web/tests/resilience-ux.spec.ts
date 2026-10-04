@@ -63,6 +63,9 @@ test("only an explicit boolean degraded flag is projected; no failure details or
   });
   expect(plan.degraded).toBe(true);
   expect(plan).not.toHaveProperty("failure_detail");
+  expect(
+    planSchema.parse({ ...offerFixture(false), degraded: false }).degraded,
+  ).toBe(false);
   expect(planSchema.parse(offerFixture(false)).degraded).toBeUndefined();
   expect(
     planSchema.safeParse({ ...offerFixture(false), degraded: "true" }).success,
@@ -71,22 +74,59 @@ test("only an explicit boolean degraded flag is projected; no failure details or
 
 for (const pt of [false, true]) {
   for (const width of [1440, 390]) {
-    test(`${pt ? "PT" : "ES"} ${width}: basic mode is subtle, localized and leaves offer/authority intact`, async ({
+    test(`${pt ? "PT" : "ES"} ${width}: healthy and basic modes preserve the offer and inline verified receipt`, async ({
       page,
     }) => {
       await page.setViewportSize({ width, height: 900 });
       await login(page, pt);
+      await page.route("**/api/bff/config", async (route) => {
+        const config = await (await route.fetch()).json();
+        await route.fulfill({ json: { ...config, fixtures: false } });
+      });
+      await page.reload();
+      await expect(page.locator("#message")).toBeVisible();
+      if (pt)
+        await page
+          .getByLabel(/Idioma y región|Idioma e região/)
+          .selectOption("pt-BR");
       let turn = 0;
-      await page.route("**/chat/sessions/*/messages", (route) =>
-        route.fulfill({
-          json: {
-            ...offerFixture(pt),
-            ...(turn++ === 0 ? { degraded: true } : {}),
-          },
-        }),
-      );
+      await page.route("**/chat/sessions/*/messages", (route) => {
+        const current = turn++;
+        return route.fulfill({
+          json:
+            current === 3
+              ? {
+                  response_type: "report_case",
+                  outcome: "dispute_filed",
+                  reply: pt ? "Pedido registrado." : "Solicitud registrada.",
+                  verified: true,
+                  case: {
+                    case_id: "CASE-UI-RESILIENCE",
+                    transaction_handle: offerFixture(pt).transaction!.handle,
+                    status: "received",
+                    created_at: "2026-06-18T06:00:00Z",
+                    policy_rules: ["DSP-01"],
+                  },
+                }
+              : {
+                  ...offerFixture(pt),
+                  ...(current === 0
+                    ? { degraded: false, reply: "Modo básico" }
+                    : current === 1
+                      ? { degraded: true }
+                      : {}),
+                },
+        });
+      });
       await send(page, pt);
       const notice = page.getByTestId("basic-mode");
+      await expect(page.locator(".chat-line.aclara")).toHaveCount(1);
+      await expect(page.getByRole("log")).toContainText("Modo básico");
+      await expect(notice).toHaveCount(0);
+      await expect(page.locator(".transaction-card")).toBeVisible();
+      await expect(page.locator(".transaction-top p")).toHaveCount(0);
+      await expect(page.locator(".turn-stage")).toHaveCount(0);
+      await send(page, pt);
       await expect(notice).toHaveText(
         pt
           ? "Modo básico · Você pode continuar sua consulta."
@@ -105,7 +145,29 @@ for (const pt of [false, true]) {
       await audit(page);
       await capture(page, `${pt ? "pt" : "es"}-${width}-basic-mode`);
       await send(page, pt);
+      await expect(page.locator(".chat-line.aclara")).toHaveCount(3);
       await expect(notice).toHaveCount(0);
+      await send(page, pt);
+      const verification = page.locator(".receipt-verification");
+      await expect(verification).toBeVisible();
+      await expect(verification.locator("span")).toHaveText("Verificado");
+      expect(
+        await verification.evaluate((node) => {
+          const icon = node.querySelector("svg")!.getBoundingClientRect();
+          const label = node.querySelector("span")!.getBoundingClientRect();
+          return (
+            icon.width > 0 &&
+            label.width > 0 &&
+            icon.right <= label.left &&
+            Math.abs(
+              icon.top + icon.height / 2 - label.top - label.height / 2,
+            ) < 2
+          );
+        }),
+      ).toBe(true);
+      await expect(notice).toHaveCount(0);
+      await expect(page.locator(".turn-stage")).toHaveCount(0);
+      await audit(page);
     });
 
     test(`${pt ? "PT" : "ES"} ${width}: Desk names the customer's workspace, never a bank-wide staff queue`, async ({

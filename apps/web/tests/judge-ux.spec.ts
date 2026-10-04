@@ -134,7 +134,7 @@ for (const pt of [false, true]) {
     await expect(page.locator(".chat-stages [aria-current=step]")).toHaveText(
       pt ? "Decidir" : "Decidir",
     );
-    await expect(page.locator(".turn-stage")).toHaveText("Decidir");
+    await expect(page.locator(".turn-stage")).toHaveCount(0);
     await expect(page.getByRole("dialog")).toHaveCount(0);
     await expect(page.locator(".receipt")).toHaveCount(0);
     await expect(page.locator(".composer textarea")).toBeEnabled();
@@ -466,7 +466,17 @@ test("card retry keeps the challenge; expiry starts a fresh review without confi
     proposals = 0;
   await page.route("**/api/bff/config", async (r) => {
     const config = await (await r.fetch()).json();
-    await r.fulfill({ json: { ...config, fixtures: false } });
+    await r.fulfill({
+      json: {
+        ...config,
+        fixtures: false,
+        personas: config.personas.map((persona: Record<string, unknown>) => ({
+          ...persona,
+          demo_stories:
+            persona.username === "demo.es.mx" ? ["explain", "fraud"] : [],
+        })),
+      },
+    });
   });
   await page.route("**/chat/sessions/*/messages", (r) =>
     r.fulfill({
@@ -528,7 +538,8 @@ test("card retry keeps the challenge; expiry starts a fresh review without confi
     .click();
   const dialog = page.getByRole("dialog");
   await expect(dialog).not.toContainText(/card_ui_preview|Credit/);
-  for (const story of ["explain", "ambiguous", "fraud"])
+  await expect(page.getByTestId("quickstart-ambiguous")).toHaveCount(0);
+  for (const story of ["explain", "fraud"])
     await expect(page.getByTestId(`quickstart-${story}`)).toBeDisabled();
   await dialog.locator("input").fill("000000");
   await dialog.locator("button[type=submit]").click();
@@ -548,11 +559,11 @@ test("card retry keeps the challenge; expiry starts a fresh review without confi
   expect(challenges).toBe(2);
   expect(proposals).toBe(1);
   expect(writes).toBe(0);
-  for (const story of ["explain", "ambiguous", "fraud"])
+  for (const story of ["explain", "fraud"])
     await expect(page.getByTestId(`quickstart-${story}`)).toBeDisabled();
 });
 
-test("unbound live stories stay disabled and failed preparation does not claim a new session", async ({
+test("unbound live stories are hidden and failed preparation does not claim a new session", async ({
   page,
 }) => {
   await page.route("**/api/bff/config", async (r) => {
@@ -569,11 +580,10 @@ test("unbound live stories stay disabled and failed preparation does not claim a
     });
   });
   await page.goto("/");
-  // Wait for the mocked config to render all shortcuts before removing its
-  // route. Locator.all() can return an empty array while bootstrap is pending.
-  await expect(page.locator(".story-picker button")).toHaveCount(3);
-  for (const button of await page.locator(".story-picker button").all())
-    await expect(button).toBeDisabled();
+  await expect(page.locator("#quickstart-title")).toBeVisible();
+  await expect(page.locator(".story-picker button")).toHaveCount(0);
+  await expect(page.locator(".story-language")).toHaveCount(0);
+  await expect(page.locator(".judge-quickstart .caption")).toHaveCount(0);
   await expect(
     page.getByRole("button", { name: /Conoce los datos/ }),
   ).toBeEnabled();
