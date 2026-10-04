@@ -2,6 +2,18 @@ name: azure-access
 
 on:
   workflow_dispatch:
+    inputs:
+      mode:
+        description: Approved ingress mode to verify
+        required: true
+        default: owner
+        type: choice
+        options: [owner, judge]
+      authenticated_judge:
+        description: Consume and revoke the temporary judge controller capability
+        required: true
+        default: false
+        type: boolean
   pull_request:
     paths:
       - .github/workflows/azure-access.yml
@@ -12,18 +24,103 @@ permissions:
 jobs:
   outside-owner-network:
     runs-on: ubuntu-latest
-    timeout-minutes: 3
+    timeout-minutes: 5
     steps:
-      - name: Verify both app endpoints reject this non-allowlisted runner
+      - name: Verify the approved web boundary and internal API from this runner
         env:
           API_URL: ${{ vars.AZURE_API_URL }}
           WEB_URL: ${{ vars.AZURE_WEB_URL }}
+          ACCESS_MODE: ${{ inputs.mode || 'owner' }}
         shell: bash
         run: |
           set -euo pipefail
           test -n "$WEB_URL" && test -n "$API_URL"
-          web_code=$(curl --silent --show-error --max-time 30 --output /dev/null --write-out '%{http_code}' "$WEB_URL")
-          test "$web_code" = 403
-          api_code=$(curl --silent --show-error --max-time 30 --output /dev/null --write-out '%{http_code}' "$API_URL")
+          web_code=$(curl --silent --show-error --max-time 120 --output /dev/null --write-out '%{http_code}' "$WEB_URL")
+          if test "$ACCESS_MODE" = judge; then
+            test "$web_code" = 200
+            bank_code=$(curl --silent --show-error --max-time 120 --output /dev/null --write-out '%{http_code}' "$WEB_URL/api/bff/transactions")
+            test "$bank_code" = 401
+            echo "Public HTTPS web requires banking login: web=$web_code, anonymous transactions=$bank_code"
+          else
+            test "$ACCESS_MODE" = owner
+            test "$web_code" = 403
+            echo "Owner-only web rejects this runner: HTTP $web_code"
+          fi
+          api_code=$(curl --silent --show-error --max-time 30 --output /dev/null --write-out '%{http_code}' "$API_URL/healthz")
           test "$api_code" = 404
-          echo "Non-allowlisted web denied: HTTP $web_code; internal API unavailable externally: HTTP $api_code"
+          echo "Internal API unavailable externally: HTTP $api_code"
+      - name: Verify an authenticated judge profile without model calls
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.mode == 'judge' && inputs.authenticated_judge }}
+        env:
+          WEB_URL: ${{ vars.AZURE_WEB_URL }}
+          JUDGE_CONTROLLER: ${{ secrets.GO_LIVE_JUDGE_COOKIE }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import http.cookiejar
+          import json
+          import os
+          import re
+          import urllib.error
+          import urllib.parse
+          import urllib.request
+
+          parsed = urllib.parse.urlsplit(os.environ['WEB_URL'])
+          assert parsed.scheme == 'https' and parsed.hostname and not parsed.username
+          assert not parsed.query and not parsed.fragment and parsed.path in ('', '/')
+          origin = urllib.parse.urlunsplit((parsed.scheme, parsed.netloc, '', '', ''))
+          token = os.environ.get('JUDGE_CONTROLLER', '')
+          assert re.fullmatch(r'[A-Za-z0-9_.-]{32,1024}', token), 'Temporary capability missing'
+          print('::add-mask::' + token)
+          jar = http.cookiejar.CookieJar()
+          jar.set_cookie(http.cookiejar.Cookie(
+              0, 'aclara_access', token, None, False, parsed.hostname, False, False,
+              '/', True, True, None, True, None, None, {'HttpOnly': None}, False))
+
+          class NoRedirect(urllib.request.HTTPRedirectHandler):
+              def redirect_request(self, request, file, code, message, headers, url):
+                  return None
+
+          opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(jar), NoRedirect())
+          def request(path, body=None):
+              data = json.dumps(body).encode() if body is not None else None
+              req = urllib.request.Request(origin + '/api/bff/' + path, data=data,
+                  headers={'Origin': origin, 'Content-Type': 'application/json'},
+                  method='POST' if data is not None else 'GET')
+              try:
+                  with opener.open(req, timeout=90) as response:
+                      for cookie in jar:
+                          if cookie.name == 'aclara_access' and cookie.value:
+                              print('::add-mask::' + cookie.value)
+                      return response.status, json.loads(response.read())
+              except urllib.error.HTTPError as error:
+                  return error.code, None  # Never read or emit an error body.
+
+          failure = None
+          try:
+              status, identity = request('me')
+              assert status == 200 and identity['profile_selection_required']
+              status, picker = request('auth/judge/profiles')
+              assert status == 200 and len(picker['profiles']) == 4
+              assert request('transactions')[0] == 403
+              status, selected = request('auth/judge/profile', {'profile_id': 'mx-es'})
+              assert status == 200 and selected['verified'] and 'access_token' not in selected
+              status, identity = request('me')
+              assert status == 200 and identity['judge_profile_id'] == 'mx-es'
+              status, transactions = request('transactions')
+              assert status == 200 and isinstance(transactions, list) and transactions
+              assert all('customer_id' not in row and 'fraud_score' not in row for row in transactions)
+          except Exception as error:
+              failure = type(error).__name__
+          finally:
+              try:
+                  status, logout = request('auth/logout', {})
+                  assert status == 200 and logout['signed_out']
+                  assert request('me')[0] == 401
+              except Exception as error:
+                  failure = failure or type(error).__name__
+          if failure:
+              raise SystemExit('Authenticated judge probe stopped: ' + failure)
+          print('Authenticated runner: picker=4, profile/read scope verified, logout/replay denied; model calls=0')
+          PY
