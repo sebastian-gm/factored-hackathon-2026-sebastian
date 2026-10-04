@@ -120,7 +120,8 @@ keeps owned choices visible on short questions and recognition, without selectin
 consuming another clarification round or invoking NLU. Explicit recognition
 clears unfamiliarity. Twenty-four ES/PT regressions cover later selection and
 safety precedence; the corrected combined tree passed 183 targeted regressions.
-It depends on #180 and requires the same authorized cross-lane API lead review.
+The lead reviewed the authorized cross-lane API edits and included #180/#185
+in its #187 release batch; this lane made no release merge.
 
 ## Frontend owner-tour evidence: separate from judge visits
 
@@ -163,29 +164,60 @@ Source review separately confirms the shipped generic quickstarters provide no
 merchant, amount, currency or date. A localized draft bound at runtime to an owned
 Approved Purchase with a real merchant gives the opening story useful evidence;
 keep explicit Send and let normal matching/policy decide its response. The
-frontend lane owns that patch; no judge-profile binding is changed. The ignored
+frontend lane owns that patch; no judge-profile binding is changed. The earlier ignored
 `artifacts/judge-exploration/owned-charge-starter-frontend-proposed.patch`
 contains the concrete implementation and ES/PT regressions. TypeScript, ESLint
 and 46 actual-source hook/API mock checks pass; six browser regressions remain
 for w8 to run. The existing paid tour still overrides the starter, so it must not
 be cited as a measurement of the new first click. No live rerun is authorized.
 
+The lead subsequently included w8's own profile-bound starter (#186) in #187.
+That source excludes missing merchant displays and keeps explicit Send, but
+still emits `transaction_date`, while matching uses `process_date`. This is a
+contract risk, not a measured live failure of the new starter. A new minimal
+w8 proposal against `63e69b6` omits only the emitted date: ignored
+`artifacts/judge-exploration/ledger-draft-no-display-date-frontend-proposed.patch`
+(+2/-3 lines). Sixty-four actual-helper ES/PT synthetic checks, TypeScript,
+ESLint and formatting pass; browser and live verification remain unrun. The old
+larger proposal is pinned to an earlier source and must not be applied directly.
+
+[AI normalization PR #189](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/pull/189)
+treats only blank/em-dash merchant displays as absent in normalized slots,
+preserving raw extraction and genuine names. Thirty-two ES/PT synthetic replays
+cover the observed normalized intent/flags and latest slot shape, with explicitly
+reconstructed confidence/amount/date/risk values. Missing trusted merchant data
+still produces verified BRD-01; conflicting process dates still clarify. Fresh
+complete-purchase unknown-origin starters reach an explanation/dispute offer in
+mocks, without textual assent or stale hashes authorizing a write.
+
+Remote CI also exposed an independent language bug: the random authored case ID
+`DSP-E9B0CA7A` contributed Portuguese `e`/`a` fragments, preventing an explicit
+Spanish status question from switching language. #189 requires whole-word
+language tokens, excluding opaque alphanumeric references without weakening the
+language evidence rule. Nine evidence cases and four additional deterministic
+ES/PT B1/P receipt cases preserve verified case data, idempotent confirmation,
+no-extra-write and no-model-call controls. All 96 targeted language/starter
+regressions pass. #189 remains held for lead review.
+
 ## Three fixes to prioritize before the video
 
-1. **Make the first charge story use complete owned facts.** Apply the frontend
-   starter proposal in w8's lane; exclude missing merchant displays and avoid
-   adding a date that the UI cannot bind to the matcher's process-date contract.
-   Normalize the em-dash placeholder as absent in the AI lane. Missing trusted
-   data must still produce a policy handoff, never an invented explanation.
+1. **Make the first charge story use complete owned facts.** The lead's batch
+   includes w8's scoped starter and missing-display exclusion. Use the new minimal
+   date-omission proposal in w8's lane and #189's normalization to avoid
+   contradictory evidence. Missing trusted data must still produce a policy
+   handoff, never an invented explanation. Healthy live outcomes remain unverified.
 2. **Keep a dispute when its target is corrected.** Ship #180 with the lead's
    punctuation-free ES/PT read-question correction. A real inquiry still explains;
-   a valid correction needs a fresh proposal and separate confirmation.
+   a valid correction needs a fresh proposal and separate confirmation. The lead
+   included this reviewed fix and its further clause-boundary controls in #187.
 3. **Keep pending choices visible on follow-ups.** Ship #185 after #180 so short
    questions and recognition stay in the banking conversation. Explicit choice
-   and all security/human-handoff controls remain required.
+   and all security/human-handoff controls remain required. The lead included
+   this reviewed fix in #187.
 
 These are offline verified changes/proposals, not evidence of a repaired live
-video opener. The frontend browser checks and lead release remain outstanding.
+video opener. New proposal browser checks, #189 review/CI and live verification
+remain outstanding. Keep the lead's v0.9.3 release hold in effect.
 
 ## Stops and cost
 
@@ -230,8 +262,9 @@ This correction neither settles the unknown reservation nor authorizes a paid re
 
 [Product fix PR #180](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/pull/180)
 retains pending dispute intent for an explicit, grounded ES/PT target correction.
-Thirty-two new regressions and 329 existing regressions pass, including the
-lead-reported punctuation-free ES/PT read questions. A fresh proposal and
+Thirty-two author-time regressions pass, including the lead-reported
+punctuation-free ES/PT read questions. The lead added further clause-boundary
+controls during review. A fresh proposal and
 separate confirmation are required; stale hashes, textual assent, ordinary
 questions, cancellation and safety routes remain protected. The API cross-lane
 edit is explicitly authorized and requires lead review.
@@ -239,13 +272,19 @@ edit is explicitly authorized and requires lead review.
 The unchanged frozen mock suite remains **27/30**, with the same JE-08/16/28
 failures. All 100 no-write, 109 zero-spend, 14 case-readback and 7 handoff-readback
 checks pass. Final B1 v2 remains **32/32**. No threshold or expectation changed.
+These latest results use local `63e69b6` plus the two #189 commits; all **316**
+relevant regression checks pass. The full mock Python suite also passed on
+#189's feature branch, with environment-dependent infrastructure skips. All
+verification used mocks and cost $0; it does not establish live improvement.
 The original mock extraction already labeled JE-13's correction as a dispute;
 the new regressions exercise the live inquiry extraction that exposed the bug.
 
-The proposed frontend patch is retained under ignored local artifacts for its
-owning lane. Twenty mocked route checks and TypeScript checks pass; four ES/PT
+The earlier overlong-message frontend patch is retained under ignored local
+artifacts for its owning lane. Twenty mocked route checks and TypeScript checks pass; four ES/PT
 browser regressions are proposed but unrun. It changes invalid message errors
 to 422 while preserving upstream 502 errors and the API's Unicode character limit.
+The lead included w8's separately reviewed implementation (#183) in #187; the
+old proposed patch is historical evidence, not a new live verification.
 
 These results were measured after the final evaluation. Official v4 numbers are
 unchanged. Product fixes require lead review, green CI and the lead's merge order;

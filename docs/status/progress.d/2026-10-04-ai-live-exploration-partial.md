@@ -33,6 +33,18 @@
   edits or judge-binding changes; no claim of repaired live first-click behavior.
 - Frontend overlong-message proposal retained as an ignored local patch for w8:
   20 mocked route checks and TypeScript passed; browser checks remain unrun.
+- Read back the lead's #187 batch: #180/#185 and w8's starter/error fixes were
+  included; this lane made no release merge. Earlier frontend proposals remain
+  pinned to their author-time source. The new minimal date-omission proposal
+  targets `63e69b6`; 64 actual-helper checks, TypeScript/ESLint/formatting pass.
+- #189 adds missing-display normalization and excludes opaque alphanumeric
+  reference fragments from language evidence. The CI-observed `DSP-E9B0CA7A`
+  language defect reproduces deterministically. Ninety-six targeted tests and
+  the feature branch's full mock Python suite pass; Ruff and strict mypy pass.
+- Rechecked `63e69b6` plus #189 locally: **316** relevant regressions pass;
+  frozen exploration **27/30**, B1 **32/32**. All 100 no-write, 109 zero-spend,
+  14 case-readback and 7 handoff-readback checks pass. Same JE-08/16/28 workflow
+  failures; thresholds and expectations unchanged. No paid calls.
 
 ## Done but not verified
 
@@ -46,4 +58,5 @@
   approved `0f0e12d`. No requests ran. Keep all nine untouched stories unrun and
   honor the final-stop instruction: no paid retry.
 - Preserve the partial score, fixture gaps and unresolved reservation.
-- The lead reviews and owns all merges; feature PRs remain held.
+- The lead reviews and owns all merges. #189 and this follow-up report remain
+  held; no main merge or integration/v0.9.3-judge-stories push by this lane.
