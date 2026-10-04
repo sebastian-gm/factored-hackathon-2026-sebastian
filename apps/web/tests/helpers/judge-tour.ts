@@ -4,8 +4,11 @@ import { chmodSync, closeSync, existsSync, fsyncSync, mkdirSync, openSync, readF
 import path from "node:path";
 
 export const live = process.env.JUDGE_TOUR_MODE === "live";
+export const network = process.env.JUDGE_TOUR_NETWORK ?? (process.env.GITHUB_ACTIONS === "true" ? "github-runner" : "owner-workstation");
+if (!["owner-workstation", "github-runner"].includes(network) || network !== (process.env.GITHUB_ACTIONS === "true" ? "github-runner" : "owner-workstation"))
+  throw new Error("Tour network must match the execution environment.");
 export const locale = (info: TestInfo) => ((process.env.JUDGE_TOUR_LANGUAGE ?? info.project.name.split("-")[0]) === "pt" ? "pt-BR" : "es-MX");
-export const directory = (info: TestInfo) => path.resolve("../../artifacts/ux-audit/go-live", live ? "live" : "demo", info.project.name);
+export const directory = (info: TestInfo) => path.resolve("../../artifacts/ux-audit/go-live", live ? "live" : "demo", ...(live ? [network] : []), info.project.name);
 export async function visible(locator: Locator) {
   // Boolean assertions keep private text out of Playwright assertion diagnostics.
   await expect.poll(() => locator.isVisible(), { timeout: 30000 }).toBe(true);
@@ -27,8 +30,8 @@ export function reserveTurn() {
 }
 export function reserveLiveTurn() {
   const maximum = Number(process.env.JUDGE_TOUR_MAX_TURNS ?? 0);
-  if (process.env.JUDGE_TOUR_PAID !== "1" || !Number.isInteger(maximum) || maximum < 1 || maximum > 40)
-    throw new Error("Live model turns require explicit opt-in and a cap from 1 to 40.");
+  if (process.env.JUDGE_TOUR_PAID !== "1" || !Number.isInteger(maximum) || maximum < 1 || maximum > 112)
+    throw new Error("Live model turns require explicit opt-in and a cap from 1 to 112.");
   const file = path.resolve(process.env.JUDGE_TOUR_TURN_LEDGER ?? `../../artifacts/ux-audit/go-live/live/turn-reservations-${new Date().toISOString().slice(0, 10)}.json`);
   const root = path.resolve("../../artifacts");
   if (!file.startsWith(`${root}${path.sep}`)) throw new Error("Turn ledger must remain under ignored artifacts.");
@@ -47,7 +50,7 @@ export function reserveLiveTurn() {
           maximum: number;
         })
       : { attempts: 0, maximum };
-    if (!Number.isInteger(prior.attempts) || prior.attempts < 0 || !Number.isInteger(prior.maximum) || prior.maximum < 1 || prior.maximum > 40)
+    if (!Number.isInteger(prior.attempts) || prior.attempts < 0 || !Number.isInteger(prior.maximum) || prior.maximum < 1 || prior.maximum > 112)
       throw new Error("Invalid durable turn ledger.");
     const cap = Math.min(maximum, prior.maximum);
     if (prior.attempts >= cap) throw new Error("Live tour turn reservation exhausted.");
