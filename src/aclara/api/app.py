@@ -48,6 +48,13 @@ from aclara.agent.runtime import InjectedFailure, Runtime
 from aclara.agent.selection import candidates as identified_candidates
 from aclara.agent.selection import explicit_choice, scoped_inquiry_language, uncertain
 from aclara.api.auth_models import Principal
+from aclara.api.candidate_details import (
+    consistent_details,
+    details_requested,
+    grounded_details,
+    has_details,
+    uncertain_selection,
+)
 from aclara.api.judge_access import judge_configuration
 from aclara.api.judge_sessions import (
     JudgeProfilesView,
@@ -1035,6 +1042,10 @@ def create_app(
                 normalize_text(message),
             )
             or conversation.candidates
+            and (
+                explicit_choice(message, len(conversation.candidates)) is not None
+                or not details_requested(message)
+            )
         ):
             return snapshot, None
         row = None
@@ -1226,7 +1237,7 @@ def create_app(
                 return safe_failure(principal, language, "database_timeout")
         if (
             app.state.runtime.system == "P"
-            and not conversation.candidates
+            and (not conversation.candidates or inferred is not None)
             and not conversation.proposal
         ):
             if inferred is None:
@@ -1256,6 +1267,25 @@ def create_app(
             )
             if not nlu.degraded:
                 frame = nlu.frame
+                if (
+                    (conversation.candidates or conversation.rounds)
+                    and has_details(nlu.slots)
+                    and (
+                        not grounded_details(nlu, body.message, trusted_country(principal))
+                        or uncertain_selection(body.message)
+                    )
+                ):
+                    # Reject before merging: an invented or uncertain detail must
+                    # not influence this selection or a later correction.
+                    return {
+                        "response_type": "clarify",
+                        "outcome": "clarification",
+                        "reply": _localized(
+                            conversation.language,
+                            "Necesito un monto o una fecha que tengas claros para elegir el cargo. ¿Qué dato quieres corregir?",
+                            "Preciso de um valor ou de uma data que você tenha certeza para escolher a cobrança. Qual dado deseja corrigir?",
+                        ),
+                    }
                 previous = conversation.slots.model_dump() if conversation.slots else {}
                 conversation.slots = NormalizedSlots.model_validate(
                     {
@@ -1450,6 +1480,64 @@ def create_app(
             }
 
         if conversation.candidates:
+            if (
+                app.state.runtime.system == "P"
+                and nlu is not None
+                and not nlu.degraded
+                and has_details(nlu.slots)
+            ):
+                slots = conversation.slots or nlu.slots
+                current_rows = dict(
+                    ledger.for_customer(principal.customer_id, active_settings.bank_clock)
+                )
+                available = [
+                    (handle, current_rows[handle])
+                    for handle, _ in conversation.candidates
+                    if handle in current_rows
+                ]
+                if not available:
+                    return safe_failure(principal, language, "database_timeout")
+                filtered = [
+                    (handle, row) for handle, row in available if consistent_details(slots, row)
+                ]
+                if len(filtered) == 1:
+                    handle, row = filtered[0]
+                    conversation.candidates = []
+                    conversation.rounds = 0
+                    return _decide_for_transaction(
+                        app,
+                        conversation,
+                        principal,
+                        language,
+                        conversation.intent,
+                        handle,
+                        row,
+                        active_settings,
+                    )
+                conversation.rounds = (
+                    0 if filtered and len(filtered) < len(available) else conversation.rounds + 1
+                )
+                if conversation.rounds >= 2:
+                    return make_handoff(app, principal, language, "ESC-04")
+                conversation.candidates = filtered or available
+                return {
+                    "response_type": "choose_transaction" if filtered else "clarify",
+                    "outcome": "choose_transaction" if filtered else "clarification",
+                    "reply": _localized(
+                        language,
+                        "Esos datos aún no identifican un único cargo. Revisa el monto y la fecha o elige uno de la lista.",
+                        "Esses dados ainda não identificam uma única cobrança. Confira o valor e a data ou escolha uma da lista.",
+                    ),
+                    **(
+                        {
+                            "candidates": [
+                                _masked_transaction(handle, row) for handle, row in filtered
+                            ]
+                        }
+                        if filtered
+                        else {}
+                    ),
+                }
             choice = explicit_choice(body.message, len(conversation.candidates))
             if choice is None:
                 conversation.rounds += 1
@@ -1497,6 +1585,57 @@ def create_app(
 
         conversation.selected_handle = None
         rows = ledger.for_customer(principal.customer_id, active_settings.bank_clock)
+        # A positive correction can identify a unique owned row after a failed
+        # detail collection too. This uses exact facts, not a lowered MATCH score.
+        if (
+            app.state.runtime.system == "P"
+            and conversation.rounds
+            and nlu is not None
+            and not nlu.degraded
+            and has_details(nlu.slots)
+            and conversation.slots is not None
+            and (
+                conversation.slots.amount_value is not None
+                or conversation.slots.date_start is not None
+                or conversation.slots.date_end is not None
+            )
+        ):
+            corrected = [
+                (handle, row) for handle, row in rows if consistent_details(conversation.slots, row)
+            ]
+            if len(corrected) == 1:
+                handle, row = corrected[0]
+                conversation.rounds = 0
+                return _decide_for_transaction(
+                    app,
+                    conversation,
+                    principal,
+                    language,
+                    conversation.intent,
+                    handle,
+                    row,
+                    active_settings,
+                )
+        if (
+            app.state.runtime.system == "P"
+            and nlu is not None
+            and not nlu.degraded
+            and has_details(nlu.slots)
+            and conversation.slots is not None
+            and not any(consistent_details(conversation.slots, row) for _, row in rows)
+        ):
+            conversation.rounds += 1
+            if conversation.rounds >= 2:
+                return make_handoff(app, principal, language, "ESC-04")
+            return {
+                "response_type": "clarify",
+                "outcome": "clarification",
+                "reply": _localized(
+                    language,
+                    "El monto, la moneda o la fecha no coinciden con tus cargos. ¿Qué dato quieres corregir?",
+                    "O valor, a moeda ou a data não correspondem às suas cobranças. Qual dado deseja corrigir?",
+                ),
+            }
         if any(injection(row.merchant_name) for _, row in rows):
             security_event(app, "indirect_prompt_injection")
             rows = [
@@ -1504,7 +1643,12 @@ def create_app(
                 for handle, row in rows
             ]
         candidates, needs_choice = identified_candidates(body.message, rows)
-        if uncertain(body.message):
+        selection_uncertain = (
+            uncertain_selection(body.message)
+            if app.state.runtime.system == "P"
+            else uncertain(body.message)
+        )
+        if selection_uncertain:
             candidates = []
 
         learned_choice = False
@@ -1527,7 +1671,7 @@ def create_app(
             if app.state.runtime.fault("missing_fx", "MATCH"):
                 candidates = []
 
-        if uncertain(body.message):
+        if selection_uncertain:
             candidates = []
         if not candidates:
             conversation.rounds += 1

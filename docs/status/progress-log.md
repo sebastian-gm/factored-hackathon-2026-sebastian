@@ -20,3 +20,5 @@ The [final evaluation (v4)](../evaluation/final-v4-results.md) remains unchanged
 - Disclosure: a first final attempt was stopped at ~6/200 P cases after a dev-only finding; its results were never viewed.
 
 </details>
+
+AI candidate-correction session: [verified work, pending checks and blockers](progress.d/2026-10-03-ai-candidate-corrections.md).
