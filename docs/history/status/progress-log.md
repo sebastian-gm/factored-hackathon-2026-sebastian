@@ -5424,3 +5424,58 @@ later flag-only session for the current contract and activation dependencies.
 - Submission Gate A/B/C activation/publication still requires Sebastian's explicit
   exact-plan go. OFF judging proposal $2.30 lifetime and $1/UTC-day, subject to
   fresh key/all-scope readback; no settings activated here.
+
+## 2026-10-03 COT — v0.9.0 judge go-live
+
+### Completed (verified)
+
+- Folded `2026-10-03-go-live-budget-controls.md`: #160 green and merged as
+  `edd30702f32b21af17fc353d0ee410e67b2e932b`. Local `make checks` **1,630 passed /
+  43 skipped**, B1 **32/32**; disposable Postgres **105**, Terraform mock plans
+  **14**, real-BFF trusted Ops/Agent-role browser tests **2** passed.
+- Built/pushed exact-SHA images, reviewed image-only and approved Gate A/B
+  plans/applies. Both min=1; API max=3/HTTP=5, CPU/memory/worker unchanged;
+  public web login, internal API; production $1/UTC day + $1.60 judging lifetime.
+- Exact-SHA CI/safety **37169480937 / 37169480942**; independent owner/judge
+  access **37170465322 / 37171778744**, all success. `scripts.azure_verify`
+  passed after final password restoration; temporal/migration/read-only gates
+  passed. Annotated v0.9.0 and private Release read back on deployed SHA.
+- Four owner maps backed up (22 cases) then scoped maintenance reset with
+  app role/FORCE RLS/advisory locks and independent/fresh-login reads; ledger,
+  bindings and other realms unchanged. HTTP reset switches stayed OFF under
+  today's separate handoff-19 approval. Future resets need fresh approval.
+- Owner filing/readback/lost-confirm retry, concurrent ES/PT, ambiguity/fraud and
+  three-surface browser passed. Two judge visits filed same MX story, isolated
+  receipts and disjoint provider attribution; staff invitation/claim/retry,
+  cross-realm denials and password rotation/restoration passed. Owned test roots
+  explicitly revoked before identical-password restore; fresh judge login works.
+- Six calls **$0.0115855**; retained operator-attribution reserve **$0.03**;
+  Lead charged **$0.0415855 / $0.10**. Key/account deltas agree; production
+  calls known. Conservative exposure **$12.45888798**, remaining allocations
+  **$2.504377**, maximum **$14.96326498 / $15**. Legacy reserves not reset.
+- Operator harness failures/zero-cost retries disclosed in
+  [go-live evidence](../../submission/go-live-2026-10-03.md). Staff attribution
+  boundary tests **7/7**, rotation tests **15/15**. No paid filing replay.
+- Judge credentials in ignored 0600 `artifacts/azure/v0.9.0/judge-credentials.private.json`.
+  Paid AI/frontend lanes may resume their existing separate scopes, run ID
+  `2026-10-03`; release merge hold lifted after tag/receipt.
+
+### Done but not verified
+
+- API max=3/concurrency=5 configuration verified; actual three-replica scale-out
+  not exercised. No forced scale-zero cold-start or full-browser usability/SLA
+  claim. First post-deploy config 38.0169s; warm first/next .99609/.08627s.
+- AI/frontend full judge exploration, mobile/accessibility/Lighthouse evidence
+  remain separate lane tasks; not covered by the Lead's narrower live checks.
+- Known Postgres Azure-services firewall limitation remains. Official v4 unchanged.
+
+### Next / blocked
+
+- Gate C script/checklist preparation PR, fresh privacy/history audit and final
+  release. Repo remains private; no v1.0.0 or email. Sebastian's exact-SHA
+  submission go still required. New prep-code merges require a later final
+  Azure release before the script's strict main/deployed comparison can pass.
+- Keep warm through October 16 under approved window; budget stops at $1/UTC
+  day or remaining $1.60 lifetime run, whichever first. Retirement requires
+  Sebastian's explicit scale-down/delete/backup decision. No extra paid calls
+  authorized by unused purse capacity.

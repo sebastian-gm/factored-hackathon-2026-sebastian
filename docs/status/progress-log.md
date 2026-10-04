@@ -2,6 +2,7 @@
 
 Read the [complete archived record](../history/status/progress-log.md).
 The [final evaluation (v4)](../evaluation/final-v4-results.md) remains unchanged.
+Current release: [v0.9.0 go-live evidence](../submission/go-live-2026-10-03.md).
 
 <details>
 <summary>Compatibility excerpt for existing chart tools</summary>
