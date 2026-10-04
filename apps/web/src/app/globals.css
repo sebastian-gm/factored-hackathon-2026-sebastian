@@ -3784,6 +3784,12 @@ label {
   .profile-selected .profile-switch-label {
     display: none;
   }
+  .profile-selected .topbar {
+    height: auto;
+    min-height: 56px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+  }
   .profile-selected .topbar-controls {
     flex-wrap: wrap;
   }

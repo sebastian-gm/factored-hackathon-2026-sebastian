@@ -87,10 +87,19 @@ export default function Workspace({
   const setLocale = useCallback((value: InterfaceLocale) => {
     interfaceChoice.current = value;
     setInterfaceLocale(value);
-    localStorage.setItem("aclara.interfaceLanguage", value);
+    try {
+      localStorage.setItem("aclara.interfaceLanguage", value);
+    } catch {
+      // Language selection still works when the browser blocks storage.
+    }
   }, []);
   useEffect(() => {
-    const saved = localStorage.getItem("aclara.interfaceLanguage");
+    let saved: string | null = null;
+    try {
+      saved = localStorage.getItem("aclara.interfaceLanguage");
+    } catch {
+      // A stored preference is optional; English remains the default.
+    }
     const timer = setTimeout(() => {
       if (["en-US", "es-MX", "es-CO", "es-AR", "pt-BR"].includes(saved ?? ""))
         setLocale(saved as InterfaceLocale);
@@ -171,7 +180,8 @@ export default function Workspace({
         const bankLocale =
           current.locale ?? (current.language === "pt" ? "pt-BR" : "es-MX");
         setBankLocale(bankLocale);
-        if (interfaceChoice.current !== "en-US") setInterfaceLocale(bankLocale);
+        if (current.locale && interfaceChoice.current !== "en-US")
+          setInterfaceLocale(current.locale);
       }
       setConfig((c) => ({
         ...c,

@@ -54,7 +54,8 @@ async function audit(page: Page) {
 
 async function englishDefault(page: Page) {
   await page.addInitScript(() => {
-    localStorage.removeItem("aclara.interfaceLanguage");
+    if (/^https?:$/.test(location.protocol))
+      localStorage.removeItem("aclara.interfaceLanguage");
   });
 }
 

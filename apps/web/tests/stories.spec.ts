@@ -1,5 +1,10 @@
 import { selectLoginPersona } from "./helpers/login-persona";
-import { test, expect, type Page } from "./helpers/test";
+import {
+  test,
+  expect,
+  seedLegacyInterfaceLanguage,
+  type Page,
+} from "./helpers/test";
 import AxeBuilder from "@axe-core/playwright";
 import { mkdir } from "node:fs/promises";
 
@@ -94,8 +99,18 @@ test("ES normal: password + OTP, grounded explanation and safe why drawer", asyn
     "aclara_access",
   );
   expect(
-    await page.evaluate(() => [localStorage.length, sessionStorage.length]),
-  ).toEqual([0, 0]);
+    await page.evaluate(() => ({
+      preference: localStorage.getItem("aclara.interfaceLanguage"),
+      unexpectedLocalEntries: Object.keys(localStorage).some(
+        (key) => key !== "aclara.interfaceLanguage",
+      ),
+      sessionEntries: sessionStorage.length,
+    })),
+  ).toEqual({
+    preference: "es-MX",
+    unexpectedLocalEntries: false,
+    sessionEntries: 0,
+  });
   await screenshot(page, "chat-desktop");
   await audit(page);
   await page.getByLabel("Idioma y región").selectOption("pt-BR");
@@ -382,6 +397,7 @@ test("proposal replay is idempotent and another authenticated browser cannot con
   await page.locator(".case-reference summary").click();
   await expect(page.getByText(replay.id, { exact: true })).toBeVisible();
   const other = await browser.newContext();
+  await seedLegacyInterfaceLanguage(other);
   const tab = await other.newPage();
   try {
     await tab.goto("/");

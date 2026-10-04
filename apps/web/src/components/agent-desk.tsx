@@ -448,9 +448,13 @@ export function AgentDesk({ ownVisit = false }: { ownVisit?: boolean }) {
                   <h3>{t("nextSteps")}</h3>
                   <ul>
                     {(locale === "en-US"
-                      ? staffGuidance(orderedReasons(current)).map(
-                          (g) => g.next,
-                        )
+                      ? [
+                          ...new Set(
+                            staffGuidance(orderedReasons(current)).map(
+                              (g) => g.next,
+                            ),
+                          ),
+                        ]
                       : (current.suggested_next_steps ?? [])
                     ).map((step) => (
                       <li key={step}>{step}</li>
@@ -467,9 +471,13 @@ export function AgentDesk({ ownVisit = false }: { ownVisit?: boolean }) {
                 )}
                 <ul className="questions">
                   {(locale === "en-US"
-                    ? staffGuidance(orderedReasons(current)).map(
-                        (g) => g.question,
-                      )
+                    ? [
+                        ...new Set(
+                          staffGuidance(orderedReasons(current)).map(
+                            (g) => g.question,
+                          ),
+                        ),
+                      ]
                     : current.open_questions
                   ).map((q) => (
                     <li key={q}>{q}</li>

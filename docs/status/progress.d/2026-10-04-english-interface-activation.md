@@ -14,6 +14,14 @@
   free text and do not invent or translate customer statements.
 - Ten English desktop/phone browser checks passed with axe, zero overflow and
   original ES/PT replies/drafts; 24 existing profile-story checks passed.
+- Broader browser validation: 127 checks passed, then the two remaining PT
+  test setup errors were corrected and all 26 admission/resilience checks passed.
+- Six authored staff/Ops desktop/phone audits passed with axe and no overflow;
+  deduplicating shared English guidance passed the seventh console regression.
+- Legacy tests select the PT customer explicitly, preserve the language preference
+  across reloads, and allow only that preference in browser storage. The app still
+  works if preference storage is blocked. Phone profile controls wrap within a
+  growing toolbar; staff sessions without a locale retain the chosen UI language.
 - English tests cover 429, session expiry, basic mode only for degraded replies,
   and no action/message replay. TypeScript and ESLint passed.
 
@@ -24,5 +32,7 @@
 
 ## Next / blocked
 
-- Lead merges catalog #194 first, then this activation, and releases v0.9.5.
+- Catalog #194 merged; lead owns activation #195 merge and v0.9.5 release.
+- Requested clean English video assets follow both merges, using authored local
+  mock fixtures at 2x scale; capture remains pending, with no paid model calls.
 - No API changes, cloud changes or paid model calls by this lane.
