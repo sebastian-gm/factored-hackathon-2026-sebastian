@@ -79,7 +79,7 @@ resource "azurerm_container_app" "api" {
           LEDGER_BACKEND          = "serving"
           LLM_REAL_CALLS_APPROVED = var.enable_real_llm ? "1" : "0"
           LLM_MODEL_ROUTE         = "default"
-          LLM_DAILY_BUDGET_USD    = "3"
+          LLM_DAILY_BUDGET_USD    = var.enable_judge_access ? "1" : "3"
           LLM_BUDGET_RUN_ID       = var.llm_budget_run_id
         }, var.enable_judge_access ? { JUDGE_ACCESS_ENABLED = "true" } : {})
         content {

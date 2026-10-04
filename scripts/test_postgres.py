@@ -61,6 +61,7 @@ def main() -> int:
                     "tests/test_serving_load.py",
                     "tests/test_serving_api.py",
                     "tests/test_llm_budget.py",
+                    "tests/test_go_live_budget.py",
                     "tests/test_live_rehearsal_regressions.py",
                     "tests/test_judge_profiles_postgres.py",
                     "tests/test_staff_realm_queue_postgres.py",

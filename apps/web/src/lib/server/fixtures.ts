@@ -269,6 +269,15 @@ export function fixtureJudgeSelect(token: string, profile: ProfileId) {
   const access = random();
   const selected: Identity = {
     ...user,
+    // Test-owned source roles, never a request/body authority claim. OFF by default.
+    role:
+      process.env.FRONTEND_FIXTURE_JUDGE_TRUSTED_ROLES === "true"
+        ? profile === "mx-es"
+          ? "ops"
+          : profile === "co-es"
+            ? "agent"
+            : "customer"
+        : "customer",
     workspace: workspace(),
     fixturePersona: profilePersonas[profile],
     judge_profile_id: profile,
