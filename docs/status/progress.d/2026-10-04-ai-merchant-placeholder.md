@@ -29,6 +29,13 @@
   Nine new evidence cases and four additional deterministic ES/PT B1/P receipt
   cases cover it. All 96 targeted language/starter regressions pass; the existing
   conflict/uncertainty, verified case, no-extra-write and no-model-call checks remain.
+- On `63e69b6` plus these fixes, **316** relevant regressions pass, frozen
+  exploration remains **27/30** and B1 **32/32**. All 100 no-write, 109 zero-spend,
+  14 case-readback and 7 handoff-readback checks pass; expectations are unchanged.
+- The original #188 head could not schedule updated CI because its status-log
+  pointer conflicted with the lead's release source. A clean replacement feature
+  uses the verified local replay on current main; no branch-sync merge or
+  force-push, and no change to main or the lead's integration branch.
 
 ## Done but not verified
 
