@@ -235,7 +235,13 @@ def build_reply(
     template = render_template(plan, language=language, country=country)
     approved = plan.reply.strip()
     fallback = (
-        plan.reply if approved and plan.response_type in {"clarify", "explain_status"} else template
+        plan.reply
+        if approved
+        and (
+            plan.response_type in {"clarify", "explain_status"}
+            or (plan.response_type == "abstain" and plan.handoff is None)
+        )
+        else template
     )
     dlp_text = (
         fallback.replace(plan.case.case_id, "[VERIFIED_CASE_ID]")
