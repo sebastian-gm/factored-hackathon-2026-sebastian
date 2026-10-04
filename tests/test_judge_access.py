@@ -127,3 +127,34 @@ def test_judge_mode_rejects_shared_password_smoke_budget_or_larger_daily_cap(mon
     monkeypatch.setenv("LLM_DAILY_BUDGET_USD", "4")
     with pytest.raises(ValueError):
         judge_alias(replace(settings, llm_provider="openai_compat"), personas)
+
+
+@pytest.mark.parametrize("daily", [None, "0", "2", "3", "4", "1.0"])
+def test_real_judge_requires_exact_one_dollar_daily_cap(monkeypatch, daily):
+    settings = replace(configured(), llm_provider="openai_compat")
+    personas = {"authored.owner": Persona("authored.owner", "fixture", "es-MX", "customer")}
+    monkeypatch.setenv("LLM_BUDGET_RUN_ID", "judging-2026-10")
+    if daily is None:
+        monkeypatch.delenv("LLM_DAILY_BUDGET_USD", raising=False)
+    else:
+        monkeypatch.setenv("LLM_DAILY_BUDGET_USD", daily)
+    with pytest.raises(ValueError, match="USD 1/day"):
+        judge_alias(settings, personas)
+
+
+@pytest.mark.parametrize("run", ["", "after-v2-release-smoke", "judging-other"])
+def test_real_judge_requires_approved_lifetime_run(monkeypatch, run):
+    settings = replace(configured(), llm_provider="openai_compat")
+    personas = {"authored.owner": Persona("authored.owner", "fixture", "es-MX", "customer")}
+    monkeypatch.setenv("LLM_DAILY_BUDGET_USD", "1")
+    monkeypatch.setenv("LLM_BUDGET_RUN_ID", run)
+    with pytest.raises(ValueError, match="USD 1/day"):
+        judge_alias(settings, personas)
+
+
+def test_real_judge_accepts_approved_daily_and_lifetime_binding_without_model_calls(monkeypatch):
+    settings = replace(configured(), llm_provider="openai_compat")
+    personas = {"authored.owner": Persona("authored.owner", "fixture", "es-MX", "customer")}
+    monkeypatch.setenv("LLM_DAILY_BUDGET_USD", "1")
+    monkeypatch.setenv("LLM_BUDGET_RUN_ID", "judging-2026-10")
+    assert judge_alias(settings, personas).username == "judge.authored"

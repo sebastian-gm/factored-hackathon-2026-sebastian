@@ -91,17 +91,17 @@ variable "enable_judge_access" {
   default     = false
   description = "OFF by default. Public HTTPS web with login and a separate KV judge account; API stays internal. Requires Sebastian approval."
   validation {
-    condition     = !var.enable_judge_access || (var.deploy_apps && var.llm_budget_run_id == "")
-    error_message = "Judge mode requires deployed apps and normal durable USD 3/day accounting, never a smoke run."
+    condition     = !var.enable_judge_access || (var.deploy_apps && var.llm_budget_run_id == "judging-2026-10")
+    error_message = "Judge mode requires deployed apps, USD 1/day and the approved judging lifetime run, never a smoke run."
   }
 }
 
 variable "llm_budget_run_id" {
   type        = string
   default     = ""
-  description = "Optional owner-created cumulative smoke budget in Postgres, in addition to USD 3/day."
+  description = "Owner-created lifetime budget: approved smoke or judging-2026-10, in addition to the mode's UTC daily cap."
   validation {
-    condition     = contains(["", "handoff09-smoke", "jev-support-smoke", "option-a-release-smoke", "after-v2-release-smoke"], var.llm_budget_run_id) || can(regex("^pre-v4-(release|latency)-[a-f0-9]{40}$", var.llm_budget_run_id))
+    condition     = contains(["", "handoff09-smoke", "jev-support-smoke", "option-a-release-smoke", "after-v2-release-smoke", "judging-2026-10"], var.llm_budget_run_id) || can(regex("^pre-v4-(release|latency)-[a-f0-9]{40}$", var.llm_budget_run_id))
     error_message = "Only the approved smoke budget or normal daily accounting is supported."
   }
 }

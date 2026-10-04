@@ -11,6 +11,13 @@ from scripts.azure_dev import GROUP, ROOT, STORAGE, VAULT, az, read_variables
 def main() -> None:
     values = read_variables()
     real_llm = values.get("enable_real_llm", False)
+    judge = values.get("enable_judge_access", False)
+    minimum = values.get("min_replicas", 0)
+    burst = values.get("enable_submission_scale", False)
+    assert minimum in (0, 1)
+    assert minimum == 0 or values.get("enable_submission_warm", False)
+    assert not burst or minimum == 1
+    assert not judge or values.get("llm_budget_run_id") == "judging-2026-10"
     prefix = f"/subscriptions/{values['subscription_id']}/resourceGroups/{GROUP}"
 
     def resource(path: str, version: str) -> dict:
@@ -24,6 +31,8 @@ def main() -> None:
 
     account = az("account", "show")
     assert account["id"] == values["subscription_id"] and account["name"] == "Seb Azure Sandbox"
+    vault = az("keyvault", "show", "--resource-group", GROUP, "--name", VAULT)
+    assert vault["properties"]["enableRbacAuthorization"]
     for name in ["api", "web"]:
         app = resource(f"Microsoft.App/containerApps/ca-{name}-aclara-dev-eastus2", "2025-01-01")
         properties = app["properties"]
@@ -36,8 +45,11 @@ def main() -> None:
         ingress = properties["configuration"]["ingress"]
         rules = ingress.get("ipSecurityRestrictions") or []
         if name == "web":
-            assert len(rules) == 1 and rules[0]["action"] == "Allow"
-            assert rules[0]["ipAddressRange"] == values["owner_ipv4"] + "/32"
+            if judge:
+                assert not rules
+            else:
+                assert len(rules) == 1 and rules[0]["action"] == "Allow"
+                assert rules[0]["ipAddressRange"] == values["owner_ipv4"] + "/32"
             assert ingress["external"]
         else:
             assert not ingress["external"] and not rules
@@ -45,17 +57,28 @@ def main() -> None:
         assert not ingress.get("allowInsecure", False)
         assert properties["configuration"]["activeRevisionsMode"] == "Single"
         # ARM can return null for the documented default minimum of zero.
-        assert properties["template"]["scale"]["minReplicas"] in (None, 0)
-        assert properties["template"]["scale"]["maxReplicas"] == 1
+        scale = properties["template"]["scale"]
+        maximum = 3 if name == "api" and burst else 1
+        assert (scale.get("minReplicas") or 0) == minimum
+        assert scale["maxReplicas"] == maximum
+        scale_rules = scale.get("rules") or []
+        if name == "api" and burst:
+            assert len(scale_rules) == 1 and scale_rules[0]["name"] == "submission-http"
+            assert scale_rules[0]["http"]["metadata"] == {"concurrentRequests": "5"}
+            assert not scale_rules[0].get("custom") and not scale_rules[0].get("azureQueue")
+        else:
+            assert not scale_rules
         container = properties["template"]["containers"][0]
         assert container["image"].endswith(":" + values["image_tag"])
         assert container["resources"]["cpu"] == 0.25 and container["resources"]["memory"] == "0.5Gi"
         assert properties["provisioningState"] == "Succeeded"
         if name == "api":
             env = {item["name"]: item for item in container["env"]}
+            assert not container.get("command") and not container.get("args")
+            assert not ({"WEB_CONCURRENCY", "UVICORN_WORKERS"} & env.keys())
             assert env["LLM_PROVIDER"]["value"] == ("openai_compat" if real_llm else "mock")
             assert env["LLM_REAL_CALLS_APPROVED"]["value"] == ("1" if real_llm else "0")
-            assert env["LLM_DAILY_BUDGET_USD"]["value"] == "3"
+            assert env["LLM_DAILY_BUDGET_USD"]["value"] == ("1" if judge else "3")
             assert env["LLM_MODEL_ROUTE"]["value"] == "default"
             assert env["LLM_BUDGET_RUN_ID"].get("value", "") == values.get("llm_budget_run_id", "")
             assert env["AGENT_SYSTEM"]["value"] == "P"
@@ -67,6 +90,16 @@ def main() -> None:
             assert env["DEMO_PASSWORD"]["secretRef"] == "demo-password"
             secrets = properties["configuration"]["secrets"]
             expected_secrets = {"postgres-app", "demo-password"}
+            if judge:
+                expected_secrets.update({"judge-persona", "judge-password"})
+                assert env["JUDGE_ACCESS_ENABLED"]["value"] == "true"
+                for field, secret in (
+                    ("JUDGE_PERSONA", "judge-persona"),
+                    ("JUDGE_PASSWORD", "judge-password"),
+                ):
+                    assert env[field]["secretRef"] == secret and "value" not in env[field]
+            else:
+                assert env.get("JUDGE_ACCESS_ENABLED", {}).get("value", "false") == "false"
             if real_llm:
                 expected_secrets.update({"openrouter-api-key", "typesafe-api-key"})
                 assert env["TYPESAFE_API_KEY"]["secretRef"] == "typesafe-api-key"
@@ -83,8 +116,39 @@ def main() -> None:
                 item["identity"].lower() in {identity.lower() for identity in identities}
                 for item in secrets
             )
+            assert all(not item.get("value") for item in secrets)
+            if judge:
+                for secret in ("judge-persona", "judge-password"):
+                    reference = next(item for item in secrets if item["name"] == secret)
+                    assert (
+                        reference["keyVaultUrl"]
+                        == f"https://{VAULT}.vault.azure.net/secrets/{secret}"
+                    )
+                    entry = next(
+                        value
+                        for key, value in identities.items()
+                        if key.lower() == reference["identity"].lower()
+                    )
+                    scope = vault["id"] + "/secrets/" + secret
+                    grants = az(
+                        "role",
+                        "assignment",
+                        "list",
+                        "--assignee-object-id",
+                        entry["principalId"],
+                        "--scope",
+                        scope,
+                        "--include-inherited",
+                        "--fill-principal-name",
+                        "false",
+                    )
+                    assert grants and all(
+                        grant["scope"].lower() == scope.lower()
+                        and grant["roleDefinitionName"] == "Key Vault Secrets User"
+                        for grant in grants
+                    )
         sys.stdout.write(
-            f"Verified {name}: restricted HTTPS boundary, single revision, replicas 0..1, SHA image, managed registry identity.\n"
+            f"Verified {name}: approved HTTPS boundary, single revision, replicas {minimum}..{maximum}, SHA image, managed registry identity.\n"
         )
     server = az(
         "postgres",
@@ -145,8 +209,6 @@ def main() -> None:
         values["owner_ipv4"] + "/32",
     }
     assert len(storage["networkRuleSet"]["ipRules"]) == 1
-    vault = az("keyvault", "show", "--resource-group", GROUP, "--name", VAULT)
-    assert vault["properties"]["enableRbacAuthorization"]
     registry = az("acr", "show", "--resource-group", GROUP, "--name", "acraclaradeveastus2")
     assert registry["sku"]["name"] == "Basic" and not registry["adminUserEnabled"]
     assert not registry.get("anonymousPullEnabled", False)
