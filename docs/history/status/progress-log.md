@@ -6279,3 +6279,26 @@ docs PRs are already on main; the finished held-batch work is being integrated.
 
 - Follow [candidate record](../../status/progress.d/2026-10-04-v094-quickstart.md).
   One combined green CI, image-only release, then the approved bounded live check.
+
+## 2026-10-04 — v0.9.4 verified quick-start release
+
+### Completed (verified)
+
+- #189/#191 critically reviewed, #192 green and merged; image-only d391402 released
+  as v0.9.4. CI/safety/access and ready/security/data gates verified at deployed SHA.
+- FIRST real reply: ES explanation, PT explanation. Each bare-unfamiliarity follow-up
+  shows one owned choice; one click reaches the offer. Readbacks/logout passed, no writes.
+- Original strict-operator stop cost $0.0038705; one owner-approved extra attempt
+  completed both at $0.0076300. Total $0.0115005, six known calls, no new unknown reserve.
+  Original receipts/counters preserved. Purse $0.064865 remaining; maximum $14.91264898/$15.
+
+### Done but not verified
+
+- Bounded quick-start proof does not establish filing/all stories/quality/load guarantees.
+  Official v4 unchanged. Documentation follow-up awaits its own CI/merge at author time.
+
+### Next / blocked
+
+- [Evidence and commands](../../submission/v0.9.4-release-evidence.md).
+  Film verified flows; lift release hold, defer non-essential work. No additional paid
+  calls in this task; v1.0.0 and email still need Sebastian after the video.

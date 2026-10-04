@@ -14,6 +14,18 @@ certification. The v0.1.0–v0.5.0 annotated tags and GitHub Releases were creat
 - Every change now uses a feature branch and PR; every Azure release gets a tag.
 - `v1.0.0` is reserved for the exact submission-day Azure release SHA.
 
+## [0.9.4] — 2026-10-04, verified judge quick-start (post-v4)
+
+- Date-free scoped ES/PT drafts, absent merchant normalization and opaque case-ID
+  language evidence. Thresholds, ownership, Send/OTP/confirmation unchanged.
+- Deployed/tagged `d39140265714b4e112e259aff7fcfaf79ac60771`;
+  exact-SHA CI/safety/access, ready images and security/data controls passed.
+- Real FIRST reply: ES explanation, PT explanation. Bare unfamiliarity then shows
+  one owned choice; one click reaches the same-target dispute offer. No writes.
+- One stopped operator and one owner-approved extra attempt preserved: six known
+  calls cost $0.0115005 total; no new unknown reserve, budget or counter reset.
+- [Verified evidence and limits](docs/submission/v0.9.4-release-evidence.md).
+
 ## [0.9.3] — 2026-10-04, scoped judge-story drafts (post-v4)
 
 - Scoped ledger quick-start, conservative target corrections and pending-choice
