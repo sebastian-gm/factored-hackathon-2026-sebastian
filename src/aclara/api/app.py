@@ -56,6 +56,7 @@ from aclara.api.judge_sessions import (
     ProfileId,
     realm,
 )
+from aclara.api.reply_language import conversation_language, receipt_reply
 from aclara.api.staff import complete_packet, install_staff, verify_handoff_commit
 from aclara.api.staff_contracts import IdentityView
 from aclara.api.turn_logging import log_turn
@@ -795,7 +796,14 @@ def create_app(
     ) -> dict[str, str]:
         with operational.transaction(scope(principal)):
             conversation_id = str(uuid4())
-            app.state.conversations[conversation_id] = Conversation(session_id=principal.session_id)
+            app.state.conversations[conversation_id] = Conversation(
+                session_id=principal.session_id,
+                language=(
+                    "pt"
+                    if app.state.runtime.system == "P" and principal.locale == "pt-BR"
+                    else "es"
+                ),
+            )
             return {"conversation_id": conversation_id}
 
     @app.post("/chat/sessions/{conversation_id}/messages", response_model=ResponsePlan)
@@ -1121,6 +1129,14 @@ def create_app(
                 },
                 "policy_rules": packet["reason_codes"],
             }
+        language_before_turn = conversation.language
+        if app.state.runtime.system == "P":
+            known_merchants = tuple(row.merchant_name for _, row in conversation.candidates)
+            if conversation.proposal:
+                known_merchants += (conversation.proposal.transaction.merchant_name,)
+            conversation.language = conversation_language(
+                body.message, language_before_turn, known_merchants
+            )
         if conversation.proposal is not None:
             if is_confirmation(body.message):
                 raise HTTPException(status_code=409, detail="Use the action confirmation control")
@@ -1138,7 +1154,9 @@ def create_app(
         nlu: NluResult | None = None
         language = (
             conversation.language
-            if conversation.candidates or conversation.offer_handle
+            if app.state.runtime.system == "P"
+            or conversation.candidates
+            or conversation.offer_handle
             else frame.language
         )
         conversation.language = language
@@ -1180,6 +1198,22 @@ def create_app(
                 "policy_rules": ["ESC-04"],
             }
         normalized_message = normalize_text(body.message)
+        if app.state.runtime.system == "P" and not (
+            inferred
+            and (risk_reasons(inferred.extracted) or inferred.extracted.other_customer_reference)
+        ):
+            # Only after safety guards: display names carry no language vote.
+            language = conversation_language(
+                body.message,
+                language_before_turn,
+                tuple(
+                    row.merchant_name
+                    for _, row in ledger.for_customer(
+                        principal.customer_id, active_settings.bank_clock
+                    )
+                ),
+            )
+            conversation.language = language
         requested = re.search(r"DSP-[A-Za-z0-9-]+", body.message, re.IGNORECASE)
         if requested or re.search(
             r"(estado|status|andamento).{0,30}(caso|disputa|contestacion|contestacao)|(mi caso|minha contestacao)",
@@ -1257,6 +1291,19 @@ def create_app(
             if not nlu.degraded:
                 frame = nlu.frame
                 previous = conversation.slots.model_dump() if conversation.slots else {}
+                previous_merchant = conversation.slots.merchant_expr if conversation.slots else None
+                if not previous_merchant and conversation.selected_handle:
+                    selected = dict(
+                        ledger.for_customer(principal.customer_id, active_settings.bank_clock)
+                    ).get(conversation.selected_handle)
+                    previous_merchant = selected.merchant_name if selected else None
+                if (
+                    previous_merchant
+                    and nlu.slots.merchant_expr
+                    and normalize_text(previous_merchant) != normalize_text(nlu.slots.merchant_expr)
+                    and normalize_text(nlu.slots.merchant_expr) in normalize_text(body.message)
+                ):
+                    previous = {}
                 conversation.slots = NormalizedSlots.model_validate(
                     {
                         **previous,
@@ -1282,9 +1329,6 @@ def create_app(
                     conversation.rounds += 1
                     if conversation.intent != Intent.DISPUTE_CHARGE:
                         conversation.intent = frame.intent
-                    conversation.language = (
-                        "pt" if nlu.extracted.language == "pt" else conversation.language
-                    )
                     if conversation.rounds >= 2:
                         return make_handoff(app, principal, conversation.language, "ESC-04")
                     return {
@@ -1388,7 +1432,11 @@ def create_app(
                     update={"intent": Intent.CHARGE_INQUIRY, "language": contextual_language}
                 )
                 app.state.runtime.record("scoped_status_context")
-        language = conversation.language if conversation.candidates else frame.language
+        language = (
+            conversation.language
+            if app.state.runtime.system == "P" or conversation.candidates
+            else frame.language
+        )
         conversation.language = language
 
         if frame.intent in {Intent.HUMAN_REQUEST, Intent.FRAUD, Intent.FEE_DISPUTE}:
@@ -1616,6 +1664,11 @@ def create_app(
                         public_case(record)
                     ) != DisputeCaseView.model_validate(result["case"]):
                         raise HTTPException(503, "Durable receipt readback failed")
+                if (
+                    app.state.runtime.system == "P"
+                    and receipt.get("language") != conversation.language
+                ):
+                    result = {**result, "reply": receipt_reply(result, conversation.language)}
                 log_turn(conversation_id, result, [], degraded=conversation.degraded)
                 return cast(dict[str, Any], result)
             try:
@@ -1623,7 +1676,9 @@ def create_app(
             except InjectedFailure:
                 conversation = app.state.conversations.get(conversation_id)
                 language = (
-                    conversation.proposal.language
+                    conversation.language
+                    if conversation and app.state.runtime.system == "P"
+                    else conversation.proposal.language
                     if conversation and conversation.proposal
                     else "es"
                 )
@@ -1646,10 +1701,13 @@ def create_app(
             )
             execution_id = execution(result, conversation_id, cursor, None)
             if result.get("case") or result["response_type"] == "cancelled":
-                app.state.idempotency[receipt_key] = {
+                stored_receipt: dict[str, Any] = {
                     "confirmed": body.confirmed,
                     "response": result,
                 }
+                if app.state.runtime.system == "P":
+                    stored_receipt["language"] = conversation.language
+                app.state.idempotency[receipt_key] = stored_receipt
         # Commit precedes the independent read-back and any success response.
         if result.get("case"):
             verify_committed_case(result, principal, execution_id)
@@ -1676,14 +1734,13 @@ def create_app(
         proposal = conversation.proposal
         if proposal is None:
             raise HTTPException(status_code=409, detail="No pending action")
+        language = conversation.language if app.state.runtime.system == "P" else proposal.language
         if not body.confirmed:
             conversation.proposal = None
             return {
                 "response_type": "cancelled",
                 "outcome": "cancelled",
-                "reply": _localized(
-                    proposal.language, "Disputa cancelada.", "Contestação cancelada."
-                ),
+                "reply": _localized(language, "Disputa cancelada.", "Contestação cancelada."),
             }
         expected_hash = _digest_proposal(
             principal.session_id,
@@ -1721,7 +1778,7 @@ def create_app(
                 "response_type": "report_status",
                 "outcome": "status_reported",
                 "reply": _localized(
-                    proposal.language, "El caso ya está registrado.", "O caso já está registrado."
+                    language, "El caso ya está registrado.", "O caso já está registrado."
                 ),
                 "case": public_case(record),
                 "verified": True,
@@ -1734,7 +1791,7 @@ def create_app(
                     app,
                     conversation,
                     principal,
-                    proposal.language,
+                    language,
                     Intent.DISPUTE_CHARGE,
                     proposal.transaction_handle,
                     current,
@@ -1751,7 +1808,7 @@ def create_app(
                     "response_type": "report_case",
                     "outcome": "dispute_filed",
                     "reply": _localized(
-                        proposal.language,
+                        language,
                         "El caso ya está registrado.",
                         "O caso já está registrado.",
                     ),
@@ -1793,7 +1850,7 @@ def create_app(
             "response_type": "report_case",
             "outcome": "dispute_filed",
             "reply": _localized(
-                proposal.language,
+                language,
                 f"Tu disputa {case_id} fue registrada y verificada. El siguiente paso es la revisión; respuesta en hasta 15 días (SLA simulado).",
                 f"Sua contestação {case_id} foi registrada e verificada. A próxima etapa é a análise; resposta em até 15 dias (SLA simulado).",
             ),
