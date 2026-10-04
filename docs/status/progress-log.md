@@ -41,3 +41,4 @@ Current candidate: [v0.9.3 reviewed judge-story integration](progress.d/2026-10-
 Release verification is pending; the deployed release remains v0.9.2.
 
 Latest AI starter replays: [missing-merchant normalization](progress.d/2026-10-04-ai-merchant-placeholder.md).
+Latest AI live diagnosis: [partial exploration and zero-cost root causes](progress.d/2026-10-04-ai-live-exploration-partial.md).
