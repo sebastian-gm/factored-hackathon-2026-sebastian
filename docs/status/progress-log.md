@@ -3,6 +3,8 @@
 Read the [complete archived record](../history/status/progress-log.md).
 The [final evaluation (v4)](../evaluation/final-v4-results.md) remains unchanged.
 
+Latest AI session: [October 3 human review](progress.d/2026-10-03-ai-judge-human-agreement.md).
+
 <details>
 <summary>Compatibility excerpt for existing chart tools</summary>
 

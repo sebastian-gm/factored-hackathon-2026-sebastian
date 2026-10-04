@@ -1,11 +1,136 @@
-# Human wording review of the final v4 system
+# Human review of final evaluation (v4) wording
 
-**Status: v4 page ready; human ratings pending.** Sebastian will rate the final
-system's saved v4 responses. No human–judge agreement is claimed before his
-export is received. This 20-item review is descriptive; it does not satisfy the
-[rubric's 50-item calibration requirement](judge-rubric.md).
+**What this shows:** How closely two AI judges scored the same replies as Sebastian.
+**Result:** All 20 blind items were scored and matched; the judges often rated wording more generously.
+**Limits:** One reviewer and 20 replies describe this sample; they do not validate either judge.
 
-## Offline scoring
+Sebastian's scored export was received on October 3, 2026. We compared it with
+saved Sonnet and Jev scores for the **unchanged final evaluation (v4) replies**.
+There were no new model calls and no changes to the official outcome results.
+Agreement was measured after the final evaluation.
+
+The importer confirmed all original IDs, locales and wording, and all **70/70**
+applicable human ratings. Every sheet item has both saved judges. The sample
+contains **11 ES, 3 PT, 3 mixed and 3 other-language replies**. Ten replies have
+handoff summaries; the other ten are excluded from that dimension.
+
+## Agreement with Sebastian
+
+Exact means the same 1–5 score. Within one means the scores differ by at most one
+point. Weighted κ adjusts agreement for chance; Spearman ρ compares score order.
+Neither statistic measures whether an action was safe or correct.
+
+| AI judge vs human | Dimension | Paired n | Exact | Within one | Weighted κ | Spearman ρ |
+|---|---|---:|---:|---:|---:|---:|
+| Sonnet | Language and tone | 20 | 55.0% | 90.0% | 0.062 | 0.092 |
+| Sonnet | Clarity | 20 | 50.0% | 85.0% | 0.451 | 0.605 |
+| Sonnet | Empathy | 20 | 35.0% | 100.0% | -0.083 | -0.124 |
+| Sonnet | Handoff usefulness | 10 | 0.0% | 100.0% | 0.000 | Undefined |
+| Jev | Language and tone | 20 | 35.0% | 100.0% | 0.188 | 0.309 |
+| Jev | Clarity | 20 | 40.0% | 75.0% | 0.196 | 0.399 |
+| Jev | Empathy | 20 | 50.0% | 95.0% | -0.083 | -0.092 |
+| Jev | Handoff usefulness | 10 | 0.0% | 90.0% | 0.000 | Undefined |
+
+The largest differences concern clarity. Sonnet scored it over one point higher
+than Sebastian in **3/20** replies; Jev did so in **5/20**. Both judges agreed
+with the human on **0/10** handoff scores, even though Sonnet was within one
+point on all ten. A high within-one percentage alone can hide a consistent
+scoring difference. Empathy κ is negative for both judges in the overall sample.
+
+All gaps larger than one point favored the AI judge's score. Sonnet also had
+**2/20** larger language-and-tone gaps; Jev had **1/20** for empathy and **1/10**
+for handoff usefulness. None of these larger gaps occurred in PT.
+
+Private review found that the larger clarity gaps concentrate on short replies
+about routing or transfer. All five Jev clarity gaps were ES replies with a
+handoff summary; four mentioned transfer to a person. Human notes were blank
+on every larger-gap item, so these are observed contexts, not an explanation
+of Sebastian's reasons. Short, orderly transfer wording may receive generous
+AI scores while still leaving a human reader wanting more detail.
+
+<details>
+<summary>Language slices, method and private reproduction</summary>
+
+## ES and PT slices
+
+Mixed and other-language items count in the overall table but not these slices.
+The PT results cover only three replies and two handoffs; even a 100% entry is
+not evidence of reliable Portuguese scoring.
+
+| Language | AI judge vs human | Dimension | Paired n | Exact | Within one | Weighted κ | Spearman ρ |
+|---|---|---|---:|---:|---:|---:|---:|
+| ES | Sonnet | Language and tone | 11 | 72.7% | 90.9% | 0.154 | 0.221 |
+| ES | Sonnet | Clarity | 11 | 45.5% | 81.8% | 0.500 | 0.712 |
+| ES | Sonnet | Empathy | 11 | 36.4% | 100.0% | -0.116 | -0.153 |
+| ES | Sonnet | Handoff usefulness | 7 | 0.0% | 100.0% | 0.000 | Undefined |
+| PT | Sonnet | Language and tone | 3 | 0.0% | 100.0% | 0.000 | Undefined |
+| PT | Sonnet | Clarity | 3 | 66.7% | 100.0% | 0.000 | Undefined |
+| PT | Sonnet | Empathy | 3 | 33.3% | 100.0% | 0.000 | Undefined |
+| PT | Sonnet | Handoff usefulness | 2 | 0.0% | 100.0% | 0.000 | Undefined |
+| ES | Jev | Language and tone | 11 | 45.5% | 100.0% | 0.327 | 0.516 |
+| ES | Jev | Clarity | 11 | 27.3% | 54.5% | 0.158 | 0.388 |
+| ES | Jev | Empathy | 11 | 45.5% | 90.9% | 0.000 | 0.000 |
+| ES | Jev | Handoff usefulness | 7 | 0.0% | 85.7% | 0.000 | Undefined |
+| PT | Jev | Language and tone | 3 | 0.0% | 100.0% | 0.000 | Undefined |
+| PT | Jev | Clarity | 3 | 100.0% | 100.0% | 1.000 | 1.000 |
+| PT | Jev | Empathy | 3 | 100.0% | 100.0% | 1.000 | 1.000 |
+| PT | Jev | Handoff usefulness | 2 | 0.0% | 100.0% | 0.000 | Undefined |
+
+## Saved judge-to-judge comparison
+
+These unchanged figures compare the two AI judges on the same 20 sheet items.
+They cannot substitute for a human comparison.
+
+| Sonnet vs Jev dimension | Paired n | Exact | Within one | Weighted κ | Spearman ρ |
+|---|---:|---:|---:|---:|---:|
+| Language and tone | 20 | 50.0% | 100.0% | 0.174 | 0.181 |
+| Clarity | 20 | 60.0% | 90.0% | 0.364 | 0.411 |
+| Empathy | 20 | 30.0% | 100.0% | 0.200 | 0.303 |
+| Handoff usefulness | 10 | 90.0% | 100.0% | 0.000 | Undefined |
+
+## Method and interpretation
+
+Scores use the [same four 1–5 rubric dimensions](judge-rubric.md). Pairing is by
+original item ID, never file order. Missing model ratings and absent handoff
+scores are excluded, never treated as zero. Weighted κ is Cohen's κ with squared
+disagreement weights on the fixed 1–5 scale. Spearman is Pearson correlation of
+average ranks, with ties assigned their mean rank. κ is undefined when expected
+disagreement is zero; ρ is undefined if either score vector is constant.
+Sebastian gave all ten handoffs the same score, so their ρ is undefined even
+when there is a scoring difference.
+
+This is **descriptive n=20 agreement**, not the rubric's 50-item calibration.
+One reviewer, correlated response types, a narrow score range, and three PT
+items limit interpretation. Fluent PT human review remains unconfirmed. No
+population estimate, significance claim, or calibration threshold is asserted.
+Authorization, safety and outcome correctness remain checked by code. Neither
+judge is validated by agreement with the other. Analyze an earlier v3 sheet
+separately if it is scored; it cannot substitute for this final-system sample.
+
+## Reproduce privately, without model calls
+
+The [offline supplement](judge_agreement.py) invokes the existing strict
+[importer](../../evals/studies/llm/human_review.py), then adds Spearman and aggregate
+gap directions. It stores and reads back **only aggregates** under ignored
+`artifacts/`, with mode 0600. Inputs, item ratings, notes and CSV remain private.
+
+```bash
+LLM_PROVIDER=mock .venv/bin/python -m docs.evaluation.judge_agreement --self-check
+LLM_PROVIDER=mock .venv/bin/python -m docs.evaluation.judge_agreement \
+  --scored "$SCORED_HUMAN_SHEET" \
+  --source "$FINAL_V4_ARTIFACTS/human-judge-20.csv" \
+  --judge-inputs "$FINAL_V4_ARTIFACTS/judge-inputs.json" \
+  --checkpoints "$FINAL_V4_ARTIFACTS/checkpoints" \
+  --output artifacts/human-judge/v4-agreement.json
+```
+
+Source SHA-256: `84ed0d45458c0c6fba7dd92950b364ab5156887ca012ff75ce91a5fc0f6ae169`.
+Scored export SHA-256: `d8cf1965fe996b6d202b6c9e683d401fd2d6f8d04ab9a5089151e5c5c1fce8fa`.
+The private aggregate receipt is `artifacts/human-judge/v4-agreement.json`.
+Both judges have **60/60** saved v4 judge items; this report analyzes only the
+**20/20** matched human-sheet items.
+
+## How the blind review was collected
 
 Open `artifacts/human-judge/v4-score.html` in the AI worktree:
 
@@ -30,57 +155,5 @@ export unchanged. The generated page is mode 0600; source, page, notes and CSV
 remain private and outside Git. Source SHA-256:
 `84ed0d45458c0c6fba7dd92950b364ab5156887ca012ff75ce91a5fc0f6ae169`.
 
-## Import the human export
 
-Once the exported path is confirmed, run the
-[importer](../../evals/studies/llm/human_review.py) from the AI worktree:
-
-```bash
-.venv/bin/python -m evals.studies.llm.human_review import \
-  --scored "$SCORED_HUMAN_SHEET" \
-  --source $REPO/artifacts/final-program-v4/human-judge-20.csv \
-  --judge-inputs $REPO/artifacts/final-program-v4/judge-inputs.json \
-  --checkpoints $REPO/artifacts/final-program-v4/checkpoints \
-  --output artifacts/human-judge/v4-agreement.json
-```
-
-The Downloads path is provisional. Import requires all applicable ratings,
-twenty unique original IDs, exact columns and unchanged locale/text, and checks
-the wording against saved judge inputs before joining checkpoint scores by ID.
-A v3 export cannot be substituted. It makes no new model calls.
-
-Report human–Sonnet, human–Jev and Sonnet–Jev agreement per dimension: paired n,
-exact agreement, within-one agreement and quadratic-weighted Cohen's κ on the
-fixed 1–5 scale, overall and for ES/PT. Missing ratings and absent handoffs are
-excluded; they never become zero. Empty pairs and zero expected disagreement
-produce undefined κ. Keep item-level ratings and notes private; inspect
-disagreements exceeding one point after the human scores arrive.
-
-## Saved v4 judge pairs
-
-All **60/60** planned v4 judge items have saved Sonnet/Jev scores. All **20/20**
-human-sheet items can be paired: eleven ES, three pt-BR, three mixed and three
-other-language items. Ten have handoff summaries. On these shared sheet items,
-before any human ratings:
-
-| Sonnet vs Jev dimension | Paired n | Exact | Within one | Quadratic κ |
-|---|---:|---:|---:|---:|
-| Language/register | 20 | 50% | 100% | 0.174 |
-| Clarity | 20 | 60% | 90% | 0.364 |
-| Empathy | 20 | 30% | 100% | 0.200 |
-| Handoff usefulness | 10 | 90% | 100% | 0.000 |
-
-These are judge–judge agreements, not correctness or human validation. Two
-clarity pairs differ by more than one point. The private aggregate receipt is
-`artifacts/human-judge/v4-agreement-pending.json`; human pair counts are currently
-zero. **TODO(human export):** add each judge's agreement with Sebastian, ES/PT
-slice denominators and the review of larger disagreements.
-
-One reviewer, a small sample, correlated response types and only three pt-BR
-items limit interpretation. Fluent PT human review remains unconfirmed. Mixed
-and other-language items are included overall but excluded from ES/PT slices.
-Objective outcomes, authorization and safety remain code-scored. Neither judge
-is validated by agreement with the other.
-
-V4 is the primary human-review sample. Analyze the earlier v3 sheet separately
-only if Sebastian also scores it; it will not substitute for final-system ratings.
+</details>
