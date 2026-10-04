@@ -28,7 +28,7 @@ export function FreezeCard({
   onPendingChange?: (pending: boolean) => void;
 }) {
   const t = useTranslations();
-  const { locale } = useApp();
+  const { locale, conversationLocale } = useApp();
   const [product, setProduct] = useState<Product | null>(null);
   const [challenge, setChallenge] = useState("");
   const [sms, setSms] = useState("");
@@ -110,7 +110,7 @@ export function FreezeCard({
       setSms("");
       setChallenge("");
       const data = await api(`cards/${product.handle}/freeze/proposal`, {
-        language: locale === "pt-BR" ? "pt" : "es",
+        language: conversationLocale === "pt-BR" ? "pt" : "es",
         handoff_id: handoffId,
       });
       const proposed = freezeProposalSchema.safeParse(data);

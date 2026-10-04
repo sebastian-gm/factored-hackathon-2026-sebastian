@@ -1,14 +1,17 @@
 "use client";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef } from "react";
-import type { JudgeProfiles, ProfileId, Locale } from "@/lib/contracts";
+import type { JudgeProfiles, ProfileId } from "@/lib/contracts";
+import type { InterfaceLocale } from "@/lib/interface-locale";
 import { Button } from "./ui/button";
 const ids: ProfileId[] = ["mx-es", "co-es", "ar-es", "pt"];
-export function profileTitle(id: ProfileId, locale: Locale): string {
+export function profileTitle(id: ProfileId, locale: InterfaceLocale): string {
   return id === "pt"
-    ? locale === "pt-BR"
-      ? "Falante PT"
-      : "Hablante PT"
+    ? locale === "en-US"
+      ? "Portuguese speaker"
+      : locale === "pt-BR"
+        ? "Falante PT"
+        : "Hablante PT"
     : { "mx-es": "MX · ES", "co-es": "CO · ES", "ar-es": "AR · ES" }[id];
 }
 export function JudgeProfilePicker({

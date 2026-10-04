@@ -1,5 +1,7 @@
 "use client";
 import { useRef } from "react";
+import { useApp } from "./workspace";
+import { es, pt } from "@/lib/messages";
 import { useTranslations } from "next-intl";
 
 const stories = [
@@ -19,6 +21,9 @@ export function JudgeTryPanel({
   onChoose: (message: string) => void;
 }) {
   const t = useTranslations();
+  const { conversationLocale } = useApp();
+  const customerText = (story: (typeof stories)[number]) =>
+    (conversationLocale === "pt-BR" ? pt : es)[`judgeMessage_${story}`];
   const panel = useRef<HTMLDetailsElement>(null);
   return (
     <details
@@ -37,11 +42,11 @@ export function JudgeTryPanel({
               data-testid={`judge-draft-${story}`}
               onClick={() => {
                 if (panel.current) panel.current.open = false;
-                onChoose(t(`judgeMessage_${story}`));
+                onChoose(customerText(story));
               }}
             >
               <strong>{t(`judgeStory_${story}`)}</strong>
-              <span>{t(`judgeMessage_${story}`)}</span>
+              <span lang={conversationLocale}>{customerText(story)}</span>
             </button>
           </li>
         ))}

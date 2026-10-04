@@ -29,9 +29,11 @@ import {
   SESSION_EVENT,
 } from "@/lib/profile-workspace";
 import { JudgeProfilePicker, profileTitle } from "./judge-profile-picker";
-import { api, ApiError } from "@/lib/client";
+import { api, ApiError, setConversationLocale } from "@/lib/client";
 import { date } from "@/lib/format";
 import { es, pt } from "@/lib/messages";
+import { en } from "@/lib/messages-en";
+import type { InterfaceLocale } from "@/lib/interface-locale";
 import { Button } from "./ui/button";
 import { Login } from "./login";
 import { StoryChat } from "./story-chat";
@@ -45,8 +47,10 @@ import { JudgeQuickstart } from "./judge-quickstart";
 import { Insights } from "./insights";
 
 type AppContext = {
-  locale: Locale;
-  setLocale: (locale: Locale) => void;
+  locale: InterfaceLocale;
+  conversationLocale: Locale;
+  setLocale: (locale: InterfaceLocale) => void;
+  setBankLocale: (locale: Locale) => void;
   config: Config;
   session: Session | null;
   signedIn: () => Promise<void>;
@@ -73,7 +77,35 @@ export default function Workspace({
 }: {
   initialSurface?: Surface;
 }) {
-  const [locale, setLocale] = useState<Locale>("es-MX");
+  const [locale, setInterfaceLocale] = useState<InterfaceLocale>("en-US");
+  const interfaceChoice = useRef<InterfaceLocale>("en-US");
+  const [conversationLocale, setBankLocaleState] = useState<Locale>("es-MX");
+  const setBankLocale = useCallback((value: Locale) => {
+    setConversationLocale(value);
+    setBankLocaleState(value);
+  }, []);
+  const setLocale = useCallback((value: InterfaceLocale) => {
+    interfaceChoice.current = value;
+    setInterfaceLocale(value);
+    try {
+      localStorage.setItem("aclara.interfaceLanguage", value);
+    } catch {
+      // Language selection still works when the browser blocks storage.
+    }
+  }, []);
+  useEffect(() => {
+    let saved: string | null = null;
+    try {
+      saved = localStorage.getItem("aclara.interfaceLanguage");
+    } catch {
+      // A stored preference is optional; English remains the default.
+    }
+    const timer = setTimeout(() => {
+      if (["en-US", "es-MX", "es-CO", "es-AR", "pt-BR"].includes(saved ?? ""))
+        setLocale(saved as InterfaceLocale);
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [setLocale]);
   const [config, setConfig] = useState<Config>({
     fixtures: false,
     bankClock: null,
@@ -113,67 +145,76 @@ export default function Workspace({
     if (window.location.pathname !== "/")
       window.history.replaceState(null, "", "/" + window.location.search);
   }, []);
-  const installSession = useCallback(async (current: Session | null) => {
-    const isJudge = current?.judge_profiles_enabled === true;
-    judgeMode.current = isJudge;
-    setProfileFlow(isJudge);
-    setProfileError(false);
-    setSessionExpired(false);
-    if (isJudge) {
-      pickerVisible.current = true;
-      setPickerOpen(true);
-      setProfileBusy(true);
-      configureWorkspace(true, true);
-      const choices = judgeProfilesSchema.parse(
-        await api("auth/judge/profiles"),
+  const installSession = useCallback(
+    async (current: Session | null) => {
+      const isJudge = current?.judge_profiles_enabled === true;
+      judgeMode.current = isJudge;
+      setProfileFlow(isJudge);
+      setProfileError(false);
+      setSessionExpired(false);
+      if (isJudge) {
+        pickerVisible.current = true;
+        setPickerOpen(true);
+        setProfileBusy(true);
+        configureWorkspace(true, true);
+        const choices = judgeProfilesSchema.parse(
+          await api("auth/judge/profiles"),
+        );
+        setProfiles(choices);
+        deadline.current = choices.expires_at;
+      } else {
+        setProfiles(null);
+        deadline.current = null;
+      }
+      configureWorkspace(
+        isJudge,
+        current?.profile_selection_required === true,
+        !!current,
       );
-      setProfiles(choices);
-      deadline.current = choices.expires_at;
-    } else {
-      setProfiles(null);
-      deadline.current = null;
-    }
-    configureWorkspace(
-      isJudge,
-      current?.profile_selection_required === true,
-      !!current,
-    );
-    setSession(current);
-    if (current?.role === "agent") setRevision((n) => n + 1);
-    setPickerOpen(current?.profile_selection_required === true);
-    pickerVisible.current = current?.profile_selection_required === true;
-    setProfileBusy(false);
-    if (current?.locale) setLocale(current.locale);
-    setConfig((c) => ({
-      ...c,
-      bankClock: current?.bank_clock ?? configuredClock.current,
-      // Only the authenticated identity supplies private account hints. Public
-      // config never enumerates staff/judge identities. Logout removes them.
-      personas: [
-        ...c.personas.filter(
-          (p) => p.role === "customer" && !p.username.startsWith("judge."),
-        ),
-        ...(current &&
-        !isJudge &&
-        !c.personas.some(
-          (p) =>
-            p.username === current.username &&
-            p.role === "customer" &&
-            !p.username.startsWith("judge."),
-        )
-          ? [
-              {
-                username: current.username,
-                label: "",
-                role: current.role,
-                locale: current.locale!,
-                demo_stories: current.demo_stories ?? [],
-              },
-            ]
-          : []),
-      ],
-    }));
-  }, []);
+      setSession(current);
+      if (current?.role === "agent") setRevision((n) => n + 1);
+      setPickerOpen(current?.profile_selection_required === true);
+      pickerVisible.current = current?.profile_selection_required === true;
+      setProfileBusy(false);
+      if (current) {
+        const bankLocale =
+          current.locale ?? (current.language === "pt" ? "pt-BR" : "es-MX");
+        setBankLocale(bankLocale);
+        if (current.locale && interfaceChoice.current !== "en-US")
+          setInterfaceLocale(current.locale);
+      }
+      setConfig((c) => ({
+        ...c,
+        bankClock: current?.bank_clock ?? configuredClock.current,
+        // Only the authenticated identity supplies private account hints. Public
+        // config never enumerates staff/judge identities. Logout removes them.
+        personas: [
+          ...c.personas.filter(
+            (p) => p.role === "customer" && !p.username.startsWith("judge."),
+          ),
+          ...(current &&
+          !isJudge &&
+          !c.personas.some(
+            (p) =>
+              p.username === current.username &&
+              p.role === "customer" &&
+              !p.username.startsWith("judge."),
+          )
+            ? [
+                {
+                  username: current.username,
+                  label: "",
+                  role: current.role,
+                  locale: current.locale!,
+                  demo_stories: current.demo_stories ?? [],
+                },
+              ]
+            : []),
+        ],
+      }));
+    },
+    [setBankLocale],
+  );
   const recheckSession = useCallback(async () => {
     try {
       await installSession(await api<Session>("me"));
@@ -398,13 +439,15 @@ export default function Workspace({
   return (
     <NextIntlClientProvider
       locale={locale}
-      messages={locale === "pt-BR" ? pt : es}
+      messages={locale === "en-US" ? en : locale === "pt-BR" ? pt : es}
       timeZone="UTC"
     >
       <Context.Provider
         value={{
           locale,
           setLocale,
+          conversationLocale,
+          setBankLocale,
           config,
           session,
           signedIn,
@@ -526,7 +569,7 @@ function Shell({
     if (!persona) throw new Error("Persona unavailable");
     if (session && session.username !== persona.username) await signOut();
     setPreferredPersona(persona.username);
-    setLocale(persona.locale);
+    if (locale !== "en-US") setLocale(persona.locale);
     setStory(next);
     setSurface("chat");
     setWorkspaceRevision((n) => n + 1);
@@ -543,7 +586,7 @@ function Shell({
     const username = next === "ops" ? "demo.ops" : "demo.agent";
     if (session && session.username !== username) await signOut();
     setPreferredPersona(username);
-    setLocale("es-MX");
+    if (locale !== "en-US") setLocale("es-MX");
     setSurface(next);
   }
   const [authError, setAuthError] = useState(false);
@@ -580,7 +623,11 @@ function Shell({
       className={`app-shell surface-${surface} ${profileFlow && session?.judge_profile_id ? "profile-selected" : ""}`}
     >
       <a href="#main-content" className="skip-link">
-        {locale === "pt-BR" ? "Ir ao conteúdo" : "Ir al contenido"}
+        {locale === "en-US"
+          ? "Skip to content"
+          : locale === "pt-BR"
+            ? "Ir ao conteúdo"
+            : "Ir al contenido"}
       </a>
       <aside className="sidebar">
         <Link className="brand" href="/">
@@ -636,20 +683,23 @@ function Shell({
                   {profileTitle(session.judge_profile_id, locale)}
                 </Button>
               )}
-              {!(profileFlow && session?.judge_profile_id) && (
+              {
                 <label className="locale-select">
                   <span className="sr-only">{t("language")}</span>
                   <select
                     value={locale}
-                    onChange={(e) => setLocale(e.target.value as Locale)}
+                    onChange={(e) =>
+                      setLocale(e.target.value as InterfaceLocale)
+                    }
                   >
-                    <option value="es-MX">ES · México</option>
+                    <option value="en-US">English</option>
+                    <option value="es-MX">ES · Español</option>
                     <option value="es-CO">ES · Colombia</option>
                     <option value="es-AR">ES · Argentina</option>
                     <option value="pt-BR">PT · Português</option>
                   </select>
                 </label>
-              )}
+              }
               {(session || profileFlow) && (
                 <Button
                   variant="ghost"

@@ -1,8 +1,8 @@
-import type { Locale } from "./contracts";
+import type { InterfaceLocale } from "./interface-locale";
 export function money(
   amount: number,
   currency: string,
-  locale: Locale,
+  locale: InterfaceLocale,
 ): string {
   try {
     return new Intl.NumberFormat(locale, {
@@ -14,7 +14,11 @@ export function money(
     return `${amount.toFixed(2)} ${currency}`;
   }
 }
-export function date(value: string, locale: Locale, time = false): string {
+export function date(
+  value: string,
+  locale: InterfaceLocale,
+  time = false,
+): string {
   const parsed = new Date(value);
   if (Number.isNaN(parsed.getTime())) return "—";
   return new Intl.DateTimeFormat(locale, {

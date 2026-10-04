@@ -154,6 +154,10 @@ uses explicit v3 assumptions and claims no realized savings.
 
 ## Judge guide — 5 minutes
 
+The reviewer interface defaults to English; Spanish and Portuguese remain selectable.
+Customer conversations and prepared messages stay in the selected bank profile’s
+Spanish or Portuguese. API free text is preserved in its original language.
+
 For a first charge explanation, use **Entender un cargo / Entender cobrança**.
 Quick-start reads your selected profile's visible purchases and prepares a question
 with the merchant, exact amount and currency, preferring a pending purchase.

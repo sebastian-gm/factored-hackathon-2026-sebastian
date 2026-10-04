@@ -1,3 +1,8 @@
+import type { Locale } from "./contracts";
+let conversationLocale: Locale = "es-MX";
+export function setConversationLocale(locale: Locale) {
+  conversationLocale = locale;
+}
 import { invalidateSession, workspaceRequest } from "./profile-workspace";
 export class ApiError extends Error {
   constructor(
@@ -20,7 +25,7 @@ export async function api<T>(
       credentials: "same-origin",
       cache: "no-store",
       headers: {
-        "Accept-Language": document.documentElement.lang,
+        "Accept-Language": conversationLocale,
         ...(body === undefined ? {} : { "Content-Type": "application/json" }),
       },
       body: body === undefined ? undefined : JSON.stringify(body),

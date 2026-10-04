@@ -10,7 +10,12 @@ async function login(page: Page, pt: boolean, agent = false) {
   if (agent)
     await page.getByRole("button", { name: "Agent Desk", exact: true }).click();
   if (agent) await selectLoginPersona(page, "demo.agent");
-  if (pt) await page.getByLabel("Idioma y región").selectOption("pt-BR");
+  if (pt) {
+    if (!agent) await selectLoginPersona(page, "demo.pt.br");
+    await page
+      .getByLabel(/Idioma y región|Idioma e região/)
+      .selectOption("pt-BR");
+  }
   await page
     .locator("input[type=password]")
     .fill(process.env.FRONTEND_FIXTURE_PASSWORD!);
@@ -211,7 +216,10 @@ for (const pt of [false, true]) {
     await expect(page.getByRole("log").locator(".aclara")).toHaveCount(1);
     const tab = await context.newPage();
     await tab.goto("/");
-    if (pt) await tab.getByLabel("Idioma y región").selectOption("pt-BR");
+    if (pt)
+      await tab
+        .getByLabel(/Idioma y región|Idioma e região/)
+        .selectOption("pt-BR");
     await tab.locator("#message").fill("Borrador privado de prueba");
     let writes = 0;
     page.on("request", (request) => {

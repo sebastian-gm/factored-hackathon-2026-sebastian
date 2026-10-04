@@ -1,3 +1,4 @@
+import { selectLoginPersona } from "./helpers/login-persona";
 import { test, expect, type Page } from "./helpers/test";
 import AxeBuilder from "@axe-core/playwright";
 import { proposalFixture } from "./fixtures/conversation-ui";
@@ -53,7 +54,12 @@ test("only trusted rightmost peer is used; IPv6 aliases and spoofed prefixes can
 
 async function login(page: Page, pt = false) {
   await page.goto("/");
-  if (pt) await page.getByLabel("Idioma y región").selectOption("pt-BR");
+  if (pt) {
+    await selectLoginPersona(page, "demo.pt.br");
+    await page
+      .getByLabel(/Idioma y región|Idioma e região/)
+      .selectOption("pt-BR");
+  }
   await page
     .locator("input[type=password]")
     .fill(process.env.FRONTEND_FIXTURE_PASSWORD!);
