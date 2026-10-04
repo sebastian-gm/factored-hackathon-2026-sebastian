@@ -2,6 +2,7 @@ import { defineConfig, devices } from "@playwright/test";
 const staff = process.env.FRONTEND_E2E_STAFF === "1";
 const live = process.env.FRONTEND_E2E_LIVE === "1";
 const judgeRoles = process.env.FRONTEND_E2E_JUDGE_ROLES === "1";
+const judgeStaff = process.env.FRONTEND_E2E_JUDGE_STAFF === "1";
 const secret = process.env.FRONTEND_FIXTURE_PASSWORD ?? "";
 const webPort = Number(process.env.FRONTEND_E2E_WEB_PORT ?? "3212");
 const apiPort = Number(process.env.FRONTEND_E2E_API_PORT ?? "8212");
@@ -16,28 +17,30 @@ if (
   );
 export default defineConfig({
   testDir: "./tests",
-  testMatch: judgeRoles
-    ? "**/judge-trusted-roles.spec.ts"
-    : staff
-      ? ["**/staff.spec.ts", "**/staff-realm.spec.ts"]
-      : live
-        ? "**/live.spec.ts"
-        : [
-            "**/stories.spec.ts",
-            "**/conversation-contract.spec.ts",
-            "**/startup.spec.ts",
-            "**/judge-ux.spec.ts",
-            "**/ux-review.spec.ts",
-            "**/insights.spec.ts",
-            "**/video-readiness.spec.ts",
-            "**/minimal-design.spec.ts",
-            "**/judge-profiles.spec.ts",
-            "**/judge-guide.spec.ts",
-            "**/admission.spec.ts",
-            "**/resilience-ux.spec.ts",
-            "**/tour-guards.spec.ts",
-            "**/current-profile-stories.spec.ts",
-          ],
+  testMatch: judgeStaff
+    ? "**/judge-staff.spec.ts"
+    : judgeRoles
+      ? "**/judge-trusted-roles.spec.ts"
+      : staff
+        ? ["**/staff.spec.ts", "**/staff-realm.spec.ts"]
+        : live
+          ? "**/live.spec.ts"
+          : [
+              "**/stories.spec.ts",
+              "**/conversation-contract.spec.ts",
+              "**/startup.spec.ts",
+              "**/judge-ux.spec.ts",
+              "**/ux-review.spec.ts",
+              "**/insights.spec.ts",
+              "**/video-readiness.spec.ts",
+              "**/minimal-design.spec.ts",
+              "**/judge-profiles.spec.ts",
+              "**/judge-guide.spec.ts",
+              "**/admission.spec.ts",
+              "**/resilience-ux.spec.ts",
+              "**/tour-guards.spec.ts",
+              "**/current-profile-stories.spec.ts",
+            ],
   fullyParallel: false,
   workers: 1,
   timeout: 45000,
@@ -62,6 +65,9 @@ export default defineConfig({
               FRONTEND_FIXTURE_PASSWORD: secret,
               FRONTEND_E2E_STAFF: staff ? "1" : "0",
               FRONTEND_E2E_API_PORT: String(apiPort),
+              FRONTEND_E2E_JUDGE_STAFF: judgeStaff ? "1" : "0",
+              FRONTEND_FIXTURE_JUDGE_PASSWORD:
+                process.env.FRONTEND_FIXTURE_JUDGE_PASSWORD ?? "",
             },
             stdout: "ignore" as const,
             stderr: "pipe" as const,

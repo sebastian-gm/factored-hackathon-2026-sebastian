@@ -84,6 +84,7 @@ jobs:
           pnpm test:e2e --live
           pnpm test:e2e --staff
           pnpm test:e2e --judge-roles
+          pnpm test:e2e --judge-staff
 
   postgres:
     runs-on: ubuntu-latest

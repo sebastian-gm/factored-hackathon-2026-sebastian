@@ -174,15 +174,19 @@ to inspect the recorded rule IDs beside human-readable rules and charge facts.
 Switching profiles clears the conversation; it does **not** undo existing cases
 or card blocks. Profile changes never supply fresh action OTP.
 
-Inspect the handoff in **Agent Desk** using a separately signed-in staff account.
-The [masked staff queue](docs/handoff-queue.md) shipped in
-[v0.8.1](docs/evaluation/v0.8.1-release-notes.md): create a temporary invitation
-from the customer's Desk tab, keep that session open, and connect the invitation
-in a separate browser profile/private window. Inspect the packet, click
+As a judge, open **Agent Desk**, then **Abrir la cola de esta visita / Abrir a fila
+desta visita**. This opens your visit's masked queue using your existing login:
+no second account, browser or OTP is needed. Inspect the packet, click
 **Tomar solicitud / Assumir solicitação**, and look for the verified assignment.
-The invitation grants masked handoff/claim access, not banking, transcript or
-trace access. This queue claims work; it does not adjudicate or resolve disputes.
-A judge profile is not a staff account.
+Switching profiles keeps queue membership within this visit; signing out revokes
+it. This grants masked handoff/claim access, not banking, transcript, trace or Ops
+authority. The queue does not adjudicate or resolve disputes, and a judge profile
+does not become a staff account. [Masked queue contract](docs/handoff-queue.md).
+
+External staff still signs in independently: create a temporary invitation in the
+customer's Desk tab and connect it in a separate browser profile/private window.
+Keep the customer's session open. The invitation is single-use and expires within
+five minutes; never paste it into chat.
 The judge login/profile mode remains behind owner activation; this guide does not
 enable it. [Conversation contract](contracts/interfaces/conversation-policy-v3.md).
 

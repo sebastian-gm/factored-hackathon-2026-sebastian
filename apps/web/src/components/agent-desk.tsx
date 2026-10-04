@@ -23,7 +23,7 @@ import { Button } from "./ui/button";
 import { Modal } from "./ui/dialog";
 import { TransactionCard } from "./transaction-card";
 import { StaffRealmAccess } from "./staff-realm-access";
-export function AgentDesk() {
+export function AgentDesk({ ownVisit = false }: { ownVisit?: boolean }) {
   const t = useTranslations();
   const { config, locale } = useApp();
   const [packets, setPackets] = useState<DeskPacket[]>([]),
@@ -93,6 +93,7 @@ export function AgentDesk() {
       ? undefined
       : (packets.find((p) => p.handoff_id === selected) ?? packets[0]);
   const realm =
+    ownVisit ||
     realmJoined ||
     (!!packets.length && packets.every((p) => p.scope === "current_realm"));
   const workspace =
@@ -170,7 +171,7 @@ export function AgentDesk() {
               : "authorizedQueueScope",
         )}
       </p>
-      {!config.fixtures && (
+      {!config.fixtures && !ownVisit && (
         <StaffRealmAccess
           connected={realm}
           onStart={changingRealm}
