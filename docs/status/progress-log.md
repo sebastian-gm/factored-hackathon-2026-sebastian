@@ -39,3 +39,5 @@ Latest AI choice follow-ups: [mock context regressions](progress.d/2026-10-04-ai
 
 Current candidate: [v0.9.3 reviewed judge-story integration](progress.d/2026-10-04-v093-review.md).
 Release verification is pending; the deployed release remains v0.9.2.
+
+Latest AI starter replays: [missing-merchant normalization](progress.d/2026-10-04-ai-merchant-placeholder.md).
