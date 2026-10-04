@@ -354,7 +354,7 @@ test("recording helper uses optional bank persona binding and never auto-sends",
         !!transaction.merchant &&
         draft.includes(transaction.merchant) &&
         draft.includes(`${transaction.amount} ${transaction.currency}`) &&
-        draft.includes(transaction.transaction_date.slice(0, 10)),
+        !draft.includes(transaction.transaction_date.slice(0, 10)),
     ),
   ).toBe(true);
   await expect(

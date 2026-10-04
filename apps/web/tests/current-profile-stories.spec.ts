@@ -81,11 +81,25 @@ const purchases: Record<ProfileId, Transaction> = {
   },
 };
 const expectedDrafts: Record<ProfileId, string> = {
-  "mx-es": "¿Qué es el cargo de Tienda Luna por 11.25 USD del 2026-06-12?",
-  "co-es": "¿Qué es el cargo de Librería Cumbre por 73050 COP del 2026-06-13?",
-  "ar-es": "¿Qué es el cargo de Mercado Delta por 9800.5 ARS del 2026-06-14?",
-  pt: "O que é a cobrança de Papelaria Clara por 91.15 USD em 2026-06-15?",
+  "mx-es": "¿Qué es el cargo de Tienda Luna por 11.25 USD?",
+  "co-es": "¿Qué es el cargo de Librería Cumbre por 73050 COP?",
+  "ar-es": "¿Qué es el cargo de Mercado Delta por 9800.5 ARS?",
+  pt: "O que é a cobrança de Papelaria Clara por 91.15 USD?",
 };
+
+for (const profile of ["mx-es", "pt"] as const)
+  test(`${profile}: the explanation draft does not impose the displayed date as a matching filter`, () => {
+    const story = demoStories[profile === "pt" ? 1 : 0];
+    for (const displayedDate of ["2026-06-12", "2026-06-17"])
+      expect(
+        ledgerStoryDraft(story, [
+          {
+            ...purchases[profile],
+            transaction_date: `${displayedDate}T16:00:00Z`,
+          },
+        ]),
+      ).toBe(expectedDrafts[profile]);
+  });
 
 test("ledger draft uses the latest complete purchase without rounding or changing the input", () => {
   const rows = [
@@ -99,7 +113,7 @@ test("ledger draft uses the latest complete purchase without rounding or changin
   ];
   const before = JSON.stringify(rows);
   expect(ledgerStoryDraft(demoStories[1], rows)).toBe(
-    "O que é a cobrança de Papelaria Clara por 91.125 USD em 2026-06-15?",
+    "O que é a cobrança de Papelaria Clara por 91.125 USD?",
   );
   expect(JSON.stringify(rows)).toBe(before);
   expect(
@@ -161,7 +175,7 @@ for (const width of [1440, 390])
     await expect(page.locator(".composer textarea")).toBeEditable();
     await page.getByTestId("quickstart-ambiguous").click();
     await expect(page.locator(".composer textarea")).toHaveValue(
-      "O que é a cobrança de Papelaria Clara por 91.15 USD em 2026-06-14?",
+      "O que é a cobrança de Papelaria Clara por 91.15 USD?",
     );
     await expect(page.locator(".composer textarea")).toBeFocused();
     await expect(page.locator(".composer textarea")).toBeInViewport();
