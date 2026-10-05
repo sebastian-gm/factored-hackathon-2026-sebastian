@@ -84,6 +84,12 @@ async function loginJudge(page: Page) {
   await page.goto("/");
   await expect(page.getByLabel("Interface language")).toHaveValue("en-US");
   await expect(page.locator(".login-panel")).toContainText("Password");
+  await expect(page.locator(".synthetic-banner, .clock")).toHaveCount(0);
+  await expect(page.locator(".demo-disclosure")).toHaveCount(1);
+  await expect(page.locator(".sidebar-bottom .demo-disclosure")).toBeVisible();
+  await expect(page.locator(".demo-disclosure")).toHaveText(
+    "Demo bank · synthetic data as of 18 Jun 2026",
+  );
   await audit(page);
   await page
     .locator("input[type=password]")
@@ -91,6 +97,12 @@ async function loginJudge(page: Page) {
   await page.locator(".login-panel button[type=submit]").click();
   const sms = page.getByTestId("sms-code");
   await expect(sms).toHaveText(/^\d{6}$/);
+  await expect(page.locator(".sms-panel strong")).toHaveText(
+    "Verification code",
+  );
+  await expect(page.locator(".sms-panel span")).toHaveText(
+    "(demo: shown here instead of SMS)",
+  );
   await page
     .locator("input[autocomplete=one-time-code]")
     .fill((await sms.textContent())!);

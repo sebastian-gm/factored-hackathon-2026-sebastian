@@ -30,6 +30,7 @@ async function review(page: Page, name: string) {
             .filter(
               (element) =>
                 element.getClientRects().length &&
+                !element.matches(".demo-disclosure") &&
                 [...element.childNodes].some(
                   (node) =>
                     node.nodeType === Node.TEXT_NODE &&
@@ -45,6 +46,8 @@ async function review(page: Page, name: string) {
       `Unexpected type scale: ${sizes}`,
     ).toBe(true);
   }
+  await expect(page.locator(".demo-disclosure")).toHaveCount(1);
+  await expect(page.locator(".synthetic-banner, .clock")).toHaveCount(0);
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   await page.evaluate(({ x, y }) => window.scrollTo(x, y), scroll);
   if (phase) {

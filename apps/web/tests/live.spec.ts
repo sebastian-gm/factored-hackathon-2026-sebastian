@@ -418,8 +418,8 @@ for (const pt of [false, true]) {
     expect(await wrong.json()).toEqual({ error: "invalid_otp_code" });
     await expect(dialog.getByRole("alert")).toHaveText(
       pt
-        ? "O código está incorreto. Confira o SMS e tente novamente."
-        : "El código no es correcto. Revisa el SMS e inténtalo de nuevo.",
+        ? "O código está incorreto. Confira o código exibido e tente novamente."
+        : "El código no es correcto. Revisa el código mostrado e inténtalo de nuevo.",
     );
     await expect(dialog).toContainText("Mercado Verde");
     await expect(sms).toHaveText(correct);

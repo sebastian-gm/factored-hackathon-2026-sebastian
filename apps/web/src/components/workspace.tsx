@@ -30,7 +30,6 @@ import {
 } from "@/lib/profile-workspace";
 import { JudgeProfilePicker, profileTitle } from "./judge-profile-picker";
 import { api, ApiError, setConversationLocale } from "@/lib/client";
-import { date } from "@/lib/format";
 import { es, pt } from "@/lib/messages";
 import { en } from "@/lib/messages-en";
 import type { InterfaceLocale } from "@/lib/interface-locale";
@@ -653,16 +652,11 @@ function Shell({
           ))}
         </nav>
         <div className="sidebar-bottom">
-          <p>{t("journeyTitle")}</p>
-          <span>{t("journeyBody")}</span>
-          <div className="sidebar-version">ACLARA / LAB 2026</div>
+          <p className="demo-disclosure">{t("demoNotice")}</p>
         </div>
       </aside>
       <div className="workspace">
         <header className="workspace-header">
-          <div className="synthetic-banner">
-            <span>{t("demoNotice")}</span>
-          </div>
           <div className="topbar">
             <div className="breadcrumb">
               <span>Aclara</span>
@@ -735,13 +729,6 @@ function Shell({
                     : config.fixtures
                       ? t("fixture")
                       : t("live")}
-              </span>
-              <span className="clock">
-                {!ready || failed
-                  ? t(failed ? "unavailable" : "starting")
-                  : config.bankClock
-                    ? `${t("simulated")} · ${date(config.bankClock, locale)}`
-                    : t("noClock")}
               </span>
             </div>
           )}

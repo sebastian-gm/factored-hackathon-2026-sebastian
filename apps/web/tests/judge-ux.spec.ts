@@ -37,6 +37,14 @@ async function login(page: Page, pt = false, role = "customer") {
     .fill(process.env.FRONTEND_FIXTURE_PASSWORD!);
   await page.locator(".login-panel button[type=submit]").click();
   await expect(page.getByTestId("sms-code")).toHaveText(/^\d{6}$/);
+  await expect(page.locator(".sms-panel strong")).toHaveText(
+    pt ? "Código de verificação" : "Código de verificación",
+  );
+  await expect(page.locator(".sms-panel span")).toHaveText(
+    pt
+      ? "(demo: mostrado aqui em vez de SMS)"
+      : "(demo: se muestra aquí en lugar de SMS)",
+  );
   await page
     .locator("input[autocomplete=one-time-code]")
     .fill((await page.getByTestId("sms-code").textContent())!);
@@ -245,7 +253,7 @@ test("startup and unavailable states never advertise green readiness", async ({
     await expect(page.locator(".status-pill")).toHaveText(
       "Serviço indisponível",
     );
-    await expect(page.locator(".clock")).toHaveText("Serviço indisponível");
+    await expect(page.locator(".clock")).toHaveCount(0);
     await expect(page.locator(".status-pill")).toHaveClass(/neutral/);
     await expect(page.getByRole("status")).toHaveCount(0);
     await audit(page);
@@ -274,12 +282,13 @@ test("customer copy explains rule families and hides internal IDs", async ({
     /TXN-01|AUTH-03|SEC-01|txn_ui_papeleria/,
   );
   await page.keyboard.press("Escape");
-  await expect(page.locator(".synthetic-banner")).toHaveText(
-    "Banco simulado · No es un servicio real",
+  await expect(page.locator(".synthetic-banner, .clock")).toHaveCount(0);
+  await expect(page.locator(".sidebar-bottom .demo-disclosure")).toHaveText(
+    "Banco demo · datos sintéticos al 18 jun 2026",
   );
   await locale(page, true);
-  await expect(page.locator(".synthetic-banner")).toHaveText(
-    "Banco simulado · Não é um serviço real",
+  await expect(page.locator(".sidebar-bottom .demo-disclosure")).toHaveText(
+    "Banco demo · dados sintéticos em 18 jun 2026",
   );
   await expect(page.locator(".sidebar nav")).toContainText("Agent Desk");
   await expect(page.locator(".chat-stages")).toContainText(
@@ -425,7 +434,7 @@ test("wrong renewal code keeps the same challenge and proposal for a single expl
   await dialog.getByRole("button", { name: "Confirmar", exact: true }).click();
   await dialog.locator("input[autocomplete=one-time-code]").fill("000000");
   await dialog.locator("button[type=submit]").click();
-  await expect(dialog.getByRole("alert")).toContainText("SMS");
+  await expect(dialog.getByRole("alert")).toContainText("código mostrado");
   await expect(dialog.locator("input[autocomplete=one-time-code]")).toHaveValue(
     "",
   );
@@ -543,7 +552,7 @@ test("card retry keeps the challenge; expiry starts a fresh review without confi
     await expect(page.getByTestId(`quickstart-${story}`)).toBeDisabled();
   await dialog.locator("input").fill("000000");
   await dialog.locator("button[type=submit]").click();
-  await expect(dialog.getByRole("alert")).toContainText("SMS");
+  await expect(dialog.getByRole("alert")).toContainText("código mostrado");
   await expect(dialog.locator("input")).toHaveValue("");
   expect(challenges).toBe(1);
   await dialog.locator("input").fill("123456");

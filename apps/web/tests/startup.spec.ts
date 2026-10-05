@@ -149,12 +149,12 @@ test("startup stays friendly in ES and PT while configuration is pending", async
     await page.goto("/", { waitUntil: "domcontentloaded" });
     await boot;
     await expect(page.getByRole("status")).toHaveText("Iniciando el servicio…");
-    await expect(page.locator(".clock")).toHaveText("Iniciando el servicio…");
+    await expect(page.locator(".clock")).toHaveCount(0);
     await page.getByLabel("Idioma y región").selectOption("pt-BR");
     await expect(page.getByRole("status")).toHaveText("Iniciando o serviço…");
     release();
     await expect(page.locator("input[type=password]")).toBeVisible();
-    await expect(page.locator(".clock")).not.toContainText("Iniciando");
+    await expect(page.locator(".clock")).toHaveCount(0);
   } finally {
     release();
   }
