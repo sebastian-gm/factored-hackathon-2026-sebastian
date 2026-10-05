@@ -3,7 +3,7 @@
 ## Completed (verified)
 
 - Handoff 22 read; v5 remains published unchanged. Private risk-frame diagnosis only; organizer values rebound to authored test targets.
-- Post-v5 safety/replay tests: 25 passed with mock clients; Ruff and strict mypy passed; interfaces unchanged. B1 development harness 32/32.
+- Post-v5 safety/replay tests: 31 passed with mock clients; Ruff and strict mypy passed; interfaces unchanged. B1 development harness 32/32.
 - `scripts.post_v5_budget --prepare`: v5 retired intact; new scope `regression/post-v5`, run `post-v5-final-build`, $0.80; conservative maximum $16.88318798/$18. Free provider readback covers the purse; no model calls yet.
 
 ## Done but not verified

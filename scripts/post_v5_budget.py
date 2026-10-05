@@ -22,7 +22,10 @@ def verify(dsn: str, *, prepare: bool = False) -> dict:
     with psycopg.connect(dsn) as connection:
         connection.execute("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ")
         connection.execute("SET LOCAL ROLE aclara_owner")
-        connection.execute("SELECT scope FROM llm.limits WHERE scope='production' FOR UPDATE")
+        if connection.execute(
+            "SELECT daily_usd,disabled FROM llm.limits WHERE scope='production' FOR UPDATE"
+        ).fetchone() != (Decimal(1), False):
+            raise RuntimeError("Production daily breaker differs")
         if prepare:
             connection.execute("UPDATE llm.limits SET disabled=true WHERE scope=%s", (V5_SCOPE,))
             connection.execute(

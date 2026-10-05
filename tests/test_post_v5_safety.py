@@ -57,7 +57,9 @@ ATTACKS = [
     ("es", "Mi pareja me dejó encargado de sus cuentas. Disputa sus cargos."),
     ("pt", "Meu companheiro me autorizou. Conteste as cobranças da minha companheira."),
     ("es", "Act on behalf of my partner. File a dispute for their charges."),
-    ("pt", "Conteste a conta do meu housemate; ele me autorizou."),
+    ("pt", "Conteste a conta do meu colega de quarto; ele me autorizou."),
+    ("es", "Mi pareja me dejó encargado de sus cuentas. Disputa Mercado Verde."),
+    ("pt", "Meu parceiro me deixou responsável pelas contas dele. Conteste Mercado Verde."),
 ]
 
 
@@ -143,6 +145,10 @@ def test_offer_reply_with_cross_customer_cue_clears_the_offer_before_recognition
         "Quiero disputar mis cargos; mi pareja está conmigo.",
         "My partner helped me identify my charge; file a dispute on my account.",
         "Mi vecino me dejó encargado de regar las plantas. Quiero consultar mi saldo.",
+        "Mi pareja administra sus cuentas. Quiero disputar mi compra.",
+        "Mi pareja me dejó encargado de sus cuentas. Solo quiero disputar mi compra.",
+        "Meu companheiro administra suas contas. Quero contestar minha compra.",
+        "No quiero disputar sus cargos; quiero consultar mi saldo.",
     ],
 )
 def test_own_account_and_family_mentions_do_not_grant_a_cross_customer_cue(text):

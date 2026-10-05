@@ -18,7 +18,9 @@ def test_retired_budget_keeps_charges_and_unused_new_cap_in_one_conservative_tot
             pass
 
         def execute(self, sql, params=()):
-            if sql.startswith("SELECT daily_usd"):
+            if "scope='production'" in sql:
+                row = (Decimal(1), False)
+            elif sql.startswith("SELECT daily_usd"):
                 row = (
                     (Decimal("1.50"), True)
                     if params[0] == post_v5_budget.V5_SCOPE

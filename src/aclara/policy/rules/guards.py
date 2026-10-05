@@ -179,18 +179,34 @@ def cross_customer(text: str) -> bool:
 def delegated_account_action(text: str) -> bool:
     """A third-party account target plus an action; claimed consent grants no authority."""
     value = normalized(text)
-    action = r"\b(?:disput\w*|contest\w*|reclam\w*|bloque\w*|congel\w*|freeze|file|act)\b"
+    action = r"\b(?:disput\w*|contest\w*|reclam\w*|bloque\w*|congel\w*|cancel\w*|freeze|file|act)\b"
     target = (
         r"\b(?:su|sus|sua|suas|dele|dela|their|his|her)\s+(?:cuentas?|contas?|cargos?|cobrancas?|tarjetas?|cartoes|accounts?|charges?|cards?)\b|"
         r"\b(?:cuentas?|contas?|cargos?|cobrancas?|accounts?|charges?|cards?)\s+(?:de|del|do|da|of|for)\s+"
-        r"(?:(?:mi|meu|minha|my|the|a|o)\s+)?(?:pareja|companheir[oa]|partner|housemate|roommate|espos[oa]|marido|amig[oa]|vizinh[oa]|vecin[oa]|otro|otra|outro|outra)\b|"
+        r"(?:(?:mi|meu|minha|my|the|a|o)\s+)?(?:pareja|companheir[oa]|compan(?:ero|era)(?: de piso)?|colega(?: de quarto)?|partner|housemate|roommate|espos[oa]|marido|amig[oa]|vizinh[oa]|vecin[oa]|otro|otra|outro|outra)\b|"
         r"\b(?:on behalf of|em nome de|en nombre de)\s+(?:(?:mi|meu|minha|my|the|a|o)\s+)?"
         r"(?:pareja|companheir[oa]|partner|housemate|roommate|espos[oa]|marido|amig[oa])\b"
         r"|\b(?:contas?|cobrancas?|cartoes|cuentas?|cargos?)\s+(?:dele|dela|suyas?|suyos?)\b"
     )
-    # Across clauses: "me dejó encargado ...; disputa sus cuentas". An own-card
-    # family-use mention has neither this target nor delegated account authority.
-    return bool(re.search(action, value) and re.search(target, value))
+    authority = bool(
+        re.search(
+            r"\b(?:encargad[oa]|encarregad[oa]|responsavel|responsable|autoriz\w*|on behalf of|em nome de|en nombre de)\b",
+            value,
+        )
+        and re.search(target, value)
+    )
+    own = r"\b(?:mi|mis|meu|minha|meus|minhas|my)\s+(?:cuentas?|contas?|cargos?|cobrancas?|compras?|tarjetas?|cartao|accounts?|charges?|cards?)\b"
+    # Claimed delegation may precede the act in a separate clause, but a later
+    # explicit own-account request is not an act on those third-party records.
+    return any(
+        re.search(action, clause)
+        and (re.search(target, clause) or authority and not re.search(own, clause))
+        and not re.search(
+            r"\b(?:no quiero|nao quero|do not|don't)\s+(?:disput|contest|reclam|bloque|freeze|file)",
+            clause,
+        )
+        for clause in re.split(r"[.!?;\n]", value)
+    )
 
 
 def injection(text: str) -> bool:
