@@ -251,3 +251,19 @@ Latest AI live diagnosis: [partial exploration and zero-cost root causes](progre
 
 - Green docs CI, image-only v0.9.8 release, deterministic live gate, then signal AI.
 - Await the single $0.40 live result; v1.0.0 tag on the deployed SHA is owner-approved. Never email.
+
+## 2026-10-05 — Deployed final-day candidate (lead)
+
+### Completed (verified)
+
+- Azure API/web run `b0b93978e6463cba9df1011832096c024c165be6`. Exact-SHA CI/safety/access green. Terraform updated only two images and release metadata.
+- `scripts.azure_verify`, temporal/RLS/queue readbacks, live English login/OTP and 320/390px checks passed; four profile scopes, stale-cookie/logout denial verified. Zero lead live model calls.
+- Requested remaining-four explanations added from saved enum/action/reason metadata only, without a rerun, row text, tuning or product change.
+
+### Done but not verified
+
+- AI single 30-story live exploration is signaled, scope `live-exploration/final-day` / `final-build`, cap $0.40. Receipt pending.
+
+### Next / blocked
+
+- Await the AI receipt, write the fresh release acceptance, tag v0.9.8/v1.0.0 on the exact deployed SHA, verify logged-out. No email.
