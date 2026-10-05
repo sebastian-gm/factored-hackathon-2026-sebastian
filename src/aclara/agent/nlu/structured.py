@@ -739,6 +739,11 @@ def understand(
         )
     prompt = load_prompt(prompt_path or Path("prompts/nlu/v5.md"))
     allowed_charge: dict[str, str] = {}
+    # Reuse the internal context carrier without claiming a selected charge or
+    # changing the lead-owned AI adapter's interface. Only these two enums pass.
+    collection_intent = (masked_charge or {}).get("collection_intent")
+    if awaiting_recognition or collection_intent not in {"charge_inquiry", "dispute_charge"}:
+        collection_intent = None
     if awaiting_recognition:
         for fact_key, value in (masked_charge or {}).items():
             if fact_key not in {"merchant", "transaction_date", "amount", "currency", "status"}:
@@ -753,6 +758,7 @@ def understand(
                     {
                         "awaiting_recognition": awaiting_recognition,
                         "selected_charge": allowed_charge,
+                        **({"collection_intent": collection_intent} if collection_intent else {}),
                     },
                     ensure_ascii=False,
                 ),

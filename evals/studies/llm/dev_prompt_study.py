@@ -73,7 +73,7 @@ class StudyCase:
 
 def load_study_prompt(version: str) -> Prompt:
     path = (
-        ROOT / "prompts/nlu/v5.md"
+        ROOT / "evals/studies/prompts/nlu/v5_1.md"
         if version == "v5.1"
         else ROOT / "evals/studies/prompts/nlu/v5_2.md"
     )

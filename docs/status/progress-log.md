@@ -296,3 +296,20 @@ Latest AI live diagnosis: [partial exploration and zero-cost root causes](progre
 - #208 merged on four green gates at `9747de4`; merge these regression explanations on green CI. Review the coming
   unique exact merchant fix first, release v0.9.9 and await its owner-approved
   live rerun capped at $0.15. v1.0.0 moves to that deployed SHA. No email.
+
+## 2026-10-05 — AI exact merchant resolution
+
+### Completed (verified)
+
+- Exact owned merchant identity and JE-11 collection context implemented;
+  mock **29/30**, all safety controls pass, B1 **32/32**, new spend **$0**.
+  [Lane fragment](progress.d/2026-10-05-ai-exact-merchant-resolution.md).
+
+### Done but not verified
+
+- Remote CI, lead deployment and real-model confidence benefit remain pending.
+
+### Next / blocked
+
+- Lead review; main hold unchanged. One same-19 live run awaits deployed SHA
+  and new scope/run, capped at the newly approved $0.15. Official v4 unchanged.

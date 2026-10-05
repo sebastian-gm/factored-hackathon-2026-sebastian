@@ -45,7 +45,7 @@ def test_candidate_overrides_only_nlu_and_records_its_own_hash(
     assert client.records[0].prompt_hash == candidate.content_hash
     assert client.records[0].prompt_id == "nlu@v5.2"
     assert client.records[1].prompt_id == "phrase@v2"
-    assert load_prompt(Path("prompts/nlu/v5.md")).version == "v5.1"
+    assert load_prompt(Path("prompts/nlu/v5.md")).version == "v5.3"
 
 
 def test_archived_candidate_preserves_hash_and_live_prompt_selection() -> None:

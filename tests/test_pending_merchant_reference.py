@@ -4,7 +4,9 @@ Raw historic model JSON/confidence were not retained. The inquiry/unfamiliar
 flags and absence of NLU on the repeated request come from the saved live audit.
 PT variants, confidence, names and rows are authored, never organizer records.
 MATCH replays recorded probabilities/action; unknown raw slots cannot reproduce
-that historical prediction faithfully from a new synthetic ledger.
+that historical prediction faithfully from a new synthetic ledger. The pending
+state is now established with an authored unnamed opening: unique literal
+openings resolve immediately and are covered in test_exact_merchant_resolution.
 """
 
 from __future__ import annotations
@@ -53,7 +55,11 @@ def recorded_match_boundary(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 def _application(
-    language: Language, *, duplicate: bool = False, unfamiliar: bool = False
+    language: Language,
+    *,
+    duplicate: bool = False,
+    unfamiliar: bool = False,
+    intent_confidence: float = 0.98,
 ) -> FastAPI:
     names = (NAME, NAME if duplicate else "Estudio Abeto", "Mercado Aurora", "Café Cometa")
     rows = tuple(
@@ -78,7 +84,7 @@ def _application(
             dict(
                 language=language,
                 intent="charge_inquiry",
-                intent_confidence=0.98,
+                intent_confidence=intent_confidence,
                 merchant_expr=NAME,
                 unfamiliar_charge=unfamiliar,
             )
@@ -117,14 +123,8 @@ def _state(app: FastAPI, token: str, cid: str) -> dict[str, Any]:
 
 def _opening(language: Language, unfamiliar: bool) -> str:
     if unfamiliar:
-        return (
-            f"No reconozco el cargo de {NAME}."
-            if language == "es"
-            else f"Não reconheço a cobrança de {NAME}."
-        )
-    return (
-        f"Explícame el cargo de {NAME}." if language == "es" else f"Explique a cobrança de {NAME}."
-    )
+        return "No reconozco un cargo." if language == "es" else "Não reconheço uma cobrança."
+    return "Explícame un cargo." if language == "es" else "Explique uma cobrança."
 
 
 @pytest.mark.parametrize("language", ["es", "pt"])

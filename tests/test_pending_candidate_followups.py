@@ -1,7 +1,7 @@
 """Replay observed normalized enum/flags; confidence/slots are reconstructed.
 
 No historic raw model JSON was persisted. Rows are authored synthetic fixtures;
-the unchanged matcher must really choose before any contextual follow-up.
+two exact owned merchant matches must still require a choice before follow-ups.
 """
 
 from __future__ import annotations
@@ -107,9 +107,9 @@ def test_pending_followups_keep_ambiguity_without_new_nlu_or_rounds(
             first, cid = await message(client, headers, _opening(language, unfamiliar))
             assert first["response_type"] == "choose_transaction"
             assert len(first["candidates"]) == 2
-            assert (
-                next(e for e in app.state.runtime.events if e["event"] == "match")["action"]
-                == "choose"
+            assert any(
+                e["event"] == "exact_merchant_match" and e["matched_count"] == 2
+                for e in app.state.runtime.events
             )
             event = next(e for e in app.state.runtime.events if e["event"] == "nlu")
             assert event["intent"] == "charge_inquiry" and event["unfamiliar_charge"] == unfamiliar

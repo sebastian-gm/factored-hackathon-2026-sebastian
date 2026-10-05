@@ -43,6 +43,7 @@ from aclara.agent.nlu import (
 )
 from aclara.agent.nlu.clarification import clarification_question
 from aclara.agent.nlu.merchant_reference import pending_merchant_reference
+from aclara.agent.nlu.merchant_resolution import exact_merchant_rows
 from aclara.agent.nlu.pending_intent import pending_dispute_request
 from aclara.agent.nlu.structured import NluResult, NormalizedSlots
 from aclara.agent.nlu.structured import understand as deterministic_understand
@@ -1195,6 +1196,9 @@ def create_app(
                     if k in {"merchant", "amount", "currency", "transaction_date", "status"}
                 }
                 if row
+                else {"collection_intent": conversation.intent.value}
+                if conversation.rounds
+                and conversation.intent in {Intent.CHARGE_INQUIRY, Intent.DISPUTE_CHARGE}
                 else None,
             },
         )
@@ -1590,6 +1594,12 @@ def create_app(
                     nlu.clarification
                     or frame.confidence < float(rule("ESC-04").parameters["nlu_min_confidence"])
                 ):
+                    app.state.runtime.record(
+                        "nlu_gate",
+                        low_confidence=frame.confidence
+                        < float(rule("ESC-04").parameters["nlu_min_confidence"]),
+                        clarification=nlu.clarification,
+                    )
                     if frame.confidence < float(rule("ESC-04").parameters["nlu_min_confidence"]):
                         return make_handoff(app, principal, conversation.language, "ESC-04")
                     conversation.rounds += 1
@@ -2054,12 +2064,52 @@ def create_app(
                     "O valor, a moeda ou a data não correspondem às suas cobranças. Qual dado deseja corrigir?",
                 ),
             }
-        if any(injection(row.merchant_name) for _, row in rows):
+        unsafe_merchants = {handle for handle, row in rows if injection(row.merchant_name)}
+        if unsafe_merchants:
             security_event(app, "indirect_prompt_injection")
             rows = [
                 (handle, replace(row, merchant_name=safe_merchant(row.merchant_name)))
                 for handle, row in rows
             ]
+        if (
+            app.state.runtime.system == "P"
+            and nlu is not None
+            and not nlu.degraded
+            and not has_details(nlu.slots)
+            and frame.intent in {Intent.CHARGE_INQUIRY, Intent.DISPUTE_CHARGE}
+            and not uncertain_selection(body.message)
+        ):
+            exact = exact_merchant_rows(
+                body.message,
+                [(handle, row) for handle, row in rows if handle not in unsafe_merchants],
+            )
+            if exact:
+                app.state.runtime.record("exact_merchant_match", matched_count=len(exact))
+                if len(exact) == 1:
+                    handle, row = exact[0]
+                    conversation.rounds = 0
+                    return _decide_for_transaction(
+                        app,
+                        conversation,
+                        principal,
+                        language,
+                        frame.intent,
+                        handle,
+                        row,
+                        active_settings,
+                    )
+                conversation.candidates = exact[:3]
+                conversation.intent = frame.intent
+                return {
+                    "response_type": "choose_transaction",
+                    "outcome": "choose_transaction",
+                    "reply": _localized(
+                        language,
+                        "Encontré varios cargos de ese comercio. Elige uno para revisar.",
+                        "Encontrei várias cobranças desse estabelecimento. Escolha uma para revisar.",
+                    ),
+                    "candidates": [_masked_transaction(handle, row) for handle, row in exact[:3]],
+                }
         candidates, needs_choice = identified_candidates(body.message, rows)
         selection_uncertain = (
             uncertain_selection(body.message)

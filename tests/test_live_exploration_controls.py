@@ -15,7 +15,6 @@ import pytest
 from docs.evaluation import live_exploration_controls as controls
 from docs.evaluation.live_exploration_controls import (
     MINIMUM_RESERVATION,
-    PINNED_SOURCES,
     REPO_ROOT,
     ControlFailure,
     contextual_nlu_ceiling,
@@ -25,6 +24,7 @@ from docs.evaluation.live_exploration_controls import (
 )
 
 from aclara.api.auth_models import JudgeReference, Principal
+from aclara.llm.prompts import load_prompt
 from aclara.ops.store import Scope
 
 _PIN_PATHS = [
@@ -47,13 +47,14 @@ def _response() -> dict[str, Any]:
 
 
 def _call(route: str = "nlu", attempt: int = 1, cost: Any = "0.001") -> dict[str, Any]:
+    prompt = load_prompt(REPO_ROOT / "prompts/nlu/v5.md")
     return {
         "event": "llm_call",
         "route": route,
         "provider": "openai_compat",
         "model_id": "google/gemini-3-flash-preview" if route == "nlu" else "x-ai/grok-4.20",
-        "prompt_id": "nlu@v5.1",
-        "prompt_hash": PINNED_SOURCES["prompts/nlu/v5.md"],
+        "prompt_id": f"{prompt.id}@{prompt.version}",
+        "prompt_hash": prompt.content_hash,
         "attempt": attempt,
         "status": "valid",
         "cost_usd": cost,
@@ -111,6 +112,51 @@ def test_actual_unicode_recognition_context_matches_full_client_framing_and_four
 def test_invalid_inference_body_is_never_quoted(message: str) -> None:
     with pytest.raises(ControlFailure, match="Invalid inference message"):
         contextual_nlu_ceiling(message)
+
+
+@pytest.mark.parametrize("intent", ["charge_inquiry", "dispute_charge"])
+def test_collection_context_ceiling_covers_actual_model_framing(intent: str) -> None:
+    from aclara.agent.nlu.structured import ExtractedNlu, understand
+    from aclara.llm.client import StructuredClient
+    from aclara.llm.types import ModelSpec
+
+    framed: list[tuple[str, str]] = []
+
+    def respond(system: str, user: str, _schema: Any) -> str:
+        framed.append((system, user))
+        return json.dumps(
+            dict(
+                language="es",
+                intent="charge_inquiry",
+                intent_confidence=0.98,
+                amount_expr="24.00",
+                currency_expr="USD",
+            )
+        )
+
+    client = StructuredClient(
+        {"nlu": ModelSpec("mock", "collection-ceiling")},
+        {},
+        mock_response=respond,
+        budget_usd=0,
+        risk_second_opinion_enabled=False,
+    )
+    text = "Perdón, el monto correcto es 24.00 USD."
+    understand(
+        text,
+        country="MX",
+        bank_clock=datetime(2026, 6, 18, tzinfo=UTC),
+        client=client,
+        prompt_path=REPO_ROOT / "prompts/nlu/v5.md",
+        masked_charge={"collection_intent": intent},
+    )
+    system, user = framed[0]
+    size = len(system.encode()) + len(user.encode())
+    size += len(json.dumps(ExtractedNlu.model_json_schema()).encode()) + 1024
+    expected = ((Decimal("3.5") * size + 22528) / 1_000_000).quantize(MINIMUM_RESERVATION)
+    assert contextual_nlu_ceiling(text, masked_charge={"collection_intent": intent}) == expected
+    assert expected > contextual_nlu_ceiling(text)
+    assert client.spent_usd == 0
 
 
 def test_unknown_recognition_facts_cannot_reuse_noncontextual_ceiling() -> None:
