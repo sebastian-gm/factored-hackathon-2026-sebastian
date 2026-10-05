@@ -42,6 +42,7 @@ from aclara.agent.nlu import (
     normalize_text,
 )
 from aclara.agent.nlu.clarification import clarification_question
+from aclara.agent.nlu.merchant_reference import pending_merchant_reference
 from aclara.agent.nlu.structured import NluResult, NormalizedSlots
 from aclara.agent.nlu.structured import understand as deterministic_understand
 from aclara.agent.runtime import InjectedFailure, Runtime
@@ -1639,6 +1640,44 @@ def create_app(
             if handle:
                 conversation.proposal = None
                 return safe_failure(principal, language, "database_timeout")
+        if (
+            app.state.runtime.system == "P"
+            and conversation.candidates
+            and not conversation.degraded
+            and not conversation.model_failed
+            and not uncertain_selection(body.message)
+            and not (nlu and has_details(nlu.slots))
+        ):
+            current = dict(ledger.for_customer(principal.customer_id, active_settings.bank_clock))
+            retained = dict(conversation.candidates)
+            reference = pending_merchant_reference(
+                body.message,
+                [(h, r.merchant_name) for h, r in retained.items()],
+                [
+                    (h, r.merchant_name)
+                    for h, r in current.items()
+                    if not injection(r.merchant_name)
+                ],
+            )
+            if (
+                reference
+                and current[reference.handle].record_id == retained[reference.handle].record_id
+            ):
+                conversation.candidates = []
+                conversation.rounds = 0
+                if reference.read_only:
+                    conversation.intent = Intent.CHARGE_INQUIRY
+                    conversation.unfamiliar_charge = False
+                return _decide_for_transaction(
+                    app,
+                    conversation,
+                    principal,
+                    language,
+                    conversation.intent,
+                    reference.handle,
+                    current[reference.handle],
+                    active_settings,
+                )
         if (
             app.state.runtime.system == "P"
             and conversation.candidates
