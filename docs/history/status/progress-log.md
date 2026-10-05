@@ -6389,3 +6389,124 @@ docs PRs are already on main; the finished held-batch work is being integrated.
 
 - Stop and await Sebastian's explicit go for v1.0.0 on the deployed SHA.
 - No email sent. Official v4 unchanged; no held-out replay or new score.
+
+## 2026-10-05 — Final-day merged lane records
+
+The fragments below preserve their authoring-time pending notes. #202/#204
+(including #205)/#203/#206 are now merged with four green remote checks each.
+The controlled replay completed on `8b88e0f`, P 89/100 and B1 60/100, charged
+$0.23744950; official v4 files remain byte-unchanged. The current next step is
+the v0.9.8 release and AI live run, not a rerun or tuning of these cases.
+
+### Archived fragment: 2026-10-05-final-day-prep.md
+
+## Final-day preparation — October 5
+
+### Completed (verified)
+
+- Owner handoff 20 raises the cumulative model ceiling to $18, including retained
+  reserves. Historical evaluation caps and official v4 files stay unchanged.
+- Reviewed all six replacement slide pages, metadata and text diff: only slide
+  4's safety note changed; no embedded files, scripts, forms, secrets or organizer
+  rows. Published PDF copied byte-for-byte from the owner-provided artifact.
+
+### Done but not verified
+
+- New $0.30 regression and $0.40 AI live-exploration scopes are defined; durable
+  creation/readback and the paid runs await their separate execution gates.
+
+### Next / blocked
+
+- Review AI final-day fixes; run one final-candidate regression on all 100 v4 P
+  cases, reporting the eight flagged cases as a subset. B1 is zero cost.
+- Deploy v0.9.8; await AI live exploration; then tag v1.0.0 on the deployed SHA.
+  Every replay is post-v4 regression, not a new held-out evaluation. Never email.
+
+### Archived fragment: 2026-10-05-ai-final-day-conversation.md
+
+# 2026-10-05 — AI final-day conversation fixes
+
+## Completed (verified)
+
+- Classified every saved live failure in
+  [the final-day audit](../../evaluation/final-day-conversation-failures.md).
+  #180/#185 are already on main; no new live calls were needed.
+- Fixed JE-03's repeated merchant read while choices are pending. Resolve only
+  one literal current owned retained candidate with unchanged record identity;
+  explicit read wording explains without inheriting a pending dispute.
+  API edits are within Sebastian's explicit cross-lane authorization; lead reviews.
+- Four recorded-boundary regressions fail when the resolver is disabled.
+  `LLM_PROVIDER=mock uv run pytest -q -o addopts= tests/test_pending_merchant_reference.py tests/test_pending_candidate_followups.py tests/test_dispute_target_correction_context.py tests/test_candidate_corrections.py tests/test_api_security.py tests/test_workflow_api.py tests/test_live_charge_starter_replays.py tests/test_conversation_reply_language.py`: **215 passed**, including 40 new ES/PT and safety cases.
+- Ruff passes; `uv run mypy --strict src/aclara`: 81 source files pass.
+- Frozen mock exploration: **27/30**, unchanged expectations and thresholds;
+  100 no-write, 109 zero-spend, 14 case and 7 handoff readbacks pass.
+  B1 original and v2 each **32/32**. New model spend **$0**.
+
+## Done but not verified
+
+- Remote CI, lead review and deployed behavior await the feature PR/release.
+- No new live score. Raw historical model JSON/confidence/slots were not stored;
+  replays explicitly distinguish retained metadata from authored reconstructions.
+
+## Next / blocked
+
+- Open the small PR, report its number immediately, and leave merging to the lead.
+- Item 1 comes before operator preparation. After the lead deploys the fixes,
+  use the supplied SHA/new durable scope for the newly approved single <=$0.40
+  fresh-judge rerun. The cumulative ceiling is $18; old reservations stay intact.
+- Post-v4, final build only; official v4 numbers remain unchanged.
+
+### Archived fragment: 2026-10-05-ai-pending-dispute-followup.md
+
+# 2026-10-05 — AI pending-dispute follow-up
+
+## Completed (verified)
+
+- #204 is open at `ada7bf935395227b9673f649b2009ba51cf5fb04`; it classifies the
+  saved failures and resolves repeated literal merchant reads in pending choices.
+- JE-17 replay reveals a round-count bug beyond its correct demand for a choice.
+  Fix P's bounded positive return-to-dispute clause to retain owned choices and
+  dispute intent without consuming a clarification round or selecting a target.
+  Authorized cross-lane API edits require lead review.
+- Two ES/PT cases fail before the production edit (rounds 1 versus 0).
+  `LLM_PROVIDER=mock uv run pytest -q -o addopts= tests/test_pending_dispute_followup.py tests/test_pending_candidate_followups.py tests/test_dispute_target_correction_context.py tests/test_candidate_corrections.py tests/test_api_security.py tests/test_workflow_api.py tests/test_live_charge_starter_replays.py tests/test_conversation_reply_language.py`: **197 passed**, including 22 new cases.
+- Ruff and strict mypy pass. Frozen mock exploration remains **27/30** and all
+  no-write/zero-spend/case/handoff readbacks pass. B1 v2 remains **32/32**.
+  New model spend **$0**; historical partial 5/9 and official v4 stay unchanged.
+
+## Done but not verified
+
+- Second PR's remote CI and lead review/deployment remain pending.
+- Historical raw slots/confidence are absent; replay inputs label reconstructions.
+- No new paid run; operator preparation waits until item 1 fixes are submitted.
+
+## Next / blocked
+
+- Open/report this small PR and leave both feature PRs unmerged for the lead.
+- After deployed-SHA/new-scope signal, perform the approved single fresh-judge
+  exploration at <=$0.40 within the approved $18 cumulative ceiling.
+
+### Archived fragment: 2026-10-05-regression-overlay-country.md
+
+## Final-build regression adapter — October 5
+
+### Completed (verified)
+
+- The controlled zero-cost rehearsal stopped before completing its first case:
+  AttributeError at the API trusted-country repository lookup. The overlay
+  adapter did not expose the bound customer's already verified attributes.
+- Eval-only correction exposes that customer alone and fails closed if absent.
+  Source reads retain their scoped merge/forced-RLS path; no product, prompt,
+  configuration, suite, binding or official v4 output changed.
+- Authored MX/BR fixtures exercise B1 and mock P API calls and foreign-customer
+  denial. No model calls or spend were made in diagnosis.
+
+### Done but not verified
+
+- Fresh remote CI and the complete zero-cost replay await this PR's merge.
+
+### Next / blocked
+
+- Preserve the zero-case/$0 mock stop, then verify the current adapter end to end
+  before the single owner-approved $0.30 real regression. Official v4 unchanged.
+

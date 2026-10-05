@@ -5,6 +5,18 @@ and semantic versioning. Versions describe released behavior, not safety
 certification. The v0.1.0–v0.5.0 annotated tags and GitHub Releases were created
 **retroactively on 2026-10-01**; their commits retain their original dates.
 
+## [v0.9.8] — 2026-10-05 (release candidate)
+
+- Resolve unambiguous positive merchant reads from pending owned choices, and
+  preserve pending choices on explicit dispute-return requests; thresholds,
+  ownership, separate confirmation and OTP remain enforced.
+- Post-v4 final-build regression: P 89/100, B1 60/100; P still has two
+  unauthorized-action and two policy flags. Recorded charge $0.2374495.
+  This reuses v4 cases; official scores remain unchanged.
+- Update the owner-reviewed six-page slides and cumulative model ceiling to $18.
+- Azure deployment and the separate $0.40 live exploration await release gates.
+  [Regression evidence](docs/evaluation/final-build-regression.md).
+
 ## [v0.9.7] — 2026-10-05 UTC (October 4 COT)
 
 - Replace the top demo strip/clock label with one discreet EN/ES/PT sidebar
