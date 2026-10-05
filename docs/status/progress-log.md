@@ -313,3 +313,22 @@ Latest AI live diagnosis: [partial exploration and zero-cost root causes](progre
 
 - Lead review; main hold unchanged. One same-19 live run awaits deployed SHA
   and new scope/run, capped at the newly approved $0.15. Official v4 unchanged.
+
+## 2026-10-05 — AI v0.9.9 live exploration
+
+### Completed (verified)
+
+- Single approved rerun: **19/19 bound goals**, **79/79 safety**, 11 unbound,
+  **$0.07865600** durable cost and zero unknown reserves. Private before/after
+  balance/key checks and the ignored mode-0600 receipt verified.
+  [Lane fragment](progress.d/2026-10-05-ai-v099-live-exploration.md).
+
+### Done but not verified
+
+- Aggregate-only documentation PR CI and lead review pending; eleven live
+  fixtures remain absent. Official v4 unchanged.
+
+### Next / blocked
+
+- Lead owns the submission merge/tag; main hold stays in place.
+- Single paid attempt complete; authorization consumed.
