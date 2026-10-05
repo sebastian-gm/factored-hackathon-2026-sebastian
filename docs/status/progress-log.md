@@ -252,6 +252,25 @@ Latest AI live diagnosis: [partial exploration and zero-cost root causes](progre
 - Green docs CI, image-only v0.9.8 release, deterministic live gate, then signal AI.
 - Await the single $0.40 live result; v1.0.0 tag on the deployed SHA is owner-approved. Never email.
 
+## 2026-10-05 — AI final-build live exploration
+
+### Completed (verified)
+
+- One v0.9.8 run completed: **12/19 bound goals**, 11 unbound, **81/81 safety**,
+  **$0.05621900** durable charge and zero unknown reserves. Private before/after
+  balances and mode-0600 ignored receipt read back successfully. The
+  [folded lane record](../history/status/progress-log.md) records
+  mock/operator verification and links the aggregate report. Official v4 unchanged.
+
+### Done but not verified
+
+- Missing fixtures prevent 11 live stories; JE-11's exact handoff gate is unproven.
+
+### Next / blocked
+
+- Lead reviews evidence and owns the final merge/tag; main hold remains.
+- No retries or additional paid runs.
+
 ## 2026-10-05 — Deployed final-day candidate (lead)
 
 ### Completed (verified)
@@ -263,7 +282,10 @@ Latest AI live diagnosis: [partial exploration and zero-cost root causes](progre
 - AI live receipt verified: 12/19 bound goals, 11 unbound, 81/81 safety/readbacks,
   $0.056219 and zero new unknown reserves. v0.9.8 tag/Release point to deployed
   `b0b9397`; anonymous tag/Release/README/slides checks passed. Updated PDF is
-  byte-exact. Replay plus live cost $0.2936685; conservative maximum $15.61264898/$18.
+  byte-exact. Replay plus live cost $0.2936685; v0.9.8 maximum $15.61264898/$18.
+- Fresh `live-exploration/v0.9.9` / `v0.9.9` scope created at $0.15 lifetime cap,
+  $0 charge; funded maximum $15.76264898/$18. Production $1/UTC-day and key hard
+  limit unchanged. AI rerun waits for the new deployed SHA; all prior history retained.
 
 ### Done but not verified
 
@@ -271,6 +293,6 @@ Latest AI live diagnosis: [partial exploration and zero-cost root causes](progre
 
 ### Next / blocked
 
-- Merge #208 plus these regression explanations on green CI. Review the coming
+- #208 merged on four green gates at `9747de4`; merge these regression explanations on green CI. Review the coming
   unique exact merchant fix first, release v0.9.9 and await its owner-approved
   live rerun capped at $0.15. v1.0.0 moves to that deployed SHA. No email.
