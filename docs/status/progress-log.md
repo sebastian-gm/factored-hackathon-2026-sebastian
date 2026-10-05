@@ -371,3 +371,19 @@ Latest AI live diagnosis: [partial exploration and zero-cost root causes](progre
 ### Next / blocked
 
 - STOP. Wait for the owner's explicit “v5 suite merged” GO before any v5 preflight or execution. One run per system; infrastructure recovery only with disclosure. Official v4 and v1.0.0 deployment remain unchanged.
+
+
+## 2026-10-05 — lead independent v5 complete
+
+### Completed (verified)
+
+- #213 and eval-only #215 merged green. Frozen v1.0.0 runtime diff empty; evaluated main `d53d1b9fdedec68adb3a87205b018fa48b8a68c5`. Authorized runner COMPLETE 200/200; P 73/100, B1 47/100; SAR 27/100 vs 18/100; paired +9 pp (95% +3 to +16). No case replay, fallback, deploy or tag. Full safety gate failed; see `docs/evaluation/final-v5-results.md` for all counts and IDs.
+- `scripts.v5_budget`, provider pre/post and checkpoint/journal audit agree on $0.320539, 157 valid Gemini calls, zero new unknown reserves. Scope $1.50; funded maximum $17.26264898/$18 with old 75 unknown reserves retained. Zero-case startup stops disclosed, receipts preserved. Four authored preparation tests/pre-commit passed.
+
+### Done but not verified
+
+- Independent human gold/language review and family-level uncertainty; unreached fault boundaries (one P, two B1) remain failures. Local latency is not deployed latency.
+
+### Next / blocked
+
+- Merge aggregate report/README/progress fragment on green CI, then STOP. Official v4, slides/video and v1.0.0 deployed release remain unchanged. No product fixes or paid reruns.
