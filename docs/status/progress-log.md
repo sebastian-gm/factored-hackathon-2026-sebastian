@@ -1,5 +1,8 @@
 # Development record moved
 
+Submission materials: [six-page slides and demo video](../submission/README.md);
+[verification record](progress.d/2026-10-04-submission-deliverables.md).
+
 Read the [complete archived record](../history/status/progress-log.md).
 The [final evaluation (v4)](../evaluation/final-v4-results.md) remains unchanged.
 Current release: [v0.9.4 verified ES/PT quick-start](../submission/v0.9.4-release-evidence.md).

@@ -4,6 +4,10 @@ Aclara helps customers understand unfamiliar charges, confirm an eligible disput
 
 ## Try it in 5 minutes
 
+Watch the [demo video](https://youtu.be/sgtShebCbyM) or read the
+[six-page slides (PDF)](docs/submission/Aclara-slides.pdf).
+[Submission materials](docs/submission/README.md).
+
 Open the supplied demo link, sign in, and choose a profile. In **Try this**, pick a message, then send it yourself. [Six things to try](#judge-guide--5-minutes).
 
 For a free local demo, run `make demo`. [Setup and requirements](#local-demo).
