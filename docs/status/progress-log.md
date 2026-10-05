@@ -251,3 +251,20 @@ Latest AI live diagnosis: [partial exploration and zero-cost root causes](progre
 
 - Green docs CI, image-only v0.9.8 release, deterministic live gate, then signal AI.
 - Await the single $0.40 live result; v1.0.0 tag on the deployed SHA is owner-approved. Never email.
+
+## 2026-10-05 — AI exact merchant resolution
+
+### Completed (verified)
+
+- Exact owned merchant identity and JE-11 collection context implemented;
+  mock **29/30**, all safety controls pass, B1 **32/32**, new spend **$0**.
+  [Lane fragment](progress.d/2026-10-05-ai-exact-merchant-resolution.md).
+
+### Done but not verified
+
+- Remote CI, lead deployment and real-model confidence benefit remain pending.
+
+### Next / blocked
+
+- Lead review; main hold unchanged. One same-19 live run awaits deployed SHA
+  and new scope/run, capped at the newly approved $0.15. Official v4 unchanged.

@@ -186,7 +186,7 @@ def test_denial_v4_suite_is_synthetic_balanced_and_distinct_from_spotcheck() -> 
     assert not messages & {case["message"].casefold() for case in challenge}
 
 
-def test_default_structured_nlu_uses_v5_1_prompt() -> None:
+def test_default_structured_nlu_uses_v5_3_prompt() -> None:
     from aclara.agent.nlu.structured import understand
 
     seen: list[str] = []
@@ -205,7 +205,7 @@ def test_default_structured_nlu_uses_v5_1_prompt() -> None:
         client=client,
     )
     assert result.extracted.intent == "dispute_charge"
-    assert client.records[0].prompt_id == "nlu@v5.1"
+    assert client.records[0].prompt_id == "nlu@v5.3"
     assert len(seen) == 1 and "Chile" in seen[0]
 
 

@@ -375,7 +375,7 @@ def test_receipt_replay_after_real_language_switch_preserves_verified_case_and_c
 
 @pytest.mark.parametrize("language", ["es", "pt"])
 @pytest.mark.parametrize("prior_merchant_slot", [True, False])
-def test_explicit_merchant_retarget_drops_old_amount_and_date_without_bypassing_match(
+def test_explicit_merchant_retarget_drops_old_amount_and_date_with_exact_identity(
     language: str, prior_merchant_slot: bool
 ) -> None:
     async def check() -> None:
@@ -442,11 +442,13 @@ def test_explicit_merchant_retarget_drops_old_amount_and_date_without_bypassing_
                 and slots["date_start"] is None
                 and slots["date_end"] is None
             )
-            assert any(event["event"] == "match" for event in app.state.runtime.events[cursor:])
-            assert result["response_type"] in {"choose_transaction", "clarify", "explain_status"}
-            if result["response_type"] == "explain_status":
-                assert result["transaction"]["merchant"] == "Estudio Nube"
-                assert result["transaction"]["amount"] == second.amount
+            assert any(
+                event["event"] == "exact_merchant_match" and event["matched_count"] == 1
+                for event in app.state.runtime.events[cursor:]
+            )
+            assert result["response_type"] == "explain_status"
+            assert result["transaction"]["merchant"] == "Estudio Nube"
+            assert result["transaction"]["amount"] == second.amount
             _assert_no_write(app, token, cid)
 
     asyncio.run(check())

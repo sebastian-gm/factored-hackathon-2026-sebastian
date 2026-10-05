@@ -110,6 +110,13 @@ def contextual_nlu_ceiling(
     _require(isinstance(message, str) and 1 <= len(message) <= 1000, "Invalid inference message")
     _require(type(awaiting_recognition) is bool, "Invalid recognition state")
     allowed: dict[str, str] = {}
+    collection_intent = (masked_charge or {}).get("collection_intent")
+    if (
+        awaiting_recognition
+        or not isinstance(collection_intent, str)
+        or collection_intent not in {"charge_inquiry", "dispute_charge"}
+    ):
+        collection_intent = None
     if awaiting_recognition:
         _require(
             masked_charge is not None and masked_charge.keys() >= _CHARGE_FIELDS,
@@ -125,7 +132,11 @@ def contextual_nlu_ceiling(
             data_block(
                 "record",
                 json.dumps(
-                    {"awaiting_recognition": awaiting_recognition, "selected_charge": allowed},
+                    {
+                        "awaiting_recognition": awaiting_recognition,
+                        "selected_charge": allowed,
+                        **({"collection_intent": collection_intent} if collection_intent else {}),
+                    },
                     ensure_ascii=False,
                 ),
             ),
