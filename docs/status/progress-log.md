@@ -387,3 +387,9 @@ Latest AI live diagnosis: [partial exploration and zero-cost root causes](progre
 ### Next / blocked
 
 - Merge aggregate report/README/progress fragment on green CI, then STOP. Official v4, slides/video and v1.0.0 deployed release remain unchanged. No product fixes or paid reruns.
+
+## 2026-10-05 — post-v5 preparation (handoff 22)
+
+- **Completed (verified):** saved-risk-frame authored mock tests 31/31, B1 32/32, Ruff/mypy/interface checks. Retired v5 unused capacity; prepared `regression/post-v5` / `post-v5-final-build` $0.80, $16.88318798/$18 conservative funding; provider credits cover it, no calls yet.
+- **Done not verified:** full CI, seen-case replays and Azure release pending.
+- **Next / blocked:** green PR, one P v5/v4 replay, v1.0.1 live verification before 20:00 COT; v5 results stay unchanged.

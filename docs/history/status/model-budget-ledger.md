@@ -187,3 +187,12 @@ balance/key metadata before and after the future one-pass P/B1 run.
 ## October 5 — independent v5 settled
 
 The one-pass `final-evaluation-v5` / `final-program-v5` run completed: **$0.320539 known/charged**, 157 valid Gemini calls, 0 new unknown reserves, no fallback/case replays. B1 model cost $0. Free before/after account/key readbacks decreased by the same $0.320539. Lifetime cap stays $1.50; unused $1.179461 remains funded. Conservative maximum stays **$17.26264898 ≤ $18**, retaining all 75 historical unknown reservations; prior plus v5 charges is $16.08318798. These are conservative funding figures, not an invoice total. Zero-case shell/preflight startup receipts retained at $0; no old budget history reset. Production/key limits unchanged; no further paid run authorized by completion. See `docs/evaluation/final-v5-results.md` for scores and failed safety gates. Official v4 stays unchanged.
+
+### 2026-10-05 — approved post-v5 safety replay
+
+Handoff 22 authorizes one P replay of seen v5 and v4 (100 each), NOT held-out, under
+`regression/post-v5` / `post-v5-final-build`, lifetime **$0.80**. Retired unused
+`final-evaluation-v5` capacity **$1.179461**; its $0.320539 charge and all historical
+reservations remain intact. `scripts.post_v5_budget --prepare` verified conservative
+funding **$16.88318798/$18**, with 75 historical unknown reserves retained. Before
+replay, free provider account/key readbacks cover the full purse. No calls yet.

@@ -94,7 +94,13 @@ from aclara.ops.store import Scope, Store
 from aclara.ops.turns import SessionTurns
 from aclara.policy.engine import PolicyDecision, evaluate
 from aclara.policy.rules import catalog, rule
-from aclara.policy.rules.guards import cross_customer, escalations, injection, unsupported_language
+from aclara.policy.rules.guards import (
+    cross_customer,
+    delegated_account_action,
+    escalations,
+    injection,
+    unsupported_language,
+)
 from aclara.policy.temporal import quality_guidance, quality_issue
 from aclara.settings import Settings
 
@@ -1084,6 +1090,7 @@ def create_app(
         message: str,
         *,
         model_confirmed: bool = False,
+        ownership_confirmed: bool = False,
     ) -> dict[str, Any]:
         security_event(app, "cross_customer_attempt")
         cues = {reason for reason in escalations(message) if reason in {"ESC-02", "ESC-03"}}
@@ -1098,11 +1105,12 @@ def create_app(
             | {cue for tab in app.state.conversations.values() for cue in tab.security_cues}
         )
         state["attempts"] += 1
-        state["confirmed_attempts"] = state.get("confirmed_attempts", 0) + int(model_confirmed)
+        confirmed = model_confirmed or ownership_confirmed
+        state["confirmed_attempts"] = state.get("confirmed_attempts", 0) + int(confirmed)
         app.state.executions["security_state"] = state
         ended = (
             app.state.runtime.system == "P"
-            and model_confirmed
+            and confirmed
             and state["confirmed_attempts"]
             >= int(rule("SEC-01").parameters["end_session_attempts"])
         )
@@ -1115,8 +1123,9 @@ def create_app(
             pending.slots = None
             pending.intent = None
             pending.unfamiliar_charge = False
+            pending.selected_handle = None
         for key in list(app.state.idempotency):
-            if key.startswith("freeze-proposal:"):
+            if key.startswith(("freeze-proposal:", "freeze-offer:")):
                 del app.state.idempotency[key]
         result = {
             "response_type": "refuse",
@@ -1138,6 +1147,17 @@ def create_app(
             app.state.runtime.record("end_session")
         return result
 
+    def unowned_handle(message: str, principal: Principal) -> bool:
+        handles = set(re.findall(r"\btxn_[A-Za-z0-9_]+\b", message, re.IGNORECASE))
+        if not handles:
+            return False
+        owned = {
+            handle
+            for handle, _ in ledger.for_customer(principal.customer_id, active_settings.bank_clock)
+        }
+        # No lookup of another customer's ledger, and no fallback to MATCH.
+        return not handles <= owned
+
     def prepare_nlu(
         conversation_id: str, body: MessageBody, principal: Principal
     ) -> tuple[dict[str, Any], tuple[str, dict[str, Any]] | None]:
@@ -1146,6 +1166,8 @@ def create_app(
             raise HTTPException(404, "Conversation not found")
         snapshot = asdict(conversation)
         if app.state.runtime.system != "P":
+            return snapshot, None
+        if unowned_handle(body.message, principal):
             return snapshot, None
         if cross_customer(body.message):
             return snapshot, (body.message, {"country": trusted_country(principal)})
@@ -1166,8 +1188,14 @@ def create_app(
             message = " ".join(part for part in re.split(r"[.;\n]", message) if not injection(part))
             if not message.strip() or classify(message).intent == Intent.OUT_OF_SCOPE:
                 return snapshot, None
-        frame = classify_request(message)
-        if escalations(message) or frame.intent == Intent.FRAUD or unsupported_language(message):
+        reasons = escalations(message)
+        if (set(reasons) == {"ESC-01"} and classify_request(message).intent != Intent.FRAUD) or (
+            conversation.proposal and (reasons or classify_request(message).intent == Intent.FRAUD)
+        ):
+            # An explicit human request/guard on a pending action needs no model
+            # extraction; it cannot advance or create a financial proposal.
+            return snapshot, None
+        if unsupported_language(message) and not reasons:
             return snapshot, None
         if (
             _case_question(message, everyday=True)
@@ -1230,6 +1258,20 @@ def create_app(
     def human_handoff(
         principal: Principal, conversation: Conversation, language: str, reasons: list[str]
     ) -> dict[str, Any]:
+        handle = conversation.offer_handle or conversation.selected_handle
+        if handle:
+            row = dict(ledger.for_customer(principal.customer_id, active_settings.bank_clock)).get(
+                handle
+            )
+            if row is not None:
+                decision = evaluate(
+                    row,
+                    active_settings.bank_clock,
+                    is_dispute=True,
+                    context=policy_context(app, principal, row),
+                )
+                if decision.decision in {"handoff", "freeze_offer"}:
+                    reasons = list(dict.fromkeys([*reasons, *decision.rule_ids]))
         if set(reasons) != {"ESC-01"} or not conversation.scope_handoff_id:
             return make_handoff(app, principal, language, reasons)
         packet = create_packet(language, reasons, app.state.agent_directory)
@@ -1302,7 +1344,10 @@ def create_app(
         conversation: Conversation | None = app.state.conversations.get(conversation_id)
         if conversation is None or conversation.session_id != principal.session_id:
             raise HTTPException(status_code=404, detail="Conversation not found")
-        if cross_customer(body.message):
+        foreign_handle = unowned_handle(body.message, principal)
+        deterministic_cross = cross_customer(body.message)
+        model_cross = bool(inferred and inferred.extracted.other_customer_reference)
+        if foreign_handle or deterministic_cross or model_cross:
             confirmation = inferred
             if confirmation is not None:
                 conversation.degraded = confirmation.degraded
@@ -1325,8 +1370,10 @@ def create_app(
                 model_confirmed=bool(
                     confirmation
                     and not confirmation.degraded
+                    and deterministic_cross
                     and confirmation.extracted.other_customer_reference
                 ),
+                ownership_confirmed=foreign_handle or delegated_account_action(body.message),
             )
         language_before_turn = conversation.language
         if app.state.runtime.system == "P":
@@ -1412,6 +1459,8 @@ def create_app(
         reasons = escalations(body.message)
         if frame.intent == Intent.FRAUD:
             reasons.append("FRD-01")
+        if inferred is not None:
+            reasons = list(dict.fromkeys([*reasons, *risk_reasons(inferred.extracted)]))
         if reasons:
             conversation.proposal = None
             if "FRD-01" in reasons:
@@ -1588,6 +1637,12 @@ def create_app(
                     frame = frame.model_copy(update={"intent": conversation.intent})
                 # Conservative deterministic routing takes precedence over extracted intent.
                 guard = classify_request(body.message)
+                if frame.intent == Intent.CHARGE_INQUIRY and not offered_row:
+                    # Detail collection must not erase the opening recognition cue.
+                    # A later date/amount reply supplies slots, not recognition.
+                    conversation.unfamiliar_charge |= unfamiliar_charge(body.message) or bool(
+                        nlu.extracted.unfamiliar_charge
+                    )
                 if guard.intent in {Intent.HUMAN_REQUEST, Intent.FRAUD, Intent.FEE_DISPUTE}:
                     frame = guard
                 elif not offered_row and (
