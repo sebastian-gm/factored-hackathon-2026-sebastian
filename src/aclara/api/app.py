@@ -42,6 +42,7 @@ from aclara.agent.nlu import (
     normalize_text,
 )
 from aclara.agent.nlu.clarification import clarification_question
+from aclara.agent.nlu.pending_intent import pending_dispute_request
 from aclara.agent.nlu.structured import NluResult, NormalizedSlots
 from aclara.agent.nlu.structured import understand as deterministic_understand
 from aclara.agent.runtime import InjectedFailure, Runtime
@@ -1639,11 +1640,12 @@ def create_app(
             if handle:
                 conversation.proposal = None
                 return safe_failure(principal, language, "database_timeout")
+        pending_dispute = pending_dispute_request(body.message)
         if (
             app.state.runtime.system == "P"
             and conversation.candidates
             and nlu is None
-            and (contextual or _candidate_recognition(body.message))
+            and (contextual or _candidate_recognition(body.message) or pending_dispute)
         ):
             current = dict(ledger.for_customer(principal.customer_id, active_settings.bank_clock))
             available = [(h, current[h]) for h, _ in conversation.candidates if h in current]
@@ -1653,13 +1655,20 @@ def create_app(
             if _candidate_recognition(body.message):
                 conversation.unfamiliar_charge = False
                 conversation.intent = Intent.CHARGE_INQUIRY
+            elif pending_dispute:
+                conversation.unfamiliar_charge = False
+                conversation.intent = Intent.DISPUTE_CHARGE
             return {
                 "response_type": "choose_transaction",
                 "outcome": "choose_transaction",
                 "reply": _localized(
                     language,
-                    "Aún no identificamos el cargo. Elige uno de la lista para revisar su estado.",
-                    "Ainda não identificamos a cobrança. Escolha uma da lista para consultar seu status.",
+                    "Para preparar la disputa, primero elige el cargo de la lista."
+                    if pending_dispute
+                    else "Aún no identificamos el cargo. Elige uno de la lista para revisar su estado.",
+                    "Para preparar a contestação, primeiro escolha a cobrança da lista."
+                    if pending_dispute
+                    else "Ainda não identificamos a cobrança. Escolha uma da lista para consultar seu status.",
                 ),
                 "candidates": [_masked_transaction(h, row) for h, row in available[:3]],
             }

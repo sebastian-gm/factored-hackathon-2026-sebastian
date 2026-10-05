@@ -198,3 +198,21 @@ Latest AI live diagnosis: [partial exploration and zero-cost root causes](progre
 
 - Stop and await Sebastian's explicit go for v1.0.0 on the deployed SHA.
 - No email sent. Official v4 unchanged; no held-out replay or new score.
+
+# 2026-10-05 — AI pending-dispute follow-up
+
+## Completed (verified)
+
+- Opened #204 for repeated merchant reads; replayed and fixed JE-17's additional
+  selection-round consumption without inventing a target. The
+  [lane fragment](progress.d/2026-10-05-ai-pending-dispute-followup.md) records
+  197 passing mock regressions, frozen 27/30, B1 v2 32/32 and $0 new spend.
+
+## Done but not verified
+
+- Second PR's remote CI, lead review/deployment and new live results are pending.
+
+## Next / blocked
+
+- Lead owns the merge/release batch. One newly approved <=$0.40 live rerun follows
+  its exact deployed SHA and new durable AI scope; official v4 stays unchanged.
