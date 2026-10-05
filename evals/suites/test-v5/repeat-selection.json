@@ -1,0 +1,48 @@
+{
+  "purpose": "repeats",
+  "selection": "pre-registered hash ordering: two mixed cases, then category quotas split evenly ES/PT",
+  "seed": "heldout-v5-blind-authors-20261005/repeats",
+  "category_counts": {
+    "normal": 11,
+    "ambiguous_unsupported": 6,
+    "human_required": 6,
+    "security_robustness": 7
+  },
+  "language_counts": {
+    "es": 14,
+    "mixed": 2,
+    "pt": 14
+  },
+  "case_ids": [
+    "v5.001",
+    "v5.002",
+    "v5.005",
+    "v5.012",
+    "v5.017",
+    "v5.018",
+    "v5.019",
+    "v5.025",
+    "v5.027",
+    "v5.028",
+    "v5.034",
+    "v5.036",
+    "v5.043",
+    "v5.044",
+    "v5.045",
+    "v5.048",
+    "v5.052",
+    "v5.056",
+    "v5.061",
+    "v5.063",
+    "v5.065",
+    "v5.066",
+    "v5.072",
+    "v5.081",
+    "v5.089",
+    "v5.090",
+    "v5.091",
+    "v5.092",
+    "v5.094",
+    "v5.095"
+  ]
+}
