@@ -143,7 +143,7 @@ async def run(args) -> None:
                 "serving": local,
                 "dataset_version": serving.dataset_version,
                 "model": models["default"].model_id,
-                "fallback": fallback.model_id if fallback else None,
+                "fallback": models[fallback].model_id if fallback else None,
                 "scope": SCOPE,
                 "run_id": RUN_ID,
                 "official_v4_unchanged": True,
@@ -258,7 +258,18 @@ def main() -> None:
     try:
         asyncio.run(run(args))
     except BaseException as error:
-        save(OUTPUT / "STOPPED.json", {"error_class": type(error).__name__})
+        import traceback
+
+        save(
+            OUTPUT / "STOPPED.json",
+            {
+                "error_class": type(error).__name__,
+                "frames": [
+                    {"function": frame.name, "line": frame.lineno}
+                    for frame in traceback.extract_tb(error.__traceback__)
+                ],
+            },
+        )
         raise SystemExit("V5 stopped: " + type(error).__name__) from None
     finally:
         signal.setitimer(signal.ITIMER_REAL, 0)
