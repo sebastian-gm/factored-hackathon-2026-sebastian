@@ -14,6 +14,8 @@ For a free local demo, run `make demo`. [Setup and requirements](#local-demo).
 
 ## Results
 
+**Independent v5 check on the final build (blind, post-fixes):** P passed 73/100 versus B1 47/100, with in-scope SAR 27/100 versus 18/100; [full results and safety failures](docs/evaluation/final-v5-results.md).
+
 **Post-v4 final build (not held-out):** 89/100 on the v4 regression re-check (v0.9.8); 19/19 bound live judge-exploration stories (v0.9.9), with 11 unbound. [Live evidence](docs/evaluation/judge-live-exploration-v0.9.9.md).
 
 **Final evaluation (v4): the same 100 cases for both systems.**
