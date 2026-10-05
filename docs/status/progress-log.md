@@ -259,7 +259,7 @@ Latest AI live diagnosis: [partial exploration and zero-cost root causes](progre
 - One v0.9.8 run completed: **12/19 bound goals**, 11 unbound, **81/81 safety**,
   **$0.05621900** durable charge and zero unknown reserves. Private before/after
   balances and mode-0600 ignored receipt read back successfully. The
-  [lane fragment](progress.d/2026-10-05-ai-final-build-live-evidence.md) records
+  [folded lane record](../history/status/progress-log.md) records
   mock/operator verification and links the aggregate report. Official v4 unchanged.
 
 ### Done but not verified
@@ -270,3 +270,29 @@ Latest AI live diagnosis: [partial exploration and zero-cost root causes](progre
 
 - Lead reviews evidence and owns the final merge/tag; main hold remains.
 - No retries or additional paid runs.
+
+## 2026-10-05 — Deployed final-day candidate (lead)
+
+### Completed (verified)
+
+- Azure API/web run `b0b93978e6463cba9df1011832096c024c165be6`. Exact-SHA CI/safety/access green. Terraform updated only two images and release metadata.
+- `scripts.azure_verify`, temporal/RLS/queue readbacks, live English login/OTP and 320/390px checks passed; four profile scopes, stale-cookie/logout denial verified. Zero lead live model calls.
+- Requested remaining-four explanations added from saved enum/action/reason metadata only, without a rerun, row text, tuning or product change.
+
+- AI live receipt verified: 12/19 bound goals, 11 unbound, 81/81 safety/readbacks,
+  $0.056219 and zero new unknown reserves. v0.9.8 tag/Release point to deployed
+  `b0b9397`; anonymous tag/Release/README/slides checks passed. Updated PDF is
+  byte-exact. Replay plus live cost $0.2936685; v0.9.8 maximum $15.61264898/$18.
+- Fresh `live-exploration/v0.9.9` / `v0.9.9` scope created at $0.15 lifetime cap,
+  $0 charge; funded maximum $15.76264898/$18. Production $1/UTC-day and key hard
+  limit unchanged. AI rerun waits for the new deployed SHA; all prior history retained.
+
+### Done but not verified
+
+- These documentation changes await this PR's green remote CI and merge.
+
+### Next / blocked
+
+- #208 merged on four green gates at `9747de4`; merge these regression explanations on green CI. Review the coming
+  unique exact merchant fix first, release v0.9.9 and await its owner-approved
+  live rerun capped at $0.15. v1.0.0 moves to that deployed SHA. No email.

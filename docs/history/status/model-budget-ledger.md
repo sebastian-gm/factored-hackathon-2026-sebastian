@@ -143,3 +143,24 @@ allowances gives **$15.61264898 <= $18** before any new calls.
 authorized cap before creating either purse; it excludes unused amounts only
 for independently verified disabled runs. The live receipt supersedes this
 illustrative arithmetic. No email or account top-up is authorized.
+
+
+## Executed v0.9.8 and authorized v0.9.9 rerun — October 5
+
+The final-build replay charged **$0.23744950/$0.30**; the single live exploration
+charged **$0.05621900/$0.40**, with no new unknown reserves. Their combined
+recorded cost is **$0.29366850**. The v0.9.8 conservative funded maximum remained
+**$15.61264898/$18**, with all 75 historical unknown reservations retained.
+
+The owner subsequently approved one v0.9.9 improvement and a single live rerun
+capped at **$0.15**. A fresh durable scope `live-exploration/v0.9.9`, run
+`v0.9.9`, has a **$0.15 lifetime and daily cap**, initially zero charge. It does
+not reset or reuse the completed journal, raise any prior cap, change the
+production $1/UTC-day limit or raise the provider key limit.
+
+Funding includes the prior unused allowances: **$15.61264898 + $0.15 =
+$15.76264898 <= $18**. Readback checks each scope/run policy and adds only the
+new scope's unused capacity to the refreshed all-scope exposure; spent amounts
+are already included there. The trusted operator must reserve before every
+request and settle from verified per-turn metadata. Unknown costs retain their
+reserve and stop the run. The one paid rerun waits for the new deployment signal.
