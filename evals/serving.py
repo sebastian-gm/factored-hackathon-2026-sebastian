@@ -35,7 +35,12 @@ class OverlayRepository(TransactionRepository):
     """
 
     def __init__(self, source: ServingRepository, overlay: TransactionRepository, customer: str):
+        if customer not in overlay.customers:
+            raise ValueError("Overlay must include its bound customer's trusted attributes")
         self.source, self.overlay, self.customer = source, overlay, customer
+        # Current API country guards read repository.customers. Expose only the
+        # already bound customer; source reads still use the scoped merged view.
+        self.customers = {customer: overlay.customers[customer]}
         self.dataset_version, self.loaded_at = source.dataset_version, source.loaded_at
         self.source_kind = "organizer_serving"
 
