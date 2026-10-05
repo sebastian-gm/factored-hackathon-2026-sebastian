@@ -164,3 +164,9 @@ new scope's unused capacity to the refreshed all-scope exposure; spent amounts
 are already included there. The trusted operator must reserve before every
 request and settle from verified per-turn metadata. Unknown costs retain their
 reserve and stop the run. The one paid rerun waits for the new deployment signal.
+
+## 2026-10-05 — final submission live rerun settled
+
+The single authorized `live-exploration/v0.9.9` / `v0.9.9` run completed with **$0.07865600 charged**, all known, against its **$0.15** lifetime cap. No new unknown reserves, retries or budget denials. Its remaining $0.071344 stays included conservatively; authorization for another run is not implied. The lead independently read back the scope and private provider balance/key gates. Production remains $1/UTC-day and the provider-key hard stop is unchanged.
+
+Conservative funded maximum remains **$15.76264898 <= $18**, retaining **75 historical unknown reserves** and unused prior allowances. Final-day own-scope charges total **$0.3723245** (regression $0.2374495 + v0.9.8 live $0.056219 + v0.9.9 live $0.078656). This is not an invoice reconciliation or the global sum, which conservatively duplicates production/lane costs. v1.0.0 tagging and deterministic public verification used no further model calls.

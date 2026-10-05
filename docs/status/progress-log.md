@@ -332,3 +332,25 @@ Latest AI live diagnosis: [partial exploration and zero-cost root causes](progre
 
 - Lead owns the submission merge/tag; main hold stays in place.
 - Single paid attempt complete; authorization consumed.
+
+## 2026-10-05 — v0.9.9 release and v1.0.0 submission (lead)
+
+### Completed (verified)
+
+- Re-reviewed #210 at `ab0355e`; eight authored ES/PT negative/alternative probes passed against the recorded MATCH choice boundary, with no exact selection or write. Recognition/denial controls and targeted mock tests passed. `LLM_PROVIDER=mock .venv/bin/python -m evals.runner --system B1`: **32/32**. No threshold or policy weakening.
+- #210 merged on four green gates; main clean at `67d449ceb9029b09d3da9e49bb5c5b723c19b83a`. Exact-main CI `37289187180` and safety `37289187339` passed.
+- Azure API/web run that SHA. The saved Terraform plan/apply changed exactly two images and release metadata. `python -m scripts.azure_verify`, temporal/fingerprint/TLS/RLS and masked staff-queue privilege readbacks passed.
+- Deterministic live Chromium verified English login/OTP, ES/PT profile languages, Desk/Insights, 320/390px bounds, 32px avatars and logout; zero model calls, chat submissions, financial writes or page errors. Four trusted profile scopes and stale-cookie denial passed. Independent azure-access `37291164026` passed; temporary capability removed and revoked.
+- Official v4 output hashes unchanged. Fresh scope `live-exploration/v0.9.9`, run `v0.9.9`, hard $0.15 cap read back. Before the rerun, conservative funded maximum **$15.76264898/$18**, retaining 75 historical unknown reserves; account/key each above $4. Production $1/UTC-day and provider hard stop unchanged.
+
+- Fresh AI receipt independently verified: **19/19 goals**, **79/79 safety/readbacks**, **$0.078656** and no new unknown reserves; 11 unbound. All release receipt flags true. #211 includes the labeled plain README line and merged on four green gates.
+- Annotated v0.9.9 and v1.0.0 tags/Releases point to exact deployed `67d449c`. Anonymous Chromium/HTTP verified README, Release, slides PDF bytes and video link; fresh authenticated judge login/OTP/profile/logout passed on the same images. No second Azure release or additional inference for v1.
+- Final-day own scopes recorded $0.3723245 (regression plus both live runs); funded maximum remains **$15.76264898/$18**, including 75 old unknown reserves. Private account/key gates remain above $4. [Final evidence](../submission/v1.0.0-release-evidence.md).
+
+### Done but not verified
+
+- Eleven fixture-unbound stories; independent language review; physical-device/Safari coverage; video playback/duration. Official v4 stays unchanged; later checks are not new held-out scores.
+
+### Next / blocked
+
+- Sebastian sends the submission email with the repo, deployment, slides, video and credentials delivered privately. No further paid calls or product changes are authorized here.

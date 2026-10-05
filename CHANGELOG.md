@@ -5,6 +5,18 @@ and semantic versioning. Versions describe released behavior, not safety
 certification. The v0.1.0–v0.5.0 annotated tags and GitHub Releases were created
 **retroactively on 2026-10-01**; their commits retain their original dates.
 
+## [v1.0.0] — 2026-10-05, submission milestone
+
+- Annotated tag/Release on deployed `67d449ceb9029b09d3da9e49bb5c5b723c19b83a`; same images as v0.9.9, with no additional deployment or model run.
+- Public README/Release/slides/video links and authenticated judge login verified. Official v4 unchanged; post-v4 checks are labeled separately.
+- [Final release evidence and limitations](docs/submission/v1.0.0-release-evidence.md).
+
+## [v0.9.9] — 2026-10-05
+
+- Exact owned merchant identity and pending detail-collection context, with unchanged confidence, policy, RLS, confirmation and OTP gates.
+- Same live-bound cohort: 19/19 goals, 79/79 safety/readbacks, 11 unbound; $0.078656 durable charge, zero new unknown reserves. No new held-out evaluation.
+- Exact-SHA CI/safety/access and live English/phone/scoped-data gates passed. Image/release metadata-only Azure update; conservative exposure $15.76264898/$18.
+
 ## [v0.9.8] — 2026-10-05
 
 - Resolve unambiguous positive merchant reads from pending owned choices, and
