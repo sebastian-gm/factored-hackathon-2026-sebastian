@@ -42,13 +42,28 @@ def exact_merchant_rows(
                 continue
             occupied.append(match.span())
             mentions.add(_name(term))
+            prefix = text[: match.start()]
             denied = bool(
                 re.search(
-                    r"\b(?:no|nao)\s+(?:era|es|e|fue|foi)\s+(?:(?:el|o|la|a)\s+)?$",
-                    text[: match.start()],
+                    r"\b(?:(?:no|nao)(?:\s+(?:era|es|e|fue|foi))?|excepto|exceto)"
+                    r"\s+(?:(?:de|el|o|la|a)\s+)*[\"'«“(]*$",
+                    prefix,
                 )
             )
             negated |= denied
+            before = re.search(r"\b(o|ou|or)\s+[\"'«“(]*$", prefix)
+            if before:
+                # Portuguese "o" can be an article in a bare banking request.
+                # Unknown names before a conjunction remain ambiguous.
+                introduction = prefix[: before.start()].strip()
+                article = before[1] == "o" and (
+                    not introduction
+                    or re.fullmatch(
+                        r"(?:(?:nao|quero)\s+)?(?:reconheco|fiz|comprei|explique|entender)",
+                        introduction,
+                    )
+                )
+                alternative |= not article
             alternative |= bool(re.match(r"[, ]+(?:o|ou|or)\b", text[match.end() :]))
             if (
                 re.match(

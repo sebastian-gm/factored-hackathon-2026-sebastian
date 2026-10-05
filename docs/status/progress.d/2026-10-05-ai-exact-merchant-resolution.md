@@ -11,6 +11,11 @@
   hashes preserved. [Evidence and replay limits](../../evaluation/exact-merchant-resolution.md).
 - Full local mock suite: 2,073 passed, 44 infrastructure skips. Final parser,
   reply-language and budget controls: 157 passed; zero provider calls.
+- Lead review revision: all eight ES/PT negation/exclusion and preceding
+  unknown-alternative probes stay on choice/clarify, with generic merchant
+  coverage and recognition/denial controls. Focused replay suite: 276 passed.
+- Merged main `1a2b4dd` with both progress entries and histories preserved;
+  frozen mock remains 29/30 with all controls green; B1 stays 32/32, spend $0.
 
 ## Done but not verified
 

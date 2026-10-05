@@ -3,7 +3,7 @@
 One normalized exact merchant name (or existing fixed MATCH alias) now identifies
 one current owned transaction in the 120-day window. Two or more matches still
 require a choice, counting the entire window before displaying three. Fuzzy
-names, prefixes, competing or negated names, uncertain identity, conflicting
+names, prefixes, competing, negated or excluded names, uncertain identity, conflicting
 details, degraded NLU and unsafe merchant names cannot use this rule. The NLU
 0.6 and MATCH 0.9 gates, policy, authorization and separate confirmation remain
 unchanged. B1 keeps its existing route.
@@ -36,8 +36,12 @@ policy, refusals, separate confirmation/readback, correction context and the
 unchanged 0.59/0.6 confidence boundary. Frozen suite assertions and official v4
 files are untouched.
 
-Full local mock suite: 2,073 passed, 44 infrastructure skips. Final parser,
-reply-language and budget controls: 157 passed. Ruff and strict mypy pass.
+Before the lead-review revision, the full local mock suite passed 2,073 tests,
+with 44 infrastructure skips. The revision's focused suite passes 276 tests,
+including all eight ES/PT negation/exclusion and preceding unknown-alternative
+probes, generic merchant names and legitimate recognition/denial controls.
+Frozen exploration, safety and B1 counts above remain unchanged.
+Ruff and strict mypy pass.
 
 The owner approved one further run of the same 19 bound stories, cap **$0.15**,
 after the lead deploys this fix and supplies its exact SHA and a new durable

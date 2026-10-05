@@ -39,10 +39,14 @@ def recorded_match(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 @pytest.mark.parametrize("language", ["es", "pt"])
-@pytest.mark.parametrize("kind", ["inquiry", "unfamiliar", "denial"])
+@pytest.mark.parametrize(
+    "kind,bare",
+    [("inquiry", False), ("unfamiliar", False), ("unfamiliar", True), ("denial", False)],
+)
 def test_unique_literal_merchant_explains_or_offers_without_match_or_write(
     language: Language,
     kind: str,
+    bare: bool,
 ) -> None:
     async def check() -> None:
         app = _application(language, unfamiliar=kind == "unfamiliar")
@@ -57,6 +61,8 @@ def test_unique_literal_merchant_explains_or_offers_without_match_or_write(
             ),
             "denial": (f"No hice el cargo de {NAME}.", f"Não fiz a compra de {NAME}."),
         }[kind][language == "pt"]
+        if bare and kind == "unfamiliar":
+            text = f"No reconozco {NAME}." if language == "es" else f"Não reconheço o {NAME}."
         async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
             token = await _sign_in(client)
             headers = {"Authorization": "Bearer " + token}
@@ -201,6 +207,10 @@ def test_exact_identity_still_uses_policy(language: Language, status: str) -> No
         "fuzzy",
         "partial",
         "negated",
+        "not_from",
+        "excluded",
+        "bare_negation",
+        "unknown_before",
     ],
 )
 def test_exact_resolution_does_not_bypass_guards_or_conflicting_details(
@@ -239,6 +249,13 @@ def test_exact_resolution_does_not_bypass_guards_or_conflicting_details(
             ),
             "partial": ("Explícame el cargo de Taller.", "Explique a cobrança de Taller."),
             "negated": (f"No era {NAME}.", f"Não era {NAME}."),
+            "not_from": (f"El cargo no es de {NAME}.", f"A cobrança não é de {NAME}."),
+            "excluded": (f"El cargo, excepto {NAME}.", f"A cobrança, exceto {NAME}."),
+            "bare_negation": (f"El cargo, no {NAME}.", f"A cobrança, não {NAME}."),
+            "unknown_before": (
+                f"Comercio Ausente o {NAME}.",
+                f"Comércio Ausente ou {NAME}.",
+            ),
         }
         async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
             token = await _sign_in(client)
@@ -251,11 +268,41 @@ def test_exact_resolution_does_not_bypass_guards_or_conflicting_details(
                 "choose_transaction",
                 "clarify",
             }
+            if kind in {"not_from", "excluded", "bare_negation", "unknown_before"}:
+                assert result["response_type"] in {"choose_transaction", "clarify"}
+                assert _state(app, token, cid)["selected"] is None
             assert not any(e["event"] == "exact_merchant_match" for e in app.state.runtime.events)
             state = _state(app, token, cid)
             assert state["proposal"] is None and not state["cases"] and not state["cards"]
 
     asyncio.run(check())
+
+
+@pytest.mark.parametrize(
+    "prefix",
+    [
+        "El cargo no es de",
+        "A cobrança não é de",
+        "El cargo, excepto",
+        "A cobrança, exceto",
+        "El cargo, no",
+        "A cobrança, não",
+        "Comercio Ausente o",
+        "Comércio Ausente ou",
+    ],
+)
+def test_excluded_and_unknown_alternative_identities_are_generic(prefix: str) -> None:
+    rows = _application("es").state.ledger._rows
+    owned = [(f"txn_{i}", row) for i, row in enumerate(rows)]
+    for _, row in owned:
+        assert exact_merchant_rows(f"{prefix} {row.merchant_name}.", owned) == []
+
+
+@pytest.mark.parametrize("prefix", ["No reconozco", "Não reconheço", "Não reconheço o"])
+def test_unrecognized_purchase_is_a_positive_merchant_identity(prefix: str) -> None:
+    row = _application("es").state.ledger._rows[0]
+    owned = [("txn", row)]
+    assert exact_merchant_rows(f"{prefix} {row.merchant_name}.", owned) == owned
 
 
 @pytest.mark.parametrize(
