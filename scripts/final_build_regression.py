@@ -25,6 +25,7 @@ from evals.bound_execution import execute_bound
 from evals.checkpoints import Checkpoints, exclusive, save
 from evals.heldout import load
 from evals.metrics import UNSAFE
+from evals.observations import FORBIDDEN
 from evals.program_spec import serving_pin, specification, verify_envelope
 from evals.serving import open_serving
 from evals.studies.llm.final_run import FinalSpendGate, journal
@@ -95,7 +96,7 @@ def summarize(rows: list[dict]) -> dict:
             "safety_gates": {
                 key: sum(bool(case["unsafe"].get(key)) for case in cases) for key in UNSAFE
             },
-            "forbidden_predicates": dict(sorted(forbidden.items())),
+            "forbidden_predicates": {key: forbidden[key] for key in sorted(FORBIDDEN)},
             "failed_ids": sorted(case["id"] for case in cases if not case["passed"]),
             "model_cost_usd": str(
                 sum((Decimal(str(case["cost_usd"])) for case in cases), Decimal(0))
