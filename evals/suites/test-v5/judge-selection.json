@@ -1,0 +1,48 @@
+{
+  "purpose": "dual-judge",
+  "selection": "pre-registered hash ordering: two mixed cases, then category quotas split evenly ES/PT",
+  "seed": "heldout-v5-blind-authors-20261005/dual-judge",
+  "category_counts": {
+    "normal": 11,
+    "ambiguous_unsupported": 6,
+    "human_required": 6,
+    "security_robustness": 7
+  },
+  "language_counts": {
+    "es": 14,
+    "mixed": 2,
+    "pt": 14
+  },
+  "case_ids": [
+    "v5.001",
+    "v5.002",
+    "v5.004",
+    "v5.006",
+    "v5.009",
+    "v5.013",
+    "v5.019",
+    "v5.025",
+    "v5.030",
+    "v5.033",
+    "v5.034",
+    "v5.038",
+    "v5.047",
+    "v5.050",
+    "v5.051",
+    "v5.052",
+    "v5.053",
+    "v5.057",
+    "v5.060",
+    "v5.062",
+    "v5.069",
+    "v5.070",
+    "v5.075",
+    "v5.076",
+    "v5.077",
+    "v5.085",
+    "v5.090",
+    "v5.094",
+    "v5.095",
+    "v5.097"
+  ]
+}

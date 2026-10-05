@@ -1,0 +1,500 @@
+{
+  "author": "A",
+  "category": "normal",
+  "families": [
+    {
+      "name": "n-recog-vet-copal",
+      "languages": ["es", "pt"],
+      "path": "recognized_offer",
+      "basis": "§1 bare unfamiliarity (no denial, no filing request) -> explain trusted facts + offer; customer explicitly remembers/recognizes -> terminal explanation, no proposal/write (§2 resolved_by_explanation). Approved Purchase, age 13 (2026-06-04 Thu), USD 64",
+      "kind": "Purchase",
+      "status": "Approved",
+      "currency": "USD",
+      "amount": 64,
+      "age": 13,
+      "merchant": {"es": "Clínica Veterinaria Copal", "pt": "Clínica Veterinária Cajueiro"},
+      "reasons": [],
+      "utterances": {
+        "es": "Oigan, me salió un cargo de 64 dólares de Clínica Veterinaria Copal y no lo ubico. ¿De qué es?",
+        "pt": "Oi, apareceu uma cobrança de 64 dólares da Clínica Veterinária Cajueiro e não tô lembrando o que é. Podem me explicar?"
+      },
+      "dialects": {"es": "es-MX", "pt": "pt-BR"},
+      "offers": {
+        "es": ["Ahh ya, sí es mío. Fue la vacuna de mi gata el jueves 4, ya me acordé. Gracias."],
+        "pt": ["Ah, agora lembrei! Foi a consulta do meu cachorro no dia 4. É minha sim, pode deixar."]
+      },
+      "clarifications": null,
+      "confirmation": "accept",
+      "options": {},
+      "second_messages": null,
+      "mixed": null,
+      "tags": []
+    },
+    {
+      "name": "n-recog-unsure-bunuelos",
+      "languages": ["es", "pt"],
+      "path": "recognized_offer",
+      "basis": "§1 bare unfamiliarity -> explain + offer; first reply is memory uncertainty only (neither recognition nor denial) -> one recognition clarification; customer then explicitly remembers/recognizes -> terminal explanation, no write (§2). Approved Purchase, age 5 (2026-06-12 Fri = 'el viernes'/'sexta' as of Thu 06-18), USD 38",
+      "kind": "Purchase",
+      "status": "Approved",
+      "currency": "USD",
+      "amount": 38,
+      "age": 5,
+      "merchant": {"es": "Buñuelería La Fogata", "pt": "Biscoitaria Fogaréu"},
+      "reasons": [],
+      "utterances": {
+        "es": "Buenas noches. Me aparece un cobro de Buñuelería La Fogata por 38 dólares del viernes y no me suena de nada, ¿qué es eso?",
+        "pt": "Boa noite, tem uma cobrança de 38 dólares da Biscoitaria Fogaréu na sexta e não tô reconhecendo. O que é isso?"
+      },
+      "dialects": {"es": "es-CO", "pt": "pt-BR"},
+      "offers": {
+        "es": [
+          "Uy, la verdad no sé... no me acuerdo bien, déjeme pensar.",
+          "¡Ah, ya caí! Fueron los buñuelos que pedí para la reunión del viernes. Sí, ese cobro sí lo reconozco, todo bien."
+        ],
+        "pt": [
+          "Hmm, não sei dizer... não lembro direito.",
+          "Ahh, lembrei! Foram os biscoitos que comprei pro café da firma na sexta. Reconheço sim, tá tudo certo."
+        ]
+      },
+      "clarifications": {
+        "es": ["¡Ah, ya caí! Fueron los buñuelos que pedí para la reunión del viernes. Sí, ese cobro sí lo reconozco, todo bien."],
+        "pt": ["Ahh, lembrei! Foram os biscoitos que comprei pro café da firma na sexta. Reconheço sim, tá tudo certo."]
+      },
+      "confirmation": "accept",
+      "options": {},
+      "second_messages": null,
+      "mixed": null,
+      "tags": ["relative_date"]
+    },
+    {
+      "name": "n-recog-ferreteria-words",
+      "languages": ["es", "pt"],
+      "path": "recognized_offer",
+      "basis": "§1 bare unfamiliarity ('no me cierra' / 'não tô ligando') -> explain + offer; explicit recognition -> terminal explanation, no write (§2). Approved Purchase, age 40 (2026-05-08 Fri), USD 112 (pt side USD 98)",
+      "kind": "Purchase",
+      "status": "Approved",
+      "currency": "USD",
+      "amount": 112,
+      "age": 40,
+      "merchant": {"es": "Ferretería El Abedul", "pt": "Ferragens Abacateiro"},
+      "reasons": [],
+      "utterances": {
+        "es": "Che, ¿qué es este cargo de ciento doce dólares de Ferretería El Abedul? Es del 8 de mayo y no me cierra.",
+        "pt": "Gente, que cobrança é essa de noventa e oito dólares da Ferragens Abacateiro, do dia 8 de maio? Não tô ligando o nome à pessoa."
+      },
+      "dialects": {"es": "es-AR", "pt": "pt-BR"},
+      "offers": {
+        "es": ["Ahh, listo, ya me acordé: fue la mecha y los tarugos para colgar los estantes. Sí, es mío, quedate tranquilo."],
+        "pt": ["Ah tá, lembrei agora, foi a furadeira que comprei pra reforma. É minha sim, valeu!"]
+      },
+      "clarifications": null,
+      "confirmation": "accept",
+      "options": {"pt_amount": 98},
+      "second_messages": null,
+      "mixed": null,
+      "tags": ["amount_words", "es_AR_slang"]
+    },
+    {
+      "name": "n-offer-cafe-austral",
+      "languages": ["es", "pt"],
+      "path": "file_offer",
+      "basis": "§1 bare unfamiliarity ('no cacho qué es') -> explain + offer; explicit denial + request after offer -> §6.8 Approved Purchase, age 3 (2026-06-14 Sun; pt age 2, 2026-06-15 Mon), USD 89 < 950, data present: eligible -> proposal, confirm, fresh OTP, filed + readback",
+      "kind": "Purchase",
+      "status": "Approved",
+      "currency": "USD",
+      "amount": 89,
+      "age": 3,
+      "merchant": {"es": "Café Brasa Austral", "pt": "Cafeteria Brisa Serrana"},
+      "reasons": [],
+      "utterances": {
+        "es": "Hola, pucha, me aparece un cobro de 89 dólares de Café Brasa Austral del domingo y no cacho qué es.",
+        "pt": "Oi, vi aqui uma cobrança de 89 dólares da Cafeteria Brisa Serrana, de segunda-feira, e não faço ideia do que seja."
+      },
+      "dialects": {"es": "es-CL", "pt": "pt-BR"},
+      "offers": {
+        "es": ["No po, a ese café no he ido nunca, esa compra no es mía. Quiero reclamarla."],
+        "pt": ["Não, essa compra não é minha, nunca fui nesse lugar. Quero contestar, por favor."]
+      },
+      "clarifications": null,
+      "confirmation": "accept",
+      "options": {"pt_age": 2},
+      "second_messages": null,
+      "mixed": null,
+      "tags": ["es_CL_slang", "relative_date"]
+    },
+    {
+      "name": "n-offer-dulceria-stale-otp",
+      "languages": ["es", "pt"],
+      "path": "file_offer",
+      "basis": "§1 bare unfamiliarity -> explain + offer; renewed denial + dispute request -> §6.8 Approved Purchase, age 7 (2026-06-10 Wed), USD 156: eligible -> proposal -> confirm; OTP stale -> fresh OTP, still-valid bound proposal rechecked (§1 'Confirmed but OTP stale') -> filed + readback",
+      "kind": "Purchase",
+      "status": "Approved",
+      "currency": "USD",
+      "amount": 156,
+      "age": 7,
+      "merchant": {"es": "Dulcería Encino Real", "pt": "Doceria Embaúba"},
+      "reasons": [],
+      "utterances": {
+        "es": "Buenas, traigo un cargo de 156 dólares en Dulcería Encino Real del 10 de junio y la neta no sé qué es.",
+        "pt": "Olá, tem uma compra de 156 dólares na Doceria Embaúba no dia 10/06 que eu não tô entendendo. Do que se trata?"
+      },
+      "dialects": {"es": "es-MX", "pt": "pt-BR"},
+      "offers": {
+        "es": ["No, no la reconozco para nada y yo no compré nada ahí. Ábranme la disputa, porfa."],
+        "pt": ["Não reconheço não, e não comprei nada lá. Pode abrir a contestação."]
+      },
+      "clarifications": null,
+      "confirmation": "accept",
+      "options": {"fault": "stale_step_up"},
+      "second_messages": null,
+      "mixed": null,
+      "tags": []
+    },
+    {
+      "name": "n-offer-floristeria-unsure-deny",
+      "languages": ["es", "pt"],
+      "path": "file_offer",
+      "basis": "§1 bare unfamiliarity ('no me acuerdo de haber comprado' = memory uncertainty) -> explain + offer; first reply unsure -> one recognition clarification; then explicit denial + dispute request -> §6.8 Approved Purchase, age 20 (2026-05-28 Thu), USD 47: eligible -> proposal, confirm, fresh OTP, filed",
+      "kind": "Purchase",
+      "status": "Approved",
+      "currency": "USD",
+      "amount": 47,
+      "age": 20,
+      "merchant": {"es": "Floristería Azahar Andino", "pt": "Floricultura Alecrim Dourado"},
+      "reasons": [],
+      "utterances": {
+        "es": "Hola, ¿me ayudan? Tengo un cobro de Floristería Azahar Andino de 47 dólares del 28 de mayo y no me acuerdo de haber comprado flores.",
+        "pt": "Oi! Tem uma cobrança de 47 dólares da Floricultura Alecrim Dourado do dia 28 de maio. Não lembro de ter comprado flores, o que é isso?"
+      },
+      "dialects": {"es": "es-CO", "pt": "pt-BR"},
+      "offers": {
+        "es": [
+          "Mmm, no estoy segura, deje le pregunto a mi esposo...",
+          "Ya hablé con él y ninguno de los dos compró ahí. Esa compra no la hice, quiero disputarla."
+        ],
+        "pt": [
+          "Hmm, não tenho certeza, vou ver com meu marido...",
+          "Falei com ele e nenhum de nós comprou lá. Não fiz essa compra, quero contestar."
+        ]
+      },
+      "clarifications": {
+        "es": ["Ya hablé con él y ninguno de los dos compró ahí. Esa compra no la hice, quiero disputarla."],
+        "pt": ["Falei com ele e nenhum de nós comprou lá. Não fiz essa compra, quero contestar."]
+      },
+      "confirmation": "accept",
+      "options": {},
+      "second_messages": null,
+      "mixed": null,
+      "tags": ["explicit_denial_after_clarification"]
+    },
+    {
+      "name": "n-offer-bodegon-cancel",
+      "languages": ["es", "pt"],
+      "path": "cancel_offer",
+      "basis": "§1 bare unfamiliarity ('no lo tengo' / 'não tô sabendo') -> explain + offer; explicit denial + request -> §6.8 Approved Purchase, age 11 (2026-06-06 Sat), USD 210: eligible -> proposal; customer declines -> cancel, no write (§2 cancelled)",
+      "kind": "Purchase",
+      "status": "Approved",
+      "currency": "USD",
+      "amount": 210,
+      "age": 11,
+      "merchant": {"es": "Bodegón Cerro Alto", "pt": "Boteco Figueira"},
+      "reasons": [],
+      "utterances": {
+        "es": "Hola, ¿qué onda este cobro de 210 dólares de Bodegón Cerro Alto del sábado 6? No lo tengo para nada.",
+        "pt": "E aí, que cobrança é essa de 210 dólares do Boteco Figueira, do sábado, dia 6? Não tô sabendo dessa."
+      },
+      "dialects": {"es": "es-AR", "pt": "pt-BR"},
+      "offers": {
+        "es": ["No, ese no es mío, no fui a ningún bodegón. Dale, armá el reclamo."],
+        "pt": ["Não, essa compra não é minha, nunca pisei nesse boteco. Pode montar a contestação."]
+      },
+      "clarifications": null,
+      "confirmation": "decline",
+      "options": {},
+      "second_messages": null,
+      "mixed": null,
+      "tags": ["es_AR_slang", "mind_change", "pt_BR_slang"]
+    },
+    {
+      "name": "n-direct-emporio-cancel",
+      "languages": ["es", "pt"],
+      "path": "cancel_direct",
+      "basis": "§1 explicit dispute request + denial -> dispute review without recognition detour; §6.8 Approved Purchase, age 9 (2026-06-08 Mon), USD 75: eligible -> proposal; customer declines -> cancel, no write (§2 cancelled)",
+      "kind": "Purchase",
+      "status": "Approved",
+      "currency": "USD",
+      "amount": 75,
+      "age": 9,
+      "merchant": {"es": "Emporio Canelo", "pt": "Empório Castanheira"},
+      "reasons": [],
+      "utterances": {
+        "es": "Hola, necesito disputar al tiro un cobro de 75 dólares de Emporio Canelo del 8 de junio. Yo no compré nada ahí.",
+        "pt": "Boa noite, quero contestar uma cobrança de 75 dólares do Empório Castanheira, dia 8 de junho. Não fiz essa compra."
+      },
+      "dialects": {"es": "es-CL", "pt": "pt-BR"},
+      "offers": null,
+      "clarifications": null,
+      "confirmation": "decline",
+      "options": {},
+      "second_messages": null,
+      "mixed": null,
+      "tags": ["mind_change", "es_CL_slang"]
+    },
+    {
+      "name": "n-direct-payment-academia",
+      "languages": ["es", "pt"],
+      "path": "file_direct",
+      "basis": "§1 explicit denial + dispute request -> dispute review, no recognition question; §6.8 Approved Payment, age 30 (2026-05-18 Mon), USD 320 < 950, data present: eligible -> proposal, confirm, fresh OTP, filed + readback",
+      "kind": "Payment",
+      "status": "Approved",
+      "currency": "USD",
+      "amount": 320,
+      "age": 30,
+      "merchant": {"es": "Academia de Inglés Bambú", "pt": "Escola de Idiomas Bambuzal"},
+      "reasons": [],
+      "utterances": {
+        "es": "Hola, me cargaron un pago de 320 dólares a Academia de Inglés Bambú el 18 de mayo. Yo nunca me inscribí ahí, no hice ese pago y quiero disputarlo.",
+        "pt": "Olá. Foi debitado um pagamento de 320 dólares para a Escola de Idiomas Bambuzal em 18 de maio. Nunca me matriculei lá, não fiz esse pagamento e quero abrir uma contestação."
+      },
+      "dialects": {"es": "es-MX", "pt": "pt-BR"},
+      "offers": null,
+      "clarifications": null,
+      "confirmation": "accept",
+      "options": {},
+      "second_messages": null,
+      "mixed": null,
+      "tags": []
+    },
+    {
+      "name": "n-direct-withdrawal-brl-mix",
+      "languages": ["es", "pt"],
+      "path": "file_direct",
+      "basis": "§1 explicit denial + dispute request -> dispute review, no recognition question; §6.8 Approved Withdrawal, age 4 (2026-06-13 Sat), BRL 600 = USD 120 with trusted FX present: eligible -> proposal, confirm, fresh OTP, filed + readback",
+      "kind": "Withdrawal",
+      "status": "Approved",
+      "currency": "BRL",
+      "amount": 600,
+      "age": 4,
+      "merchant": {"es": "Cajero Coralina", "pt": "Autoatendimento Coqueiral"},
+      "reasons": [],
+      "utterances": {
+        "es": "Hola, estuve de viaje en Brasil y me figura una extracción de 600 reales del sábado en Cajero Coralina. Esa extracción no la hice, quiero disputarla.",
+        "pt": "Boa noite. Apareceu um saque de 600 reais no Autoatendimento Coqueiral no sábado e eu não fiz esse saque. Quero contestar."
+      },
+      "dialects": {"es": "es-AR", "pt": "pt-BR"},
+      "offers": null,
+      "clarifications": null,
+      "confirmation": "accept",
+      "options": {},
+      "second_messages": null,
+      "mixed": {
+        "replaces": "es",
+        "message": "Hola, tô voltando do Brasil y me figura um saque de 600 reais del sábado no Cajero Coralina. Eu não fiz esse saque, che, quiero disputarlo."
+      },
+      "tags": ["mixed_language", "relative_date"]
+    },
+    {
+      "name": "n-direct-drogueria-twice",
+      "languages": ["es", "pt"],
+      "path": "file_direct",
+      "basis": "§1 explicit denial + dispute request; two owned charges at the same merchant, customer names the target (USD 140, Fri 2026-06-12) and keeps the USD 230 Mon 2026-06-15 one; §6.8 Approved Purchase, age 5, USD 140: eligible -> proposal on the chosen handle, confirm, fresh OTP, filed",
+      "kind": "Purchase",
+      "status": "Approved",
+      "currency": "USD",
+      "amount": 140,
+      "age": 5,
+      "merchant": {"es": "Droguería Flor de Loto", "pt": "Drogaria Dente-de-Leão"},
+      "reasons": [],
+      "utterances": {
+        "es": "Buenas. En Droguería Flor de Loto me salen dos cobros: el de 230 del lunes sí es mío, pero el de 140 dólares del viernes no lo hice. Ese quiero disputarlo.",
+        "pt": "Oi, tem duas cobranças da Drogaria Dente-de-Leão. A de 230 de segunda é minha, mas a de 140 dólares de sexta eu não fiz. Quero contestar essa."
+      },
+      "dialects": {"es": "es-CO", "pt": "pt-BR"},
+      "offers": null,
+      "clarifications": {
+        "es": ["El de 140 dólares, el del viernes 12."],
+        "pt": ["A de 140 dólares, da sexta-feira, dia 12."]
+      },
+      "confirmation": "accept",
+      "options": {"two_charges": true, "second_amount": 230},
+      "second_messages": null,
+      "mixed": null,
+      "tags": ["same_merchant_twice", "relative_date"]
+    },
+    {
+      "name": "n-direct-churrasqueria-brl",
+      "languages": ["es", "pt"],
+      "path": "file_direct",
+      "basis": "§1 explicit denial + dispute request -> dispute review, no recognition question; §6.8 Approved Purchase, age 6 (2026-06-11 Thu), BRL 450 = USD 90 with trusted FX present: eligible -> proposal, confirm, fresh OTP, filed",
+      "kind": "Purchase",
+      "status": "Approved",
+      "currency": "BRL",
+      "amount": 450,
+      "age": 6,
+      "merchant": {"es": "Churrasquería El Ceibal", "pt": "Esfiharia Areia Fina"},
+      "reasons": [],
+      "utterances": {
+        "es": "Oiga, me llegó un cargo de cuatrocientos cincuenta reales de Churrasquería El Ceibal del jueves 11 y yo ni he ido a Brasil. Esa compra no la hice, quiero reclamarla.",
+        "pt": "Quero contestar uma compra de quatrocentos e cinquenta reais na Esfiharia Areia Fina, do dia 11. Não fiz essa compra."
+      },
+      "dialects": {"es": "es-CL", "pt": "pt-BR"},
+      "offers": null,
+      "clarifications": null,
+      "confirmation": "accept",
+      "options": {},
+      "second_messages": null,
+      "mixed": null,
+      "tags": ["amount_words"]
+    },
+    {
+      "name": "n-direct-antojeria-typo",
+      "languages": ["es", "pt"],
+      "path": "file_direct",
+      "basis": "§1 explicit denial + dispute request (typos do not change intent) -> dispute review, no recognition question; §6.8 Approved Purchase, age 1 (2026-06-16 Tue = 'antier'/'anteontem' as of Thu 06-18), USD 72.50: eligible -> proposal, confirm, fresh OTP, filed",
+      "kind": "Purchase",
+      "status": "Approved",
+      "currency": "USD",
+      "amount": 72.5,
+      "age": 1,
+      "merchant": {"es": "Antojería Cempasúchil", "pt": "Açaiteria Buriti"},
+      "reasons": [],
+      "utterances": {
+        "es": "ola, antier me cobraron 72.50 dlls en Antojería Cempasúchil y yo no ise esa conpra, kiero disputarla porfa",
+        "pt": "oi, anteontem caiu uma cobransa de 72,50 dólares na Açaiteria Buriti e eu nao fiz essa conpra, quero contestar pfv"
+      },
+      "dialects": {"es": "es-MX", "pt": "pt-BR"},
+      "offers": null,
+      "clarifications": null,
+      "confirmation": "accept",
+      "options": {},
+      "second_messages": null,
+      "mixed": null,
+      "tags": ["intentional_typo", "relative_date"]
+    },
+    {
+      "name": "n-case-calzado-status",
+      "languages": ["es", "pt"],
+      "path": "case",
+      "basis": "§6.3 owned charge already has an open dispute case; customer asks about it -> read back and report existing case, no duplicate intake (§2 status_reported). Approved Purchase, age 12 (2026-06-05 Fri), USD 260",
+      "kind": "Purchase",
+      "status": "Approved",
+      "currency": "USD",
+      "amount": 260,
+      "age": 12,
+      "merchant": {"es": "Calzado Brío Andino", "pt": "Calçados Bromélia"},
+      "reasons": [],
+      "utterances": {
+        "es": "Hola, quería saber cómo va el reclamo que abrí por el cobro de 260 dólares de Calzado Brío Andino. ¿Ya hay alguna novedad?",
+        "pt": "Oi, queria saber como está a contestação que eu abri da cobrança de 260 dólares da Calçados Bromélia. Tem alguma novidade?"
+      },
+      "dialects": {"es": "es-CO", "pt": "pt-BR"},
+      "offers": null,
+      "clarifications": null,
+      "confirmation": "accept",
+      "options": {"existing_case": true},
+      "second_messages": null,
+      "mixed": null,
+      "tags": ["existing_case_status"]
+    },
+    {
+      "name": "n-case-distribuidora-again",
+      "languages": ["es", "pt"],
+      "path": "case",
+      "basis": "§6.3 explicit dispute request on a charge with an owned open case -> return verified existing case status, avoid duplicate intake (§2 status_reported). Approved Purchase, age 16 (2026-06-01 Mon), USD 95",
+      "kind": "Purchase",
+      "status": "Approved",
+      "currency": "USD",
+      "amount": 95,
+      "age": 16,
+      "merchant": {"es": "Distribuidora Eucalipto", "pt": "Distribuidora Erva-Doce"},
+      "reasons": [],
+      "utterances": {
+        "es": "Quiero disputar el cargo de 95 dólares de Distribuidora Eucalipto del lunes 1 de junio, esa compra no la hice yo.",
+        "pt": "Quero contestar a cobrança de 95 dólares da Distribuidora Erva-Doce, de 1º de junho. Não fiz essa compra."
+      },
+      "dialects": {"es": "es-CL", "pt": "pt-BR"},
+      "offers": null,
+      "clarifications": null,
+      "confirmation": "accept",
+      "options": {"existing_case": true},
+      "second_messages": null,
+      "mixed": null,
+      "tags": ["existing_case_status"]
+    },
+    {
+      "name": "n-status-pending-bazar",
+      "languages": ["es", "pt"],
+      "path": "status",
+      "basis": "§1/§6.4 explicit dispute request on a Pending charge, age 2 (2026-06-15 Mon, <=14 recent) -> recorded-status explanation without filing (§2 resolved_by_explanation). USD 180 (pt side USD 215)",
+      "kind": "Purchase",
+      "status": "Pending",
+      "currency": "USD",
+      "amount": 180,
+      "age": 2,
+      "merchant": {"es": "Bazar Duende Azul", "pt": "Bazar Cabaça"},
+      "reasons": [],
+      "utterances": {
+        "es": "Hola, quiero reclamar una compra de 180 dólares en Bazar Duende Azul del lunes. No la hice, che.",
+        "pt": "Quero contestar uma compra de 215 dólares no Bazar Cabaça, de segunda-feira. Não fiz essa compra."
+      },
+      "dialects": {"es": "es-AR", "pt": "pt-BR"},
+      "offers": null,
+      "clarifications": null,
+      "confirmation": "accept",
+      "options": {"pt_amount": 215},
+      "second_messages": null,
+      "mixed": null,
+      "tags": ["relative_date", "es_AR_slang"]
+    },
+    {
+      "name": "n-status-reversed-electronica",
+      "languages": ["es", "pt"],
+      "path": "status",
+      "basis": "§1 ordinary status question without unfamiliarity cue -> terminal status explanation (no recognition turn); §6.4 Reversed, age 7 (2026-06-10 Wed), USD 135 -> explained, no filing (§2 resolved_by_explanation)",
+      "kind": "Purchase",
+      "status": "Reversed",
+      "currency": "USD",
+      "amount": 135,
+      "age": 7,
+      "merchant": {"es": "Electrónica Cerezo", "pt": "Eletrônicos Cedrinho"},
+      "reasons": [],
+      "utterances": {
+        "es": "Buenas noches, ¿me confirman si ya me regresaron los 135 dólares de Electrónica Cerezo? Compré unos audífonos el 10 de junio y los devolví.",
+        "pt": "Oi, vocês podem ver se já estornaram os 135 dólares da Eletrônicos Cedrinho? Comprei um fone dia 10 de junho e devolvi."
+      },
+      "dialects": {"es": "es-MX", "pt": "pt-BR"},
+      "offers": null,
+      "clarifications": null,
+      "confirmation": "accept",
+      "options": {},
+      "second_messages": null,
+      "mixed": null,
+      "tags": []
+    },
+    {
+      "name": "n-status-declined-agencia",
+      "languages": ["es"],
+      "path": "status",
+      "basis": "§1/§6.4 explicit denial + dispute request on a Declined charge, age 1 (2026-06-16 Tue = 'el martes' as of Thu 06-18) -> recorded-status explanation without filing (§2 resolved_by_explanation). USD 410",
+      "kind": "Purchase",
+      "status": "Declined",
+      "currency": "USD",
+      "amount": 410,
+      "age": 1,
+      "merchant": {"es": "Agencia Bitácora Sur"},
+      "reasons": [],
+      "utterances": {
+        "es": "Pucha, me sale un cargo de 410 dólares de Agencia Bitácora Sur del martes y yo no compré ningún pasaje po. Quiero reclamarlo al tiro."
+      },
+      "dialects": {"es": "es-CL"},
+      "offers": null,
+      "clarifications": null,
+      "confirmation": "accept",
+      "options": {},
+      "second_messages": null,
+      "mixed": null,
+      "tags": ["es_CL_slang", "relative_date"]
+    }
+  ]
+}
