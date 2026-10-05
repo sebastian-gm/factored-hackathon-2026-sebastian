@@ -354,3 +354,20 @@ Latest AI live diagnosis: [partial exploration and zero-cost root causes](progre
 ### Next / blocked
 
 - Sebastian sends the submission email with the repo, deployment, slides, video and credentials delivered privately. No further paid calls or product changes are authorized here.
+
+
+## 2026-10-05 — lead v5 preparation only (handoff 21)
+
+### Completed (verified)
+
+- Read handoff 21 and repo rules. Prepared the exact v4 command mapping and v5 one-pass P/B1 sequence in `docs/evaluation/v5-blind-run-plan.md`; wrapper reuses the existing execution/scoring/strict-report APIs. No product, prompt, config, infra or app changes.
+- `V5_BUDGET_PREPARATION_APPROVED=1 .venv/bin/python -m scripts.v5_budget --prepare`, then independent `.venv/bin/python -m scripts.v5_budget`: `final-evaluation-v5` / `final-program-v5`, $1.50 lifetime, 0 attempts/$0 charged/0 v5 unknown costs. Conservative funded maximum $17.26264898/$18, retaining all 75 historical unknown reservations.
+- `LLM_PROVIDER=mock .venv/bin/pytest -q tests/test_v5_preparation.py`: 3 authored scalar tests passed; Ruff check/format passed. `git -C <repo> diff --stat v1.0.0 HEAD -- src apps prompts config infra` was empty. No v5 material, loader, scenario, model run, deployment or tag was opened/executed.
+
+### Done but not verified
+
+- V5 manifest/bindings/schema/ownership, fresh provider balance and full wrapper execution remain unverified. The commands are prepared, not evidence of v5 runtime success.
+
+### Next / blocked
+
+- STOP. Wait for the owner's explicit “v5 suite merged” GO before any v5 preflight or execution. One run per system; infrastructure recovery only with disclosure. Official v4 and v1.0.0 deployment remain unchanged.
