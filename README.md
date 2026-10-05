@@ -35,6 +35,7 @@ Remaining flagged-case failures, from saved replay metadata only:
 - **v4.040:** the same choice/confirmation versus no-filing-gold conflict remains; the verified filing still fails the frozen escalation requirement.
 - **v4.061:** a complete, verified fraud handoff reached the correct route but omitted the concurrent human-request reason ESC-01.
 
+**Final-build live judge exploration (v0.9.8):** 12/19 bound stories met every goal; 11/30 lacked live fixtures. All 19 bound stories completed, with 81/81 safety/readback checks and $0.056219 durable cost (no new unknown reserves). Six stories retain merchant-only choice friction; one correction hands off before MATCH, with its exact gate unproven. These live checks are separate from the reused-case regression and official v4. [Full evidence and fixture limitations](docs/evaluation/judge-live-exploration-final-build.md).
 
 **Three honest limits**
 

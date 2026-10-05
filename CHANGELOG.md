@@ -5,7 +5,7 @@ and semantic versioning. Versions describe released behavior, not safety
 certification. The v0.1.0–v0.5.0 annotated tags and GitHub Releases were created
 **retroactively on 2026-10-01**; their commits retain their original dates.
 
-## [v0.9.8] — 2026-10-05 (release candidate)
+## [v0.9.8] — 2026-10-05
 
 - Resolve unambiguous positive merchant reads from pending owned choices, and
   preserve pending choices on explicit dispute-return requests; thresholds,
@@ -14,8 +14,10 @@ certification. The v0.1.0–v0.5.0 annotated tags and GitHub Releases were creat
   unauthorized-action and two policy flags. Recorded charge $0.2374495.
   This reuses v4 cases; official scores remain unchanged.
 - Update the owner-reviewed six-page slides and cumulative model ceiling to $18.
-- Azure deployment and the separate $0.40 live exploration await release gates.
-  [Regression evidence](docs/evaluation/final-build-regression.md).
+- Exact-SHA Azure gates passed. One live judge exploration met all goals in
+  12/19 bound stories, with 11 unbound; safety/readbacks 81/81, durable charge
+  $0.056219, no new unknown reserves. Known choice friction is disclosed.
+  [Release evidence](docs/submission/v0.9.8-release-evidence.md).
 
 ## [v0.9.7] — 2026-10-05 UTC (October 4 COT)
 

@@ -260,10 +260,17 @@ Latest AI live diagnosis: [partial exploration and zero-cost root causes](progre
 - `scripts.azure_verify`, temporal/RLS/queue readbacks, live English login/OTP and 320/390px checks passed; four profile scopes, stale-cookie/logout denial verified. Zero lead live model calls.
 - Requested remaining-four explanations added from saved enum/action/reason metadata only, without a rerun, row text, tuning or product change.
 
+- AI live receipt verified: 12/19 bound goals, 11 unbound, 81/81 safety/readbacks,
+  $0.056219 and zero new unknown reserves. v0.9.8 tag/Release point to deployed
+  `b0b9397`; anonymous tag/Release/README/slides checks passed. Updated PDF is
+  byte-exact. Replay plus live cost $0.2936685; conservative maximum $15.61264898/$18.
+
 ### Done but not verified
 
-- AI single 30-story live exploration is signaled, scope `live-exploration/final-day` / `final-build`, cap $0.40. Receipt pending.
+- These documentation changes await this PR's green remote CI and merge.
 
 ### Next / blocked
 
-- Await the AI receipt, write the fresh release acceptance, tag v0.9.8/v1.0.0 on the exact deployed SHA, verify logged-out. No email.
+- Merge #208 plus these regression explanations on green CI. Review the coming
+  unique exact merchant fix first, release v0.9.9 and await its owner-approved
+  live rerun capped at $0.15. v1.0.0 moves to that deployed SHA. No email.
