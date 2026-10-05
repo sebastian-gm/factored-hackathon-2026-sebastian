@@ -233,3 +233,21 @@ Latest AI live diagnosis: [partial exploration and zero-cost root causes](progre
 
 - Lead owns the merge/release batch. One newly approved <=$0.40 live rerun follows
   its exact deployed SHA and new durable AI scope; official v4 stays unchanged.
+
+## 2026-10-05 — Final-build regression (lead)
+
+### Completed (verified)
+
+- #202/#204 (including #205)/#203/#206 merged with four remote checks green.
+- Updated six-page slides reviewed; $18 ceiling and separate durable $0.30/$0.40 scopes verified.
+- Controlled replay COMPLETE: P 89/100, B1 60/100, flagged subset 4/8 and 2/8; charged $0.23744950. [Full counts and cost evidence](../evaluation/final-build-regression.md).
+- Official v4 files byte-unchanged. No new unknown cost; zero-case/$0 mock stop preserved.
+
+### Done but not verified
+
+- v0.9.8 Azure deployment and final-day AI live exploration are prepared, not yet run.
+
+### Next / blocked
+
+- Green docs CI, image-only v0.9.8 release, deterministic live gate, then signal AI.
+- Await the single $0.40 live result; v1.0.0 tag on the deployed SHA is owner-approved. Never email.

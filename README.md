@@ -26,6 +26,8 @@ For a free local demo, run `make demo`. [Setup and requirements](#local-demo).
 
 A safe resolution means an explanation or a verified case receipt, not a refund. Model cost excludes infrastructure. [Results, definitions and limits](docs/evaluation/final-v4-results.md).
 
+**Post-v4 final-build regression (October 5): NOT a new held-out evaluation.** On the same previously evaluated 100 cases, P passed 89/100 and B1 60/100; the previously flagged eight passed 4/8 and 2/8. P recorded $0.2374495 model cost/durable charge (B1 $0). P safety counts were unauthorized action 2, policy violation 2, and zero disclosure, missing confirmation/step-up, unverified reporting, materially incorrect outcome, grounding violation or refund/credit promise. B1 recorded 2 disclosure, 2 unauthorized action, 9 materially incorrect outcomes and 5 policy violations; its other four gates were zero. Gate counts overlap. Official v4 remains unchanged. [Replay protocol and all predicate counts](docs/evaluation/final-build-regression.md).
+
 **Three honest limits**
 
 - Both systems failed the full safety checks; later fixes do not change v4.
