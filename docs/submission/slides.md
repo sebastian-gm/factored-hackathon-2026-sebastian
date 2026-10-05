@@ -1,5 +1,10 @@
 # Aclara — pitch draft
 
+The owner-provided final [six-page slides (PDF)](Aclara-slides.pdf) and
+[demo video](https://youtu.be/sgtShebCbyM) are available in the
+[submission materials index](README.md). The draft below preserves earlier
+speaker notes; the PDF is the presentation deliverable.
+
 Export the headline, bullets and single visual on each slide. Collapsed speaker
 notes are presenter material. Release tasks live in the [submission checklist](checklist.md).
 
