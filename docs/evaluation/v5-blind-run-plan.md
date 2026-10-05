@@ -115,7 +115,7 @@ mkdir -m 700 -p artifacts/final-program-v5 artifacts/evaluation-v5-prep
 # START ONCE. This wrapper obtains credentials in memory, checks pins and
 # ownership, and refuses to replay an existing attempt's directory.
 V5_SUITE_MERGED_GO=1 LLM_FINAL_RUN_STARTED=1 LLM_REAL_CALLS_APPROVED=1 \
-  nohup .venv/bin/python -m scripts.v5_blind_evaluation start \
+  nohup setsid .venv/bin/python -m scripts.v5_blind_evaluation start \
   --suite test-v5 \
   --bindings artifacts/evaluation-v5/customer-bindings.json \
   --manifest-pin "$V5_MANIFEST_PIN" \
@@ -150,3 +150,22 @@ The v5 manifest, private bindings, schema compatibility, source ownership,
 provider balance and full wrapper execution remain unverified until the GO.
 Report results whatever they are, keep official v4 unchanged, and make no
 product/prompt/config changes or result-informed reruns.
+
+## Zero-case startup recovery (October 5)
+
+The initial bare-shell background launch vanished before execution: empty log,
+no release/checkpoints/progress, 0 cases and $0. Preserved as
+`artifacts/final-program-v5-shell-launch0`. An isolated-process launch then
+passed loader preflight but stopped before checkpoints with `AttributeError`:
+`load_fallback_route` returns a route-name string, while the wrapper's metadata
+header attempted `.model_id` on that string. Correcting this metadata lookup to
+`models[fallback].model_id` does not change model selection, execution, scoring,
+product paths or suite bytes. An authored mocked preflight reaches the header
+without any suite, provider, database or private-artifact access. Stop receipts
+now include function names/line numbers only, never inputs or exception text.
+
+Preserve the zero-case preflight directory and its $0 receipt, merge the
+eval-only fix on green CI, verify the empty runtime diff again, and launch the
+one pass with an isolated process session under the SAME $1.50 lifetime scope.
+No completed or attempted case is rerun. These startup stops will be disclosed
+in the results regardless of their outcome.
