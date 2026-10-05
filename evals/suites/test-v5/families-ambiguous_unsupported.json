@@ -1,0 +1,287 @@
+{
+  "author": "B",
+  "category": "ambiguous_unsupported",
+  "families": [
+    {
+      "name": "a-hostal-ajuste-sexta",
+      "languages": ["es", "pt"],
+      "path": "handoff_offer",
+      "basis": "§1 bare unfamiliarity ('no lo reconozco') -> explain + offer (§6.5; type is not a display fact); reply explicitly denies -> dispute review; §6.6 known unsupported Adjustment -> DSP-03 (§3 table). Merchant and USD present, age 5 (2026-06-12 Fri = 'viernes pasado'/'sexta passada' from Thu 2026-06-18), USD 85 -> no BRD-01/DSP-01/DSP-07",
+      "kind": "Adjustment",
+      "status": "Approved",
+      "currency": "USD",
+      "amount": 85,
+      "age": 5,
+      "merchant": {"es": "Hostal Jacarandá Celeste", "pt": "Hotel Ipê Dourado"},
+      "reasons": ["DSP-03"],
+      "utterances": {
+        "es": "Buenas, me aparece un \"ajuste\" de Hostal Jacarandá Celeste por 85 dólares del viernes pasado y no lo reconozco. ¿Qué es eso?",
+        "pt": "Oi, apareceu um tal de ajuste do Hotel Ipê Dourado, 85 dólares, da sexta passada. Não reconheço, o que é isso?"
+      },
+      "dialects": {"es": "es-MX", "pt": "pt-BR"},
+      "offers": {
+        "es": ["No, eso no lo autoricé. Pagué todo cuando hice el checkout, quiero disputar ese ajuste."],
+        "pt": ["Não, isso eu não autorizei. Acertei tudo no check-out, quero contestar esse ajuste."]
+      },
+      "clarifications": null,
+      "confirmation": "accept",
+      "options": {},
+      "second_messages": null,
+      "mixed": null,
+      "tags": ["relative_date", "unsupported_type"]
+    },
+    {
+      "name": "a-transferencia-sin-comercio",
+      "languages": ["es", "pt"],
+      "path": "handoff_direct",
+      "basis": "§1 explicit denial -> dispute review; §6.6 known unsupported Transfer -> DSP-04 (routes) and BRD-01 retained for the missing merchant (§3 unsupported-type row 'Preserve applicable BRD-01' + missing-field row 'retain a known unsupported-type reason too'). Age 7 (2026-06-10 Wed), USD 320 -> no DSP-01/DSP-07. Merchant names supplied only for schema; missing_merchant blanks them and the customer refers by amount/date",
+      "kind": "Transfer",
+      "status": "Approved",
+      "currency": "USD",
+      "amount": 320,
+      "age": 7,
+      "merchant": {"es": "Giros Halcón", "pt": "Ligeiro Envios"},
+      "reasons": ["DSP-04", "BRD-01"],
+      "utterances": {
+        "es": "Hola, me salió una transferencia de 320 dólares el miércoles 10 que yo no hice, ni siquiera dice a quién se mandó. Quiero reclamarla altiro.",
+        "pt": "Olá, tem uma transferência de US$ 320 no dia 10 de junho que eu não fiz, e nem aparece pra quem foi. Quero contestar."
+      },
+      "dialects": {"es": "es-CL", "pt": "pt-BR"},
+      "offers": null,
+      "clarifications": null,
+      "confirmation": "accept",
+      "options": {"missing_merchant": true},
+      "second_messages": null,
+      "mixed": null,
+      "tags": ["es_CL_slang", "missing_merchant", "unsupported_type"]
+    },
+    {
+      "name": "a-reales-cambio-anterior",
+      "languages": ["es", "pt"],
+      "path": "handoff_direct",
+      "basis": "§1 explicit denial -> dispute review; BRL 600 x 0.20 = USD 120; only a prior-day FX rate -> §3 'missing/prior-date FX' -> BRD-01 (§6.7 no write). Approved Purchase, age 4 (2026-06-13 Sat), otherwise eligible so no other reason",
+      "kind": "Purchase",
+      "status": "Approved",
+      "currency": "BRL",
+      "amount": 600,
+      "age": 4,
+      "merchant": {"es": "Kiosco Guanabara", "pt": "Lanchonete Gaivota"},
+      "reasons": ["BRD-01"],
+      "utterances": {
+        "es": "¿Qué más? Quiero poner un reclamo por un cobro de 600 reales en Kiosco Guanabara del sábado 13. Hace meses que no voy a Brasil, ese no lo hice yo.",
+        "pt": "Quero contestar uma compra de R$ 600 na Lanchonete Gaivota, sábado dia 13. Não fui eu, nunca nem ouvi falar dessa lanchonete."
+      },
+      "dialects": {"es": "es-CO", "pt": "pt-BR"},
+      "offers": null,
+      "clarifications": null,
+      "confirmation": "accept",
+      "options": {"fx": "prior"},
+      "second_messages": null,
+      "mixed": null,
+      "tags": ["brl_currency", "fx_prior"]
+    },
+    {
+      "name": "a-libreria-marzo-viejo",
+      "languages": ["es", "pt"],
+      "path": "handoff_offer",
+      "basis": "§1 bare unfamiliarity -> explain + offer; reply explicitly denies -> dispute review; §5/§3 age 88 (2026-03-21 Sat) within 85-90 inclusive -> BRD-01 + DSP-01 (§6.7 no write). Approved Purchase USD 140, data complete",
+      "kind": "Purchase",
+      "status": "Approved",
+      "currency": "USD",
+      "amount": 140,
+      "age": 88,
+      "merchant": {"es": "Librería Hormiga", "pt": "Livraria Jabuti"},
+      "reasons": ["BRD-01", "DSP-01"],
+      "utterances": {
+        "es": "Che, ¿qué es este consumo de Librería Hormiga de 140 dólares del 21 de marzo? Lo vi en el resumen y no lo tengo para nada.",
+        "pt": "Oi, que compra é essa na Livraria Jabuti de 140 dólares, de 21 de março? Vi na fatura e não reconheço."
+      },
+      "dialects": {"es": "es-AR", "pt": "pt-BR"},
+      "offers": {
+        "es": ["Ni a palos, yo no pisé esa librería en mi vida. No lo hice yo, quiero desconocerlo."],
+        "pt": ["Não fui eu de jeito nenhum, nunca comprei nada nessa livraria. Quero contestar."]
+      },
+      "clarifications": null,
+      "confirmation": "accept",
+      "options": {},
+      "second_messages": null,
+      "mixed": null,
+      "tags": ["es_AR_slang", "age_band_85_90"]
+    },
+    {
+      "name": "a-joyas-reales-franja",
+      "languages": ["es", "pt"],
+      "path": "handoff_direct",
+      "basis": "§1 explicit dispute request; BRL 4900 x 0.20 = USD 980 (trusted transaction-date FX present), inside the inclusive ±5% band of USD 1000 (950-1050) -> BRD-01 + DSP-07 (§3); Approved Purchase, age 10 (2026-06-07 Sun), data complete",
+      "kind": "Purchase",
+      "status": "Approved",
+      "currency": "BRL",
+      "amount": 4900,
+      "age": 10,
+      "merchant": {"es": "Joyería Lunaria", "pt": "Joalheria Kauã"},
+      "reasons": ["BRD-01", "DSP-07"],
+      "utterances": {
+        "es": "Quiero desconocer un consumo de 4900 reales en Joyería Lunaria del domingo 7 de junio. No compré ninguna joya, no fui yo.",
+        "pt": "Quero contestar uma compra de R$ 4.900 na Joalheria Kauã, do domingo dia 7. Não comprei joia nenhuma, não fui eu."
+      },
+      "dialects": {"es": "es-AR", "pt": "pt-BR"},
+      "offers": null,
+      "clarifications": null,
+      "confirmation": "accept",
+      "options": {},
+      "second_messages": null,
+      "mixed": {
+        "replaces": "es",
+        "message": "Oi, buenas. Preciso contestar un cargo de 4900 reales en Joyería Lunaria, do domingo 7. Yo no compré nada ahí, não fui eu, quiero que lo revisen."
+      },
+      "tags": ["mixed_language", "brl_currency", "amount_band"]
+    },
+    {
+      "name": "a-gimnasio-pendiente-viejo",
+      "languages": ["es", "pt"],
+      "path": "handoff_direct",
+      "basis": "§1 explicit dispute request; §6.4 recorded status Pending at age 20 (2026-05-28 Thu) >= 15 is stale -> TXN-02 (§5 'age 15 is stale'); USD 60, age <= 84, data complete -> no other reason",
+      "kind": "Purchase",
+      "status": "Pending",
+      "currency": "USD",
+      "amount": 60,
+      "age": 20,
+      "merchant": {"es": "Gimnasio Hierro Vivo", "pt": "Ginásio Jatobá"},
+      "reasons": ["TXN-02"],
+      "utterances": {
+        "es": "Nesesito reclamar un cobro del gimnacio Hierro Vivo x 60 dolares del 28 de mayo q todavia sale pendiente, yo nunca me inscribi ahi",
+        "pt": "tem uma cobransa pendente de 60 dolares do Ginasio Jatoba de 28 de maio q nao é minha, quero contestar"
+      },
+      "dialects": {"es": "es-CO", "pt": "pt-BR"},
+      "offers": null,
+      "clarifications": null,
+      "confirmation": "accept",
+      "options": {},
+      "second_messages": null,
+      "mixed": null,
+      "tags": ["intentional_typo", "stale_pending"]
+    },
+    {
+      "name": "a-heladeria-doble-domingo",
+      "languages": ["es", "pt"],
+      "path": "handoff_unselected",
+      "basis": "§1 select/clarify: two owned charges at the same merchant on the same date (2026-06-14 Sun = 'el domingo'/'no domingo' from Thu 2026-06-18; USD 180 target and default USD 230); customer never chooses through two clarifications -> §3 'two unsuccessful clarifications / low confidence' ESC-04, no arbitrary selection; ends before a charge is selected",
+      "kind": "Purchase",
+      "status": "Approved",
+      "currency": "USD",
+      "amount": 180,
+      "age": 3,
+      "merchant": {"es": "Heladería Lumbre", "pt": "Gelateria Jambo"},
+      "reasons": ["ESC-04"],
+      "utterances": {
+        "es": "Oye, me aparecen dos cobros de Heladería Lumbre el domingo y uno de esos no lo hice yo, ¿cachai? Quiero reclamarlo.",
+        "pt": "Gente, tem duas cobranças da Gelateria Jambo no domingo e uma delas não fui eu. Quero contestar."
+      },
+      "dialects": {"es": "es-CL", "pt": "pt-BR"},
+      "offers": null,
+      "clarifications": {
+        "es": ["Es que no sé cuál es, pa' mí los dos se ven iguales.", "No, de verdad no sabría decirte cuál de los dos es, no me acuerdo."],
+        "pt": ["Não sei dizer qual é, pra mim as duas parecem iguais.", "Sinceramente não faço ideia de qual das duas é."]
+      },
+      "confirmation": "accept",
+      "options": {"two_charges": true, "same_date": true, "uncertain_choice": true},
+      "second_messages": null,
+      "mixed": null,
+      "tags": ["same_merchant_twice", "relative_date", "es_CL_slang"]
+    },
+    {
+      "name": "a-imprenta-sin-certeza",
+      "languages": ["es", "pt"],
+      "path": "handoff_offer",
+      "basis": "§1 bare unfamiliarity -> explain + offer; Await recognition: uncertain reply, then two recognition clarifications still uncertain -> ESC-04 handoff (§1 table; §3 'two unsuccessful clarifications'); no recognition or denial, so no proposal. Approved Purchase USD 45, age 6 (2026-06-11 Thu)",
+      "kind": "Purchase",
+      "status": "Approved",
+      "currency": "USD",
+      "amount": 45,
+      "age": 6,
+      "merchant": {"es": "Imprenta Garza", "pt": "Lavanderia Graúna"},
+      "reasons": ["ESC-04"],
+      "utterances": {
+        "es": "Disculpe, ¿qué es este cargo de Imprenta Garza por 45 dólares del jueves 11? No lo ubico.",
+        "pt": "Opa, que cobrança é essa da Lavanderia Graúna de 45 dólares, quinta dia 11? Não tô reconhecendo."
+      },
+      "dialects": {"es": "es-MX", "pt": "pt-BR"},
+      "offers": {
+        "es": ["Mmm, no sé... puede que sí, puede que no, no estoy segura.", "Sigo sin saber, la neta no me acuerdo si mandé a imprimir algo.", "No sé, de verdad no te puedo decir si fui yo o no."],
+        "pt": ["Hmm, não sei te dizer... pode ser que sim, pode ser que não.", "Continuo sem saber, não lembro se deixei roupa lá.", "Não sei mesmo, não consigo dizer se fui eu ou não."]
+      },
+      "clarifications": {
+        "es": ["Sigo sin saber, la neta no me acuerdo si mandé a imprimir algo.", "No sé, de verdad no te puedo decir si fui yo o no."],
+        "pt": ["Continuo sem saber, não lembro se deixei roupa lá.", "Não sei mesmo, não consigo dizer se fui eu ou não."]
+      },
+      "confirmation": "accept",
+      "options": {},
+      "second_messages": null,
+      "mixed": null,
+      "tags": ["es_MX_slang", "pt_BR_slang", "persistent_uncertainty"]
+    },
+    {
+      "name": "a-juguete-cambia-a-otro",
+      "languages": ["es", "pt"],
+      "path": "file_switched",
+      "basis": "§1 bare unfamiliarity on A (USD 95, 2026-06-16 Tue = 'el martes'/'na terça') -> explain + offer; reply recognizes A and explicitly disputes B -> scope change clears A's offer/target and selects again (§1); B = second merchant, USD 230, 2026-06-15 Mon ('el lunes'/'na segunda'), age 2, Approved Purchase -> §6.8 eligible -> proposal, confirm, fresh OTP, filed on B",
+      "kind": "Purchase",
+      "status": "Approved",
+      "currency": "USD",
+      "amount": 95,
+      "age": 1,
+      "merchant": {"es": "Juguetería Halley", "pt": "Loja Kiriri Brinquedos"},
+      "reasons": [],
+      "utterances": {
+        "es": "Buenas, ¿me explican un cobro de Juguetería Halley por 95 dólares del martes? No me cuadra.",
+        "pt": "Oi, me explica essa cobrança da Loja Kiriri Brinquedos de 95 dólares na terça? Não tô reconhecendo."
+      },
+      "dialects": {"es": "es-CO", "pt": "pt-BR"},
+      "offers": {
+        "es": ["Ah no, ese sí es mío, ya me acordé: el regalo de mi sobrino. El que no hice yo es uno de Lámparas Kinoa por 230 dólares del lunes, ese sí lo quiero reclamar."],
+        "pt": ["Ah, essa é minha sim, lembrei, foi o presente do meu afilhado. A que eu não fiz é uma da Jardinagem Ingá de 230 dólares na segunda, essa eu quero contestar."]
+      },
+      "clarifications": null,
+      "confirmation": "accept",
+      "options": {
+        "new_target": true,
+        "second_merchant": {"es": "Lámparas Kinoa", "pt": "Jardinagem Ingá"},
+        "second_amount": 230
+      },
+      "second_messages": null,
+      "mixed": null,
+      "tags": ["relative_date", "scope_change"]
+    },
+    {
+      "name": "a-hamburguesa-limite-84",
+      "languages": ["es", "pt"],
+      "path": "file_offer",
+      "basis": "§1 bare unfamiliarity -> explain + offer; first reply is memory uncertainty only -> clarify recognition; explicit denial after clarification -> dispute review; §5 age 84 (2026-03-25 Wed) may propose; Approved Purchase USD 210 < 950, data complete -> §6.8 eligible -> proposal, confirm, fresh OTP, filed",
+      "kind": "Purchase",
+      "status": "Approved",
+      "currency": "USD",
+      "amount": 210,
+      "age": 84,
+      "merchant": {"es": "Hamburguesería Ícaro", "pt": "Kombucharia Lírio"},
+      "reasons": [],
+      "utterances": {
+        "es": "Hola, me aparece un cargo de Hamburguesería Ícaro por 210 dólares del 25 de marzo y no lo reconozco. ¿Me dicen qué es?",
+        "pt": "Olá, apareceu um gasto de 210 dólares na Kombucharia Lírio em 25 de março que eu não estou reconhecendo. O que é isso?"
+      },
+      "dialects": {"es": "es-MX", "pt": "pt-BR"},
+      "offers": {
+        "es": ["Uy, no sé... marzo ya fue hace rato, no me acuerdo bien.", "Ya lo revisé con mi esposa y no, esa compra no la hicimos nosotros. No la reconozco y quiero reclamarla."],
+        "pt": ["Não sei... março faz tempo, não lembro direito.", "Conferi aqui com meu marido e não, essa compra não fomos nós. Quero contestar."]
+      },
+      "clarifications": {
+        "es": ["Ya lo revisé con mi esposa y no, esa compra no la hicimos nosotros. No la reconozco y quiero reclamarla."],
+        "pt": ["Conferi aqui com meu marido e não, essa compra não fomos nós. Quero contestar."]
+      },
+      "confirmation": "accept",
+      "options": {},
+      "second_messages": null,
+      "mixed": null,
+      "tags": ["explicit_denial_after_clarification", "boundary_age_84"]
+    }
+  ]
+}
