@@ -22,7 +22,8 @@ export const en: Record<keyof typeof es | InterfaceKeys, string> = {
   judgeOwnQueueBody:
     "Open the masked requests from your visit without another login. You can review and claim a request; you cannot resolve it. To share it with external support, create an invitation and use their independent login.",
   staffLoginTitle: "Agent Desk sign-in",
-  staffLoginBody: "Use your support account with a password and verification code.",
+  staffLoginBody:
+    "Use your support account with a password and verification code.",
   staffShareTitle: "Share your request with support",
   staffShareBody:
     "The support account needs its own login. Your invitation shares only masked handoffs from this visit.",
@@ -85,8 +86,7 @@ export const en: Record<keyof typeof es | InterfaceKeys, string> = {
     "Each selection opens a new workspace. Previous conversations and cases are not retained.",
   profileLoading: "Preparing a new workspace…",
   changeProfile: "Change profile",
-  profileLoginAgain:
-    "We could not verify the access change. Sign in again.",
+  profileLoginAgain: "We could not verify the access change. Sign in again.",
   costByStage: "Recorded cost by step",
   costNotRecorded: "Cost not recorded",
   qualityNotChecked: "No checks recorded",
@@ -113,7 +113,7 @@ export const en: Record<keyof typeof es | InterfaceKeys, string> = {
   storyFailed:
     "We could not prepare the story. Choose it again when the service responds.",
   finishPending: "Finish the pending review before changing stories.",
-  demoNotice: "Simulated bank · Not a real service",
+  demoNotice: "Demo bank · synthetic data as of 18 Jun 2026",
   connecting: "Connecting",
   unavailable: "Service unavailable",
   accessNotice: "Password + verification code",
@@ -121,7 +121,7 @@ export const en: Record<keyof typeof es | InterfaceKeys, string> = {
   deskEyebrow: "HUMAN SUPPORT",
   opsEyebrow: "HOW IT WORKS",
   otpTitle: "Verify your access",
-  otpIntro: "Enter the code from the simulated SMS.",
+  otpIntro: "Enter your verification code.",
   authorizedAccount: "Authorized account",
   personaMX: "Mexico · charge inquiry",
   personaCO: "Colombia · inquiry",
@@ -131,8 +131,7 @@ export const en: Record<keyof typeof es | InterfaceKeys, string> = {
   personaAgent: "Agent Desk account",
   personaOps: "Operations account",
   stageGuide: "Conversation guide",
-  stageGuideBody:
-    "The model interprets; rules authorize; records verify.",
+  stageGuideBody: "The model interprets; rules authorize; records verify.",
   stage_understand: "Understand",
   stage_decide: "Decide",
   stage_act: "Act",
@@ -233,8 +232,7 @@ export const en: Record<keyof typeof es | InterfaceKeys, string> = {
   handoffReasons: "Reasons for the handoff",
   primaryReason: "Main reason",
   primaryReasonMissing: "The service did not provide a main reason.",
-  reasonControls:
-    "Reasons and requirements; verified actions appear below.",
+  reasonControls: "Reasons and requirements; verified actions appear below.",
   notRecorded: "Not recorded",
   flagYes: "Yes",
   flagNo: "No",
@@ -265,8 +263,7 @@ export const en: Record<keyof typeof es | InterfaceKeys, string> = {
   noModelCallsRecorded: "No model calls recorded",
   noModelCostMeasurement:
     "This conversation does not measure model cost. Review its steps and verifications.",
-  unknownCosts:
-    "{count, plural, one {# unknown cost} other {# unknown costs}}",
+  unknownCosts: "{count, plural, one {# unknown cost} other {# unknown costs}}",
   partialCost:
     "Known subtotal: some costs are pending. This is not the total billed.",
   recordedCostOnly:
@@ -292,7 +289,7 @@ export const en: Record<keyof typeof es | InterfaceKeys, string> = {
   chat: "My chat",
   desk: "Agent Desk",
   ops: "Operations",
-  workspace: "DEMO WORKSPACE",
+  workspace: "BANKING",
   subtitle: "Clarity in every transaction.",
   language: "Interface language",
   customer: "Customer",
@@ -348,8 +345,8 @@ export const en: Record<keyof typeof es | InterfaceKeys, string> = {
   username: "Username",
   password: "Password",
   continue: "Continue",
-  sms: "Simulated SMS",
-  smsHelp: "This panel belongs only to your sign-in attempt.",
+  sms: "Verification code",
+  smsHelp: "(demo: shown here instead of SMS)",
   otp: "6-digit code",
   verify: "Verify and sign in",
   restart: "Use another account",
@@ -413,7 +410,8 @@ export const en: Record<keyof typeof es | InterfaceKeys, string> = {
   action: "File dispute",
   expires: "Proposal valid until",
   expired: "The proposal expired. Request a new review.",
-  validConfirmation: "Confirming sends this exact proposal to the simulated bank.",
+  validConfirmation:
+    "Confirming sends this exact proposal to the simulated bank.",
   reviewAction: "Review and confirm",
   receipt: "Your case is recorded",
   statusTitle: "Your case status",
@@ -436,7 +434,7 @@ export const en: Record<keyof typeof es | InterfaceKeys, string> = {
   stepUpRequired:
     "For your security, confirm with a new code. Your request is still pending.",
   verifyAndConfirm: "Verify and confirm",
-  otpRetry: "The code is incorrect. Check the SMS and try again.",
+  otpRetry: "The code is incorrect. Check the displayed code and try again.",
   mutationUnknown:
     "We could not verify the result. We will not repeat the action automatically. Check the status before trying again.",
   deskTitle: "Support with context.",
@@ -456,8 +454,7 @@ export const en: Record<keyof typeof es | InterfaceKeys, string> = {
   actions: "Recorded actions",
   questions: "Open questions",
   packetFactsEmpty: "No verified transactions in this request.",
-  packetActionsEmpty:
-    "No verified actions. Check the conversation details.",
+  packetActionsEmpty: "No verified actions. Check the conversation details.",
   packetQuestionsEmpty: "No open questions were included.",
   riskIndicators: "Signals for human review",
   riskFraudReview: "Fraud review",

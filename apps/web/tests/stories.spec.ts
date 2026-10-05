@@ -62,9 +62,11 @@ test("ES normal: password + OTP, grounded explanation and safe why drawer", asyn
   context,
 }) => {
   await page.goto("/");
-  await expect(
-    page.getByText("Banco simulado · No es un servicio real"),
-  ).toBeVisible();
+  await expect(page.locator(".sidebar-bottom .demo-disclosure")).toBeVisible();
+  await expect(page.locator(".sidebar-bottom .demo-disclosure")).toHaveText(
+    "Banco demo · datos sintéticos al 18 jun 2026",
+  );
+  await expect(page.locator(".synthetic-banner, .clock")).toHaveCount(0);
   await expect(page.locator("input[type=password]")).toBeVisible();
   await screenshot(page, "login-desktop");
   await audit(page);

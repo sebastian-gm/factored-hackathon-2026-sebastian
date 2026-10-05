@@ -142,3 +142,28 @@ Latest AI live diagnosis: [partial exploration and zero-cost root causes](progre
 
 - Stand by for submission instructions. v1.0.0/email await Sebastian's go.
 - Official v4 unchanged; no held-out rerun or new score.
+
+## 2026-10-04 — Banking app presentation for v0.9.7
+
+### Completed (verified)
+
+- Removed the shared top demo strip and clock label; EN/ES/PT disclosure now
+  appears once in the sidebar footer, including phones.
+- Verification cards keep the code visible with realistic labels and a small
+  demo delivery note; English remains the interface default.
+- TypeScript, lint and production build passed. Full local Python suite:
+  1,941 passed, 43 skipped, using mock models and no provider credentials.
+- All 257 local browser cases verified: 227 default, 12 fixture API, 13 staff,
+  2 judge roles and 3 judge staff. Desktop/phone axe and layout checks passed.
+- Updated ten legacy SMS/font assertions after the initial runs; all affected
+  cases passed focused reruns. Ruff, strict mypy, interface and policy checks
+  passed. No authentication, authorization or conversation-language changes.
+
+### Done but not verified
+
+- Remote CI and deployed v0.9.7 await the PR and lead release.
+
+### Next / blocked
+
+- Open a small PR against main and report its head. Lead owns merge/release.
+- Zero spend; no live model suite or organizer row inputs required.

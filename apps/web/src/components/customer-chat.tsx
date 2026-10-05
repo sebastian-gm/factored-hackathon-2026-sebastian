@@ -691,6 +691,7 @@ export function CustomerChat({
                 <p className="sms-code" data-testid="confirm-step-up-code">
                   {stepUp.sms || "••••••"}
                 </p>
+                <span>{t("smsHelp")}</span>
               </div>
             </div>
             <label>
