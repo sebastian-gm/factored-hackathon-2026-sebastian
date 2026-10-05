@@ -12,7 +12,7 @@ from decimal import Decimal
 
 import psycopg
 from scripts.pre_v4_budget import MODEL_COMPARE_SCOPE, PRIOR_SCOPES, SCOPE
-from scripts.release_smoke_budget import check_exposure, run_id
+from scripts.release_smoke_budget import CEILING, check_exposure, run_id
 
 from aclara.ops.budget import PostgresSpendGate
 from aclara.ops.store import Store
@@ -92,7 +92,7 @@ def allocation(connection: psycopg.Connection, sha: str) -> dict[str, str | int]
             raise RuntimeError("Lane exceeded")
         unused += cap - charged
     maximum = base + unused
-    if maximum > Decimal("15"):
+    if maximum > CEILING:
         raise RuntimeError("Conservative cumulative ceiling exceeded")
     return {
         "known_usd": str(known),

@@ -9,6 +9,7 @@ for spend and includes outstanding/unknown-cost reservations.
 |---|---|---|---|
 | Before October 2, 2026 | Previous cumulative approval | Development, final evaluations and approved release smokes | $12.00 |
 | October 2, 2026 | Sebastian approved **+$3.00** in this session | Final release smoke and judging window | **$15.00 cumulative**, including reserves |
+| October 5, 2026 | Sebastian approved **+$3.00** in handoff 20 | Post-v4 final-build regression replay, live exploration and remaining judging window | **$18.00 cumulative**, including reserves |
 
 ## Historical pre-v0.7 allocation proposal — superseded
 
@@ -117,3 +118,28 @@ purse, plus OFF judging $2.30: **$14.96326498 <= $15**. All
 64 legacy unknown reservations retained.
 Judging $1/UTC-day/activation remain OFF pending explicit Gate B go.
 See [verified release evidence](../evaluation/v0.8.1-release-notes.md).
+
+## Final-day approval — October 5
+
+The current conservative ceiling is **$18.00**, superseding $15 for new operator
+readbacks. Historical evaluation caps and official results remain unchanged.
+Production remains **$1 per UTC day**, with its existing $1.60 judging lifetime
+run; the provider key's independent limit remains the hard stop. No key limit,
+Azure setting, reservation or unknown charge changes with this approval.
+
+New, separate lifetime scopes (never reset or re-enabled by preparation):
+
+- `regression/final-build/v4`, run `final-build`: **$0.30**, for one P replay of
+  all 100 v4 cases, with the eight previously flagged cases first and reported
+  as a subset. B1 is zero cost. This is regression on already seen data,
+  **not a new held-out evaluation**.
+- `live-exploration/final-day`, run `final-build`: **$0.40**, for the AI lane's
+  one live judge exploration after deployment. API production accounting also
+  applies; counting the lane reserve and API charge is conservative.
+
+The last verified operator maximum was $14.91264898. Adding both full new
+allowances gives **$15.61264898 <= $18** before any new calls.
+`scripts.final_day_budget --prepare` refreshes every retained reserve and unused
+authorized cap before creating either purse; it excludes unused amounts only
+for independently verified disabled runs. The live receipt supersedes this
+illustrative arithmetic. No email or account top-up is authorized.
