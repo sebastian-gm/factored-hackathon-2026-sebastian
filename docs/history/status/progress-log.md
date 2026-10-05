@@ -6358,3 +6358,34 @@ docs PRs are already on main; the finished held-batch work is being integrated.
 
 - Stand by for submission instructions. v1.0.0/email await Sebastian's go.
 - Official v4 unchanged; no held-out rerun or new score.
+
+# 2026-10-04 COT — v0.9.7 release
+
+## Completed — verified
+
+- #200 reviewed and merged on four green gates. Local/mock English browser
+  check 13/13; remote browser groups 257 passed. Production image build passed.
+- Deployed/tagged/released `1525ecec2c23e64d8dbda733a2c610757c18495b`.
+  Exact-SHA CI/safety, Azure controls and independent authenticated access passed.
+- Live login/OTP at 390px, one sidebar disclosure, absent strip/clock, ES/PT
+  drafts, 320/390px geometry, scoped profiles and logout passed. Zero page errors,
+  chat submissions, financial writes or model calls.
+- Image/release-metadata-only plan/apply. Temporal/RLS/queue readbacks passed;
+  no access, scaling, provider, budget, ledger or persona changes.
+- New LLM spend $0; conservative exposure $14.91264898/$15. Existing budget and
+  provider readbacks unchanged. Annotated tag and published Release read back.
+- #199 merged on green; six-page PDF reviewed and anonymously downloaded with
+  the same checksum. README/submission index link the slides and supplied video.
+- [Release evidence](../../submission/v0.9.7-release-evidence.md) records commands,
+  workflow IDs, digests and limits. Earlier preparation receipts were preserved.
+
+## Done but not verified
+
+- No fresh model/financial action test; unchanged API explicitly inherits v0.9.4
+  evidence. No populated live packet or Safari/physical-device check.
+- Video playback/duration not measured; its URL is owner-supplied.
+
+## Next / blocked
+
+- Stop and await Sebastian's explicit go for v1.0.0 on the deployed SHA.
+- No email sent. Official v4 unchanged; no held-out replay or new score.

@@ -5,6 +5,7 @@
 - [Judge guide](../../README.md#judge-guide--5-minutes).
 - [Official v4 results and limitations](../evaluation/final-v4-results.md).
 - [Submission-day runbook](submission-day-runbook.md).
+- [Current verified release: v0.9.7](v0.9.7-release-evidence.md).
 
 The slides contain aggregate results and an illustrated example conversation,
 with no organizer records or credentials observed during the six-page review.

@@ -5,6 +5,15 @@ and semantic versioning. Versions describe released behavior, not safety
 certification. The v0.1.0–v0.5.0 annotated tags and GitHub Releases were created
 **retroactively on 2026-10-01**; their commits retain their original dates.
 
+## [v0.9.7] — 2026-10-05 UTC (October 4 COT)
+
+- Replace the top demo strip/clock label with one discreet EN/ES/PT sidebar
+  disclosure; keep explicit demo verification-code delivery wording.
+- Verified live login/OTP, 320/390px bounds, scoped access and logout; $0 new
+  model spend. Image-only release; prior unchanged-API real evidence inherited.
+- Publish the verified six-page presentation and owner-supplied video links.
+  Official v4 unchanged. [Evidence](docs/submission/v0.9.7-release-evidence.md).
+
 ## [v0.9.6] — 2026-10-04
 
 - Preserve the phone chat avatar while English notice text wraps.

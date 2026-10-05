@@ -10,14 +10,15 @@
   owner-approved public demo and public repository.
 - README and submission index link the PDF and owner-provided demo video.
   Text extraction and review renders remain ignored; only the PDF is published.
+- #199 merged on all four green remote gates. Anonymous PDF download returned
+  HTTP 200 and matched the reviewed checksum.
 
 ## Done but not verified
 
 - Video playback and duration were not measured; its URL was supplied by the owner.
-- Documentation merge and frontend copy release await their remote CI gates.
 
 ## Next / blocked
 
-- Review the frontend copy PR, retain the sidebar simulation disclosure,
-  release v0.9.7 with deterministic live checks, then stop.
+- [v0.9.7 released and verified](../../submission/v0.9.7-release-evidence.md);
+  stand by for the final submission approval.
 - No v1.0.0 tag or submission email before Sebastian's explicit go.
