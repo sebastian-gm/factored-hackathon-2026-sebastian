@@ -5,6 +5,18 @@ and semantic versioning. Versions describe released behavior, not safety
 certification. The v0.1.0–v0.5.0 annotated tags and GitHub Releases were created
 **retroactively on 2026-10-01**; their commits retain their original dates.
 
+## [v1.0.1] — 2026-10-05 COT (October 6 UTC)
+
+- Refuse unowned handles and delegated-account action requests before MATCH;
+  invalidate pending decisions across the session and preserve handoff causes.
+- Seen-case P replay: v5 85/100, v4 90/100. V5 action/policy flags 0;
+  v4's known two action/policy flags remain counted. Official scores unchanged.
+- Deployed `211641805d0b85d6a15b1a8a719942d5b590b45e`; image-only update,
+  exact-SHA CI/safety/access, security revocation and judge/browser gates passed.
+- Live ES/PT first replies explain; unfamiliarity then requires one choice click
+  to reach the offer. No writes. Replay/live durable total $0.629781/$0.80.
+- [Evidence, interrupted replay disclosure and remaining failures](docs/evaluation/post-v5-fixes.md).
+
 ## [v1.0.0] — 2026-10-05, submission milestone
 
 - Annotated tag/Release on deployed `67d449ceb9029b09d3da9e49bb5c5b723c19b83a`; same images as v0.9.9, with no additional deployment or model run.

@@ -393,3 +393,24 @@ Latest AI live diagnosis: [partial exploration and zero-cost root causes](progre
 - **Completed (verified):** saved-risk-frame authored mock tests 31/31, B1 32/32, Ruff/mypy/interface checks. Retired v5 unused capacity; prepared `regression/post-v5` / `post-v5-final-build` $0.80, $16.88318798/$18 conservative funding; provider credits cover it, no calls yet.
 - **Done not verified:** full CI, seen-case replays and Azure release pending.
 - **Next / blocked:** green PR, one P v5/v4 replay, v1.0.1 live verification before 20:00 COT; v5 results stay unchanged.
+
+
+## 2026-10-05 — v1.0.1 post-v5 release (20:21 COT verified)
+
+### Completed (verified)
+
+- #217 merged with four green remote checks. Deployed/tagged v1.0.1 SHA `211641805d0b85d6a15b1a8a719942d5b590b45e`; GitHub Release published. V1.0.0 preserved.
+- `scripts.post_v5_replay resume/status`: 200/200 checkpoints, v5 P 85/100, v4 P 90/100. Completed cases not rerun; original official result hashes unchanged. Aggregate v4 release gate passed: no worse unsafe/forbidden predicate, only known v4.039/040 action/policy flags.
+- Connectivity-only recovery restarted this repo's stopped local Postgres; unchanged SHA/pins/scope. One unfinished case retained two attempts and all charges.
+- Image-only Terraform plan/apply, `scripts.azure_verify`, temporal/fingerprint/TLS/forced-RLS, four-profile judge login/switch/logout, deterministic delegated-account refusal/revocation/scoped packet, English 320/390px browser and independent azure-access passed. Private release/jev receipts have all three flags true.
+- Real ES/PT first quick-start replies explain. Subsequent unfamiliarity shows a choice; one click reaches the same-target offer. No live financial writes. Cost $0.008161.
+- Replay $0.621620 + live $0.008161 = $0.629781/$0.80; zero new unknown costs; conservative maximum $16.88318798/$18 retaining 75 historic reserves. Production/key limits unchanged. [Full report](../evaluation/post-v5-fixes.md).
+
+### Done but not verified
+
+- Full safety is not achieved: v5 terminal-security/route/flow/readback gaps and v4.039/040 flags remain. No post-replay tuning or additional pass.
+- Provider invoice reconciliation is not established; after-live account/key metadata still showed the pre-live values. Durable production/execution costs were independently read.
+
+### Next / blocked
+
+- No further paid run, product change or deployment planned. Documentation requires green remote CI. Preserve original scores/tags; no changes after the owner's 23:30 COT cutoff.
