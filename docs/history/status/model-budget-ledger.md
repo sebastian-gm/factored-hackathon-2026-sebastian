@@ -196,3 +196,27 @@ Handoff 22 authorizes one P replay of seen v5 and v4 (100 each), NOT held-out, u
 reservations remain intact. `scripts.post_v5_budget --prepare` verified conservative
 funding **$16.88318798/$18**, with 75 historical unknown reserves retained. Before
 replay, free provider account/key readbacks cover the full purse. No calls yet.
+
+
+## Post-v5 v1.0.1 completion — October 5 COT
+
+Sebastian's handoff 22 approved one lifetime $0.80 purse after retiring unused
+v5 capacity. Scope `regression/post-v5`, run `post-v5-final-build`, completed the
+seen v5/v4 replays plus the owner-requested live ES/PT quick-start checks.
+The original v5 charged amount and all old reservations remain unchanged.
+
+- Retired unused v5 funding: $1.179461; no refund or erased history is claimed.
+- Replay durable charge: $0.621620, including $0.0019215 without a final call
+  journal after the original interruption; completed checkpoints were not rerun.
+- Live scoped-execution/production charge: $0.008161 (four model calls).
+- Combined purse charge: $0.629781/$0.80, zero new unknown costs.
+- Conservative maximum: $16.08318798 excluding the retired unused v5 purse,
+  plus the funded $0.80 post-v5 allowance = $16.88318798/$18. Existing allowances
+  and all 75 historical unknown reserves remain counted; funding decreases as
+  known charges replace unused capacity. This is not an invoice total.
+- Free provider balance/key readbacks completed; provider metadata after the
+  live calls still showed its pre-live value. Durable cost attribution was
+  independently verified; provider invoice reconciliation is not established.
+- Production $1/UTC-day, provider-key limit, access and resource shape unchanged.
+
+[Release, results and remaining failures](../../evaluation/post-v5-fixes.md).

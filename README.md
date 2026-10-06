@@ -2,6 +2,8 @@
 
 Aclara helps customers understand unfamiliar charges, confirm an eligible dispute, or reach a human with the facts already checked. This synthetic-bank demo works in Spanish and Brazilian Portuguese.
 
+**Deployed version: [v1.0.1](https://github.com/sebastian-gm/factored-hackathon-2026-sebastian/releases/tag/v1.0.1)** (`2116418`) — post-v5 safeguards for unowned transaction handles, delegated-account requests and complete handoff reasons. [Verified release and remaining failures](docs/evaluation/post-v5-fixes.md).
+
 ## Try it in 5 minutes
 
 Watch the [demo video](https://youtu.be/sgtShebCbyM) or read the
@@ -15,6 +17,8 @@ For a free local demo, run `make demo`. [Setup and requirements](#local-demo).
 ## Results
 
 **Independent v5 check on the final build (blind, post-fixes):** P passed 73/100 versus B1 47/100, with in-scope SAR 27/100 versus 18/100; [full results and safety failures](docs/evaluation/final-v5-results.md).
+
+**Post-v5 fixes, final build (seen-case replay, not held-out):** P passed 85/100 on v5 and 90/100 on v4. V5 recorded zero unauthorized-action/policy flags; v4 retains the two known flags in each gate. Other transfer/readback failures remain. Official v4/v5 results are unchanged. [Replay and live evidence](docs/evaluation/post-v5-fixes.md).
 
 **Post-v4 final build (not held-out):** 89/100 on the v4 regression re-check (v0.9.8); 19/19 bound live judge-exploration stories (v0.9.9), with 11 unbound. [Live evidence](docs/evaluation/judge-live-exploration-v0.9.9.md).
 
